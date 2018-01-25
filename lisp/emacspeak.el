@@ -1,5 +1,5 @@
 ;;; emacspeak.el --- Emacspeak -- The Complete Audio Desktop
-;;; $Id: emacspeak.el 8580 2013-11-25 23:35:01Z tv.raman.tv $
+;;; $Id: emacspeak.el 8655 2013-12-12 22:34:25Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak: A speech interface to Emacs
 ;;; Keywords: Emacspeak, Speech, Dectalk,
@@ -391,7 +391,6 @@ sets punctuation mode to all, activates the dictionary and turns on split caps."
     'tcl-mode-hook
     'html-helper-mode-hook
     'scheme-mode-hook
-    'dired-mode-hook
     'python-mode-hook)))
 
 ;;}}}

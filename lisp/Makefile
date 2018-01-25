@@ -1,4 +1,4 @@
-# $Id: Makefile 8580 2013-11-25 23:35:01Z tv.raman.tv $
+# $Id: Makefile 8905 2014-03-21 20:42:56Z tv.raman.tv $
 # $Author: tv.raman.tv $
 # Description:  Makefile for Emacspeak
 # Keywords: Emacspeak, Dectalk, Makefile
@@ -99,6 +99,7 @@ emacspeak-auctex.elc \
 emacspeak-autoload.el \
 emacspeak-aumix.elc \
 emacspeak-babel.elc \
+emacspeak-bbc.elc \
 emacspeak-bbdb.elc \
 emacspeak-bibtex.elc \
 emacspeak-bookmark.elc \
@@ -145,6 +146,7 @@ emacspeak-ess.elc \
 emacspeak-eterm.elc \
 emacspeak-eudc.elc \
 emacspeak-facemenu.elc \
+emacspeak-feeds.elc \
 emacspeak-filtertext.elc \
 emacspeak-find-dired.elc \
 emacspeak-ftf.elc \
@@ -312,7 +314,6 @@ ommacspeak-amark.elc: emacspeak-amark.el
 cd-tool.elc: cd-tool.el
 nm.elc: nm.el
 amixer.elc: amixer.el
-shr-url.elc: shr-url.el
 emacspeak-actions.elc: emacspeak-actions.el
 emacspeak-add-log.elc: emacspeak-add-log.el dtk-speak.elc voice-setup.elc
 emacspeak-advice.elc: emacspeak-advice.el dtk-speak.elc voice-setup.elc
@@ -325,6 +326,7 @@ emacspeak-auctex.elc: emacspeak-auctex.el dtk-speak.elc voice-setup.elc
 emacspeak-aumix.elc: emacspeak-aumix.el dtk-speak.elc voice-setup.elc
 emacspeak-autoload.elc: emacspeak-autoload.el
 emacspeak-babel.elc: emacspeak-babel.el dtk-speak.elc voice-setup.elc
+emacspeak-bbc.elc: emacspeak-bbc.el dtk-speak.elc voice-setup.elc
 emacspeak-bbdb.elc: emacspeak-bbdb.el dtk-speak.elc voice-setup.elc
 emacspeak-bibtex.elc: emacspeak-bibtex.el dtk-speak.elc voice-setup.elc
 emacspeak-bookmark.elc: emacspeak-bookmark.el dtk-speak.elc voice-setup.elc
@@ -372,6 +374,7 @@ emacspeak-eterm.elc: emacspeak-eterm.el dtk-speak.elc voice-setup.elc
 emacspeak-eudc.elc: emacspeak-eudc.el dtk-speak.elc voice-setup.elc
 emacspeak-eww.elc: emacspeak-eww.el dtk-speak.elc voice-setup.elc
 emacspeak-facemenu.elc: emacspeak-facemenu.el dtk-speak.elc voice-setup.elc
+emacspeak-feeds.elc: emacspeak-feeds.el emacspeak-webutils.elc dtk-speak.elc
 emacspeak-filtertext.elc: emacspeak-filtertext.el dtk-speak.elc voice-setup.elc
 emacspeak-find-dired.elc: emacspeak-find-dired.el dtk-speak.elc voice-setup.elc
 emacspeak-ftf.elc: emacspeak-ftf.el dtk-speak.elc

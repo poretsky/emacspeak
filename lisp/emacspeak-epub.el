@@ -233,7 +233,9 @@
          (declare (special emacspeak-we-url-executor emacspeak-epub-this-epub))
          (setq emacspeak-epub-this-epub epub
                emacspeak-we-url-executor 'emacspeak-epub-url-executor)
-         (when fragment (w3-fetch fragment))
+         (when
+             (and fragment (eq browse-url-browser-function 'browse-url-w3))
+           (w3-fetch fragment))
          (emacspeak-speak-rest-of-buffer))
      'at-end)
     (with-current-buffer content
@@ -241,6 +243,7 @@
        style nil
        "--nonet --novalid"; options
        (browse-url-of-buffer)))))
+
 (defvar emacspeak-epub-files-command
   (format "%s -1 %%s | grep \.html*$ | sort" emacspeak-epub-zip-info)
   "Command to list out HTML files.")
@@ -510,7 +513,8 @@ No book files are deleted."
   (declare (special emacspeak-epub-db-file))
   (let ((buff (find-file-noselect emacspeak-epub-db-file))
         (emacspeak-speak-messages nil)
-        (print-length  nil))
+        (print-length  nil)
+        (print-level nil))
     (save-current-buffer
       (set-buffer buff)
       (setq buffer-undo-list t)
@@ -633,7 +637,7 @@ Suitable for text searches."
   "Search for Epubs from Gooble Books."
   (interactive "sGoogle Books Query: ")
   (declare (special emacspeak-epub-google-search-template))
-  (emacspeak-webutils-atom-display
+  (emacspeak-feeds-atom-display
    (format emacspeak-epub-google-search-template
            (emacspeak-url-encode query))))
 

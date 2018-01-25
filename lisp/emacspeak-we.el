@@ -1,5 +1,5 @@
 ;;; emacspeak-we.el --- Transform Web Pages Using XSLT
-;;; $Id: emacspeak-we.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
+;;; $Id: emacspeak-we.el 9072 2014-04-16 15:27:01Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Edit/Transform Web Pages using XSLT
 ;;; Keywords: Emacspeak,  Audio Desktop Web, XSLT
@@ -351,6 +351,15 @@ operate on current web page when in a browser buffer; otherwise
     (emacspeak-we-xslt-filter filter url speak)))
 
 ;;;###autoload
+(defun emacspeak-we-follow-and-extract-main (&optional speak)
+  "Follow URL, then extract role=main."
+  (interactive
+   (list
+    (ems-interactive-p )))
+  (emacspeak-we-extract-by-role "main"
+                                (funcall emacspeak-webutils-url-at-point) 'speak))
+
+;;;###autoload
 (defun emacspeak-we-extract-media-streams-under-point ()
   "In browser buffers, extract media streams from url under point."
   (interactive)
@@ -613,6 +622,23 @@ buffer. Interactive use provides list of class values as completion."
                               url
                               (or (ems-interactive-p )
                                   speak))))
+
+(defun emacspeak-we-extract-by-role (role    url &optional speak)
+  "Extract elements having specified role attribute from HTML. Extracts
+specified elements from current WWW page and displays it in a separate
+buffer. Interactive use provides list of role values as completion."
+  (interactive
+   (list
+    (completing-read "Role: "
+                     emacspeak-we-buffer-role-cache)
+    (emacspeak-webutils-read-url)
+    current-prefix-arg))
+  (let ((filter (format "//*[contains(@role,\"%s\")]" role)))
+    (emacspeak-we-xslt-filter filter
+                              url
+                              (or (ems-interactive-p )
+                                  speak))))
+
 ;;;###autoload
 (defun emacspeak-we-junk-by-class (class    url &optional speak)
   "Extract elements not having specified class attribute from HTML. Extracts
@@ -1087,8 +1113,9 @@ and provide a completion list of applicable  property values. Filter document by
         ("D" emacspeak-we-junk-by-class-list)
         ("w" emacspeak-we-extract-by-property)
         ("M" emacspeak-we-extract-tables-by-match-list)
-        ("P" emacspeak-we-extract-print-streams)
-        ("R" emacspeak-we-extract-media-streams-under-point)
+        ("P" emacspeak-we-follow-and-extract-main)
+        ("r" emacspeak-we-extract-by-role)
+        ("R" emacspeak-we-extract-media-streams)
         ("T" emacspeak-we-extract-tables-by-position-list)
         ("X" emacspeak-we-extract-nested-table-list)
         ("\C-c" emacspeak-we-junk-by-class-list)
@@ -1109,7 +1136,7 @@ and provide a completion list of applicable  property values. Filter document by
         ("o" emacspeak-we-xsl-toggle)
         ("p" emacspeak-we-xpath-filter-and-follow)
         ("v" emacspeak-we-class-filter-and-follow-link)
-        ("r" emacspeak-we-extract-media-streams)
+        
         ("S" emacspeak-we-style-filter)
         ("s" emacspeak-we-xslt-select)
         ("t" emacspeak-we-extract-table-by-position)
@@ -1120,6 +1147,21 @@ and provide a completion list of applicable  property values. Filter document by
         )
       do
       (emacspeak-keymap-update emacspeak-we-xsl-map binding))
+
+;;}}}
+;;{{{  URL Advice: 
+
+(loop
+ for f in
+ '(url-write-global-history url-history-save-history
+                            url-http-chunked-encoding-after-change-function url-cookie-handle-set-cookie
+                            url-lazy-message url-cookie-write-file)
+ do
+ (eval
+  `(defadvice   ,f (around emacspeak pre act comp)
+     "Silence messages while this function executes"
+     (let ((emacspeak-speak-messages nil))
+       ad-do-it))))
 
 ;;}}}
 (provide 'emacspeak-we)

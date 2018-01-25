@@ -14,13 +14,16 @@ View OPML feeds as XHTML
     </html>
   </xsl:template>
   <xsl:template match="head">
-    <xsl:copy-of select="."/>
+    <h1>
+    <xsl:value-of select="title"/> </h1>
+    <xsl:if test="dateModified">
+      <h2>Date Modified: <xsl:copy-of
+      select="dateModified"/></h2>
+    </xsl:if>
   </xsl:template>
   <xsl:template match="body">
     <body>
-      <h1>
-        <xsl:value-of select="../head/title"/>
-      </h1>
+      
       <ol>
         <xsl:apply-templates select=".//outline"/>
       </ol>
@@ -29,11 +32,12 @@ View OPML feeds as XHTML
   <xsl:template match="outline">
     <xsl:if test="@xmlUrl|@xmlurl">
       <li><xsl:element name="a">
-          <xsl:attribute name="href">
-            <xsl:value-of select="@xmlUrl|@xmlurl"/>
-          </xsl:attribute>
-          <xsl:value-of select="@title|@text"/>
-        </xsl:element>
+        <xsl:attribute name="href">
+          <xsl:value-of select="@xmlUrl|@xmlurl"/>
+        </xsl:attribute>
+        <xsl:value-of select="@title|@text"/>
+      </xsl:element>
+      <xsl:value-of select="@description"/>
       </li>
     </xsl:if>
   </xsl:template>

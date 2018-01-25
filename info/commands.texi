@@ -1,11 +1,11 @@
-@c $Id: commands.texi 8575 2013-11-24 02:06:18Z tv.raman.tv $
+@c $Id: commands.texi 9173 2014-05-10 01:56:38Z tv.raman.tv $
 @node Emacspeak Commands
 @chapter Emacspeak Commands
 
 This chapter is generated automatically from the source-level documentation.
 Any errors or corrections should be made to the source-level
 documentation.
-This chapter documents a total of 926 commands.
+This chapter documents a total of 952 commands.
 
 @menu
 * cd-tool::
@@ -25,14 +25,18 @@ This chapter documents a total of 926 commands.
 * emacspeak-custom::
 * emacspeak-daisy::
 * emacspeak-dired::
+* emacspeak-dismal::
 * emacspeak-ecb::
 * emacspeak-ediff::
+* emacspeak-emms::
 * emacspeak-enriched::
 * emacspeak-entertain::
 * emacspeak-eperiodic::
 * emacspeak-epub::
 * emacspeak-erc::
 * emacspeak-eterm::
+* emacspeak-eudc::
+* emacspeak-feeds::
 * emacspeak-filtertext::
 * emacspeak-fix-interactive::
 * emacspeak-forms::
@@ -86,7 +90,7 @@ This chapter documents a total of 926 commands.
 * emacspeak-zinf::
 * emacspeak::
 * voice-setup::
-* emacspeak-w3search::
+* emacspeak-bbc::
 * emacspeak-org::
 * URL Templates ::
 @end menu
@@ -108,7 +112,7 @@ Automatically generated documentation
 for commands defined in module  cd-tool.
 
 @deffn {Interactive Command} cd-tool nil
-@kbd{ control e DEL }
+@kbd{C-e DEL}
 
 Front-end to CDTool.
 Bind this function to a convenient key-
@@ -158,7 +162,7 @@ Automatically generated documentation
 for commands defined in module  dtk-speak.
 
 @deffn {Interactive Command} dtk-add-cleanup-pattern nil
-@kbd{ control e d a }
+@kbd{C-e d a}
 
 Add this pattern to the list of repeating patterns that
 are cleaned up.  Optional interactive prefix arg deletes
@@ -173,7 +177,7 @@ will say ``aw fifteen dot'' when speaking the string
 @end deffn
 
 @deffn {Interactive Command} dtk-async-server nil
-@kbd{ control e d  cap A  }
+@kbd{C-e d A}
 
 Select and start an async  speech server interactively.
 Async servers allow external programs like self-voicing Web browsers to use
@@ -182,7 +186,7 @@ Argument PROGRAM specifies the speech server program.
 @end deffn
 
 @deffn {Interactive Command} dtk-local-server nil
-@kbd{ control e d  cap L  }
+@kbd{C-e d L}
 
 Select and start an local  speech server interactively.
 Local server lets Emacspeak on a remote host connect back via SSH  port forwarding for instance.
@@ -197,7 +201,7 @@ Temporarily pause / resume speech.
 @end deffn
 
 @deffn {Interactive Command} dtk-reset-state nil
-@kbd{ control e d  cap R  }
+@kbd{C-e d R}
 
 Restore sanity to the Dectalk.
 Typically used after the Dectalk has been power   cycled.
@@ -215,7 +219,7 @@ and option `dtk-resume-should-toggle' is set,
 @end deffn
 
 @deffn {Interactive Command} dtk-select-server nil
-@kbd{ control e d d }
+@kbd{C-e d d}
 
 Select a speech server interactively.
 Argument PROGRAM specifies the speech server program. When called
@@ -225,7 +229,7 @@ ALSA_DEFAULT to specified device before starting the server.
 @end deffn
 
 @deffn {Interactive Command} dtk-set-character-scale nil
-@kbd{ control e d f }
+@kbd{C-e d f}
 
 Set scale FACTOR for   speech rate.
 Speech rate is scaled by this factor
@@ -235,7 +239,7 @@ current local  value to the result.
 @end deffn
 
 @deffn {Interactive Command} dtk-set-chunk-separator-syntax nil
-@kbd{ control e d RETURN }
+@kbd{C-e d RET}
 
 Interactively set how text is split in chunks.
 See the Emacs documentation on syntax tables for details on how characters are
@@ -244,19 +248,19 @@ Argument S specifies the syntax class.
 @end deffn
 
 @deffn {Interactive Command} dtk-set-language nil
-@kbd{ control e d  cap S  }
+@kbd{C-e d S}
 
 Set language according to the argument lang.
 @end deffn
 
 @deffn {Interactive Command} dtk-set-next-language nil
-@kbd{ control e d  cap N  }
+@kbd{C-e d N}
 
 Switch to the next available language
 @end deffn
 
 @deffn {Interactive Command} dtk-set-predefined-speech-rate nil
-@kbd{ control e d 9   control e d 8   control e d 7   control e d 6   control e d 5   control e d 4   control e d 3   control e d 2   control e d 1   control e d 0 }
+@kbd{C-e d 9 C-e d 8 C-e d 7 C-e d 6 C-e d 5 C-e d 4 C-e d 3 C-e d 2 C-e d 1 C-e d 0}
 
 Set speech rate to one of nine predefined levels.
 Interactive PREFIX arg says to set the rate globally.
@@ -276,13 +280,13 @@ will set "en_GB".
 @end deffn
 
 @deffn {Interactive Command} dtk-set-previous-language nil
-@kbd{ control e d  cap P  }
+@kbd{C-e d P}
 
 Switch to the previous available language
 @end deffn
 
 @deffn {Interactive Command} dtk-set-punctuations nil
-@kbd{ control e d p }
+@kbd{C-e d p}
 
 Set punctuation mode to MODE.
 Possible values are `some', `all', or `none'.
@@ -305,7 +309,7 @@ Interactive PREFIX arg sets punctuation mode globally.
 @end deffn
 
 @deffn {Interactive Command} dtk-set-rate nil
-@kbd{ control e d r }
+@kbd{C-e d r}
 
 Set speaking RATE for the tts.
 Interactive PREFIX arg means set   the global default value, and then set the
@@ -313,13 +317,13 @@ current local  value to the result.
 @end deffn
 
 @deffn {Interactive Command} dtk-stop nil
-@kbd{ control e s }
+@kbd{C-e s}
 
 Stop speech now.
 @end deffn
 
 @deffn {Interactive Command} dtk-toggle-allcaps-beep nil
-@kbd{ control e d  cap C  }
+@kbd{C-e d C}
 
 Toggle allcaps-beep.
 when set, allcaps words  are  indicated by a
@@ -330,7 +334,7 @@ However it is irritating to have it on when reading documents.
 @end deffn
 
 @deffn {Interactive Command} dtk-toggle-capitalization nil
-@kbd{ control e d c }
+@kbd{C-e d c}
 
 Toggle capitalization.
 when set, capitalization is indicated by a
@@ -339,7 +343,7 @@ value, and then set the current local value to the result.
 @end deffn
 
 @deffn {Interactive Command} dtk-toggle-debug nil
-@kbd{ control e d b }
+@kbd{C-e d b}
 
 Toggle state of the debug FLAG.
 When debugging is on, you can switch to the buffer
@@ -349,14 +353,14 @@ Note: *speaker* is a hidden buffer, ie it has a leading space in its name.
 @end deffn
 
 @deffn {Interactive Command} dtk-toggle-punctuation-mode nil
-@kbd{ control e d , }
+@kbd{C-e d ,}
 
 Toggle punctuation mode between "some" and "all".
 Interactive PREFIX arg makes the new setting global.
 @end deffn
 
 @deffn {Interactive Command} dtk-toggle-quiet nil
-@kbd{ control e d q }
+@kbd{C-e d q}
 
 Toggles state of  dtk-quiet.
 Turning on this switch silences speech.
@@ -364,7 +368,7 @@ Optional interactive prefix arg causes this setting to become global.
 @end deffn
 
 @deffn {Interactive Command} dtk-toggle-speak-nonprinting-chars nil
-@kbd{ control e d n }
+@kbd{C-e d n}
 
 Toggle speak-nonprinting-chars.
 Switches behavior of how characters with the high bit set are handled.
@@ -373,7 +377,7 @@ value, and then set the current local value to the result.
 @end deffn
 
 @deffn {Interactive Command} dtk-toggle-split-caps nil
-@kbd{ control e d s }
+@kbd{C-e d s}
 
 Toggle split caps mode.
 Split caps mode is useful when reading
@@ -383,7 +387,7 @@ value to the result.
 @end deffn
 
 @deffn {Interactive Command} dtk-toggle-splitting-on-white-space nil
-@kbd{ control e d SPACE }
+@kbd{C-e d SPC}
 
 Toggle splitting of speech on white space.
 This affects the internal state of emacspeak that decides if we split
@@ -401,7 +405,7 @@ since the synthesizer is getting a word at a time.
 @end deffn
 
 @deffn {Interactive Command} dtk-toggle-strip-octals nil
-@kbd{ control e d o }
+@kbd{C-e d o}
 
 Toggle stripping of octals.
 Interactive prefix arg means
@@ -813,7 +817,7 @@ Automatically generated documentation
 for commands defined in module  emacspeak-bookshare.
 
 @deffn {Interactive Command} emacspeak-bookshare nil
-@kbd{ control e control b }
+@kbd{C-e C-b}
 
 Bookshare  Interaction.
 @end deffn
@@ -1187,7 +1191,7 @@ Automatically generated documentation
 for commands defined in module  emacspeak-calendar.
 
 @deffn {Interactive Command} emacspeak-appt-repeat-announcement nil
-@kbd{ control e  cap A  }
+@kbd{C-e A}
 
 Speaks the most recently displayed appointment message if any.
 @end deffn
@@ -1434,6 +1438,107 @@ Speak the header line of the dired buffer.
 Speaks the target of the symlink on the current line.
 @end deffn
 
+@node emacspeak-dismal
+@section emacspeak-dismal
+
+No Commentary
+
+Automatically generated documentation
+for commands defined in module  emacspeak-dismal.
+
+@deffn {Interactive Command} emacspeak-dismal-backward-col-and-summarize nil
+@kbd{Not bound to any key.}
+
+Move backward by arg columns
+ (the previous column by default)and summarize it.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-dismal-backward-row-and-summarize nil
+@kbd{Not bound to any key.}
+
+Move backward by arg rows
+ (the previous row by default)and summarize it.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-dismal-col-summarize nil
+@kbd{Not bound to any key.}
+
+Summarizes a col using the specification in list
+emacspeak-dismal-col-summarizer-list
+@end deffn
+
+@deffn {Interactive Command} emacspeak-dismal-display-cell-expression nil
+@kbd{Not bound to any key.}
+
+Display the expression in the message area
+@end deffn
+
+@deffn {Interactive Command} emacspeak-dismal-display-cell-value nil
+@kbd{Not bound to any key.}
+
+Display the cell value in the message area
+@end deffn
+
+@deffn {Interactive Command} emacspeak-dismal-display-cell-with-col-header nil
+@kbd{Not bound to any key.}
+
+Display current cell along with its column header.
+The `column header' is the entry in row 0.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-dismal-display-cell-with-row-header nil
+@kbd{Not bound to any key.}
+
+Displays current cell along with its row header.
+The `row header' is the entry in column 0.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-dismal-forward-col-and-summarize nil
+@kbd{Not bound to any key.}
+
+Move forward by arg columns
+ (the next column by default)and summarize it.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-dismal-forward-row-and-summarize nil
+@kbd{Not bound to any key.}
+
+Move forward by arg rows
+ (the next row by default)and summarize it.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-dismal-row-summarize nil
+@kbd{Not bound to any key.}
+
+Summarizes a row using the specification in list
+emacspeak-dismal-row-summarizer-list
+@end deffn
+
+@deffn {Interactive Command} emacspeak-dismal-set-col-summarizer-list nil
+@kbd{Not bound to any key.}
+
+Specify or reset col summarizer list.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-dismal-set-row-summarizer-list nil
+@kbd{Not bound to any key.}
+
+Specify or reset row summarizer list.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-dismal-set-sheet-summarizer-list nil
+@kbd{Not bound to any key.}
+
+Specify or reset sheet summarizer list.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-dismal-sheet-summarize nil
+@kbd{Not bound to any key.}
+
+Summarizes a sheet using the specification in list
+emacspeak-dismal-sheet-summarizer-list
+@end deffn
+
 @node emacspeak-ecb
 @section emacspeak-ecb
 
@@ -1511,6 +1616,26 @@ for commands defined in module  emacspeak-ediff.
 @kbd{Not bound to any key.}
 
 Speak the current difference
+@end deffn
+
+@node emacspeak-emms
+@section emacspeak-emms
+
+Commentary:
+Speech-enables EMMS --- the Emacs equivalent of XMMS
+See
+http://savannah.gnu.org/project/emms
+EMMS is under active development,
+to get the current CVS version, use Emacspeak command
+M-x emacspeak-cvs-gnu-get-project-snapshot RET emms RET
+
+Automatically generated documentation
+for commands defined in module  emacspeak-emms.
+
+@deffn {Interactive Command} emacspeak-emms-speak-current-track nil
+@kbd{Not bound to any key.}
+
+Speak current track.
 @end deffn
 
 @node emacspeak-enriched
@@ -1606,7 +1731,7 @@ Automatically generated documentation
 for commands defined in module  emacspeak-epub.
 
 @deffn {Interactive Command} emacspeak-epub nil
-@kbd{ control e g }
+@kbd{C-e g}
 
 EPub  Interaction.
 For detailed documentation, see M-x emacspeak-epub-mode
@@ -1871,10 +1996,14 @@ for commands defined in module  emacspeak-eterm.
 @deffn {Interactive Command} emacspeak-eterm-copy-region-to-register nil
 @kbd{Not bound to any key.}
 
+:around advice: `ad-Advice-emacspeak-eterm-copy-region-to-register'
+
 Copy text from terminal to an Emacs REGISTER.
 This copies  region delimited by the emacspeak eterm marker 
 set by command M-x emacspeak-eterm-set-marker and the 
 emacspeak eterm pointer to a register.
+
+(fn REGISTER)
 @end deffn
 
 @deffn {Interactive Command} emacspeak-eterm-define-window nil
@@ -1920,9 +2049,13 @@ in a non eterm buffer if executed via C-e C-e
 @deffn {Interactive Command} emacspeak-eterm-paste-register nil
 @kbd{Not bound to any key.}
 
+:around advice: `ad-Advice-emacspeak-eterm-paste-register'
+
 Paste contents of REGISTER at current location.
 If the specified register contains text, then that text is
 sent to the terminal as if it were typed by the user.
+
+(fn REGISTER)
 @end deffn
 
 @deffn {Interactive Command} emacspeak-eterm-pointer-backward-word nil
@@ -2016,7 +2149,7 @@ Argument COUNT .specifies number of lines by which to move.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-eterm-remote-term nil
-@kbd{ control e CONTROL meta r }
+@kbd{C-e C-M-r}
 
 Start a terminal-emulator in a new buffer.
 @end deffn
@@ -2163,6 +2296,89 @@ all output to the terminal is automatically spoken.
   current local  value to the result. 
 @end deffn
 
+@node emacspeak-eudc
+@section emacspeak-eudc
+
+Commentary:
+EUDC --Emacs Universal Directory Client 
+provides a unified interface to directory servers
+e.g. ldap servers
+this module speech enables eudc 
+
+Automatically generated documentation
+for commands defined in module  emacspeak-eudc.
+
+@deffn {Interactive Command} emacspeak-eudc-send-mail nil
+@kbd{Not bound to any key.}
+
+Send email to the address given by the current record. 
+@end deffn
+
+@node emacspeak-feeds
+@section emacspeak-feeds
+
+Commentary:
+This module provides Feeds support for Emacspeak
+
+Automatically generated documentation
+for commands defined in module  emacspeak-feeds.
+
+@deffn {Interactive Command} emacspeak-feeds-add-feed nil
+@kbd{C-e M-u}
+
+Add specified feed to our feed store.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-feeds-archive-feeds nil
+@kbd{Not bound to any key.}
+
+Archive list of subscribed fees to personal resource directory.
+Archiving is useful when synchronizing feeds across multiple machines.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-feeds-atom-display nil
+@kbd{Not bound to any key.}
+
+Display ATOM feed.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-feeds-browse nil
+@kbd{C-e C-u}
+
+Browse specified  feed.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-feeds-find-feeds nil
+@kbd{Not bound to any key.}
+
+Browse feeds matching specified query.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-feeds-lookup-and-view nil
+@kbd{Not bound to any key.}
+
+Lookup feed URL for a site and browse result.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-feeds-opml-display nil
+@kbd{Not bound to any key.}
+
+Display OPML feed.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-feeds-restoere-feeds nil
+@kbd{Not bound to any key.}
+
+Restore list of subscribed fees from  personal resource directory.
+Archiving is useful when synchronizing feeds across multiple machines.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-feeds-rss-display nil
+@kbd{Not bound to any key.}
+
+Display RSS feed.
+@end deffn
+
 @node emacspeak-filtertext
 @section emacspeak-filtertext
 
@@ -2172,7 +2388,7 @@ Automatically generated documentation
 for commands defined in module  emacspeak-filtertext.
 
 @deffn {Interactive Command} emacspeak-filtertext nil
-@kbd{ control e ^ }
+@kbd{C-e ^}
 
 Copy over text in region to special filtertext buffer in
 preparation for interactively filtering text. 
@@ -2282,6 +2498,21 @@ for commands defined in module  emacspeak-gnus.
 Catch up on all articles in current group.
 @end deffn
 
+@deffn {Interactive Command} emacspeak-gnus-summary-hide-all-headers nil
+@kbd{Not bound to any key.}
+
+Hide all headers in the article.
+Use this command if you don't want to listen to any article headers when
+reading news.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-gnus-summary-show-some-headers nil
+@kbd{Not bound to any key.}
+
+Show only the important article headers,
+i.e. sender name, and subject.
+@end deffn
+
 @node emacspeak-gomoku
 @section emacspeak-gomoku
 
@@ -2371,6 +2602,18 @@ for commands defined in module  emacspeak-google.
 Reload search page with toolbelt showing.
 @end deffn
 
+@deffn {Interactive Command} emacspeak-google-sign-in nil
+@kbd{Not bound to any key.}
+
+Sign in to Google.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-google-sign-out nil
+@kbd{Not bound to any key.}
+
+Sign out to Google.
+@end deffn
+
 @deffn {Interactive Command} emacspeak-google-toolbelt-change-Shopping nil
 @kbd{Not bound to any key.}
 
@@ -2425,6 +2668,12 @@ Change  commercial-prices in the currently active toolbelt.
 Change  date-filter in the currently active toolbelt.
 @end deffn
 
+@deffn {Interactive Command} emacspeak-google-toolbelt-change-discussions nil
+@kbd{Not bound to any key.}
+
+Change  discussions in the currently active toolbelt.
+@end deffn
+
 @deffn {Interactive Command} emacspeak-google-toolbelt-change-duration nil
 @kbd{Not bound to any key.}
 
@@ -2461,10 +2710,28 @@ Change  news in the currently active toolbelt.
 Change  non-commercial in the currently active toolbelt.
 @end deffn
 
+@deffn {Interactive Command} emacspeak-google-toolbelt-change-patents nil
+@kbd{Not bound to any key.}
+
+Change  patents in the currently active toolbelt.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-google-toolbelt-change-places nil
+@kbd{Not bound to any key.}
+
+Change  places in the currently active toolbelt.
+@end deffn
+
 @deffn {Interactive Command} emacspeak-google-toolbelt-change-recent nil
 @kbd{Not bound to any key.}
 
 Change  recent in the currently active toolbelt.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-google-toolbelt-change-recipes nil
+@kbd{Not bound to any key.}
+
+Change  recipes in the currently active toolbelt.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-google-toolbelt-change-reviews nil
@@ -2552,19 +2819,19 @@ Automatically generated documentation
 for commands defined in module  emacspeak-gridtext.
 
 @deffn {Interactive Command} emacspeak-gridtext-apply nil
-@kbd{ control e # a }
+@kbd{C-e # a}
 
 Apply grid to region.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-gridtext-load nil
-@kbd{ control e # l }
+@kbd{C-e # l}
 
 Load saved grid settings.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-gridtext-save nil
-@kbd{ control e # s }
+@kbd{C-e # s}
 
 Save out grid settings.
 @end deffn
@@ -2590,7 +2857,7 @@ Hide or expose all blocks in buffer.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-hide-or-expose-block nil
-@kbd{ control e j }
+@kbd{C-e j}
 
 Hide or expose a block of text.
 This command either hides or exposes a block of text
@@ -2601,7 +2868,7 @@ blocks in current buffer to be hidden or exposed.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-hide-speak-block-sans-prefix nil
-@kbd{ control e control j }
+@kbd{C-e C-j}
 
 Speaks current block after stripping its prefix.
 If the current block is not hidden, it first hides it.
@@ -2667,7 +2934,7 @@ Speak info header line.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-info-wizard nil
-@kbd{ control h TAB   <f1> TAB   <help> TAB }
+@kbd{C-h TAB <f1> TAB <help> TAB}
 
 Read a node spec from the minibuffer and launch
 Info-goto-node.
@@ -2827,18 +3094,13 @@ Automatically generated documentation
 for commands defined in module  emacspeak-loaddefs.
 
 @deffn {Interactive Command} emacspeak-mark-forward-mark nil
-@kbd{ <control down> }
+@kbd{<C-down>}
 
-:around advice: `ad-Advice-pop-to-mark-command'
-
-Jump to mark, and pop a new position for mark off the ring.
-(Does not affect global mark ring).
-
-(fn)
+Not Documented
 @end deffn
 
 @deffn {Interactive Command} emacspeak-toggle-comint-output-monitor nil
-@kbd{ control e o }
+@kbd{C-e o}
 
 Toggle state of Emacspeak comint monitor.
 When turned on, comint output is automatically spoken.  Turn this on if
@@ -3157,7 +3419,7 @@ Seek  by offset into stream from current position.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-m-player-shuffle nil
-@kbd{ control e : }
+@kbd{C-e :}
 
 Launch M-Player with shuffle turned on.
 @end deffn
@@ -3219,7 +3481,7 @@ Use youtube-dl and mplayer to stream YouTube content.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-multimedia nil
-@kbd{ control e ; }
+@kbd{C-e ;}
 
 Start or control Emacspeak multimedia player.
 @end deffn
@@ -3360,7 +3622,7 @@ Automatically generated documentation
 for commands defined in module  emacspeak-ocr.
 
 @deffn {Interactive Command} emacspeak-ocr nil
-@kbd{ control e control o }
+@kbd{C-e C-o}
 
 An OCR front-end for the Emacspeak desktop.  
 
@@ -3632,7 +3894,7 @@ Automatically generated documentation
 for commands defined in module  emacspeak-pianobar.
 
 @deffn {Interactive Command} emacspeak-pianobar nil
-@kbd{ control e ' }
+@kbd{C-e '}
 
 Start or control Emacspeak Pianobar player.
 @end deffn
@@ -3708,7 +3970,7 @@ First loads any persistent dictionaries if not already loaded.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-pronounce-dispatch nil
-@kbd{ control e meta d }
+@kbd{C-e M-d}
 
 Provides the user interface front-end to Emacspeak's pronunciation dictionaries.
 @end deffn
@@ -3771,13 +4033,13 @@ Automatically generated documentation
 for commands defined in module  emacspeak-redefine.
 
 @deffn {Interactive Command} emacspeak-backward-char nil
-@kbd{ control b   <left> }
+@kbd{Not bound to any key.}
 
 Backward-char redefined to speak char moved to. 
 @end deffn
 
 @deffn {Interactive Command} emacspeak-forward-char nil
-@kbd{ control f   <right> }
+@kbd{Not bound to any key.}
 
 Forward-char redefined to speak char moved to. 
 @end deffn
@@ -3801,7 +4063,7 @@ Automatically generated documentation
 for commands defined in module  emacspeak-remote.
 
 @deffn {Interactive Command} emacspeak-remote-connect-to-server nil
-@kbd{ control e meta r }
+@kbd{C-e M-r}
 
 Connect to and start using remote speech server running on
 host host and listening on port port. Host is the hostname of the
@@ -3919,7 +4181,7 @@ Automatically generated documentation
 for commands defined in module  emacspeak-sounds.
 
 @deffn {Interactive Command} emacspeak-audio-setup nil
-@kbd{ control e ( }
+@kbd{C-e (}
 
 Call appropriate audio environment set command.
 @end deffn
@@ -3931,7 +4193,7 @@ Plays all defined icons and speaks their names.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-set-auditory-icon-player nil
-@kbd{ control e meta a }
+@kbd{C-e M-a}
 
 Select  player used for producing auditory icons.
 Recommended choices:
@@ -3957,13 +4219,13 @@ Reload sound drivers.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-sounds-select-theme nil
-@kbd{ control e ) }
+@kbd{C-e )}
 
 Select theme for auditory icons.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-toggle-auditory-icons nil
-@kbd{ control e control a }
+@kbd{C-e C-a}
 
 Toggle use of auditory icons.
 Optional interactive PREFIX arg toggles global value.
@@ -3980,12 +4242,6 @@ from becoming dependent on the speech server modules
 
 Automatically generated documentation
 for commands defined in module  emacspeak-speak.
-
-@deffn {Interactive Command} emacspeak-audio-annotate-paragraphs nil
-@kbd{Not bound to any key.}
-
-Set property auditory-icon at front of all paragraphs.
-@end deffn
 
 @deffn {Interactive Command} emacspeak-blink-matching-open nil
 @kbd{Not bound to any key.}
@@ -4009,7 +4265,7 @@ char, or dont move.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-dial-dtk nil
-@kbd{ control e d t }
+@kbd{C-e d t}
 
 Prompt for and dial a phone NUMBER with the Dectalk.
 @end deffn
@@ -4021,47 +4277,47 @@ Execute COMMAND repeatedly.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-mark-backward-mark nil
-@kbd{ <control up> }
+@kbd{<C-up>}
 
 Cycle backward through the mark ring.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-owindow-next-line nil
-@kbd{ ESCAPE <down> }
+@kbd{ESC <down>}
 
 Move to the next line in the other window and speak it.
 Numeric prefix arg COUNT can specify number of lines to move.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-owindow-previous-line nil
-@kbd{ ESCAPE <up> }
+@kbd{ESC <up>}
 
 Move to the next line in the other window and speak it.
 Numeric prefix arg COUNT specifies number of lines to move.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-owindow-scroll-down nil
-@kbd{ ESCAPE <prior> }
+@kbd{ESC <prior>}
 
 Scroll down  the window that command `other-window' would move to.
 Speak the window contents after scrolling.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-owindow-scroll-up nil
-@kbd{ ESCAPE <next> }
+@kbd{ESC <next>}
 
 Scroll up the window that command `other-window' would move to.
 Speak the window contents after scrolling.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-owindow-speak-line nil
-@kbd{ ESCAPE <select> }
+@kbd{ESC <select>}
 
 Speak the current line in the other window.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-read-next-line nil
-@kbd{ control e <down> }
+@kbd{C-e <down>}
 
 Read next line, specified by an offset, without moving.
 Default is to read the next line. 
@@ -4075,7 +4331,7 @@ Default is to read the next word.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-read-previous-line nil
-@kbd{ control e <up> }
+@kbd{C-e <up>}
 
 Read previous line, specified by an offset, without moving.
 Default is to read the previous line. 
@@ -4089,13 +4345,19 @@ Default is to read the previous word.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-search nil
-@kbd{ <search> }
+@kbd{<search>}
 
 Call search defined in <search>.
 @end deffn
 
+@deffn {Interactive Command} emacspeak-shell-command nil
+@kbd{Not bound to any key.}
+
+Run shell command and speak its output.
+@end deffn
+
 @deffn {Interactive Command} emacspeak-silence nil
-@kbd{ <silence> }
+@kbd{<silence>}
 
 Silence is golden. Stop speech, and pause/resume any media
 streams.
@@ -4117,7 +4379,7 @@ Speak extent delimited by point and last character typed.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-speak-browse-buffer nil
-@kbd{ control e , }
+@kbd{C-e ,}
 
 Browse current buffer.
 Default is to speak chunk having current personality.
@@ -4126,7 +4388,7 @@ Interactive prefix arg `browse'  repeatedly browses  through
 @end deffn
 
 @deffn {Interactive Command} emacspeak-speak-buffer nil
-@kbd{ control e b }
+@kbd{C-e b}
 
 Speak current buffer  contents.
 With prefix ARG, speaks the rest of the buffer from point.
@@ -4136,7 +4398,7 @@ voice annotated first,  see command `emacspeak-speak-voice-annotate-paragraphs'.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-speak-buffer-filename nil
-@kbd{ control e f }
+@kbd{C-e f}
 
 Speak name of file being visited in current buffer.
 Speak default directory if invoked in a dired buffer,
@@ -4147,7 +4409,7 @@ The result is put in the kill ring for convenience.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-speak-buffer-interactively nil
-@kbd{ control e  cap B  }
+@kbd{C-e B}
 
 Speak the start of, rest of, or the entire buffer.
 's' to speak the start.
@@ -4156,7 +4418,7 @@ any other key to speak entire buffer.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-speak-char nil
-@kbd{ control e c }
+@kbd{C-e c}
 
 Speak character under point.
 Pronounces character phonetically unless  called with a PREFIX arg.
@@ -4182,7 +4444,7 @@ Speak completions if available.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-speak-continuously nil
-@kbd{ control e RETURN }
+@kbd{C-e RET}
 
 Speak a buffer continuously.
 First prompts using the minibuffer for the kind of action to
@@ -4193,19 +4455,19 @@ was spoken.  Any other key continues to speak the buffer.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-speak-current-column nil
-@kbd{ control e = }
+@kbd{C-e =}
 
 Speak the current column.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-speak-current-field nil
-@kbd{ control e . }
+@kbd{C-e .}
 
 Speak current field.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-speak-current-kill nil
-@kbd{ control e k }
+@kbd{C-e k}
 
 Speak the current kill entry.
 This is the text that will be yanked in by the next C-y.
@@ -4218,7 +4480,7 @@ to command yank.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-speak-current-mark nil
-@kbd{ control e control @@ }
+@kbd{C-e C-@@}
 
 Speak the line containing the mark.
 With no argument, speaks the
@@ -4231,7 +4493,7 @@ achieved by a change in voice personality.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-speak-current-percentage nil
-@kbd{ control e % }
+@kbd{C-e %}
 
 Announce the percentage into the current buffer.
 @end deffn
@@ -4266,13 +4528,13 @@ Speak   the buffer from start to   point
 @end deffn
 
 @deffn {Interactive Command} emacspeak-speak-header-line nil
-@kbd{ control e SPACE }
+@kbd{C-e SPC}
 
 Speak header line if set.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-speak-help nil
-@kbd{ control e h }
+@kbd{C-e h}
 
 Speak help buffer if one present.
 With prefix arg, speaks the rest of the buffer from point.
@@ -4289,13 +4551,13 @@ any other key to speak entire help.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-speak-hostname nil
-@kbd{ control e meta h }
+@kbd{C-e M-h}
 
 Speak host name.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-speak-line nil
-@kbd{ control e l }
+@kbd{C-e l}
 
 Speaks current line.  With prefix ARG, speaks the rest of the line
 from point.  Negative prefix optional arg speaks from start of line to
@@ -4310,7 +4572,7 @@ are indicated with auditory icon ellipses.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-speak-line-interactively nil
-@kbd{ control e  cap L  }
+@kbd{C-e L}
 
 Speak the start of, rest of, or the entire line.
 's' to speak the start.
@@ -4319,7 +4581,7 @@ any other key to speak entire line.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-speak-line-number nil
-@kbd{ control e control l }
+@kbd{C-e C-l}
 
 Print the current buffer line number and narrowed line number of point.
 
@@ -4327,7 +4589,7 @@ Print the current buffer line number and narrowed line number of point.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-speak-line-set-column-filter nil
-@kbd{ control e | }
+@kbd{C-e |}
 
 Set up filter for selectively speaking or ignoring portions of lines.
 The filter is specified as a list of pairs.
@@ -4351,7 +4613,7 @@ directory.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-speak-message-again nil
-@kbd{ control e a }
+@kbd{C-e a}
 
 Speak the last message from Emacs once again.
 The message is also placed in the kill ring for convenient yanking
@@ -4359,7 +4621,7 @@ if `emacspeak-speak-message-again-should-copy-to-kill-ring' is set.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-speak-message-at-time nil
-@kbd{ control e @@ }
+@kbd{C-e @@}
 
 Set up ring-at-time to speak message at specified time.
 Provides simple stop watch functionality in addition to other things.
@@ -4375,13 +4637,13 @@ Negative prefix arg speaks from start of buffer to point.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-speak-minor-mode-line nil
-@kbd{ control e  cap M  }
+@kbd{C-e M}
 
 Speak the minor mode-information.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-speak-mode-line nil
-@kbd{ control e m }
+@kbd{C-e m}
 
 Speak the mode-line.
 Speaks header-line if that is set when called non-interactively.
@@ -4396,7 +4658,7 @@ Speak that chunk after moving.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-speak-next-field nil
-@kbd{ control e > }
+@kbd{C-e >}
 
 Move to and speak next field.
 @end deffn
@@ -4409,13 +4671,13 @@ Speak that chunk after moving.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-speak-next-window nil
-@kbd{ control e control n }
+@kbd{C-e C-n}
 
 Speak the next window.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-speak-other-buffer nil
-@kbd{ control e meta b }
+@kbd{C-e M-b}
 
 Speak specified buffer.
 Useful to listen to a buffer without switching  contexts.
@@ -4432,7 +4694,7 @@ Optional argument ARG  specifies `other' window to speak.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-speak-page nil
-@kbd{ control e [ }
+@kbd{C-e [}
 
 Speak a page.
 With prefix ARG, speaks rest of current page.
@@ -4441,7 +4703,7 @@ If option  `voice-lock-mode' is on, then it will use any defined personality.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-speak-page-interactively nil
-@kbd{ control e ] }
+@kbd{C-e ]}
 
 Speak the start of, rest of, or the entire page.
 's' to speak the start.
@@ -4450,7 +4712,7 @@ any other key to speak entire page.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-speak-paragraph nil
-@kbd{ control e @{   control e p }
+@kbd{C-e @{ C-e p}
 
 Speak paragraph.
 With prefix arg, speaks rest of current paragraph.
@@ -4459,7 +4721,7 @@ If voice-lock-mode is on, then it will use any defined personality.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-speak-paragraph-interactively nil
-@kbd{ control e  cap P  }
+@kbd{C-e P}
 
 Speak the start of, rest of, or the entire paragraph.
 's' to speak the start.
@@ -4474,7 +4736,7 @@ Speak character before point.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-speak-predefined-window nil
-@kbd{ control e 9   control e 8   control e 7   control e 6   control e 5   control e 4   control e 3   control e 2   control e 1   control e 0 }
+@kbd{C-e 9 C-e 8 C-e 7 C-e 6 C-e 5 C-e 4 C-e 3 C-e 2 C-e 1 C-e 0}
 
 Speak one of the first 10 windows on the screen.
 Speaks entire window irrespective of point.
@@ -4493,7 +4755,7 @@ Speak that chunk after moving.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-speak-previous-field nil
-@kbd{ control e < }
+@kbd{C-e <}
 
 Move to previous field and speak it.
 @end deffn
@@ -4506,13 +4768,13 @@ Speak that chunk after moving.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-speak-previous-window nil
-@kbd{ control e control p }
+@kbd{C-e C-p}
 
 Speak the previous window.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-speak-rectangle nil
-@kbd{ control e  cap R  }
+@kbd{C-e R}
 
 Speak a rectangle of text.
 Rectangle is delimited by point and mark.
@@ -4521,14 +4783,14 @@ arguments specify the START and END of the rectangle.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-speak-region nil
-@kbd{ control e r }
+@kbd{C-e r}
 
 Speak region.
 Argument START  and END specify region to speak.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-speak-rest-of-buffer nil
-@kbd{ control e n }
+@kbd{C-e n}
 
 Speak remainder of the buffer starting at point
 @end deffn
@@ -4549,6 +4811,12 @@ special characters are spoken. Interactive prefix argument causes
 setting to be global.
 @end deffn
 
+@deffn {Interactive Command} emacspeak-speak-set-mode-punctuations nil
+@kbd{C-e d m}
+
+Set punctuation mode for all buffers in current mode.
+@end deffn
+
 @deffn {Interactive Command} emacspeak-speak-sexp nil
 @kbd{Not bound to any key.}
 
@@ -4559,7 +4827,7 @@ If option  `voice-lock-mode' is on, then uses the personality.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-speak-sexp-interactively nil
-@kbd{ control e " }
+@kbd{C-e "}
 
 Speak the start of, rest of, or the entire sexp.
 's' to speak the start.
@@ -4568,7 +4836,7 @@ any other key to speak entire sexp.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-speak-show-active-network-interfaces nil
-@kbd{ control e  cap I  }
+@kbd{C-e I}
 
 Shows all active network interfaces in the echo area.
 With interactive prefix argument ADDRESS it prompts for a
@@ -4598,7 +4866,7 @@ Speech is scaled by the value of dtk-speak-skim-scale
 @end deffn
 
 @deffn {Interactive Command} emacspeak-speak-spaces-at-point nil
-@kbd{ control e CONTROL meta @@ }
+@kbd{C-e C-M-@@}
 
 Speak the white space at point.
 @end deffn
@@ -4607,6 +4875,12 @@ Speak the white space at point.
 @kbd{Not bound to any key.}
 
 Spell word at  point.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-speak-text-range nil
+@kbd{Not bound to any key.}
+
+Speak text range identified by this PROPERTY.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-speak-this-face-chunk nil
@@ -4623,7 +4897,7 @@ personality.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-speak-time nil
-@kbd{ control e t }
+@kbd{C-e t}
 
 Speak the time.
 Optional interactive prefix arg `C-u'invokes world clock.
@@ -4632,7 +4906,7 @@ Second interactive prefix sets clock to new timezone.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-speak-version nil
-@kbd{ control e  cap V  }
+@kbd{C-e V}
 
 Announce version information for running emacspeak.
 @end deffn
@@ -4646,13 +4920,13 @@ Useful to do this before you listen to an entire buffer.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-speak-window-information nil
-@kbd{ control e control w }
+@kbd{C-e C-w}
 
 Speaks information about current window.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-speak-word nil
-@kbd{ control e w }
+@kbd{C-e w}
 
 Speak current word.
 With prefix ARG, speaks the rest of the word from point.
@@ -4692,7 +4966,7 @@ current local  value to the result.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-toggle-audio-indentation nil
-@kbd{ control e d i }
+@kbd{C-e d i}
 
 Toggle state of  Emacspeak  audio indentation.
 Interactive PREFIX arg means toggle  the global default value, and then set the
@@ -4704,7 +4978,7 @@ results in the number of initial spaces being spoken.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-toggle-character-echo nil
-@kbd{ control e d k }
+@kbd{C-e d k}
 
 Toggle state of  Emacspeak  character echo.
 Interactive PREFIX arg means toggle  the global default value, and then set the
@@ -4712,7 +4986,7 @@ current local  value to the result.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-toggle-comint-autospeak nil
-@kbd{ control e control q }
+@kbd{C-e C-q}
 
 Toggle state of Emacspeak comint autospeak.
 When turned on, comint output is automatically spoken.  Turn this on if
@@ -4728,7 +5002,7 @@ Toggle Emacspeak's default header line.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-toggle-line-echo nil
-@kbd{ control e d l }
+@kbd{C-e d l}
 
 Toggle state of  Emacspeak  line echo.
 Interactive PREFIX arg means toggle  the global default value, and then set the
@@ -4736,7 +5010,7 @@ current local  value to the result.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-toggle-mail-alert nil
-@kbd{ control e meta m }
+@kbd{C-e M-m}
 
 Toggle state of  Emacspeak  mail alert.
 Interactive PREFIX arg means toggle  the global default value, and then set the
@@ -4746,7 +5020,7 @@ indicating the arrival  of new mail when displaying the mode line.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-toggle-show-point nil
-@kbd{ control e control d }
+@kbd{C-e C-d}
 
 Toggle state of  Emacspeak-show-point.
 Interactive PREFIX arg means toggle  the global default value, and then set the
@@ -4754,7 +5028,7 @@ current local  value to the result.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-toggle-speak-line-invert-filter nil
-@kbd{ control e \ }
+@kbd{C-e \}
 
 Toggle state of   how column filter is interpreted.
 Interactive PREFIX arg means toggle  the global default value, and then set the
@@ -4762,13 +5036,13 @@ current local  value to the result.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-toggle-speak-messages nil
-@kbd{ control e q }
+@kbd{C-e q}
 
 Toggle the state of whether emacspeak echoes messages.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-toggle-word-echo nil
-@kbd{ control e d w }
+@kbd{C-e d w}
 
 Toggle state of  Emacspeak  word echo.
 Interactive PREFIX arg means toggle  the global default value, and then set the
@@ -4802,7 +5076,7 @@ Prompts for PERSONALITY  with completion when called interactively.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-zap-tts nil
-@kbd{ control e d z }
+@kbd{C-e d z}
 
 Send this command to the TTS directly.
 @end deffn
@@ -5025,7 +5299,7 @@ Current buffer must be in emacspeak-table mode.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-table-display-table-in-region nil
-@kbd{ control e TAB }
+@kbd{C-e TAB}
 
 Recognize tabular data in current region and display it in table
 browsing mode in a a separate buffer.
@@ -5046,7 +5320,7 @@ The processed  data and presented using emacspeak table navigation.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-table-find-file nil
-@kbd{ control e control t }
+@kbd{C-e C-t}
 
 Open a file containing table data and display it in table mode.
 emacspeak table mode is designed to let you browse tabular data using
@@ -5246,7 +5520,7 @@ Automatically generated documentation
 for commands defined in module  emacspeak-tabulate.
 
 @deffn {Interactive Command} emacspeak-tabulate-region nil
-@kbd{ control e i }
+@kbd{C-e i}
 
 Voicifies the white-space of a table if one found.  Optional interactive prefix
 arg mark-fields specifies if the header row information is used to mark fields
@@ -5262,7 +5536,7 @@ Automatically generated documentation
 for commands defined in module  emacspeak-tapestry.
 
 @deffn {Interactive Command} emacspeak-tapestry-describe-tapestry nil
-@kbd{ control e meta t }
+@kbd{C-e M-t}
 
 Describe the current layout of visible buffers in current frame.
 Use interactive prefix arg to get coordinate positions of the
@@ -5270,7 +5544,7 @@ displayed buffers.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-tapestry-select-window-by-name nil
-@kbd{ control e  cap W  }
+@kbd{C-e W}
 
 Select window by the name of the buffer it displays.
 This is useful when using modes like ECB or the new GDB UI where
@@ -5410,7 +5684,7 @@ Automatically generated documentation
 for commands defined in module  emacspeak-url-template.
 
 @deffn {Interactive Command} emacspeak-url-template-fetch nil
-@kbd{ control e u }
+@kbd{C-e u}
 
 Fetch a pre-defined resource.
 Use Emacs completion to obtain a list of available resources.
@@ -5747,6 +6021,14 @@ Interactively prompt for an HTML property, e.g. id or class,
 and provide a completion list of applicable  property values. Filter document by property that is specified.
 @end deffn
 
+@deffn {Interactive Command} emacspeak-we-extract-by-role nil
+@kbd{Not bound to any key.}
+
+Extract elements having specified role attribute from HTML. Extracts
+specified elements from current WWW page and displays it in a separate
+buffer. Interactive use provides list of role values as completion.
+@end deffn
+
 @deffn {Interactive Command} emacspeak-we-extract-id-list-text nil
 @kbd{Not bound to any key.}
 
@@ -5837,6 +6119,12 @@ Tables are specified by containing  match pattern
 Extract specified list of nested tables from a WWW page.
 Tables are specified by their position in the list
  of nested tables found in the page.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-we-follow-and-extract-main nil
+@kbd{Not bound to any key.}
+
+Follow URL, then extract role=main.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-we-follow-and-filter-by-id nil
@@ -6015,7 +6303,7 @@ Search CTAN Comprehensive TeX Archive Network   Site.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-websearch-dispatch nil
-@kbd{ control e ? }
+@kbd{C-e ?}
 
  Press `?' to list available search engines.
 When using supported browsers,  this interface attempts to speak the most relevant information on the result page.
@@ -6192,7 +6480,7 @@ Search swik software community site.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-websearch-usenet nil
-@kbd{ control e  cap U  }
+@kbd{C-e U}
 
 Prompt and browse a Usenet newsgroup.
 Optional interactive prefix arg results in prompting for a search term.
@@ -6250,22 +6538,23 @@ WEBSPACE == Smart Web Gadgets For The Emacspeak Desktop
 Automatically generated documentation
 for commands defined in module  emacspeak-webspace.
 
-@deffn {Interactive Command} emacspeak-webspace-atom-view nil
+@deffn {Interactive Command} emacspeak-webspace-feed-reader nil
 @kbd{Not bound to any key.}
 
-View Atom feed.
-@end deffn
-
-@deffn {Interactive Command} emacspeak-webspace-feed-view nil
-@kbd{Not bound to any key.}
-
-View  feed using gfeeds.
+Display Feed Reader Feed list in a WebSpace buffer.
+Optional interactive prefix arg forces a refresh.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-webspace-filter nil
 @kbd{Not bound to any key.}
 
 Open headline at point by following its link property and filter for content.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-webspace-freebase-search nil
+@kbd{Not bound to any key.}
+
+Perform a Freebase search and display results.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-webspace-google nil
@@ -6275,15 +6564,22 @@ Display Google Search in a WebSpace buffer.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-webspace-headlines nil
-@kbd{ control ; SPACE h   hyper  SPACE h }
+@kbd{C-; SPC h C-x @@ h SPC h}
 
-Speak current news headline.
+Startup Headlines ticker.
 @end deffn
 
-@deffn {Interactive Command} emacspeak-webspace-headlines-view nil
-@kbd{ <control return> }
+@deffn {Interactive Command} emacspeak-webspace-headlines-browse nil
+@kbd{<C-return>}
 
-Display all cached headlines in a special interaction buffer.
+Display buffer of browsable headlines.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-webspace-headlines-update nil
+@kbd{Not bound to any key.}
+
+Setup news updates.
+Updated headlines found in emacspeak-webspace-headlines.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-webspace-mode nil
@@ -6294,35 +6590,25 @@ Major mode for Webspace interaction.
 key             binding
 ---             -------
 
-TAB		emacspeak-webspace-next-link
-RET		emacspeak-webspace-open
+TAB		forward-button
+ESC		Prefix Command
+'		emacspeak-speak-rest-of-buffer
 .		emacspeak-webspace-filter
 /		search-forward
 <		beginning-of-buffer
 >		end-of-buffer
 ?		search-backward
-A		emacspeak-webspace-atom-view
-F		emacspeak-webspace-feed-view
-R		emacspeak-webspace-rss-view
-b		emacspeak-webspace-previous-link
-f		emacspeak-webspace-next-link
-g		emacspeak-webspace-reader-refresh
-n		next-line
-p		previous-line
+n		forward-button
+p		backward-button
 q		bury-buffer
-t		emacspeak-webspace-transcode
 y		emacspeak-webspace-yank-link
-<S-tab>		emacspeak-webspace-previous-link
+<backtab>	backward-button
+
+C-M-i		backward-button
 
 In addition to any hooks its parent mode `special-mode' might have run,
 this mode runs the hook `emacspeak-webspace-mode-hook', as the final step
 during initialization.
-@end deffn
-
-@deffn {Interactive Command} emacspeak-webspace-next-link nil
-@kbd{Not bound to any key.}
-
-Move to next link.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-webspace-open nil
@@ -6331,67 +6617,23 @@ Move to next link.
 Open headline at point by following its link property.
 @end deffn
 
-@deffn {Interactive Command} emacspeak-webspace-previous-link nil
-@kbd{Not bound to any key.}
-
-Move to previous link.
-@end deffn
-
-@deffn {Interactive Command} emacspeak-webspace-reader nil
-@kbd{Not bound to any key.}
-
-Display Google Reader Feed list in a WebSpace buffer.
-Optional interactive prefix arg forces a refresh.
-@end deffn
-
-@deffn {Interactive Command} emacspeak-webspace-reader-refresh nil
-@kbd{Not bound to any key.}
-
-Refresh Reader.
-@end deffn
-
-@deffn {Interactive Command} emacspeak-webspace-reading-list nil
-@kbd{ control ; SPACE r   hyper  SPACE r }
-
-Set up scrolling reading list in header.
-@end deffn
-
-@deffn {Interactive Command} emacspeak-webspace-reading-list-view nil
-@kbd{Not bound to any key.}
-
-Switch to reading list view, creating it if needed.
-@end deffn
-
-@deffn {Interactive Command} emacspeak-webspace-rss-view nil
-@kbd{Not bound to any key.}
-
-View RSS feed.
-@end deffn
-
 @deffn {Interactive Command} emacspeak-webspace-transcode nil
 @kbd{Not bound to any key.}
 
 Transcode headline at point by following its link property.
 @end deffn
 
-@deffn {Interactive Command} emacspeak-webspace-update-headlines nil
-@kbd{Not bound to any key.}
+@deffn {Interactive Command} emacspeak-webspace-weather nil
+@kbd{C-; SPC w C-x @@ h SPC w}
 
-Setup  news updates.
-Updated headlines found in emacspeak-webspace-headlines.
+Speak current weather.
 @end deffn
 
-@deffn {Interactive Command} emacspeak-webspace-update-weather nil
+@deffn {Interactive Command} emacspeak-webspace-weather-update nil
 @kbd{Not bound to any key.}
 
 Setup periodic weather updates.
 Updated weather is found in `emacspeak-webspace-current-weather'.
-@end deffn
-
-@deffn {Interactive Command} emacspeak-webspace-weather nil
-@kbd{ control ; SPACE w   hyper  SPACE w }
-
-Speak current weather.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-webspace-yank-link nil
@@ -6410,36 +6652,6 @@ and emacspeak-w3m.el
 
 Automatically generated documentation
 for commands defined in module  emacspeak-webutils.
-
-@deffn {Interactive Command} emacspeak-atom-browse nil
-@kbd{Not bound to any key.}
-
-Browse specified ATOM feed.
-@end deffn
-
-@deffn {Interactive Command} emacspeak-opml-display nil
-@kbd{Not bound to any key.}
-
-Retrieve and display OPML  URL.
-@end deffn
-
-@deffn {Interactive Command} emacspeak-rss-browse nil
-@kbd{ control e control u }
-
-Browse specified RSS feed.
-@end deffn
-
-@deffn {Interactive Command} emacspeak-webutils-atom-display nil
-@kbd{Not bound to any key.}
-
-Display ATOM feed.
-@end deffn
-
-@deffn {Interactive Command} emacspeak-webutils-fv nil
-@kbd{Not bound to any key.}
-
-Display RSS or ATOM feed URL.
-@end deffn
 
 @deffn {Interactive Command} emacspeak-webutils-google-extract-from-cache nil
 @kbd{Not bound to any key.}
@@ -6480,26 +6692,13 @@ instances.
 @kbd{Not bound to any key.}
 
 Opens link in alternate browser.
- If using default browser is w3, uses w3m and vice-versa
-@end deffn
-
-@deffn {Interactive Command} emacspeak-webutils-open-subscribed-feeds nil
-@kbd{Not bound to any key.}
-
-Feed list specified by OPML file customized via emacspeak-my-subscribed-feeds
 @end deffn
 
 @deffn {Interactive Command} emacspeak-webutils-play-media-at-point nil
-@kbd{Not bound to any key.}
+@kbd{C-e M-;}
 
 Play media url under point.
 Optional interactive prefix arg `playlist-p' says to treat the link as a playlist. 
-@end deffn
-
-@deffn {Interactive Command} emacspeak-webutils-rss-display nil
-@kbd{Not bound to any key.}
-
-Display RSS feed.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-webutils-transcode-current-url-via-google nil
@@ -6514,12 +6713,6 @@ Transcode current URL via Google.
 
 Transcode URL under point via Google.
  Reverse effect with prefix arg for links on a transcoded page.
-@end deffn
-
-@deffn {Interactive Command} emacspeak-webutils-view-feed-via-google-reader nil
-@kbd{Not bound to any key.}
-
-Pulls feed under point via Google Reader.
 @end deffn
 
 @node emacspeak-widget
@@ -6585,7 +6778,7 @@ annotation is inserted into the working buffer when complete.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-clipboard-copy nil
-@kbd{ control e control c }
+@kbd{C-e C-c}
 
 Copy contents of the region to the emacspeak clipboard.
 Previous contents of the clipboard will be overwritten.  The Emacspeak
@@ -6600,7 +6793,7 @@ Optional argument PROMPT  specifies whether we prompt for the name of a clipboar
 @end deffn
 
 @deffn {Interactive Command} emacspeak-clipboard-paste nil
-@kbd{ control e control y }
+@kbd{C-e C-y}
 
 Yank contents of the Emacspeak clipboard at point.
 The Emacspeak clipboard is a convenient way of sharing information between
@@ -6612,7 +6805,7 @@ the emacspeak table clipboard instead.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-copy-current-file nil
-@kbd{ control e meta c }
+@kbd{C-e M-c}
 
 Copy file visited in current buffer to new location.
 Prompts for the new location and preserves modification time
@@ -6630,7 +6823,7 @@ Grab URL using Curl, and preview it with a browser .
 @end deffn
 
 @deffn {Interactive Command} emacspeak-customize nil
-@kbd{ control e  cap C  }
+@kbd{C-e C}
 
 Customize Emacspeak.
 @end deffn
@@ -6670,7 +6863,7 @@ Ask for module name if prefix argument is given
 @end deffn
 
 @deffn {Interactive Command} emacspeak-emergency-tts-restart nil
-@kbd{ control e <insert> }
+@kbd{C-e <insert>}
 
 For use in an emergency.
 Will start TTS engine specified by
@@ -6678,7 +6871,7 @@ emacspeak-emergency-tts-server.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-frame-label-or-switch-to-labelled-frame nil
-@kbd{ control e meta f }
+@kbd{C-e M-f}
 
 Switch to labelled frame.
 With optional PREFIX argument, label current frame.
@@ -6721,14 +6914,14 @@ Kill current buffer without asking for confirmation.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-learn-emacs-mode nil
-@kbd{ control e <f1>   control h control l   <f1> control l   <help> control l }
+@kbd{C-e <f1> C-h C-l <f1> C-l <help> C-l}
 
 Helps you learn the keys.  You can press keys and hear what they do.
 To leave, press C-g.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-link-current-file nil
-@kbd{ control e meta l }
+@kbd{C-e M-l}
 
 Link (hard link) file visited in current buffer to new location.
 Prompts for the new location and preserves modification time
@@ -6751,21 +6944,21 @@ Launch lynx on  specified URL in a new terminal.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-next-frame-or-buffer nil
-@kbd{ <control right> }
+@kbd{<C-right>}
 
 Move to next buffer.
 With optional interactive prefix arg `frame', move to next frame instead.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-previous-frame-or-buffer nil
-@kbd{ <control left> }
+@kbd{<C-left>}
 
 Move to previous buffer.
 With optional interactive prefix arg `frame', move to previous frame instead.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-root nil
-@kbd{ control e control r }
+@kbd{C-e C-r}
 
 Start a root shell or switch to one that already exists.
 Optional interactive prefix arg `cd' executes cd
@@ -6773,7 +6966,7 @@ default-directory after switching.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-select-this-buffer-next-display nil
-@kbd{ control e <control right> }
+@kbd{C-e <C-right>}
 
 Select this buffer as displayed in a `next' frame.
 See documentation for command
@@ -6798,7 +6991,7 @@ the display to select.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-select-this-buffer-previous-display nil
-@kbd{ control e <control left> }
+@kbd{C-e <C-left>}
 
 Select this buffer as displayed in a `previous' window.
 See documentation for command
@@ -6807,7 +7000,7 @@ meaning of `previous'.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-show-personality-at-point nil
-@kbd{ control e meta v }
+@kbd{C-e M-v}
 
 Show value of property personality (and possibly face)
 at point.
@@ -6823,7 +7016,7 @@ If no property is set, show a message and exit.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-skip-blank-lines-backward nil
-@kbd{ <shift up> }
+@kbd{<S-up>}
 
 Move backward  across blank lines.
 The line under point is   then spoken.
@@ -6831,7 +7024,7 @@ Signals beginning  of buffer.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-skip-blank-lines-forward nil
-@kbd{ <shift down> }
+@kbd{<S-down>}
 
 Move forward across blank lines.
 The line under point is then spoken.
@@ -6839,14 +7032,14 @@ Signals end of buffer.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-speak-browse-linux-howto nil
-@kbd{ control e  cap H  }
+@kbd{C-e H}
 
 Browse a Linux Howto file.
 We cleanup underlining, and set up outline mode correctly.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-speak-popup-messages nil
-@kbd{ control h  cap M    <f1>  cap M    <help>  cap M  }
+@kbd{C-h M <f1> M <help> M}
 
 Pop up messages buffer.
 If it is already selected then hide it and try to restore
@@ -6854,7 +7047,7 @@ previous window configuration.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-speak-run-shell-command nil
-@kbd{ control e ! }
+@kbd{C-e !}
 
 Invoke shell COMMAND and display its output as a table. The
 results are placed in a buffer in Emacspeak's table browsing
@@ -6875,7 +7068,7 @@ With prefix arg, opens the phone book for editing.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-speak-this-buffer-next-display nil
-@kbd{ control e <right> }
+@kbd{C-e <right>}
 
 Speak this buffer as displayed in a `previous' window.
 See documentation for command
@@ -6884,7 +7077,7 @@ meaning of `next'.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-speak-this-buffer-other-window-display nil
-@kbd{ control e / }
+@kbd{C-e /}
 
 Speak this buffer as displayed in a different frame.  Emacs
 allows you to display the same buffer in multiple windows or
@@ -6900,7 +7093,7 @@ the display to speak.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-speak-this-buffer-previous-display nil
-@kbd{ control e <left> }
+@kbd{C-e <left>}
 
 Speak this buffer as displayed in a `previous' window.
 See documentation for command
@@ -6909,7 +7102,7 @@ meaning of `previous'.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-ssh-tts-restart nil
-@kbd{ control e <deletechar>   control e <delete> }
+@kbd{C-e <deletechar> C-e <delete>}
 
 Restart specified ssh tts server.
 @end deffn
@@ -6934,7 +7127,7 @@ Obsoleted by `previous-buffer' in Emacs 22
 @end deffn
 
 @deffn {Interactive Command} emacspeak-symlink-current-file nil
-@kbd{ control e meta s }
+@kbd{C-e M-s}
 
 Link (symbolic link) file visited in current buffer to new location.
 Prompts for the new location and preserves modification time
@@ -6951,19 +7144,19 @@ Display a summary of all Emacspeak commands.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-view-emacspeak-faq nil
-@kbd{ control e  cap F  }
+@kbd{C-e F}
 
 Browse the Emacspeak FAQ.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-view-emacspeak-news nil
-@kbd{ control e  cap N  }
+@kbd{C-e N}
 
 Display info on recent change to Emacspeak.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-view-emacspeak-tips nil
-@kbd{ control e  cap T  }
+@kbd{C-e T}
 
 Browse  Emacspeak productivity tips.
 @end deffn
@@ -6987,6 +7180,12 @@ Insert Braille string at point.
 byte compile current buffer
 @end deffn
 
+@deffn {Interactive Command} emacspeak-wizards-cleanup-shell-path nil
+@kbd{Not bound to any key.}
+
+Cleans up duplicates in shell path env variable.
+@end deffn
+
 @deffn {Interactive Command} emacspeak-wizards-comma-at-end-of-word nil
 @kbd{Not bound to any key.}
 
@@ -6997,6 +7196,12 @@ Move to the end of current word and add a comma.
 @kbd{Not bound to any key.}
 
 Count slides starting from point.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-wizards-cycle-browser nil
+@kbd{Not bound to any key.}
+
+Cycles through available browsers.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-wizards-display-pod-as-manpage nil
@@ -7032,8 +7237,9 @@ key             binding
 @deffn {Interactive Command} emacspeak-wizards-edit-file-as-root nil
 @kbd{Not bound to any key.}
 
-Edit file as root using sudo vi.
-See /etc/sudoers for how to set up sudo.
+Like `ido-find-file, but automatically edit the file with
+root-privileges (using tramp/sudo), if the file is not writable by
+user.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-wizards-end-of-word nil
@@ -7384,7 +7590,7 @@ When called from a shell buffer, switches to `next' shell buffer.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-wizards-shell-toggle nil
-@kbd{ control e <f11> }
+@kbd{C-e <f11>}
 
 Switch to the shell buffer and cd to
  the directory of the current buffer.
@@ -7403,7 +7609,7 @@ Display value of specified environment variable.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-wizards-show-eval-result nil
-@kbd{ control e &   META ESCAPE : }
+@kbd{C-e & M-ESC :}
 
 Convenience command to pretty-print and view Lisp evaluation results.
 @end deffn
@@ -7483,6 +7689,12 @@ insert thanks , --Raman at the end of mail message
 Toggle pronunciation of mm-dd-yyyy dates.
 @end deffn
 
+@deffn {Interactive Command} emacspeak-wizards-toggle-yyyymmdd-date-pronouncer nil
+@kbd{Not bound to any key.}
+
+Toggle pronunciation of yyyymmdd  dates.
+@end deffn
+
 @deffn {Interactive Command} emacspeak-wizards-tpctl-display-status nil
 @kbd{Not bound to any key.}
 
@@ -7506,12 +7718,6 @@ UnEscape URI
 @kbd{Not bound to any key.}
 
 Run units in a comint sub-process.
-@end deffn
-
-@deffn {Interactive Command} emacspeak-wizards-use-w3-or-w3m nil
-@kbd{Not bound to any key.}
-
-Alternates between using W3 and W3M for browse-url.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-wizards-vc-n nil
@@ -7775,13 +7981,13 @@ Automatically generated documentation
 for commands defined in module  emacspeak.
 
 @deffn {Interactive Command} emacspeak-describe-emacspeak nil
-@kbd{ control h control e   <f1> control e   <help> control e }
+@kbd{C-h C-e <f1> C-e <help> C-e}
 
 Give a brief overview of emacspeak.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-submit-bug nil
-@kbd{ control e CONTROL meta b }
+@kbd{C-e C-M-b}
 
 Function to submit a bug to the programs maintainer.
 @end deffn
@@ -7842,7 +8048,7 @@ Sample text to use comes from variable
 @end deffn
 
 @deffn {Interactive Command} voice-setup-toggle-silence-personality nil
-@kbd{ control e meta q }
+@kbd{C-e M-q}
 
 Toggle audibility of personality under point  .
 If personality at point is currently audible, its
@@ -7854,31 +8060,31 @@ either case, the buffer is refontified to have the new mapping
 take effect.
 @end deffn
 
-@node emacspeak-w3search
-@section emacspeak-w3search
+@node emacspeak-bbc
+@section emacspeak-bbc
 
-Commentary:
-Site-specific websearch enhancements
+No Commentary
 
 Automatically generated documentation
-for commands defined in module  emacspeak-w3search.
+for commands defined in module  emacspeak-bbc.
 
-@deffn {Interactive Command} emacspeak-websearch-blue-pages nil
+@deffn {Interactive Command} emacspeak-bbc nil
 @kbd{Not bound to any key.}
 
-Search IBM Blue Pages
+Launch BBC Interaction.
+See http://www.bbc.co.uk/radio/stations for full list of stations.
+See http://www.bbc.co.uk/radio/programmes/genres for list of genres.
+Interactive prefix arg filters  content by genre.
+
+(fn &optional GENRE)
 @end deffn
 
-@deffn {Interactive Command} emacspeak-websearch-ibm-internal nil
+@deffn {Interactive Command} emacspeak-bbc-genre nil
 @kbd{Not bound to any key.}
 
-Search IBM My News
-@end deffn
+Launch BBC Interaction for specified Genre.
 
-@deffn {Interactive Command} emacspeak-websearch-ibm-my-news nil
-@kbd{Not bound to any key.}
-
-Search IBM My News
+(fn)
 @end deffn
 
 @node emacspeak-org
@@ -7909,6 +8115,33 @@ Pops up an org input area.
 (fn)
 @end deffn
 
+@deffn {Interactive Command} emacspeak-org-table-speak-current-element nil
+@kbd{Not bound to any key.}
+
+echoes current table element
+
+(fn)
+@end deffn
+
+No Commentary
+
+Automatically generated documentation
+for commands defined in module  nil.
+
+@deffn {Interactive Command} ad-Advice-emacspeak-eterm-copy-region-to-register nil
+@kbd{Not bound to any key.}
+
+Before-advice `emacspeak-auto':
+Automatically defined advice to speak interactive prompts. 
+@end deffn
+
+@deffn {Interactive Command} ad-Advice-emacspeak-eterm-paste-register nil
+@kbd{Not bound to any key.}
+
+Before-advice `emacspeak-auto':
+Automatically defined advice to speak interactive prompts. 
+@end deffn
+
 @node URL Templates 
 @section  URL Templates
 
@@ -7919,7 +8152,7 @@ This section documents a total of 113 URL Templates.
 
 All of these URL templates can be invoked via command
   @kbd{M-x emacspeak-url-template-fetch} normally bound to
-  @kbd{ control e u }.
+  @kbd{C-e u}.
 This command prompts for the name of the template, and completion
   is available via Emacs' minibuffer completion.
 Each URL template carries out the following steps:
@@ -7969,6 +8202,18 @@ Walking directions from Ask.com
 @kbd{BBC  iPlayer}
 
 BBC iPlayer
+
+@kbd{BBC Genre Using IPlayer}
+
+BBC iPlayer Genre
+
+@kbd{BBC Podcast Directory}
+
+BBC PodCast Directory
+
+@kbd{BBC Program Guide}
+
+Display interactive BBC Program Guide.
 
 @kbd{Baseball Game Index}
 
@@ -8054,31 +8299,13 @@ Display content from Google Finance.
 
 Google Calendar XHTML version.
 
-@kbd{GMail Contacts}
-
-Open GMail Inbox
-
-@kbd{GMail Inbox}
-
-Open GMail Inbox
-
-@kbd{GMail Labels}
-
-Find messages having label from GMail. 
-Make sure to sign in before invoking this template.
-
-@kbd{GMail Mobile}
-
-GMail Mobile XHTML version --- light-weight, fast!
-
-@kbd{GMail Search}
-
-Search GMail. 
-Make sure to sign in before invoking this template.
-
 @kbd{Geek Linux Daily}
 
 Play specified edition of Geek  Linux DailyShow
+
+@kbd{GitHub Search}
+
+Perform a GitHub Search.
 
 @kbd{Google API Search}
 
@@ -8116,6 +8343,10 @@ Google Mobile Search
 
 Search Google news.
 
+@kbd{Google NewsPaper}
+
+Retrieve and speak Google News Overview.
+
 @kbd{Google Print}
 
 Google Print Search
@@ -8135,10 +8366,6 @@ Show just results and nav bar.
 @kbd{Google Scholar}
 
 Google Scholar Search
-
-@kbd{Google Text  News}
-
-Retrieve and speak Google News Overview.
 
 @kbd{Google TimeLine View}
 
@@ -8205,7 +8432,7 @@ from English to German
 
 @kbd{NY Times Mobile}
 
-NYtimes Mobile Site
+NYTimes Mobile Site
 
 @kbd{NY Times RSS Feeds}
 
@@ -8258,6 +8485,10 @@ Reuters Finance Lookup
 @kbd{Seeking Alpha Stock Search}
 
 Seeking Alpha search.
+
+@kbd{Sign in to Google}
+
+Login to Google.
 
 @kbd{StreamWorld Radio}
 

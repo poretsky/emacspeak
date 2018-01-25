@@ -1,5 +1,5 @@
 ;;; dtk-speak.el --- Provides Emacs Lisp interface to speech server
-;;;$Id: dtk-speak.el 8500 2013-11-02 01:54:49Z tv.raman.tv $
+;;;$Id: dtk-speak.el 8744 2013-12-28 17:20:28Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacs interface to TTS
 ;;; Keywords: Dectalk Emacs Elisp
@@ -143,7 +143,7 @@ Do not set this variable by hand, use command  `dtk-toggle-split-caps'
 (defcustom dtk-cleanup-patterns
   (list
    "." "_" "-"  "=" "/"  "+" "*" ":" ";" "%"
-   "{" "}" "~" "$" ")" "#" "/\\" "<>" )
+   "‑" "{" "}" "~" "$" ")" "#" "/\\" "<>" )
   "List of repeating patterns to clean up.
 You can use  command  `dtk-add-cleanup-pattern'
  bound to \\[dtk-add-cleanup-pattern]  to add more patterns.
@@ -1828,18 +1828,14 @@ only speak upto the first ctrl-m."
                                         ;running, I will remain silent.
                                         ; Do nothing if text is ""
   (unless
-      (or dtk-quiet
-          (null text)
-          (string-equal text "")
-          (not dtk-speak-server-initialized))
+      (or dtk-quiet (null text)
+          (string-equal text "") (not dtk-speak-server-initialized))
                                         ; flush previous speech if asked to
     (when dtk-stop-immediately (dtk-stop ))
     (dtk-interp-sync)
-    (or (stringp text) (setq text (format "%s" text )))
     (when selective-display
       (let ((ctrl-m (string-match "\015" text )))
-        (and ctrl-m
-             (setq text (substring  text 0 ctrl-m ))
+        (and ctrl-m (setq text (substring  text 0 ctrl-m ))
              (emacspeak-auditory-icon 'ellipses))))
     (let ((inhibit-point-motion-hooks t)
           (deactivate-mark nil)
@@ -1977,6 +1973,7 @@ Optional argument group-count specifies grouping for intonation."
 ;;{{{  emacs local variables
 
 ;;; local variables:
+;;; coding: utf-8
 ;;; folded-file: t
 ;;; byte-compile-dynamic: nil
 ;;; end:

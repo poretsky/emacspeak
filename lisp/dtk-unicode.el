@@ -6,7 +6,7 @@
 ;;; Using patch from Lukas.
 ;;
 ;; Author: Lukas Loehrer <loehrerl |at| gmx.net>
-;; Version: $Id: dtk-unicode.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
+;; Version: $Id: dtk-unicode.el 8910 2014-03-22 00:10:41Z tv.raman.tv $
 ;; Keywords:  TTS, Unicode
 
 ;;}}}
@@ -215,28 +215,22 @@ charsets returned by operations such as `find-charset-region'."
           (puthash char ad-return-value dtk-unicode-cache))
       (setq ad-return-value result))))
 
-(defsubst dtk-unicode-char-properties (char)
-  "Return unicode properties for CHAR.
-
-Converts char to unicode if necessary (for emacs 22)."
-  (let ((unicode (encode-char char 'ucs)))
-    (and unicode (condition-case nil
-                     (let ((emacspeak-speak-errors nil)
-                           (emacspeak-speak-messages nil))
-                       (describe-char-unicode-data unicode))
-                   (error nil)))))
-
-(defsubst dtk-unicode-char-property (char prop-name)
-  "Get character property by name."
-  (second (assoc prop-name (dtk-unicode-char-properties char))))
-
 (defsubst dtk-unicode-name-for-char (char)
   "Return unicode name for character CHAR.
 nil if CHAR is not in Unicode."
   (downcase
-   (or (car (rassoc char (ucs-names)))
-       (cadar (describe-char-unicode-data char))
+   (or (get-char-code-property char 'name)
+       (car (rassoc char (ucs-names)))
        "")))
+
+(defsubst dtk-unicode-char-properties (char)
+  "Return unicode properties for CHAR."
+  (let ((unicode (encode-char char 'ucs)))
+    (when unicode (describe-char-unicode-data unicode))))
+
+(defsubst dtk-unicode-char-property (char prop-name)
+  "Get character property by name."
+  (second (assoc prop-name (dtk-unicode-char-properties char))))
 
 (defsubst dtk-unicode-char-punctuation-p (char)
   "Use unicode properties to determine whether CHAR is a ppunctuation character."

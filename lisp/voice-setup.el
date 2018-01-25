@@ -1,5 +1,5 @@
 ;;; voice-setup.el --- Setup voices for voice-lock
-;;; $Id: voice-setup.el 8579 2013-11-25 19:57:31Z tv.raman.tv $
+;;; $Id: voice-setup.el 8636 2013-12-04 19:52:10Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Voice lock mode for Emacspeak
 ;;{{{  LCD Archive entry:
@@ -446,6 +446,8 @@ punctuations.")
    (font-lock-variable-name-face voice-bolden)
    (font-lock-warning-face voice-bolden-and-animate)
    (help-argument-name voice-smoothen)
+   (query-replace voice-bolden)
+   (match voice-lighten)
    (isearch voice-bolden)
    (highlight voice-animate)
    (italic voice-animate)

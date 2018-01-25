@@ -101,7 +101,7 @@ This is used by the various Bookshare view commands to display
   content from Daisy books."
   :type '(choice
           (function-item :tag "Emacs W3" :value  browse-url-w3)
-          (function-item :tag "Emacs EWW" :value  browse-url-eww)
+          (function-item :tag "Emacs EWW" :value  eww-browse-url)
           (function-item :tag "Mozilla" :value  browse-url-mozilla)
           (function-item :tag "Firefox" :value browse-url-firefox)
           (function-item :tag "Chromium" :value browse-url-chromium)
@@ -116,7 +116,7 @@ This is used by the various Bookshare view commands to display
 ;;}}}
 ;;{{{ XML Compatibility:
 (unless (fboundp 'xml-substitute-numeric-entities)
-  ;;; cloned from xml.el in emacs 24
+;;; cloned from xml.el in emacs 24
   (defun xml-substitute-numeric-entities (string)
     "Substitute SGML numeric entities by their respective utf characters.
 This function replaces numeric entities in the input STRING and
@@ -288,9 +288,9 @@ Optional argument 'no-auth says we dont need a user auth."
 (defsubst emacspeak-bookshare-generate-target (author title)
   "Generate a suitable filename target."
   (declare (special emacspeak-bookshare-downloads-directory))
-  (expand-file-name
+  (expand-file-name 
    (replace-regexp-in-string
-    " " "-"
+    "[ _&\'\":()\;]+" "-"
     (format "%s-%s.zip" author title))
    emacspeak-bookshare-downloads-directory))
 
@@ -299,7 +299,7 @@ Optional argument 'no-auth says we dont need a user auth."
   (declare (special emacspeak-bookshare-directory))
   (expand-file-name
    (replace-regexp-in-string
-    " " "-"
+    "[ _&\'\":()\;]+" "-"
     (format "%s/%s" author title))
    emacspeak-bookshare-directory))
 
@@ -472,7 +472,7 @@ Optional interactive prefix arg prompts for a category to use as a filter."
   (interactive)
   (shell-command
    (format
-    "%s %s %s  '%s' -o %s"
+    "%s %s %s  '%s' -o \"%s\""
     emacspeak-bookshare-curl-program
     emacspeak-bookshare-curl-common-options
     (emacspeak-bookshare-user-password)

@@ -1,5 +1,5 @@
 ;;; emacspeak-setup.el --- Setup Emacspeak environment --loaded to start Emacspeak
-;;; $Id: emacspeak-setup.el 8573 2013-11-23 16:32:11Z tv.raman.tv $
+;;; $Id: emacspeak-setup.el 9172 2014-05-10 01:50:41Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  File for setting up and starting Emacspeak
 ;;; Keywords: Emacspeak, Setup, Spoken Output
@@ -97,9 +97,16 @@ pronunciation dictionaries are stored. ")
   "README file from where we get SVN revision number.")
 
 ;;;###autoload
+(defconst emacspeak-codename
+  "WowDog"
+  "Code name of present release.")
+
+
+;;;###autoload
 (defconst emacspeak-version
   (format
-   "38.0 %s"
+   "40.0 %s:  %s"
+   emacspeak-codename
    (cond
     ((file-exists-p emacspeak-readme-file)
      (let ((buffer (find-file-noselect emacspeak-readme-file))
@@ -119,11 +126,6 @@ pronunciation dictionaries are stored. ")
        revision))
     (t "")))
   "Version number for Emacspeak.")
-
-;;;###autoload
-(defconst emacspeak-codename
-  "BigDog"
-  "Code name of present release.")
 
 ;;}}}
 ;;{{{ speech rate

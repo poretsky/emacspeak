@@ -1,5 +1,5 @@
 ;;; emacspeak-tabulate.el --- Interpret tabulated information as a table
-;;; $Id: emacspeak-tabulate.el 8574 2013-11-24 02:01:07Z tv.raman.tv $
+;;; $Id: emacspeak-tabulate.el 9113 2014-04-30 15:44:07Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $ 
 ;;; Description:  Utility to help emacspeak identify tabulated information
 ;;; Keywords: Emacspeak, Tabulated Data,  Visual layout gives structure
@@ -143,7 +143,7 @@ Fields are assumed to be delimited by whitespace. "
         (personality-table (emacspeak-possible-voices)))
     (emacspeak-voiceify-rectangle
      tl br 
-     (read (completing-read
+     (intern (completing-read
             (format "Personality for column %s from  %s through %s"
                     header (- tl start) (- tr start))
             personality-table  nil t )))

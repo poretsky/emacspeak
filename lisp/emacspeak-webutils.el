@@ -1,5 +1,5 @@
 ;;; emacspeak-webutils.el --- Common Web Utilities For Emacspeak
-;;; $Id: emacspeak-webutils.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
+;;; $Id: emacspeak-webutils.el 9107 2014-04-27 15:17:48Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak Webutils
 ;;; Keywords: Emacspeak, web
@@ -55,6 +55,26 @@
 (require 'url)
 (require 'gfeeds)
 (require 'browse-url)
+;;}}}
+;;{{{ Utility: Render HTML To String
+;;;###autoload
+(defsubst emacspeak-webutils-html-string (html-string)
+  "Return formatted string."
+  (or (require 'shr) (error "Need  emacs 24.4"))
+  (with-temp-buffer 
+    (insert html-string)
+    (shr-render-region  (point-min) (point-max))
+    (buffer-string)))
+
+;;}}}
+;;{{{ Fix bug in url-cookie
+
+(defadvice url-cookie-write-file (around fix-write-bug pre act comp)
+  "Fix bug in url-cookie-write-file."
+  (let ((print-length nil)
+        (print-level nil))
+    ad-do-it))
+
 ;;}}}
 ;;{{{ keymap: web-prefix
 (define-prefix-command 'emacspeak-web-prefix)
@@ -122,15 +142,22 @@ Note that the Web browser should reset this hook after using it.")
         (eq browse-url-browser-function 'w3m-browse-url)))
 
 (defsubst emacspeak-webutils-autospeak()
-  "Setup post process hook to speak the Web page when rendered."
-  (add-hook 'emacspeak-web-post-process-hook
-            #'(lambda nil
-                (declare (special emacspeak-we-xpath-filter))
-                (let ((inhibit-read-only t))
-                  (setq emacspeak-we-xpath-filter
-                        emacspeak-we-paragraphs-xpath-filter)
-                  (emacspeak-speak-buffer)))
-            'at-end))
+  "Setup post process hook to speak the Web page when rendered.
+Forward punctuation and rate  settings to resulting buffer."
+  (lexical-let
+      ((p dtk-punctuation-mode)
+       (r dtk-speech-rate))
+    (add-hook 'emacspeak-web-post-process-hook
+              #'(lambda nil
+                  (declare (special emacspeak-we-xpath-filter))
+                  (let ((inhibit-read-only t))
+                    (dtk-set-punctuations p)
+                    (dtk-set-rate r)
+                    (emacspeak-dtk-sync)
+                    (setq emacspeak-we-xpath-filter
+                          emacspeak-we-paragraphs-xpath-filter)
+                    (emacspeak-speak-buffer)))
+              'at-end)))
 
 (defsubst emacspeak-webutils-cache-google-query(query)
   "Setup post process hook to cache google query when rendered."
@@ -154,7 +181,8 @@ Note that the Web browser should reset this hook after using it.")
   "Check to see if functions are called from a browser buffer"
   (declare (special major-mode))
   (unless (or (eq major-mode 'w3-mode)
-              (eq major-mode 'w3m-mode))
+              (eq major-mode 'w3m-mode)
+              (eq major-mode 'eww-mode))
     (error "This command cannot be used outside browser buffers.")))
 
 (defsubst emacspeak-webutils-read-url ( )
@@ -277,6 +305,26 @@ and xsl environment specified by style, params and options."
 (make-variable-buffer-local 'emacspeak-webutils-current-url)
 
 ;;}}}
+;;{{{ Properties from HTML stack:
+
+(defsubst emacspeak-webutils-property-names-from-html-stack (html-stack)
+  "Returns list of attributes from HTML stack."
+  (delete nil
+          (loop for e in html-stack
+                append
+                (mapcar 'car (rest e)))))
+
+(defun emacspeak-webutils-get-property-from-html-stack (html-stack prop)
+  "Extract and return list of prop values from HTML  stack.
+Stack is a list of the form ((element-name (attribute-alist)))."
+  (let ((props nil))
+    (loop for element in html-stack
+          do
+          (push (cdr (assoc prop (rest element)))
+                props))
+    (nreverse (delq nil props))))
+
+;;}}}
 ;;{{{  google tools
 
 ;;;###autoload
@@ -295,13 +343,11 @@ current page."
 With a prefix argument, extracts url under point."
   (interactive "P")
   (emacspeak-webutils-browser-check)
-  (emacspeak-websearch-google
-   (format "cache:%s"
+  (browse-url
+   (format "http://webcache.googleusercontent.com/search?q=cache:%s"
            (cond
-            ((null prefix)
-             (funcall emacspeak-webutils-current-url))
-            (t
-             (funcall emacspeak-webutils-url-at-point))))))
+            ((null prefix) (funcall emacspeak-webutils-current-url))
+            (t (funcall emacspeak-webutils-url-at-point))))))
 
 ;;;###autoload
 (defun emacspeak-webutils-google-on-this-site ()
@@ -414,228 +460,26 @@ instances."
   "Play media url under point.
 Optional interactive prefix arg `playlist-p' says to treat the link as a playlist. "
   (interactive "P" )
-  (let ((url (funcall emacspeak-webutils-url-at-point)))
+  (let ((url
+         (if emacspeak-webutils-url-at-point
+             (funcall emacspeak-webutils-url-at-point)
+           (browse-url-url-at-point))))
     (message "Playing media  URL under point")
     (funcall  emacspeak-media-player  url  playlist-p)))
 
 ;;;###autoload
-(defun emacspeak-webutils-view-feed-via-google-reader ()
-  "Pulls feed under point via Google Reader."
-  (interactive)
-  (let ((feed (funcall emacspeak-webutils-url-at-point)))
-    (cond
-     ((null feed) (error "No url under point."))
-     (t (emacspeak-webutils-atom-display
-         (format
-          "http://www.google.com/reader/public/atom/feed/%s?n=20"
-          (emacspeak-url-encode feed)))))))
-;;;###autoload
 (defun emacspeak-webutils-open-in-other-browser ()
-  "Opens link in alternate browser.
- If using default browser is w3, uses w3m and vice-versa"
+  "Opens link in alternate browser."
   (interactive)
   (declare (special major-mode
                     w3-mode
-                    w3m-mode))
+                    eww-mode))
   (emacspeak-webutils-browser-check)
   (if (eq major-mode 'w3-mode)
-      (w3m-browse-url  (funcall emacspeak-webutils-url-at-point))
+      (eww-browse-url  (funcall emacspeak-webutils-url-at-point))
     (browse-url-w3 (funcall emacspeak-webutils-url-at-point))))
 
 ;;}}}
-;;{{{ display authenticated feeds:
-
-(defun emacspeak-webutils-feed-display(feed-url style &optional speak)
-  "Fetch feed via Emacs and display using xsltproc."
-  (let ((buffer (url-retrieve-synchronously feed-url))
-        (coding-system-for-read 'utf-8)
-        (coding-system-for-write 'utf-8)
-        (emacspeak-xslt-options nil))
-    (when speak (emacspeak-webutils-autospeak))
-    (cond
-     ((null buffer)
-      (message "Nothing to display."))
-     (t
-      (with-current-buffer buffer
-        (emacspeak-webutils-without-xsl
-         (goto-char (point-min))
-         (search-forward "\n\n")
-         (delete-region (point-min) (point))
-         (decode-coding-region (point-min) (point-max) 'utf-8)
-         (emacspeak-xslt-region style
-                                (point-min) (point-max))
-         (browse-url-of-buffer)))))))
-
-;;;###autoload
-(defun emacspeak-webutils-rss-display (feed-url )
-  "Display RSS feed."
-  (interactive
-   (list
-    (emacspeak-webutils-read-this-url)))
-  (emacspeak-webutils-autospeak)
-  (emacspeak-webutils-feed-display feed-url
-                                   (emacspeak-xslt-get "rss.xsl")))
-
-;;;###autoload
-(defun emacspeak-webutils-atom-display (feed-url )
-  "Display ATOM feed."
-  (interactive (list (emacspeak-webutils-read-this-url)))
-  (declare (special emacspeak-atom-view-xsl))
-  (emacspeak-webutils-autospeak)
-  (emacspeak-webutils-feed-display feed-url
-                                   emacspeak-atom-view-xsl))
-
-;;;###autoload
-(defun emacspeak-webutils-fv (feed-url )
-  "Display RSS or ATOM feed URL."
-  (interactive (list (emacspeak-webutils-read-this-url)))
-  (emacspeak-auditory-icon 'select-object)
-  (emacspeak-webutils-autospeak)
-  (gfeeds-view  feed-url))
-
-;;}}}
-;;{{{ RSS:
-;;{{{ RSS feed cache
-
-;;;###autoload
-(defgroup emacspeak-rss nil
-  "RSS Feeds for the Emacspeak desktop."
-  :group 'emacspeak)
-
-(defcustom emacspeak-rss-feeds
-  '(
-    ("Wired News" "http://www.wired.com/news_drop/netcenter/netcenter.rdf")
-    ("BBC News"  "http://www.bbc.co.uk/syndication/feeds/news/ukfs_news/front_page/rss091.xml")
-    ("CNet Tech News"  "http://rss.com.com/2547-12-0-5.xml")
-    ("XML.COM"  "http://www.xml.com/xml/news.rss")
-    )
-  "Table of RSS feeds."
-  :type '(repeat
-          (list :tag "RSS Feed"
-                (string :tag "Title")
-                (string :tag "URI")))
-  :group 'emacspeak-rss)
-
-;;}}}
-;;{{{  view feed
-(defcustom emacspeak-rss-unescape-html t
-  "Fix malformed  XML that results from sites attempting to
-unescape HTML tags."
-  :type 'boolean
-  :group 'emacspeak-rss)
-
-;;;###autoload
-
-;;;###autoload
-(defun emacspeak-opml-display (opml-url &optional speak)
-  "Retrieve and display OPML  URL."
-  (interactive
-   (list
-    (car (browse-url-interactive-arg "OPML  URL: "))
-    (or (ems-interactive-p )
-        current-prefix-arg)))
-  (emacspeak-webutils-feed-display
-   opml-url
-   (emacspeak-xslt-get "opml.xsl")
-   speak))
-
-;;;###autoload
-
-(defun emacspeak-webutils-open-subscribed-feeds ()
-  "Feed list specified by OPML file customized via emacspeak-my-subscribed-feeds"
-  (interactive)
-  (declare (special emacspeak-my-subscribed-feeds))
-  (emacspeak-opml-display emacspeak-my-subscribed-feeds))
-
-;;;###autoload
-(defun emacspeak-rss-browse (feed)
-  "Browse specified RSS feed."
-  (interactive
-   (list
-    (let ((completion-ignore-case t))
-      (completing-read "Feed:"
-                       emacspeak-rss-feeds))))
-  (let ((uri (cadr
-              (assoc feed emacspeak-rss-feeds))))
-    (emacspeak-webutils-rss-display uri )))
-
-;;}}}
-;;}}}
-;;{{{ ATOM:
-;;{{{ ATOM feed cache
-
-;;;###autoload
-(defgroup emacspeak-atom nil
-  "ATOM Feeds for the Emacspeak desktop."
-  :group 'emacspeak)
-
-;;;###autoload
-(defcustom emacspeak-atom-feeds
-  nil
-  "Table of ATOM feeds."
-  :type '(repeat
-          (list :tag "ATOM Feed"
-                (string :tag "Title")
-                (string :tag "URI")))
-  :group 'emacspeak-atom)
-
-;;}}}
-;;{{{  view feed
-
-(defvar emacspeak-atom-legacy
-  (expand-file-name "legacy-atom.xsl" emacspeak-xslt-directory)
-  "Legacy Atom support.")
-
-(defvar emacspeak-atom-modern
-  (expand-file-name "atom-view.xsl" emacspeak-xslt-directory)
-  "Modern Atom support.")
-
-(defcustom emacspeak-atom-view-xsl
-  emacspeak-atom-legacy
-  "XSL stylesheet used for viewing Atom Feeds."
-  :type '(choice
-          (string :tag "Legacy"  emacspeak-atom-legacy)
-          (string :tag "Modern" emacspeak-atom-modern))
-  :group 'emacspeak-xsl)
-
-;;;###autoload
-
-;;;###autoload
-(defun emacspeak-atom-browse (feed)
-  "Browse specified ATOM feed."
-  (interactive
-   (list
-    (let ((completion-ignore-case t))
-      (completing-read "Feed:"
-                       emacspeak-atom-feeds))))
-  (let ((uri (cadr (assoc feed emacspeak-atom-feeds))))
-    (emacspeak-webutils-atom-display uri)))
-
-;;}}}
-
-;;}}}
-
-;;{{{ Properties from HTML stack:
-
-(defsubst emacspeak-webutils-property-names-from-html-stack (html-stack)
-  "Returns list of attributes from HTML stack."
-  (delete nil
-          (loop for e in html-stack
-                append
-                (mapcar 'car (rest e)))))
-
-(defun emacspeak-webutils-get-property-from-html-stack (html-stack prop)
-  "Extract and return list of prop values from HTML  stack.
-Stack is a list of the form ((element-name (attribute-alist)))."
-  (let ((props nil))
-    (loop for element in html-stack
-          do
-          (push (cdr (assoc prop (rest element)))
-                props))
-    (nreverse (delq nil props))))
-
-;;}}}
-
 (provide 'emacspeak-webutils)
 ;;{{{ end of file
 

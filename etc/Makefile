@@ -1,4 +1,4 @@
-# $Id: Makefile 6081 2008-11-29 19:57:44Z tv.raman.tv $
+# $Id: Makefile 8989 2014-04-06 23:57:46Z tv.raman.tv $
 # $Author: tv.raman.tv $ 
 # Description:  Makefile for Emacspeak 
 # Keywords: Emacspeak, Dectalk, Makefile 
@@ -40,6 +40,8 @@
 all: #fix perms
 	chmod 755 *.pl
 # {{{xml -> html 
+tips.html: tips.xml tips.xsl
+	xsltproc tips.xsl tips.xml > tips.html 
 %.html: %.xml
 	xsltproc    $< > $@
 

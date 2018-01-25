@@ -1,5 +1,5 @@
 ;;; emacspeak-w3.el --- Speech enable W3 WWW browser -- includes ACSS Support
-;;; $Id: emacspeak-w3.el 8500 2013-11-02 01:54:49Z tv.raman.tv $
+;;; $Id: emacspeak-w3.el 9072 2014-04-16 15:27:01Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak enhancements for W3
 ;;; Keywords: Emacspeak, W3, WWW
@@ -68,15 +68,8 @@
   :prefix "emacspeak-w3-")
 
 ;;}}}
-;;{{{  additional advice
-
-(defadvice url-write-global-history (around emacspeak pre act comp)
-  "Silence messages while this function executes"
-  (let ((emacspeak-speak-messages nil))
-    ad-do-it))
-
-;;}}}
 ;;{{{  show http headers
+
 (defcustom emacspeak-w3-lwp-request "lwp-request"
   "LWP Request command from perl LWP."
   :type 'string
@@ -101,14 +94,6 @@
 ;;}}}
 ;;{{{ setup
 
-(defcustom emacspeak-w3-punctuation-mode  'all
-  "Pronunciation mode to use for W3 buffers."
-  :type '(choice
-          (const  :tag "Ignore" nil)
-          (const  :tag "some" some)
-          (const  :tag "all" all))
-  :group 'emacspeak-w3)
-
 (defcustom emacspeak-w3-create-imenu-index nil
   "Create IMenu index by default."
   :type 'boolean
@@ -118,13 +103,10 @@
   "Updated emacspeak hook for W3 mode."
   (declare (special imenu-create-index-function
                     emacspeak-web-post-process-hook
-                    emacspeak-w3-create-imenu-index
-                    emacspeak-w3-punctuation-mode))
+                    emacspeak-w3-create-imenu-index ))
   (set (make-local-variable 'voice-lock-mode) t)
   (modify-syntax-entry 10 " ")
   (modify-syntax-entry 160 " ")
-  (when emacspeak-w3-punctuation-mode
-    (setq dtk-punctuation-mode emacspeak-w3-punctuation-mode))
   (emacspeak-auditory-icon 'open-object)
   (when (featurep 'w3-imenu)
     (setq imenu-create-index-function 'w3-imenu-create-index))
@@ -181,7 +163,7 @@
           ("L" w3-table-move-to-next-table-column)
           ("H" w3-table-move-to-previous-table-column)
           ("\;" emacspeak-speak-face-interval-and-move)
-          ("A" emacspeak-webutils-atom-display)
+          ("A" emacspeak-feeds-atom-display)
           ("F" emacspeak-webutils-fv)
           ("X" emacspeak-xslt-view-xml)
           ("C" emacspeak-webutils-google-extract-from-cache)
@@ -190,12 +172,11 @@
           ("P" emacspeak-speak-previous-personality-chunk)
           ("o" emacspeak-wizards-next-bullet)
           ("O" emacspeak-wizards-previous-bullet)
-          ("R" emacspeak-webutils-rss-display)
+          ("R" emacspeak-feeds-rss-display)
           ("\C-f" w3-table-focus-on-this-cell)
           ("\M- " emacspeak-imenu-speak-this-section)
           ("\M-n" emacspeak-imenu-goto-next-index-position)
           ("\M-p" emacspeak-imenu-goto-previous-index-position)
-          ("\M-r" emacspeak-webutils-view-feed-via-google-reader)
           ("\M-;" emacspeak-webutils-play-media-at-point)
           ("\M-s" emacspeak-w3-jump-to-submit)
           ("c" emacspeak-w3-curl-url-under-point)
@@ -498,9 +479,6 @@ element. "
                         (widget-get (widget-at (point)) :class ) " "))))
 
 ;;}}}
-;;{{{ url rewrite
-
-;;}}}
 ;;{{{ jump to submit button
 
 (defun emacspeak-w3-jump-to-submit ()
@@ -549,15 +527,7 @@ element. "
       (error (message "caught an error")))))
 
 ;;}}}
-;;{{{ silence url history save
-
-(defadvice url-history-save-history (around emacspeak pre act comp)
-  "Silence spoken messages while url history is being saved."
-  (let ((emacspeak-speak-messages nil))
-    ad-do-it))(provide 'emacspeak-w3)
-
-;;}}}
-;;{{{ silence  url package
+;;{{{ silence  w3 package
 
 (declaim (special url-http-version))
 (setq url-http-version "1.0")
@@ -568,48 +538,11 @@ element. "
   (let ((emacspeak-speak-messages nil))
     ad-do-it))
 
-(defadvice url-http-content-length-after-change-function
-    (around emacspeak pre act comp)
-  "silence spoken messages."
-  (let ((emacspeak-speak-messages nil))
-    ad-do-it))
-
-(defadvice url-http-chunked-encoding-after-change-function
-    (around emacspeak pre act comp)
-  "silence spoken messages."
-  (let ((emacspeak-speak-messages nil))
-    ad-do-it))
-
 ;; (defadvice url-http-wait-for-headers-change-function
 ;;   (around emacspeak pre act comp)
 ;;   "silence spoken messages."
 ;;   (let ((emacspeak-speak-messages nil))
 ;;     ad-do-it))
-
-(defadvice url-cookie-handle-set-cookie
-    (around emacspeak pre act comp)
-  "silence spoken messages."
-  (let ((emacspeak-speak-messages nil))
-    ad-do-it
-    ad-return-value))
-
-(defadvice url-cookie-write-file
-    (around emacspeak pre act comp)
-  "silence spoken messages."
-  (let ((emacspeak-speak-messages nil))
-    ad-do-it
-    ad-return-value))
-
-(defadvice url-lazy-message
-    (around emacspeak pre act comp)
-  "silence spoken messages."
-  (let ((emacspeak-speak-messages nil))
-    ad-do-it))
-
-;;}}}
-;;{{{ pull RSS feed
-
-;;;###autoload
 
 ;;}}}
 ;;{{{ backward compatibility
@@ -647,6 +580,7 @@ element. "
       (setq emacspeak-pronounce-pronunciation-table save-pronunciations)))
    (t ad-do-it))
   ad-return-value)
+
 ;;}}}
 ;;{{{ jump by block level elements (experimental:
 
@@ -759,6 +693,7 @@ If a rewrite rule is defined in the current buffer, we change
 
 ;;}}}
 ;;{{{ utf-8 
+
 (defadvice  w3-slow-parse-buffer (around emacspeak pre act comp)
   "Force buffer encoding to utf-8."
   (let ((coding-system-for-read 'utf-8)
@@ -807,6 +742,7 @@ HTML."
 
 ;;}}}
 ;;{{{ handle xml as HTML:
+
 ;;; fix mm-inline-types
 (require 'mm-decode)
 (declaim (special  mm-inline-media-tests))
@@ -867,11 +803,8 @@ HTML."
               (string-prefix-p (emacspeak-w3-google-result-url-prefix) u))
          (ad-set-arg 0 (emacspeak-w3-canonicalize-google-result-url u))))))))
 
-(defun foo (x y)
-  "show x"
-  (message (concat x y)))
-
 ;;}}}
+(provide 'emacspeak-w3)
 ;;{{{  emacs local variables
 
 ;;; local variables:

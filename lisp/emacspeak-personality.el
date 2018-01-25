@@ -1,5 +1,5 @@
 ;;; emacspeak-personality.el ---Emacspeak's new personality interface
-;;; $Id: emacspeak-personality.el 8576 2013-11-25 16:24:43Z tv.raman.tv $
+;;; $Id: emacspeak-personality.el 8742 2013-12-28 16:52:30Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Voice lock implementation
 ;;; Keywords: Emacspeak,  Spoken Output, audio formatting
@@ -297,7 +297,6 @@ displayed in the messages area."
         (when voice
           (funcall emacspeak-personality-voiceify-faces start end voice object))))))
 
-
 (defadvice add-text-properties (after emacspeak-personality  pre act)
   "Used by emacspeak to augment font lock."
   (when (and voice-lock-mode    emacspeak-personality-voiceify-faces)
@@ -421,26 +420,30 @@ Append means place corresponding personality at the end."
             (funcall emacspeak-personality-voiceify-overlays
                      (overlay-start overlay) (overlay-end overlay)
                      voice (overlay-buffer overlay))))))))
+(defvar emacspeak-personality-advice-move-overlay t
+  "Set to nil to avoid recursive advice during redisplay.")
 
 (defadvice move-overlay (before emacspeak-personality  pre act)
   "Used by emacspeak to augment font lock."
-  (let ((overlay (ad-get-arg 0))
-        (beg (ad-get-arg 1))
-        (end (ad-get-arg 2))
-        (object (ad-get-arg 3))
-        (voice nil))
-    (setq voice (overlay-get  overlay 'personality))
-    (when
-        (and voice
-             emacspeak-personality-voiceify-overlays
-             (integer-or-marker-p (overlay-start overlay))
-             (integer-or-marker-p (overlay-end overlay)))
-      (emacspeak-personality-remove
-       (overlay-start overlay)
-       (overlay-end overlay)
-       voice (overlay-buffer overlay))
-      (funcall emacspeak-personality-voiceify-overlays
-               beg end voice object))))
+  (when emacspeak-personality-advice-move-overlay
+    (let ((overlay (ad-get-arg 0))
+          (emacspeak-personality-advice-move-overlay nil)
+          (beg (ad-get-arg 1))
+          (end (ad-get-arg 2))
+          (object (ad-get-arg 3))
+          (voice nil))
+      (setq voice (overlay-get  overlay 'personality))
+      (when
+          (and voice
+               emacspeak-personality-voiceify-overlays
+               (integer-or-marker-p (overlay-start overlay))
+               (integer-or-marker-p (overlay-end overlay)))
+        (emacspeak-personality-remove
+         (overlay-start overlay)
+         (overlay-end overlay)
+         voice (overlay-buffer overlay))
+        (funcall emacspeak-personality-voiceify-overlays
+                 beg end voice object)))))
 
 ;;}}}
 (provide 'emacspeak-personality )

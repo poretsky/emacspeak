@@ -1,5 +1,5 @@
 ;;; emacspeak-jabber.el --- Speech-Enable jabber
-;;; $Id: emacspeak-jabber.el 8500 2013-11-02 01:54:49Z tv.raman.tv $
+;;; $Id: emacspeak-jabber.el 9102 2014-04-25 19:14:01Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description: speech-enable jabber
 ;;; Keywords: Emacspeak, jabber
@@ -77,6 +77,11 @@
    ))
 ;;}}}
 ;;{{{ Advice interactive commands:
+(defadvice jabber-switch-to-roster-buffer (after emacspeak pre act comp)
+  "Provide auditory feedback."
+  (when (ems-interactive-p)
+    (emacspeak-auditory-icon 'open-object)
+    (emacspeak-speak-mode-line)))
 
 ;;}}}
 ;;{{{ silence keepalive
@@ -193,16 +198,28 @@
 (defun emacspeak-jabber-popup-roster ()
   "Pop to Jabber roster."
   (interactive)
-  (declare (special jabber-roster-buffer
-                    *jabber-connected*))
-  (unless (buffer-live-p jabber-roster-buffer)
-    (jabber-display-roster))
-  (unless *jabber-connected*
-    (call-interactively 'jabber-connect))
+  (declare (special jabber-roster-buffer *jabber-connected*))
+  (unless *jabber-connected* (call-interactively 'jabber-connect))
+  (unless (buffer-live-p jabber-roster-buffer) (call-interactively 'jabber-display-roster))
   (pop-to-buffer jabber-roster-buffer)
   (goto-char (point-min))
+  (forward-line 4)
   (emacspeak-auditory-icon 'select-object)
-  (emacspeak-speak-mode-line))
+  (emacspeak-speak-line))
+(defadvice jabber-connect-all (after emacspeak pre act comp)
+  "switch to roster so we give it a chance to update."
+  (when (ems-interactive-p)
+    (switch-to-buffer jabber-roster-buffer)))
+(defadvice jabber-roster-update (around emacspeak    pre act  comp)
+  "Make this operation a No-Op unless the roster is visible."
+  (when (get-buffer-window-list jabber-roster-buffer)
+    ad-do-it))
+
+;; (defadvice jabber-display-roster (around emacspeak    pre act  comp)
+;;   "Make this operation a No-Op unless called interactively."
+;;   (when (ems-interactive-p) ad-do-it))
+
+(add-hook 'jabber-post-connect-hook 'jabber-switch-to-roster-buffer)
 
 ;;}}}
 

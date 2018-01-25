@@ -1,5 +1,5 @@
 ;;; emacspeak-calendar.el --- Speech enable Emacs Calendar -- maintain a diary and appointments
-;;; $Id: emacspeak-calendar.el 8574 2013-11-24 02:01:07Z tv.raman.tv $
+;;; $Id: emacspeak-calendar.el 8801 2014-01-06 21:07:34Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak extensions to speech enable the calendar.
 ;;; Keywords: Emacspeak, Calendar, Spoken Output
@@ -47,6 +47,8 @@
 ;;; Code:
 (require 'emacspeak-preamble)
 (require 'calendar)
+(require 'solar)
+(require 'g-utils)
 (require 'appt)
 ;;}}}
 ;;{{{  personalities

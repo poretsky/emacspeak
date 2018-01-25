@@ -1,5 +1,5 @@
 ;;; g-utils.el --- Google Client Utilities
-;;;$Id: g-utils.el 8374 2013-07-27 19:33:27Z tv.raman.tv $
+;;;$Id: g-utils.el 9098 2014-04-25 15:16:35Z tv.raman.tv $
 ;;; $Author: raman $
 ;;; Description:  Google Client utilities
 ;;; Keywords: Google   Atom API, Google Services
@@ -236,13 +236,16 @@ Customize this to live on your local disk."
 Key must be a symbol.
 For using string keys, use g-json-lookup."
   (cdr (assq key object)))
+(defsubst g-json-get-string (key object)
+  "Return empty string instead of nil for false."
+  (or (g-json-get key object) ""))
 
 ;;; Make sure to call json-read
 ;;; with json-key-type bound to 'string before using this:
 
 (defsubst g-json-lookup (key object)
   "Return object.key from json object or nil if not found.
-Key  is a string of of the form a.b.c"
+Key  is a string of  the form a.b.c"
   (let ((name  (mapcar #'intern (split-string key "\\." 'omit-null)))
         (v object))
     (while (and name
@@ -251,6 +254,31 @@ Key  is a string of of the form a.b.c"
     (cond
      ((null name) v)
      (t nil))))
+
+(defsubst g-json-path-lookup (path object)
+  "Return objectat path from json object or nil if not
+found. Path is a string of the form a.b.[1].c. [n] denotes array
+references, poor-man's xpath."
+  (let ((name    (split-string path "\\." 'omit-null))
+        (key nil)
+        (v object))
+    (while (and name
+                (setq key (car name)))
+      (cond
+       ((char-equal  (aref  key 0) ?\[)
+        (setq v (aref  v (read (substring    key 1 -1)))))
+       (t
+        (setq key (intern key))
+        (setq v (cdr (assq key v)))))
+      (setq name (cdr name)))
+    (cond
+     ((null name) v)
+     (t nil))))
+
+
+(defun g-json-lookup-string  (key object)
+  "Like g-json-lookup, but returns empty string for nil."
+  (or (g-json-lookup key object) ""))
 
 (defalias 'g-json-aref 'aref)
 
@@ -410,6 +438,16 @@ Note that in the Curl output, we see lf rather than crlf.")
     (bury-buffer)
     annotation))
 
+;;}}}
+;;{{{ convert html to text
+
+(defsubst g-html-string (html-string)
+  "Return formatted string."
+  (or (require 'shr) (error "Need  emacs 24.4"))
+  (with-temp-buffer 
+    (insert html-string)
+    (shr-render-region  (point-min) (point-max))
+    (buffer-string)))
 ;;}}}
 (provide 'g-utils)
 ;;{{{ end of file

@@ -1,5 +1,5 @@
 ;;; gweb.el --- Google Search
-;;;$Id: gweb.el 8387 2013-08-18 00:02:05Z tv.raman.tv $
+;;;$Id: gweb.el 9016 2014-04-09 01:03:10Z tv.raman.tv $
 ;;; $Author: raman $
 ;;; Description:  AJAX Search -> Lisp
 ;;; Keywords: Google   AJAX API
@@ -302,8 +302,7 @@ Uses specified corpus for prompting and suggest selection."
   (interactive "sNews Search: ")
   (let ((html (gweb-news-html query)))
     (cond
-     ((null html)
-      (message "No news found."))
+     ((null html) (message "No news found."))
      (t 
       (g-using-scratch
        (insert html)

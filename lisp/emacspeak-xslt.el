@@ -1,5 +1,5 @@
 ;;; emacspeak-xslt.el --- Implements Emacspeak  xslt transform engine
-;;; $Id: emacspeak-xslt.el 8574 2013-11-24 02:01:07Z tv.raman.tv $
+;;; $Id: emacspeak-xslt.el 8639 2013-12-06 00:00:17Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  xslt transformation routines
 ;;; Keywords: Emacspeak,  Audio Desktop XSLT
@@ -321,7 +321,7 @@ part of the libxslt package."
           (buffer-file-coding-system 'utf-8))
       (insert-file file)
       (shell-command
-       (format "%s   --novalid --nonet --param base %s  %s  %s  2>/dev/null"
+       (format "%s   --novalid --nonet --param base %s  %s  \"%s\"  2>/dev/null"
                emacspeak-xslt-program 
                (format "\"'file://%s'\"" (expand-file-name file))
                (expand-file-name style)

@@ -1,5 +1,5 @@
 ;;; emacspeak-widget.el --- Speech enable Emacs' native GUI widget library
-;;; $Id: emacspeak-widget.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
+;;; $Id: emacspeak-widget.el 9168 2014-05-08 15:55:31Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $ 
 ;;; Description: Emacspeak extensions to widgets
 ;;; Keywords:emacspeak, audio interface to emacs customized widgets
@@ -568,6 +568,8 @@ Returns a string with appropriate personality."
 
 ;;}}}
 ;;{{{  activating widgets:
+;;; forward declaration:
+
 
 (defadvice widget-button-press (around emacspeak pre act comp)
   "Provide auditory feedback"
@@ -581,7 +583,7 @@ Returns a string with appropriate personality."
             (old-position (point)))
         (cond
          ((and
-           (or (eq major-mode 'w3-mode) (eq major-mode 'w3m-mode))
+           (or (eq major-mode 'eww-mode)(eq major-mode 'w3-mode) (eq major-mode 'w3m-mode))
            emacspeak-webutils-url-at-point
            (funcall emacspeak-webutils-url-at-point)
            emacspeak-we-url-executor

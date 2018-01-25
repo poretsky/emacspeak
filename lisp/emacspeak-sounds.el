@@ -1,5 +1,5 @@
 ;;; emacspeak-sounds.el --- Defines Emacspeak auditory icons
-;;; $Id: emacspeak-sounds.el 8395 2013-08-21 15:20:06Z tv.raman.tv $
+;;; $Id: emacspeak-sounds.el 8625 2013-12-02 16:20:16Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Module for adding sound cues to emacspeak
 ;;; Keywords:emacspeak, audio interface to emacs, auditory icons
@@ -294,7 +294,7 @@ See command `emacspeak-toggle-auditory-icons' bound to \\[emacspeak-toggle-audit
 ;;}}}
 ;;{{{  Play an icon
 
-(defcustom emacspeak-play-args "-n"
+(defcustom emacspeak-play-args "-N"
   "Set this to nil if using paplay from pulseaudio."
   :type 'string
   :group 'emacspeak-sounds)

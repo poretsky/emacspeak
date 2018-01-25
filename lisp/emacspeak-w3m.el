@@ -1,5 +1,5 @@
 ;;; emacspeak-w3m.el --- speech-enables w3m-el
-;;;$Id: emacspeak-w3m.el 8500 2013-11-02 01:54:49Z tv.raman.tv $
+;;;$Id: emacspeak-w3m.el 8929 2014-03-29 00:00:37Z tv.raman.tv $
 ;;{{{ Copyright
 
 ;;; This file is not part of Emacs, but the same terms and
@@ -557,11 +557,12 @@ instead of the modeline."
 ;;}}}
 ;;{{{ webutils variables
 
-(add-hook 'w3m-fontify-after-hook
-          #'(lambda ()
-              (setq emacspeak-webutils-document-title 'w3m-current-title)
-              (setq emacspeak-webutils-url-at-point 'emacspeak-w3m-url-at-point)
-              (setq emacspeak-webutils-current-url 'emacspeak-w3m-current-url)))
+(add-hook
+ 'w3m-fontify-after-hook
+ #'(lambda ()
+     (setq emacspeak-webutils-document-title 'w3m-current-title)
+     (setq emacspeak-webutils-url-at-point 'emacspeak-w3m-url-at-point)
+     (setq emacspeak-webutils-current-url 'emacspeak-w3m-current-url)))
 
 ;;}}}
 ;;{{{ buffer select mode

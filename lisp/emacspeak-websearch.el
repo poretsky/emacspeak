@@ -1,5 +1,5 @@
 ;;; emacspeak-websearch.el --- search utilities
-;;; $Id: emacspeak-websearch.el 8367 2013-07-02 15:57:23Z tv.raman.tv $
+;;; $Id: emacspeak-websearch.el 9120 2014-04-30 19:03:32Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak extension to make Web searching convenient
 ;;; Keywords: Emacspeak, WWW interaction
@@ -317,7 +317,7 @@ When using supported browsers,  this interface attempts to speak the most releva
    (list
     (emacspeak-websearch-read-query "Search Online Broadcasts for: ")))
   (declare (special emacspeak-websearch-blinkx-uri))
-  (emacspeak-webutils-rss-display
+  (emacspeak-feeds-rss-display
    (concat  emacspeak-websearch-blinkx-uri
             (emacspeak-url-encode query))))
 
@@ -810,7 +810,7 @@ Uses  customizable option `emacspeak-websearch-google-results-only' to determine
        (lucky (browse-url search-url))
        (emacspeak-websearch-google-results-only
         (emacspeak-we-extract-by-id-list
-         (list "subform_ctrl" "res" "nav")
+         (list "kno-result" "subform_ctrl" "res" "nav")
          search-url 'speak))
        (t (emacspeak-webutils-with-xsl-environment
            (expand-file-name "default.xsl" emacspeak-xslt-directory)
@@ -1166,7 +1166,7 @@ Optional prefix arg no-rss scrapes information from HTML."
                       '("$" "&printer=1"))))
   (cond
    ((null no-rss)                       ;use rss feed
-    (emacspeak-webutils-rss-display
+    (emacspeak-feeds-rss-display
      (concat emacspeak-websearch-news-yahoo-rss-uri
              (format "p=%s&n=20&c=news"
                      (emacspeak-url-encode query)))))
@@ -1523,7 +1523,7 @@ Optional interactive prefix arg results in prompting for a search term."
      (t                                 ;browse
       (setq url
             (format emacspeak-usenet-feeds-uri group))
-      (emacspeak-webutils-rss-display url)))))
+      (emacspeak-feeds-rss-display url)))))
 
 ;;}}}
 

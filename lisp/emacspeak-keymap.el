@@ -1,5 +1,5 @@
 ;;; emacspeak-keymap.el --- Setup all keymaps and keybindings provided by Emacspeak
-;;; $Id: emacspeak-keymap.el 8574 2013-11-24 02:01:07Z tv.raman.tv $
+;;; $Id: emacspeak-keymap.el 9086 2014-04-21 02:34:20Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Module for setting up emacspeak keybindings
 ;;; Keywords: Emacspeak
@@ -303,6 +303,7 @@ field in the customization buffer.  You can use the notation
 (loop for binding in
       '(
         (  "\C-a" emacspeak-toggle-auditory-icons )
+        ("\M-\;" emacspeak-webutils-play-media-at-point (&optional  playlist-p))
         ( "\M-f" emacspeak-frame-label-or-switch-to-labelled-frame )
         (" " emacspeak-speak-header-line)
         ("!" emacspeak-speak-run-shell-command)
@@ -355,7 +356,8 @@ field in the customization buffer.  You can use the notation
         ("\C-r" emacspeak-root)
         ("\C-s" tts-restart )
         ("\C-t" emacspeak-table-find-file)
-        ("\C-u" emacspeak-rss-browse)
+        ("\C-u" emacspeak-feeds-browse)
+        ("\M-u" emacspeak-feeds-add-feed)
         ("\C-v" view-mode)
         ("\C-w" emacspeak-speak-window-information)
         ("\C-y" emacspeak-clipboard-paste)
@@ -445,6 +447,7 @@ field in the customization buffer.  You can use the notation
         ("N" dtk-set-next-language)
         ("S" dtk-set-language)
         ("o" dtk-toggle-strip-octals)
+        ("m"emacspeak-speak-set-mode-punctuations)
         ("p" dtk-set-punctuations)
         ("P" dtk-set-previous-language)
         ("q" dtk-toggle-quiet )
@@ -479,8 +482,6 @@ field in the customization buffer.  You can use the notation
 (global-set-key  [27 prior]  'emacspeak-owindow-scroll-down)
 (global-set-key  [27 next]  'emacspeak-owindow-scroll-up)
 (global-set-key  [27 select]  'emacspeak-owindow-speak-line)
-(global-set-key '[left] 'emacspeak-backward-char)
-(global-set-key '[right] 'emacspeak-forward-char)
 (define-key esc-map "\M-:" 'emacspeak-wizards-show-eval-result)
 ;;}}}
 ;;{{{ emacspeak under X windows
@@ -489,6 +490,7 @@ field in the customization buffer.  You can use the notation
 (global-set-key [67108908] 'emacspeak-alt-keymap)
 (global-set-key  [67108903] 'emacspeak-super-keymap)
 (global-set-key [67108923] 'emacspeak-hyper-keymap)
+                                        ;(global-set-key [67108910]  'esc-map)
 ;;; Our very own silence key on the console
 ;;; I use the Windows key.
 (global-set-key '[silence] 'emacspeak-silence)

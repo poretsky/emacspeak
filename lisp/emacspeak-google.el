@@ -152,6 +152,38 @@ This variable is buffer-local.")
         :default "m"
         :value "m"
         :type 'tbs)
+;;; Recipes 
+       (make-emacspeak-google-tool
+        :name "recipes"
+        :param "rcp"
+        :range '(0 1)
+        :default 0
+        :value 0
+        :type 'tbm)
+;;; places/local:
+       (make-emacspeak-google-tool
+        :name "places"
+        :param "plcs"
+        :range '(0 1)
+        :default 0
+        :value 0
+        :type 'tbm)
+                                        ; patents 
+       (make-emacspeak-google-tool
+        :name "patents"
+        :param "pts"
+        :range '(0 1)
+        :default 0
+        :value 0
+        :type 'tbm)
+;;; discussions/forums
+       (make-emacspeak-google-tool
+        :name "discussions"
+        :param "dsc"
+        :range '(0 1)
+        :default 0
+        :value 0
+        :type 'tbm)
 ;;; Blog mode
        (make-emacspeak-google-tool
         :name "blog"
@@ -304,7 +336,7 @@ This variable is buffer-local.")
         :default 0
         :type 'tbs
         :value 0)
-       ;;; shopping
+;;; shopping
        (make-emacspeak-google-tool
         :name "Shopping"
         :param "shop"
@@ -327,7 +359,7 @@ This variable is buffer-local.")
         :default 0
         :type 'tbs
         :value 0)
-       ;;; soc
+;;; soc
        (make-emacspeak-google-tool
         :name "social" 
         :param "sa"
@@ -335,6 +367,27 @@ This variable is buffer-local.")
         :default 0
         :type 'tbs
         :value 0))))
+
+;;}}}
+;;{{{  URL Fixup
+
+;;; pattern: http://www.google.com/url?q=http://emacspeak.sourceforge.net/&sa=U&ei=GceWT42_EY_ViALW84nlCQ&ved=0CBIQFjAA&usg=AFQjCNGz91Z7Yz9dPVoKPP6HVGZ0UqFhRA
+;;; prefix: http://www.google.com/url?q=
+;;; Suffix: &sa=...
+
+(defsubst emacspeak-google-canonicalize-result-url (url)
+  "Strip out the actual result URL from the redirect wrapper."
+  (declare (special emacspeak-websearch-google-use-https))
+  (url-unhex-string 
+   (substring url
+              (if emacspeak-websearch-google-use-https 29 28)
+              (string-match "&sa=" url))))
+
+(defsubst emacspeak-google-result-url-prefix ()
+  "Return prefix of result urls."
+  (declare (special emacspeak-websearch-google-use-https))
+  (format "%s://www.google.com/url?q="
+          (if emacspeak-websearch-google-use-https "https" "http")))
 
 ;;}}}
 ;;{{{ Interactive Commands
@@ -397,6 +450,32 @@ This variable is buffer-local.")
     (emacspeak-websearch-google emacspeak-google-query)))
 
 ;;}}}
+;;{{{ Sign in, Sign out:
+
+(defvar emacspeak-google-sign-out-url
+  "http://www.google.com/accounts/Logout"
+  "URL for signing out of Google.")
+
+(defvar emacspeak-google-sign-in-url
+  "https://accounts.google.com/ServiceLogin?hl=en&continue=https://www.google.com/"
+  "URL for signing in to Google.")
+
+(defun emacspeak-google-sign-in ()
+  "Sign in to Google."
+  (interactive)
+  (declare (special emacspeak-google-sign-in-url))
+  (browse-url emacspeak-google-sign-in-url))
+
+(defun emacspeak-google-sign-out ()
+  "Sign out to Google."
+  (interactive)
+  (declare (special emacspeak-google-sign-out-url))
+  (browse-url emacspeak-google-sign-out-url))
+(declaim (special emacspeak-google-keymap))
+(define-key emacspeak-google-keymap "a" 'emacspeak-google-sign-out)
+(define-key emacspeak-google-keymap "A" 'emacspeak-google-sign-in)
+         
+;;}}}
 ;;{{{  keymap
 ;;;###autoload
 (define-prefix-command  'emacspeak-google-command
@@ -404,30 +483,34 @@ This variable is buffer-local.")
 
 (loop for k in
       '(
-        ("h"
-         emacspeak-google-toolbelt-change-web-history-visited)
-        ("H" emacspeak-google-toolbelt-change-web-history-not-visited)
-        ("r" emacspeak-google-toolbelt-change-recent)
-        ("b" emacspeak-google-toolbelt-change-blog)
-        ("n" emacspeak-google-toolbelt-change-news)
-        ("c" emacspeak-google-toolbelt-change-commercial)
-        ("d" emacspeak-google-toolbelt-change-sort-by-date)
-        ("p" emacspeak-google-toolbelt-change-commercial-prices)
-        ("f" emacspeak-google-toolbelt-change-forums)
-        ("v" emacspeak-google-toolbelt-change-video)
-        ("i" emacspeak-google-toolbelt-change-images)
         ("B" emacspeak-google-toolbelt-change-books)
-        ("t" emacspeak-google-toolbelt-change-books-type)
+        ("C" emacspeak-google-toolbelt-change-commercial)
+        ("D" emacspeak-google-toolbelt-change-discussions)
+        ("H" emacspeak-google-toolbelt-change-web-history-not-visited)
+        ("I" emacspeak-google-toolbelt-change-patents)
         ("L" emacspeak-google-toolbelt-change-literal)
-        ("\C-t" emacspeak-google-show-toolbelt)
+        ("P" emacspeak-google-toolbelt-change-places)
+        ("R" emacspeak-google-toolbelt-change-recipes)
+        ("S" emacspeak-google-toolbelt-change-shopping)
+        ("S" emacspeak-google-toolbelt-change-structured-snippets)
         ("T" emacspeak-google-toolbelt-change-timeline)
         ("\C-b" emacspeak-google-toolbelt-change-books-format)
-        ("l" emacspeak-google-toolbelt-change-non-commercial)
-        ("S" emacspeak-google-toolbelt-change-shopping)
-        ("s" emacspeak-google-toolbelt-change-structured-snippets)
-        ("S" emacspeak-google-toolbelt-change-social)
-        ("a" emacspeak-websearch-google)
-        ("A" emacspeak-websearch-accessible-google)
+        ("\C-s" emacspeak-google-toolbelt-change-social)
+        ("\C-t" emacspeak-google-show-toolbelt)
+        ("b" emacspeak-google-toolbelt-change-blog)
+        ("c" emacspeak-webutils-google-extract-from-cache)
+        ("d" emacspeak-google-toolbelt-change-sort-by-date)
+        ("f" emacspeak-google-toolbelt-change-forums)
+        ("g" emacspeak-websearch-google)
+        ("h" emacspeak-google-toolbelt-change-web-history-visited)
+        ("i" emacspeak-google-toolbelt-change-images)
+        ("l" emacspeak-webutils-google-who-links-to-this-page)
+        ("n" emacspeak-google-toolbelt-change-news)
+        ("p" emacspeak-google-toolbelt-change-commercial-prices)
+        ("r" emacspeak-google-toolbelt-change-recent)
+        ("s" emacspeak-webutils-google-similar-to-this-page)
+        ("t" emacspeak-google-toolbelt-change-books-type)
+        ("v" emacspeak-google-toolbelt-change-video)
         )
       do
       (emacspeak-keymap-update emacspeak-google-keymap k))

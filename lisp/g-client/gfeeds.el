@@ -1,5 +1,5 @@
 ;;; gfeeds.el --- Google Access To Feeds
-;;;$Id: gfeeds.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
+;;;$Id: gfeeds.el 8918 2014-03-26 15:24:16Z tv.raman.tv $
 ;;; $Author: raman $
 ;;; Description:  AJAX Feeds -> Lisp
 ;;; Keywords: Google   AJAX Feeds API
@@ -155,11 +155,12 @@ Customize this to point to your Web location."
 
 ;;}}}
 ;;{{{ Convenience commands:
+
 (defvar gfeeds-freshness-internal nil
   "Internal cached value of freshness as a time value.")
 
 ;;;###autoload
-(defcustom gfeeds-freshness "1 hour"
+(defcustom gfeeds-freshness "6 hours"
   "Freshness used to decide if we return titles."
   :type  'string
   :set  #'(lambda (sym val)
@@ -181,7 +182,7 @@ Customize this to point to your Web location."
 	    (mapcar
 	     #'(lambda (article)
 		 (let ((since (time-since  (cdr (assq 'publishedDate article))))
-		       (title (cdr (assq 'title article)))
+		       (title (g-html-string (cdr (assq 'title article))))
 		       (link (cdr (assq 'link article))))
 		   (when (and (time-less-p  since gfeeds-freshness-internal)
                               (> (length title) 0))
@@ -227,14 +228,8 @@ Interactive prefix arg causes the feed url to be looked up given a Web site."
        (insert html)
        (browse-url-of-buffer))))))
 
-;;;###autoload
-(defun gfeeds-lookup-and-view (site)
-  "Lookup feed URL for a site and browse result."
-  (interactive
-   (list
-    (read-from-minibuffer "Site: " (browse-url-url-at-point))))
-  (gfeeds-view site 'lookup))
-  
+
+
 ;;}}}
 (provide 'gfeeds)
 ;;{{{ end of file
@@ -246,7 +241,7 @@ Interactive prefix arg causes the feed url to be looked up given a Web site."
 
 ;;}}}
 ;;; gfeeds.el --- Google Feeds
-;;;$Id: gfeeds.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
+;;;$Id: gfeeds.el 8918 2014-03-26 15:24:16Z tv.raman.tv $
 ;;; $Author: raman $
 ;;; Description:  AJAX Feeds -> Lisp
 ;;; Keywords: Google   AJAX API
