@@ -1,5 +1,5 @@
 ;;; emacspeak.el --- Emacspeak -- The Complete Audio Desktop
-;;; $Id: emacspeak.el 8047 2012-12-20 02:59:43Z tv.raman.tv $
+;;; $Id: emacspeak.el 8344 2013-05-11 16:15:32Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak: A speech interface to Emacs
 ;;; Keywords: Emacspeak, Speech, Dectalk,
@@ -184,6 +184,7 @@ speech-enabling extensions."
 (emacspeak-do-package-setup "erc" 'emacspeak-erc)
 (emacspeak-do-package-setup "eshell" 'emacspeak-eshell)
 (emacspeak-do-package-setup "ess" 'emacspeak-ess)
+(emacspeak-do-package-setup "eclim" 'emacspeak-eclim)
 (emacspeak-do-package-setup "enriched" 'emacspeak-enriched)
 (emacspeak-do-package-setup "facemenu" 'emacspeak-facemenu)
 (emacspeak-do-package-setup "find-dired" 'emacspeak-find-dired)
@@ -193,6 +194,7 @@ speech-enabling extensions."
 (emacspeak-do-package-setup "folding" 'emacspeak-folding)
 (emacspeak-do-package-setup "forms" 'emacspeak-forms)
 (emacspeak-do-package-setup "generic" 'emacspeak-generic)
+(emacspeak-do-package-setup "gtags" 'emacspeak-gtags)
 (emacspeak-do-package-setup "gnus" 'emacspeak-gnus)
 (emacspeak-do-package-setup "gnuplot" 'emacspeak-gnuplot)
 (emacspeak-do-package-setup "gomoku" 'emacspeak-gomoku)
@@ -234,7 +236,7 @@ speech-enabling extensions."
 (emacspeak-do-package-setup "pcl-cvs" 'emacspeak-pcl-cvs)
 (emacspeak-do-package-setup "pcvs" 'emacspeak-pcl-cvs)
 (emacspeak-do-package-setup "psgml" 'emacspeak-psgml)
-(emacspeak-do-package-setup "python-mode" 'emacspeak-python)
+(emacspeak-do-package-setup "python" 'emacspeak-python)
 (emacspeak-do-package-setup "python-mode" 'emacspeak-py)
 (emacspeak-do-package-setup "re-builder" 'emacspeak-re-builder)
 (emacspeak-do-package-setup "reftex" 'emacspeak-reftex)
@@ -385,7 +387,8 @@ sets punctuation mode to all, activates the dictionary and turns on split caps."
          'tcl-mode-hook
          'html-helper-mode-hook
          'scheme-mode-hook
-         'dired-mode-hook)))
+         'dired-mode-hook
+         'python-mode-hook)))
 
 ;;}}}
 ;;{{{ set up after-init-hook to fix interactive functions
@@ -480,7 +483,7 @@ functions for details.   "
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end:
 
 ;;}}}

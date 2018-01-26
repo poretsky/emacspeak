@@ -120,15 +120,15 @@ Finally, @samp{voice-bolden} is assigned the above symbol.
 @end menu
 
 @node What this gives.
-@section What this gives is
+@section What this gives 
 
 @enumerate
 @item
-The ability to customize the voice via custom by editting
+The ability to customize the voice via custom by editing
 the list of numbers in @samp{voice-bolden-settings}
 
 @item
-When that list is editted, @samp{voice-bolden} is arranged to be
+When that list is edited, @samp{voice-bolden} is arranged to be
 updated automatically.
 @end enumerate
 

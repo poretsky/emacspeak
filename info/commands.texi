@@ -1,11 +1,11 @@
-@c $Id: commands.texi 7862 2012-06-10 02:46:22Z tv.raman.tv $
+@c $Id: commands.texi 8320 2013-05-04 23:30:32Z tv.raman.tv $
 @node Emacspeak Commands
 @chapter Emacspeak Commands
 
 This chapter is generated automatically from the source-level documentation.
 Any errors or corrections should be made to the source-level
 documentation.
-This chapter documents a total of 969 commands.
+This chapter documents a total of 958 commands.
 
 @menu
 * cd-tool::
@@ -87,7 +87,6 @@ This chapter documents a total of 969 commands.
 * emacspeak::
 * voice-setup::
 * emacspeak-w3search::
-* emacspeak-firevox::
 * emacspeak-jawbreaker::
 * emacspeak-moz::
 * emacspeak-org::
@@ -195,9 +194,9 @@ Port  defaults to  dtk-local-server-port
 @end deffn
 
 @deffn {Interactive Command} dtk-pause nil
-@kbd{ control e p }
+@kbd{Not bound to any key.}
 
-Temporarily pause / rsume speech.
+Temporarily pause / resume speech.
 @end deffn
 
 @deffn {Interactive Command} dtk-reset-state nil
@@ -212,7 +211,7 @@ Typically used after the Dectalk has been power   cycled.
 
 Resume paused speech.
 This command resumes  speech that has been suspended by executing
-command `dtk-pause' bound to C-e p.
+command `dtk-pause' bound to M-x dtk-pause.
 If speech has not been paused,
 and option `dtk-resume-should-toggle' is set,
  then this command will pause ongoing speech.
@@ -491,7 +490,7 @@ Skip backwards by  chunks of minutes.
 @deffn {Interactive Command} emacspeak-alsaplayer-cd nil
 @kbd{Not bound to any key.}
 
-Change default directory, and silence its pronounciation.
+Change default directory, and silence its pronunciation.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-alsaplayer-clear nil
@@ -905,13 +904,13 @@ Once retrieved, memoize to avoid multiple retrievals.
 @deffn {Interactive Command} emacspeak-bookshare-extract-and-view nil
 @kbd{Not bound to any key.}
 
-Extract content refered to by link under point, and render via the browser.
+Extract content referred to by link under point, and render via the browser.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-bookshare-extract-xml nil
 @kbd{Not bound to any key.}
 
-Extract content refered to by link under point, and return an XML buffer.
+Extract content referred to by link under point, and return an XML buffer.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-bookshare-flush-lines nil
@@ -966,7 +965,7 @@ The Emacspeak Bookshare front-end is launched by command
 emacspeak-bookshare bound to C-e C-b
 
 This command switches to a special buffer that has Bookshare
-commands bounds to single keystrokes-- see the ke-binding list at
+commands bounds to single keystrokes-- see the key-binding list at
 the end of this description. Use Emacs online help facility to
 look up help on these commands.
 
@@ -1270,7 +1269,7 @@ Define persistent outline regexp for this book.
 @kbd{Not bound to any key.}
 
 Apply xslt transform specified by 
-Uses keymap "emacspeak-daisy-xsl", which is not currently defined.
+Uses keymap `emacspeak-daisy-xsl', which is not currently defined.
 
 to convert and view Daisy Books as a Web page.
 @end deffn
@@ -1297,7 +1296,7 @@ The Emacspeak DAISY front-end is launched by command
 emacspeak-daisy-open-book  bound to M-x emacspeak-daisy-open-book.
 
 This command switches to a special buffer that has DAISY
-commands bounds to single keystrokes-- see the ke-binding
+commands bounds to single keystrokes-- see the key-binding
 list at the end of this description.  Use Emacs online help
 facility to look up help on these commands.
 
@@ -1629,6 +1628,12 @@ Add EPubs found in specified directory to the bookshelf.
 Interactive prefix arg searches recursively in directory.
 @end deffn
 
+@deffn {Interactive Command} emacspeak-epub-bookshelf-add-epub nil
+@kbd{Not bound to any key.}
+
+Add epub file to current bookshelf.
+@end deffn
+
 @deffn {Interactive Command} emacspeak-epub-bookshelf-clear nil
 @kbd{Not bound to any key.}
 
@@ -1647,10 +1652,18 @@ Load bookshelf metadata from disk.
 Load bookshelf metadata from specified bookshelf.
 @end deffn
 
+@deffn {Interactive Command} emacspeak-epub-bookshelf-open-epub nil
+@kbd{Not bound to any key.}
+
+Open epub file and add it to current bookshelf.
+@end deffn
+
 @deffn {Interactive Command} emacspeak-epub-bookshelf-redraw nil
 @kbd{Not bound to any key.}
 
 Redraw Bookshelf.
+Optional interactive prefix arg author-first prints author at the
+  left.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-epub-bookshelf-refresh nil
@@ -1666,10 +1679,18 @@ Remove EPubs found in specified directory from the bookshelf.
 Interactive prefix arg searches recursively in directory.
 @end deffn
 
+@deffn {Interactive Command} emacspeak-epub-bookshelf-remove-this-book nil
+@kbd{Not bound to any key.}
+
+Remove the book on current line from this bookshelf.
+No book files are deleted.
+@end deffn
+
 @deffn {Interactive Command} emacspeak-epub-bookshelf-rename nil
 @kbd{Not bound to any key.}
 
 Saves current bookshelf to  specified name.
+Interactive prefix arg `overwrite' will overwrite existing file.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-epub-bookshelf-save nil
@@ -1726,30 +1747,34 @@ Letters do not insert themselves; instead, they are commands.
 key             binding
 ---             -------
 
+C-a		emacspeak-epub-bookshelf-add-directory
+C-d		emacspeak-epub-bookshelf-remove-directory
+C-k		emacspeak-epub-delete
 C-l		emacspeak-epub-bookshelf-redraw
 RET		emacspeak-epub-open
+C-o		emacspeak-epub-bookshelf-open-epub
 C-x		Prefix Command
 ESC		Prefix Command
 C		emacspeak-epub-gutenberg-catalog
 G		emacspeak-epub-gutenberg-download
-a		emacspeak-epub-bookshelf-add-directory
+a		emacspeak-epub-bookshelf-add-epub
 b		emacspeak-epub-bookshelf-open
 c		emacspeak-epub-bookshelf-clear
-d		emacspeak-epub-delete
+d		emacspeak-epub-bookshelf-remove-this-book
 e		emacspeak-epub-bookshelf-rename
 f		emacspeak-epub-browse-files
 g		emacspeak-epub-google
 n		next-line
 o		emacspeak-epub-open
 p		previous-line
-r		emacspeak-epub-bookshelf-remove-directory
+r		emacspeak-epub-bookshelf-rename
 t		emacspeak-epub-fulltext
 <return>	emacspeak-epub-open
 
+M-s		emacspeak-epub-bookshelf-save
+
 C-x C-q		emacspeak-epub-bookshelf-refresh
 C-x C-s		emacspeak-epub-bookshelf-save
-
-M-s		emacspeak-epub-bookshelf-save
 
 In addition to any hooks its parent mode `special-mode' might have run,
 this mode runs the hook `emacspeak-epub-mode-hook', as the final step
@@ -1795,7 +1820,7 @@ for commands defined in module  emacspeak-erc.
 @deffn {Interactive Command} emacspeak-erc-add-name-to-monitor nil
 @kbd{Not bound to any key.}
 
-Add people to moniter in this room.
+Add people to monitor in this room.
 Optional interactive prefix  arg defines a pronunciation that
   silences speaking of this perso's name.
 @end deffn
@@ -2813,13 +2838,12 @@ for commands defined in module  emacspeak-loaddefs.
 @deffn {Interactive Command} emacspeak-mark-forward-mark nil
 @kbd{ <control down> }
 
+:around advice: `ad-Advice-pop-to-mark-command'
+
 Jump to mark, and pop a new position for mark off the ring.
 (Does not affect global mark ring).
 
-This function is advised.
-
-After-advice `emacspeak':
-Produce an auditory icon if possible.
+(fn)
 @end deffn
 
 @deffn {Interactive Command} emacspeak-toggle-comint-output-monitor nil
@@ -3413,7 +3437,7 @@ The Emacspeak OCR front-end is launched by command
 emacspeak-ocr bound to C-e C-o.  
 
 This command switches to a special buffer that has OCR
-commands bounds to single keystrokes-- see the ke-binding
+commands bounds to single keystrokes-- see the key-binding
 list at the end of this description.  Use Emacs online help
 facility to look up help on these commands.
 
@@ -4290,6 +4314,8 @@ any other key to speak entire line.
 @kbd{ control e control l }
 
 Print the current buffer line number and narrowed line number of point.
+
+(fn)
 @end deffn
 
 @deffn {Interactive Command} emacspeak-speak-line-set-column-filter nil
@@ -4416,7 +4442,7 @@ any other key to speak entire page.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-speak-paragraph nil
-@kbd{ control e @{ }
+@kbd{ control e @{   control e p }
 
 Speak paragraph.
 With prefix arg, speaks rest of current paragraph.
@@ -4731,14 +4757,6 @@ current local  value to the result.
 @kbd{ control e q }
 
 Toggle the state of whether emacspeak echoes messages.
-@end deffn
-
-@deffn {Interactive Command} emacspeak-toggle-which-function nil
-@kbd{ control e meta w }
-
-Toggle state of  Emacspeak  which function mode.
-Interactive PREFIX arg means toggle  the global default value, and then set the
-current local  value to the result.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-toggle-word-echo nil
@@ -5372,10 +5390,10 @@ Toggle TNT autospeak for this chat session.
 @section emacspeak-url-template
 
 Commentary:
-It is often useful to have ``parameterized hot list entries''
+It is often useful to have ``parametrized hot list entries''
 i.e., hotlist entries  that are ``templates'' for the
 actual URL.
-The user provides values for the parameterized portions
+The user provides values for the parametrized portions
 of the URL e.g. the date.
 See @xref{URL Templates}, for details on the URL templates
 that are presently defined.
@@ -5608,8 +5626,6 @@ Toggle drawing of W3 table borders
 @section emacspeak-w3m
 
 Commentary:
-
-
 
 Automatically generated documentation
 for commands defined in module  emacspeak-w3m.
@@ -5941,18 +5957,6 @@ for commands defined in module  emacspeak-websearch.
 Google Accessible Search -- see http://labs.google.com/accessible
 @end deffn
 
-@deffn {Interactive Command} emacspeak-websearch-alltheweb-search nil
-@kbd{Not bound to any key.}
-
-Perform an AllTheWeb  search.
-@end deffn
-
-@deffn {Interactive Command} emacspeak-websearch-altavista-search nil
-@kbd{Not bound to any key.}
-
-Perform an Altavista search
-@end deffn
-
 @deffn {Interactive Command} emacspeak-websearch-amazon-search nil
 @kbd{Not bound to any key.}
 
@@ -5965,12 +5969,6 @@ Amazon search.
 Ask Jeeves for the answer.
 @end deffn
 
-@deffn {Interactive Command} emacspeak-websearch-bbc-search nil
-@kbd{Not bound to any key.}
-
-Search BBC archives.
-@end deffn
-
 @deffn {Interactive Command} emacspeak-websearch-biblio-search nil
 @kbd{Not bound to any key.}
 
@@ -5981,12 +5979,6 @@ Search Computer Science Bibliographies.
 @kbd{Not bound to any key.}
 
 BlinkX RSS Generator.
-@end deffn
-
-@deffn {Interactive Command} emacspeak-websearch-britannica-search nil
-@kbd{Not bound to any key.}
-
-Search Encyclopedia Britannica.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-websearch-citeseer-search nil
@@ -6014,26 +6006,10 @@ Search CPAN  Comprehensive Perl Archive Network   Site.
 Search CTAN Comprehensive TeX Archive Network   Site. 
 @end deffn
 
-@deffn {Interactive Command} emacspeak-websearch-dictionary-google nil
-@kbd{Not bound to any key.}
-
-Look up word in Google dictionary. 
-Optional interactive prefix arg prompts for language pair for translation.
-Default is to use English as source and target languages.
-@end deffn
-
-@deffn {Interactive Command} emacspeak-websearch-dictionary-hypertext-webster-search nil
-@kbd{Not bound to any key.}
-
-Search the Webster Dictionary.
-@end deffn
-
 @deffn {Interactive Command} emacspeak-websearch-dispatch nil
 @kbd{ control e ? }
 
-Launches specific websearch queries.
-Press `?' to list available search engines.
-Once selected, the selected searcher prompts for additional information as appropriate.
+ Press `?' to list available search engines.
 When using supported browsers,  this interface attempts to speak the most relevant information on the result page.
 @end deffn
 
@@ -6047,20 +6023,6 @@ Display form specified by form-markup.
 @kbd{Not bound to any key.}
 
 Ebay search.
-@end deffn
-
-@deffn {Interactive Command} emacspeak-websearch-emaps-search nil
-@kbd{Not bound to any key.}
-
-Perform EmapSpeak search.
-Query is a Google Maps query in plain English.
-Interactive prefix arg `use-near' searches near our previously cached  location.
-@end deffn
-
-@deffn {Interactive Command} emacspeak-websearch-emapspeak-near-my-location nil
-@kbd{Not bound to any key.}
-
-Perform search relative to `my-location'.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-websearch-exchange-rate-convertor nil
@@ -6079,14 +6041,6 @@ Perform a FolDoc search.
 @kbd{Not bound to any key.}
 
 Search Freshmeat  Site. 
-@end deffn
-
-@deffn {Interactive Command} emacspeak-websearch-froogle nil
-@kbd{Not bound to any key.}
-
-Perform a Froogle search.
-Optional interactive  prefix arg local-flag prompts for local
-  area in which to search.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-websearch-google nil
@@ -6160,12 +6114,6 @@ Perform an Gutenberg search
 Displays key mapping used by Emacspeak Websearch.
 @end deffn
 
-@deffn {Interactive Command} emacspeak-websearch-koders-search nil
-@kbd{Not bound to any key.}
-
-Perform a koders.com  search
-@end deffn
-
 @deffn {Interactive Command} emacspeak-websearch-map-yahoo-directions-search nil
 @kbd{Not bound to any key.}
 
@@ -6196,18 +6144,6 @@ Perform an Open Directory search
 @kbd{Not bound to any key.}
 
 Perform an Yahoo  people search
-@end deffn
-
-@deffn {Interactive Command} emacspeak-websearch-podscope nil
-@kbd{Not bound to any key.}
-
-Perform a PodScope search to locate podcasts.
-@end deffn
-
-@deffn {Interactive Command} emacspeak-websearch-podzinger-search nil
-@kbd{Not bound to any key.}
-
-Podzinger RSS Generator.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-websearch-quotes-yahoo-search nil
@@ -6251,18 +6187,6 @@ Search SourceForge Site.
 @kbd{Not bound to any key.}
 
 Search swik software community site.
-@end deffn
-
-@deffn {Interactive Command} emacspeak-websearch-technorati nil
-@kbd{Not bound to any key.}
-
-Perform a Technorati tag search.
-@end deffn
-
-@deffn {Interactive Command} emacspeak-websearch-teoma nil
-@kbd{Not bound to any key.}
-
-Perform an Teoma  search.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-websearch-usenet nil
@@ -6315,12 +6239,6 @@ Look up historical stock data.
 Optional second arg as-html processes the results as HTML rather than data.
 @end deffn
 
-@deffn {Interactive Command} emacspeak-websearch-youtube nil
-@kbd{Not bound to any key.}
-
-Search YouTube
-@end deffn
-
 @node emacspeak-webspace
 @section emacspeak-webspace
 
@@ -6361,7 +6279,7 @@ Speak current news headline.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-webspace-headlines-view nil
-@kbd{ <control return> }
+@kbd{Not bound to any key.}
 
 Display all cached headlines in a special interaction buffer.
 @end deffn
@@ -6431,10 +6349,35 @@ Optional interactive prefix arg forces a refresh.
 Refresh Reader.
 @end deffn
 
+@deffn {Interactive Command} emacspeak-webspace-reader-rip nil
+@kbd{Not bound to any key.}
+
+RIP Google Reader.
+Save Reader subscriptions to a specified file.
+@end deffn
+
 @deffn {Interactive Command} emacspeak-webspace-reader-unsubscribe nil
 @kbd{Not bound to any key.}
 
 Unsubscribe to link under point.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-webspace-reading-list nil
+@kbd{ control ; SPACE r   hyper  SPACE r }
+
+Set up scrolling reading list in header.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-webspace-reading-list-accumulate nil
+@kbd{Not bound to any key.}
+
+Accumulate  items from Google Reader Reading List (river of news) in a Webspace buffer.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-webspace-reading-list-view nil
+@kbd{ <control return> }
+
+Switch to reading list view, creating it if needed.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-webspace-rss-view nil
@@ -6931,21 +6874,22 @@ previous window configuration.
 @deffn {Interactive Command} emacspeak-speak-run-shell-command nil
 @kbd{ control e ! }
 
-Invoke shell COMMAND and display its output as a table.  The results
-are placed in a buffer in Emacspeak's table browsing mode.  Optional
-interactive prefix arg as-root runs the command as root.  Use this for running shell commands that produce
-tabulated output.  This command should be used for shell commands that
-produce tabulated output that works with Emacspeak's table recognizer.
-Verify this first by running the command in a shell and executing
-command `emacspeak-table-display-table-in-region' normally bound to
-C-e TAB.
+Invoke shell COMMAND and display its output as a table. The
+results are placed in a buffer in Emacspeak's table browsing
+mode. Optional interactive prefix arg read-as-csv interprets the
+result as csv. . Use this for running shell commands that produce
+tabulated output. This command should be used for shell commands
+that produce tabulated output that works with Emacspeak's table
+recognizer. Verify this first by running the command in a shell
+and executing command `emacspeak-table-display-table-in-region'
+normally bound to C-e TAB.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-speak-telephone-directory nil
 @kbd{Not bound to any key.}
 
 Lookup and display a phone number.
-With prefix arg, opens the phone book for editting.
+With prefix arg, opens the phone book for editing.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-speak-this-buffer-next-display nil
@@ -7122,10 +7066,28 @@ move to end of word
 Prompt for a string pattern and return list of commands whose names match pattern.
 @end deffn
 
+@deffn {Interactive Command} emacspeak-wizards-enumerate-matching-faces nil
+@kbd{Not bound to any key.}
+
+Enumerate  faces matching pattern.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-wizards-enumerate-obsolete-faces nil
+@kbd{Not bound to any key.}
+
+utility function to enumerate old, obsolete maps that we have still  mapped to voices.
+@end deffn
+
 @deffn {Interactive Command} emacspeak-wizards-enumerate-uncovered-commands nil
 @kbd{Not bound to any key.}
 
 Enumerate unadvised commands matching pattern.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-wizards-enumerate-unmapped-faces nil
+@kbd{Not bound to any key.}
+
+Enumerate unmapped faces matching pattern.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-wizards-espeak-region nil
@@ -7847,7 +7809,6 @@ documentation strings in another, and so on.
 
 Comments will be spoken in `emacspeak-voice-lock-comment-personality'.
 Strings will be spoken in `emacspeak-voice-lock-string-personality'.
-Doc strings will be spoken in `emacspeak-voice-lock-doc-string-personality'.
 Function and variable names (in their defining forms) will be
  spoken in `emacspeak-voice-lock-function-name-personality'.
 Reserved words will be spoken in `emacspeak-voice-lock-keyword-personality'.
@@ -7867,7 +7828,7 @@ Newer Emacspeak modules should use voice-setup-add-map when
 defining face->personality mappings.
 Older code calls def-voice-font directly, but over time those
 calls will be changed to the more succinct form provided by
-voice-setup-add-map. For use from other moduels, also see
+voice-setup-add-map. For use from other modules, also see
 function voice-setup-map-face which is useful when mapping a
 single face.
 Both voice-setup-add-map and voice-setup-map-face call
@@ -7909,85 +7870,6 @@ take effect.
 Commentary:
 Site-specific websearch enhancements
 
-(emacspeak-websearch-set-searcher 'ibm-internal
-                                  'emacspeak-websearch-ibm-internal)
-
-(emacspeak-websearch-set-key ?I'ibm-internal)
-
-(defvar emacspeak-websearch-ibm-internal-uri
-  "http://w3search.torolab.ibm.com/search.mod"
-  "*URI for IBM My News  search")
-
-(defun emacspeak-websearch-ibm-internal (query )
-  "Search IBM My News"
-  (interactive
-   (list
-    (emacspeak-websearch-read-query "IBM Internal  Search ")))
-  (declare (special emacspeak-websearch-ibm-internal-uri))
-  (let ((url-be-asynchronous nil))
-    (browse-url 
-     (concat emacspeak-websearch-ibm-internal-uri
-"?q="
-             (webjump-url-encode query))))
-  (emacspeak-websearch-post-process "Your query "
-                                    'emacspeak-speak-line)
-  )
-
-(emacspeak-websearch-set-searcher 'ibm-my-news
-                                  'emacspeak-websearch-ibm-my-news)
-bind it to tab 
-(emacspeak-websearch-set-key 9 'ibm-my-news)
-
-(defvar emacspeak-websearch-ibm-my-news-uri
-  "http://w3search.torolab.ibm.com/search.mod?do=w3-1.ibm.com%2Fnews%2F&mh=100&ei=1&mo=fl"
-  "*URI for IBM My News  search")
-
-(defun emacspeak-websearch-ibm-my-news (query )
-  "Search IBM My News"
-  (interactive
-   (list
-    (emacspeak-websearch-read-query "My News Search ")))
-  (declare (special emacspeak-websearch-ibm-my-news-uri))
-  (let ((url-be-asynchronous nil))
-    (browse-url 
-     (concat emacspeak-websearch-ibm-my-news-uri
-"&q="
-             (webjump-url-encode query))))
-  (emacspeak-websearch-post-process "Your query "
-                                    'emacspeak-speak-line))
-
-(emacspeak-websearch-set-searcher 'blue-pages
-                                  'emacspeak-websearch-blue-pages)
-
-(emacspeak-websearch-set-key ?B 'blue-pages)
-
-(defvar emacspeak-websearch-blue-pages-uri
-  "http://bluepages.ibm.com/cgi-bin/bluepages.pl?"
-  "*URI for BluePages search")
-
-(defun emacspeak-websearch-blue-pages (query &optional prefix)
-  "Search IBM Blue Pages"
-  (interactive
-   (list
-    (emacspeak-websearch-read-query "Look in Blue Pages for:
-")
-    current-prefix-arg))
-  (declare (special emacspeak-websearch-blue-pages-uri))
-  (let ((url-be-asynchronous nil))
-    (browse-url 
-     (concat emacspeak-websearch-blue-pages-uri
-             (format "directory=%s&"
-                     (if prefix
-                         (read-from-minibuffer "Location: ")
-                       "almaden"))
-"&Selection=Name&selectOn="
-             (webjump-url-encode query))))
-  (emacspeak-websearch-post-process
-   "Tie Line"
-   'emacspeak-speak-line))
-
-(provide 'emacspeak-w3search)
-
 Automatically generated documentation
 for commands defined in module  emacspeak-w3search.
 
@@ -8007,64 +7889,6 @@ Search IBM My News
 @kbd{Not bound to any key.}
 
 Search IBM My News
-@end deffn
-
-@node emacspeak-firevox
-@section emacspeak-firevox
-
-Commentary:
-MozRepl provides a read-eval-print loop into Firefox
- Module emacspeak-moz provides convenient functions for driving MozRepl
-See http://repo.hyperstruct.net/mozlab
-Using that module, you can connect two large pigs ---
-Emacs and Firefox  via a socket ---
-the result as you can expect is to produce piglets.
-emacspeak-firevox is a piglet that enables one to play 
-The Firevox game from within Emacspeak.
-I run Firefox headless using the etc/firebox script
-And I have Fire Vox installed to provide the Firefox side of the spoken output.
-
-Automatically generated documentation
-for commands defined in module  emacspeak-firevox.
-
-@deffn {Interactive Command} emacspeak-firevox nil
-@kbd{Not bound to any key.}
-
-Creates FireVox interaction.
-
-(fn)
-@end deffn
-
-@deffn {Interactive Command} emacspeak-firevox-read-next nil
-@kbd{Not bound to any key.}
-
-Read next item on page.
-
-(fn)
-@end deffn
-
-@deffn {Interactive Command} emacspeak-firevox-read-parent nil
-@kbd{Not bound to any key.}
-
-Read parent node.
-
-(fn)
-@end deffn
-
-@deffn {Interactive Command} emacspeak-firevox-read-previous nil
-@kbd{Not bound to any key.}
-
-Read next item on page.
-
-(fn)
-@end deffn
-
-@deffn {Interactive Command} emacspeak-firevox-websearch nil
-@kbd{Not bound to any key.}
-
-Perform Websearch via the Firefox URL bar.
-
-(fn QUERY)
 @end deffn
 
 @node emacspeak-jawbreaker
@@ -8391,7 +8215,7 @@ Kill TTS  process.
 This section is generated automatically from the source-level documentation.
 Any errors or corrections should be made to the source-level
 documentation.
-This section documents a total of 139 URL Templates.
+This section documents a total of 140 URL Templates.
 
 All of these URL templates can be invoked via command
   @kbd{M-x emacspeak-url-template-fetch} normally bound to
@@ -8486,13 +8310,13 @@ CNN Content
 
 CNN Money
 
-@kbd{CNN Tecnology }
-
-CNN Technology news.
-
 @kbd{CNN headlines }
 
 Retrieve and speak headline news from CNN.
+
+@kbd{CNN technology }
+
+CNN Technology news.
 
 @kbd{CNNContent}
 
@@ -8696,6 +8520,10 @@ Page Analysis From Google Webmaster tools.
 @kbd{Google topical  News}
 
 Display specified news feed.
+
+@kbd{IToRSS}
+
+Pull RSS  feed corresponding to an ITunes Podcast.
 
 @kbd{InfoWorld RSS Feeds}
 

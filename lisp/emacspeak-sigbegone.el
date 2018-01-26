@@ -1,5 +1,5 @@
 ;;; emacspeak-sigbegone.el --- Speech-enable sigbegone
-;;; $Id: emacspeak-sigbegone.el 7378 2011-11-10 17:34:32Z tv.raman.tv $
+;;; $Id: emacspeak-sigbegone.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak module for SIGBEGONE --signature exorciser 
 ;;; Keywords: Emacspeak, sigbegone 
@@ -60,7 +60,7 @@
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end:
 
 ;;}}}

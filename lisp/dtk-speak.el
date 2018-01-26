@@ -1,5 +1,5 @@
 ;;; dtk-speak.el --- Provides Emacs Lisp interface to speech server
-;;;$Id: dtk-speak.el 8026 2012-09-25 16:48:36Z tv.raman.tv $
+;;;$Id: dtk-speak.el 8276 2013-03-30 15:19:30Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacs interface to TTS
 ;;; Keywords: Dectalk Emacs Elisp
@@ -609,25 +609,24 @@ Argument COMPLEMENT  is the complement of separator."
   (unless (or (eq 'inaudible voice )
               (and (listp voice)
                    (member 'inaudible voice)))
-    (dtk-interp-queue
-     (format "%s%s %s \n"
-             (cond
-              ((symbolp voice)
-               (tts-get-voice-command
-                (if (boundp  voice )
-                    (symbol-value voice )
-                  voice)))
-              ((listp voice)
-               (mapconcat  #'(lambda (v)
-                               (tts-get-voice-command
-                                (if (boundp  v )
-                                    (symbol-value v )
-                                  v)))
-                           voice
-                           " "))
-              (t       ""))
-             text
-             tts-voice-reset-code))))
+    (dtk-interp-queue-code
+     (cond
+      ((symbolp voice)
+       (tts-get-voice-command
+        (if (boundp  voice )
+            (symbol-value voice )
+          voice)))
+      ((listp voice)
+       (mapconcat  #'(lambda (v)
+                       (tts-get-voice-command
+                        (if (boundp  v )
+                            (symbol-value v )
+                          v)))
+                   voice
+                   " "))
+      (t       "")))
+    (dtk-interp-queue text)
+    (dtk-interp-queue-code tts-voice-reset-code)))
 
 ;;;Internal function used by dtk-speak to send text out.
 ;;;Handles voice locking etc.
@@ -677,7 +676,7 @@ Arguments START and END specify region to speak."
              (get-text-property start 'auditory-icon))
     (emacspeak-queue-auditory-icon
      (get-text-property start 'auditory-icon)))
-  (dtk-interp-queue (format "%s\n" tts-voice-reset-code))
+  (dtk-interp-queue-code tts-voice-reset-code)
   (cond
    (voice-lock-mode
     (let ((last  nil)
@@ -687,13 +686,12 @@ Arguments START and END specify region to speak."
                         (next-true-single-property-change start 'personality
                                                           (current-buffer) end)))
         (if personality
-            (dtk-speak-using-voice personality
-                                   (buffer-substring start last ))
+            (dtk-speak-using-voice personality (buffer-substring start last ))
           (dtk-interp-queue (buffer-substring  start last)))
         (setq start  last
               personality
               (get-text-property last  'personality))) ; end while
-      ))                                               ; end clause
+      ))                                ; end clause
    (t (dtk-interp-queue (buffer-substring start end  )))))
 
                                         ;Force the speech.
@@ -1016,7 +1014,7 @@ Typically used after the Dectalk has been power   cycled."
 
 ;;;###autoload
 (defun dtk-pause ()
-  "Temporarily pause / rsume speech."
+  "Temporarily pause / resume speech."
   (interactive)
   (declare (special dtk-paused))
   (cond
@@ -1539,6 +1537,7 @@ This is setup on a per engine basis.")
                                         ; exact match
    ((string-match "^espeak$" tts-name) (espeak-configure-tts))
    ((string-match "^eflite$" tts-name) (flite-configure-tts))
+   ((string-match "^log-server$" tts-name) t); use previous configuration
                                         ; generic configure
    (t (plain-configure-tts)))
   (when (string-match "^ssh" tts-name)  ;remote server
@@ -1698,22 +1697,17 @@ Port  defaults to  dtk-local-server-port"
 (defvar dtk-speak-server-initialized nil
   "Records if the server is initialized.")
 
-(defvar dtk-speak-process-connection-type nil
-  "*Specifies if we use ptys or pipes to connect to the speech server process.
-Has the same semantics as the builtin `process-connection-type'.
-Default is to use pipes.")
-
 (defvar tts-debug-buffer " *speaker*"
   "Buffer holding speech server debug output.")
 
 (defun  dtk-initialize ()
   "Initialize speech system."
-  (declare (special dtk-program tts-debug-buffer dtk-speak-process-connection-type
+  (declare (special dtk-program tts-debug-buffer 
                     dtk-speaker-process  dtk-debug
                     dtk-speak-server-initialized
                     dtk-startup-hook emacspeak-servers-directory))
   (let ((new-process nil)
-        (process-connection-type  dtk-speak-process-connection-type))
+        (process-connection-type  nil))
     (setq new-process
           (start-process
            "speaker"
@@ -1900,6 +1894,12 @@ only speak upto the first ctrl-m."
              (dtk-format-text-and-speak start (point-max)))))
     (dtk-force)))
 
+(defsubst dtk-speak-and-echo (message)
+  "Speak message and echo it to the message area."
+  (let ((emacspeak-speak-messages nil))
+    (dtk-speak message) 
+    (message message)))
+
 (defun dtk-speak-list (text &optional group-count)
   "Speak a  list of strings.
 Argument TEXT  is the list of strings to speak.
@@ -1958,7 +1958,7 @@ Optional argument group-count specifies grouping for intonation."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end:
 
 ;;}}}

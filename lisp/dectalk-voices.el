@@ -1,5 +1,5 @@
 ;;; dectalk-voices.el --- Define various device independent voices in terms of Dectalk codes.
-;;; $Id: dectalk-voices.el 7511 2012-02-13 21:55:37Z tv.raman.tv $
+;;; $Id: dectalk-voices.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Module to set up Dectalk voices and personalities
 ;;; Keywords: Voice, Personality, Dectalk
@@ -643,7 +643,7 @@ and TABLE gives the values along that dimension."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end:
 
 ;;}}}

@@ -55,7 +55,8 @@
 ;;}}}
 ;;{{{  voice table
 
-(defvar tts-default-voice nil
+(defvar tts-default-voice
+  "<voice xml:lang=\"$la\" gender=\"male\" variant=\"1\">"
   "Default voice used. ")
 
 (defvar espeak-default-voice-string ""
@@ -496,8 +497,8 @@ and TABLE gives the values along that dimension."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: nil
 ;;; end:
 
 ;;}}}

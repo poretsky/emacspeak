@@ -1,5 +1,5 @@
 ;;; emacspeak-nxml.el --- Speech enable nxml mode
-;;; $Id: emacspeak-nxml.el 7993 2012-08-23 19:32:24Z tv.raman.tv $
+;;; $Id: emacspeak-nxml.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description: Controlling mplayer from emacs 
 ;;; Keywords: Emacspeak, nxml streaming media 
@@ -266,7 +266,7 @@
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end: 
 
 ;;}}}

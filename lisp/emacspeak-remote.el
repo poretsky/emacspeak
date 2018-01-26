@@ -1,5 +1,5 @@
 ;;; emacspeak-remote.el --- Enables running remote Emacspeak sessions
-;;; $Id: emacspeak-remote.el 7225 2011-09-29 00:20:40Z tv.raman.tv $
+;;; $Id: emacspeak-remote.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description: Auditory interface to remote speech server
 ;;; Keywords: Emacspeak, Speak, Spoken Output, remote server
@@ -245,7 +245,7 @@ port that that host is listening on for speech requests."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end:
 
 ;;}}}

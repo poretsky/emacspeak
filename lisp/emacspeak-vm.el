@@ -1,5 +1,5 @@
 ;;; emacspeak-vm.el --- Speech enable VM -- A powerful mail agent (and the one I use)
-;;; $Id: emacspeak-vm.el 7823 2012-06-03 01:16:29Z tv.raman.tv $
+;;; $Id: emacspeak-vm.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak extension to speech enhance vm
 ;;; Keywords: Emacspeak, VM, Email, Spoken Output, Voice annotations
@@ -165,23 +165,20 @@ Note that some badly formed mime messages  cause trouble."
                     emacspeak-vm-headers-strip-octals
                     emacspeak-vm-user-full-name emacspeak-vm-user-login-name))
   (when vm-message-pointer
-    (dtk-stop)
-    (let*  ((dtk-stop-immediately t )
-            (message (car vm-message-pointer ))
+    (let*  ((message (car vm-message-pointer ))
             (number (emacspeak-vm-number-of  message))
-            (from(or (vm-su-full-name message)
-                     (vm-su-from message )))
+            (from
+             (or (vm-su-full-name message) (vm-su-from message )))
             (subject (vm-su-subject message ))
-            (to(or (vm-su-to-names message)
-                   (vm-su-to message )))
-            (self-p (or
-                     (string-match emacspeak-vm-user-full-name to)
-                     (string-match  (user-login-name) to)
-                     (string-match
-                      (format "%s@%s" (user-login-name) smtpmail-local-domain)
-                      to)))
-            (lines (vm-su-line-count message))
-            (summary nil))
+            (to
+             (or (vm-su-to-names message) (vm-su-to message )))
+            (self-p
+             (or (string-match emacspeak-vm-user-full-name to)
+                 (string-match  (user-login-name) to)
+                 (string-match (format "%s@%s" (user-login-name)
+                                       smtpmail-local-domain)
+                               to)))
+            (lines (vm-su-line-count message)))
       (dtk-speak
        (vm-decode-mime-encoded-words-in-string
         (format "%s %s %s   %s %s "
@@ -728,7 +725,7 @@ text using wvText."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end:
 
 ;;}}}

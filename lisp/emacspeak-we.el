@@ -1,5 +1,5 @@
 ;;; emacspeak-we.el --- Transform Web Pages Using XSLT
-;;; $Id: emacspeak-we.el 7823 2012-06-03 01:16:29Z tv.raman.tv $
+;;; $Id: emacspeak-we.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Edit/Transform Web Pages using XSLT
 ;;; Keywords: Emacspeak,  Audio Desktop Web, XSLT
@@ -1127,7 +1127,7 @@ and provide a completion list of applicable  property values. Filter document by
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end:
 
 ;;}}}

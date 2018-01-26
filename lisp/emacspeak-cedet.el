@@ -1,5 +1,5 @@
 ;;; emacspeak-cedet.el --- Speech enable CEDET
-;;; $Id: emacspeak-cedet.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
+;;; $Id: emacspeak-cedet.el 8309 2013-05-01 15:24:41Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description: Auditory interface to CEDET
 ;;; Keywords: Emacspeak, Speak, Spoken Output, CEDET
@@ -44,16 +44,17 @@
 
 ;;}}}
 ;;{{{  Introduction
+;;; Commentary: 
 
 ;;; CEDET consists of speedbar semantic ede and friends.
 ;;; This module speech enables new functionality in semantic,
 ;;senator and friends
-
+;;; Code:
 ;;}}}
 ;;{{{ advice semantic completion
 
 (loop for f in
-      '(semantic-complete-complete-tab semantic-complete-complete-space)
+      '(semantic-complete-symbol)
       do
       (eval
        `(defadvice ,f (around emacspeak pre act comp)
@@ -74,7 +75,7 @@
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end:
 
 ;;}}}

@@ -1,5 +1,5 @@
 ;;; voice-setup.el --- Setup voices for voice-lock
-;;; $Id: voice-setup.el 8046 2012-12-20 01:33:38Z tv.raman.tv $
+;;; $Id: voice-setup.el 8285 2013-04-03 23:47:57Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Voice lock mode for Emacspeak
 ;;{{{  LCD Archive entry:
@@ -70,7 +70,7 @@
 ;;; defining face->personality mappings.
 ;;; Older code calls def-voice-font directly, but over time those
 ;;; calls will be changed to the more succinct form provided by
-;;; voice-setup-add-map. For use from other moduels, also see
+;;; voice-setup-add-map. For use from other modules, also see
 ;;; function voice-setup-map-face which is useful when mapping a
 ;;; single face.
 ;;; Both voice-setup-add-map and voice-setup-map-face call
@@ -426,6 +426,8 @@ punctuations.")
    (variable-pitch voice-animate)
    (bold-italic voice-bolden-and-animate)
    (button voice-bolden)
+   (link voice-bolden)
+   (warning voice-bolden-and-animate)
    (fixed-pitch voice-monotone)
    (font-lock-builtin-face voice-bolden)
    (font-lock-comment-face voice-monotone)
@@ -444,6 +446,7 @@ punctuations.")
    (font-lock-variable-name-face voice-bolden)
    (font-lock-warning-face voice-bolden-and-animate)
    (help-argument-name voice-smoothen)
+   (isearch voice-bolden)
    (highlight voice-animate)
    (italic voice-animate)
    (match voice-animate)
@@ -566,7 +569,7 @@ take effect."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end:
 
 ;;}}}

@@ -1,5 +1,5 @@
 ;;; emacspeak-personality.el ---Emacspeak's new personality interface
-;;; $Id: emacspeak-personality.el 8036 2012-12-15 17:38:49Z tv.raman.tv $
+;;; $Id: emacspeak-personality.el 8276 2013-03-30 15:19:30Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Voice lock implementation
 ;;; Keywords: Emacspeak,  Spoken Output, audio formatting
@@ -132,7 +132,7 @@ Existing personality properties on the text range are preserved."
                        (if (listp orig) orig (list orig))
                        (if (listp v) v (list v)))))
                (put-text-property start extent
-                                          'personality new object))
+                                  'personality new object))
              (when (< extent end)
                (emacspeak-personality-append extent end v object)))))))
     (error nil)))
@@ -170,7 +170,7 @@ Existing personality properties on the text range are preserved."
                        (if (listp v) v (list v))
                        (if (listp orig) orig (list orig)))))
                (put-text-property start extent
-                                          'personality new object))
+                                  'personality new object))
              (when (< extent end)
                (emacspeak-personality-prepend extent end v object)))))))
     (error nil)))
@@ -203,10 +203,10 @@ preserved."
                     (t nil)))
              (if new
                  (put-text-property start extent
-                                            'personality new object)
+                                    'personality new object)
                (remove-text-properties start extent
-                                               (list 'personality )
-                                               object))
+                                       (list 'personality )
+                                       object))
              (when (< extent end)
                (emacspeak-personality-remove extent end
                                              personality)))))))
@@ -219,6 +219,7 @@ preserved."
   "Check if plist contains a face setting."
   (or (memq 'face plist)
       (memq 'font-lock-face plist)))
+
 (defsubst ems-plain-cons-p (value)
   "Help identify (a . b)."
   (and (consp value)
@@ -253,45 +254,41 @@ displayed in the messages area."
 
 (defvar emacspeak-personality-unmapped-faces (make-hash-table)
   "Records faces that we have not yet mapped to personalities.")
+;;; Helper: Get face->voice mapping
+
+(defun ems-get-voice-for-face (value)
+  "Compute face->voice mapping."
+  (let ((voice nil))
+    (condition-case nil
+        (cond
+         ((symbolp value)
+          (setq voice (voice-setup-get-voice-for-face value)))
+         ((ems-plain-cons-p value)) ;;pass on plain cons
+         ( (listp value)
+           (setq voice
+                 (delq nil
+                       (mapcar   #'voice-setup-get-voice-for-face value)))))
+      (error nil))
+    voice))
 
 (defadvice put-text-property (after emacspeak-personality  pre act)
   "Used by emacspeak to augment font lock."
-  (when voice-lock-mode
+  (when (and voice-lock-mode emacspeak-personality-voiceify-faces)
     (let ((start (ad-get-arg 0))
           (end (ad-get-arg 1 ))
           (prop (ad-get-arg 2))
           (value (ad-get-arg 3 ))
           (object (ad-get-arg 4))
           (voice nil))
-      (when (and  emacspeak-personality-voiceify-faces
-                  (or (eq prop 'face) (eq prop 'font-lock-face))
-                  (not (= start end)))
-        (condition-case nil
-            (progn
-              (cond
-               ((symbolp value)
-                (setq voice (voice-setup-get-voice-for-face value)))
-               ((ems-plain-cons-p value)) ;;pass on plain cons
-               ( (listp value)
-                 (setq voice
-                       (delq nil
-                             (mapcar   #'voice-setup-get-voice-for-face value))))
-               (t (message "Got %s" value)))
-              (when voice
-                (funcall emacspeak-personality-voiceify-faces start end voice object))
-              (when (and emacspeak-personality-show-unmapped-faces
-                         (not voice))
-                (cond
-                 ((listp value)
-                  (mapcar #'(lambda (v)
-                              (puthash  v t emacspeak-personality-unmapped-faces))
-                          value))
-                 (t (puthash  value t emacspeak-personality-unmapped-faces)))))
-          (error nil))))))
+      (when (and (or (eq prop 'face) (eq prop 'font-lock-face))
+                 (not (= start end)))
+        (setq voice (ems-get-voice-for-face value))
+        (when voice
+          (funcall emacspeak-personality-voiceify-faces start end voice object))))))
 
 (defadvice add-text-properties (after emacspeak-personality  pre act)
   "Used by emacspeak to augment font lock."
-  (when voice-lock-mode
+  (when (and voice-lock-mode    emacspeak-personality-voiceify-faces)
     (let ((start (ad-get-arg 0))
           (end (ad-get-arg 1 ))
           (properties (ad-get-arg 2))
@@ -300,35 +297,14 @@ displayed in the messages area."
           (voice nil)
           (value nil))
       (setq facep (emacspeak-personality-plist-face-p properties))
-      (when (and  emacspeak-personality-voiceify-faces
-                  facep)
-        (setq value (second facep))
-        (condition-case nil
-            (progn
-              (cond
-               ((symbolp value)
-                (setq voice (voice-setup-get-voice-for-face   value)))
-               ((ems-plain-cons-p value)) ;;pass on plain cons
-               ( (listp value)
-                 (setq voice
-                       (delq nil
-                             (mapcar   #'voice-setup-get-voice-for-face value))))
-               (t (message "Got %s" value)))
-              (when voice
-                (funcall emacspeak-personality-voiceify-faces start end voice object))
-              (when (and emacspeak-personality-show-unmapped-faces
-                         (not voice))
-                (cond
-                 ((listp value)
-                  (mapcar #'(lambda (v)
-                              (puthash  v t emacspeak-personality-unmapped-faces))
-                          value))
-                 (t (puthash  value t emacspeak-personality-unmapped-faces)))))
-          (error nil))))))
+      (when facep (setq value (second facep))
+            (setq voice (ems-get-voice-for-face value))
+            (when voice
+              (funcall emacspeak-personality-voiceify-faces start end voice object))))))
 
 (defadvice set-text-properties (after emacspeak-personality  pre act)
   "Used by emacspeak to augment font lock."
-  (when voice-lock-mode
+  (when (and  voice-lock-mode emacspeak-personality-voiceify-faces)
     (let ((start (ad-get-arg 0))
           (end (ad-get-arg 1 ))
           (properties (ad-get-arg 2))
@@ -337,32 +313,12 @@ displayed in the messages area."
           (voice nil)
           (value nil))
       (setq facep (emacspeak-personality-plist-face-p properties))
-      (when (and  emacspeak-personality-voiceify-faces
-                  facep)
+      (when  facep
         (setq value (second facep))
-        (condition-case nil
-            (progn
-              (cond
-               ((symbolp value)
-                (setq voice (voice-setup-get-voice-for-face   value)))
-               ((ems-plain-cons-p value)) ;;pass on plain cons
-               ( (listp value)
-                 (setq voice
-                       (delq nil
-                             (mapcar   #'voice-setup-get-voice-for-face value))))
-               (t (message "Got %s" value)))
-              (when voice
-                (funcall emacspeak-personality-voiceify-faces start end voice object))
-              (when (and emacspeak-personality-show-unmapped-faces
-                         (not voice))
-                (cond
-                 ((listp value)
-                  (mapcar #'(lambda (v)
-                              (puthash  v t emacspeak-personality-unmapped-faces))
-                          value))
-                 (t (puthash  value t emacspeak-personality-unmapped-faces))))
-              )
-          (error nil))))))
+        (setq voice (ems-get-voice-for-face value))
+        
+        (when voice
+          (funcall emacspeak-personality-voiceify-faces start end voice object))))))
 
 (defadvice propertize (around emacspeak-personality  pre act)
   "Used by emacspeak to augment font lock."
@@ -374,33 +330,17 @@ displayed in the messages area."
     (setq facep (emacspeak-personality-plist-face-p properties))
     (cond
      ((and  emacspeak-personality-voiceify-faces
-            facep)
+            voice-lock-mode facep)
       ad-do-it
       (setq value (second facep))
-      (condition-case nil
-          (progn
-            (cond
-             ((symbolp value)
-              (setq voice (voice-setup-get-voice-for-face   value)))
-             ( (listp value)
-               (setq voice
-                     (delq nil
-                           (mapcar   #'voice-setup-get-voice-for-face value))))
-             (t (message "Got %s" value)))
-            (when voice
-              (funcall emacspeak-personality-voiceify-faces 0
-                       (length ad-return-value) voice ad-return-value))
-            (when (and emacspeak-personality-show-unmapped-faces
-                       (not voice))
-              (cond
-               ((listp value)
-                (mapcar #'(lambda (v)
-                            (puthash  v t emacspeak-personality-unmapped-faces))
-                        value))
-               (t (puthash  value t emacspeak-personality-unmapped-faces)))))
-        (error nil)))
+      (setq voice (ems-get-voice-for-face value))
+      (when voice
+        (funcall emacspeak-personality-voiceify-faces 0
+                 (length ad-return-value) voice ad-return-value)))
      (t ad-do-it))
     ad-return-value))
+
+;;; If a face property is being removed, set personality  to nil:
 
 (defadvice remove-text-properties (before emacspeak-personality pre act comp)
   "Undo any voiceification if needed."
@@ -408,13 +348,10 @@ displayed in the messages area."
     (let  ((start (ad-get-arg 0))
            (end (ad-get-arg 1))
            (props (ad-get-arg 2))
-           (object (ad-get-arg 3))
-           (voice nil)
-           (face nil))
+           (object (ad-get-arg 3)))
       (when (and (not (= start end))
-                 (emacspeak-personality-plist-face-p props) ) ;;; simple minded for now
-        (put-text-property start end
-                                   'personality nil object)))))
+                 (emacspeak-personality-plist-face-p props)) ;;; simple minded for now
+        (put-text-property start end 'personality nil object)))))
 
 (defadvice remove-list-of-text-properties (before emacspeak-personality pre act comp)
   "Undo any voiceification if needed."
@@ -422,11 +359,9 @@ displayed in the messages area."
     (let  ((start (ad-get-arg 0))
            (end (ad-get-arg 1))
            (props (ad-get-arg 2))
-           (object (ad-get-arg 3))
-           (voice nil)
-           (face nil))
+           (object (ad-get-arg 3)))
       (when (and (not (= start end))
-                 (emacspeak-personality-plist-face-p props) ) ;;; simple minded for now
+                 (emacspeak-personality-plist-face-p props)) ;;; simple minded for now
         (put-text-property start end
                            'personality nil object)))))
 
@@ -462,28 +397,11 @@ Append means place corresponding personality at the end."
              (integer-or-marker-p (overlay-start overlay))
              (integer-or-marker-p (overlay-end overlay)))
         (and (eq prop 'category) (setq value (get value 'face)))
-        (cond
-         ((symbolp value)
-          (setq voice (voice-setup-get-voice-for-face   value)))
-         ((listp value)
-          (setq voice
-                (delq nil
-                      (mapcar
-                       #'voice-setup-get-voice-for-face value))))
-         (t (message "Got %s" value)))
+        (setq voice (ems-get-voice-for-face value))
         (when voice
           (funcall emacspeak-personality-voiceify-overlays
                    (overlay-start overlay) (overlay-end overlay)
-                   voice))
-        (when (and emacspeak-personality-show-unmapped-faces
-                   (not voice))
-          (cond
-           ((listp value)
-            (mapcar #'(lambda (v)
-                        (puthash  v t emacspeak-personality-unmapped-faces))
-                    value))
-           (t (puthash  value t
-                        emacspeak-personality-unmapped-faces))))))))
+                   voice))))))
 
 (defadvice move-overlay (before emacspeak-personality  pre act)
   "Used by emacspeak to augment font lock."
@@ -505,24 +423,12 @@ Append means place corresponding personality at the end."
                beg end voice))))
 
 ;;}}}
-;;{{{ silence font-lock's error messages
-
-(loop for f in
-      '(font-lock-default-fontify-region
-        font-lock-default-fontify-buffer)
-      do
-      (eval
-       `(defadvice ,f (around emacspeak pre act comp)
-          "Silence auditory feedback from redisplay errors."
-          (ems-with-errors-silenced ad-do-it))))
-
-;;}}}
 (provide 'emacspeak-personality )
 ;;{{{ end of file
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end:
 
 ;;}}}

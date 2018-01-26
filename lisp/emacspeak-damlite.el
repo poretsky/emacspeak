@@ -1,5 +1,5 @@
 ;;; emacspeak-damlite.el --- Speech-enable damlite
-;;; $Id: emacspeak-damlite.el 7378 2011-11-10 17:34:32Z tv.raman.tv $
+;;; $Id: emacspeak-damlite.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak front-end for daml  authoring mode 
 ;;; Keywords: Emacspeak, damlite 
@@ -74,7 +74,7 @@
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end:
 
 ;;}}}

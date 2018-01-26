@@ -1,5 +1,5 @@
 ;;; emacspeak-generic.el --- Speech enable  generic modes
-;;; $Id: emacspeak-generic.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
+;;; $Id: emacspeak-generic.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:   extension to speech enable generic
 ;;; Keywords: Emacspeak, Audio Desktop
@@ -72,7 +72,7 @@
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end:
 
 ;;}}}

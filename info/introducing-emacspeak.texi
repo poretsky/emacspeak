@@ -52,7 +52,7 @@
     introducing-emacspeak.texi
 
   ## Please remember to reset update-date and copyright before committing
-  ## to the CVS respository on cvs.sourceforge.net
+  ## to the CVS repository on cvs.sourceforge.net
   ##
   ## First run CVS update.
   ## Then run the CVS commit commands like this:
@@ -1231,7 +1231,7 @@ eflite from the /usr/bin/ directory to the /usr/local/bin/ directory
 and renamed it to @file{/usr/local/bin/emacspeak-eflite}.
 
 I start Emacspeak with @code{espeakf} with a different shell script,
-called @file{/usr/local/bin/emacspeak-epeakf}.  (These names are not
+called @file{/usr/local/bin/emacspeak-espeakf}.  (These names are not
 very imaginative, but I can remember them.)
 
 @code{espeakf} is available from CVS on SourceForge.  Fortunately, it
@@ -1347,7 +1347,7 @@ First, the @file{/usr/local/bin/emacspeak-eflite} script.
 ## use EFLITE
 
 ## based on
-#$Id: introducing-emacspeak.texi 4047 2006-08-11 19:11:17Z tv.raman.tv $
+#$Id: introducing-emacspeak.texi 8268 2013-03-29 00:54:48Z tv.raman.tv $
 # with minor changes, 2006 Mar 18
 
 if [ -f $HOME/.emacs ]
@@ -1396,7 +1396,7 @@ Second, the @file{/usr/local/bin/emacspeak-espeakf} script:
 ## use ESPEAKF
 
 ## based on
-#$Id: introducing-emacspeak.texi 4047 2006-08-11 19:11:17Z tv.raman.tv $
+#$Id: introducing-emacspeak.texi 8268 2013-03-29 00:54:48Z tv.raman.tv $
 # with minor changes, 2006 Mar 18
 
 if [ -f $HOME/.emacs ]

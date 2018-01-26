@@ -1,5 +1,5 @@
 ;;; emacspeak-sh-script.el --- Speech enable  sh-script mode
-;;; $Id: emacspeak-sh-script.el 7998 2012-08-25 15:53:21Z tv.raman.tv $
+;;; $Id: emacspeak-sh-script.el 8260 2013-03-28 15:21:49Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:   extension to speech enable sh-script 
 ;;; Keywords: Emacspeak, Audio Desktop
@@ -54,7 +54,7 @@
 ;;{{{  advice interactive commands
 
 (defadvice sh-mode (after emacspeak pre act comp)
-  "Speech-enable sh-script editting."
+  "Speech-enable sh-script editing."
   (dtk-set-punctuations 'all)
   (unless emacspeak-audio-indentation
     (emacspeak-toggle-audio-indentation))
@@ -128,7 +128,7 @@
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end:
 
 ;;}}}

@@ -1,5 +1,5 @@
 ;;; dtk-interp.el --- Language specific (e.g. TCL) interface to speech server
-;;; $Id: dtk-interp.el 7526 2012-02-29 18:39:31Z tv.raman.tv $
+;;; $Id: dtk-interp.el 8276 2013-03-30 15:19:30Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Interfacing to the speech server
 ;;; Keywords: TTS, Dectalk, Speech Server
@@ -78,18 +78,14 @@
        (unwind-protect
            (progn
              (unless (eq ,setting save-punctuation-mode)
-               (process-send-string dtk-speaker-process
-                                    (format "tts_set_punctuations %s  \n "
-                                            ,setting))
+               (dtk-interp-set-punctuations ,setting)
                (setq dtk-punctuation-mode ,setting))
              ,@body
              (dtk-force))
          (unless (eq  ,setting  save-punctuation-mode)
            (setq dtk-punctuation-mode save-punctuation-mode)
-           (process-send-string dtk-speaker-process
-                                (format "tts_set_punctuations %s  \n "
-                                        dtk-punctuation-mode ))
-           (dtk-force))))))
+           (dtk-interp-set-punctuations ,setting))
+         (dtk-force)))))
 
 ;;}}}
 ;;{{{ silence
@@ -118,6 +114,11 @@
   (process-send-string dtk-speaker-process
                        (format "q {%s }\n"
                                text)))
+
+(defsubst dtk-interp-queue-code (code)
+  (declare (special dtk-speaker-process))
+  (process-send-string dtk-speaker-process
+                       (format "c {%s }\n" code)))
 
 (defsubst dtk-interp-queue-set-rate(rate)
   (declare (special dtk-speaker-process))
@@ -266,9 +267,9 @@
 
 (defsubst dtk-interp-set-punctuations(mode)
   (declare (special dtk-speaker-process))
-  (process-send-string dtk-speaker-process
-                       (format "tts_set_punctuations %s\n"
-                               mode)))
+  (process-send-string
+   dtk-speaker-process 
+   (format "tts_set_punctuations %s\n" mode)))
 
 ;;}}}
 ;;{{{ reset
@@ -300,7 +301,7 @@
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end:
 
 ;;}}}

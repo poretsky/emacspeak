@@ -1,5 +1,5 @@
 ;;; emacspeak-calendar.el --- Speech enable Emacs Calendar -- maintain a diary and appointments
-;;; $Id: emacspeak-calendar.el 8010 2012-09-18 03:02:51Z tv.raman.tv $
+;;; $Id: emacspeak-calendar.el 8276 2013-03-30 15:19:30Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak extensions to speech enable the calendar.
 ;;; Keywords: Emacspeak, Calendar, Spoken Output
@@ -276,10 +276,10 @@
       do
       (eval
        `(defadvice ,f (after emacspeak pre act)
-  "Speak modeline. "
-  (when (ems-interactive-p  )
-    (emacspeak-auditory-icon 'close-object)
-    (emacspeak-speak-mode-line)))))
+          "Speak modeline. "
+          (when (ems-interactive-p  )
+            (emacspeak-auditory-icon 'close-object)
+            (emacspeak-speak-mode-line)))))
 
 (defadvice insert-block-diary-entry (before emacspeak pre act)
   "Speak the line. "
@@ -507,7 +507,7 @@ To use, configure variable gweb-my-address via M-x customize-variable."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end:
 
 ;;}}}

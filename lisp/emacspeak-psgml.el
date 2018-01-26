@@ -1,5 +1,5 @@
 ;;; emacspeak-sgml-mode.el --- Speech enable psgml package
-;;; $Id: emacspeak-psgml.el 7823 2012-06-03 01:16:29Z tv.raman.tv $
+;;; $Id: emacspeak-psgml.el 8260 2013-03-28 15:21:49Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description: Emacspeak extension for psgml
 ;;; Keywords:emacspeak, audio interface to emacs psgml
@@ -267,7 +267,7 @@ window")))
     (message "Showing all markup attributes.")))
 
 ;;}}}
-;;{{{  editting attributes
+;;{{{  editing attributes
 
 (defadvice sgml-edit-attributes (after emacspeak pre act
                                        comp)
@@ -412,7 +412,7 @@ shortref- short reference")
 (defun emacspeak-psgml-toggle-interactive-font-lock()
   "Toggles variable sgml-set-face.
 When turned on, the  buffer is font locked interactively.
-Leave this off in general while editting."
+Leave this off in general while editing."
   (interactive)
   (declare (special sgml-set-face))
   (setq sgml-set-face (not sgml-set-face))
@@ -425,7 +425,7 @@ Leave this off in general while editting."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end:
 
 ;;}}}

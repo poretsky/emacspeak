@@ -1,5 +1,5 @@
 ;;; emacspeak-browse-kill-ring.el --- browse-kill-ring  for emacspeak desktop
-;;; $Id: emacspeak-browse-kill-ring.el 7823 2012-06-03 01:16:29Z tv.raman.tv $
+;;; $Id: emacspeak-browse-kill-ring.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak front-end for BROWSE-KILL-RING
 ;;; Keywords: Emacspeak, browse-kill-ring
@@ -136,7 +136,7 @@
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end:
 
 (defadvice browse-kill-ring-search-forward (after

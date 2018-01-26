@@ -1,5 +1,5 @@
 ;;; emacspeak-bs.el --- speech-enable bs buffer selection
-;;; $Id: emacspeak-bs.el 7823 2012-06-03 01:16:29Z tv.raman.tv $
+;;; $Id: emacspeak-bs.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:   extension to speech enable bs
 ;;; Keywords: Emacspeak, Audio Desktop
@@ -247,7 +247,7 @@
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end:
 
 ;;}}}

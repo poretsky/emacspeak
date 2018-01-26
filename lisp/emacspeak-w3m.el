@@ -1,5 +1,5 @@
 ;;; emacspeak-w3m.el --- speech-enables w3m-el
-;;;$Id: emacspeak-w3m.el 7823 2012-06-03 01:16:29Z tv.raman.tv $
+;;;$Id: emacspeak-w3m.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
 ;;{{{ Copyright
 
 ;;; This file is not part of Emacs, but the same terms and
@@ -752,7 +752,7 @@ instead of the modeline."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end:
 
 ;;}}}

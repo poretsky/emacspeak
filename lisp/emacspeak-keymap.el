@@ -1,5 +1,5 @@
 ;;; emacspeak-keymap.el --- Setup all keymaps and keybindings provided by Emacspeak
-;;; $Id: emacspeak-keymap.el 8028 2012-09-28 02:47:39Z tv.raman.tv $
+;;; $Id: emacspeak-keymap.el 8260 2013-03-28 15:21:49Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Module for setting up emacspeak keybindings
 ;;; Keywords: Emacspeak
@@ -393,7 +393,7 @@ field in the customization buffer.  You can use the notation
         ("m" emacspeak-speak-mode-line)
         ("n" emacspeak-speak-rest-of-buffer)
         ("o" emacspeak-toggle-comint-output-monitor)
-        ("p" dtk-pause)
+        ("p" emacspeak-speak-paragraph)
         ("q" emacspeak-toggle-speak-messages)
         ("r" emacspeak-speak-region)
         ("s" dtk-stop)
@@ -519,7 +519,7 @@ relief."
 ;;;###autoload
 (defun emacspeak-keymap-remove-emacspeak-edit-commands
   (keymap)
-  "We define keys that invoke editting commands to be undefined"
+  "We define keys that invoke editing commands to be undefined"
   (loop for k in
         (where-is-internal 'emacspeak-self-insert-command
                            (list keymap))
@@ -538,7 +538,7 @@ relief."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end:
 
 ;;}}}

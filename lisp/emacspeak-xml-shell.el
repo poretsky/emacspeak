@@ -1,5 +1,5 @@
 ;;; emacspeak-xml-shell.el --- Implements a simple XML browser
-;;; $Id: emacspeak-xml-shell.el 6880 2011-02-22 19:10:32Z tv.raman.tv $
+;;; $Id: emacspeak-xml-shell.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Contains  xml-shell
 ;;; Keywords: Emacspeak,  Audio Desktop Xml-Shell
@@ -331,7 +331,7 @@ HTML head if none found."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end:
 
 ;;}}}

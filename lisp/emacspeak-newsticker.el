@@ -1,5 +1,5 @@
 ;;; emacspeak-newsticker.el --- Speech-enable newsticker
-;;; $Id: emacspeak-newsticker.el 8026 2012-09-25 16:48:36Z tv.raman.tv $
+;;; $Id: emacspeak-newsticker.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak front-end for NEWSTICKER 
 ;;; Keywords: Emacspeak, newsticker 
@@ -120,7 +120,7 @@
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end:
 
 ;;}}}

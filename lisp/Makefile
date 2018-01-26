@@ -1,4 +1,4 @@
-# $Id: Makefile 8048 2012-12-21 16:37:17Z tv.raman.tv $
+# $Id: Makefile 8344 2013-05-11 16:15:32Z tv.raman.tv $
 # $Author: tv.raman.tv $
 # Description:  Makefile for Emacspeak
 # Keywords: Emacspeak, Dectalk, Makefile
@@ -133,6 +133,7 @@ emacspeak-ecb.elc \
 emacspeak-ediary.elc \
 emacspeak-ediff.elc \
 flite-voices.elc \
+emacspeak-eclim.elc \
 emacspeak-enriched.elc \
 emacspeak-emms.elc \
 emacspeak-entertain.elc \
@@ -157,6 +158,7 @@ emacspeak-gnus.elc\
 emacspeak-gomoku.elc \
 emacspeak-google.elc \
 emacspeak-gridtext.elc \
+emacspeak-gtags.elc \
 emacspeak-gud.elc \
 emacspeak-hide.elc \
 emacspeak-hideshow.elc \
@@ -359,6 +361,7 @@ emacspeak-ecb.elc: emacspeak-ecb.el dtk-speak.elc voice-setup.elc
 emacspeak-ediary.elc: emacspeak-ediary.el dtk-speak.elc voice-setup.elc
 emacspeak-ediff.elc: emacspeak-ediff.el dtk-speak.elc voice-setup.elc
 flite-voices.elc: flite-voices.el
+emacspeak-eclim.elc: emacspeak-eclim.el dtk-speak.elc voice-setup.elc
 emacspeak-enriched.elc: emacspeak-enriched.el dtk-speak.elc voice-setup.elc
 emacspeak-emms.elc: emacspeak-emms.el dtk-speak.elc
 emacspeak-entertain.elc: emacspeak-entertain.el dtk-speak.elc voice-setup.elc
@@ -384,6 +387,7 @@ emacspeak-gnus.elc: emacspeak-gnus.el dtk-speak.elc voice-setup.elc
 emacspeak-google.elc: emacspeak-google.el dtk-speak.elc
 emacspeak-gomoku.elc: emacspeak-gomoku.el dtk-speak.elc voice-setup.elc
 emacspeak-gridtext.elc: emacspeak-gridtext.el dtk-speak.elc voice-setup.elc
+emacspeak-gtags.elc: emacspeak-gtags.el dtk-speak.elc voice-setup.elc
 emacspeak-gud.elc: emacspeak-gud.el dtk-speak.elc voice-setup.elc
 emacspeak-hide.elc: emacspeak-hide.el emacspeak-speak.elc
 emacspeak-hideshow.elc: emacspeak-hideshow.el dtk-speak.elc voice-setup.elc

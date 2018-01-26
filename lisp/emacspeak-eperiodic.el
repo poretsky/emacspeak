@@ -1,5 +1,5 @@
 ;;; emacspeak-eperiodic.el --- Speech-enable Periodic Table
-;;; $Id: emacspeak-eperiodic.el 7823 2012-06-03 01:16:29Z tv.raman.tv $
+;;; $Id: emacspeak-eperiodic.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak speech-enabler for Periodic Table
 ;;; Keywords: Emacspeak, periodic  Table
@@ -202,7 +202,7 @@
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end:
 
 ;;}}}

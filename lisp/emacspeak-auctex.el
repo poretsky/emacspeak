@@ -1,5 +1,5 @@
 ;;; emacspeak-auctex.el --- Speech enable AucTeX -- a powerful TeX/LaTeX authoring environment
-;;; $Id: emacspeak-auctex.el 7993 2012-08-23 19:32:24Z tv.raman.tv $
+;;; $Id: emacspeak-auctex.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; DescriptionEmacspeak extensions for auctex-mode
 ;;; Keywords:emacspeak, audio interface to emacs AUCTEX
@@ -244,7 +244,7 @@ the opening line of the newly inserted environment. "
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end: 
 
 ;;}}}

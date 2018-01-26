@@ -1,5 +1,5 @@
 ;;; emacspeak-alsaplayer.el --- Control alsaplayer from Emacs
-;;; $Id: emacspeak-alsaplayer.el 7823 2012-06-03 01:16:29Z tv.raman.tv $
+;;; $Id: emacspeak-alsaplayer.el 8266 2013-03-29 00:52:59Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description: Controlling alsaplayer from emacs 
 ;;; Keywords: Emacspeak, alsaplayer
@@ -388,7 +388,7 @@ Optional second arg watch-pattern specifies line of output to
 
 ;;;###autoload
 (defun emacspeak-alsaplayer-cd (directory)
-  "Change default directory, and silence its pronounciation."
+  "Change default directory, and silence its pronunciation."
   (interactive
    (list
     (read-directory-name "Change to directory: ")))
@@ -657,7 +657,7 @@ emacspeak-silence-hook."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end: 
 
 ;;}}}

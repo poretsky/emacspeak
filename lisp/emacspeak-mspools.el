@@ -1,5 +1,5 @@
 ;;; emacspeak-mspools.el --- Speech enable MSpools -- Monitor multiple mail drops
-;;; $Id: emacspeak-mspools.el 7823 2012-06-03 01:16:29Z tv.raman.tv $
+;;; $Id: emacspeak-mspools.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $ 
 ;;; Description: Auditory interface to mail spool tracker
 ;;; Keywords: Emacspeak, Speak, Spoken Output, mspools
@@ -79,7 +79,7 @@
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end: 
 
 ;;}}}

@@ -1,5 +1,5 @@
 ;;; emacspeak-view.el --- Speech enable View mode -- Efficient browsing of read-only content
-;;; $Id: emacspeak-view.el 7823 2012-06-03 01:16:29Z tv.raman.tv $
+;;; $Id: emacspeak-view.el 8260 2013-03-28 15:21:49Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $ 
 ;;; DescriptionEmacspeak extensions for view
 ;;; Keywords:emacspeak, audio interface to emacs, view-mode
@@ -288,7 +288,7 @@ keybindings for view mode")
         'delete-char
         'completion-kill-region
         )
-  "Editting commands that emacspeak should rebind in view mode")
+  "Editing commands that emacspeak should rebind in view mode")
 
 (defun emacspeak-view-optimize-view-keys()
   "optimize keybindings for emacspeak in view mode"
@@ -304,7 +304,14 @@ keybindings for view mode")
                   do
                   (let ((command (lookup-key emacspeak-keymap key)))
                     (when command
-                      (define-key view-mode-map key command))))))))
+                      (define-key view-mode-map key command))))))
+    (loop for k in
+          '(
+            ("[" backward-paragraph)
+            ("]" forward-paragraph)
+            )
+          do
+          (define-key view-mode-map (first k) (second k)))))
 
 (defun emacspeak-view-setup-keys()
   "Setup emacspeak convenience keys"
@@ -341,7 +348,7 @@ keybindings for view mode")
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end: 
 
 ;;}}}

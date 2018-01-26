@@ -1,5 +1,5 @@
 ;;; emacspeak-ediary.el --- Speech-enable ediary
-;;; $Id: emacspeak-ediary.el 7823 2012-06-03 01:16:29Z tv.raman.tv $
+;;; $Id: emacspeak-ediary.el 8260 2013-03-28 15:21:49Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak speech-enabler for ediary 
 ;;; Keywords: Emacspeak, diary
@@ -40,7 +40,7 @@
 
 ;;{{{  Introduction:
 
-;;; ediary is a special mode for editting your.diary file.
+;;; ediary is a special mode for editing your.diary file.
 ;;; This module speech-enables ediary
 
 ;;}}}
@@ -79,7 +79,7 @@
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end:
 
 ;;}}}

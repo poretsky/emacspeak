@@ -1,5 +1,5 @@
 ;;; emacspeak-org.el --- Speech-enable org
-;;; $Id: emacspeak-org.el 8031 2012-10-07 16:40:21Z tv.raman.tv $
+;;; $Id: emacspeak-org.el 8336 2013-05-09 15:31:37Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak front-end for ORG
 ;;; Keywords: Emacspeak, org
@@ -59,7 +59,10 @@
 
 (voice-setup-add-map
  '(
-   (org-code voice-monotone)
+   (org-date voice-animate)
+   (org-done voice-monotone)
+   (org-formula voice-animate-extra)
+   (org-headline-done voice-monotone-medium)
    (org-level-1 voice-bolden-medium)
    (org-level-2 voice-bolden)
    (org-level-3 voice-animate)
@@ -68,35 +71,78 @@
    (org-level-6 voice-lighten)
    (org-level-7 voice-lighten-medium)
    (org-level-8 voice-lighten-extra)
-   (org-special-keyword voice-lighten-extra)
-   (org-warning voice-bolden-and-animate)
-   (org-headline-done voice-monotone-medium)
    (org-link voice-bolden)
-   (org-date voice-animate)
-   (org-tag voice-smoothen)
-   (org-todo voice-bolden-and-animate)
-   (org-done voice-monotone)
-   (org-table voice-bolden-medium)
-   (org-formula voice-animate-extra)
-   (org-scheduled-today voice-bolden-extra)
    (org-scheduled-previously voice-lighten-medium)
-   (org-time-grid voice-bolden)))
+   (org-scheduled-today voice-bolden-extra)
+   (org-special-keyword voice-lighten-extra)
+   (org-table voice-bolden-medium)
+   (org-tag voice-smoothen)
+   (org-time-grid voice-bolden)
+   (org-todo voice-bolden-and-animate)
+   (org-warning voice-bolden-and-animate)
+   (org-agenda-calendar-event voice-animate-extra)
+   (org-agenda-calendar-sexp voice-animate)
+   (org-agenda-column-dateline voice-monotone)
+   (org-agenda-diary voice-animate)
+   (org-agenda-dimmed-todo-face voice-smoothen-medium)
+   (org-agenda-done voice-monotone)
+   (org-agenda-filter-category voice-lighten-extra)
+   (org-agenda-filter-tags voice-lighten)
+   (org-agenda-restriction-lock voice-monotone)
+   (org-agenda-structure voice-bolden)
+   (org-archived voice-monotone)
+   (org-beamer-tag voice-bolden)
+   (org-block voice-monotone)
+   (org-block-background voice-monotone)
+   (org-checkbox voice-animate)
+   (org-clock-overlay voice-animate)
+   (org-code voice-monotone)
+   (org-column voice-lighten)
+   (org-column-title voice-lighten-extra)
+   (org-date-selected voice-bolden)
+   (org-default voice-smoothen)
+   (org-document-info voice-bolden-medium)
+   (org-document-info-keyword voice-bolden-extra)
+   (org-document-title voice-bolden)
+   (org-drawer voice-smoothen-medium)
+   (org-ellipsis voice-smoothen-extra)
+   (org-footnote voice-smoothen)
+   (org-habit-alert-face voice-monotone)
+   (org-habit-alert-future-face voice-monotone)
+   (org-habit-clear-face voice-monotone)
+   (org-habit-clear-future-face voice-monotone)
+   (org-habit-overdue-face voice-monotone)
+   (org-habit-overdue-future-face voice-monotone)
+   (org-habit-ready-future-face voice-monotone)
+   (org-hide voice-smoothen-extra)
+   (org-indent voice-smoothen)
+   (org-inlinetask voice-smoothen-extra)
+   (org-latex-and-export-specials voice-monotone)
+   (org-meta-line voice-smoothen-medium)
+   (org-property-value voice-animate)
+   (org-scheduled voice-animate)
+   (org-sexp-date voice-monotone)
+   (org-target voice-bolden-medium)
+   (org-upcoming-deadline voice-animate)
+   (org-verbatim voice-monotone)
+   (org-habit-ready-face voice-monotone)))
 
 ;;}}}
 ;;{{{ Structure Navigation:
 
 (loop for f in
-      '(org-mark-ring-goto
-        org-forward-same-level org-backward-same-level
-        org-next-link org-previous-link org-open-at-point
-        org-goto  org-goto-ret
-        org-goto-left org-goto-right
-        org-goto-quit
-        org-next-item org-previous-item
-        org-metaleft org-metaright org-metaup org-metadown
-        org-meta-return
-        org-shiftmetaleft org-shiftmetaright org-shiftmetaup org-shiftmetadown
-        )
+      '(org-mark-ring-goto org-mark-ring-push
+                           org-forward-same-level org-backward-same-level
+                           org-next-link org-previous-link org-open-at-point
+                           org-goto  org-goto-ret
+                           org-goto-left org-goto-right
+                           org-goto-quit
+                           org-next-item org-previous-item
+                           org-metaleft org-metaright org-metaup org-metadown
+                           org-meta-return
+                           org-shiftmetaleft org-shiftmetaright org-shiftmetaup org-shiftmetadown
+                           org-mark-element org-mark-subtree
+                           )
       do
       (eval
        `(defadvice ,f(after emacspeak pre act comp)
@@ -222,9 +268,7 @@
 ;;{{{ timestamps and calendar:
 
 (loop for f in
-      '(
-        org-timestamp-down org-timestamp-down-day
-                           org-timestamp-up org-timestamp-up-day)
+      '(org-timestamp-down-day org-timestamp-up-day)
       do
       (eval
        `(defadvice ,f (after emacspeak pre act comp)
@@ -232,6 +276,17 @@
           (when (ems-interactive-p )
             (emacspeak-auditory-icon 'select-object)
             (emacspeak-speak-line)))))
+
+(loop for f in
+      '(org-timestamp-down org-timestamp-up)
+      do
+      (eval
+       `(defadvice ,f (after emacspeak pre act comp)
+          "Provide auditory feedback."
+          (when (ems-interactive-p )
+            (emacspeak-auditory-icon 'select-object)
+            (dtk-speak org-last-changed-timestamp)))))
+            
 
 (defadvice org-eval-in-calendar (after emacspeak pre act comp)
   "Speak what is returned."
@@ -316,7 +371,7 @@
 
 (defun emacspeak-org-update-keys ()
   "Update keys in org mode."
-  (declare (special org-goto-map org-mode-map))
+  (declare (special  org-mode-map))
   (loop for k in
         '(
           ([(meta return)] org-meta-return)
@@ -343,12 +398,7 @@
           )
         do
         (emacspeak-keymap-update  org-mode-map k))
-  (loop for k in
-        '(
-          ( "\C-e" emacspeak-prefix-command)
-          ( "\C-h" help-command))
-        do
-        (emacspeak-keymap-update  org-goto-map k)))
+  )
 
 (add-hook 'org-mode-hook 'emacspeak-org-update-keys)
 
@@ -484,7 +534,7 @@
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end:
 
 ;;}}}

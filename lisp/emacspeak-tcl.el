@@ -1,5 +1,5 @@
 ;;; emacspeak-tcl.el --- Speech enable TCL development environment
-;;; $Id: emacspeak-tcl.el 8030 2012-10-07 16:38:04Z tv.raman.tv $
+;;; $Id: emacspeak-tcl.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $ 
 ;;; DescriptionEmacspeak extensions for tcl-mode
 ;;; Keywords:emacspeak, audio interface to emacs tcl
@@ -208,7 +208,7 @@ is a Tcl expression, and the last argument is Tcl commands.")
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end: 
 
 ;;}}}

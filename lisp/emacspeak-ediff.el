@@ -1,5 +1,5 @@
 ;;; emacspeak-ediff.el --- Speech enable Emacs interface to diff and merge
-;;; $Id: emacspeak-ediff.el 7823 2012-06-03 01:16:29Z tv.raman.tv $
+;;; $Id: emacspeak-ediff.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; DescriptionEmacspeak extensions for ediff
 ;;; Keywords:emacspeak, audio interface to emacs, Comparing files
@@ -481,7 +481,7 @@ Set this to nil if things get too slow."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end:
 
 ;;}}}

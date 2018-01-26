@@ -1,5 +1,5 @@
 ;;; emacspeak-moz.el.el --- Talk to Firefox via MozRepl
-;;; $Id: emacspeak-moz.el 7823 2012-06-03 01:16:29Z tv.raman.tv $
+;;; $Id: emacspeak-moz.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Control Firefox from Emacs
 ;;; Keywords: Emacspeak,  Audio Desktop Firefox
@@ -380,7 +380,7 @@ title)\n"
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end:
 
 ;;}}}

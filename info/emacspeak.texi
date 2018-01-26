@@ -1,6 +1,5 @@
 \input texinfo
-@raggedright
-@c$Id: emacspeak.texi 6111 2009-02-28 02:49:23Z tv.raman.tv $
+@c$Id: emacspeak.texi 8248 2013-03-23 15:57:10Z tv.raman.tv $
 @setfilename./emacspeak.info 
 @settitle Emacspeak User's Manual --2nd Edition.
 @dircategory Accessibility
@@ -20,7 +19,7 @@
      
      @page
      @vskip 0pt plus 1filll
-     Copyright @copyright{} 1994--2008 T. V. Raman. All Rights Reserved.
+     Copyright @copyright{} 1994--2013 T. V. Raman. All Rights Reserved.
 
 
 Permission is granted to make and distribute verbatim copies of this

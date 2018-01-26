@@ -1,5 +1,5 @@
 ;;; emacspeak-analog.el --- Speech-enable analog -- a log viewer
-;;; $Id: emacspeak-analog.el 7823 2012-06-03 01:16:29Z tv.raman.tv $
+;;; $Id: emacspeak-analog.el 8260 2013-03-28 15:21:49Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak front-end for ANALOG log analyzer
 ;;; Keywords: Emacspeak, analog
@@ -239,7 +239,7 @@ Speak field or char moved to."
   )
 
 (defun emacspeak-analog-update-edit-keys ()
-  "We define keys that invoke editting commands to invoke
+  "We define keys that invoke editing commands to invoke
 emacspeak-speak-and-skip-extent-upto-char "
   (declare (special analog-mode-map))
   (mapcar 
@@ -258,7 +258,7 @@ emacspeak-speak-and-skip-extent-upto-char "
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end:
 
 ;;}}}

@@ -1,5 +1,5 @@
 ;;; emacspeak-piglets.el.el --- Result of large pigs connecting over a socket
-;;; $Id: emacspeak-piglets.el 7823 2012-06-03 01:16:29Z tv.raman.tv $
+;;; $Id: emacspeak-piglets.el 8260 2013-03-28 15:21:49Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Result of connecting Emacs and Firefox
 ;;; Keywords: Emacspeak,  Audio Desktop Firefox, Piglets 
@@ -122,7 +122,7 @@ Keystrokes are sent to a connected Firefox."
         'backward-delete-char
         'backward-delete-char-untabify
         'completion-kill-region)
-  "Editting commands that emacspeak should rebind in Piglets mode")
+  "Editing commands that emacspeak should rebind in Piglets mode")
 
 (defun emacspeak-piglets-forward-keys ()
   "Set up Piglets mode to forward keys to Firefox."
@@ -184,7 +184,7 @@ Keystrokes are sent to a connected Firefox."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end:
 
 ;;}}}

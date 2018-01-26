@@ -1,5 +1,5 @@
 ;;; emacspeak-daisy.el --- daisy Front-end for emacspeak desktop
-;;; $Id: emacspeak-daisy.el 7378 2011-11-10 17:34:32Z tv.raman.tv $
+;;; $Id: emacspeak-daisy.el 8262 2013-03-28 15:52:57Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak front-end for DAISY Talking Books
 ;;; Keywords: Emacspeak, daisy Digital Talking Books
@@ -465,7 +465,7 @@ The Emacspeak DAISY front-end is launched by command
 emacspeak-daisy-open-book  bound to \\[emacspeak-daisy-open-book].
 
 This command switches to a special buffer that has DAISY
-commands bounds to single keystrokes-- see the ke-binding
+commands bounds to single keystrokes-- see the key-binding
 list at the end of this description.  Use Emacs online help
 facility to look up help on these commands.
 

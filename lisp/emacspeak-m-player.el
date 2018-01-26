@@ -1,5 +1,5 @@
 ;;; emacspeak-m-player.el --- Control mplayer from Emacs
-;;; $Id: emacspeak-m-player.el 7832 2012-06-03 20:13:54Z tv.raman.tv $
+;;; $Id: emacspeak-m-player.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description: Controlling mplayer from emacs 
 ;;; Keywords: Emacspeak, m-player streaming media 
@@ -829,7 +829,7 @@ emacspeak-silence-hook."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end: 
 
 ;;}}}

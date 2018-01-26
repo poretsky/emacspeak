@@ -1,5 +1,5 @@
 ;;; emacspeak-webutils.el --- Common Web Utilities For Emacspeak
-;;; $Id: emacspeak-webutils.el 8026 2012-09-25 16:48:36Z tv.raman.tv $
+;;; $Id: emacspeak-webutils.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak Webutils
 ;;; Keywords: Emacspeak, web
@@ -641,7 +641,7 @@ Stack is a list of the form ((element-name (attribute-alist)))."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end:
 
 ;;}}}

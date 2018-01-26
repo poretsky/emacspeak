@@ -1,5 +1,5 @@
 ;;; outloud-voices.el --- Define various device independent voices in terms of OutLoud tags
-;;; $Id: outloud-voices.el 7511 2012-02-13 21:55:37Z tv.raman.tv $
+;;; $Id: outloud-voices.el 8312 2013-05-01 16:03:33Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Module to set up Eloquent voices and personalities
 ;;; Keywords: Voice, Personality, IBM ViaVoice Outloud
@@ -474,6 +474,7 @@ and TABLE gives the values along that dimension."
 (defun outloud-configure-tts ()
   "Configure TTS environment to use ViaVoice  family of synthesizers."
   (declare (special tts-default-speech-rate
+                    tts-default-voice
                     outloud-default-speech-rate
                     dtk-speech-rate-step
                     dtk-speech-rate-base
@@ -482,6 +483,7 @@ and TABLE gives the values along that dimension."
   (fset 'tts-voice-defined-p 'outloud-voice-defined-p)
   (fset 'tts-get-voice-command 'outloud-get-voice-command)
   (fset 'tts-define-voice-from-speech-style 'outloud-define-voice-from-speech-style)
+  (setq tts-default-voice 'paul)
   (setq tts-default-speech-rate outloud-default-speech-rate)
   (set-default 'tts-default-speech-rate outloud-default-speech-rate)
   (setq dtk-speech-rate-step 8
@@ -498,8 +500,8 @@ and TABLE gives the values along that dimension."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: nil
 ;;; end:
 
 ;;}}}

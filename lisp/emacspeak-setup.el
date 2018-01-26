@@ -1,5 +1,5 @@
 ;;; emacspeak-setup.el --- Setup Emacspeak environment --loaded to start Emacspeak
-;;; $Id: emacspeak-setup.el 8039 2012-12-16 17:00:41Z tv.raman.tv $
+;;; $Id: emacspeak-setup.el 8334 2013-05-08 15:41:47Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  File for setting up and starting Emacspeak
 ;;; Keywords: Emacspeak, Setup, Spoken Output
@@ -99,7 +99,7 @@ pronunciation dictionaries are stored. ")
 ;;;###autoload
 (defconst emacspeak-version
   (format
-   "37.0 %s"
+   "38.0 %s"
    (cond
     ((file-exists-p emacspeak-readme-file)
      (let ((buffer (find-file-noselect emacspeak-readme-file))
@@ -122,7 +122,7 @@ pronunciation dictionaries are stored. ")
 
 ;;;###autoload
 (defconst emacspeak-codename
-  "SolidDog"
+  "FreeDog"
   "Code name of present release.")
 
 ;;}}}

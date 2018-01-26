@@ -1,5 +1,5 @@
 ;;; emacspeak-cmuscheme.el --- Scheme support for emacspeak
-;;; $Id: emacspeak-cmuscheme.el 7823 2012-06-03 01:16:29Z tv.raman.tv $
+;;; $Id: emacspeak-cmuscheme.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Speech-enable emacs for scheme and guile
 ;;; Keywords: Emacspeak, cmuscheme
@@ -140,7 +140,7 @@
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end:
 
 ;;}}}

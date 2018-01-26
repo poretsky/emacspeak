@@ -1,5 +1,5 @@
 ;;; emacspeak-enriched.el --- Audio Formatting for Emacs' WYSIWYG RichText  mode
-;;; $Id: emacspeak-enriched.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
+;;; $Id: emacspeak-enriched.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $ 
 ;;; Description: Emacspeak module to speak voicify rich text
 ;;; Keywords:emacspeak, audio interface to emacs rich text
@@ -136,7 +136,7 @@ Useful in voicifying rich text."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end: 
 
 ;;}}}

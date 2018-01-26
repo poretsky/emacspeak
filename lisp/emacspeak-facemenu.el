@@ -1,5 +1,5 @@
 ;;; emacspeak-facemenu.el --- Map default Emacs faces like bold to appropriate speech personalities 
-;;; $Id: emacspeak-facemenu.el 7823 2012-06-03 01:16:29Z tv.raman.tv $
+;;; $Id: emacspeak-facemenu.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $ 
 ;;; Description: Emacspeak module to map standard faces to voices
 ;;; Keywords:emacspeak, audio interface to emacs rich text
@@ -74,7 +74,7 @@
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end: 
 
 ;;}}}

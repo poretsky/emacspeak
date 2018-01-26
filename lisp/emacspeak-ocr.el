@@ -1,5 +1,5 @@
 ;;; emacspeak-ocr.el --- ocr Front-end for emacspeak desktop
-;;; $Id: emacspeak-ocr.el 7823 2012-06-03 01:16:29Z tv.raman.tv $
+;;; $Id: emacspeak-ocr.el 8262 2013-03-28 15:52:57Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak front-end for OCR
 ;;; Keywords: Emacspeak, ocr
@@ -261,7 +261,7 @@ The Emacspeak OCR front-end is launched by command
 emacspeak-ocr bound to \\[emacspeak-ocr].  
 
 This command switches to a special buffer that has OCR
-commands bounds to single keystrokes-- see the ke-binding
+commands bounds to single keystrokes-- see the key-binding
 list at the end of this description.  Use Emacs online help
 facility to look up help on these commands.
 
@@ -746,7 +746,7 @@ Setting persists for current Emacs session."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end:
 
 ;;}}}

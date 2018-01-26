@@ -1,5 +1,5 @@
 ;;; emacspeak-ispell.el --- Speech enable Ispell -- Emacs' interactive spell checker
-;;; $Id: emacspeak-ispell.el 7823 2012-06-03 01:16:29Z tv.raman.tv $
+;;; $Id: emacspeak-ispell.el 8286 2013-04-05 15:51:45Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak extension to speech enable ispell
 ;;; Keywords: Emacspeak, Ispell, Spoken Output, Ispell version 2.30
@@ -39,7 +39,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;{{{  Introduction:
-
+;;; Commentary:
 ;;; This module speech enables ispell.
 ;;; Implementation note: This is hard because of how  ispell.el is written
 ;;; Namely, all of the work is done by one huge hairy function.
@@ -49,46 +49,21 @@
 ;;; for ispell.el version 2.30
 ;;; Now updating it for ispell.el version 2.37.
 ;;; Support for 2.30 will wither away
-
+;;; Code:
 ;;}}}
 ;;{{{ requires
+
+(require 'cl)
+(declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
-
-;;}}}
-;;{{{  define personalities
-
-(voice-setup-add-map
- '(
-   (ispell-highlight-face voice-bolden)
-   ))
-
-;;}}}
-;;{{{  first set up voice  highlighting
-
-(defadvice ispell-highlight-spelling-error (after emacspeak act )
-  "Use voice locking to highlight the error.
-Will clobber any existing personality property defined on start end"
-  (let ((start (ad-get-arg 0))
-        (end (ad-get-arg 1 ))
-        (highlight (ad-get-arg 2 )))
-    (if highlight
-        (put-text-property  start end
-                            'personality  voice-bolden)
-      (put-text-property start end
-                         'personality  nil ))))
 
 ;;}}}
 ;;{{{  ispell command loop:
 
-;;;Signature for  ispell-command-loop in 2.30
-;;;defun ispell-command-loop (miss guess word)
-;;;Signature in 2.37:
 ;;; defun ispell-command-loop (miss guess word start end)
-
 ;;; Advice speaks the line containing the error with the erroneous
 ;;; word highlighted.
 
-;;{{{  new version
 (defgroup emacspeak-ispell nil
   "Spell checking group."
   :group  'emacspeak)
@@ -101,7 +76,7 @@ many available corrections."
 
 (defadvice ispell-command-loop (before emacspeak pre act )
   "Speak the line containing the incorrect word.
- Then speak  the possible corrections. "
+ Then speak the possible corrections. "
   (let ((scratch-buffer (get-buffer-create " *dtk-scratch-buffer* "))
         (choices  (ad-get-arg 0 ))
         (line nil)
@@ -109,9 +84,8 @@ many available corrections."
         (end (ad-get-arg 4))
         (position 0))
     (setq line
-          (ems-set-personality-temporarily start end voice-bolden
-                                           (thing-at-point
-                                            'line)))
+          (ems-set-personality-temporarily
+           start end voice-bolden (thing-at-point 'line)))
     (save-excursion
       (set-buffer scratch-buffer)
       (setq voice-lock-mode t)
@@ -120,19 +94,15 @@ many available corrections."
       (erase-buffer)
       (insert line)
       (cond
-       ((< (length choices)
-           emacspeak-ispell-max-choices)
+       ((< (length choices) emacspeak-ispell-max-choices)
         (loop for choice in choices
               do
               (insert (format "%s %s\n" position choice))
               (incf position)))
-       (t (insert
-           (format "There were %s corrections available."
-                   (length choices)))))
+       (t
+        (insert (format "%s corrections available." (length choices)))))
       (modify-syntax-entry 10 ">")
       (dtk-speak (buffer-string )))))
-
-;;}}}
 
 (defadvice ispell-comments-and-strings (around emacspeak pre act comp)
   "Stop chatter by turning off messages"
@@ -195,7 +165,7 @@ many available corrections."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end:
 
 ;;}}}

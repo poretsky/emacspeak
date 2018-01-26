@@ -56,7 +56,10 @@
 (require 'cl)
 (declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
-
+(require 'gweb)
+(require 'gmaps)
+(require 'derived)
+(require 'html2text)
 ;;}}}
 ;;{{{ Data Structures 
 
@@ -430,13 +433,54 @@ This variable is buffer-local.")
       (emacspeak-keymap-update emacspeak-google-keymap k))
 
 ;;}}}
+;;{{{ Advice GMaps:
 
+(defadvice gmaps (after emacspeak pre act comp)
+  "Provide  auditory feedback."
+  (when (ems-interactive-p)
+    (emacspeak-auditory-icon 'open-object)
+    (emacspeak-speak-mode-line)))
+(loop for f in
+      '(gmaps-driving-directions gmaps-bicycling-directions
+                                 gmaps-walking-directions gmaps-transit-directions
+                                 gmaps-places-nearby gmaps-places-search)
+      do
+      (eval
+       `(defadvice ,f (after emacspeak pre act comp)
+          "Provide auditory feedback."
+          (when (ems-interactive-p)
+            (emacspeak-auditory-icon 'task-done)
+            (emacspeak-speak-rest-of-buffer)))))
+
+(defadvice gmaps-set-current-location (after emacspeak pre act comp)
+  "Provide auditory feedback."
+  (when (ems-interactive-p)
+    (emacspeak-speak-header-line)))
+
+(defadvice gmaps-set-current-radius (after emacspeak pre act comp)
+  "Provide auditory feedback."
+  (when (ems-interactive-p)
+    (message "Radius set to %s. " gmaps-current-radius)))
+
+(defadvice gmaps-place-details (around emacspeak pre act comp)
+  "Provide auditory feedback."
+  (cond
+   ((ems-interactive-p)
+    ad-do-it
+    (emacspeak-speak-region  (point)
+                             (or 
+                              (next-single-property-change (point) 'place-details )
+                              (point-max))))
+   (t ad-do-it))
+  ad-return-value)
+
+;;}}}
 (provide 'emacspeak-google)
 ;;{{{ end of file
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end:
 
 ;;}}}

@@ -1,5 +1,5 @@
 ;;; emacspeak-gnus.el --- Speech enable GNUS -- Fluent spoken access to usenet
-;;; $Id: emacspeak-gnus.el 7995 2012-08-24 03:19:41Z tv.raman.tv $
+;;; $Id: emacspeak-gnus.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $ 
 ;;; Description:  Emacspeak extension to speech enable Gnus
 ;;; Keywords: Emacspeak, Gnus, Advice, Spoken Output, News
@@ -1008,6 +1008,6 @@ Helps to prevent words from being spelled instead of spoken."
 ;;{{{  end of file 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end: 
 ;;}}}

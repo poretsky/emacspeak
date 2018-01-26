@@ -5,8 +5,8 @@
 # LCD Archive Entry:
 # emacspeak| T. V. Raman |raman@cs.cornell.edu
 # A speech interface to Emacs |
-# $Date: 2012-04-19 08:31:22 -0700 (Thu, 19 Apr 2012) $ |
-#  $Revision: 7699 $ | 
+# $Date: 2013-05-03 15:42:11 -0700 (Fri, 03 May 2013) $ |
+#  $Revision: 8318 $ | 
 # Location undetermined
 #
 
@@ -118,10 +118,10 @@ proc tts_pause {} {
 
 proc s {} {
     global tts
+    queue_clear
     if {$tts(not_stopped) == 1} {
         set tts(not_stopped) 0
         stop
-        queue_clear
     } else {
         puts stderr StopNoOp
     }
@@ -359,7 +359,8 @@ proc speech_task {} {
     set tts(not_stopped) 1
     set r $tts(speech_rate)
     set length [queue_length]
-    set prefix "`v1 `vs$r "
+    set prefix " `vs$r "
+    synth "`v1 "
     loop index 0 $length {
         set event   [queue_remove]
         set event_type [lindex $event 0]
@@ -367,6 +368,11 @@ proc speech_task {} {
             s {
                 set text [clean [lindex $event 1]]
                 synth "$prefix $text"
+                set retval [service]
+            }
+            c {
+                set text  [lindex $event 1]
+                synth " $text"
                 set retval [service]
             }
             a {

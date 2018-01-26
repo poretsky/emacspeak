@@ -1,5 +1,5 @@
 ;;; flite.el --- Emacspeak FLite
-;;; $Id: flite-voices.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
+;;; $Id: flite-voices.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  FLite interface 
 ;;; Keywords: Emacspeak,  Audio Desktop FLite
@@ -76,7 +76,7 @@
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end:
 
 ;;}}}

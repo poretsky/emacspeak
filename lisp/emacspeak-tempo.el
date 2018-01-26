@@ -1,5 +1,5 @@
 ;;; emacspeak-tempo.el --- Speech enable tempo -- template library used for Java and HTML authoring
-;;; $Id: emacspeak-tempo.el 7823 2012-06-03 01:16:29Z tv.raman.tv $
+;;; $Id: emacspeak-tempo.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $ 
 ;;; Description:  Emacspeak extensions for tempo.el (used by html-helper-mode)
 ;;; Keywords: Emacspeak, Spoken Feedback, Template filling, html editing
@@ -95,7 +95,7 @@
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end: 
 
 ;;}}}

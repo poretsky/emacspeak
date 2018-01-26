@@ -1,5 +1,5 @@
 ;;; emacspeak-w3.el --- Speech enable W3 WWW browser -- includes ACSS Support
-;;; $Id: emacspeak-w3.el 8037 2012-12-15 17:54:29Z tv.raman.tv $
+;;; $Id: emacspeak-w3.el 8276 2013-03-30 15:19:30Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak enhancements for W3
 ;;; Keywords: Emacspeak, W3, WWW
@@ -840,17 +840,20 @@ Tue Apr 24 17:33:27 PDT 2012
 (defsubst emacspeak-w3-canonicalize-google-result-url (url)
   "Strip out the actual result URL from the redirect wrapper."
   (declare (special emacspeak-websearch-google-use-https))
-(url-unhex-string 
-  (substring url
-             (if emacspeak-websearch-google-use-https 29 28)
-             (string-match "&sa=" url))))
+  (url-unhex-string 
+   (substring url
+              (if emacspeak-websearch-google-use-https 29 28)
+              (string-match "&sa=" url))))
 
 (defsubst emacspeak-w3-google-result-url-prefix ()
   "Return prefix of result urls."
   (declare (special emacspeak-websearch-google-use-https))
   (format "%s://www.google.com/url?q="
           (if emacspeak-websearch-google-use-https "https" "http")))
-
+;;; speed up image handling:
+(defadvice w3-image-loadable-p (around dont pre act comp)
+  "I dont want any images here."
+  nil)
 (loop
  for f in 
  '(url-retrieve-internal w3-fetch url-truncate-url-for-viewing)
@@ -873,7 +876,7 @@ Tue Apr 24 17:33:27 PDT 2012
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end:
 
 ;;}}}

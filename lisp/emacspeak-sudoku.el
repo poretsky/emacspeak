@@ -1,5 +1,5 @@
 ;;; emacspeak-sudoku.el --- Play SuDoku 
-;;; $Id: emacspeak-sudoku.el 7823 2012-06-03 01:16:29Z tv.raman.tv $
+;;; $Id: emacspeak-sudoku.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description: Playing SuDoku ;;; Keywords: Emacspeak, sudoku
 ;;{{{  LCD Archive entry: 
@@ -455,7 +455,7 @@ See
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end: 
 
 ;;}}}

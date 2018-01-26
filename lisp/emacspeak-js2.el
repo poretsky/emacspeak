@@ -1,5 +1,5 @@
 ;;; emacspeak-js2.el --- Speech-enable JS2
-;;; $Id: emacspeak-js2.el 7999 2012-08-31 00:42:28Z tv.raman.tv $
+;;; $Id: emacspeak-js2.el 8276 2013-03-30 15:19:30Z tv.raman.tv $
 ;;; $Author: raman $
 ;;; Description:  Speech-enable JS2 An Emacs Interface to js2
 ;;; Keywords: Emacspeak,  Audio Desktop js2
@@ -157,8 +157,6 @@
     (emacspeak-auditory-icon 'large-movement)
     (emacspeak-speak-line)))
 
-                                        
-
 ;;}}}
 ;;{{{ js2-mode hook
 
@@ -179,7 +177,7 @@
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end:
 
 ;;}}}

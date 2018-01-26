@@ -1,5 +1,5 @@
 ;;; emacspeak-tdtd.el --- Speech enable  DTD authoring 
-;;; $Id: emacspeak-tdtd.el 7323 2011-10-26 00:50:39Z tv.raman.tv $
+;;; $Id: emacspeak-tdtd.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:   extension to speech enable tdtd 
 ;;; Keywords: Emacspeak, Audio Desktop
@@ -80,7 +80,7 @@
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end:
 
 ;;}}}

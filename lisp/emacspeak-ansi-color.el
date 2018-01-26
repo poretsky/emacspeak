@@ -1,5 +1,5 @@
 ;;; emacspeak-ansi-color.el --- Speech-enable ansi-color terminal
-;;; $Id: emacspeak-ansi-color.el 7823 2012-06-03 01:16:29Z tv.raman.tv $
+;;; $Id: emacspeak-ansi-color.el 8243 2013-03-19 15:32:44Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak module for ansi-color
 ;;; Keywords: Emacspeak, ansi-color
@@ -60,37 +60,39 @@
   "Return a voice corresponding to specified face-spec."
   (declare (special ansi-color-names-vector
                     ansi-color-faces-vector))
-  (let* ((voice-name nil)
-         (style (cadr face-spec))
-         (style-index (position style ansi-color-faces-vector))
-         (color (cdr (assq 'foreground-color  face-spec)))
-         (color-index
-          (when color
-            (position  color ansi-color-names-vector
-                       :test #'string-equal)))
-         (style nil)
-         (color-parameter nil)
-         (style-parameter nil))
-    (setq voice-name
-          (intern (format "emacspeak-ansi-color-%s-%s"
-                          (if color color "default")
-                          (if style style "default"))))
-    (unless (tts-voice-defined-p voice-name)
-      (setq style (make-acss ))
-      (setq style-parameter
-            (if style-index
-                (+ 1 style-index)
-              1))
-      (setq color-parameter
-            (if color-index
-                (+ 1 color-index)
-              1))
-      (setf (acss-average-pitch style) color-parameter)
-      (setf (acss-pitch-range style) color-parameter)
-      (setf (acss-richness style) color-parameter)
-      (setf (acss-stress style) color-parameter)
-      (tts-define-voice-from-speech-style voice-name style))
-    voice-name))
+  (condition-case nil
+      (let* ((voice-name nil)
+             (style (cadr face-spec))
+             (style-index (position style ansi-color-faces-vector))
+             (color (cdr (assq 'foreground-color  face-spec)))
+             (color-index
+              (when color
+                (position  color ansi-color-names-vector
+                           :test #'string-equal)))
+             (style nil)
+             (color-parameter nil)
+             (style-parameter nil))
+        (setq voice-name
+              (intern (format "emacspeak-ansi-color-%s-%s"
+                              (if color color "default")
+                              (if style style "default"))))
+        (unless (tts-voice-defined-p voice-name)
+          (setq style (make-acss ))
+          (setq style-parameter
+                (if style-index
+                    (+ 1 style-index)
+                  1))
+          (setq color-parameter
+                (if color-index
+                    (+ 1 color-index)
+                  1))
+          (setf (acss-average-pitch style) color-parameter)
+          (setf (acss-pitch-range style) color-parameter)
+          (setf (acss-richness style) color-parameter)
+          (setf (acss-stress style) color-parameter)
+          (tts-define-voice-from-speech-style voice-name style))
+        voice-name)
+    (error nil)))
 
 (defadvice ansi-color-set-extent-face (after emacspeak pre act comp)
   "Apply aural properties."
@@ -128,7 +130,7 @@
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end:
 
 ;;}}}

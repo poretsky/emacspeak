@@ -1,5 +1,5 @@
 ;;; emacspeak-ses.el --- Speech-enable ses spread-sheet
-;;; $Id: emacspeak-ses.el 7998 2012-08-25 15:53:21Z tv.raman.tv $
+;;; $Id: emacspeak-ses.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak front-end for SES 
 ;;; Keywords: Emacspeak, ses 
@@ -217,7 +217,7 @@ interest."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end:
 
 ;;}}}

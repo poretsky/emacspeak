@@ -1,5 +1,5 @@
 ;;; emacspeak-python.el --- Speech enable Python development environment
-;;; $Id: emacspeak-python.el 7998 2012-08-25 15:53:21Z tv.raman.tv $
+;;; $Id: emacspeak-python.el 8330 2013-05-07 18:01:41Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $ 
 ;;; Description: Auditory interface to python mode
 ;;; Keywords: Emacspeak, Speak, Spoken Output, python
@@ -63,15 +63,15 @@
     (when (ems-interactive-p )
       (dtk-say " colon "))))
 
-(defadvice python-electric-backspace (around emacspeak pre act)
-  "Speak character you're deleting."
-  (cond
-   ((ems-interactive-p  )
-    (dtk-tone 500 30 'force)
-    (emacspeak-speak-this-char (preceding-char ))
-    ad-do-it)
-   (t ad-do-it))
-  ad-return-value)
+(defadvice  python-indent-dedent-line-backspace (around emacspeak pre act)
+          "Speak character you're deleting."
+          (cond
+           ((ems-interactive-p  )
+            (dtk-tone 500 30 'force)
+            (emacspeak-speak-this-char (preceding-char ))
+            ad-do-it)
+           (t ad-do-it))
+          ad-return-value)
 
 (defadvice python-electric-delete (around emacspeak pre act)
   "Speak character you're deleting."
@@ -259,7 +259,7 @@ If already at the beginning then move to previous block."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end: 
 
 ;;}}}

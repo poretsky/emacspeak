@@ -518,7 +518,7 @@ The Emacspeak Bookshare front-end is launched by command
 emacspeak-bookshare bound to \\[emacspeak-bookshare]
 
 This command switches to a special buffer that has Bookshare
-commands bounds to single keystrokes-- see the ke-binding list at
+commands bounds to single keystrokes-- see the key-binding list at
 the end of this description. Use Emacs online help facility to
 look up help on these commands.
 
@@ -1082,7 +1082,7 @@ Make sure it's downloaded and unpacked first."
          (directory-files directory 'full ".xml"))))))))
 
 (defun emacspeak-bookshare-extract-xml (url)
-  "Extract content refered to by link under point, and return an XML buffer."
+  "Extract content referred to by link under point, and return an XML buffer."
   (interactive "sURL: ")
   (declare (special  emacspeak-we-xsl-filter))
   (let ((fields (split-string url "#"))
@@ -1099,7 +1099,7 @@ Make sure it's downloaded and unpacked first."
       (format "//*[@id=\"%s\"]" id) url))))
 
 (defun emacspeak-bookshare-extract-and-view (url)
-  "Extract content refered to by link under point, and render via the browser."
+  "Extract content referred to by link under point, and render via the browser."
   (interactive "sURL: ")
   (declare (special emacspeak-bookshare-browser-function))
   (let ((result (emacspeak-bookshare-extract-xml url))
@@ -1255,7 +1255,7 @@ Useful for fulltext search in a book."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end:
 
 ;;}}}

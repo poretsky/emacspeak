@@ -1,5 +1,5 @@
-;;; emacspeak-folding.el --- Speech enable Folding Mode -- enables structured editting
-;;; $Id: emacspeak-folding.el 7823 2012-06-03 01:16:29Z tv.raman.tv $
+;;; emacspeak-folding.el --- Speech enable Folding Mode -- enables structured editing
+;;; $Id: emacspeak-folding.el 8260 2013-03-28 15:21:49Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $ 
 ;;; DescriptionEmacspeak extensions for folding-mode
 ;;; Keywords:emacspeak, audio interface to emacs Folding editor
@@ -94,7 +94,7 @@ Then speak the folded line."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end: 
 
 ;;}}}

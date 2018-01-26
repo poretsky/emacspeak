@@ -1,5 +1,5 @@
 ;;; emacspeak-dictionary.el --- speech-enable dictionaries 
-;;; $Id: emacspeak-dictionary.el 7823 2012-06-03 01:16:29Z tv.raman.tv $
+;;; $Id: emacspeak-dictionary.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:   Speech enable dictionary mode
 ;;; Keywords: Emacspeak, Audio Desktop
@@ -110,7 +110,7 @@
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end:
 
 ;;}}}

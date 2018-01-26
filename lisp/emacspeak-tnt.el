@@ -1,5 +1,5 @@
 ;;; emacspeak-tnt.el --- Instant Messenger 
-;;; $Id: emacspeak-tnt.el 7823 2012-06-03 01:16:29Z tv.raman.tv $
+;;; $Id: emacspeak-tnt.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Speech-enable AOL Instant Messenger Client TNT
 ;;; Keywords: Emacspeak, Instant Messaging 
@@ -276,7 +276,7 @@ automatically."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end:
 
 ;;}}}

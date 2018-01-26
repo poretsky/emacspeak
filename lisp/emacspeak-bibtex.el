@@ -1,7 +1,7 @@
 ;;; emacspeak-bibtex.el --- Speech enable bibtex -- Supports maintaining bibliographies in bibtex format
-;;; $Id: emacspeak-bibtex.el 7823 2012-06-03 01:16:29Z tv.raman.tv $
+;;; $Id: emacspeak-bibtex.el 8260 2013-03-28 15:21:49Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $ 
-;;; Description: Emacspeak extension for editting bibtex files 
+;;; Description: Emacspeak extension for editing bibtex files 
 ;;; Keywords:emacspeak, audio interface to emacs, bibtex
 ;;{{{  LCD Archive entry: 
 
@@ -74,7 +74,7 @@
     ))
 
 ;;}}}
-;;{{{ Advice record editting commands
+;;{{{ Advice record editing commands
 
 (defadvice bibtex-remove-OPT (after emacspeak pre act comp)
   "Provide auditory feedback"
@@ -216,7 +216,7 @@
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end: 
 
 ;;}}}

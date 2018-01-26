@@ -1,5 +1,5 @@
 ;;; emacspeak-replace.el --- Speech enable interactive search and replace
-;;; $Id: emacspeak-replace.el 7908 2012-06-22 15:45:37Z tv.raman.tv $
+;;; $Id: emacspeak-replace.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $ 
 ;;; Description:  Emacspeak extension for replace.el
 ;;; Keywords: Emacspeak, Speech feedback, query replace (replace.el)
@@ -163,7 +163,7 @@ that is being replaced."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end: 
 
 ;;}}}

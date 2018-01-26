@@ -1,5 +1,5 @@
 ;;; emacspeak-python.el --- Speech enable Python development environment
-;;; $Id: emacspeak-py.el 7998 2012-08-25 15:53:21Z tv.raman.tv $
+;;; $Id: emacspeak-py.el 8327 2013-05-06 16:02:13Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $ 
 ;;; Description: Auditory interface to python mode
 ;;; Keywords: Emacspeak, Speak, Spoken Output, python
@@ -316,24 +316,37 @@ If already at the beginning then move to previous block."
 ;;{{{ keybindings
 
 (progn
-  (declaim (special  py-mode-map))
-  (define-key py-mode-map "\M-a" 'beginning-of-python-def-or-class)
-  (define-key py-mode-map "\M-e" 'end-of-python-def-or-class)
-  (define-key py-mode-map "\M-n" 'py-next-statement)
-  (define-key py-mode-map "\M-p" 'py-previous-statement)
-  (define-key py-mode-map "\C-\M-u" 'py-goto-block-up)
-  (define-key py-mode-map "\C-\M-n" 'emacspeak-py-next-block)
-  (define-key py-mode-map "\C-\M-p" 'emacspeak-py-previous-block)
+  (declaim (special  python-mode-map))
+  (define-key python-mode-map "\M-a" 'beginning-of-python-def-or-class)
+  (define-key python-mode-map "\M-e" 'end-of-python-def-or-class)
+  (define-key python-mode-map "\M-n" 'py-next-statement)
+  (define-key python-mode-map "\M-p" 'py-previous-statement)
+  (define-key python-mode-map "\C-\M-u" 'py-goto-block-up)
+  (define-key python-mode-map "\C-\M-n" 'emacspeak-py-next-block)
+  (define-key python-mode-map "\C-\M-p" 'emacspeak-py-previous-block)
   )
 (add-hook 'python-mode-hook
           'emacspeak-setup-programming-mode)
+;;}}}
+;;{{{ Voice Mappings:
+(voice-setup-add-map
+ '(
+   (py-number-face voice-lighten)
+   (py-XXX-tag-face voice-animate)
+   (py-pseudo-keyword-face voice-bolden-medium)
+   (py-variable-name-face  emacspeak-voice-lock-variable-name-personality)
+   (py-decorators-face voice-lighten)
+   (py-builtins-face emacspeak-voice-lock-builtin-personality)
+   (py-class-name-face voice-bolden-extra)
+   (py-exception-name-face emacspeak-voice-lock-warning-personality)))
+
 ;;}}}
 (provide 'emacspeak-py )
 ;;{{{ end of file 
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end: 
 
 ;;}}}

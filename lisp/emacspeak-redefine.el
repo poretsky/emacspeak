@@ -1,5 +1,5 @@
 ;;; emacspeak-redefine.el --- Redefines some key Emacs builtins to speak
-;;; $Id: emacspeak-redefine.el 7823 2012-06-03 01:16:29Z tv.raman.tv $
+;;; $Id: emacspeak-redefine.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak's redefinition of some key functions.
 ;;; Emacspeak does most of its work by advising other functions to speak.
@@ -203,7 +203,7 @@ They have to be redefined and rebound to make them talk. " )
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end:
 
 ;;}}}

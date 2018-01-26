@@ -1,5 +1,5 @@
 ;;; emacspeak-preamble.el --- standard  include for Emacspeak modules
-;;; $Id: emacspeak-preamble.el 8035 2012-12-08 17:03:23Z tv.raman.tv $
+;;; $Id: emacspeak-preamble.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $ 
 ;;; DescriptionEmacspeak extensions for auctex-mode
 ;;; Keywords:emacspeak, audio interface to emacs AUCTEX
@@ -72,7 +72,7 @@
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end: 
 
 ;;}}}

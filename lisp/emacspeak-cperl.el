@@ -1,5 +1,5 @@
 ;;; emacspeak-cperl.el --- Speech enable CPerl Mode 
-;;; $Id: emacspeak-cperl.el 7998 2012-08-25 15:53:21Z tv.raman.tv $
+;;; $Id: emacspeak-cperl.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $ 
 ;;; DescriptionEmacspeak extensions for CPerl mode
 ;;; Keywords:emacspeak, audio interface to emacs CPerl
@@ -218,7 +218,7 @@ Otherwise cue user to the line just created. "
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end: 
 
 ;;}}}

@@ -1,5 +1,5 @@
 ;;; emacspeak-perl.el --- Speech enable Perl Mode 
-;;; $Id: emacspeak-perl.el 7998 2012-08-25 15:53:21Z tv.raman.tv $
+;;; $Id: emacspeak-perl.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $ 
 ;;; DescriptionEmacspeak extensions for perl-mode
 ;;; Keywords:emacspeak, audio interface to emacs perl
@@ -82,7 +82,7 @@
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end: 
 
 ;;}}}

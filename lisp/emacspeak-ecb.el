@@ -1,5 +1,5 @@
 ;;; emacspeak-ecb.el --- speech-enable Emacs Class Browser
-;;; $Id: emacspeak-ecb.el 8008 2012-09-09 19:52:36Z tv.raman.tv $
+;;; $Id: emacspeak-ecb.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak module for speech-enabling Emacs
 ;;; Class Browser
@@ -287,7 +287,7 @@ available."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end:
 
 ;;}}}

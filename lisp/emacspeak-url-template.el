@@ -1,5 +1,5 @@
 ;;; emacspeak-url-template.el --- Create library of URI templates
-;;; $Id: emacspeak-url-template.el 7998 2012-08-25 15:53:21Z tv.raman.tv $
+;;; $Id: emacspeak-url-template.el 8272 2013-03-29 15:39:21Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:   Implement library of URI templates
 ;;; Keywords: Emacspeak, Audio Desktop
@@ -42,10 +42,10 @@
 
 ;;; Commentary:
 
-;;; It is often useful to have ``parameterized hot list entries''
+;;; It is often useful to have ``parametrized hot list entries''
 ;;; i.e., hotlist entries  that are ``templates'' for the
 ;;; actual URL.
-;;; The user provides values for the parameterized portions
+;;; The user provides values for the parametrized portions
 ;;; of the URL e.g. the date.
 ;;; See @xref{URL Templates}, for details on the URL templates
 ;;; that are presently defined.
@@ -1562,7 +1562,7 @@ name of the list.")
                                        "%m/%d") )
 
 (emacspeak-url-template-define
- "CNN Tecnology "
+ "CNN technology "
  "http://www.cnn.com/TECH/"
  nil
  #'(lambda nil

@@ -1,5 +1,5 @@
 ;;; emacspeak-jawbreaker.el --- Talk to Firefox/JawBreaker  via MozRepl
-;;; $Id: emacspeak-jawbreaker.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
+;;; $Id: emacspeak-jawbreaker.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Play JawBreaker game from Emacs in Firefox
 ;;; Keywords: Emacspeak,  Audio Desktop Firefox, Piglets 
@@ -110,7 +110,7 @@ to the running game. ")
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end:
 
 ;;}}}

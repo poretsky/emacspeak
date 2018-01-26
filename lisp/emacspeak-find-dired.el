@@ -1,5 +1,5 @@
 ;;; emacspeak-find-dired.el --- Speech enable  find-dired
-;;; $Id: emacspeak-find-dired.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
+;;; $Id: emacspeak-find-dired.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:   extension to speech enable find-dired 
 ;;; Keywords: Emacspeak, Audio Desktop
@@ -56,7 +56,7 @@
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end:
 
 ;;}}}

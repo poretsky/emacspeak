@@ -1,5 +1,5 @@
 ;;; emacspeak-madplay.el --- Control madplay from Emacs
-;;; $Id: emacspeak-madplay.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
+;;; $Id: emacspeak-madplay.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description: Controlling madplay from emacs 
 ;;; Keywords: Emacspeak, madplay
@@ -195,7 +195,7 @@ The player is placed in a buffer in emacspeak-madplay-mode."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end: 
 
 ;;}}}

@@ -1,5 +1,5 @@
 ;;; emacspeak-fix-interactive.el --- Tools to make  Emacs' builtin prompts   speak
-;;; $Id: emacspeak-fix-interactive.el 7837 2012-06-03 23:06:46Z tv.raman.tv $
+;;; $Id: emacspeak-fix-interactive.el 8273 2013-03-29 15:41:45Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description: Fixes functions that use interactive to prompt for args.
 ;;; Approach suggested by hans@cs.buffalo.edu
@@ -145,7 +145,7 @@ use the minibuffer."
       ;; cannot handle automatically -- tell developer
       ;; since subsequent prompts use earlier args e.g.global-set-key
       (push sym emacspeak-fix-interactive-problematic-functions)
-      (message "Not auto-advicing %s" sym))))
+      (message "Not auto-advising %s" sym))))
   t)
 
 ;;; inline function for use from other modules:
@@ -211,7 +211,7 @@ Memoizes call in emacspeak-load-history-pointer to memoize this call. "
 ;;{{{  end of file
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end:
 
 ;;}}}

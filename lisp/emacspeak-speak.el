@@ -1,5 +1,5 @@
 ;;; emacspeak-speak.el --- Implements Emacspeak's core speech services
-;;; $Id: emacspeak-speak.el 8026 2012-09-25 16:48:36Z tv.raman.tv $
+;;; $Id: emacspeak-speak.el 8321 2013-05-05 14:58:57Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Contains the functions for speaking various chunks of text
 ;;; Keywords: Emacspeak,  Spoken Output
@@ -62,7 +62,7 @@
 (require 'dtk-unicode)
 (eval-when-compile
   (require 'shell)
-  (require 'which-func nil))
+  )
 
 ;;}}}
 ;;{{{ forward declarations:
@@ -122,6 +122,7 @@
 
 (defsubst emacspeak-speak-completions-if-available ()
   "Speak completions if available."
+  (interactive)
   (let ((completions (get-buffer "*Completions*")))
     (cond
      ((and completions
@@ -196,12 +197,8 @@ Argument BODY specifies forms to execute."
 (defmacro ems-with-errors-silenced  (&rest body)
   "Evaluate body  after temporarily silencing auditory error feedback."
   `(progn
-     (let ((emacspeak-speak-cue-errors nil))
-       (ad-disable-advice  'error 'before 'emacspeak )
-       (ad-deactivate 'error)
-       ,@body
-       (ad-enable-advice  'error 'before 'emacspeak )
-       (ad-activate 'error))))
+     (let ((emacspeak-speak-errors nil))
+       ,@body)))
 
 ;;}}}
 ;;{{{ getting and speaking text ranges
@@ -832,6 +829,7 @@ are indicated with auditory icon ellipses."
                      emacspeak-show-point
                      emacspeak-decoration-rule emacspeak-horizontal-rule
                      emacspeak-unspeakable-rule emacspeak-audio-indentation))
+  (when dtk-stop-immediately (dtk-stop))
   (when (listp arg) (setq arg (car arg )))
   (save-excursion
     (let ((inhibit-field-text-motion t)
@@ -850,7 +848,6 @@ are indicated with auditory icon ellipses."
        ((null arg))
        ((> arg 0) (setq start orig))
        (t (setq end orig)))
-      (when dtk-stop-immediately (dtk-stop))
       (setq line
             (if emacspeak-show-point
                 (ems-set-personality-temporarily
@@ -1485,7 +1482,7 @@ indicating the arrival  of new mail when displaying the mode line.")
 ;;{{{ Cache Voicefied mode-names
 
 (defvar emacspeak-voicefied-mode-names
-  (make-hash-table)
+  (make-hash-table :test 'eq)
   "Hash table mapping mode-names to their voicefied equivalents.")
 
 (defsubst emacspeak-get-voicefied-mode-name (mode-name)
@@ -1508,7 +1505,7 @@ indicating the arrival  of new mail when displaying the mode line.")
 ;;{{{ Cache Voicefied buffer-names
 
 (defvar emacspeak-voicefied-buffer-names
-  (make-hash-table)
+  (make-hash-table :test 'eq)
   "Hash table mapping buffer-names to their voicefied equivalents.")
 
 (defsubst emacspeak-get-voicefied-buffer-name (buffer-name)
@@ -1519,9 +1516,48 @@ indicating the arrival  of new mail when displaying the mode line.")
         (progn
           (setq result (copy-sequence buffer-name))
           (put-text-property 0 (length result)
-                             'personality voice-bolden-medium result)
+                             'personality voice-lighten-medium result)
           (puthash buffer-name result emacspeak-voicefied-buffer-names)
           result))))
+
+(defvar emacspeak-voicefied-recursion-info
+  (make-hash-table :test 'eq)
+  "Hash table mapping recursive-depth levels  to their voicefied equivalents.")
+
+(defsubst emacspeak-get-voicefied-recursion-info (level)
+  "Return voicefied version of this recursive-depth level."
+  (declare (special emacspeak-voicefied-recursion-info))
+  (cond
+   ((zerop level) "")
+   (t 
+    (let ((result (gethash level emacspeak-voicefied-recursion-info)))
+      (or result
+          (progn
+            (setq result (format " Recursive Edit %d " level))
+            (put-text-property 0 (length result)
+                               'personality voice-smoothen result)
+            (puthash level result emacspeak-voicefied-buffer-names)
+            result))))))
+
+(defvar emacspeak-voicefied-frame-info
+  (make-hash-table)
+  "Hash table mapping frame names  levels  to their voicefied equivalents.")
+
+(defsubst emacspeak-get-voicefied-frame-info (frame)
+  "Return voicefied version of this frame name."
+  (declare (special emacspeak-voicefied-frame-info))
+  (cond
+   ((= (length (frame-list)) 1) " ")
+   (t
+    (let ((frame-name (frame-parameter frame 'name))
+          (frame-info nil))
+      (or (gethash  frame-name emacspeak-voicefied-frame-info)
+          (progn
+            ( setq frame-info (format " %s " frame-name))
+            (put-text-property 0 (length frame-info)
+                               'personality voice-lighten-extra frame-info)
+            (puthash  frame-name frame-info emacspeak-voicefied-frame-info)
+            frame-info))))))
 
 ;;}}}
 ;;{{{  Speak mode line information
@@ -1545,25 +1581,14 @@ indicating the arrival  of new mail when displaying the mode line.")
 (make-variable-buffer-local 'column-number-mode)
 (setq-default column-number-mode nil)
 ;;{{{   mode line speaker
-(defvar emacspeak-which-function-mode  nil
-  "*If T, speaking mode line speaks the name of function containing point.")
-
-(make-variable-buffer-local 'emacspeak-which-function-mode)
-
-(ems-generate-switcher ' emacspeak-toggle-which-function
-                         'emacspeak-which-function-mode
-                         "Toggle state of  Emacspeak  which function mode.
-Interactive PREFIX arg means toggle  the global default value, and then set the
-current local  value to the result.")
 
 (defsubst emacspeak-speak-which-function ()
   "Speak which function we are on.  Uses which-function from
 which-func without turning that mode on.  We actually use
 semantic to do the work."
   (declare (special semantic--buffer-cache))
-  (require 'which-func)
-  (when  (and (featurep 'semantic)
-              semantic--buffer-cache)
+  (when  (and (featurep 'semantic) semantic--buffer-cache)
+    (require 'which-func)
     (message  (or
                (which-function)
                "Not inside a function."))))
@@ -1584,59 +1609,32 @@ semantic to do the work."
 Speaks header-line if that is set when called non-interactively.
 Interactive prefix arg speaks buffer info."
   (interactive "P")
-  (declare (special  mode-name  major-mode voice-annotate
-                     header-line-format
-                     emacspeak-which-function-mode global-mode-string
+  (declare (special  mode-name  major-mode 
+                     header-line-format global-mode-string
                      column-number-mode line-number-mode
                      emacspeak-mail-alert mode-line-format ))
+  (force-mode-line-update)
+  (emacspeak-dtk-sync)
+  (when   emacspeak-mail-alert (emacspeak-mail-alert-user))
   (cond
    ((and header-line-format (not (ems-interactive-p )))
     (emacspeak-speak-header-line))
    (buffer-info (emacspeak-speak-buffer-info))
    (t
     (dtk-stop)
-    (force-mode-line-update)
-    (emacspeak-dtk-sync)
     (let ((dtk-stop-immediately nil )
           (global-info (format-mode-line global-mode-string))
-          (frame-info nil)
-          (recursion-depth (recursion-depth))
-          (recursion-info nil)
-          (dir-info (when (or
-                           (eq major-mode 'shell-mode)
-                           (eq major-mode 'comint-mode))
+          (frame-info (emacspeak-get-voicefied-frame-info (selected-frame)))
+          (recursion-info (emacspeak-get-voicefied-recursion-info  (recursion-depth)))
+          (dir-info (when (or (eq major-mode 'shell-mode)
+                              (eq major-mode 'comint-mode))
                       (abbreviate-file-name default-directory))))
-      (when (and  emacspeak-which-function-mode
-                  (fboundp 'which-function)
-                  (which-function))
-        (emacspeak-speak-which-function))
-      (when   emacspeak-mail-alert (emacspeak-mail-alert-user))
       (cond
        ((stringp mode-line-format) (dtk-speak mode-line-format ))
        (t                               ;process modeline
-        (when dir-info
-          (put-text-property 0 (length dir-info)
-                             'personality voice-annotate dir-info))
-        (cond
-         ((> (length (frame-list)) 1)
-          (setq frame-info
-                (format " %s " (frame-parameter (selected-frame) 'name)))
-          (put-text-property 0 (length frame-info)
-                             'personality voice-lighten-extra frame-info))
-         (t (setq frame-info "")))
-        (when (> recursion-depth 0)
-          (setq  recursion-info
-                 (format " Recursive Edit %d "
-                         recursion-depth))
-          (put-text-property 0 (length recursion-info)
-                             'personality voice-smoothen
-                             recursion-info))
-        (unless (and buffer-read-only
-                     (buffer-modified-p)) ;avoid pathological case
-          (when(and (not (eq major-mode 'shell-mode))
-                    (not (eq major-mode 'comint-mode))
-                    (buffer-modified-p))
-            (dtk-tone 950 100))
+        (unless (and buffer-read-only (buffer-modified-p))
+                                        ; avoid pathological case
+          (when (and buffer-file-name  (buffer-modified-p)) (dtk-tone 950 100))
           (when buffer-read-only (dtk-tone 250 100)))
         (put-text-property 0 (length global-info)
                            'personality voice-bolden-medium global-info)
@@ -1645,7 +1643,7 @@ Interactive prefix arg speaks buffer info."
          (dtk-speak
           (concat
            dir-info
-           (buffer-name)
+           (emacspeak-get-voicefied-buffer-name (buffer-name))
            (when line-number-mode
              (format "line %d" (emacspeak-get-current-line-number)))
            (when column-number-mode
@@ -3357,7 +3355,7 @@ also copied to the kill ring for convenient yanking."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end:
 
 ;;}}}

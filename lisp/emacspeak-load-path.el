@@ -1,5 +1,5 @@
 ;;; emacspeak-load-path.el -- Setup Emacs load-path for compiling Emacspeak
-;;; $Id: emacspeak-load-path.el 8015 2012-09-22 15:54:22Z tv.raman.tv $
+;;; $Id: emacspeak-load-path.el 8055 2012-12-21 19:37:09Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $ 
 ;;; Description:  Sets up load-path for emacspeak compilation and installation
 ;;; Keywords: Emacspeak, Speech extension for Emacs
@@ -54,7 +54,7 @@
                                         ;'(redefine callargs free-vars unresolved obsolete))
 
 (cond
- ((fboundp 'called-interactively-p)
+ ((string-match "24" emacs-version)
   (defsubst ems-interactive-p  ()
     "called-interactively-p 'interactive"
     (called-interactively-p 'interactive)))

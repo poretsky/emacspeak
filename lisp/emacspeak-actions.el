@@ -1,5 +1,5 @@
 ;;; emacspeak-actions.el --- Emacspeak actions -- callbacks that can be associated with portions of a buffer
-;;; $Id: emacspeak-actions.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
+;;; $Id: emacspeak-actions.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Define emacspeak actions for various modes
 ;;; Keywords:emacspeak, audio interface to emacs actions
@@ -94,7 +94,7 @@ emacspeak to speak the semantics of the line
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end:
 
 ;;}}}

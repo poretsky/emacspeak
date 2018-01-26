@@ -1,6 +1,6 @@
 ;;; emacspeak-bbdb.el --- Speech enable BBDB -- a powerful address manager
 
-;;; $Id: emacspeak-bbdb.el 7998 2012-08-25 15:53:21Z tv.raman.tv $
+;;; $Id: emacspeak-bbdb.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $ 
 ;;; DescriptionEmacspeak extensions for bbdb 
 ;;; Keywords:emacspeak, audio interface to emacs bbdb 
@@ -194,7 +194,7 @@
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end: 
 
 ;;}}}

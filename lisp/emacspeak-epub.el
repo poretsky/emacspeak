@@ -73,7 +73,7 @@
 ;;;###autoload
 (defcustom emacspeak-epub-library-directory
   (expand-file-name "~/epubs/")
-  "irectory under which we store Epubs."
+  "Directory under which we store Epubs."
   :type 'directory
   :group 'emacspeak-epub)
 ;;;###autoload
@@ -368,7 +368,7 @@ Useful if table of contents in toc.ncx is empty."
                           "\n"))))
 (defun emacspeak-epub-bookshelf-rename (name &optional overwrite)
   "Saves current bookshelf to  specified name.
-Interactive prefix arg `overwrite' wil overwrite existing file."
+Interactive prefix arg `overwrite' will overwrite existing file."
   (interactive "sBookshelf Name: \nP")
   (declare (special emacspeak-epub-library-directory))
   (setq name (format "%s.bsf" name))
@@ -533,7 +533,7 @@ No book files are deleted."
   (interactive
    (list
     (read-file-name "BookShelf: "
-                    emacspeak-epub-library-directory
+                    (expand-file-name emacspeak-epub-library-directory)
                     nil t nil
                     #'(lambda (s) (string-match ".bsf$" s)))))
   (declare (special emacspeak-epub-db))

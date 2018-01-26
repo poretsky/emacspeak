@@ -1,5 +1,5 @@
 #!/usr/bin/tclsh
-# $Id: dtk-exp 6573 2010-08-31 18:19:33Z tv.raman.tv $
+# $Id: dtk-exp 8089 2013-01-19 02:15:58Z tv.raman.tv $
 # Description:  Interfacing to a Dectalk via TCL.
 # Keywords: Emacspeak, Dectalk, TCL
 # {{{ LCD Entry:
@@ -7,8 +7,8 @@
 # LCD Archive Entry:
 # emacspeak| T. V. Raman |raman@cs.cornell.edu
 # A speech interface to Emacs |
-# $Date: 2010-08-31 11:19:33 -0700 (Tue, 31 Aug 2010) $ |
-#  $Revision: 6573 $ |
+# $Date: 2013-01-18 18:15:58 -0800 (Fri, 18 Jan 2013) $ |
+#  $Revision: 8089 $ |
 # Location undetermined
 #
 
@@ -257,7 +257,7 @@ proc speech_task {} {
     set mode  $tts(punctuations)
     set r $tts(speech_rate)
     set length [queue_length]
-    set prefix "\[:sa c]\[:ra $r]\[:pu $mode]"
+    puts -nonewline  $tts(write) "\[:sa c]\[:ra $r]\[:pu $mode]"
     tts_gobble_acknowledgements
     loop index 0 $length {
         set event   [queue_remove]
@@ -265,8 +265,13 @@ proc speech_task {} {
         switch  -exact -- $event_type {
             s {
                 set text [clean [lindex $event 1]]
-                puts -nonewline  $tts(write) "\[:i r $index]$prefix $text\[_.]\013"
+                puts -nonewline  $tts(write) "\[:i r $index] $text\[_.]\013"
                 set retval [tts_get_acknowledgement ]
+            }
+            c {
+                set text  [lindex $event 1]
+                puts -nonewline  $tts(write) " $text\[_.]\013"
+                set retval ""
             }
             t {
                 set text  [lindex $event 1]

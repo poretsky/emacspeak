@@ -1,5 +1,5 @@
 ;;; emacspeak-custom.el --- Speech enable interactive Emacs customization 
-;;; $Id: emacspeak-custom.el 8034 2012-12-07 00:12:05Z tv.raman.tv $
+;;; $Id: emacspeak-custom.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $ 
 ;;; Description: Auditory interface to custom
 ;;; Keywords: Emacspeak, Speak, Spoken Output, custom
@@ -262,7 +262,7 @@
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end: 
 
 ;;}}}

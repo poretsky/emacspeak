@@ -1,5 +1,5 @@
 ;;; emacspeak-babel.el --- Speech-enable BabelFish
-;;; $Id: emacspeak-babel.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
+;;; $Id: emacspeak-babel.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak extension to use BabelFish
 ;;; Keywords: Emacspeak, WWW interaction
@@ -64,7 +64,7 @@
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end:
 
 ;;}}}

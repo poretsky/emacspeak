@@ -1,5 +1,5 @@
 ;;; emacspeak-webspace.el --- Webspaces In Emacspeak
-;;; $Id: emacspeak-webspace.el 7998 2012-08-25 15:53:21Z tv.raman.tv $
+;;; $Id: emacspeak-webspace.el 8276 2013-03-30 15:19:30Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description: WebSpace provides smart updates from the Web.
 ;;; Keywords: Emacspeak, Audio Desktop webspace
@@ -409,7 +409,7 @@ Updated weather is found in `emacspeak-webspace-current-weather'."
             (insert
              (format "%d. %s\n"
                      i
-                     (cdr (assoc 'title feed))))
+                     (cdr (assq 'title feed))))
             (put-text-property start (point)
                                'link (greader-id-to-url (cdr
                                                          (assoc
@@ -420,6 +420,42 @@ Updated weather is found in `emacspeak-webspace-current-weather'."
       (emacspeak-webspace-mode)
       (local-set-key "u" 'emacspeak-webspace-reader-unsubscribe))
     buffer))
+
+;;;###autoload
+
+(defun emacspeak-webspace-reader-rip (file)
+  "RIP Google Reader.
+Save Reader subscriptions to a specified file."
+  (interactive
+   (list
+    (expand-file-name
+     (read-file-name
+      "Save feed list to file: "
+      emacspeak-resource-directory "reader.html")
+     emacspeak-resource-directory)))
+  (let ((subscriptions (greader-subscriptions))
+        (buffer (find-file-noselect file))
+        )
+    (save-excursion
+      (set-buffer buffer)
+      (erase-buffer)
+      (setq buffer-undo-list t)
+      (goto-char (point-min))
+      (insert "<html><head><title>Subscription List</title></head>\n")
+      (insert "<body>\n")
+      (insert
+       (format "<h1>Google Reader %d</h1>\n"
+               (length subscriptions)))
+      (insert "<ol>\n")
+      (loop for feed across subscriptions
+            do
+            (insert
+             (format
+              "<li> <a href='%s'>%s</a></li>\n"
+              (greader-id-to-url (cdr (assoc 'id feed)))
+              (cdr (assq 'title feed)))))
+      (insert "</ol>\n</body>\n</html>\n")
+      (save-buffer))))
 
 ;;;###autoload 
 (defun emacspeak-webspace-reader (&optional refresh)
@@ -520,7 +556,7 @@ Leaves point on the title returned in the reading list buffer."
 
 ;;;###autoload
 (defun emacspeak-webspace-reading-list ()
-  "Set up scroling reading list in header."
+  "Set up scrolling reading list in header."
   (interactive)
   (declare (special emacspeak-webspace-reading-list-buffer
                     emacspeak-webspace-reading-list-timer))
@@ -584,7 +620,7 @@ Leaves point on the title returned in the reading list buffer."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end:
 
 ;;}}}

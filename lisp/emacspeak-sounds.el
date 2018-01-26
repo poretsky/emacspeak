@@ -1,5 +1,5 @@
 ;;; emacspeak-sounds.el --- Defines Emacspeak auditory icons
-;;; $Id: emacspeak-sounds.el 8020 2012-09-23 18:40:26Z tv.raman.tv $
+;;; $Id: emacspeak-sounds.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Module for adding sound cues to emacspeak
 ;;; Keywords:emacspeak, audio interface to emacs, auditory icons
@@ -452,7 +452,7 @@ audio player."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end:
 
 ;;}}}

@@ -1,5 +1,5 @@
 ;;; emacspeak-zinf.el --- Control zinf from Emacs
-;;; $Id: emacspeak-zinf.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
+;;; $Id: emacspeak-zinf.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description: Controlling zinf from emacs 
 ;;; Keywords: Emacspeak, zinf
@@ -149,7 +149,7 @@ The player is placed in a buffer in emacspeak-zinf-mode."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end: 
 
 ;;}}}

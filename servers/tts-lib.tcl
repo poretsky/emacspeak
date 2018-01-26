@@ -1,11 +1,11 @@
-#$Id: tts-lib.tcl 6851 2011-02-15 03:56:01Z tv.raman.tv $
+#$Id: tts-lib.tcl 8076 2013-01-18 01:38:22Z tv.raman.tv $
 # {{{ LCD Entry: 
 #x
 # LCD Archive Entry:
 # emacspeak| T. V. Raman |raman@cs.cornell.edu
 # A speech interface to Emacs |
-# $Date: 2011-02-14 19:56:01 -0800 (Mon, 14 Feb 2011) $ |
-#  $Revision: 6851 $ | 
+# $Date: 2013-01-17 17:38:22 -0800 (Thu, 17 Jan 2013) $ |
+#  $Revision: 8076 $ | 
 # Location undetermined
 #
 
@@ -82,6 +82,16 @@ proc q {{element ""}} {
     global queue tts env
     if {[string length element]} {
         set queue($tts(q_tail)) [list s $element]
+        incr tts(q_tail)
+        return ""
+    }
+}
+
+#  Queue  a set of TTS  control codes:
+proc c {{element ""}} {
+    global queue tts env
+    if {[string length element]} {
+        set queue($tts(q_tail)) [list c $element]
         incr tts(q_tail)
         return ""
     }

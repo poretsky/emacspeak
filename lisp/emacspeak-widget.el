@@ -1,5 +1,5 @@
 ;;; emacspeak-widget.el --- Speech enable Emacs' native GUI widget library
-;;; $Id: emacspeak-widget.el 7836 2012-06-03 23:03:21Z tv.raman.tv $
+;;; $Id: emacspeak-widget.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $ 
 ;;; Description: Emacspeak extensions to widgets
 ;;; Keywords:emacspeak, audio interface to emacs customized widgets
@@ -731,7 +731,7 @@ widget before summarizing."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end: 
 
 ;;}}}

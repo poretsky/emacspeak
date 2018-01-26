@@ -1,5 +1,5 @@
 ;;; emacspeak-pronounce.el --- Implements Emacspeak pronunciation dictionaries
-;;; $Id: emacspeak-pronounce.el 8022 2012-09-25 00:48:36Z tv.raman.tv $
+;;; $Id: emacspeak-pronounce.el 8276 2013-03-30 15:19:30Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description: Emacspeak pronunciation dictionaries
 ;;; Keywords:emacspeak, audio interface to emacs customized pronunciation
@@ -65,7 +65,7 @@
 (declaim  (optimize  (safety 0) (speed 3)))
 (require 'custom)
 (eval-when-compile (require 'calendar))
-                   
+
 (require 'voice-setup)
 (require 'thingatpt)
 (eval-when (compile)
@@ -617,7 +617,7 @@ for the specified mode."
 ;;{{{  dictionary editor 
 
 (defun emacspeak-pronounce-edit-generate-pronunciation-editor  (key)
-  "Generate a widget-enabled edit buffer for editting the
+  "Generate a widget-enabled edit buffer for editing the
 pronunciation dictionary for the specified key."
   (declare (special emacspeak-pronounce-dictionaries))
   (unless emacspeak-pronounce-pronunciation-table
@@ -633,7 +633,7 @@ pronunciation dictionary for the specified key."
       (set-buffer  buffer)
       (widget-insert "\n")
       (widget-insert
-       (format "Editting pronunciation dictionary for %s\n\n" key))
+       (format "Editing pronunciation dictionary for %s\n\n" key))
       (widget-create 'repeat
                      :help-echo "Edit Pronunciations"
                      :tag "Pronunciations"
@@ -795,7 +795,7 @@ specified pronunciation dictionary key."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end:
 
 ;;}}}

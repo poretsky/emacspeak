@@ -5,7 +5,7 @@
 # LCD Archive Entry:
 # emacspeak| T. V. Raman |raman@cs.cornell.edu
 # A speech interface to Emacs |
-#$Id: dtk-soft 6203 2009-08-25 15:54:59Z tv.raman.tv $
+#$Id: dtk-soft 8091 2013-01-20 23:58:56Z tv.raman.tv $
 #Incorporating fixes  from  by Tim Cross for DTk 5.0
 # Date: 2004/05/01 01:16:25  |
 # Location undetermined
@@ -192,9 +192,9 @@ proc speech_task {}  {
                 set text [clean [lindex $event 1]]
                 say  "\[:i r 1]$text "
             }
-            t {
+            c {
                 set text  [lindex $event 1]
-                say "\[:np] $text "
+                say  "\[:i r 1]$text "
             }
             a {
                 set sound [lindex $event 1]

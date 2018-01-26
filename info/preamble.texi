@@ -1,4 +1,4 @@
-@c $Id: preamble.texi 5710 2008-08-02 18:02:56Z tv.raman.tv $
+@c $Id: preamble.texi 8272 2013-03-29 15:39:21Z tv.raman.tv $
 
 @node Top
 @top Emacspeak
@@ -23,7 +23,7 @@ The manual is divided into the following chapters.
 * Emacspeak Commands:  Emacspeak Commands.
 * Emacspeak Customizations:  Emacspeak Customizations.
 * TTS Servers:  TTS Servers.
-* Acknowledgements: Acknowledgements.
+* Acknowledgments: Acknowledgments.
 
 Indices:
 

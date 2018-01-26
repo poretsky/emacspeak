@@ -1,5 +1,5 @@
 ;;; emacspeak-etable.el --- Speech enable table.el
-;;; $Id: emacspeak-etable.el 7823 2012-06-03 01:16:29Z tv.raman.tv $
+;;; $Id: emacspeak-etable.el 8260 2013-03-28 15:21:49Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $ 
 ;;; DescriptionEmacspeak extensions for table.el
 ;;; Keywords:emacspeak, audio interface to emacs Tables
@@ -39,7 +39,7 @@
 
 ;;{{{  Introduction:
 
-;;; table.el provides rich table editting for emacs.
+;;; table.el provides rich table editing for emacs.
 ;;; this module speech-enables table.el
 
 ;;}}}
@@ -186,7 +186,7 @@ Otherwise cue user to the line just created."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end: 
 
 ;;}}}

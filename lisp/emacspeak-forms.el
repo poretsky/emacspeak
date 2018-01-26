@@ -1,5 +1,5 @@
 ;;; emacspeak-forms.el --- Speech enable Emacs' forms mode  -- provides  a convenient database interface
-;;; $Id: emacspeak-forms.el 8019 2012-09-23 18:38:50Z tv.raman.tv $
+;;; $Id: emacspeak-forms.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $ 
 ;;; DescriptionEmacspeak extensions for forms-mode 
 ;;; Keywords:emacspeak, audio interface to emacs forms 
@@ -280,7 +280,7 @@ Assumes that point is at the front of a field value."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end: 
 
 ;;}}}

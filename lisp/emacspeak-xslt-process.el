@@ -1,5 +1,5 @@
 ;;; emacspeak-xslt-process.el --- speech-enable xslt-process 
-;;; $Id: emacspeak-xslt-process.el 7823 2012-06-03 01:16:29Z tv.raman.tv $
+;;; $Id: emacspeak-xslt-process.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak module for speech-enabling
 ;;; xslt-process mode
@@ -183,7 +183,7 @@
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end:
 
 ;;}}}

@@ -1,5 +1,5 @@
 ;;; emacspeak-hide.el --- Provides user commands for hiding and exposing blocks of text
-;;; $Id: emacspeak-hide.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
+;;; $Id: emacspeak-hide.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Hide and expose blocks of text
 ;;; Keywords: Emacspeak, Speak, Spoken Output, hide
@@ -412,7 +412,7 @@ and when you have heard enough navigate easily  to move past the block."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end:
 
 ;;}}}

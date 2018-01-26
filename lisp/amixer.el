@@ -1,5 +1,5 @@
 ;;; amixer.el --- Control AMixer from Emacs
-;;;$Id: amixer.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
+;;;$Id: amixer.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
 ;;;Emacs front-end to AMixer
 ;;{{{  Copyright:
 
@@ -238,7 +238,7 @@ Interactive prefix arg refreshes cache."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: nil
 ;;; end:
 
 ;;}}}      
