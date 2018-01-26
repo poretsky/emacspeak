@@ -1,5 +1,5 @@
 ;;; emacspeak-xslt.el --- Implements Emacspeak  xslt transform engine
-;;; $Id: emacspeak-xslt.el 7011 2011-05-01 03:18:26Z tv.raman.tv $
+;;; $Id: emacspeak-xslt.el 7214 2011-09-23 15:43:53Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  xslt transformation routines
 ;;; Keywords: Emacspeak,  Audio Desktop XSLT
@@ -311,14 +311,18 @@ part of the libxslt package."
 ;;;###autoload
 (defun emacspeak-xslt-view-file(style file)
   "Transform `file' using `style' and preview via browse-url."
-  (interactive "FStyle:\nFFile:")
+  (interactive
+   (list
+    (read-file-name "Style File: "
+                    emacspeak-xslt-directory)
+    (read-file-name "File:" default-directory)))
   (with-temp-buffer
     (let ((coding-system-for-read 'utf-8)
           (coding-system-for-write 'utf-8)
           (buffer-file-coding-system 'utf-8))
       (insert-file file)
       (shell-command
-       (format "%s  --param base %s  %s  %s  2>/dev/null"
+       (format "%s   --nonet --param base %s  %s  %s  2>/dev/null"
                emacspeak-xslt-program 
                (format "\"'file://%s'\"" (expand-file-name file))
                (expand-file-name style)

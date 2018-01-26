@@ -1,5 +1,5 @@
 ;;; emacspeak-man.el --- Speech enable Man mode -- Use this for UNIX Man pages
-;;; $Id: emacspeak-man.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
+;;; $Id: emacspeak-man.el 7323 2011-10-26 00:50:39Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $ 
 ;;; DescriptionEmacspeak extensions for man-mode
 ;;; Keywords:emacspeak, audio interface to emacs man 
@@ -73,7 +73,6 @@ Also provide an auditory icon"
   (setq imenu-generic-expression
         '((nil "\n\\([A-Z].*\\)" 1)     ; SECTION, but not TITLE
           ("*Subsections*" "^   \\([A-Z].*\\)" 1)))
-  (voice-lock-mode 1)
   (dtk-set-punctuations 'all)
   (emacspeak-pronounce-refresh-pronunciations)
   (emacspeak-auditory-icon 'help))

@@ -1,81 +1,79 @@
-@c $Id: options.texi 7016 2011-05-04 03:07:39Z tv.raman.tv $
+@c $Id: options.texi 7401 2011-11-14 04:04:41Z tv.raman.tv $
 @node Emacspeak Customizations
 @chapter Emacspeak Customizations 
 
 This chapter is generated automatically from the source-level documentation.
 Any errors or corrections should be made to the source-level
 documentation.
-This chapter documents a total of 657 user customizable
+This chapter documents a total of 655 user customizable
   options.
 
 @menu
-* cd-tool Options::             
-* dtk-speak Options::           
-* dtk-unicode Options::         
-* emacspeak-add-log Options::   
-* emacspeak-advice Options::    
-* emacspeak-alsaplayer Options::  
-* emacspeak-auctex Options::    
-* emacspeak-aumix Options::     
-* emacspeak-bbdb Options::      
-* emacspeak-bookshare Options::  
-* emacspeak-calendar Options::  
-* emacspeak-compile Options::   
-* emacspeak-custom Options::    
-* emacspeak-daisy Options::     
-* emacspeak-dired Options::     
-* emacspeak-ebook Options::     
-* emacspeak-ediff Options::     
-* emacspeak-entertain Options::  
-* emacspeak-eperiodic Options::  
-* emacspeak-erc Options::       
-* emacspeak-eshell Options::    
-* emacspeak-eterm Options::     
-* emacspeak-forms Options::     
-* emacspeak-gnus Options::      
-* emacspeak-hide Options::      
-* emacspeak-ido Options::       
-* emacspeak-imenu Options::     
-* emacspeak-info Options::      
-* emacspeak-ispell Options::    
-* emacspeak-jabber Options::    
-* emacspeak-keymap Options::    
-* emacspeak-loaddefs Options::  
-* emacspeak-m-player Options::  
-* emacspeak-madplay Options::   
-* emacspeak-make-mode Options::  
-* emacspeak-message Options::   
-* emacspeak-muse Options::      
-* emacspeak-npr Options::       
-* emacspeak-ocr Options::       
-* emacspeak-outline Options::   
-* emacspeak-pcl-cvs Options::   
-* emacspeak-personality Options::  
-* emacspeak-pronounce Options::  
-* emacspeak-re-builder Options::  
-* emacspeak-realaudio Options::  
-* emacspeak-remote Options::    
-* emacspeak-replace Options::   
-* emacspeak-rpm-spec Options::  
-* emacspeak-sigbegone Options::  
-* emacspeak-sounds Options::    
-* emacspeak-speak Options::     
-* emacspeak-speedbar Options::  
-* emacspeak-table-ui Options::  
-* emacspeak-tnt Options::       
-* emacspeak-url-template Options::  
-* emacspeak-vm Options::        
-* emacspeak-w3 Options::        
-* emacspeak-w3m Options::       
-* emacspeak-we Options::        
-* emacspeak-websearch Options::  
-* emacspeak-webspace Options::  
-* emacspeak-webutils Options::  
-* emacspeak-wizards Options::   
-* emacspeak-xml-shell Options::  
-* emacspeak-xslt Options::      
-* emacspeak Options::           
-* voice-setup Options::         
+* cd-tool Options::
+* dtk-speak Options::
+* dtk-unicode Options::
+* emacspeak-add-log Options::
+* emacspeak-advice Options::
+* emacspeak-alsaplayer Options::
+* emacspeak-auctex Options::
+* emacspeak-aumix Options::
+* emacspeak-bbdb Options::
+* emacspeak-bookshare Options::
+* emacspeak-calendar Options::
+* emacspeak-compile Options::
+* emacspeak-custom Options::
+* emacspeak-daisy Options::
+* emacspeak-dired Options::
+* emacspeak-ediff Options::
+* emacspeak-entertain Options::
+* emacspeak-eperiodic Options::
+* emacspeak-epub Options::
+* emacspeak-erc Options::
+* emacspeak-eshell Options::
+* emacspeak-eterm Options::
+* emacspeak-forms Options::
+* emacspeak-gnus Options::
+* emacspeak-hide Options::
+* emacspeak-ido Options::
+* emacspeak-imenu Options::
+* emacspeak-info Options::
+* emacspeak-ispell Options::
+* emacspeak-jabber Options::
+* emacspeak-keymap Options::
+* emacspeak-loaddefs Options::
+* emacspeak-m-player Options::
+* emacspeak-madplay Options::
+* emacspeak-make-mode Options::
+* emacspeak-message Options::
+* emacspeak-muse Options::
+* emacspeak-npr Options::
+* emacspeak-ocr Options::
+* emacspeak-outline Options::
+* emacspeak-pcl-cvs Options::
+* emacspeak-personality Options::
+* emacspeak-pronounce Options::
+* emacspeak-re-builder Options::
+* emacspeak-remote Options::
+* emacspeak-replace Options::
+* emacspeak-rpm-spec Options::
+* emacspeak-sigbegone Options::
+* emacspeak-sounds Options::
+* emacspeak-speak Options::
+* emacspeak-speedbar Options::
+* emacspeak-table-ui Options::
+* emacspeak-tnt Options::
+* emacspeak-url-template Options::
+* emacspeak-vm Options::
+* emacspeak-w3 Options::
+* emacspeak-we Options::
+* emacspeak-websearch Options::
+* emacspeak-webspace Options::
+* emacspeak-webutils Options::
+* emacspeak-wizards Options::
+* emacspeak-xml-shell Options::
+* emacspeak-xslt Options::
+* emacspeak Options::
+* voice-setup Options::
 @end menu
 
 @node cd-tool Options
@@ -121,6 +119,10 @@ of a specified pattern is found, the TTS engine replaces it
 with a repeat count. 
 @end defvar
 
+@defvar {User Option} dtk-local-engine
+Engine we use  for our local TTS  server.
+@end defvar
+
 @defvar {User Option} dtk-resume-should-toggle
 *T means `dtk-resume' acts as a toggle.
 @end defvar
@@ -142,6 +144,10 @@ it seems some accented characters in certain contexts.
 This determines step size used when setting speech rate via command
 `dtk-set-predefined-speech-rate'.  Formula used is
 dtk-speech-rate-base  +  dtk-speech-rate-step*level.
+@end defvar
+
+@defvar {User Option} dtk-speech-server-program
+Local speech server script.
 @end defvar
 
 @defvar {User Option} dtk-startup-hook
@@ -190,35 +196,7 @@ Alist of character name transformation rules.
 @section emacspeak-add-log Options
 
 Commentary:
-speech-enables change-log-mode
-Code:
-
-(require 'cl)
-(declaim  (optimize  (safety 0) (speed 3)))
-(require 'custom)
-(require 'emacspeak-preamble)
-
-(defgroup emacspeak-add-log nil
-  "Customize Emacspeak for change-log-mode and friends."
-  :group 'emacspeak)
-
-(voice-setup-add-map
- '(
-   (change-log-acknowledgement voice-smoothen)
-   (change-log-conditionals voice-animate)
-   (change-log-email voice-womanize-1)
-   (change-log-function voice-bolden-extra)
-   (change-log-file voice-bolden)
-   (change-log-email voice-womanize-1)
-   (change-log-list voice-lighten)
-   (change-log-name voice-lighten-extra)
-   ))
-
-(provide 'emacspeak-add-log)
-
-local variables:
-folded-file: t
-byte-compile-dynamic: t
+Speech-enable Changelog mode
 
 Automatically generated documentation
 for options defined in module  emacspeak-add-log.
@@ -310,10 +288,6 @@ Turn this on if you want spoken feedback and auditory icons from alsaplayer.
 
 @defvar {User Option} emacspeak-alsaplayer-device
 Device to use for alsaplayer
-@end defvar
-
-@defvar {User Option} emacspeak-alsaplayer-height
-Height of alsaplayer window.
 @end defvar
 
 @defvar {User Option} emacspeak-alsaplayer-media-directory
@@ -493,6 +467,10 @@ Customize this to the root of where books are organized.
 Bookshare user Id.
 @end defvar
 
+@defvar {User Option} emacspeak-bookshare-xslt
+Name of bookshare  XSL transform.
+@end defvar
+
 @node emacspeak-calendar Options
 @section emacspeak-calendar Options
 
@@ -597,34 +575,19 @@ These options are customizable via Emacs' Custom interface.
 Options passed to Unix builtin `file' command.
 @end defvar
 
-@node emacspeak-ebook Options
-@section emacspeak-ebook Options
-
-Commentary:
-In celebration of a million books and more to read from
-Google Books
-The EPubs format is slightly simpler than full Daisy ---
-emacspeak-daisy.el
-Since it only needs one level of indirection (no audio,
-therefore no smil). This module is consequently simpler than
-emacspeak-daisy.el.
-This module will also implement the Google Books GData API
---- probably by invoking the yet-to-be-written gbooks.el in emacs-g-client
-
-Automatically generated documentation
-for options defined in module  emacspeak-ebook.
-These options are customizable via Emacs' Custom interface.
-
-@defvar {User Option} emacspeak-ebook-library-root
-Directory under which we store EBooks.
-@end defvar
-
-@defvar {User Option} emacspeak-ebook-toc-path
-Path component  to table of contents in an EBook.
-@end defvar
-
 @node emacspeak-ediff Options
 @section emacspeak-ediff Options
+
+Commentary:
+Ediff provides a nice visual interface to diff.  ;;;Comparing and
+patching files is easy with ediff when you can see the screen.
+This module provides Emacspeak extensions to work fluently
+with ediff. Try it out, it's an excellent example of why
+Emacspeak is better than a traditional screenreader.  This module
+was originally written to interface to the old ediff.el bundled
+with GNU Emacs 19.28 and earlier.  It has been updated to work
+with the newer and much larger ediff system found in Emacs 19.29
+and later.
 
 Automatically generated documentation
 for options defined in module  emacspeak-ediff.
@@ -643,12 +606,92 @@ Says if emacspeak should try computing fine differences each time.
 Set this to nil if things get too slow.
 @end defvar
 
+@defvar {User Option} emacspeak-ediff-current-diff-A-voice
+Personality used for ediff-current-diff-A
+This personality uses  voice-smoothen whose  effect can be changed globally by customizing voice-smoothen-settings.
+@end defvar
+
+@defvar {User Option} emacspeak-ediff-current-diff-Ancestor-voice
+Personality used for ediff-current-diff-Ancestor
+This personality uses  voice-lighten-extra whose  effect can be changed globally by customizing voice-lighten-extra-settings.
+@end defvar
+
+@defvar {User Option} emacspeak-ediff-current-diff-B-voice
+Personality used for ediff-current-diff-B
+This personality uses  voice-brighten whose  effect can be changed globally by customizing voice-brighten-settings.
+@end defvar
+
+@defvar {User Option} emacspeak-ediff-current-diff-C-voice
+Personality used for ediff-current-diff-C
+This personality uses  voice-lighten whose  effect can be changed globally by customizing voice-lighten-settings.
+@end defvar
+
+@defvar {User Option} emacspeak-ediff-even-diff-A-voice
+Personality used for ediff-even-diff-A
+This personality uses  voice-brighten whose  effect can be changed globally by customizing voice-brighten-settings.
+@end defvar
+
+@defvar {User Option} emacspeak-ediff-even-diff-Ancestor-voice
+Personality used for ediff-even-diff-Ancestor
+This personality uses  voice-monotone whose  effect can be changed globally by customizing voice-monotone-settings.
+@end defvar
+
+@defvar {User Option} emacspeak-ediff-even-diff-B-voice
+Personality used for ediff-even-diff-B
+This personality uses  voice-smoothen whose  effect can be changed globally by customizing voice-smoothen-settings.
+@end defvar
+
+@defvar {User Option} emacspeak-ediff-even-diff-C-voice
+Personality used for ediff-even-diff-C
+This personality uses  voice-monotone whose  effect can be changed globally by customizing voice-monotone-settings.
+@end defvar
+
 @defvar {User Option} emacspeak-ediff-fine-A-personality
 Personality used to voiceify difference chunk A
 @end defvar
 
 @defvar {User Option} emacspeak-ediff-fine-B-personality
 Personality used to voiceify difference chunk B
+@end defvar
+
+@defvar {User Option} emacspeak-ediff-fine-diff-A-voice
+Personality used for ediff-fine-diff-A
+This personality uses  voice-smoothen whose  effect can be changed globally by customizing voice-smoothen-settings.
+@end defvar
+
+@defvar {User Option} emacspeak-ediff-fine-diff-Ancestor-voice
+Personality used for ediff-fine-diff-Ancestor
+This personality uses  voice-lighten-extra whose  effect can be changed globally by customizing voice-lighten-extra-settings.
+@end defvar
+
+@defvar {User Option} emacspeak-ediff-fine-diff-B-voice
+Personality used for ediff-fine-diff-B
+This personality uses  voice-brighten whose  effect can be changed globally by customizing voice-brighten-settings.
+@end defvar
+
+@defvar {User Option} emacspeak-ediff-fine-diff-C-voice
+Personality used for ediff-fine-diff-C
+This personality uses  voice-monotone whose  effect can be changed globally by customizing voice-monotone-settings.
+@end defvar
+
+@defvar {User Option} emacspeak-ediff-odd-diff-A-voice
+Personality used for ediff-odd-diff-A
+This personality uses  voice-smoothen whose  effect can be changed globally by customizing voice-smoothen-settings.
+@end defvar
+
+@defvar {User Option} emacspeak-ediff-odd-diff-Ancestor-voice
+Personality used for ediff-odd-diff-Ancestor
+This personality uses  voice-lighten whose  effect can be changed globally by customizing voice-lighten-settings.
+@end defvar
+
+@defvar {User Option} emacspeak-ediff-odd-diff-B-voice
+Personality used for ediff-odd-diff-B
+This personality uses  voice-brighten whose  effect can be changed globally by customizing voice-brighten-settings.
+@end defvar
+
+@defvar {User Option} emacspeak-ediff-odd-diff-C-voice
+Personality used for ediff-odd-diff-C
+This personality uses  voice-monotone whose  effect can be changed globally by customizing voice-monotone-settings.
 @end defvar
 
 @node emacspeak-entertain Options
@@ -685,6 +728,32 @@ These options are customizable via Emacs' Custom interface.
 
 @defvar {User Option} emacspeak-eperiodic-media-location
 Location of streaming media describing elements.
+@end defvar
+
+@node emacspeak-epub Options
+@section emacspeak-epub Options
+
+Commentary:
+In celebration of a million books and more to read from
+Google Books
+The EPubs format is slightly simpler than full Daisy ---
+emacspeak-daisy.el
+Since it only needs one level of indirection (no audio,
+therefore no smil). This module is consequently simpler than
+emacspeak-daisy.el.
+This module will also implement the Google Books GData API
+--- probably by invoking the yet-to-be-written gbooks.el in emacs-g-client
+
+Automatically generated documentation
+for options defined in module  emacspeak-epub.
+These options are customizable via Emacs' Custom interface.
+
+@defvar {User Option} emacspeak-epub-library-directory
+Directory under which we store Epubs.
+@end defvar
+
+@defvar {User Option} emacspeak-epub-toc-path-pattern
+Pattern match for path component  to table of contents in an Epub.
 @end defvar
 
 @node emacspeak-erc Options
@@ -877,15 +946,13 @@ personalities."
 (defadvice eshell-show-output (after emacspeak pre act comp)
   "Speak output."
   (when (interactive-p)
-    (let ((emacspeak-show-point t)
-          (voice-lock-mode t))
+    (let ((emacspeak-show-point t))
       (emacspeak-auditory-icon 'large-movement)
       (emacspeak-speak-region (point) (mark)))))
 (defadvice eshell-mark-output (after emacspeak pre act comp)
   "Speak output."
   (when (interactive-p)
-    (let ((emacspeak-show-point t)
-          (voice-lock-mode t))
+    (let ((emacspeak-show-point t))
       (emacspeak-auditory-icon 'mark-object)
       (emacspeak-speak-line))))
 (defadvice eshell-kill-output (after emacspeak pre act comp)
@@ -1777,39 +1844,6 @@ Personality used for reb-match-3
 This personality uses  voice-lock-overlay-3 whose  effect can be changed globally by customizing voice-lock-overlay-3-settings.
 @end defvar
 
-@node emacspeak-realaudio Options
-@section emacspeak-realaudio Options
-
-Commentary:
-Assuming you have a correctly configured RealAudio
-player, this package provides single click access to
-starting and stopping a RealAudio stream from anywhere
-on the Emacspeak desktop.  Before using this package,
-make sure that your realaudio player works outside
-Emacs. Then set variable Emacspeak-realaudio-player to
-point to the program you use to play RealAudio streams.
-
-Automatically generated documentation
-for options defined in module  emacspeak-realaudio.
-These options are customizable via Emacs' Custom interface.
-
-@defvar {User Option} emacspeak-realaudio-mp3-clipper
-Executable used to clip MP3 files.
-@end defvar
-
-@defvar {User Option} emacspeak-realaudio-player
-*Executable that plays realaudio
-@end defvar
-
-@defvar {User Option} emacspeak-realaudio-player-options
-*Options for realplayer.
-@end defvar
-
-@defvar {User Option} emacspeak-realaudio-reset-auditory-display
-Set this to T if you want the audio settings reset after
-a realaudio sream is done playing.
-@end defvar
-
 @node emacspeak-remote Options
 @section emacspeak-remote Options
 
@@ -1826,10 +1860,6 @@ List of hook functions that are run after
 emacspeak is set to run as a remote application.
 Use this to add actions you typically perform after you enter remote
 mode.
-@end defvar
-
-@defvar {User Option} emacspeak-remote-use-ssh
-Set to T to use SSH remote servers.
 @end defvar
 
 @node emacspeak-replace Options
@@ -2330,23 +2360,6 @@ Options to pass to tidy program
 Name of tidy executable
 @end defvar
 
-@node emacspeak-w3m Options
-@section emacspeak-w3m Options
-
-Commentary:
-
-
-
-Automatically generated documentation
-for options defined in module  emacspeak-w3m.
-These options are customizable via Emacs' Custom interface.
-
-@defvar {User Option} emacspeak-w3m-speak-titles-on-switch
-Speak the document title when switching between w3m buffers.
-If non-nil, switching between w3m buffers will speak the title
-instead of the modeline.
-@end defvar
-
 @node emacspeak-we Options
 @section emacspeak-we Options
 
@@ -2412,6 +2425,10 @@ Number of results to return from google search.
 
 @defvar {User Option} emacspeak-websearch-google-options
 Additional options to pass to Google e.g. &xx=yy...
+@end defvar
+
+@defvar {User Option} emacspeak-websearch-google-results-only
+Specify if we show just results or the complete Google page.
 @end defvar
 
 @defvar {User Option} emacspeak-websearch-google-use-https
@@ -2494,14 +2511,6 @@ gets wedged for some reason,
 you can use command emacspeak-emergency-tts-restart
 to get speech back using the reliable TTS server.
 It's useful to bind the above command to a convenient key.
-@end defvar
-
-@defvar {User Option} emacspeak-speak-show-active-network-interfaces-addresses
-Command that displays address of  a specific interface.
-@end defvar
-
-@defvar {User Option} emacspeak-speak-show-active-network-interfaces-command
-Command that displays names of active network interfaces.
 @end defvar
 
 @defvar {User Option} emacspeak-speak-telephone-directory
@@ -2735,6 +2744,14 @@ Automatically generated documentation
 for options defined in module  voice-setup.
 These options are customizable via Emacs' Custom interface.
 
+@defvar {User Option} global-voice-lock-mode
+Non-nil if Global-Voice-Lock mode is enabled.
+See the command `global-voice-lock-mode' for a description of this minor mode.
+Setting this variable directly does not take effect;
+either customize it (see the info node `Easy Customization')
+or call the function `global-voice-lock-mode'.
+@end defvar
+
 @defvar {User Option} voice-animate-extra-settings
 Adds extra animation  current voice.
 @end defvar
@@ -2793,11 +2810,6 @@ Add medium lighten current voice.
 
 @defvar {User Option} voice-lighten-settings
 Lighten current voice.
-@end defvar
-
-@defvar {User Option} voice-lock-mode
-Determines  if property personality results in text being
-voicified.
 @end defvar
 
 @defvar {User Option} voice-lock-overlay-0-settings
@@ -4272,91 +4284,6 @@ Personality used for font-lock-warning-face
 This personality uses  voice-bolden-and-animate whose  effect can be changed globally by customizing voice-bolden-and-animate-settings.
 @end defvar
 
-@defvar {User Option} emacspeak-w3m-anchor-voice
-Personality used for w3m-anchor
-This personality uses  voice-lighten whose  effect can be changed globally by customizing voice-lighten-settings.
-@end defvar
-
-@defvar {User Option} emacspeak-w3m-arrived-anchor-voice
-Personality used for w3m-arrived-anchor
-This personality uses  voice-lighten-extra whose  effect can be changed globally by customizing voice-lighten-extra-settings.
-@end defvar
-
-@defvar {User Option} emacspeak-w3m-bold-voice
-Personality used for w3m-bold
-This personality uses  voice-bolden-medium whose  effect can be changed globally by customizing voice-bolden-medium-settings.
-@end defvar
-
-@defvar {User Option} emacspeak-w3m-current-anchor-voice
-Personality used for w3m-current-anchor
-This personality uses  voice-bolden-extra whose  effect can be changed globally by customizing voice-bolden-extra-settings.
-@end defvar
-
-@defvar {User Option} emacspeak-w3m-form-button-pressed-voice
-Personality used for w3m-form-button-pressed
-This personality uses  voice-animate whose  effect can be changed globally by customizing voice-animate-settings.
-@end defvar
-
-@defvar {User Option} emacspeak-w3m-form-button-voice
-Personality used for w3m-form-button
-This personality uses  voice-smoothen whose  effect can be changed globally by customizing voice-smoothen-settings.
-@end defvar
-
-@defvar {User Option} emacspeak-w3m-form-voice
-Personality used for w3m-form
-This personality uses  voice-brighten whose  effect can be changed globally by customizing voice-brighten-settings.
-@end defvar
-
-@defvar {User Option} emacspeak-w3m-header-line-location-content-voice
-Personality used for w3m-header-line-location-content
-This personality uses  voice-animate whose  effect can be changed globally by customizing voice-animate-settings.
-@end defvar
-
-@defvar {User Option} emacspeak-w3m-header-line-location-title-voice
-Personality used for w3m-header-line-location-title
-This personality uses  voice-bolden whose  effect can be changed globally by customizing voice-bolden-settings.
-@end defvar
-
-@defvar {User Option} emacspeak-w3m-history-current-url-voice
-Personality used for w3m-history-current-url
-This personality uses  voice-bolden whose  effect can be changed globally by customizing voice-bolden-settings.
-@end defvar
-
-@defvar {User Option} emacspeak-w3m-image-voice
-Personality used for w3m-image
-This personality uses  voice-brighten whose  effect can be changed globally by customizing voice-brighten-settings.
-@end defvar
-
-@defvar {User Option} emacspeak-w3m-insert-voice
-Personality used for w3m-insert
-This personality uses  voice-bolden whose  effect can be changed globally by customizing voice-bolden-settings.
-@end defvar
-
-@defvar {User Option} emacspeak-w3m-italic-voice
-Personality used for w3m-italic
-This personality uses  voice-animate whose  effect can be changed globally by customizing voice-animate-settings.
-@end defvar
-
-@defvar {User Option} emacspeak-w3m-strike-through-voice
-Personality used for w3m-strike-through
-This personality uses  voice-smoothen-extra whose  effect can be changed globally by customizing voice-smoothen-extra-settings.
-@end defvar
-
-@defvar {User Option} emacspeak-w3m-tab-selected-voice
-Personality used for w3m-tab-selected
-This personality uses  voice-animate-extra whose  effect can be changed globally by customizing voice-animate-extra-settings.
-@end defvar
-
-@defvar {User Option} emacspeak-w3m-tab-unselected-voice
-Personality used for w3m-tab-unselected
-This personality uses  voice-monotone whose  effect can be changed globally by customizing voice-monotone-settings.
-@end defvar
-
-@defvar {User Option} emacspeak-w3m-underline-voice
-Personality used for w3m-underline
-This personality uses  voice-brighten-extra whose  effect can be changed globally by customizing voice-brighten-extra-settings.
-@end defvar
-
 @defvar {User Option} emacspeak-widget-button-pressed-voice
 Personality used for widget-button-pressed
 This personality uses  voice-bolden-extra whose  effect can be changed globally by customizing voice-bolden-extra-settings.
@@ -4385,5 +4312,25 @@ This personality uses  voice-lighten whose  effect can be changed globally by cu
 @defvar {User Option} emacspeak-widget-single-line-field-voice
 Personality used for widget-single-line-field
 This personality uses  voice-smoothen whose  effect can be changed globally by customizing voice-smoothen-settings.
+@end defvar
+
+@defvar {User Option} emacspeak-woman-bold-voice
+Personality used for woman-bold
+This personality uses  voice-bolden whose  effect can be changed globally by customizing voice-bolden-settings.
+@end defvar
+
+@defvar {User Option} emacspeak-woman-edition-voice
+Personality used for woman-edition
+This personality uses  voice-bolden-medium whose  effect can be changed globally by customizing voice-bolden-medium-settings.
+@end defvar
+
+@defvar {User Option} emacspeak-woman-italic-voice
+Personality used for woman-italic
+This personality uses  voice-animate whose  effect can be changed globally by customizing voice-animate-settings.
+@end defvar
+
+@defvar {User Option} emacspeak-woman-unknown-voice
+Personality used for woman-unknown
+This personality uses  voice-monotone whose  effect can be changed globally by customizing voice-monotone-settings.
 @end defvar
 

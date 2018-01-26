@@ -1,5 +1,5 @@
 ;;; emacspeak-js2.el --- Speech-enable JS2
-;;; $Id: emacspeak-js2.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
+;;; $Id: emacspeak-js2.el 7158 2011-08-22 20:54:56Z tv.raman.tv $
 ;;; $Author: raman $
 ;;; Description:  Speech-enable JS2 An Emacs Interface to js2
 ;;; Keywords: Emacspeak,  Audio Desktop js2
@@ -81,6 +81,18 @@
    (js2-jsdoc-html-tag-name-face voice-bolden-medium)
    (js2-jsdoc-html-tag-delimiter-face voice-smoothen)
    ))
+
+;;}}}
+;;{{{ js2-mode hook
+
+(defun emacspeak-js2-hook ()
+  "Hook to setup emacspeak."
+  (declare (special js2-mode-map))
+  (define-key js2-mode-map "\C-e" 'emacspeak-prefix-command)
+  (define-key js2-mode-map "\C-ee" 'js2-end-of-line)
+  (emacspeak-setup-programming-mode))
+
+(add-hook 'js2-mode-hook 'emacspeak-js2-hook)
 
 ;;}}}
 

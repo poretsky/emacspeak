@@ -19,15 +19,15 @@ emacspeak modules:
 
 """
 
-__id__ = "$Id: speaker.py 6537 2010-06-29 01:07:02Z tv.raman.tv $"
+__id__ = "$Id: speaker.py 7067 2011-06-25 02:49:51Z tv.raman.tv $"
 __author__ = "$Author: tv.raman.tv $"
-__version__ = "$Revision: 6537 $"
-__date__ = "$Date: 2010-06-28 18:07:02 -0700 (Mon, 28 Jun 2010) $"
+__version__ = "$Revision: 7067 $"
+__date__ = "$Date: 2011-06-24 19:49:51 -0700 (Fri, 24 Jun 2011) $"
 __copyright__ = "Copyright (c) 2005 T. V. Raman"
 __license__ = "LGPL"
 __all__=['Speaker']
 
-import os, sys
+import os, sys, subprocess
 
 class Speaker:
     
@@ -86,7 +86,8 @@ class Speaker:
                                          "ssh-%s" %
                                          self._engine)
         cmd = '{ ' + self._server + '; } 2>&1'
-        (self._w, self._r, self._e) = os.popen3(cmd, "w", 1)
+        server_process = subprocess.Popen(cmd, 1, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, close_fds=True)
+        (self._w, self._r, self._e) = server_process.stdin, server_process.stdout, server_process.stderr
         self._settings ={}
         if initial is not None:
             self._settings.update(initial)

@@ -1,5 +1,5 @@
 ;;; emacspeak-dired.el --- Speech enable Dired Mode -- A powerful File Manager
-;;; $Id: emacspeak-dired.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
+;;; $Id: emacspeak-dired.el 7322 2011-10-26 00:43:56Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak extension to speech enable dired
 ;;; Keywords: Emacspeak, Dired, Spoken Output
@@ -137,7 +137,6 @@ pronunciations only once.")
   "Produce an auditory icon."
   (when (interactive-p)
     (let ((emacspeak-speak-messages nil))
-      (voice-lock-mode 1)
       (emacspeak-dired-label-fields)
       (emacspeak-auditory-icon 'open-object )
       (emacspeak-speak-mode-line))))
@@ -158,7 +157,6 @@ pronunciations only once.")
     (let ((directory-p (file-directory-p (dired-get-filename t t ))))
       ad-do-it
       (when directory-p
-        (voice-lock-mode 1)
         (emacspeak-dired-label-fields))
       (emacspeak-auditory-icon 'open-object )))
    (t ad-do-it))

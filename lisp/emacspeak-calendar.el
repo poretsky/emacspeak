@@ -1,5 +1,5 @@
 ;;; emacspeak-calendar.el --- Speech enable Emacs Calendar -- maintain a diary and appointments
-;;; $Id: emacspeak-calendar.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
+;;; $Id: emacspeak-calendar.el 7427 2011-11-22 16:07:26Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak extensions to speech enable the calendar.
 ;;; Keywords: Emacspeak, Calendar, Spoken Output
@@ -131,8 +131,7 @@
 (defadvice view-diary-entries (after emacspeak pre act)
   "Speak the diary entries."
   (when (interactive-p)
-    (let ((voice-lock-mode t)
-          (emacspeak-speak-messages nil))
+    (let ((emacspeak-speak-messages nil))
       (cond
        ((buffer-live-p (get-buffer "*Fancy Diary Entries*"))
         (save-excursion
@@ -374,6 +373,7 @@
     (set-buffer calendar-buffer)
     (local-unset-key emacspeak-prefix)
     (define-key calendar-mode-map "v" 'view-diary-entries)
+    (define-key calendar-mode-map "\M-s" 'emacspeak-wizards-sunrise-sunset)
     (define-key calendar-mode-map  "\C-e." 'emacspeak-calendar-speak-date)
     (define-key calendar-mode-map  "\C-ee"
       'calendar-end-of-week)
@@ -475,7 +475,31 @@ To use, configure variable gweb-my-address via M-x customize-variable."
    (t ad-do-it)))
 
 ;;}}}
+;;{{{ Lunar Phases
 
+(loop for f in
+      '(calendar-lunar-phases lunar-phases phases-of-moon)
+      do
+      (eval
+       `(defadvice ,f (after emacspeak pre act comp)
+          "Provide auditory feedback."
+          (when (interactive-p)
+            (with-current-buffer lunar-phases-buffer
+              (emacspeak-auditory-icon 'open-object)
+              (emacspeak-speak-buffer))))))
+
+(loop for f in
+      '(holidays calendar-list-holidays)
+      do
+      (eval
+       `(defadvice ,f (after emacspeak pre act comp)
+          "Provide auditory feedback."
+          (when (interactive-p)
+            (with-current-buffer holiday-buffer
+              (emacspeak-auditory-icon 'open-object)
+              (emacspeak-speak-buffer))))))
+
+;;}}}
 (provide 'emacspeak-calendar)
 ;;{{{ emacs local variables
 

@@ -1,5 +1,5 @@
 ;;; emacspeak-info.el --- Speech enable Info -- Emacs' online documentation viewer
-;;; $Id: emacspeak-info.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
+;;; $Id: emacspeak-info.el 7409 2011-11-16 03:22:20Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Module for customizing Emacs info
 ;;; Keywords:emacspeak, audio interface to emacs
@@ -104,12 +104,14 @@ node -- speak the entire node."
      ((eq emacspeak-info-select-node-speak-chunk 'node)
       (emacspeak-speak-buffer ))
      (t (emacspeak-speak-line)))))
-
-(defadvice Info-select-node (after emacspeak pre act)
-  "Voiceify the Info node if requested.
-Speak the selected node based on setting of
+(loop for f in
+      '(info-display-manual Info-select-node)
+      do
+      (eval
+       `(defadvice ,f (after emacspeak pre act)
+          " Speak the selected node based on setting of
 emacspeak-info-select-node-speak-chunk"
-  (emacspeak-info-visit-node))
+          (emacspeak-info-visit-node))))
 
 (defadvice info (after emacspeak pre act)
   "Cue user that info is up."
@@ -163,15 +165,14 @@ and then cue the next selected buffer."
   (interactive)
   (declare (special Info-use-header-line
                     Info-header-line))
-  (let ((voice-lock-mode t))
-    (cond
-     ((and (boundp 'Info-use-header-line)
-           (boundp 'Info-header-line)
-           Info-header-line)
-      (dtk-speak Info-header-line))
-     (t (save-excursion
-          (goto-char (point-min))
-          (emacspeak-speak-line))))))
+  (let (cond
+        ((and (boundp 'Info-use-header-line)
+              (boundp 'Info-header-line)
+              Info-header-line)
+         (dtk-speak Info-header-line))
+        (t (save-excursion
+             (goto-char (point-min))
+             (emacspeak-speak-line))))))
 
 ;;}}}
 ;;{{{  Emacs 21

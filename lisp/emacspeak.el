@@ -1,5 +1,5 @@
 ;;; emacspeak.el --- Emacspeak -- The Complete Audio Desktop
-;;; $Id: emacspeak.el 6900 2011-03-04 22:30:41Z tv.raman.tv $
+;;; $Id: emacspeak.el 7370 2011-11-08 16:44:59Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak: A speech interface to Emacs
 ;;; Keywords: Emacspeak, Speech, Dectalk,
@@ -163,6 +163,7 @@ speech-enabling extensions."
 (emacspeak-do-package-setup "cmuscheme" 'emacspeak-cmuscheme)
 (emacspeak-do-package-setup "compile" 'emacspeak-compile)
 (emacspeak-do-package-setup "cperl-mode" 'emacspeak-cperl)
+(emacspeak-do-package-setup "pianobar" 'emacspeak-pianobar)
 (emacspeak-do-package-setup "proced" 'emacspeak-proced)
 (emacspeak-do-package-setup "ecb" 'emacspeak-ecb)
 (emacspeak-do-package-setup "cus-edit" 'emacspeak-custom)
@@ -208,6 +209,7 @@ speech-enabling extensions."
 (emacspeak-do-package-setup "jde" 'emacspeak-jde)
 (emacspeak-do-package-setup "js2" 'emacspeak-js2)
 (emacspeak-do-package-setup "kmacro" 'emacspeak-kmacro)
+(emacspeak-do-package-setup "magit" 'emacspeak-magit)
 (emacspeak-do-package-setup "make-mode" 'emacspeak-make-mode)
 (emacspeak-do-package-setup "man" 'emacspeak-man)
 (emacspeak-do-package-setup "moz" 'emacspeak-moz)
@@ -230,6 +232,7 @@ speech-enabling extensions."
 (emacspeak-do-package-setup "pcvs" 'emacspeak-pcl-cvs)
 (emacspeak-do-package-setup "psgml" 'emacspeak-psgml)
 (emacspeak-do-package-setup "python-mode" 'emacspeak-python)
+(emacspeak-do-package-setup "python-mode" 'emacspeak-py)
 (emacspeak-do-package-setup "re-builder" 'emacspeak-re-builder)
 (emacspeak-do-package-setup "reftex" 'emacspeak-reftex)
 (emacspeak-do-package-setup "rmail" 'emacspeak-rmail)
@@ -275,6 +278,7 @@ speech-enabling extensions."
 (emacspeak-do-package-setup "widget" 'emacspeak-widget)
 (emacspeak-do-package-setup "windmove" 'emacspeak-windmove)
 (emacspeak-do-package-setup "winring" 'emacspeak-winring)
+(emacspeak-do-package-setup "woman" 'emacspeak-woman)
 
 ;;}}}
 ;;{{{  Submit bugs
@@ -391,11 +395,19 @@ sets punctuation mode to all, activates the dictionary and turns on split caps."
 ;;{{{ Emacspeak:
 
 ;;;###autoload
-(defcustom emacspeak-play-emacspeak-startup-icon nil
+(defcustom emacspeak-play-emacspeak-startup-icon t
   "If set to T, emacspeak plays its icon as it launches."
   :type 'boolean
   :group 'emacspeak)
-
+(defsubst emacspeak-play-startup-icon ()
+  "Play startup icon if requested."
+  (declare (special emacspeak-play-emacspeak-startup-icon))
+  (let ((player  (or (executable-find "mplayer")
+                     (executable-find "mpg321"))))
+    (when (and  emacspeak-play-emacspeak-startup-icon player)
+      (start-process "mp3" nil
+                     player
+                     (expand-file-name "emacspeak.mp3" emacspeak-sounds-directory)))))
 ;;;###autoload
 (defun emacspeak()
   "Starts the Emacspeak speech subsystem.  Use emacs as you
@@ -437,14 +449,11 @@ functions for details.   "
   (emacspeak-export-environment)
   (require 'emacspeak-personality)
   (dtk-initialize)
+  (tts-configure-synthesis-setup)
   (require 'emacspeak-redefine)
   (require 'emacspeak-advice)
   (require 'emacspeak-replace)
-  (when (and  emacspeak-play-emacspeak-startup-icon
-              (file-exists-p "/usr/bin/mpg123"))
-    (start-process "mp3" nil "mpg123"
-                   "-q"
-                   (expand-file-name "emacspeak.mp3" emacspeak-sounds-directory)))
+  (emacspeak-play-startup-icon)
   (emacspeak-sounds-define-theme-if-necessary emacspeak-sounds-default-theme)
   (when emacspeak-pronounce-load-pronunciations-on-startup
     (emacspeak-pronounce-load-dictionaries emacspeak-pronounce-dictionaries-file))

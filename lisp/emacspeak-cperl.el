@@ -1,5 +1,5 @@
 ;;; emacspeak-cperl.el --- Speech enable CPerl Mode 
-;;; $Id: emacspeak-cperl.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
+;;; $Id: emacspeak-cperl.el 7322 2011-10-26 00:43:56Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $ 
 ;;; DescriptionEmacspeak extensions for CPerl mode
 ;;; Keywords:emacspeak, audio interface to emacs CPerl
@@ -203,7 +203,6 @@ Otherwise cue user to the line just created. "
 
 (add-hook 'cperl-mode-hook
           (function (lambda ()
-                      (voice-lock-mode 1)
                       (dtk-set-punctuations 'all)
                       (or dtk-split-caps
                           (dtk-toggle-split-caps))

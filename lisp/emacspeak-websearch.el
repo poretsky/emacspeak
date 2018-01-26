@@ -1,5 +1,5 @@
 ;;; emacspeak-websearch.el --- search utilities
-;;; $Id: emacspeak-websearch.el 7019 2011-05-08 14:48:19Z tv.raman.tv $
+;;; $Id: emacspeak-websearch.el 7425 2011-11-22 01:55:17Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak extension to make Web searching convenient
 ;;; Keywords: Emacspeak, WWW interaction
@@ -955,6 +955,10 @@ Optional second arg as-html processes the results as HTML rather than data."
   "Number of results to return from google search."
   :type 'number
   :group 'emacspeak-websearch)
+(defcustom emacspeak-websearch-google-results-only t
+  "Specify if we show just results or the complete Google page."
+  :type  'boolean
+  :group 'emacspeak-websearch)
 
 (defvar emacspeak-websearch-google-uri-template
   "www.google.com/search?q="
@@ -986,12 +990,14 @@ Optional second arg as-html processes the results as HTML rather than data."
 (defun emacspeak-websearch-google (query &optional lucky)
   "Perform a Google search.
 Optional interactive prefix arg `lucky' is equivalent to hitting the
-I'm Feeling Lucky button on Google."
+I'm Feeling Lucky button on Google.
+Uses  customizable option `emacspeak-websearch-google-results-only' to determine if we show just results."
   (interactive
    (list
     (gweb-google-autocomplete)
     current-prefix-arg))
   (declare (special emacspeak-google-query emacspeak-google-toolbelt
+                    emacspeak-websearch-google-results-only
                     emacspeak-websearch-google-options
                     emacspeak-websearch-google-number-of-results))
   (let ((toolbelt (emacspeak-google-toolbelt)))
@@ -999,24 +1005,28 @@ I'm Feeling Lucky button on Google."
     (emacspeak-webutils-cache-google-toolbelt toolbelt)
     (if lucky
         (emacspeak-webutils-autospeak)
-      (emacspeak-webutils-post-process
-       "Search Results"
-       'emacspeak-speak-line))
-    (let ((emacspeak-w3-tidy-html t))
-      (emacspeak-webutils-with-xsl-environment
-       (expand-file-name "default.xsl" emacspeak-xslt-directory)
-       nil emacspeak-xslt-options
-       (browse-url
-        (concat (emacspeak-websearch-google-uri) query
-                (format "&num=%s%s"
-                        emacspeak-websearch-google-number-of-results
-                        (or emacspeak-websearch-google-options ""))
-                (when lucky
-                  (concat
-                   "&btnI="
-                   (emacspeak-url-encode
-                    "I'm Feeling Lucky")))))))))
-
+      (emacspeak-webutils-post-process "Results" 'emacspeak-speak-line))
+    (let ((emacspeak-w3-tidy-html t)
+          (search-url
+           (concat
+            (emacspeak-websearch-google-uri)
+            query
+            (format "&num=%s%s"         ; acumulate options
+                    emacspeak-websearch-google-number-of-results
+                    (or emacspeak-websearch-google-options ""))
+            (when lucky
+              (concat
+               "&btnI="
+               (emacspeak-url-encode "I'm Feeling Lucky"))))))
+      (cond
+       (emacspeak-websearch-google-results-only
+        (emacspeak-we-extract-by-id-list
+         (list "subform_ctrl" "res" "nav")
+         search-url 'speak))
+       (t (emacspeak-webutils-with-xsl-environment
+           (expand-file-name "default.xsl" emacspeak-xslt-directory)
+           nil emacspeak-xslt-options
+           (browse-url search-url)))))))
 ;;{{{ IMFA
 
 (emacspeak-websearch-set-searcher 'agoogle
@@ -1026,7 +1036,7 @@ I'm Feeling Lucky button on Google."
 ;;}}}
 
 (defvar emacspeak-websearch-accessible-google-url
-  "http://www.google.com/cse?cx=000183394137052953072%3Azc1orsc6mbq&q="
+  "http://www.google.com/cse?cx=000183394137052953072%3Azc1orsc6mbq&nojs=1&ie=UTF-8&sa=Search&q="
   "Google Accessible Search -- see http://labs.google.com/accessible")
 
 ;;;###autoload
@@ -1040,13 +1050,10 @@ I'm Feeling Lucky button on Google."
     (emacspeak-webutils-cache-google-query query)
     (emacspeak-webutils-post-process "results" 'emacspeak-speak-line)
     (emacspeak-webutils-with-xsl-environment
-       (expand-file-name "default.xsl" emacspeak-xslt-directory)
-       nil emacspeak-xslt-options
-       (browse-url
-     (concat emacspeak-websearch-accessible-google-url query)))))
-
-
-
+     (expand-file-name "default.xsl" emacspeak-xslt-directory)
+     nil emacspeak-xslt-options
+     (browse-url
+      (concat emacspeak-websearch-accessible-google-url query)))))
 
 (emacspeak-websearch-set-searcher 'google-lucky
                                   'emacspeak-websearch-google-feeling-lucky)
@@ -1361,7 +1368,7 @@ Interactive prefix arg `use-near' searches near our previously cached  location.
     (add-hook  'emacspeak-web-post-process-hook
                #'(lambda nil
                    (emacspeak-pronounce-add-buffer-local-dictionary-entry
-                    " mi"
+                    "Â mi"
                     " miles ")))
     (browse-url-of-buffer
      (emacspeak-xslt-xml-url
@@ -1857,32 +1864,6 @@ Results"
       (rename-buffer "Currency Rates"))))
 
 ;;}}}
-;;{{{ my rss
-
-(emacspeak-websearch-set-searcher 'my-rss-search
-                                  'emacspeak-websearch-my-rss-search)
-
-(emacspeak-websearch-set-key 13 'my-rss-search)
-
-(defvar emacspeak-websearch-my-rss-search-uri
-  "http://myrss.com/cgi-bin/search.cgi?__mod=search&__act=&search=Search+Channels&s="
-  "URI for My RSS search.")
-
-;;;###autoload
-(defun emacspeak-websearch-my-rss-search (query)
-  "My RSS search."
-  (interactive
-   (list
-    (emacspeak-websearch-read-query "My RSS: ")))
-  (declare (special emacspeak-websearch-my-rss-search-uri))
-  (browse-url
-   (format "%s%s"
-           emacspeak-websearch-my-rss-search-uri
-           query))
-  (emacspeak-webutils-post-process query
-                                   'emacspeak-speak-line))
-
-;;}}}
 ;;{{{ Shopping at Amazon
 
 (emacspeak-websearch-set-searcher 'amazon-search
@@ -1920,26 +1901,6 @@ Results"
   (interactive)
   (declare (special emacspeak-websearch-ebay-search-form))
   (emacspeak-websearch-display-form emacspeak-websearch-ebay-search-form))
-
-;;}}}
-;;{{{ Shoutcast
-
-(emacspeak-websearch-set-searcher 'shoutcast-search
-                                  'emacspeak-websearch-shoutcast-search)
-
-(emacspeak-websearch-set-key ?S 'shoutcast-search)
-
-(defvar emacspeak-websearch-shoutcast-search-form
-  (expand-file-name "xml-forms/shoutcast-search.xml"
-                    emacspeak-lisp-directory)
-  "Form for Shoutcast  search.")
-
-;;;###autoload
-(defun emacspeak-websearch-shoutcast-search ()
-  "Shoutcast search."
-  (interactive)
-  (declare (special emacspeak-websearch-shoutcast-search-form))
-  (emacspeak-websearch-display-form emacspeak-websearch-shoutcast-search-form))
 
 ;;}}}
 ;;{{{  site-specific search tools

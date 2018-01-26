@@ -1,5 +1,5 @@
 ;;; emacspeak-eshell.el --- Speech-enable EShell - Emacs Shell
-;;; $Id: emacspeak-eshell.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
+;;; $Id: emacspeak-eshell.el 7323 2011-10-26 00:50:39Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:   Speech-enable EShell
 ;;; Keywords: Emacspeak, Audio Desktop
@@ -231,15 +231,13 @@ personalities."
 (defadvice eshell-show-output (after emacspeak pre act comp)
   "Speak output."
   (when (interactive-p)
-    (let ((emacspeak-show-point t)
-          (voice-lock-mode t))
+    (let ((emacspeak-show-point t))
       (emacspeak-auditory-icon 'large-movement)
       (emacspeak-speak-region (point) (mark)))))
 (defadvice eshell-mark-output (after emacspeak pre act comp)
   "Speak output."
   (when (interactive-p)
-    (let ((emacspeak-show-point t)
-          (voice-lock-mode t))
+    (let ((emacspeak-show-point t))
       (emacspeak-auditory-icon 'mark-object)
       (emacspeak-speak-line))))
 (defadvice eshell-kill-output (after emacspeak pre act comp)

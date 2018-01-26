@@ -1,5 +1,5 @@
 ;;; emacspeak-eudc.el --- Speech enable  directory client 
-;;; $Id: emacspeak-eudc.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
+;;; $Id: emacspeak-eudc.el 7323 2011-10-26 00:50:39Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:   extension to speech enable universal directory client 
 ;;; Keywords: Emacspeak, Audio Desktop
@@ -141,10 +141,6 @@ Summarize the form to welcome the user. "
 
 ;;}}}
 ;;{{{ voiceify values in results 
-
-(defadvice eudc-mode (before emacspeak pre act comp)
-  "Setup for voiceification"
-  (voice-lock-mode 1))
 
 (defgroup emacspeak-eudc nil
   "Emacspeak add-on to the Emacs Universal Directory Client."

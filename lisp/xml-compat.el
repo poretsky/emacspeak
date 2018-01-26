@@ -16,7 +16,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2007, T. V. Raman
+;;;Copyright (C) 1995 -- 2011, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -57,7 +57,6 @@
 (defsubst xml-tag-child (node name)
   "Return first child matching name."
   (first (xml-get-children node name)))
-
 
 ;;;###autoload 
 (cond

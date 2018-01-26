@@ -1,5 +1,5 @@
 ;;; emacspeak-we.el --- Transform Web Pages Using XSLT
-;;; $Id: emacspeak-we.el 6957 2011-04-01 00:55:39Z tv.raman.tv $
+;;; $Id: emacspeak-we.el 7398 2011-11-13 21:28:33Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Edit/Transform Web Pages using XSLT
 ;;; Keywords: Emacspeak,  Audio Desktop Web, XSLT
@@ -88,7 +88,8 @@ a rewrite rule even if one is already defined."
     (setq redirect
           (replace-regexp-in-string
            (first emacspeak-we-url-rewrite-rule)
-           (second emacspeak-we-url-rewrite-rule)))
+           (second emacspeak-we-url-rewrite-rule)
+           url))
     (emacspeak-auditory-icon 'select-object)
     (browse-url (or redirect url))))
 
@@ -447,7 +448,7 @@ Default is to extract from current page."
    (format "/descendant::table[%s]"
            position)
    url
-       speak))
+   speak))
 
 ;;;###autoload
 (defun emacspeak-we-extract-tables-by-position-list (positions url &optional speak)
@@ -788,7 +789,6 @@ separate buffer. Interactive use provides list of id values as completion. "
      url
      (or (interactive-p)
          speak))))
-
 
 ;;;###autoload
 

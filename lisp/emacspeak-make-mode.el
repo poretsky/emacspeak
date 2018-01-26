@@ -1,5 +1,5 @@
 ;;; emacspeak-make-mode.el --- Speech enable make-mode
-;;; $Id: emacspeak-make-mode.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
+;;; $Id: emacspeak-make-mode.el 7323 2011-10-26 00:50:39Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $ 
 ;;; Description:  Emacspeak extension to speech enable make-mode
 ;;; Keywords: Emacspeak, Make
@@ -158,7 +158,6 @@
 (add-hook 'makefile-mode-hook
           (function (lambda ()
                       (declare (special dtk-split-caps))
-                      (voice-lock-mode 1)
                       (dtk-set-punctuations 'all)
                       (or dtk-split-caps
                           (dtk-toggle-split-caps))

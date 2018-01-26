@@ -1,5 +1,5 @@
 ;;; emacspeak-m-player.el --- Control mplayer from Emacs
-;;; $Id: emacspeak-m-player.el 6950 2011-03-29 19:52:12Z tv.raman.tv $
+;;; $Id: emacspeak-m-player.el 7409 2011-11-16 03:22:20Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description: Controlling mplayer from emacs 
 ;;; Keywords: Emacspeak, m-player streaming media 
@@ -234,13 +234,14 @@ on a specific directory."
    (list
     (read-directory-name"Media Directory: ")
     (read-key-sequence "Key: ")))
-  (eval
-   `(global-set-key
-     key
-     (function
-      (lambda nil
-        (interactive)
-        (emacspeak-m-player-accelerator ,directory))))))
+  (let ((command
+         (eval 
+          `(defun 
+             ,(intern (format "emacspeak-m-player-accelerator-%s" (gensym)))
+             ()
+             (interactive)
+             (emacspeak-m-player-accelerator ,directory)))))
+    (global-set-key key command)))
 
 ;;;###autoload
 (defun emacspeak-m-player-accelerator (directory)
@@ -255,6 +256,12 @@ on a specific directory."
   (if (string-match "\\(mp3\\)\\|\\(audio\\)"  default-directory)
       default-directory
     emacspeak-media-shortcuts-directory))
+;;;###autoload 
+(defun emacspeak-m-player-url (url)
+  "Call emacspeak-m-player with specified URL."
+  (interactive "sURL: ")
+  (emacspeak-m-player url))
+
 ;;;###autoload
 (defun emacspeak-m-player (resource &optional play-list)
   "Play specified resource using m-player.
@@ -288,11 +295,11 @@ The player is placed in a buffer in emacspeak-m-player-mode."
              (emacspeak-m-player-playlist-p resource)))
         (options (copy-sequence emacspeak-m-player-options)))
     (when (getenv "ALSA_DEFAULT")
-    (setq options
-          (nconc options
-                 (list "-ao"
-                       (format "alsa:device=%s"
-                               (getenv "ALSA_DEFAULT"))))))
+      (setq options
+            (nconc options
+                   (list "-ao"
+                         (format "alsa:device=%s"
+                                 (getenv "ALSA_DEFAULT"))))))
     (setq options
           (cond
            (playlist-p
@@ -312,8 +319,15 @@ The player is placed in a buffer in emacspeak-m-player-mode."
                    emacspeak-m-player-program options))
       (set-buffer buffer)
       (emacspeak-m-player-mode)
-                                        ;(setq mode-line-format '((:eval  (emacspeak-m-player-mode-line))))
       )))
+
+;;;###autoload
+(defun emacspeak-m-player-shuffle ()
+  "Launch M-Player with shuffle turned on."
+  (interactive)
+  (declare (special emacspeak-m-player-options))
+  (let ((emacspeak-m-player-options (append emacspeak-m-player-options (list "-shuffle"))))
+    (call-interactively 'emacspeak-m-player)))
 
 ;;;###autoload
 

@@ -1,5 +1,5 @@
 ;;; emacspeak-webutils.el --- Common Web Utilities For Emacspeak
-;;; $Id: emacspeak-webutils.el 7003 2011-04-29 22:52:10Z tv.raman.tv $
+;;; $Id: emacspeak-webutils.el 7378 2011-11-10 17:34:32Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak Webutils
 ;;; Keywords: Emacspeak, web
@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (C) 1999 T. V. Raman <raman@cs.cornell.edu>
+;;; Copyright (C) 1999, 2011 T. V. Raman <raman@cs.cornell.edu>
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -82,9 +82,10 @@ Note that the Web browser should reset this hook after using it.")
   (declare (special emacspeak-web-post-process-hook))
   (when     emacspeak-web-post-process-hook
     (condition-case nil
-        (run-hooks  'emacspeak-web-post-process-hook)
-      (error 
-       (setq emacspeak-web-post-process-hook nil)))
+        (let ((inhibit-read-only t))
+          (run-hooks  'emacspeak-web-post-process-hook))
+      (error  (message "Caught error  in post-process hook.")
+              (setq emacspeak-web-post-process-hook nil)))
     (setq emacspeak-web-post-process-hook nil)))
 
 ;;}}}
@@ -126,9 +127,10 @@ Note that the Web browser should reset this hook after using it.")
   (add-hook 'emacspeak-web-post-process-hook
             #'(lambda nil
                 (declare (special emacspeak-we-xpath-filter))
-                (setq emacspeak-we-xpath-filter
-                      "//p")
-                (emacspeak-speak-buffer))
+                (let ((inhibit-read-only t))
+                  (setq emacspeak-we-xpath-filter
+                        "//p")
+                  (emacspeak-speak-buffer)))
             'at-end))
 
 (defsubst emacspeak-webutils-cache-google-query(query)
@@ -197,16 +199,20 @@ SPEAKER is a function to call to speak relevant information.
 ARGS specifies additional arguments to SPEAKER if any."
   (declare (special emacspeak-web-post-process-hook))
   (when (emacspeak-webutils-supported-p)
-    (add-hook  'emacspeak-web-post-process-hook
-               (eval
-                `(function
-                  (lambda nil
-                    (cond
-                     ((search-forward ,locator nil t)
-                      (recenter 0)
-                      (apply(quote ,speaker) ,args))
-                     (t (message "Your search appears to have failed."))))))
-               'at-end)))
+    (add-hook
+     'emacspeak-web-post-process-hook
+     (eval
+      `(function
+        (lambda nil
+          (let ((inhibit-read-only t))
+            (condition-case nil
+                (cond
+                 ((search-forward ,locator nil t)
+                  (recenter 0)
+                  (apply(quote ,speaker) ,args))
+                 (t (message "Your search appears to have failed.")))
+              (error nil))))))
+     'at-end)))
 
 ;;}}}
 ;;{{{ helper macros:

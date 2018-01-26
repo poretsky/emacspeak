@@ -1,5 +1,5 @@
 ;;; emacspeak-vm.el --- Speech enable VM -- A powerful mail agent (and the one I use)
-;;; $Id: emacspeak-vm.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
+;;; $Id: emacspeak-vm.el 7323 2011-10-26 00:50:39Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak extension to speech enhance vm
 ;;; Keywords: Emacspeak, VM, Email, Spoken Output, Voice annotations
@@ -72,8 +72,7 @@ Note that some badly formed mime messages  cause trouble."
   (when dtk-allcaps-beep
     (dtk-toggle-allcaps-beep))
   (emacspeak-dtk-sync)
-  (when emacspeak-vm-voice-lock-messages
-    (voice-lock-mode 1)))
+  (when emacspeak-vm-voice-lock-messages))
 
 ;;}}}
 ;;{{{ inline helpers
@@ -381,8 +380,7 @@ Then speak the screenful. "
   "Provide an auditory icon if requested"
   (when (interactive-p)
     (emacspeak-auditory-icon 'close-object)
-    (message "%s"
-             (emacspeak-speak-mode-line))))
+    (emacspeak-speak-mode-line)))
 
 ;;}}}
 ;;{{{ catching up on folders

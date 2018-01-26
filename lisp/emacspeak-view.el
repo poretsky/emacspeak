@@ -1,5 +1,5 @@
 ;;; emacspeak-view.el --- Speech enable View mode -- Efficient browsing of read-only content
-;;; $Id: emacspeak-view.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
+;;; $Id: emacspeak-view.el 7323 2011-10-26 00:50:39Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $ 
 ;;; DescriptionEmacspeak extensions for view
 ;;; Keywords:emacspeak, audio interface to emacs, view-mode
@@ -238,8 +238,7 @@
   (when (interactive-p)
     (let ((line-number
            (format "line %s"
-                   (ad-get-arg 0 )))
-          (voice-lock-mode t))
+                   (ad-get-arg 0 ))))
       (put-text-property 0 (length line-number)
                          'personality voice-annotate line-number)
       (emacspeak-auditory-icon 'large-movement)

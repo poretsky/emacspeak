@@ -1,5 +1,5 @@
 ;;; emacspeak-jabber.el --- Speech-Enable jabber
-;;; $Id: emacspeak-jabber.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
+;;; $Id: emacspeak-jabber.el 7225 2011-09-29 00:20:40Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description: speech-enable jabber
 ;;; Keywords: Emacspeak, jabber
@@ -153,6 +153,17 @@
   (when (interactive-p)
     (emacspeak-auditory-icon 'close-object)
     (message "Set extended  away.")))
+(defadvice jabber-go-to-next-jid (after emacspeak pre act comp)
+  "Provide auditory feedback."
+  (when (interactive-p)
+    (emacspeak-auditory-icon 'large-movement)
+    (emacspeak-speak-line)))
+
+(defadvice jabber-go-to-previous-jid (after emacspeak pre act comp)
+  "Provide auditory feedback."
+  (when (interactive-p)
+    (emacspeak-auditory-icon 'large-movement)
+    (emacspeak-speak-line)))
 
 (defadvice jabber-presence-default-message (around emacspeak pre
                                                    act comp)
@@ -170,11 +181,12 @@
   (when (or jabber-message-alert-same-buffer
             (not (memq (selected-window) (get-buffer-window-list buffer))))
     (emacspeak-auditory-icon 'progress)
-    (if (jabber-muc-sender-p from)
-        (format "Private message from %s in %s"
-                (jabber-jid-resource from)
-                (jabber-jid-displayname (jabber-jid-user from)))
-      (format "%s: %s" (jabber-jid-displayname from) text))))
+    (let ((dtk-stop-immediately nil))
+      (if (jabber-muc-sender-p from)
+          (format "Private message from %s in %s"
+                  (jabber-jid-resource from)
+                  (jabber-jid-displayname (jabber-jid-user from)))
+        (format "%s: %s" (jabber-jid-displayname from) text)))))
 
 ;;{{{ interactive commands:
 

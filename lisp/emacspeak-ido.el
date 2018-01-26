@@ -1,5 +1,5 @@
 ;;; emacspeak-ido.el --- speech-enable ido
-;;; $Id: emacspeak-ido.el 6716 2011-01-09 02:55:41Z tv.raman.tv $
+;;; $Id: emacspeak-ido.el 7421 2011-11-22 00:49:22Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:   extension to speech enable ido
 ;;; Keywords: Emacspeak, Audio Desktop
@@ -209,6 +209,12 @@ The default value of 12 is too high for using ido effectively with speech. "
   (when (interactive-p)
     (emacspeak-auditory-icon 'close-object)
     (emacspeak-speak-mode-line)))
+
+(defadvice ido-fallback-command (before emacspeak pre act comp)
+  "Provide auditory cue to indicate we are closing out the IDO   minibuffer."
+  (when (interactive-p)
+    (emacspeak-auditory-icon 'close-object)
+    (emacspeak-auditory-icon 'open-object)))
 
 ;;}}}
 ;;{{{ define personalities 

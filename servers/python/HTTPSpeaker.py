@@ -1,4 +1,4 @@
-#!/usr/bin/python2.4
+#!/usr/bin/python
 
 """HTTP wrapper around Emacspeak speech server.
 
@@ -12,10 +12,10 @@ calls speaker.cmd(arg)
 
 """
 
-__id__ = "$Id: HTTPSpeaker.py 6994 2011-04-26 22:44:55Z tv.raman.tv $"
+__id__ = "$Id: HTTPSpeaker.py 7067 2011-06-25 02:49:51Z tv.raman.tv $"
 __author__ = "$Author: tv.raman.tv $"
-__version__ = "$Revision: 6994 $"
-__date__ = "$Date: 2011-04-26 15:44:55 -0700 (Tue, 26 Apr 2011) $"
+__version__ = "$Revision: 7067 $"
+__date__ = "$Date: 2011-06-24 19:49:51 -0700 (Fri, 24 Jun 2011) $"
 __copyright__ = "Copyright (c) 2005 T. V. Raman"
 __license__ = "LGPL"
 
@@ -23,6 +23,7 @@ __license__ = "LGPL"
 from speaker import Speaker
 from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
 import sys
+import os
 import urllib
 
 class HTTPSpeaker (HTTPServer):
@@ -97,7 +98,7 @@ def start():
     if sys.argv[1:]:
         engine = sys.argv[1]
     else:
-        engine='outloud'
+        engine=os.getenv('DTK_PROGRAM','outloud')
     if sys.argv[2:]:
         port = int(sys.argv[2])
     else:

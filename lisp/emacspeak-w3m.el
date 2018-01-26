@@ -1,10 +1,10 @@
 ;;; emacspeak-w3m.el --- speech-enables w3m-el
-;;;$Id: emacspeak-w3m.el 6997 2011-04-28 15:36:06Z tv.raman.tv $
+;;;$Id: emacspeak-w3m.el 7378 2011-11-10 17:34:32Z tv.raman.tv $
 ;;{{{ Copyright
 
 ;;; This file is not part of Emacs, but the same terms and
 ;;; conditions apply.
-;; Copyright (C) 2001,2002  Dimitri V. Paduchih
+;; Copyright (C) 2001,2002,2011  Dimitri V. Paduchih
 
 ;; Initial version: Author: Dimitri Paduchih <paduch@imm.uran.ru>
 ;;;author: T. V. Raman (integration with Emacspeak, and sections marked TVR)

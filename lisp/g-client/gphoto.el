@@ -1,5 +1,5 @@
 ;;; g-photo.el ---  Google  Picasa Client
-;;;$Id: gphoto.el 6216 2009-08-28 21:10:57Z tv.raman.tv $
+;;;$Id: gphoto.el 7142 2011-08-05 00:17:08Z tv.raman.tv $
 ;;; $Author: raman $
 ;;; Description:   Client  For Accessing Picasa (Photo Albums)
 ;;; Keywords: Google   Atom API
@@ -187,7 +187,8 @@ Interactive prefix arg prompts for userid whose albums we request."
 (defun gphoto-tags()
   "View feed of tags."
   (interactive)
-  (gphoto-feeds "tags"))
+  (gphoto-feeds "tags"
+                (g-auth-email gphoto-auth-handle)))
 
 ;;;###autoload
 (defun gphoto-view (resource)

@@ -1,5 +1,5 @@
 ;;; emacspeak-url-template.el --- Create library of URI templates
-;;; $Id: emacspeak-url-template.el 7018 2011-05-04 03:15:57Z tv.raman.tv $
+;;; $Id: emacspeak-url-template.el 7425 2011-11-22 01:55:17Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:   Implement library of URI templates
 ;;; Keywords: Emacspeak, Audio Desktop
@@ -705,7 +705,7 @@ http://www.google.com/calendar/a/<my-corp>/m?output=xhtml"
  "http://www.google.com/patents?ie=ISO-8859-1&q=%s"
  (list "Google For Patents: ")
  #'(lambda nil
-     (search-forward " Patent Search" nil t)
+     (search-forward "Â Patent Search" nil t)
      (beginning-of-line)
      (emacspeak-speak-rest-of-buffer))
  "Perform patent search via Google")
@@ -969,7 +969,7 @@ Here are some examples:
 
 (emacspeak-url-template-define
  "Google Image Search"
-"http://images.google.com/images?hl=en&source=hp&q=%s&btnG=Search+Images&gbv=1"
+ "http://images.google.com/images?hl=en&source=hp&q=%s&btnG=Search+Images&gbv=1"
  (list "Google Image Search: ")
  #'(lambda ()
      (search-forward "results" nil t)
@@ -984,14 +984,14 @@ Here are some examples:
 
 (emacspeak-url-template-define
  "BlogSearch Google"
- "http://blogsearch.google.com/blogsearch_feeds?hl=en&q=%s&ie=utf-8&num=25&output=atom"
+ "http://www.google.com/search?q=%s&hl=en&tbm=blg&output=atom"
  (list "Google Blog Search: ")
  nil
  "Google Blog Search"
  'emacspeak-webutils-atom-display)
 (emacspeak-url-template-define
  "Recent BlogSearch Google"
- "http://blogsearch.google.com/blogsearch_feeds?hl=en&q=%s&ie=utf-8&num=25&scoring=d&output=atom"
+ "http://www.google.com/search?q=%s&hl=en&tbm=blg&scoring=d&output=atom"
  (list "Google Blog Search: ")
  nil
  "Google Blog Search"
@@ -1074,25 +1074,25 @@ from English to German.")
  "Google Glossary lookup.")
 
 (emacspeak-url-template-define
+ "Google Results"
+ "http://www.google.com/search?q=%s&num=25"
+ (list 'gweb-google-autocomplete)
+ nil
+ "Show just results and nav bar."
+ #'(lambda (url)
+     (emacspeak-we-extract-by-id-list
+      (list "subform_ctrl" "res" "nav")
+      url 'speak)))
+
+(emacspeak-url-template-define
  "1Box Google"
  "http://www.google.com/search?q=%s"
  (list 'gweb-google-autocomplete)
  nil
- "Show 1box result from Google."
- #'(lambda (url)
-     (emacspeak-we-extract-by-class-list
-      (list "rbt" "e" "std" "med")
-      url 'speak)))
-
-(emacspeak-url-template-define
- "Answers from Google Squared"
- "https://www.google.com/search?q=%s"
- (list 'gweb-google-autocomplete)
- nil
- "Answers from Google Squared snippets."
+ "Show 1box result from Google. Actually now shows just the results."
  #'(lambda (url)
      (emacspeak-we-extract-by-id
-      "ires"
+      "res"
       url 'speak)))
 
 (emacspeak-url-template-define
@@ -1146,7 +1146,7 @@ from English to German.")
  "http://print.google.com/print?oi=print&q=%s"
  (list "Google Print Search:")
  #'(lambda nil
-     (search-forward "Print  Books" nil t)
+     (search-forward "PrintÂ  Books" nil t)
      (emacspeak-speak-rest-of-buffer))
  "Google Print Search")
 
@@ -1286,6 +1286,18 @@ from English to German.")
  #'(lambda (url)
      (emacspeak-we-extract-table-by-match "Maneuvers"
                                           url 'speak)))
+
+;;}}}
+;;{{{ bing rss
+
+(emacspeak-url-template-define
+ "Bing RSS"
+ "http://www.bing.com/search?go=&qs=ns&form=QBLH&format=rss&q=%s"
+ (list "Bing For: ")
+ nil
+ "RSS Feed of Bing Results."
+ #'(lambda (url)
+     (emacspeak-webutils-rss-display url)))
 
 ;;}}}
 ;;{{{ yahoo daily news
@@ -1951,7 +1963,6 @@ Meerkat realy needs an xml-rpc method for getting this.")
 ;;}}}
 ;;{{{  flight arrival
 
-
 ;;}}}
 ;;{{{ weather underground
 ;;;###autoload
@@ -2084,7 +2095,20 @@ Meerkat realy needs an xml-rpc method for getting this.")
                                'speak)))
 
 ;;}}}
+;;{{{  Radio station streams 
 
+(emacspeak-url-template-define
+ "StreamWorld Radio"
+ "http://provisioning.streamtheworld.com/pls/%s.pls"
+ (list
+  #'(lambda () (upcase (read-from-minibuffer "Station ID: "))))
+ nil
+ "Play radio stream.
+See http://www.cbsradio.com/streaming/index.html for a list of CBS  stations that use StreamTheWorld."
+ #'(lambda (url)
+     (emacspeak-m-player url 'playlist)))
+
+;;}}}
 ;;}}}
 ;;{{{ Interactive commands
 
@@ -2153,7 +2177,6 @@ Optional interactive prefix arg displays documentation for specified resource."
                            emacspeak-url-template-table
                            nil
                            'must-match))
-    (pop minibuffer-history)
     (cond
      (documentation (emacspeak-url-template-help-internal name))
      (t

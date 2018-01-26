@@ -1,5 +1,5 @@
 ;;; gweb.el --- Google Search
-;;;$Id: gweb.el 6826 2011-02-09 17:58:31Z tv.raman.tv $
+;;;$Id: gweb.el 7066 2011-06-24 00:14:33Z tv.raman.tv $
 ;;; $Author: raman $
 ;;; Description:  AJAX Search -> Lisp
 ;;; Keywords: Google   AJAX API
@@ -60,68 +60,6 @@
 (require 'g-utils)
 
 ;;}}}
-;;{{{ Emacs patch (pending)
-
-;;; Allow caller to control if completions are sorted:
-(defvar minibuffer-completion-sort 'string-lessp 
-  "Function used to sort minibuffer completions. Nil means dont sort.")
-
-
-(defun minibuffer-completion-help ()
-  "Display a list of possible completions of the current minibuffer contents."
-  (interactive)
-  (message "Making completion list...")
-  (lexical-let* ((start (field-beginning))
-                 (end (field-end))
-		 (string (field-string))
-		 (completions (completion-all-completions
-			       string
-			       minibuffer-completion-table
-			       minibuffer-completion-predicate
-			       (- (point) (field-beginning)))))
-    (message nil)
-    (if (and completions
-             (or (consp (cdr completions))
-                 (not (equal (car completions) string))))
-        (let* ((last (last completions))
-               (base-size (cdr last))
-               ;; If the *Completions* buffer is shown in a new
-               ;; window, mark it as softly-dedicated, so bury-buffer in
-               ;; minibuffer-hide-completions will know whether to
-               ;; delete the window or not.
-               (display-buffer-mark-dedicated 'soft))
-          (with-output-to-temp-buffer "*Completions*"
-            ;; Remove the base-size tail because `sort' requires a properly
-            ;; nil-terminated list.
-            (when last (setcdr last nil))
-            (when (and minibuffer-completion-sort (fboundp  minibuffer-completion-sort))
-              (setq completions (sort completions minibuffer-completion-sort)))
-            (when completion-annotate-function
-              (setq completions
-                    (mapcar (lambda (s)
-                              (let ((ann
-                                     (funcall completion-annotate-function s)))
-                                (if ann (list s ann) s)))
-                            completions)))
-            (with-current-buffer standard-output
-              (set (make-local-variable 'completion-base-position)
-                   (list (+ start base-size)
-                         ;; FIXME: We should pay attention to completion
-                         ;; boundaries here, but currently
-                         ;; completion-all-completions does not give us the
-                         ;; necessary information.
-                         end)))
-            (display-completion-list completions)))
-
-      ;; If there are no completions, or if the current input is already the
-      ;; only possible completion, then hide (previous&stale) completions.
-      (minibuffer-hide-completions)
-      (ding)
-      (minibuffer-message
-       (if completions "Sole completion" "No completions")))
-    nil))
-
-;;}}}
 ;;{{{ Customizations
 
 (defgroup gweb nil
@@ -176,105 +114,87 @@
                                         ; and turn it into a list
    (append (aref (read (current-buffer)) 1) nil)))
 
-(defun gweb-suggest-completer (string predicate mode)
+(defvar gweb-google-suggest-metadata
+  '(metadata .
+             (
+              ; Google suggest returns suggestions already sorted 
+              (display-sort-function . identity)
+              ; add annots function here
+              ))
+  "Metadata returned by google-suggest completer.")
+
+(defun gweb-suggest-completer (string predicate action)
   "Generate completions using Google Suggest. "
   (save-current-buffer 
     (set-buffer 
      (let ((window (minibuffer-selected-window))) 
        (if (window-live-p window) 
-	   (window-buffer window) 
-	 (current-buffer)))) 
-    (complete-with-action mode 
-			  (gweb-suggest string)
-			  string predicate)))
+           (window-buffer window) 
+         (current-buffer))))
+    (cond
+     ((eq action 'metadata) gweb-google-suggest-metadata)
+     (t
+      (complete-with-action action 
+                            (gweb-suggest string)
+                            string predicate)))))
 
-(defun gweb-news-suggest-completer (string predicate mode)
+(defun gweb-news-suggest-completer (string predicate action)
   "Generate completions using Google News Suggest. "
   (save-current-buffer 
     (set-buffer 
      (let ((window (minibuffer-selected-window))) 
        (if (window-live-p window) 
-	   (window-buffer window) 
-	 (current-buffer)))) 
-    (complete-with-action mode 
-			  (gweb-suggest string "ds=n")
-			  string predicate)))  
+           (window-buffer window) 
+         (current-buffer))))
+    (cond
+     ((eq action 'metadata) gweb-google-suggest-metadata)
+     (t
+      (complete-with-action action 
+                            (gweb-suggest string "ds=n")
+                            string predicate)))  ))
 
 (defvar gweb-history nil
   "History of Google Search queries.")
 
 (put 'gweb-history 'history-length 100)
 
-(defun gweb-lazy-suggest (input)
-  "Used to generate completions lazily."
-  (lexical-let ((input input)
-                table)
-    (setq table (lazy-completion-table
-                 table (lambda () (gweb-suggest input))))
-    table))
 
-(if (fboundp 'complete-with-action)
-    (defsubst gweb-google-autocomplete (&optional prompt)
-      "Read user input using Google Suggest for auto-completion."
-      (let* ((minibuffer-completing-file-name t) ;; accept spaces
-             (minibuffer-completion-sort nil)
-             (completion-ignore-case t)
-             (word (thing-at-point 'word))
-             (query nil))
-        (setq query
-              (completing-read
-               (or prompt "Google: ")
-               'gweb-suggest-completer ; collection
-               nil nil ; predicate required-match
-               word ; initial input
-               'gweb-history))
-        (pushnew  query gweb-history)
-        (g-url-encode query)))
-;;; Emacs 22
-  (defsubst gweb-google-autocomplete (&optional prompt)
-    "Read user input using Google Suggest for auto-completion."
-    (let ((minibuffer-completing-file-name t) ;; so we can type
-          ;; spaces
-          (completion-ignore-case t))
-      (g-url-encode
-       (completing-read
-        (or prompt "Google: ")
-        (completion-table-dynamic gweb-suggest))))))
+;;; Emacs 23 and beyond:
+;;; i.e. if complete-with-action is defined
 
+(defsubst gweb-google-autocomplete (&optional prompt)
+  "Read user input using Google Suggest for auto-completion."
+  (let* ((minibuffer-completing-file-name t) ;; accept spaces
+         (completion-ignore-case t)
+         (word (thing-at-point 'word))
+         (query nil))
+    (setq query
+          (completing-read
+           (or prompt "Google: ")
+           'gweb-suggest-completer     ; collection
+           nil nil                     ; predicate required-match
+           word                        ; initial input
+           'gweb-history))
+    (pushnew  query gweb-history)
+    (g-url-encode query)))
+  
 ;;; For news:
-(if (fboundp 'complete-with-action)
-    (defsubst gweb-news-autocomplete (&optional prompt)
-      "Read user input using Google News Suggest for auto-completion."
-      (let* ((minibuffer-completing-file-name t) ;; accept spaces
-             (completion-ignore-case t)
-             (word (thing-at-point 'word))
-             (suggestions
-              (when (and word (> (length word) 0))
-                (set-text-properties 0 (length word) nil word)
-                (cons  word (gweb-suggest  word "ds=n"))))
-             (query nil))
-        (setq query
-              (completing-read
-               (or prompt "Google News: ")
-               'gweb-news-suggest-completer
-               nil nil
-               word 'gweb-history
-               suggestions))
-        (pushnew  query gweb-history)
-        (g-url-encode query)))
-;;; Emacs 22
-  (defsubst gweb-news-autocomplete (&optional prompt)
-    "Read user input using Google News Suggest for auto-completion."
-    (let ((minibuffer-completing-file-name t) ;; so we can type
-          ;; spaces
-          (completion-ignore-case t))
-      (g-url-encode
-       (completing-read
-        (or prompt "Google News: ")
-        (completion-table-dynamic
-         #'(lambda (w)
-             (gweb-suggest w "ds=n"))))))))
 
+(defsubst gweb-news-autocomplete (&optional prompt)
+  "Read user input using Google News Suggest for auto-completion."
+  (let* ((minibuffer-completing-file-name t) ;; accept spaces
+         (completion-ignore-case t)
+         (word (thing-at-point 'word))
+         (query nil))
+    (setq query
+          (completing-read
+           (or prompt "Google News: ")
+           'gweb-news-suggest-completer
+           nil nil
+           word 'gweb-history))
+    (pushnew  query gweb-history)
+    (g-url-encode query)))
+  
 ;;}}}
 ;;{{{ Search Helpers
 

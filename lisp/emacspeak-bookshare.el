@@ -91,6 +91,29 @@
   :group 'emacspeak-bookshare)
 
 ;;}}}
+;;{{{ XML Compatibility:
+(unless (fboundp 'xml-substitute-numeric-entities)
+  ;;; cloned from xml.el in emacs 24
+  (defun xml-substitute-numeric-entities (string)
+    "Substitute SGML numeric entities by their respective utf characters.
+This function replaces numeric entities in the input STRING and
+returns the modified string.  For example \"&#42;\" gets replaced
+by \"*\"."
+    (if (and string (stringp string))
+        (let ((start 0))
+          (while (string-match "&#\\([0-9]+\\);" string start)
+            (condition-case nil
+                (setq string (replace-match
+                              (string (read (substring string
+                                                       (match-beginning 1)
+                                                       (match-end 1))))
+                              nil nil string))
+              (error nil))
+            (setq start (1+ (match-beginning 0))))
+          string)
+      nil)))
+
+;;}}}
 ;;{{{ Variables:
 
 (defvar emacspeak-bookshare-curl-program (executable-find "curl")
@@ -758,12 +781,12 @@ b Browse
 ;;{{{  Property Accessors:
 
 (loop for p in
- '(author title id metadata target directory)
- do
- (eval
-  `(defsubst ,(intern (format "emacspeak-bookshare-get-%s" p)) ()
-     ,(format "Get %s at point. " p)
-     (get-text-property (point) ',p))))
+      '(author title id metadata target directory)
+      do
+      (eval
+       `(defsubst ,(intern (format "emacspeak-bookshare-get-%s" p)) ()
+          ,(format "Get %s at point. " p)
+          (get-text-property (point) ',p))))
 
 ;;}}}
 ;;{{{ Bookshare Mode:
@@ -951,9 +974,15 @@ Target location is generated from author and title."
      (list'face 'highlight
                 'auditory-icon 'item))
     (message "Unpacked content.")))
-(defvar emacspeak-bookshare-xslt
-  "daisyTransform.xsl"
-  "Name of bookshare supplied XSL transform.")
+
+;;;###autoload
+(defcustom emacspeak-bookshare-xslt
+  "DaisyTransform.xsl"
+  "Name of bookshare  XSL transform."
+  :type '(choice :tag "Key: "
+                 (const :tag "Daisy transform from Bookshare"  "daisyTransform.xsl")
+                 (const :tag "Default HTML View" "default.xsl"))
+  :group 'emacspeak-bookshare)
 
 (defsubst emacspeak-bookshare-xslt (directory)
   "Return suitable XSL  transform."
@@ -970,7 +999,6 @@ Target location is generated from author and title."
 (defsubst emacspeak-bookshare-toc-xslt ()
   "Return suitable XSL  transform for TOC."
   (declare (special emacspeak-bookshare-toc-xslt))
-
 
   (expand-file-name emacspeak-bookshare-toc-xslt emacspeak-xslt-directory))
 
@@ -1022,8 +1050,9 @@ Make sure it's downloaded and unpacked first."
          (setq emacspeak-we-url-executor 'emacspeak-bookshare-url-executor)))
     (emacspeak-xslt-view-file
      xsl
-     (first
-      (directory-files directory 'full ".xml")))))
+     (shell-quote-argument
+      (first
+       (directory-files directory 'full ".xml"))))))
 
 (defun emacspeak-bookshare-extract-xml (url)
   "Extract content refered to by link under point, and return an XML buffer."
@@ -1050,9 +1079,9 @@ Make sure it's downloaded and unpacked first."
       (set-buffer result)
       (emacspeak-webutils-autospeak)
       (emacspeak-webutils-with-xsl-environment
-     (expand-file-name emacspeak-bookshare-xslt emacspeak-xslt-directory)
-     nil emacspeak-xslt-options             ;options
-     (browse-url-of-buffer )))))
+       (expand-file-name emacspeak-bookshare-xslt emacspeak-xslt-directory)
+       nil emacspeak-xslt-options             ;options
+       (browse-url-of-buffer )))))
 
 (defun emacspeak-bookshare-view-page-range (url )
   "Play pages in specified page range from URL."
@@ -1071,7 +1100,6 @@ Make sure it's downloaded and unpacked first."
       (emacspeak-webutils-autospeak)
       (browse-url-of-buffer))
     (kill-buffer result)))
-
 
 (defun emacspeak-bookshare-view (directory)
   "View book in specified directory."
@@ -1109,7 +1137,8 @@ Make sure it's downloaded and unpacked first."
          (setq emacspeak-we-url-executor 'emacspeak-bookshare-url-executor)))
     (emacspeak-xslt-view-file
      xsl
-     (first (directory-files directory 'full ".xml")))))
+     (shell-quote-argument
+      (first (directory-files directory 'full ".xml"))))))
 
 (defun emacspeak-bookshare-sign-out ()
   "Sign out, clearing password."

@@ -1,5 +1,5 @@
 ;;; emacspeak-pronounce.el --- Implements Emacspeak pronunciation dictionaries
-;;; $Id: emacspeak-pronounce.el 6975 2011-04-13 20:37:39Z tv.raman.tv $
+;;; $Id: emacspeak-pronounce.el 7430 2011-11-22 23:49:59Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description: Emacspeak pronunciation dictionaries
 ;;; Keywords:emacspeak, audio interface to emacs customized pronunciation
@@ -214,7 +214,8 @@ modes."
 
 ;;; c++ mode inherits from C mode
 (emacspeak-pronounce-add-super  'c-mode 'c++-mode)
-
+;;; shell inherits from comint:
+(emacspeak-pronounce-add-super 'comint-mode 'shell-mode)
 ;;; latex-mode and latex2e-mode inherit from plain-tex-mode
 
 (emacspeak-pronounce-add-super  'plain-tex-mode 'latex-mode)
@@ -225,7 +226,6 @@ modes."
 (emacspeak-pronounce-add-super 'text-mode 'plain-tex-mode)
 ;;;xsl inherits from xml
 (emacspeak-pronounce-add-super 'xml-mode 'xsl-mode)
-
 
 ;;; VM, w3m, w3
 (emacspeak-pronounce-add-super 'text-mode 'w3m-mode)
@@ -629,7 +629,6 @@ pronunciation dictionary for the specified key."
     (setq buffer (get-buffer-create buffer-name))
     (save-excursion
       (set-buffer  buffer)
-      (voice-lock-mode t)
       (widget-insert "\n")
       (widget-insert
        (format "Editting pronunciation dictionary for %s\n\n" key))
@@ -773,6 +772,17 @@ specified pronunciation dictionary key."
      (format "%s %s, %s. "
              area-code prefix-code suffix-code)
      'personality voice-punctuations-some)))
+(defvar emacspeak-pronounce-sha-checksum-pattern 
+  "[0-9a-f]\\{40\\}"
+  "Regexp pattern that matches 40-digit SHA  check-sum.")
+
+(defun emacspeak-pronounce-sha-checksum (sha)
+  "Return pronunciation for 40 digit SHA hash. Useful for working with Git among other things."
+  (when
+      (and
+       (= 40 (length sha))
+       (string-match "[0-9a-f]+" sha))
+  (format "sha: %s " (substring sha 0 5))))
 
 ;;}}}
 

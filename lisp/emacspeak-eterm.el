@@ -1,5 +1,5 @@
 ;;; emacspeak-eterm.el --- Speech enable eterm -- Emacs' terminal emulator  term.el
-;;; $Id: emacspeak-eterm.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
+;;; $Id: emacspeak-eterm.el 7323 2011-10-26 00:50:39Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $ 
 ;;; Description:  Emacspeak extension to speech enable eterm. 
 ;;; Keywords: Emacspeak, Eterm, Terminal emulation, Spoken Output
@@ -1029,7 +1029,6 @@ available with the prefix emacspeak-eterm-prefix and are listed below:
   (emacspeak-eterm-setup-raw-keys)
   (make-local-variable 'eterm-current-personality)
   (setq eterm-current-personality emacspeak-eterm-default-personality)
-  (voice-lock-mode 1)
   (modify-syntax-entry 10 ">")
   (make-local-variable 'emacspeak-eterm-pointer)
   (setq emacspeak-eterm-pointer  (copy-marker (point)))

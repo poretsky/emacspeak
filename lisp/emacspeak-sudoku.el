@@ -1,5 +1,5 @@
 ;;; emacspeak-sudoku.el --- Play SuDoku 
-;;; $Id: emacspeak-sudoku.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
+;;; $Id: emacspeak-sudoku.el 7409 2011-11-16 03:22:20Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description: Playing SuDoku ;;; Keywords: Emacspeak, sudoku
 ;;{{{  LCD Archive entry: 
@@ -353,9 +353,12 @@ See
     (dtk-set-punctuations 'some)
     (emacspeak-auditory-icon 'open-object)
     (emacspeak-sudoku-speak-current-cell-value)))
+(defvar emacspeak-sudoku-history-stack nil
+  "Holds history of interesting board configurations.")
 
 (defadvice sudoku-new (after emacspeak pre act comp)
   "Reset history stack."
+  (declare (special emacspeak-sudoku-history-stack))
   (setq emacspeak-sudoku-history-stack nil))
 
 (defadvice sudoku-restart (after emacspeak pre act comp)
@@ -367,8 +370,6 @@ See
 ;;}}}
 ;;{{{ implement history stack:
 
-(defvar emacspeak-sudoku-history-stack nil
-  "Holds history of interesting board configurations.")
 (make-variable-buffer-local 'emacspeak-sudoku-history-stack)
 
 (defun emacspeak-sudoku-history-push ()

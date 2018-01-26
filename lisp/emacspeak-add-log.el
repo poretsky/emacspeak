@@ -1,5 +1,5 @@
 ;;; emacspeak-add-log.el --- Speech-enable add-log
-;;; $Id: emacspeak-add-log.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
+;;; $Id: emacspeak-add-log.el 7286 2011-10-16 21:23:18Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  speech-enable change-log-mode
 ;;; Keywords: Emacspeak,  Audio Desktop ChangeLogs
@@ -40,9 +40,9 @@
 
 ;;{{{  introduction
 ;;; Commentary:
+;;; Speech-enable Changelog mode
 
-;;; speech-enables change-log-mode
-;;;Code:
+;;; Code:
 
 ;;}}}
 ;;{{{  Required modules

@@ -1,5 +1,5 @@
 ;;; emacspeak-remote.el --- Enables running remote Emacspeak sessions
-;;; $Id: emacspeak-remote.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
+;;; $Id: emacspeak-remote.el 7225 2011-09-29 00:20:40Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description: Auditory interface to remote speech server
 ;;; Keywords: Emacspeak, Speak, Spoken Output, remote server
@@ -53,7 +53,7 @@
 (defgroup emacspeak-remote nil
   "Emacspeak remote group."
   :group 'emacspeak-remote)
-
+;;;###autoload
 (defcustom emacspeak-remote-hooks nil
   "List of hook functions that are run after
 emacspeak is set to run as a remote application.
@@ -103,18 +103,16 @@ Value is persisted for use with ssh servers."
   (declare (special emacspeak-remote-hostname))
   (when (file-exists-p   emacspeak-remote-hostname )
     (find-file emacspeak-remote-hostname)))
+;;; Todo: parse out hostname if the file has user@host:port
 (defun emacspeak-remote-get-current-remote-hostname  ()
   "Return the name of the remote hostname from where we connected if known"
   (declare (special emacspeak-remote-hostname))
   (when (file-exists-p   emacspeak-remote-hostname )
-    (let ((buffer (find-file-noselect
-                   emacspeak-remote-hostname))
+    (let ((buffer (find-file-noselect emacspeak-remote-hostname))
           (result nil))
       (save-excursion
         (set-buffer buffer)
-        (setq result (buffer-substring
-                      (point-min)
-                      (1- (point-max)))))
+        (setq result (buffer-substring (point-min) (1- (point-max)))))
       (kill-buffer buffer )
       result)))
 
@@ -133,30 +131,18 @@ the host we just logged in from."
   "2222"
   "Default used when prompting for a port to connect to.")
 
-(defvar emacspeak-remote-use-telnet-to-connect nil
-  "*If set to t, then use a telnet subprocess
-to connect to the remote host that is running the speech
-server. Default is to use Emacs' built-in open-network-stream.")
-
 ;;;###autoload
-(defcustom emacspeak-remote-use-ssh nil
-  "Set to T to use SSH remote servers."
-  :type 'boolean
-  :group 'emacspeak-remote)
 
 ;;;###autoload
 (defun emacspeak-remote-quick-connect-to-server()
   "Connect to remote server.
-Does not prompt for host or port, but quietly uses the
-guesses that appear as defaults when prompting.
-Use this once you are sure the guesses are usually correct."
+Does not prompt for host or port, but quietly uses the guesses
+that appear as defaults when prompting. Use this once you are
+sure the guesses are usually correct."
   (interactive)
-  (declare (special emacspeak-remote-use-ssh))
-  (cond
-   (emacspeak-remote-use-ssh (emacspeak-ssh-tts-restart))
-   (t (emacspeak-remote-connect-to-server
-       (emacspeak-remote-get-current-remote-hostname)
-       (string-to-number  emacspeak-remote-default-port-to-connect)))))
+  (emacspeak-remote-connect-to-server
+   (emacspeak-remote-get-current-remote-hostname)
+   (string-to-number  emacspeak-remote-default-port-to-connect)))
 
 ;;;###autoload
 (defun emacspeak-remote-home()
@@ -218,50 +204,40 @@ Server is specified via custom option `emacspeak-remote-default-ssh-server'."
 
 ;;;###autoload
 (defun  emacspeak-remote-connect-to-server (host port)
-  "Connect to and start using remote speech server running on host host
-and listening on port port.  Host is the hostname of the remote
-server, typically the desktop machine.  Port is the tcp port that that
-host is listening on for speech requests."
+  "Connect to and start using remote speech server running on
+host host and listening on port port. Host is the hostname of the
+remote server, typically the desktop machine. Port is the tcp
+port that that host is listening on for speech requests."
   (interactive
-   (progn (tts-restart)
-          (list
-           (completing-read "Remote host: "
-                            emacspeak-eterm-remote-hosts-table ;completion table
-                            nil         ;predicate
-                            nil         ;must-match
-                            (emacspeak-remote-get-current-remote-hostname) ;initial input
-                            ))
-          (read-minibuffer "Remote port: "
-                           emacspeak-remote-default-port-to-connect)))
-  (declare (special dtk-speaker-process
-                    emacspeak-remote-use-telnet-to-connect
-                    emacspeak-remote-default-port-to-connect
+   (list
+    (completing-read "Remote host: "
+                     emacspeak-eterm-remote-hosts-table ;completion table
+                     nil                ;predicate
+                     nil                ;must-match
+                     (emacspeak-remote-get-current-remote-hostname) ;initial input
+                     )
+    (read-from-minibuffer "Remote port:" dtk-local-server-port)))
+  (declare (special dtk-speaker-process dtk-program 
+                    dtk-local-server-port
                     emacspeak-eterm-remote-hosts-table))
-  (let* ((process-connection-type nil)  ;dont waste a pty
+  (let* ((dtk-program dtk-local-engine)
+         (process-connection-type nil)  ;dont waste a pty
          (old-process dtk-speaker-process)
          (new-process
-          (if emacspeak-remote-use-telnet-to-connect
-              (start-process  "remote-speaker" nil
-                              "telnet"
-                              host port)
-            (open-network-stream "remote-speaker" nil
-                                 host port))))
+          (open-network-stream "remote-speaker" nil host port)))
     (unless (intern-soft host emacspeak-eterm-remote-hosts-table)
       (emacspeak-eterm-cache-remote-host host))
+    (accept-process-output)
     (cond
      ((or (eq 'run (process-status new-process))
           (eq 'open (process-status new-process)))
       (setq dtk-speaker-process new-process)
-      (setq emacspeak-remote-default-port-to-connect
-            (format "%s" port ))
+      (setq emacspeak-remote-default-port-to-connect (format "%s" port ))
       (delete-process old-process)
       (run-hooks 'emacspeak-remote-hooks)
-      (sit-for 5)
-      (message "Connecting to server on host %s  port %s"
-               host port )
-      (sit-for 5))
-     (t (error "Failed to connect to speech server on host %s port %s"
-               host port )))))
+      (emacspeak-tts-startup-hook)
+      (message "Connecting to server on host %s  port %s" host port ))
+     (t (error "Failed to connect to speech server on host %s port %s" host port )))))
 
 ;;}}}
 (provide 'emacspeak-remote )

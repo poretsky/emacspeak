@@ -1,5 +1,5 @@
 ;;; emacspeak-ispell.el --- Speech enable Ispell -- Emacs' interactive spell checker
-;;; $Id: emacspeak-ispell.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
+;;; $Id: emacspeak-ispell.el 7323 2011-10-26 00:50:39Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak extension to speech enable ispell
 ;;; Keywords: Emacspeak, Ispell, Spoken Output, Ispell version 2.30
@@ -139,7 +139,6 @@ many available corrections."
   (cond
    ((interactive-p)
     (let ((dtk-stop-immediately t )
-          (voice-lock-mode t)
           (emacspeak-speak-messages nil))
       ad-do-it
       (emacspeak-auditory-icon 'task-done)))
@@ -158,7 +157,6 @@ many available corrections."
   (cond
    ((interactive-p)
     (let ((dtk-stop-immediately t )
-          (voice-lock-mode t)
           (emacspeak-speak-messages nil))
       ad-do-it
       (emacspeak-auditory-icon 'task-done)))
@@ -170,7 +168,6 @@ many available corrections."
   (cond
    ((interactive-p)
     (let ((dtk-stop-immediately t )
-          (voice-lock-mode t)
           (emacspeak-speak-messages nil))
       ad-do-it
       (emacspeak-auditory-icon 'task-done)))
@@ -183,7 +180,6 @@ many available corrections."
   (cond
    ((interactive-p)
     (let ((dtk-stop-immediately t )
-          (voice-lock-mode t)
           (emacspeak-speak-messages nil))
       (setq emacspeak-last-message nil)
       ad-do-it

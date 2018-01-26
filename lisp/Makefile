@@ -1,4 +1,4 @@
-# $Id: Makefile 7020 2011-05-09 15:49:00Z tv.raman.tv $
+# $Id: Makefile 7329 2011-10-28 00:26:36Z tv.raman.tv $
 # $Author: tv.raman.tv $
 # Description:  Makefile for Emacspeak
 # Keywords: Emacspeak, Dectalk, Makefile
@@ -86,6 +86,7 @@ emacspeak-re-builder.elc \
 
 AUX_OBJECTS =  cd-tool.elc \
 amixer.elc \
+nm.elc \
 emacspeak-add-log.elc \
 emacspeak-alsaplayer.elc \
 emacspeak-amark.elc \
@@ -118,13 +119,14 @@ emacspeak-cperl.elc \
 emacspeak-custom.elc \
 emacspeak-daisy.elc \
 emacspeak-damlite.elc \
+emacspeak-dbus.elc \
 emacspeak-dictation.elc \
 emacspeak-dictionary.elc \
 emacspeak-desktop.elc \
 emacspeak-dired.elc \
 emacspeak-dismal.elc \
 emacspeak-dmacro.elc \
-emacspeak-ebook.elc \
+emacspeak-epub.elc \
 emacspeak-ecb.elc \
 emacspeak-ediary.elc \
 emacspeak-ediff.elc \
@@ -168,6 +170,7 @@ emacspeak-js2.elc \
 emacspeak-kmacro.elc  \
 emacspeak-librivox.elc \
 emacspeak-madplay.elc \
+emacspeak-magit.elc \
 emacspeak-m-player.elc \
 emacspeak-make-mode.elc \
 emacspeak-man.elc \
@@ -188,18 +191,20 @@ emacspeak-outline.elc \
 emacspeak-pcl-cvs.elc \
 emacspeak-perl.elc \
 emacspeak-php-mode.elc \
+emacspeak-pianobar.elc \
 emacspeak-piglets.elc \
 emacspeak-proced.elc \
 emacspeak-psgml.elc \
+emacspeak-py.elc \
 emacspeak-python.elc \
 emacspeak-re-builder.elc \
-emacspeak-realaudio.elc \
 emacspeak-reftex.elc \
 emacspeak-rpm-spec.elc \
 emacspeak-remote.elc \
 emacspeak-rmail.elc \
 emacspeak-rpm.elc  \
 emacspeak-ruby.elc \
+emacspeak-sawfish.elc \
 emacspeak-ses.elc \
 emacspeak-setup.el \
 emacspeak-sgml-mode.elc \
@@ -236,6 +241,7 @@ emacspeak-websearch.elc \
 emacspeak-widget.elc \
 emacspeak-windmove.elc \
 emacspeak-winring.elc \
+emacspeak-woman.elc \
 emacspeak-wizards.elc  \
 emacspeak-xml-shell.elc \
 emacspeak-xslide.elc  \
@@ -301,6 +307,7 @@ voice-setup.elc: voice-setup.el acss-structure.elc
 emacspeak-alsaplayer.elc: emacspeak-alsaplayer.el
 ommacspeak-amark.elc: emacspeak-amark.el
 cd-tool.elc: cd-tool.el
+nm.elc: nm.el
 amixer.elc: amixer.el
 emacspeak-actions.elc: emacspeak-actions.el
 emacspeak-add-log.elc: emacspeak-add-log.el dtk-speak.elc voice-setup.elc
@@ -333,8 +340,9 @@ emacspeak-cperl.elc: emacspeak-cperl.el dtk-speak.elc voice-setup.elc
 emacspeak-custom.elc: emacspeak-custom.el dtk-speak.elc voice-setup.elc
 emacspeak-cyclebuffer.elc: emacspeak-cyclebuffer.el dtk-speak.elc
 emacspeak-daisy.elc: emacspeak-daisy.el dtk-speak.elc voice-setup.elc
-emacspeak-ebook.elc: emacspeak-ebook.el dtk-speak.elc voice-setup.elc
+emacspeak-epub.elc: emacspeak-epub.el dtk-speak.elc voice-setup.elc
 emacspeak-damlite.elc: emacspeak-damlite.el dtk-speak.elc voice-setup.elc
+emacspeak-dbus.elc: emacspeak-dbus.el dtk-speak.elc nm.elc
 emacspeak-desktop.elc: emacspeak-desktop.el dtk-speak.elc voice-setup.elc
 emacspeak-dictation.elc: emacspeak-dictation.el dtk-speak.elc voice-setup.elc
 emacspeak-dictionary.elc: emacspeak-dictionary.el dtk-speak.elc voice-setup.elc
@@ -388,6 +396,7 @@ emacspeak-librivox.elc: emacspeak-librivox.el dtk-speak.elc voice-setup.elc
 emacspeak-loaddefs.elc: emacspeak-loaddefs.el
 emacspeak-load-path.elc: emacspeak-load-path.elc
 emacspeak-madplay.elc: emacspeak-madplay.el dtk-speak.elc voice-setup.elc
+emacspeak-magit.elc: emacspeak-magit.el dtk-speak.elc voice-setup.elc
 emacspeak-m-player.elc: emacspeak-m-player.el dtk-speak.elc voice-setup.elc
 emacspeak-make-mode.elc: emacspeak-make-mode.el dtk-speak.elc voice-setup.elc
 emacspeak-man.elc: emacspeak-man.el dtk-speak.elc voice-setup.elc
@@ -409,13 +418,14 @@ emacspeak-pcl-cvs.elc: emacspeak-pcl-cvs.el dtk-speak.elc voice-setup.elc
 emacspeak-perl.elc: emacspeak-perl.el dtk-speak.elc voice-setup.elc
 emacspeak-piglets.elc: emacspeak-piglets.el emacspeak-moz.elc
 emacspeak-php-mode.elc: emacspeak-php-mode.el dtk-speak.elc voice-setup.elc
+emacspeak-pianobar.elc: emacspeak-pianobar.el dtk-speak.elc voice-setup.elc
 emacspeak-pronounce.elc: emacspeak-pronounce.el
 emacspeak-personality.elc: emacspeak-personality.el
 emacspeak-proced.elc: emacspeak-proced.el dtk-speak.elc voice-setup.elc
 emacspeak-psgml.elc: emacspeak-psgml.el dtk-speak.elc voice-setup.elc
+emacspeak-py.elc: emacspeak-py.el dtk-speak.elc voice-setup.elc
 emacspeak-python.elc: emacspeak-python.el dtk-speak.elc voice-setup.elc
 emacspeak-re-builder.elc: emacspeak-re-builder.el dtk-speak.elc voice-setup.elc
-emacspeak-realaudio.elc: emacspeak-realaudio.el dtk-speak.elc voice-setup.elc
 emacspeak-redefine.elc: emacspeak-redefine.el  dtk-speak.elc voice-setup.elc
 emacspeak-reftex.elc: emacspeak-reftex.el dtk-speak.elc voice-setup.elc
 emacspeak-rpm-spec.elc: emacspeak-rpm-spec.el dtk-speak.elc voice-setup.elc
@@ -423,6 +433,7 @@ emacspeak-remote.elc: emacspeak-remote.el
 emacspeak-replace.elc: emacspeak-replace.el dtk-speak.elc voice-setup.elc
 emacspeak-ruby.elc: emacspeak-ruby.el dtk-speak.elc
 emacspeak-rmail.elc: emacspeak-rmail.el dtk-speak.elc voice-setup.elc
+emacspeak-sawfish.elc: emacspeak-sawfish.el dtk-speak.elc
 emacspeak-ses.elc: emacspeak-ses.el dtk-speak.elc voice-setup.elc
 emacspeak-setup.elc: emacspeak-setup.el
 emacspeak-sgml-mode.elc: emacspeak-sgml-mode.el dtk-speak.elc voice-setup.elc
@@ -464,6 +475,7 @@ emacspeak-websearch.elc: emacspeak-websearch.el emacspeak-we.elc
 emacspeak-webmarks.elc: emacspeak-webmarks.el emacspeak-we.elc
 emacspeak-widget.elc: emacspeak-widget.el dtk-speak.elc voice-setup.elc
 emacspeak-winring.elc: emacspeak-winring.el dtk-speak.elc voice-setup.elc
+emacspeak-woman.elc: emacspeak-woman.el dtk-speak.elc
 emacspeak-windmove.elc: emacspeak-windmove.el dtk-speak.elc voice-setup.elc
 emacspeak-wizards.elc: emacspeak-wizards.el dtk-speak.elc voice-setup.elc
 emacspeak-xml-shell.elc: emacspeak-xml-shell.el dtk-speak.elc voice-setup.elc

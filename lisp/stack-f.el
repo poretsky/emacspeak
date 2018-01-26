@@ -1,7 +1,7 @@
-;;;; $Id: stack-f.el 5798 2008-08-22 17:35:01Z tv.raman.tv $
+;;;; $Id: stack-f.el 7378 2011-11-10 17:34:32Z tv.raman.tv $
 ;;;; This file implements a simple LIFO stack.
 
-;; Copyright (C) 1991-1995 Free Software Foundation
+;; Copyright (C) 1991-1995, 2011 Free Software Foundation
 
 ;; Author: Inge Wallin <inge@lysator.liu.se>
 ;; Maintainer: elib-maintainers@lysator.liu.se

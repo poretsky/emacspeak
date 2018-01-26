@@ -1,5 +1,5 @@
 ;;; emacspeak-outline.el --- Speech enable Outline --   Browsing  Structured Documents
-;;; $Id: emacspeak-outline.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
+;;; $Id: emacspeak-outline.el 7277 2011-10-14 21:26:35Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; DescriptionEmacspeak extensions for outline-mode
 ;;; Keywords:emacspeak, audio interface to emacs Outlines
@@ -200,26 +200,30 @@ commands. "
 
 (defun emacspeak-outline-speak-next-heading ()
   "Analogous to outline-next-visible-heading,
-except that the outline section is optionally spoken"
+except that the outline section is  spoken"
   (interactive)
+  (emacspeak-auditory-icon 'large-movement)
   (emacspeak-outline-speak-heading 'outline-next-visible-heading 1))
 
 (defun emacspeak-outline-speak-previous-heading ()
   "Analogous to outline-previous-visible-heading,
-except that the outline section is optionally spoken"
+except that the outline section is  spoken"
   (interactive)
+  (emacspeak-auditory-icon 'large-movement)
   (emacspeak-outline-speak-heading 'outline-next-visible-heading -1))
 
 (defun emacspeak-outline-speak-forward-heading ()
   "Analogous to outline-forward-same-level,
-except that the outline section is optionally spoken"
+except that the outline section is  spoken"
   (interactive)
+  (emacspeak-auditory-icon 'large-movement)
   (emacspeak-outline-speak-heading 'outline-forward-same-level 1))
 
 (defun emacspeak-outline-speak-backward-heading ()
   "Analogous to outline-backward-same-level
-except that the outline section is optionally spoken"
+except that the outline section is  spoken"
   (interactive)
+  (emacspeak-auditory-icon 'large-movement)
   (forward-line -1)
   (emacspeak-outline-speak-heading 'outline-forward-same-level -1))
 (defun emacspeak-outline-speak-this-heading ()

@@ -1,16 +1,16 @@
-#!/usr/bin/tcl
-# $Id: speech-server 4725 2007-07-02 02:12:26Z tv.raman.tv $
+#!/usr/bin/tclsh
+# $Id: speech-server 7124 2011-07-26 23:25:42Z tv.raman.tv $
 # Description:  Speech server
 #Usage: tcl speech-server port device-specific-script
-#Example: tcl speech-server 2222 dtk-exp
+#Example: tclsh speech-server 2222 dtk-exp
 # Keywords: Emacspeak, Speech, TCL
 # {{{ LCD Entry: 
 
 # LCD Archive Entry:
 # emacspeak| T. V. Raman |raman@cs.cornell.edu 
 # A speech interface to Emacs |
-# $Date: 2007-07-01 19:12:26 -0700 (Sun, 01 Jul 2007) $ |
-#  $Revision: 4725 $ | 
+# $Date: 2011-07-26 16:25:42 -0700 (Tue, 26 Jul 2011) $ |
+#  $Revision: 7124 $ | 
 # Location undetermined
 #
 
@@ -38,7 +38,7 @@
 
 # }}}
 # {{{Initialize and get ready
-
+package require Tclx
 set port [lindex $argv 0]
 #start up the server
 set server [server_create -myport  $port -reuseaddr]

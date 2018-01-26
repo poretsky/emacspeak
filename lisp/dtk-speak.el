@@ -1,5 +1,5 @@
 ;;; dtk-speak.el --- Provides Emacs Lisp interface to speech server
-;;;$Id: dtk-speak.el 6991 2011-04-25 17:43:52Z tv.raman.tv $
+;;;$Id: dtk-speak.el 7409 2011-11-16 03:22:20Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacs interface to TTS
 ;;; Keywords: Dectalk Emacs Elisp
@@ -68,7 +68,18 @@
 ;;{{{ Forward Declarations:
 (declare-function emacspeak-auditory-icon "emacspeak-sounds.el" (icon))
 (declare-function emacspeak-queue-auditory-icon "emacspeak-sounds.el" (icon))
- 
+;;;###autoload 
+(defvar dtk-program
+  (or  (getenv "DTK_PROGRAM" ) "dtk-exp")
+  "The program to use to talk to the speech engine.
+Possible choices at present:
+dtk-exp     For the Dectalk Express.
+dtk-mv      for the Multivoice and older Dectalks.
+outloud     For IBM ViaVoice Outloud
+multispeech For Multilingual speech server
+espeak      For eSpeak
+The default is dtk-exp.")
+
 (defvar emacspeak-pronounce-pronunciation-table)
 (defvar emacspeak-ssh-tts-server )
 (defvar emacspeak-auditory-icon-function )
@@ -91,14 +102,17 @@ Particularly useful for web browsing."
   :group  'dtk
   :group  'tts)
 (make-variable-buffer-local 'tts-strip-octals)
+
 ;;;###autoload
 ;;;###autoload
-(defcustom dtk-speech-rate-base 50
+(defcustom dtk-speech-rate-base
+  (if (string-match "dtk" dtk-program) 180 50)
   "*Value of lowest tolerable speech rate."
   :type 'integer
   :group 'tts)
 ;;;###autoload
-(defcustom dtk-speech-rate-step 50
+(defcustom dtk-speech-rate-step
+  (if (string-match "dtk" dtk-program) 50 8)
   "*Value of speech rate increment.
 This determines step size used when setting speech rate via command
 `dtk-set-predefined-speech-rate'.  Formula used is
@@ -112,17 +126,6 @@ Set things like speech rate, punctuation mode etc in this
 hook."
   :type 'hook
   :group 'tts)
-
-(defvar dtk-program
-  (or  (getenv "DTK_PROGRAM" ) "dtk-exp")
-  "The program to use to talk to the speech engine.
-Possible choices at present:
-dtk-exp     For the Dectalk Express.
-dtk-mv      for the Multivoice and older Dectalks.
-outloud     For IBM ViaVoice Outloud
-multispeech For Multilingual speech server
-espeak      For eSpeak
-The default is dtk-exp.")
 
 (defvar dtk-quiet nil
   "Switch indicating if the speech synthesizer is to keep quiet.
@@ -179,7 +182,9 @@ split caps Do not set this variable by hand, use command
 (defvar dtk-last-output nil
   "Variable holding last output.")
 
-(defvar dtk-speech-rate 225
+(defvar dtk-speech-rate
+  (if (string-match "dtk" dtk-program)
+      225 100)
   "Rate at which tts talks.
 Do not modify this variable directly; use command  `dtk-set-rate'
  bound to \\[dtk-set-rate].")
@@ -852,9 +857,8 @@ speech rate:")))
             (* dtk-speech-rate-step  level ))
          prefix )
         (when (interactive-p)
-          (message "Set speech rate to level %s %s"
-                   level
-                   (if prefix " globally " " locally ")))))))
+          (message "Set speech rate to level %s"
+                   level))))))
 
 ;;;###autoload
 (defun dtk-set-character-scale (factor &optional prefix)
@@ -1532,7 +1536,7 @@ This is setup on a per engine basis.")
 
 ;;; will be reset on a per TTS engine basis.
 (defalias 'tts-get-voice-command 'dectalk-get-voice-command)
-
+;;;###autoload
 (defun tts-configure-synthesis-setup (&optional tts-name)
   "Setup synthesis environment. "
   (declare (special dtk-program emacspeak-auditory-icon-function
@@ -1586,7 +1590,6 @@ ALSA_DEFAULT to specified device before starting the server."
     (when (file-exists-p (expand-file-name ssh-server emacspeak-servers-directory))
       (setq emacspeak-ssh-tts-server ssh-server)
       (setq-default emacspeak-ssh-tts-server ssh-server))
-    (tts-configure-synthesis-setup dtk-program)
     (when (interactive-p)
       (dtk-initialize))))
 
@@ -1649,6 +1652,55 @@ Argument PROGRAM specifies the speech server program."
          (executable-find "python")
          (expand-file-name "python/HTTPSpeaker.py" emacspeak-servers-directory)
          program)))
+
+;;;###autoload
+(defvar dtk-local-server-process nil
+  "Local server process.")
+
+;;;###autoload
+(defcustom dtk-speech-server-program "speech-server"
+  "Local speech server script."
+  :type '(choice :tag "Local Server: "
+                 (const :tag "32 Bit" "32-speech-server")
+                 (const :tag "Default" "speech-server"))
+  :group 'dtk)
+(defvar dtk-local-server-port "2222"
+  "Port where we run our local server.")
+
+(defcustom dtk-local-engine "outloud"
+  "Engine we use  for our local TTS  server."
+  :type '(choice
+          (const :tag "Dectalk Express" "dtk-exp")
+          (const :tag "Viavoice Outloud" "outloud")
+          (const :tag "32Bit ViaVoice on 64Bit Linux" "32-outloud"))
+  :group 'dtk)
+
+(defun dtk-local-server (program)
+  "Select and start an local  speech server interactively.
+Local server lets Emacspeak on a remote host connect back via SSH  port forwarding for instance.
+Argument PROGRAM specifies the speech server program.
+Port  defaults to  dtk-local-server-port"
+  (interactive
+   (list
+    (completing-read
+     "Select speech server:"
+     (or dtk-servers-alist
+         (tts-setup-servers-alist))
+     nil
+     t  )))
+  (declare (special    dtk-servers-alist dtk-local-server-port
+                       dtk-local-server-process emacspeak-servers-directory ))
+  (when (and
+         dtk-local-server-process
+         (eq 'run (process-status dtk-local-server-process)))
+    (kill-process dtk-async-server-process))
+  (setq dtk-local-server-process
+        (start-process
+         "LocalTTS"
+         "*localTTS*"
+         (expand-file-name  dtk-speech-server-program emacspeak-servers-directory)
+         dtk-local-server-port
+         (expand-file-name program  emacspeak-servers-directory))))
 
 ;;}}}
 ;;{{{  initialize the speech process

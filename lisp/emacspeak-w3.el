@@ -1,5 +1,5 @@
 ;;; emacspeak-w3.el --- Speech enable W3 WWW browser -- includes ACSS Support
-;;; $Id: emacspeak-w3.el 6915 2011-03-08 21:55:39Z tv.raman.tv $
+;;; $Id: emacspeak-w3.el 7282 2011-10-16 16:21:03Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak enhancements for W3
 ;;; Keywords: Emacspeak, W3, WWW
@@ -497,11 +497,6 @@ element. "
                         (widget-get (widget-at (point)) :class ) " "))))
 
 ;;}}}
-;;{{{ load realaudio if available
-(when (locate-library "emacspeak-realaudio")
-  (require 'emacspeak-realaudio))
-
-;;}}}
 ;;{{{ url rewrite
 
 ;;}}}
@@ -531,7 +526,8 @@ element. "
 
 (defadvice w3-notify-when-ready (after emacspeak pre act comp)
   "Call w3 post-processor hook if set."
-  (emacspeak-webutils-run-post-process-hook))
+  (let ((inhibit-read-only t))
+    (emacspeak-webutils-run-post-process-hook)))
 
 ;;}}}
 ;;{{{ advice focus on cell
@@ -596,6 +592,13 @@ element. "
     ad-do-it
     ad-return-value))
 
+(defadvice url-cookie-write-file
+  (around emacspeak pre act comp)
+  "silence spoken messages."
+  (let ((emacspeak-speak-messages nil))
+    ad-do-it
+    ad-return-value))
+
 (defadvice url-lazy-message
   (around emacspeak pre act comp)
   "silence spoken messages."
@@ -613,7 +616,6 @@ element. "
 ;;; this will go away
 (defalias 'make-dtk-speech-style 'make-acss)
 (defalias 'dtk-personality-from-speech-style 'acss-personality-from-speech-style)
-
 
 ;;}}}
 ;;{{{ define pronunciation for document's base URI
@@ -714,7 +716,7 @@ If a rewrite rule is defined in the current buffer, we change
   "Options to pass to tidy program"
   :type '(repeat string)
   :group 'emacspeak-w3)
-
+;;;###autoload
 (defcustom emacspeak-w3-tidy-html t
   "Tidy HTML before rendering."
   :type 'boolean
@@ -812,13 +814,23 @@ HTML."
         "application/xml+xhtml"
         "text/xml")
       do
-(pushnew
-(list mm
-  'mm-inline-text-html-render-with-w3
-  #'(lambda (&rest args) mm-text-html-renderer))
-mm-inline-media-tests))
+      (pushnew
+       (list mm
+             'mm-inline-text-html-render-with-w3
+             #'(lambda (&rest args) mm-text-html-renderer))
+       mm-inline-media-tests))
 
 ;;}}}
+;;{{{ fix error in insert-char call for emacs 24
+
+(defadvice insert-char (around fix-w3-error pre act comp)
+  "Handle erroneous call from W3."
+  (condition-case nil
+      ad-do-it
+    (error nil)))
+
+;;}}}
+
 ;;{{{  emacs local variables
 
 ;;; local variables:

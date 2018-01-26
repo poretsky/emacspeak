@@ -1,8 +1,35 @@
 Emacspeak News --History Of User-Visible Changes
-$Id: NEWS 7025 2011-05-12 23:13:33Z tv.raman.tv $
+$Id: NEWS 7432 2011-11-23 03:51:49Z tv.raman.tv $
 Author: T. V. Raman <raman@users.sf.net>
 
-* Emacspeak 34 -- Emacspeak 34 User Visible Changes 
+* Emacspeak 35 -- Emacspeak 35 User Visible Changes 
+** emacspeak-magit.el:
+
+Speech-enable magit -- a powerful mode for git interaction from Emacs.
+** emacspeak-websearch.el:
+
+More options for controlling Google search, including better
+toolbelt integration.
+New customize option emacspeak-websearch-google-results-only  ---
+set to T by default ---
+displays only results and the nav bar for Google search
+results. You can easily repeat the search with additional search
+toolbelt options via the commands available on C-t.
+** emacspeak-epub.el: 
+Preliminary epub support.
+** emacspeak-woman.el:
+
+Add emacspeak support to WoMan -- man pages in Emacs Lisp.
+
+** emacspeak-dbus.el:
+
+Add DBus support for Emacspeak.
+When loaded, Emacspeak watches DBus signals for network
+connect/disconnet.
+
+** emacspeak-pianobar.el:
+One-click access to Pandora Radio using pianobar.
+
 
 ** Emacspeak-npr.el: NPR  API Client
 One-click access to NPR  programming.
@@ -26,8 +53,12 @@ Bookshares Daisy EBooks.
 
 Preliminary support for the Mac OS  platform --- thanks to Bart
 Bunting and David Tseng.
+** Mode-line Cleanups:
 
+Emacspeak rendering  of the modeline has been cleaned up to be
+more succint.
 ** Emacs 24 Support:
+
 
 Adds support for Emacs 24
 

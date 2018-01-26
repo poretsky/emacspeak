@@ -1,5 +1,5 @@
 ;;; emacspeak-ediff.el --- Speech enable Emacs interface to diff and merge
-;;; $Id: emacspeak-ediff.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
+;;; $Id: emacspeak-ediff.el 7409 2011-11-16 03:22:20Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; DescriptionEmacspeak extensions for ediff
 ;;; Keywords:emacspeak, audio interface to emacs, Comparing files
@@ -37,11 +37,8 @@
 
 ;;}}}
 
-;;{{{  required
-
-(require 'emacspeak-preamble)
-;;}}}
 ;;{{{  Introduction:
+;;; Commentary:
 
 ;;;Ediff provides a nice visual interface to diff.  ;;;Comparing and
 ;;; patching files is easy with ediff when you can see the screen.
@@ -52,9 +49,18 @@
 ;;; with GNU Emacs 19.28 and earlier.  It has been updated to work
 ;;; with the newer and much larger ediff system found in Emacs 19.29
 ;;; and later.
+;;; Code:
 
 ;;}}}
-;;{{{  macros
+;;{{{  required:
+
+(require 'emacspeak-preamble)
+(require 'voice-setup)
+
+;;}}}
+;;{{{  Map faces to voices.
+
+;;; These defcustoms are legacy and will go away.
 
 (defgroup emacspeak-ediff nil
   "Emacspeak support for EDiff."
@@ -62,9 +68,6 @@
                             ediff)
   :group 'emacspeak
   :prefix "emacspeak-ediff-")
-
-;;}}}
-;;{{{  Mapping faces to personalities:
 
 (defcustom emacspeak-ediff-A-personality voice-smoothen
   "Personality used to voiceify difference chunk A"
@@ -88,6 +91,25 @@
   :type 'symbol
   :group 'emacspeak-ediff)
 
+(voice-setup-add-map
+ '(
+   (ediff-current-diff-A voice-smoothen)
+   (ediff-current-diff-B voice-brighten)
+   (ediff-current-diff-C voice-lighten)
+   (ediff-current-diff-Ancestor voice-lighten-extra)
+   (ediff-fine-diff-A voice-smoothen )
+   (ediff-fine-diff-B voice-brighten)
+   (ediff-fine-diff-C voice-monotone)
+   (ediff-fine-diff-Ancestor voice-lighten-extra)
+   (ediff-even-diff-A voice-brighten)
+   (ediff-even-diff-B voice-smoothen)
+   (ediff-even-diff-C voice-monotone)
+   (ediff-even-diff-Ancestor voice-monotone)
+   (ediff-odd-diff-A voice-smoothen)
+   (ediff-odd-diff-B voice-brighten)
+   (ediff-odd-diff-C voice-monotone)
+   (ediff-odd-diff-Ancestor voice-lighten)
+   ))
 ;;}}}
 ;;{{{ Helper functions:
 

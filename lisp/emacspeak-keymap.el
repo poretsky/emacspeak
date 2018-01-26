@@ -1,5 +1,5 @@
 ;;; emacspeak-keymap.el --- Setup all keymaps and keybindings provided by Emacspeak
-;;; $Id: emacspeak-keymap.el 6962 2011-04-02 00:32:15Z tv.raman.tv $
+;;; $Id: emacspeak-keymap.el 7289 2011-10-20 03:39:22Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Module for setting up emacspeak keybindings
 ;;; Keywords: Emacspeak
@@ -315,8 +315,9 @@ field in the customization buffer.  You can use the notation
         ("," emacspeak-speak-browse-buffer )
         ("." emacspeak-speak-current-field)
         ("/" emacspeak-speak-this-buffer-other-window-display)
-        (":" emacspeak-realaudio )
+        ("'" emacspeak-pianobar )
         ("\;" emacspeak-multimedia)
+        (":" emacspeak-m-player-shuffle)
         ("<" emacspeak-speak-previous-field)
         ("=" emacspeak-speak-current-column)
         (">"  emacspeak-speak-next-field)
@@ -430,6 +431,7 @@ field in the customization buffer.  You can use the notation
         ("\C-m" dtk-set-chunk-separator-syntax)
         ("\M-\C-b" tts-show-debug-buffer)
         ("A" dtk-async-server)
+        ("L" dtk-local-server)
         ("a" dtk-add-cleanup-pattern)
         ("b" dtk-toggle-debug)
         ("," dtk-toggle-punctuation-mode)
@@ -452,7 +454,7 @@ field in the customization buffer.  You can use the notation
         ("\C-d" dectalk)
         ("\C-e" espeak)
         ("\C-o" outloud)
-("\C-v" outloud-32)
+        ("\C-v" outloud-32)
         )
       do
       (emacspeak-keymap-update emacspeak-dtk-submap binding))

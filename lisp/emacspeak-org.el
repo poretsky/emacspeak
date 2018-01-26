@@ -1,5 +1,5 @@
 ;;; emacspeak-org.el --- Speech-enable org
-;;; $Id: emacspeak-org.el 6866 2011-02-19 16:41:30Z tv.raman.tv $
+;;; $Id: emacspeak-org.el 7378 2011-11-10 17:34:32Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak front-end for ORG
 ;;; Keywords: Emacspeak, org
@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (C) 1999 T. V. Raman <raman@cs.cornell.edu>
+;;; Copyright (C) 1999, 2011 T. V. Raman <raman@cs.cornell.edu>
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -87,6 +87,7 @@
 
 (loop for f in
       '(org-mark-ring-goto
+        org-forward-same-level org-backward-same-level
         org-next-link org-previous-link org-open-at-point
         org-goto  org-goto-ret
         org-goto-left org-goto-right
@@ -102,6 +103,7 @@
           (when (interactive-p)
             (emacspeak-speak-line)
             (emacspeak-auditory-icon 'large-movement)))))
+
 (defadvice org-cycle-list-bullet (after emacspeak pre act comp)
   "Provide spoken feedback."
   (when (interactive-p)

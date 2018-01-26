@@ -1,5 +1,5 @@
 ;;; voice-setup.el --- Setup voices for voice-lock
-;;; $Id: voice-setup.el 6979 2011-04-21 17:30:15Z tv.raman.tv $
+;;; $Id: voice-setup.el 7409 2011-11-16 03:22:20Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Voice lock mode for Emacspeak
 ;;{{{  LCD Archive entry:
@@ -82,21 +82,24 @@
 ;;; style specifications see special form defvoice Voices defined
 ;;; via defvoice can be customized via custom see the
 ;;; documentation for defvoice.
+;;; Code:
 
 ;;}}}
 ;;{{{ Required modules
 
-;;; Code:
 (require 'cl)
 (declaim  (optimize  (safety 0) (speed 3)))
 (require 'custom)
 (require 'backquote)
+(eval-when-compile (require 'easy-mmode))
+(require 'custom)
 (require 'acss-structure)
 (require 'outloud-voices)
 (require 'multispeech-voices)
 (require 'mac-voices)
 (require 'espeak-voices)
 (require 'dectalk-voices)
+
 ;;}}}
 ;;{{{ customization group
 
@@ -318,9 +321,9 @@ command \\[customize-variable] on <personality>-settings.. "
             (set-default sym val))))))
 
 ;;}}}                                   ; ; ; ;
-;;{{{ voices defined using ACSS         ; ; ; ;
+;;{{{ voices defined using ACSS         
 
-;;; these voices are device independent ; ; ; ;
+;;; these voices are device independent 
 
 (defvoice  voice-punctuations-all (list nil nil nil nil  nil 'all)
   "Turns current voice into one that  speaks all
@@ -421,6 +424,7 @@ punctuations.")
 
 ;;}}}
 ;;{{{  Define some voice personalities:
+
 (voice-setup-add-map
  '(
    (bold voice-bolden)
@@ -457,44 +461,48 @@ punctuations.")
 ;;}}}
 ;;{{{ new light-weight voice lock
 
-(defcustom voice-lock-mode t
-  "Determines  if property personality results in text being
-voicified."
-  :type 'boolean
-  :group 'emacspeak)
-
 ;;;###autoload
-(defun voice-lock-mode (&optional arg)
-  "Toggle Voice Lock mode.
-With arg, turn Voice Lock mode on if and only if arg is positive.
-
-This light-weight voice lock engine leverages work already done by
-font-lock.  Voicification is effective only if font lock is on."
-  (interactive "P")
-  ;; Don't turn on Voice Lock mode if we don't have a display (we're running a
-  ;; batch job) or if the buffer is invisible (the name starts with a space).
-  (let ((on-p (and (not noninteractive)
-                   (not (eq (aref (buffer-name) 0) ?\ ))
-                   (if arg
-                       (> (prefix-numeric-value arg) 0)
-                     (not voice-lock-mode)))))
-    (set (make-local-variable 'voice-lock-mode) on-p)
-    ;; Turn on Voice Lock mode.
-    (when on-p
-      )
-    ;; Turn off Voice Lock mode.
-    (force-mode-line-update))
+(define-minor-mode voice-lock-mode
+  "Toggle voice lock mode."
+  t nil nil
   (when (interactive-p)
-    (message
-     (format "Turned %s voice lock mode"
-             (if voice-lock-mode "on" "off")))
-    (emacspeak-auditory-icon
-     (if voice-lock-mode
-         'on 'off ))))
+    (let ((state (if voice-lock-mode 'on 'off)))
+      (when (interactive-p)
+        (emacspeak-auditory-icon state)))))
+
 ;;;###autoload
 (defun turn-on-voice-lock ()
   "Turn on Voice Lock mode ."
+  (interactive)
   (unless voice-lock-mode (voice-lock-mode)))
+
+;;;###autoload
+(defun turn-off-voice-lock ()
+  "Turn off Voice Lock mode ."
+  (interactive)
+  (when voice-lock-mode (voice-lock-mode -1)))
+
+;;;### autoload
+(defun voice-lock-toggle ()
+  "Interactively toggle voice lock."
+  (interactive)
+  (if voice-lock-mode
+      (turn-off-voice-lock)
+    (turn-on-voice-lock))
+  (when (interactive-p)
+    (let ((state (if voice-lock-mode 'on 'off)))
+      (when (interactive-p)
+        (emacspeak-auditory-icon state)))))
+(defvar global-voice-lock-mode t
+  "Global value of voice-lock-mode.")
+
+(when (string-match "24" emacs-version)
+  (define-globalized-minor-mode global-voice-lock-mode
+    voice-lock-mode turn-on-voice-lock
+    :initialize 'custom-initialize-delay
+    :init-value (not (or noninteractive emacs-basic-display))
+    :group 'voice-lock
+    :version "22.1"))
 
 ;; Install ourselves:
 (declaim (special text-property-default-nonsticky))
@@ -527,6 +535,7 @@ Sample text to use comes from variable
 
 ;;}}}
 ;;{{{ interactively silence personalities 
+
 (defvar voice-setup-buffer-face-voice-table (make-hash-table)
   "Hash table used to store buffer local face->personality mappings.")
 ;;;###autoload

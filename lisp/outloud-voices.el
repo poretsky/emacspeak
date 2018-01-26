@@ -1,5 +1,5 @@
 ;;; outloud-voices.el --- Define various device independent voices in terms of OutLoud tags
-;;; $Id: outloud-voices.el 6959 2011-04-01 15:39:52Z tv.raman.tv $
+;;; $Id: outloud-voices.el 7366 2011-11-08 01:50:29Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Module to set up Eloquent voices and personalities
 ;;; Keywords: Voice, Personality, IBM ViaVoice Outloud
@@ -78,7 +78,6 @@
   (interactive)
   (dtk-select-server "32-outloud")
   (dtk-initialize))
-
 
 ;;}}}
 ;;{{{  voice table
@@ -486,8 +485,10 @@ and TABLE gives the values along that dimension."
   (setq tts-default-speech-rate outloud-default-speech-rate)
   (set-default 'tts-default-speech-rate outloud-default-speech-rate)
   (setq dtk-speech-rate-step 8
-        dtk-speech-rate-base 50)
+        dtk-speech-rate-base 50
+        dtk-speech-rate outloud-default-speech-rate)
   (setq-default dtk-speech-rate-step 8
+                dtk-speech-rate outloud-default-speech-rate
                 dtk-speech-rate-base 50)
   (dtk-unicode-update-untouched-charsets '(ascii latin-iso8859-1 latin-iso8859-15 latin-iso8859-9 eight-bit-graphic)))
 

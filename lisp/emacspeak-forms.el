@@ -1,5 +1,5 @@
 ;;; emacspeak-forms.el --- Speech enable Emacs' forms mode  -- provides  a convenient database interface
-;;; $Id: emacspeak-forms.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
+;;; $Id: emacspeak-forms.el 7323 2011-10-26 00:50:39Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $ 
 ;;; DescriptionEmacspeak extensions for forms-mode 
 ;;; Keywords:emacspeak, audio interface to emacs forms 
@@ -93,8 +93,7 @@ speak the first field")
   "Speak current form field name and value.
 Assumes that point is at the front of a field value."
   (interactive)
-  (let ((voice-lock-mode t)
-        (name nil)
+  (let ((name nil)
         (value nil)
         (n-start nil))
     (save-excursion

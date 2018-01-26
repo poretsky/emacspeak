@@ -1,12 +1,12 @@
 ;;; dtk-unicode.el --- Pronounce more characters correctly
 ;;{{{ Header: Lukas
 
-;; Copyright 2007 Lukas Loehrer
+;; Copyright 2007, 2011 Lukas Loehrer
 ;;; TVR: Integrated into Emacspeak July 6, 2008
 ;;; Using patch from Lukas.
 ;;
 ;; Author: Lukas Loehrer <loehrerl |at| gmx.net>
-;; Version: $Id: dtk-unicode.el 6941 2011-03-20 18:14:04Z tv.raman.tv $
+;; Version: $Id: dtk-unicode.el 7378 2011-11-10 17:34:32Z tv.raman.tv $
 ;; Keywords:  TTS, Unicode
 
 ;;}}}
@@ -70,29 +70,31 @@
 
 (defcustom dtk-unicode-character-replacement-alist
   '(
-    (? . "-")                       ; START OF GUARDED AREA
-    (?° . " degrees ")                  ; degree sign
-    (?℃ . "Degree C") ; celsius
-    (?℉ . "Degree F ") ; Fahrenheit
-    (?“ . "\"")                         ;LEFT DOUBLE QUOTATION MARK
-    (?” . "\"")                         ; RIGHT DOUBLE QUOTATION MARK
-    (?⋆ . "*")                          ; STAR OPERATOR
-    (?‘ . " backquote  ")               ; LEFT SINGLE QUOTATION MARK
-    (?’ . "'")                          ; right SINGLE QUOTATION MARK
-    (?‐ . "-")                          ; hyphen
-    (?– . "--")                         ; n-dash
-    (?— . "---")                        ; m-dash
-    (?― . "----")                       ; horizontal bar 
-    (?‖ . "||")                         ; vertical bar
-    (?… . "...")                        ; ellipses
-    (?• . " bullet ")                   ; bullet
-    (? . " ... ")                   ; message-waiting
-    (?™ . "TM")                         ; trademark
-    (?ﬀ . "ff")                         ; latin small ligature ff
-    (?ﬁ . "fi")                         ; latin small ligature fi
-    (?ﬂ . "fl")                         ; latin small ligature fl
-    (?ﬃ . "ffi")                        ; latin small ligature ffi
-    (?ﬄ . "Ffl")                        ; latin small ligature ffl
+    (? . "-")                   ; START OF GUARDED AREA
+    (?━ .  "-")                     ; horiz bars
+    (?┃ . "|")                      ; vertical block
+    (?° . " degrees ")              ; degree sign
+    (?℃ . "Degree C")               ; celsius
+    (?℉ . "Degree F ")              ; Fahrenheit
+    (?“ . "\"")                     ;LEFT DOUBLE QUOTATION MARK
+    (?” . "\"")                     ; RIGHT DOUBLE QUOTATION MARK
+    (?⋆ . "*")                      ; STAR OPERATOR
+    (?‘ . " backquote  ")           ; LEFT SINGLE QUOTATION MARK
+    (?’ . "'")                      ; right SINGLE QUOTATION MARK
+    (?‐ . "-")                      ; hyphen
+    (?– . "--")                     ; n-dash
+    (?— . "---")                    ; m-dash
+    (?― . "----")                   ; horizontal bar 
+    (?‖ . "||")                     ; vertical bar
+    (?… . "...")                    ; ellipses
+    (?• . " bullet ")               ; bullet
+    (? . " ... ")               ; message-waiting
+    (?™ . "TM")                     ; trademark
+    (?ﬀ . "ff")                     ; latin small ligature ff
+    (?ﬁ . "fi")                     ; latin small ligature fi
+    (?ﬂ . "fl")                     ; latin small ligature fl
+    (?ﬃ . "ffi")                    ; latin small ligature ffi
+    (?ﬄ . "Ffl")                    ; latin small ligature ffl
     )
   "Explicit replacements for some characters."
   :group 'dtk-unicode
@@ -225,8 +227,9 @@ Converts char to unicode if necessary (for emacs 22)."
   "Return unicode name for character CHAR.
 nil if CHAR is not in Unicode."
   (downcase
-   (or (cadar (describe-char-unicode-data char)) "")))
-   
+   (or (cadar (describe-char-unicode-data char))
+       (car (rassoc char (ucs-names)))
+       "")))
 
 (defsubst dtk-unicode-char-punctuation-p (char)
   "Use unicode properties to determine whether CHAR is a ppunctuation character."

@@ -46,6 +46,9 @@
 ;;; show up as the Google tool-belt.
 ;;; This module implements a minor mode for use in Google result
 ;;; pages that enables these tools via single keyboard commands.
+;;; Originally all options were available as tbs=p:v
+;;; Now, some specialized searches, e.g. blog search are tbm=
+;;; Code:
 
 ;;}}}
 ;;{{{  Required modules
@@ -65,7 +68,9 @@
   range ; range of possible values
   default
   value ; current setting
+  type ;tbs/tbm
   )
+
 (defvar emacspeak-google-query nil
   "Current Google Query.
 This variable is buffer-local.")
@@ -76,6 +81,25 @@ This variable is buffer-local.")
 
 (make-variable-buffer-local 'emacspeak-google-toolbelt)
 
+(defun emacspeak-google-toolbelt-to-tbm (belt)
+  "Return value for use in tbm parameter in search queries."
+  (let
+      ((settings
+        (delq nil
+              (mapcar 
+               #'(lambda (tool)
+                   (when (eq 'tbm (emacspeak-google-tool-type tool))
+                     (cond
+                      ((equal (emacspeak-google-tool-value tool)
+                              (emacspeak-google-tool-default tool))
+                       nil)
+                      (t (format "%s"
+                                 (emacspeak-google-tool-param tool))))))
+               belt))))
+    (when settings 
+      (concat "&tbm="
+              (mapconcat #'identity settings ",")))))
+
 (defun emacspeak-google-toolbelt-to-tbs (belt)
   "Return value for use in tbs parameter in search queries."
   (let
@@ -83,13 +107,14 @@ This variable is buffer-local.")
         (delq nil
               (mapcar 
                #'(lambda (tool)
-                   (cond
-                    ((equal (emacspeak-google-tool-value tool)
-                            (emacspeak-google-tool-default tool))
-                     nil)
-                    (t (format "%s:%s"
-                               (emacspeak-google-tool-param tool)
-                               (emacspeak-google-tool-value tool)))))
+                   (when (eq 'tbs (emacspeak-google-tool-type tool))
+                     (cond
+                      ((equal (emacspeak-google-tool-value tool)
+                              (emacspeak-google-tool-default tool))
+                       nil)
+                      (t (format "%s:%s"
+                                 (emacspeak-google-tool-param tool)
+                                 (emacspeak-google-tool-value tool))))))
                belt))))
     (when settings 
       (concat "&tbs="
@@ -106,7 +131,7 @@ This variable is buffer-local.")
         :param "vid"
         :range '(0 1)
         :default 0
-        :default 0
+        :type 'tbm
         :value 0)
 ;;; Recent
        (make-emacspeak-google-tool
@@ -114,28 +139,31 @@ This variable is buffer-local.")
         :param "rcnt"
         :range '( 0 1)
         :default 0
-        :value 0)
+        :value 0
+        :type 'tbs)
 ;;; Duration restrict for video
        (make-emacspeak-google-tool
         :name "duration"
         :param "dur"
         :range '("m" "s" "l")
         :default "m"
-        :value "m")
+        :value "m"
+        :type 'tbs)
 ;;; Blog mode
        (make-emacspeak-google-tool
         :name "blog"
         :param "blg"
         :range '(0 1)
         :default 0
-        :value 0)
+        :value 0
+        :type 'tbm)
 ;;; Books mode
        (make-emacspeak-google-tool
         :name "books"
         :param "bks"
         :range '(0 1)
         :default 0
-        :default 0
+        :type 'tbm
         :value 0)
 ;;; Books viewability
        (make-emacspeak-google-tool
@@ -143,81 +171,93 @@ This variable is buffer-local.")
         :param "bkv"
         :range '("a" "f")
         :default "a"
-        :value "a")
+        :value "a"
+        :type 'tbs)
 ;;; Book Type
        (make-emacspeak-google-tool
         :name "books-type"
         :param "bkt"
         :range '("b" "p" "m")
         :default "b"
-        :value "b")
+        :value "b"
+        :type 'tbs)
 ;;; Forums Mode
        (make-emacspeak-google-tool
         :name "forums"
         :param "frm"
         :range '(0 1)
         :default 0
-        :value 0)
+        :value 0
+        :type 'tbs)
 ;;; News Mode
        (make-emacspeak-google-tool
         :name "news"
         :param "nws"
         :range '(0 1)
         :default 0
-        :value 0)
+        :value 0
+        :type 'tbm)
 ;;; Reviews
        (make-emacspeak-google-tool
         :name "reviews"
         :param "rvw"
         :range '(0 1)
         :default 0
-        :value 0)
+        :value 0
+        :type 'tbs)
 ;;; Web History Visited
        (make-emacspeak-google-tool
         :name "web-history-visited"
         :param "whv"
         :range '(0 1)
         :default 0
+        :type 'tbs
         :value 0)
 ;;; Web History Not Visited
        (make-emacspeak-google-tool
         :name "web-history-not-visited"
         :param "whnv"
+        :type 'tbs
         :range '(0 1)
         :default 0
         :value 0)
 ;;; Images
        (make-emacspeak-google-tool
         :name "images"
-        :param "img"
+        :param "isch"
         :range '(0 1)
         :default 0
-        :value 0)
+        :value 0
+        :type 'tbm)
 ;;; Structured Snippets
        (make-emacspeak-google-tool
         :name "structured-snippets"
         :param "sts"
         :range '(0 1)
         :default 0
-        :value 0)
+        :value 0
+        :type 'tbs)
 ;;; sort by date
        (make-emacspeak-google-tool
         :name "sort-by-date"
         :param "std"
         :range '(0 1)
         :default 0
-        :value 0)
+        :value 0
+        :type 'tbs)
 ;;; Timeline
        (make-emacspeak-google-tool
         :name "timeline"
         :param "tl"
         :range '(0 1)
         :default 0
+        :type 'tbs
         :value 0)
 ;;; Timeline Low
        (make-emacspeak-google-tool
         :name "timeline-low"
         :param "tll"
+        :type 'tbs
         :range "YYYY/MM"
         :default ""
         :value "")
@@ -227,6 +267,7 @@ This variable is buffer-local.")
         :param "qdr"
         :range "tn"
         :default ""
+        :type 'tbs
         :value "")
 ;;; Timeline High
        (make-emacspeak-google-tool
@@ -234,6 +275,7 @@ This variable is buffer-local.")
         :param "tlh"
         :range "YYYY/MM"
         :default ""
+        :type 'tbs
         :value "")
 ;;; more:commercial promotion with prices
        (make-emacspeak-google-tool
@@ -241,12 +283,22 @@ This variable is buffer-local.")
         :param "cpk"
         :range '(0 1)
         :default 0
+        :type 'tbs
+        :value 0)
+       ;;; shopping
+       (make-emacspeak-google-tool
+        :name "Shopping"
+        :param "shop"
+        :range '(0 1)
+        :default 0
+        :type 'tbm
         :value 0)
        (make-emacspeak-google-tool
         :name "commercial-prices"
         :param "cp"
         :range '(0 1)
         :default 0
+        :type 'tbs
         :value 0)
 ;;; less:commercial (demotion)
        (make-emacspeak-google-tool
@@ -254,6 +306,7 @@ This variable is buffer-local.")
         :param "cdcpk"
         :range '(0 1)
         :default 0
+        :type 'tbs
         :value 0)
        ;;; soc
        (make-emacspeak-google-tool
@@ -261,6 +314,7 @@ This variable is buffer-local.")
         :param "sa"
         :range '(0 1)
         :default 0
+        :type 'tbs
         :value 0))))
 
 ;;}}}
@@ -309,24 +363,12 @@ This variable is buffer-local.")
              (t (error "Unexpected type!")))
             (let
                 ((emacspeak-websearch-google-options
-                  (emacspeak-google-toolbelt-to-tbs belt)))
+                  (concat
+                   (emacspeak-google-toolbelt-to-tbs belt)
+                   (emacspeak-google-toolbelt-to-tbm belt))))
               (emacspeak-websearch-google
                (or emacspeak-google-query
                    (gweb-google-autocomplete))))))))
-
-(defun emacspeak-google-realtime-search (&optional prefix)
-  "Retrieve realtime searches for  current query."
-  (interactive "P")
-  (declare (special  emacspeak-google-query))
-  (let ((uri
-         (concat (emacspeak-websearch-google-uri)
-                 (if prefix
-                     (gweb-google-autocomplete)
-                   (or emacspeak-google-query (gweb-google-autocomplete))   )
-                                        ;"&esrch=RTSearch"
-                 )))
-    (emacspeak-webutils-cache-google-query emacspeak-google-query)
-    (emacspeak-we-extract-by-id "rtr" uri 'speak)))
 
 (defun emacspeak-google-show-toolbelt()
   "Reload search page with toolbelt showing."
@@ -366,7 +408,6 @@ This variable is buffer-local.")
         ("S" emacspeak-google-toolbelt-change-social)
         ("a" emacspeak-websearch-google)
         ("A" emacspeak-websearch-accessible-google)
-        ("R" emacspeak-google-realtime-search)
         )
       do
       (emacspeak-keymap-update emacspeak-google-keymap k))

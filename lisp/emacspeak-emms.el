@@ -1,5 +1,5 @@
 ;;; emacspeak-emms.el --- Speech-enable EMMS Multimedia UI
-;;; $Id: emacspeak-emms.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
+;;; $Id: emacspeak-emms.el 7425 2011-11-22 01:55:17Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak extension to speech-enable EMMS
 ;;; Keywords: Emacspeak, Multimedia
@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (C) 1995--2004 T. V. Raman <raman@cs.cornell.edu>
+;;; Copyright (C) 1995--2004, 2011 T. V. Raman <raman@cs.cornell.edu>
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -95,6 +95,16 @@
           (when (interactive-p)
             (emacspeak-auditory-icon 'large-movement)
             (emacspeak-speak-line)))))
+(loop for f in
+      '(emms-browser emms-browser-next-filter
+                     emms-browser-previous-filter)
+      do
+      (eval
+       `(defadvice ,f (after emacspeak pre act comp)
+          "Provide auditory feedback."
+          (when (interactive-p)
+            (emacspeak-speak-mode-line)
+            (emacspeak-auditory-icon 'open-object)))))
 
 ;;}}}
 ;;{{{ Module emms-streaming:

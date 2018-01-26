@@ -1,5 +1,5 @@
 ;;; emacspeak-swbuff.el --- speech-enable swbuff mode
-;;; $Id: emacspeak-swbuff.el 5798 2008-08-22 17:35:01Z tv.raman.tv $
+;;; $Id: emacspeak-swbuff.el 7378 2011-11-10 17:34:32Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak module for speech-enabling swbuff 
 ;;; Keywords: Emacspeak, swbuff
@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (C) 1999 T. V. Raman <raman@cs.cornell.edu>
+;;; Copyright (C) 1999, 2011 T. V. Raman <raman@cs.cornell.edu>
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
