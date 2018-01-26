@@ -1,5 +1,5 @@
 ;;; emacspeak-aumix.el --- Configure audio device settings
-;;; $Id: emacspeak-aumix.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
+;;; $Id: emacspeak-aumix.el 8439 2013-10-23 00:44:50Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak extension to conveniently set audio display
 ;;; Keywords: Emacspeak, Audio Desktop
@@ -44,6 +44,7 @@
 (declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-speak)
 (require 'emacspeak-sounds)
+(require 'emacspeak-forms)
 ;;}}}
 ;;{{{  Introduction:
 

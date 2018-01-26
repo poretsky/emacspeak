@@ -1,5 +1,5 @@
 ;;; emacspeak-ispell.el --- Speech enable Ispell -- Emacs' interactive spell checker
-;;; $Id: emacspeak-ispell.el 8286 2013-04-05 15:51:45Z tv.raman.tv $
+;;; $Id: emacspeak-ispell.el 8528 2013-11-11 19:48:52Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak extension to speech enable ispell
 ;;; Keywords: Emacspeak, Ispell, Spoken Output, Ispell version 2.30
@@ -86,8 +86,7 @@ many available corrections."
     (setq line
           (ems-set-personality-temporarily
            start end voice-bolden (thing-at-point 'line)))
-    (save-excursion
-      (set-buffer scratch-buffer)
+    (with-current-buffer scratch-buffer
       (setq voice-lock-mode t)
       (setq buffer-undo-list t)
       (dtk-set-punctuations 'all)

@@ -1,11 +1,11 @@
-@c $Id: commands.texi 8320 2013-05-04 23:30:32Z tv.raman.tv $
+@c $Id: commands.texi 8575 2013-11-24 02:06:18Z tv.raman.tv $
 @node Emacspeak Commands
 @chapter Emacspeak Commands
 
 This chapter is generated automatically from the source-level documentation.
 Any errors or corrections should be made to the source-level
 documentation.
-This chapter documents a total of 958 commands.
+This chapter documents a total of 926 commands.
 
 @menu
 * cd-tool::
@@ -87,10 +87,7 @@ This chapter documents a total of 958 commands.
 * emacspeak::
 * voice-setup::
 * emacspeak-w3search::
-* emacspeak-jawbreaker::
-* emacspeak-moz::
 * emacspeak-org::
-* emacspeak-piglets::
 * URL Templates ::
 @end menu
 
@@ -600,7 +597,8 @@ x		emacspeak-alsaplayer-clip
 M-l		emacspeak-amark-load
 M-s		emacspeak-amark-save
 
-This mode runs the hook `emacspeak-alsaplayer-mode-hook', as the final step
+In addition to any hooks its parent mode `special-mode' might have run,
+this mode runs the hook `emacspeak-alsaplayer-mode-hook', as the final step
 during initialization.
 @end deffn
 
@@ -763,16 +761,6 @@ This module is presently Linux specific
 
 Automatically generated documentation
 for commands defined in module  emacspeak-aumix.
-
-@deffn {Interactive Command} emacspeak-aumix nil
-@kbd{Not bound to any key.}
-
-Setup output parameters of the auditory display.
- Launch this tool while you have auditory output on
-multiple channels playing so you can
-adjust the settings to your preference.  Hit q to quit when
-you are done.
-@end deffn
 
 @deffn {Interactive Command} emacspeak-aumix-edit nil
 @kbd{Not bound to any key.}
@@ -985,6 +973,7 @@ b Browse
 key             binding
 ---             -------
 
+RET		emacspeak-bookshare-toc-at-point
 ESC		Prefix Command
 SPC		emacspeak-bookshare-expand-at-point
 +		emacspeak-bookshare-action
@@ -1102,6 +1091,8 @@ Custom URL executor for use in Bookshare TOC.
 
 Do nothing and return nil.
 This function accepts any number of arguments, but ignores them.
+
+(fn &rest IGNORE)
 @end deffn
 
 @deffn {Interactive Command} emacspeak-bookshare-view nil
@@ -1395,7 +1386,7 @@ for commands defined in module  emacspeak-dired.
 
 Labels the fields of the listing in the dired buffer.
 Currently is a no-op  unless
-unless `dired-listing-switches' contains -al
+unless `dired-listing-switches' contains -l
 @end deffn
 
 @deffn {Interactive Command} emacspeak-dired-show-file-type nil
@@ -1503,13 +1494,13 @@ Do shift return in ECB tree browser.
 @section emacspeak-ediff
 
 Commentary:
-Ediff provides a nice visual interface to diff.  ;;;Comparing and
+Ediff provides a nice visual interface to diff. ;;;Comparing and
 patching files is easy with ediff when you can see the screen.
 This module provides Emacspeak extensions to work fluently
 with ediff. Try it out, it's an excellent example of why
-Emacspeak is better than a traditional screenreader.  This module
+Emacspeak is better than a traditional screenreader. This module
 was originally written to interface to the old ediff.el bundled
-with GNU Emacs 19.28 and earlier.  It has been updated to work
+with GNU Emacs 19.28 and earlier. It has been updated to work
 with the newer and much larger ediff system found in Emacs 19.29
 and later.
 
@@ -1534,7 +1525,7 @@ for commands defined in module  emacspeak-enriched.
 @kbd{Not bound to any key.}
 
 Map base fonts to voices.
-Useful in voicifying rich text.
+Useful in voiceifying rich text.
 @end deffn
 
 @node emacspeak-entertain
@@ -3244,6 +3235,16 @@ madplay navigation commands  work via single keystrokes.
 Automatically generated documentation
 for commands defined in module  emacspeak-madplay.
 
+@deffn {Interactive Command} emacspeak-aumix nil
+@kbd{Not bound to any key.}
+
+Setup output parameters of the auditory display.
+ Launch this tool while you have auditory output on
+multiple channels playing so you can
+adjust the settings to your preference.  Hit q to quit when
+you are done.
+@end deffn
+
 @deffn {Interactive Command} emacspeak-madplay nil
 @kbd{Not bound to any key.}
 
@@ -3282,7 +3283,8 @@ s .. t		emacspeak-madplay-madplay-call-command
 <left>		emacspeak-aumix-wave-decrease
 <right>		emacspeak-aumix-wave-increase
 
-This mode runs the hook `emacspeak-madplay-mode-hook', as the final step
+In addition to any hooks its parent mode `special-mode' might have run,
+this mode runs the hook `emacspeak-madplay-mode-hook', as the final step
 during initialization.
 @end deffn
 
@@ -4173,6 +4175,12 @@ Causes output to be spoken i.e., as if comint autospeak were turned
 on.
 @end deffn
 
+@deffn {Interactive Command} emacspeak-speak-completions-if-available nil
+@kbd{Not bound to any key.}
+
+Speak completions if available.
+@end deffn
+
 @deffn {Interactive Command} emacspeak-speak-continuously nil
 @kbd{ control e RETURN }
 
@@ -4775,7 +4783,7 @@ We need to call this in case Emacs is anal and loads its own
 builtin blink-paren function which does not talk.
 @end deffn
 
-@deffn {Interactive Command} emacspeak-voicify-rectangle nil
+@deffn {Interactive Command} emacspeak-voiceify-rectangle nil
 @kbd{Not bound to any key.}
 
 Voicify the current rectangle.
@@ -4784,7 +4792,7 @@ START END personality
 Prompts for PERSONALITY  with completion when called interactively.
 @end deffn
 
-@deffn {Interactive Command} emacspeak-voicify-region nil
+@deffn {Interactive Command} emacspeak-voiceify-region nil
 @kbd{Not bound to any key.}
 
 Voicify the current region.
@@ -6140,12 +6148,6 @@ Optional prefix arg no-rss scrapes information from HTML.
 Perform an Open Directory search
 @end deffn
 
-@deffn {Interactive Command} emacspeak-websearch-people-yahoo nil
-@kbd{Not bound to any key.}
-
-Perform an Yahoo  people search
-@end deffn
-
 @deffn {Interactive Command} emacspeak-websearch-quotes-yahoo-search nil
 @kbd{Not bound to any key.}
 
@@ -6279,7 +6281,7 @@ Speak current news headline.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-webspace-headlines-view nil
-@kbd{Not bound to any key.}
+@kbd{ <control return> }
 
 Display all cached headlines in a special interaction buffer.
 @end deffn
@@ -6308,7 +6310,6 @@ g		emacspeak-webspace-reader-refresh
 n		next-line
 p		previous-line
 q		bury-buffer
-r		greader-reading-list
 t		emacspeak-webspace-transcode
 y		emacspeak-webspace-yank-link
 <S-tab>		emacspeak-webspace-previous-link
@@ -6349,33 +6350,14 @@ Optional interactive prefix arg forces a refresh.
 Refresh Reader.
 @end deffn
 
-@deffn {Interactive Command} emacspeak-webspace-reader-rip nil
-@kbd{Not bound to any key.}
-
-RIP Google Reader.
-Save Reader subscriptions to a specified file.
-@end deffn
-
-@deffn {Interactive Command} emacspeak-webspace-reader-unsubscribe nil
-@kbd{Not bound to any key.}
-
-Unsubscribe to link under point.
-@end deffn
-
 @deffn {Interactive Command} emacspeak-webspace-reading-list nil
 @kbd{ control ; SPACE r   hyper  SPACE r }
 
 Set up scrolling reading list in header.
 @end deffn
 
-@deffn {Interactive Command} emacspeak-webspace-reading-list-accumulate nil
-@kbd{Not bound to any key.}
-
-Accumulate  items from Google Reader Reading List (river of news) in a Webspace buffer.
-@end deffn
-
 @deffn {Interactive Command} emacspeak-webspace-reading-list-view nil
-@kbd{ <control return> }
+@kbd{Not bound to any key.}
 
 Switch to reading list view, creating it if needed.
 @end deffn
@@ -7107,6 +7089,14 @@ Lang is obtained from property `lang' on string, or  via an interactive prompt.
 @kbd{Not bound to any key.}
 
 Like find-file, but binds default-directory to emacspeak-directory.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-wizards-find-file-as-root nil
+@kbd{Not bound to any key.}
+
+Like `ido-find-file, but automatically edit the file with
+root-privileges (using tramp/sudo), if the file is not writable by
+user.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-wizards-find-grep nil
@@ -7891,219 +7881,6 @@ Search IBM My News
 Search IBM My News
 @end deffn
 
-@node emacspeak-jawbreaker
-@section emacspeak-jawbreaker
-
-Commentary:
-MozRepl provides a read-eval-print loop into Firefox
- Module emacspeak-moz provides convenient functions for driving MozRepl
-See http://repo.hyperstruct.net/mozlab
-Using that module, you can connect two large pigs ---
-Emacs and Firefox  via a socket ---
-the result as you can expect is to produce piglets.
-emacspeak-jawbreaker is a piglet that enables one to play 
-The JawBreaker game from within Emacspeak.
-I run Firefox headless using the etc/firebox script
-And I have Fire Vox installed to provide the Firefox side of the spoken output.
-
-Automatically generated documentation
-for commands defined in module  emacspeak-jawbreaker.
-
-@deffn {Interactive Command} emacspeak-jawbreaker nil
-@kbd{Not bound to any key.}
-
-Opens JawBreaker game in Firefox.
-
-(fn)
-@end deffn
-
-@node emacspeak-moz
-@section emacspeak-moz
-
-Commentary:
-MozRepl provides a read-eval-print loop into Firefox
-This module provides convenient functions for driving MozRepl
-See http://repo.hyperstruct.net/mozlab
-
-Automatically generated documentation
-for commands defined in module  emacspeak-moz.
-
-@deffn {Interactive Command} emacspeak-moz-browse-current nil
-@kbd{Not bound to any key.}
-
-Browse current node.
-
-(fn)
-@end deffn
-
-@deffn {Interactive Command} emacspeak-moz-browser-back nil
-@kbd{Not bound to any key.}
-
-Move back in history.
-
-(fn)
-@end deffn
-
-@deffn {Interactive Command} emacspeak-moz-browser-forward nil
-@kbd{Not bound to any key.}
-
-Move forward in history.
-
-(fn)
-@end deffn
-
-@deffn {Interactive Command} emacspeak-moz-close-tab-or-browser nil
-@kbd{Not bound to any key.}
-
-Close tab, or browser when one tab left.
-
-(fn)
-@end deffn
-
-@deffn {Interactive Command} emacspeak-moz-down nil
-@kbd{Not bound to any key.}
-
-Go Down a level and browse.
-
-(fn)
-@end deffn
-
-@deffn {Interactive Command} emacspeak-moz-eval-expression nil
-@kbd{Not bound to any key.}
-
-Send expression to Moz.
-
-(fn EXP)
-@end deffn
-
-@deffn {Interactive Command} emacspeak-moz-eval-expression-and-browse nil
-@kbd{Not bound to any key.}
-
-Send expression to Moz, get output, and browse it in Emacs.
-
-(fn EXP)
-@end deffn
-
-@deffn {Interactive Command} emacspeak-moz-eval-expression-and-go nil
-@kbd{Not bound to any key.}
-
-Send expression to Moz and switch to it.
-
-(fn EXP)
-@end deffn
-
-@deffn {Interactive Command} emacspeak-moz-filter-and-browse nil
-@kbd{Not bound to any key.}
-
-Browse document filtered by XPath filter.
-
-(fn XPATH)
-@end deffn
-
-@deffn {Interactive Command} emacspeak-moz-goto-url nil
-@kbd{Not bound to any key.}
-
-Make Firefox used by our repl Go to the specified URL.
-
-(fn URL)
-@end deffn
-
-@deffn {Interactive Command} emacspeak-moz-goto-url-at-point nil
-@kbd{Not bound to any key.}
-
-Make Firefox used by our repl Go to url under point.
-
-(fn)
-@end deffn
-
-@deffn {Interactive Command} emacspeak-moz-id-browse nil
-@kbd{Not bound to any key.}
-
-Browse node having specified id.
-
-(fn ID)
-@end deffn
-
-@deffn {Interactive Command} emacspeak-moz-inspect nil
-@kbd{Not bound to any key.}
-
-Inspect specified object.
-
-(fn WHAT)
-@end deffn
-
-@deffn {Interactive Command} emacspeak-moz-jump nil
-@kbd{Not bound to any key.}
-
-Jump to specified index in history.
-
-(fn INDEX)
-@end deffn
-
-@deffn {Interactive Command} emacspeak-moz-left nil
-@kbd{Not bound to any key.}
-
-Go left and browse.
-
-(fn)
-@end deffn
-
-@deffn {Interactive Command} emacspeak-moz-locate-and-browse nil
-@kbd{Not bound to any key.}
-
-Browse document filtered by element locator.
-
-(fn ELEMENT)
-@end deffn
-
-@deffn {Interactive Command} emacspeak-moz-refresh nil
-@kbd{Not bound to any key.}
-
-Reload document.
-
-(fn)
-@end deffn
-
-@deffn {Interactive Command} emacspeak-moz-right nil
-@kbd{Not bound to any key.}
-
-Go right and browse.
-
-(fn)
-@end deffn
-
-@deffn {Interactive Command} emacspeak-moz-search nil
-@kbd{Not bound to any key.}
-
-Search for pattern in current context.
-
-(fn PATTERN)
-@end deffn
-
-@deffn {Interactive Command} emacspeak-moz-up nil
-@kbd{Not bound to any key.}
-
-Go Up a level and browse.
-
-(fn)
-@end deffn
-
-@deffn {Interactive Command} emacspeak-moz-visit-next-and-browse nil
-@kbd{Not bound to any key.}
-
-Asks visitor to go  forward and browses the result.
-
-(fn)
-@end deffn
-
-@deffn {Interactive Command} emacspeak-moz-visit-previous-and-browse nil
-@kbd{Not bound to any key.}
-
-Asks visitor to go  backward and browses the result.
-
-(fn)
-@end deffn
-
 @node emacspeak-org
 @section emacspeak-org
 
@@ -8132,90 +7909,13 @@ Pops up an org input area.
 (fn)
 @end deffn
 
-@node emacspeak-piglets
-@section emacspeak-piglets
-
-Commentary:
-MozRepl provides a read-eval-print loop into Firefox
- Module emacspeak-moz provides convenient functions for driving MozRepl
-Consequently, Emacs and Firefox connect over  a socket 4242
-See http://repo.hyperstruct.net/mozlab
-Using that module, you can connect two large pigs ---
-Emacs and Firefox  via a socket ---
-the result as you can expect is to produce piglets.
-
-This module provides the needed Emacs plumbing 
-To drive Firefox from Emacs.
-Install Firefox extension Fire-Vox to provide spoken output from the Firefox side.
-Use commands provided by emacspeak-moz.el
-to render the Firefox DOM using Emacs/W3 or Emacs/W3M
-
-Automatically generated documentation
-for commands defined in module  emacspeak-piglets.
-
-@deffn {Interactive Command} emacspeak-piglets-enter nil
-@kbd{Not bound to any key.}
-
-Send enter to Firefox.
-
-(fn)
-@end deffn
-
-@deffn {Interactive Command} emacspeak-piglets-key nil
-@kbd{Not bound to any key.}
-
-Send last keypress to Firefox.
-
-(fn)
-@end deffn
-
-@deffn {Interactive Command} emacspeak-piglets-keypress nil
-@kbd{Not bound to any key.}
-
-Send keypress to Firefox.
-
-(fn C)
-@end deffn
-
-@deffn {Interactive Command} emacspeak-piglets-silence nil
-@kbd{Not bound to any key.}
-
-Stop speech output from FireVox.
-
-(fn)
-@end deffn
-
-@deffn {Interactive Command} emacspeak-piglets-tab nil
-@kbd{Not bound to any key.}
-
-Send TAB to Firefox.
-
-(fn)
-@end deffn
-
-@deffn {Interactive Command} emacspeak-piglets-tts-init nil
-@kbd{Not bound to any key.}
-
-Start TTS  engine for Piglets.
-
-(fn)
-@end deffn
-
-@deffn {Interactive Command} emacspeak-piglets-tts-stop nil
-@kbd{Not bound to any key.}
-
-Kill TTS  process.
-
-(fn)
-@end deffn
-
 @node URL Templates 
 @section  URL Templates
 
 This section is generated automatically from the source-level documentation.
 Any errors or corrections should be made to the source-level
 documentation.
-This section documents a total of 140 URL Templates.
+This section documents a total of 113 URL Templates.
 
 All of these URL templates can be invoked via command
   @kbd{M-x emacspeak-url-template-fetch} normally bound to
@@ -8254,10 +7954,6 @@ Retrieve product details from Amazon by either ISBN or ASIN.
 
 Logout from Google to do an anonymous search.
 
-@kbd{Answers.com}
-
-Search answers.com
-
 @kbd{Archive News Search}
 
 Search Google Archive News.
@@ -8269,10 +7965,6 @@ Ask Local Search.
 @kbd{Ask Walking Directions}
 
 Walking directions from Ask.com
-
-@kbd{BBC  7 Radio Bridge}
-
-Play BBC  Radio7 show for a given day/time.
 
 @kbd{BBC  iPlayer}
 
@@ -8294,9 +7986,13 @@ Display baseball scores.
 
 Display MLB standings.
 
-@kbd{Bing RSS}
+@kbd{Bing News}
 
-RSS Feed of Bing Results.
+Bing News results as RSS feed.
+
+@kbd{Bing Search}
+
+Bing results as RSS feed.
 
 @kbd{BlogSearch Google}
 
@@ -8330,25 +8026,9 @@ List CNN Podcast media links.
 
 Retrieve Cartoon Times Of India.
 
-@kbd{Code Search From Google}
-
-Search using Google Code Search.
-
-@kbd{DDJ TechNetCast Play}
-
-Play Technetcast stream from DDJ.
-
-@kbd{DDJ TechNetCast Save}
-
-Browse to a specified DDJ Technetcast stream and save  it.
-
 @kbd{Dictionary Lookup}
 
 Dictionary Lookup
-
-@kbd{Digg}
-
-Display Digg Feed.
 
 @kbd{Earthquakes}
 
@@ -8357,27 +8037,6 @@ Show table of recent quakes.
 @kbd{EmacsWiki Search}
 
 EmacsWiki Search
-
-@kbd{EmapSpeak Via Google}
-
-EmapSpeak Via Google.
-
-Specify the query using English and  addresses as complete as
-  possible.
-
-Here are some examples:
-
-0) To find a location by address specify:
-
-650 Harry Road San Jose CA 95120
-
-1) To get directions, specify:
-
-<source address> to <destination address>
-
-2) To find businesses etc., near a location, specify:
-
-<what> near <location address>
 
 @kbd{Finance Google Portfolio}
 
@@ -8449,10 +8108,6 @@ Google Image Search
 
 Do a Google search and get a Info view of results.
 
-@kbd{Google Local}
-
-Google Local Search.
-
 @kbd{Google Mobile Search}
 
 Google Mobile Search
@@ -8465,17 +8120,9 @@ Search Google news.
 
 Google Print Search
 
-@kbd{Google Product Search}
-
-Perform Google Product Search
-
 @kbd{Google Reader}
 
-View feed via Google Reader.
-
-@kbd{Google Realtime Search}
-
-Perform Google Realtime Search
+Google Reader
 
 @kbd{Google Recent News Search}
 
@@ -8489,10 +8136,6 @@ Show just results and nav bar.
 
 Google Scholar Search
 
-@kbd{Google Soccer Results}
-
-Display World Cup Soccer Results for specified countries.
-
 @kbd{Google Text  News}
 
 Retrieve and speak Google News Overview.
@@ -8504,10 +8147,6 @@ Do a Google search and get a timeline view of results.
 @kbd{Google Transcoder}
 
 Transcode site via Google.
-
-@kbd{Google Video}
-
-Retrieve Google Video search results as an atom feed.
 
 @kbd{Google WebQuotes}
 
@@ -8525,10 +8164,6 @@ Display specified news feed.
 
 Pull RSS  feed corresponding to an ITunes Podcast.
 
-@kbd{InfoWorld RSS Feeds}
-
-Produce  a set of RSS links published by InfoWorld.
-
 @kbd{Linux Today News}
 
 Get news column from Linux Today.
@@ -8541,21 +8176,9 @@ Search MDC Wiki.
 
 Show MLB Scorecard.
 
-@kbd{MapQuest Directions}
-
-Retrieve and speak directions from MapQuest.
-
 @kbd{Market summary from Google}
 
 Display financial market summary.
-
-@kbd{Meerkat Profile}
-
-Meerkat Profile
-
-@kbd{Meerkat Recipe}
-
-Meerkat tool
 
 @kbd{Mobile BBC}
 
@@ -8580,21 +8203,13 @@ Source and target languages
 are specified as two-letter language codes, e.g. en|de translates
 from English to German
 
-@kbd{Music Search}
+@kbd{NY Times Mobile}
 
-Music search on Google.
+NYtimes Mobile Site
 
 @kbd{NY Times RSS Feeds}
 
 Display browsable list of NY Times RSS Feeds.
-
-@kbd{Netcraft Site Report}
-
-Analyze WWW site using Netcraft.
-
-@kbd{Netcraft Web Analysis}
-
-Analyze WWW site using Netcraft.
 
 @kbd{Official GoogleBlog Search}
 
@@ -8620,22 +8235,6 @@ Perform patent search via Google
 
 Play Podcast from CNET
 
-@kbd{PowerSet Wikipedia Search}
-
-Perform powerset query.
-
-@kbd{Public Transit Via Google Maps}
-
-Public transit directions from Google.
-
-@kbd{Pulpit --- I Cringely}
-
-Read pulpit from PBS. Published on the Thursday of the week.
-
-@kbd{Radio4 radioBridge}
-
-Play BBC  Radio4 show for a given day/time.
-
 @kbd{Reader Subscription Search}
 
 Search within feeds subscribed to in Google Reader.
@@ -8660,10 +8259,6 @@ Reuters Finance Lookup
 
 Seeking Alpha search.
 
-@kbd{Shoutcast Search}
-
-Locate and display Shoutcast streams.
-
 @kbd{StreamWorld Radio}
 
 Play radio stream.
@@ -8684,10 +8279,6 @@ Translate a Web page using google. Source and target languages
 are specified as two-letter language codes, e.g. en|de translates
 from English to German.
 
-@kbd{Travelocity Lookup}
-
-Show arrival/departure information from Travelocity.
-
 @kbd{Twitter Search}
 
 Twitter search and display results feed.
@@ -8695,10 +8286,6 @@ Twitter search and display results feed.
 @kbd{UPS Packages}
 
 Display package tracking information from UPS.
-
-@kbd{Walking Directions From Google}
-
-Display walking directions using Google.
 
 @kbd{Weather forecast from Weather Underground}
 
@@ -8772,10 +8359,6 @@ Yahoo World News.
 
 YouTube Search Via Feeds
 
-@kbd{YubNub Web Command Line}
-
-YubNub Command Line
-
 @kbd{ask search mobile}
 
 Mobile search using Ask.com
@@ -8787,18 +8370,6 @@ Display package tracking information from Fedex.
 @kbd{html5IRC}
 
 Show HTML5 IRC log.
-
-@kbd{pdf2html}
-
-Use access.adobe.com to  convert a remote PDF document to plain
- text.
-The PDF document needs to be available on the public Internet.
-
-@kbd{pdf2txt}
-
-Use access.adobe.com to  convert a remote PDF document to plain
- text.
-The PDF document needs to be available on the public Internet.
 
 @kbd{rss weather from wunderground}
 

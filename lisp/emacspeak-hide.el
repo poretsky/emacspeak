@@ -1,5 +1,5 @@
 ;;; emacspeak-hide.el --- Provides user commands for hiding and exposing blocks of text
-;;; $Id: emacspeak-hide.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
+;;; $Id: emacspeak-hide.el 8574 2013-11-24 02:01:07Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Hide and expose blocks of text
 ;;; Keywords: Emacspeak, Speak, Spoken Output, hide
@@ -208,14 +208,14 @@ Returns t if a block was found and hidden."
           (incf count))
         (cond
          ((> count 1)
-          (ems-modify-buffer-safely
-           (add-text-properties start (point)
-                                (list 'invisible t
-                                      'intangible t))
-           (add-text-properties begin (point)
-                                (list 'emacspeak-hide-block-prefix (nth 2  prefix)
-                                      'emacspeak-hidden-block (first prefix)
-                                      'personality emacspeak-hidden-header-line-personality)))
+          (with-silent-modifications
+            (add-text-properties start (point)
+                                 (list 'invisible t
+                                       'intangible t))
+            (add-text-properties begin (point)
+                                 (list 'emacspeak-hide-block-prefix (nth 2  prefix)
+                                       'emacspeak-hidden-block (first prefix)
+                                       'personality emacspeak-hidden-header-line-personality)))
           (message "Hid %s  %s lines"
                    count (first prefix))
           t)
@@ -242,15 +242,15 @@ Returns t if a block was found and hidden."
         (setq end
               (next-single-property-change (point) 'emacspeak-hidden-block
                                            (current-buffer) (point-max)))
-        (ems-modify-buffer-safely
-         (put-text-property start end
-                            'emacspeak-hidden-block nil)
-         (put-text-property start end
-                            'emacspeak-hide-block-prefix nil)
-         (add-text-properties start end
-                              (list 'invisible nil
-                                    'intangible nil
-                                    'personality nil)))
+        (with-silent-modifications
+          (put-text-property start end
+                             'emacspeak-hidden-block nil)
+          (put-text-property start end
+                             'emacspeak-hide-block-prefix nil)
+          (add-text-properties start end
+                               (list 'invisible nil
+                                     'intangible nil
+                                     'personality nil)))
         (message "Exposed %s block containing %s lines"
                  block-name
                  (count-lines start end))
@@ -394,15 +394,15 @@ and when you have heard enough navigate easily  to move past the block."
                             (regexp-quote block-prefix)))
         (set-buffer scratch-buffer)
         (setq buffer-undo-list t)
-        (ems-modify-buffer-safely
-         (erase-buffer)
-         (insert contents)
-         (put-text-property (point-min)
-                            (point-max)
-                            'invisible nil)
-         (goto-char (point-min))
-         (while (re-search-forward block nil t)
-           (replace-match " ")))
+        (with-silent-modifications
+          (erase-buffer)
+          (insert contents)
+          (put-text-property (point-min)
+                             (point-max)
+                             'invisible nil)
+          (goto-char (point-min))
+          (while (re-search-forward block nil t)
+            (replace-match " ")))
         (emacspeak-speak-region (point-min) (point-max)))
        (t (message "Not on a hidden block"))))))
 

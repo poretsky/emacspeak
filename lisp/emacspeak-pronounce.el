@@ -1,5 +1,5 @@
 ;;; emacspeak-pronounce.el --- Implements Emacspeak pronunciation dictionaries
-;;; $Id: emacspeak-pronounce.el 8276 2013-03-30 15:19:30Z tv.raman.tv $
+;;; $Id: emacspeak-pronounce.el 8574 2013-11-24 02:01:07Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description: Emacspeak pronunciation dictionaries
 ;;; Keywords:emacspeak, audio interface to emacs customized pronunciation
@@ -180,9 +180,10 @@ modes."
   (let* ((table (make-hash-table :test #'equal))
          (filename (buffer-file-name buffer))
          (directory (and filename (file-name-directory  filename)))
-         (mode  (save-excursion
-                  (set-buffer buffer)
-                  major-mode))
+         (mode
+          (save-current-buffer
+            (set-buffer buffer)
+            major-mode))
          (mode-supers (emacspeak-pronounce-get-supers mode))
          (file-alist (and filename (emacspeak-pronounce-get-dictionary filename)))
          (dir-alist (and directory (emacspeak-pronounce-get-dictionary directory)))
@@ -288,7 +289,7 @@ applied."
                     (file-name-nondirectory emacspeak-pronounce-dictionaries-file )))
          (buffer nil ))
     (setq buffer (find-file-noselect filename))
-    (save-excursion
+    (save-current-buffer
       (set-buffer buffer)
       (auto-fill-mode nil)
       (erase-buffer)
@@ -349,14 +350,15 @@ Optional argument FILENAME specifies the dictionary file."
   (interactive)
   (declare (special emacspeak-pronounce-yank-word-point
                     emacspeak-pronounce-current-buffer))
-  (let ((string (save-excursion
-                  (set-buffer emacspeak-pronounce-current-buffer)
-                  (goto-char emacspeak-pronounce-yank-word-point)
-                  (buffer-substring-no-properties
-                   (point)
-                   (save-excursion
-                     (forward-word 1)
-                     (setq emacspeak-pronounce-yank-word-point (point)))))))
+  (let ((string
+         (save-current-buffer
+           (set-buffer emacspeak-pronounce-current-buffer)
+           (goto-char emacspeak-pronounce-yank-word-point)
+           (buffer-substring-no-properties
+            (point)
+            (save-excursion
+              (forward-word 1)
+              (setq emacspeak-pronounce-yank-word-point (point)))))))
     (insert string)
     (dtk-speak string)))
 
@@ -629,7 +631,7 @@ pronunciation dictionary for the specified key."
         (inhibit-read-only t))
     (when (get-buffer buffer-name) (kill-buffer buffer-name))
     (setq buffer (get-buffer-create buffer-name))
-    (save-excursion
+    (save-current-buffer
       (set-buffer  buffer)
       (widget-insert "\n")
       (widget-insert

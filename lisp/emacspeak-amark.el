@@ -49,14 +49,12 @@
 
 ;;;; This library will be used from emacspeak-m-player,
 ;;emacspeak-alsaplayer and friends to set and jump to bookmarks.
-
+;;; Code:
 ;;}}}
 ;;{{{  Required modules
-
-;;; Code:
 (require 'cl)
 (declaim  (optimize  (safety 0) (speed 3)))
-
+(require 'emacspeak-sounds)
 ;;}}}
 ;;{{{ Structure:
 
@@ -110,10 +108,11 @@ AMarks are bookmarks in audio content."
   (interactive)
   (declare (special emacspeak-amark-file))
   (let ((l emacspeak-amark-list)
+        (print-length nil)
         (buff
          (find-file-noselect
           (expand-file-name emacspeak-amark-file default-directory))))
-    (save-excursion
+    (save-current-buffer
       (set-buffer buff)
       (setq buffer-undo-list t)
       (erase-buffer)
@@ -140,7 +139,7 @@ AMarks are bookmarks in audio content."
         (message "No AMarks found.")))
      (t (setq buff
               (find-file-noselect (expand-file-name emacspeak-amark-file where)))
-        (save-excursion
+        (save-current-buffer
           (set-buffer buff)
           (goto-char (point-min))
           (setq l (read buff))

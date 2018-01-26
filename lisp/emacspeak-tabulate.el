@@ -1,5 +1,5 @@
 ;;; emacspeak-tabulate.el --- Interpret tabulated information as a table
-;;; $Id: emacspeak-tabulate.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
+;;; $Id: emacspeak-tabulate.el 8574 2013-11-24 02:01:07Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $ 
 ;;; Description:  Utility to help emacspeak identify tabulated information
 ;;; Keywords: Emacspeak, Tabulated Data,  Visual layout gives structure
@@ -141,7 +141,7 @@ Fields are assumed to be delimited by whitespace. "
 (defsubst ems-tabulate-process-column (tl tr br bl mark-headers start)
   (let ((header ( buffer-substring  tl tr))
         (personality-table (emacspeak-possible-voices)))
-    (emacspeak-voicify-rectangle
+    (emacspeak-voiceify-rectangle
      tl br 
      (read (completing-read
             (format "Personality for column %s from  %s through %s"
@@ -171,44 +171,44 @@ in the white-space."
         (tr nil)
         (br nil)
         (bl nil))
-    (ems-modify-buffer-safely
-     (progn
-       (message   "Detected %s rows and  %s columns."
-                  (count-lines start end)
-                  (+ 1 (length white-space )))
-       (sit-for 1.5)
-       (save-excursion
-         (goto-char end)
-         (beginning-of-line)
-         (setq bl  (point))
-         (setq tl  start )
+    (with-silent-modifications
+      (progn
+        (message   "Detected %s rows and  %s columns."
+                   (count-lines start end)
+                   (+ 1 (length white-space )))
+        (sit-for 1.5)
+        (save-excursion
+          (goto-char end)
+          (beginning-of-line)
+          (setq bl  (point))
+          (setq tl  start )
                                         ;(goto-char tl )
-         (setq width   (ems-interval-start (car white-space)))
-         (setq tr (+ tl width)
-               br (+ bl width))
-         (ems-tabulate-process-column tl tr br bl mark-fields start)
-         (while white-space
+          (setq width   (ems-interval-start (car white-space)))
+          (setq tr (+ tl width)
+                br (+ bl width))
+          (ems-tabulate-process-column tl tr br bl mark-fields start)
+          (while white-space
                                         ;move to beginning of next column
-           (goto-char (+ start (ems-interval-end (car white-space))))
-           (setq tl (point))
+            (goto-char (+ start (ems-interval-end (car white-space))))
+            (setq tl (point))
                                         ; width of space between columns 
-           (setq width (- tl tr))
-           (setq bl (+ br width))
-           (setq white-space (cdr white-space))
+            (setq width (- tl tr))
+            (setq bl (+ br width))
+            (setq white-space (cdr white-space))
                                         ;Now detect right edges of this column 
-           (cond
-            (white-space
+            (cond
+             (white-space
                                         ;white-space holds column positions, not buffer positions
-             (setq width (- (ems-interval-start (car white-space ))
-                            (- tl start)))
-             (setq tr (+ tl width)
-                   br (+ bl width)))
-            (t (goto-char start)
-               (end-of-line)
-               (setq tr (point)
-                     br end)))
-           (ems-tabulate-process-column tl tr br bl
-                                        mark-fields start)))))))
+              (setq width (- (ems-interval-start (car white-space ))
+                             (- tl start)))
+              (setq tr (+ tl width)
+                    br (+ bl width)))
+             (t (goto-char start)
+                (end-of-line)
+                (setq tr (point)
+                      br end)))
+            (ems-tabulate-process-column tl tr br bl
+                                         mark-fields start)))))))
 
 ;;}}}
 ;;{{{ Parse a region of tabular data

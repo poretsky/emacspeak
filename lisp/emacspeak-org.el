@@ -1,5 +1,5 @@
 ;;; emacspeak-org.el --- Speech-enable org
-;;; $Id: emacspeak-org.el 8336 2013-05-09 15:31:37Z tv.raman.tv $
+;;; $Id: emacspeak-org.el 8395 2013-08-21 15:20:06Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak front-end for ORG
 ;;; Keywords: Emacspeak, org
@@ -132,7 +132,7 @@
 
 (loop for f in
       '(org-mark-ring-goto org-mark-ring-push
-                           org-forward-same-level org-backward-same-level
+                           org-forward-heading-same-level org-backward-heading-same-level
                            org-next-link org-previous-link org-open-at-point
                            org-goto  org-goto-ret
                            org-goto-left org-goto-right
@@ -286,7 +286,6 @@
           (when (ems-interactive-p )
             (emacspeak-auditory-icon 'select-object)
             (dtk-speak org-last-changed-timestamp)))))
-            
 
 (defadvice org-eval-in-calendar (after emacspeak pre act comp)
   "Speak what is returned."

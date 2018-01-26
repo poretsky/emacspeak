@@ -1,5 +1,5 @@
 ;;; emacspeak-forms.el --- Speech enable Emacs' forms mode  -- provides  a convenient database interface
-;;; $Id: emacspeak-forms.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
+;;; $Id: emacspeak-forms.el 8535 2013-11-13 01:49:39Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $ 
 ;;; DescriptionEmacspeak extensions for forms-mode 
 ;;; Keywords:emacspeak, audio interface to emacs forms 
@@ -222,7 +222,7 @@ Assumes that point is at the front of a field value."
   (interactive)
   (declare (special forms--file-buffer
                     forms--total-records forms-read-only))
-  (save-excursion
+  (save-current-buffer
     (set-buffer forms--file-buffer)
     (let ((inhibit-read-only t)
           (file-modified (buffer-modified-p)))
@@ -234,7 +234,6 @@ Assumes that point is at the front of a field value."
           (save-excursion
             (prog1
                 (progn
-                  ;;(message "forms: counting records...")
                   (set-buffer forms--file-buffer)
                   (bury-buffer (current-buffer))
                   (setq ro buffer-read-only)

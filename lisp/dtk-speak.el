@@ -1,5 +1,5 @@
 ;;; dtk-speak.el --- Provides Emacs Lisp interface to speech server
-;;;$Id: dtk-speak.el 8276 2013-03-30 15:19:30Z tv.raman.tv $
+;;;$Id: dtk-speak.el 8500 2013-11-02 01:54:49Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacs interface to TTS
 ;;; Keywords: Dectalk Emacs Elisp
@@ -75,6 +75,11 @@ outloud     For IBM ViaVoice Outloud
 multispeech For Multilingual speech server
 espeak      For eSpeak
 The default is dtk-exp.")
+
+(defvar dtk-program-args
+  (when (getenv "DTK_PROGRAM_ARGS")
+    (split-string   (getenv "DTK_PROGRAM_ARGS")))
+  "Arguments passed to the dtk-program")
 
 (defvar emacspeak-pronounce-pronunciation-table)
 (defvar emacspeak-ssh-tts-server )
@@ -325,12 +330,12 @@ Argument PITCH   is specified in hertz.
 Argument DURATION  is specified in milliseconds.
 Optional argument FORCE  flushes the command to the speech server."
   (declare (special dtk-quiet dtk-speaker-process
-                    dtk-use-tones
-                    dtk-speak-server-initialized))
-  (unless dtk-quiet
-    (when (and dtk-use-tones
-               dtk-speak-server-initialized)
-      (dtk-interp-tone pitch duration force))))
+                    dtk-use-tones dtk-speak-server-initialized))
+  (unless
+      (or dtk-quiet
+          (not dtk-use-tones)
+          (not dtk-speak-server-initialized))
+    (dtk-interp-tone pitch duration force)))
 
 (defun dtk-set-language (lang)
   "Set language according to the argument lang."
@@ -605,10 +610,14 @@ Argument COMPLEMENT  is the complement of separator."
 
 (defsubst dtk-speak-using-voice (voice text)
   "Use voice VOICE to speak text TEXT."
-  (declare (special tts-voice-reset-code))
+  (declare (special tts-voice-reset-code dtk-quiet))
+                                        ; ensure text is a  string
+  (unless (stringp text) (setq text (format "%s" text)))
   (unless (or (eq 'inaudible voice )
-              (and (listp voice)
-                   (member 'inaudible voice)))
+              dtk-quiet
+              (null text)
+              (string-equal  text "")
+              (and (listp voice) (memq 'inaudible voice)))
     (dtk-interp-queue-code
      (cond
       ((symbolp voice)
@@ -1709,10 +1718,11 @@ Port  defaults to  dtk-local-server-port"
   (let ((new-process nil)
         (process-connection-type  nil))
     (setq new-process
-          (start-process
-           "speaker"
-           (and dtk-debug tts-debug-buffer)
-           (expand-file-name dtk-program emacspeak-servers-directory)))
+          (apply 'start-process
+                 "speaker"
+                 (and dtk-debug tts-debug-buffer)
+                 (expand-file-name dtk-program emacspeak-servers-directory)
+                 dtk-program-args))
     (setq dtk-speak-server-initialized
           (or (eq 'run (process-status new-process ))
               (eq 'open (process-status new-process))))
@@ -1730,6 +1740,7 @@ Port  defaults to  dtk-local-server-port"
      (t
       (when (ems-interactive-p )
         (message "The speech server is not running."))))))
+
 ;;;###autoload
 (defun tts-restart ()
   "Use this to nuke the currently running TTS server and restart it."
@@ -1806,6 +1817,8 @@ only speak upto the first ctrl-m."
                     dtk-split-caps
                     emacspeak-pronounce-pronunciation-table
                     selective-display ))
+                                        ; ensure text is a  string
+  (unless (stringp text) (setq text (format "%s" text)))
                                         ; ensure  the process  is live
   (unless (or (eq 'run (process-status dtk-speaker-process ))
               (eq 'open (process-status dtk-speaker-process )))
@@ -1813,8 +1826,11 @@ only speak upto the first ctrl-m."
                                         ; If you dont want me to talk,
                                         ;or my server is not
                                         ;running, I will remain silent.
+                                        ; Do nothing if text is ""
   (unless
       (or dtk-quiet
+          (null text)
+          (string-equal text "")
           (not dtk-speak-server-initialized))
                                         ; flush previous speech if asked to
     (when dtk-stop-immediately (dtk-stop ))
@@ -1826,6 +1842,7 @@ only speak upto the first ctrl-m."
              (setq text (substring  text 0 ctrl-m ))
              (emacspeak-auditory-icon 'ellipses))))
     (let ((inhibit-point-motion-hooks t)
+          (deactivate-mark nil)
           (invisibility-spec buffer-invisibility-spec)
           (syntax-table (syntax-table ))
           (inherit-speaker-process dtk-speaker-process)
@@ -1942,8 +1959,11 @@ Optional argument group-count specifies grouping for intonation."
   "Say these WORDS."
   (declare (special dtk-speaker-process dtk-stop-immediately
                     dtk-speak-server-initialized dtk-quiet))
+                                        ; ensure words is a  string
+  (unless (stringp words) (setq words (format "%s" words)))
   ;; I wont talk if you dont want me to
-  (unless dtk-quiet
+  (unless
+      (or dtk-quiet (string-equal words ""))
     (or (eq 'run (process-status dtk-speaker-process ))
         (eq 'open (process-status dtk-speaker-process ))
         (dtk-initialize))

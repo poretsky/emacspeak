@@ -1,5 +1,5 @@
 ;;; emacspeak-eterm.el --- Speech enable eterm -- Emacs' terminal emulator  term.el
-;;; $Id: emacspeak-eterm.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
+;;; $Id: emacspeak-eterm.el 8534 2013-11-13 01:43:12Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $ 
 ;;; Description:  Emacspeak extension to speech enable eterm. 
 ;;; Keywords: Emacspeak, Eterm, Terminal emulation, Spoken Output
@@ -1315,7 +1315,7 @@ emacspeak-eterm-remote-hostnames")
   (when (file-exists-p emacspeak-eterm-remote-hosts-cache )
     (let ((host nil)
           (hosts (find-file-noselect emacspeak-eterm-remote-hosts-cache)))
-      (save-excursion
+      (save-current-buffer
         (set-buffer hosts)
         (goto-char (point-min))
         (while (not (eobp))
@@ -1335,7 +1335,7 @@ emacspeak-eterm-remote-hostnames")
                     emacspeak-eterm-remote-hosts-cache))
   (let ((buffer (find-file-noselect
                  emacspeak-eterm-remote-hosts-cache)))
-    (save-excursion
+    (save-current-buffer
       (set-buffer buffer)
       (goto-char (point-max))
       (insert (format "%s\n" host))

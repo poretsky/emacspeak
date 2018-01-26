@@ -1,5 +1,5 @@
 ;;; emacspeak-filtertext.el --- Utilities to filter text
-;;; $Id: emacspeak-filtertext.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
+;;; $Id: emacspeak-filtertext.el 8534 2013-11-13 01:43:12Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:   Implement text filters 
 ;;; Keywords: Emacspeak, Audio Desktop
@@ -98,7 +98,7 @@ preparation for interactively filtering text. "
   (let ((this (buffer-substring-no-properties start end))
         (buffer (get-buffer-create
                  (format "filter-%s" (buffer-name)))))
-    (save-excursion
+    (save-current-buffer
       (set-buffer buffer)
       (setq case-fold-search t)
       (erase-buffer)

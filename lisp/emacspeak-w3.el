@@ -1,5 +1,5 @@
 ;;; emacspeak-w3.el --- Speech enable W3 WWW browser -- includes ACSS Support
-;;; $Id: emacspeak-w3.el 8276 2013-03-30 15:19:30Z tv.raman.tv $
+;;; $Id: emacspeak-w3.el 8500 2013-11-02 01:54:49Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak enhancements for W3
 ;;; Keywords: Emacspeak, W3, WWW
@@ -173,7 +173,8 @@
           ( "\C-t" emacspeak-google-command)
           ("'" emacspeak-speak-rest-of-buffer)
           ("\"" emacspeak-speak-skim-buffer)
-          ("/" emacspeak-webutils-google-similar-to-this-page)
+          ("/" search-forward)
+          ("?" emacspeak-webutils-google-similar-to-this-page)
           (":" emacspeak-w3-speak-this-element)
           ("J" w3-table-move-to-next-table-row)
           ("K" w3-table-move-to-previous-table-row)
@@ -562,19 +563,19 @@ element. "
 (setq url-http-version "1.0")
 
 (defadvice w3-fetch-callback
-  (around emacspeak pre act comp)
+    (around emacspeak pre act comp)
   "silence spoken messages."
   (let ((emacspeak-speak-messages nil))
     ad-do-it))
 
 (defadvice url-http-content-length-after-change-function
-  (around emacspeak pre act comp)
+    (around emacspeak pre act comp)
   "silence spoken messages."
   (let ((emacspeak-speak-messages nil))
     ad-do-it))
 
 (defadvice url-http-chunked-encoding-after-change-function
-  (around emacspeak pre act comp)
+    (around emacspeak pre act comp)
   "silence spoken messages."
   (let ((emacspeak-speak-messages nil))
     ad-do-it))
@@ -586,21 +587,21 @@ element. "
 ;;     ad-do-it))
 
 (defadvice url-cookie-handle-set-cookie
-  (around emacspeak pre act comp)
+    (around emacspeak pre act comp)
   "silence spoken messages."
   (let ((emacspeak-speak-messages nil))
     ad-do-it
     ad-return-value))
 
 (defadvice url-cookie-write-file
-  (around emacspeak pre act comp)
+    (around emacspeak pre act comp)
   "silence spoken messages."
   (let ((emacspeak-speak-messages nil))
     ad-do-it
     ad-return-value))
 
 (defadvice url-lazy-message
-  (around emacspeak pre act comp)
+    (around emacspeak pre act comp)
   "silence spoken messages."
   (let ((emacspeak-speak-messages nil))
     ad-do-it))
@@ -832,7 +833,6 @@ HTML."
 ;;}}}
 ;;{{{ Fix url breakage in emacs 24 GIT:
 
-Tue Apr 24 17:33:27 PDT 2012
 ;;; pattern: http://www.google.com/url?q=http://emacspeak.sourceforge.net/&sa=U&ei=GceWT42_EY_ViALW84nlCQ&ved=0CBIQFjAA&usg=AFQjCNGz91Z7Yz9dPVoKPP6HVGZ0UqFhRA
 ;;; prefix: http://www.google.com/url?q=
 ;;; Suffix: &sa=...

@@ -1,5 +1,5 @@
 ;;; emacspeak-sounds.el --- Defines Emacspeak auditory icons
-;;; $Id: emacspeak-sounds.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
+;;; $Id: emacspeak-sounds.el 8395 2013-08-21 15:20:06Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Module for adding sound cues to emacspeak
 ;;; Keywords:emacspeak, audio interface to emacs, auditory icons
@@ -294,12 +294,8 @@ See command `emacspeak-toggle-auditory-icons' bound to \\[emacspeak-toggle-audit
 ;;}}}
 ;;{{{  Play an icon
 
-(defcustom emacspeak-play-args ""
-  "Set this to -i  if using the play program that ships on sunos/solaris.
-Note: on sparc20's there is a sunos bug that causes the machine to crash if
-you attempt to play sound when /dev/audio is busy.
-It's imperative that you use the -i flag to play on
-sparc20's."
+(defcustom emacspeak-play-args "-n"
+  "Set this to nil if using paplay from pulseaudio."
   :type 'string
   :group 'emacspeak-sounds)
 
@@ -307,13 +303,15 @@ sparc20's."
   "Produce auditory icon SOUND-NAME.
 Sound is produced only if `emacspeak-use-auditory-icons' is true.
 See command `emacspeak-toggle-auditory-icons' bound to \\[emacspeak-toggle-auditory-icons ]."
-  (declare (special  emacspeak-use-auditory-icons emacspeak-play-program))
+  (declare (special  emacspeak-use-auditory-icons
+                     emacspeak-play-program
+                     emacspeak-play-args))
   (and emacspeak-use-auditory-icons
        (let ((process-connection-type nil))
          (condition-case err
              (start-process
               emacspeak-play-program nil emacspeak-play-program
-              "-N"
+              emacspeak-play-args
               (emacspeak-get-sound-filename sound-name)
               "&")
            (error

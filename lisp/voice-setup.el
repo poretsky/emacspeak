@@ -1,5 +1,5 @@
 ;;; voice-setup.el --- Setup voices for voice-lock
-;;; $Id: voice-setup.el 8285 2013-04-03 23:47:57Z tv.raman.tv $
+;;; $Id: voice-setup.el 8579 2013-11-25 19:57:31Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Voice lock mode for Emacspeak
 ;;{{{  LCD Archive entry:
@@ -88,7 +88,6 @@
 
 (require 'cl)
 (declaim  (optimize  (safety 0) (speed 3)))
-(require 'custom)
 (eval-when-compile (require 'easy-mmode))
 (require 'custom)
 (require 'acss-structure)
@@ -97,7 +96,7 @@
 (require 'mac-voices)
 (require 'espeak-voices)
 (require 'dectalk-voices)
-
+(require 'emacspeak-sounds)
 ;;}}}
 ;;{{{ customization group
 
@@ -422,6 +421,7 @@ punctuations.")
 
 (voice-setup-add-map
  '(
+   (shr-link voice-bolden)
    (bold voice-bolden)
    (variable-pitch voice-animate)
    (bold-italic voice-bolden-and-animate)

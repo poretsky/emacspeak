@@ -1,4 +1,4 @@
-# $Id: Makefile 7743 2012-05-05 03:23:15Z tv.raman.tv $
+# $Id: Makefile 8533 2013-11-12 16:32:20Z tv.raman.tv $
 # $Author: tv.raman.tv $
 # Description:  Makefile for Emacspeak
 # Keywords: Emacspeak,  TTS,Makefile
@@ -276,6 +276,7 @@ install:
 	  $(INSTALL) -m 0644  lisp/*.el lisp/*.elc  $(DESTDIR)$(libdir)/lisp
 	$(INSTALL) -m 0644  lisp/xml-forms/*.xml   $(DESTDIR)$(libdir)/lisp/xml-forms
 	$(INSTALL) -m 0644  lisp/g-client/*.el    $(DESTDIR)$(libdir)/lisp/g-client
+	$(INSTALL) -m 0644  lisp/g-client/*.elc    $(DESTDIR)$(libdir)/lisp/g-client
 	$(INSTALL) -m 0644  lisp/g-client/*.xsl    $(DESTDIR)$(libdir)/lisp/g-client
 	$(INSTALL) -m 0644  lisp/g-client/python/*.py    $(DESTDIR)$(libdir)/lisp/g-client/python
 	$(INSTALL) -m 0644  sawfish/*.jl sawfish/sawfishrc   $(DESTDIR)$(libdir)/sawfish

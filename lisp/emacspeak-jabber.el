@@ -1,5 +1,5 @@
 ;;; emacspeak-jabber.el --- Speech-Enable jabber
-;;; $Id: emacspeak-jabber.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
+;;; $Id: emacspeak-jabber.el 8500 2013-11-02 01:54:49Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description: speech-enable jabber
 ;;; Keywords: Emacspeak, jabber
@@ -181,12 +181,12 @@
   (when (or jabber-message-alert-same-buffer
             (not (memq (selected-window) (get-buffer-window-list buffer))))
     (emacspeak-auditory-icon 'progress)
-    (let ((dtk-stop-immediately nil))
-      (if (jabber-muc-sender-p from)
-          (format "Private message from %s in %s"
-                  (jabber-jid-resource from)
-                  (jabber-jid-displayname (jabber-jid-user from)))
-        (format "%s: %s" (jabber-jid-displayname from) text)))))
+    (dtk-speak
+     (if (jabber-muc-sender-p from)
+         (format "Private message from %s in %s"
+                 (jabber-jid-resource from)
+                 (jabber-jid-displayname (jabber-jid-user from)))
+       (format "%s: %s" (jabber-jid-displayname from) text)))))
 
 ;;{{{ interactive commands:
 

@@ -1,7 +1,7 @@
 ;;; emacspeak-enriched.el --- Audio Formatting for Emacs' WYSIWYG RichText  mode
-;;; $Id: emacspeak-enriched.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
+;;; $Id: emacspeak-enriched.el 8574 2013-11-24 02:01:07Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $ 
-;;; Description: Emacspeak module to speak voicify rich text
+;;; Description: Emacspeak module to speak voiceify rich text
 ;;; Keywords:emacspeak, audio interface to emacs rich text
 ;;{{{  LCD Archive entry: 
 
@@ -39,71 +39,71 @@
 
 ;;{{{  Introduction
 
-;;; emacspeak extensions to voicify rich  text.
+;;; emacspeak extensions to voiceify rich  text.
 
 ;;}}}
 ;;{{{ required modules
 (require 'emacspeak-preamble)
 
 ;;}}}
-;;{{{ voicify-faces 
+;;{{{ voiceify-faces 
 (defvar emacspeak-enriched-font-faces-to-voiceify
   (list 'bold 'italic   'bold-italic 'underlined)
   "List of font faces we voiceify")
 
 (defun emacspeak-enriched-voiceify-faces (start end)
   "Map base fonts to voices.
-Useful in voicifying rich text."
+Useful in voiceifying rich text."
   (interactive "r")
   (declare (special
             emacspeak-enriched-font-faces-to-voiceify))
   (set (make-local-variable 'voice-lock-mode) t)
-  (ems-modify-buffer-safely
-   (save-excursion
-     (goto-char start)
-     (let ((face nil )
-           (orig start)
-           (pos nil)
-           (justification-type nil))
-       (unless (get-text-property (point) 'justification)
-         (goto-char
-          (or
-           (next-single-property-change (point) 'justification
-                                        (current-buffer) end)
-           end)))
-       (while (and  (not (eobp))
-                    (< start end))
-         (setq justification-type (get-text-property (point) 'justification))
-         (save-excursion
-           (beginning-of-line)
-           (setq pos (point)))
-         (goto-char
-          (or
-           (next-single-property-change (point) 'justification
-                                        (current-buffer) end)
-           end))
-         (when justification-type
-           (put-text-property pos (point)
-                              'auditory-icon
-                              justification-type))
-         (setq start (point)))
-       (goto-char orig)
-       (while (and  (not (eobp))
-                    (< start end))
-         (setq face (get-text-property (point) 'face ))
-         (goto-char
-          (or
-           (next-single-property-change (point) 'face
-                                        (current-buffer) end)
-           end))
-         (when face 
-           (put-text-property start  (point)
-                              'personality
-                              (if (listp face)
-                                  (loop for f in emacspeak-enriched-font-faces-to-voiceify
-                                        thereis (find f face))
-                                face )))
-         (setq start (point))))))
+  (with-silent-modifications
+    (save-excursion
+      (goto-char start)
+      (let ((face nil )
+            (orig start)
+            (pos nil)
+            (justification-type nil))
+        (unless (get-text-property (point) 'justification)
+          (goto-char
+           (or
+            (next-single-property-change (point) 'justification
+                                         (current-buffer) end)
+            end)))
+        (while (and  (not (eobp))
+                     (< start end))
+          (setq justification-type (get-text-property (point) 'justification))
+          (save-excursion
+            (beginning-of-line)
+            (setq pos (point)))
+          (goto-char
+           (or
+            (next-single-property-change (point) 'justification
+                                         (current-buffer) end)
+            end))
+          (when justification-type
+            (put-text-property pos (point)
+                               'auditory-icon
+                               justification-type))
+          (setq start (point)))
+        (goto-char orig)
+        (while (and  (not (eobp))
+                     (< start end))
+          (setq face (get-text-property (point) 'face ))
+          (goto-char
+           (or
+            (next-single-property-change (point) 'face
+                                         (current-buffer) end)
+            end))
+          (when face 
+            (put-text-property start  (point)
+                               'personality
+                               (if (listp face)
+                                   (loop for f in emacspeak-enriched-font-faces-to-voiceify
+                                         thereis (find f face))
+                                 face )))
+          (setq start (point))))))
   (message "voicified faces"))
 
 ;;}}}

@@ -1,5 +1,5 @@
 ;;; emacspeak-erc.el --- speech-enable erc irc client
-;;; $Id: emacspeak-erc.el 8264 2013-03-29 00:48:04Z tv.raman.tv $
+;;; $Id: emacspeak-erc.el 8534 2013-11-13 01:43:12Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak module for speech-enabling erc.el
 ;;; Keywords: Emacspeak, erc
@@ -51,6 +51,7 @@
 ;;}}}
 ;;{{{ required modules
 (require 'emacspeak-preamble)
+(require 'erc)
 ;;}}}
 ;;{{{  variables
 
@@ -260,7 +261,7 @@ set the current local value to the result.")
                     emacspeak-erc-my-nick))
   (let ( (buffer (ad-get-arg 1))
          (case-fold-search t))
-    (save-excursion
+    (save-current-buffer
       (set-buffer buffer)
       (when (and emacspeak-erc-room-monitor
                  emacspeak-erc-monitor-my-messages)

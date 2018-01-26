@@ -1,5 +1,5 @@
 ;;; emacspeak-dired.el --- Speech enable Dired Mode -- A powerful File Manager
-;;; $Id: emacspeak-dired.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
+;;; $Id: emacspeak-dired.el 8574 2013-11-24 02:01:07Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak extension to speech enable dired
 ;;; Keywords: Emacspeak, Dired, Spoken Output
@@ -67,15 +67,9 @@
    ))
 ;;}}}
 ;;{{{  configure dired
-
-(declaim (special dired-listing-switches ))
-;;; ensure we have -al in the listing switches
-(if (and  dired-listing-switches
-          (not (string-match "^-al" dired-listing-switches)))
-    (setq dired-listing-switches
-          (concat "-al"
-                  (substring dired-listing-switches 1)))
-  (setq dired-listing-switches "-al"))
+;;; Not touching dired-listing-switches 
+;;; Emacspeak in 1994 forcibly set this to  a safe value
+;;; Removing in 2013, since we've now had custom for 13+ years.
 
 (defvar emacspeak-dired-pronunciations-defined nil
   "Internal variable used to ensure we define dired
@@ -98,7 +92,7 @@ pronunciations only once.")
 (defun emacspeak-dired-speak-line ()
   "Speak the dired line intelligently."
   (declare (special emacspeak-speak-last-spoken-word-position))
-  (let ((filename (dired-get-filename t t ))
+  (let ((filename (dired-get-filename 'no-dir  t ))
         (personality (get-text-property (point) 'personality)))
     (cond
      (filename
@@ -258,7 +252,7 @@ pronunciations only once.")
 
 (defun emacspeak-dired-label-fields-on-current-line ()
   "Labels the fields on a dired line.
-Assumes that `dired-listing-switches' contains  -al"
+Assumes that `dired-listing-switches' contains  -l"
   (let ((start nil)
         (fields (list "permissions"
                       "links"
@@ -284,11 +278,12 @@ Assumes that `dired-listing-switches' contains  -al"
 (defun emacspeak-dired-label-fields ()
   "Labels the fields of the listing in the dired buffer.
 Currently is a no-op  unless
-unless `dired-listing-switches' contains -al"
+unless `dired-listing-switches' contains -l"
   (interactive)
   (declare (special dired-listing-switches))
-  (when (save-match-data
-          (string-match  "al" dired-listing-switches))
+  (when
+      (save-match-data
+        (string-match  "l" dired-listing-switches))
     (let ((read-only buffer-read-only))
       (unwind-protect
           (progn

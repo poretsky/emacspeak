@@ -1,5 +1,5 @@
 ;;; emacspeak-ecb.el --- speech-enable Emacs Class Browser
-;;; $Id: emacspeak-ecb.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
+;;; $Id: emacspeak-ecb.el 8574 2013-11-24 02:01:07Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak module for speech-enabling Emacs
 ;;; Class Browser
@@ -165,7 +165,7 @@ available."
       'emacspeak-ecb-tree-expand-common-prefix)))
 
 (defadvice tree-buffer-incremental-node-search 
-  (around emacspeak pre act comp)
+    (around emacspeak pre act comp)
   "Track search and provide appropriate auditory feedback."
   
   (cond
@@ -184,10 +184,10 @@ available."
             (backward-char 1)
             (search-forward tree-buffer-incr-searchpattern)
             (setq end (point))
-            (ems-modify-buffer-safely
-             (ems-set-personality-temporarily
-              beg end   voice-bolden
-              (emacspeak-speak-line)))
+            (with-silent-modifications
+              (ems-set-personality-temporarily
+               beg end   voice-bolden
+               (emacspeak-speak-line)))
             (emacspeak-auditory-icon 'search-hit))))
        (t (emacspeak-auditory-icon 'search-miss)))))
    (t ad-do-it))

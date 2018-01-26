@@ -1,5 +1,5 @@
 ;;; g-app.el --- Google Client APP methods
-;;;$Id: g-app.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
+;;;$Id: g-app.el 8374 2013-07-27 19:33:27Z tv.raman.tv $
 ;;; $Author: raman $
 ;;; Description:  Google Client APP
 ;;; Keywords: Google   Atom API, Google Services
@@ -49,7 +49,7 @@
 ;;{{{  introduction
 
 ;;; Common Code  For APP
-;;; Used by modules like greader, gblogger etc.
+;;; Used by modules like gphoto, gblogger etc.
 
 ;;}}}
 ;;{{{  Required modules

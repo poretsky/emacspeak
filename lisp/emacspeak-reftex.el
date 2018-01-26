@@ -1,5 +1,5 @@
 ;;; emacspeak-reftex.el --- speech enable reftex
-;;; $Id: emacspeak-reftex.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
+;;; $Id: emacspeak-reftex.el 8574 2013-11-24 02:01:07Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak extension to speech enable
 ;;; reftex 
@@ -274,9 +274,9 @@
   "Add  voice properties."
   (let ((beg (ad-get-arg 1))
         (end (ad-get-arg 2)))
-    (ems-modify-buffer-safely
-     (put-text-property beg end
-                        'personality voice-bolden))
+    (with-silent-modifications
+      (put-text-property beg end
+                         'personality voice-bolden))
     (emacspeak-speak-line)
     (sit-for 2)))
 

@@ -1,5 +1,5 @@
 ;;; g-auth.el --- Google Authentication Module
-;;;$Id: g-auth.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
+;;;$Id: g-auth.el 8374 2013-07-27 19:33:27Z tv.raman.tv $
 ;;; $Author: raman $
 ;;; Description:  Google Authentication Module
 ;;; Keywords: Google   Auth
@@ -61,7 +61,7 @@
 ;;; 2) Cache this token for use during its lifetime.
 
 ;;; defstruct g-auth encapsulates this functionality.
-;;; See module greader.el for sample usage
+;;; See module gphoto.el for sample usage
 
 ;;}}}
 ;;{{{  Required modules

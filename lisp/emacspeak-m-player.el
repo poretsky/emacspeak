@@ -1,5 +1,5 @@
 ;;; emacspeak-m-player.el --- Control mplayer from Emacs
-;;; $Id: emacspeak-m-player.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
+;;; $Id: emacspeak-m-player.el 8574 2013-11-24 02:01:07Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description: Controlling mplayer from emacs 
 ;;; Keywords: Emacspeak, m-player streaming media 
@@ -184,6 +184,9 @@ on a specific directory."
                 (emacspeak-m-player-bind-accelerator directory key)))
             val)
            (set-default sym val)))
+(defvar emacspeak-media-directory-regexp
+  "\\(mp3\\)\\|\\(audio\\)"
+  "Pattern matching locations where we store media.")
 
 ;;;###autoload
 (defun emacspeak-multimedia  ()
@@ -246,8 +249,8 @@ on a specific directory."
   (let ((command
          (eval 
           `(defun 
-             ,(intern (format "emacspeak-m-player-accelerator-%s" (gensym)))
-             ()
+               ,(intern (format "emacspeak-m-player-accelerator-%s" (gensym)))
+               ()
              (interactive)
              (emacspeak-m-player-accelerator ,directory)))))
     (global-set-key key command)))
@@ -296,13 +299,19 @@ The player is placed in a buffer in emacspeak-m-player-mode."
    (list
     (let ((completion-ignore-case t)
           (emacspeak-speak-messages nil)
-          (read-file-name-completion-ignore-case t))
+          (read-file-name-completion-ignore-case t)
+          (ido-work-directory-list
+           (remove-if-not 
+            #'(lambda (d)
+                (string-match  emacspeak-media-directory-regexp  d))
+            ido-work-directory-list)))
       (read-file-name
        "MP3 Resource: "
        (emacspeak-m-player-guess-directory)
        (when (eq major-mode 'dired-mode) (dired-get-filename))))
     current-prefix-arg))
   (declare (special emacspeak-media-extensions default-directory
+                    emacspeak-media-directory-regexp
                     emacspeak-m-player-current-directory
                     emacspeak-media-shortcuts-directory emacspeak-m-player-process
                     emacspeak-m-player-program emacspeak-m-player-options))
@@ -340,7 +349,7 @@ The player is placed in a buffer in emacspeak-m-player-mode."
               emacspeak-media-extensions)))
            (t
             (nconc options (list resource)))))
-    (save-excursion
+    (save-current-buffer
       (setq emacspeak-m-player-process
             (apply 'start-process "M PLayer" buffer
                    emacspeak-m-player-program options))

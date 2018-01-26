@@ -1,5 +1,5 @@
 ;;; emacspeak-speak.el --- Implements Emacspeak's core speech services
-;;; $Id: emacspeak-speak.el 8321 2013-05-05 14:58:57Z tv.raman.tv $
+;;; $Id: emacspeak-speak.el 8578 2013-11-25 17:59:49Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Contains the functions for speaking various chunks of text
 ;;; Keywords: Emacspeak,  Spoken Output
@@ -108,7 +108,7 @@
   "Run shell command and speak its output."
   (let ((emacspeak-speak-messages nil)
         (output (get-buffer-create "*Emacspeak Shell Command*")))
-    (save-excursion
+    (save-current-buffer
       (set-buffer output)
       (erase-buffer)
       (shell-command
@@ -127,7 +127,7 @@
     (cond
      ((and completions
            (window-live-p (get-buffer-window completions )))
-      (save-excursion
+      (save-current-buffer
         (set-buffer completions )
         (dtk-chunk-on-white-space-and-punctuations)
         (next-completion 1)
@@ -141,43 +141,15 @@
 
 ;;; Save read-only and modification state, perform some actions and
 ;;; restore state
-(defmacro ems-modify-buffer-safely   (&rest body )
-  "Allow BODY to temporarily modify read-only content."
-  `(progn
-     (declare (special inhibit-point-motion-hooks))
-     (let    ((save-read-only buffer-read-only)
-              (buffer-read-only nil )
-              (save-inhibit-read-only inhibit-read-only)
-              (inhibit-read-only t)
-              (save-inhibit-point-motion-hooks inhibit-point-motion-hooks)
-              (inhibit-point-motion-hooks t)
-              (modification-flag (buffer-modified-p)))
-       (unwind-protect
-           ,@body 
-         (setq buffer-read-only save-read-only
-               inhibit-read-only save-inhibit-read-only
-               inhibit-point-motion-hooks save-inhibit-point-motion-hooks)
-         (set-buffer-modified-p modification-flag )))))
 
-(defmacro ems-set-personality-temporarily (start end value
-                                                 &rest body)
+(defmacro ems-set-personality-temporarily (start end value &rest body)
   "Temporarily set personality.
 Argument START   specifies the start of the region to operate on.
 Argument END specifies the end of the region.
 Argument VALUE is the personality to set temporarily
 Argument BODY specifies forms to execute."
-  `(progn
-     (let ((saved-personality (get-text-property
-                               ,start 'personality))
-           (save-read-only buffer-read-only)
-           (buffer-read-only nil )
-           (save-inhibit-read-only inhibit-read-only)
-           (inhibit-read-only t)
-           (save-inhibit-modification-hooks inhibit-modification-hooks)
-           (inhibit-modification-hooks nil)
-           (save-inhibit-point-motion-hooks inhibit-point-motion-hooks)
-           (inhibit-point-motion-hooks t)
-           (modification-flag (buffer-modified-p)))
+  `(let ((saved-personality (get-text-property ,start 'personality)))
+     (with-silent-modifications
        (unwind-protect
            (progn
              (put-text-property
@@ -187,12 +159,7 @@ Argument BODY specifies forms to execute."
              ,@body)
          (put-text-property
           (max (point-min) ,start)
-          (min (point-max)  ,end) 'personality saved-personality)
-         (setq buffer-read-only save-read-only
-               inhibit-read-only save-inhibit-read-only
-               inhibit-modification-hooks save-inhibit-modification-hooks
-               inhibit-point-motion-hooks save-inhibit-point-motion-hooks)
-         (set-buffer-modified-p modification-flag )))))
+          (min (point-max)  ,end) 'personality saved-personality)))))         
 
 (defmacro ems-with-errors-silenced  (&rest body)
   "Evaluate body  after temporarily silencing auditory error feedback."
@@ -223,13 +190,13 @@ Argument BODY specifies forms to execute."
   (interactive )
   (save-excursion
     (goto-char (point-max))
-    (ems-modify-buffer-safely
-     (let ((sound-cue 'paragraph))
-       (while (not (bobp))
-         (backward-paragraph)
-         (put-text-property  (point)
-                             (+ 2    (point ))
-                             'auditory-icon sound-cue ))))))
+    (with-silent-modifications
+      (let ((sound-cue 'paragraph))
+        (while (not (bobp))
+          (backward-paragraph)
+          (put-text-property  (point)
+                              (+ 2    (point ))
+                              'auditory-icon sound-cue ))))))
 
 (defcustom  emacspeak-speak-paragraph-personality voice-animate
   "*Personality used to mark start of paragraph."
@@ -255,16 +222,17 @@ Useful to do this before you listen to an entire buffer."
       (condition-case nil
           (let ((start nil)
                 (blank-line "\n[ \t\n\r]*\n")
-                (inhibit-point-motion-hooks t))
-            (ems-modify-buffer-safely
-             (while (re-search-forward blank-line nil t)
-               (skip-syntax-forward " ")
-               (setq start (point))
-               (unless (get-text-property start 'personality)
-                 (skip-syntax-forward "^ ")
-                 (put-text-property start (point)
-                                    'personality
-                                    emacspeak-speak-paragraph-personality)))))
+                (inhibit-point-motion-hooks t)
+                (deactivate-mark nil))
+            (with-silent-modifications
+              (while (re-search-forward blank-line nil t)
+                (skip-syntax-forward " ")
+                (setq start (point))
+                (unless (get-text-property start 'personality)
+                  (skip-syntax-forward "^ ")
+                  (put-text-property start (point)
+                                     'personality
+                                     emacspeak-speak-paragraph-personality)))))
         (error nil))
       (setq emacspeak-speak-voice-annotated-paragraphs t))))
 
@@ -589,18 +557,18 @@ current local  value to the result.")
         (pair nil)
         (personality (if invert-filter nil
                        'inaudible)))
-    (ems-modify-buffer-safely
-     (when invert-filter
-       (put-text-property  0   l
-                           'personality 'inaudible line))
-     (while filter
-       (setq pair (pop filter))
-       (when (and (<= (first pair) l)
-                  (<= (second pair) l))
-         (put-text-property (first pair)
-                            (second pair)
-                            'personality personality
-                            line))))
+    (with-silent-modifications
+      (when invert-filter
+        (put-text-property  0   l
+                            'personality 'inaudible line))
+      (while filter
+        (setq pair (pop filter))
+        (when (and (<= (first pair) l)
+                   (<= (second pair) l))
+          (put-text-property (first pair)
+                             (second pair)
+                             'personality personality
+                             line))))
     line))
 
 (defsubst emacspeak-speak-persist-filter-entry (k v)
@@ -638,7 +606,7 @@ emacspeak-speak-filter-table)\n" k v )))
                     emacspeak-speak-filter-table))
   (let ((buffer (find-file-noselect
                  emacspeak-speak-filter-persistent-store)))
-    (save-excursion
+    (save-current-buffer
       (set-buffer buffer)
       (erase-buffer)
       (maphash 'emacspeak-speak-persist-filter-entry
@@ -705,7 +673,8 @@ Argument START  and END specify region to speak."
   (interactive "r" )
   (declare (special emacspeak-speak-voice-annotated-paragraphs
                     inhibit-point-motion-hooks))
-  (let ((inhibit-point-motion-hooks t))
+  (let ((inhibit-point-motion-hooks t)
+        (deactivate-mark nil))
     (when (not emacspeak-speak-voice-annotated-paragraphs)
       (save-restriction
         (narrow-to-region start end )
@@ -819,96 +788,94 @@ start hidden blocks of text, e.g.  outline header lines, or header
 lines of blocks created by command `emacspeak-hide-or-expose-block'
 are indicated with auditory icon ellipses."
   (interactive "P")
-  (declare (special  voice-animate
-                     voice-indent dtk-stop-immediately
-                     inhibit-field-text-motion
-                     emacspeak-speak-line-invert-filter
-                     dtk-punctuation-mode
-                     emacspeak-speak-space-regexp
-                     emacspeak-speak-maximum-line-length
-                     emacspeak-show-point
-                     emacspeak-decoration-rule emacspeak-horizontal-rule
-                     emacspeak-unspeakable-rule emacspeak-audio-indentation))
-  (when dtk-stop-immediately (dtk-stop))
-  (when (listp arg) (setq arg (car arg )))
-  (save-excursion
-    (let ((inhibit-field-text-motion t)
-          (start  nil)
-          (end nil )
-          (inhibit-point-motion-hooks t)
-          (line nil)
-          (orig (point))
-          (indent nil))
-      (beginning-of-line)
-      (emacspeak-handle-action-at-point)
-      (setq start (point))
-      (setq end (line-end-position))
+  (declare
+   (special voice-animate voice-indent
+            dtk-quiet dtk-stop-immediately dtk-punctuation-mode
+            emacspeak-speak-line-invert-filter emacspeak-speak-space-regexp
+            emacspeak-speak-maximum-line-length emacspeak-show-point
+            emacspeak-decoration-rule emacspeak-horizontal-rule
+            emacspeak-unspeakable-rule emacspeak-audio-indentation))
+  (unless dtk-quiet 
+    (when dtk-stop-immediately (dtk-stop))
+    (when (listp arg) (setq arg (car arg )))
+    (save-excursion
+      (let ((inhibit-field-text-motion t)
+            (start  nil)
+            (end nil )
+            (inhibit-point-motion-hooks t)
+            (line nil)
+            (orig (point))
+            (indent nil))
+        (beginning-of-line)
+        (emacspeak-handle-action-at-point)
+        (setq start (point))
+        (setq end (line-end-position))
                                         ;determine what to speak based on prefix arg
-      (cond
-       ((null arg))
-       ((> arg 0) (setq start orig))
-       (t (setq end orig)))
-      (setq line
-            (if emacspeak-show-point
-                (ems-set-personality-temporarily
-                 orig (1+ orig)
-                 voice-animate (buffer-substring  start end ))
-              (buffer-substring start end )))
-      (when (and (null arg)
-                 emacspeak-speak-line-column-filter)
+        (cond
+         ((null arg))
+         ((> arg 0) (setq start orig))
+         (t (setq end orig)))
         (setq line
-              (emacspeak-speak-line-apply-column-filter
-               line emacspeak-speak-line-invert-filter)))
-      (when (and emacspeak-audio-indentation (null arg ))
-        (let ((limit (line-end-position)))
-          (beginning-of-line)
-          (skip-syntax-forward " " limit)
-          (setq indent  (current-column )))
-        (when (eq emacspeak-audio-indentation-method 'tone)
-          (emacspeak-indent indent )))
-      (when (or
-             (invisible-p end)
-             (get-text-property  start 'emacspeak-hidden-block))
-        (emacspeak-auditory-icon 'ellipses))
-      (cond
-       ((string-equal ""  line)
-        (dtk-tone 250   75 'force))
-       ((string-match  emacspeak-speak-space-regexp  line) ;only white space
-        (dtk-tone 300   120 'force))
-       ((and (not (eq 'all dtk-punctuation-mode))
-             (string-match  emacspeak-horizontal-rule line))
-        (dtk-tone 350   100 t))
-       ((and (not (eq 'all dtk-punctuation-mode))
-             (string-match  emacspeak-decoration-rule line) )
-        (dtk-tone 450   100 t))
-       ((and (not (eq 'all dtk-punctuation-mode))
-             (string-match  emacspeak-unspeakable-rule line))
-        (dtk-tone 550   100 t))
-       (t
-        (let*
-            ((l (length line))
-             (speakable ;; should we speak this line?
+              (if emacspeak-show-point
+                  (ems-set-personality-temporarily
+                   orig (1+ orig)
+                   voice-animate (buffer-substring  start end ))
+                (buffer-substring start end )))
+        (when (and (null arg)
+                   emacspeak-speak-line-column-filter)
+          (setq line
+                (emacspeak-speak-line-apply-column-filter
+                 line emacspeak-speak-line-invert-filter)))
+        (when (and emacspeak-audio-indentation (null arg ))
+          (let ((limit (line-end-position)))
+            (beginning-of-line)
+            (skip-syntax-forward " " limit)
+            (setq indent  (current-column )))
+          (when (eq emacspeak-audio-indentation-method 'tone)
+            (emacspeak-indent indent )))
+        (when
+            (or (invisible-p end)
+                (get-text-property  start 'emacspeak-hidden-block))
+          (emacspeak-auditory-icon 'ellipses))
+        (cond
+         ((string-equal ""  line)
+          (dtk-tone 250   75 'force))
+         ((string-match  emacspeak-speak-space-regexp  line) ;only white space
+          (dtk-tone 300   120 'force))
+         ((and (not (eq 'all dtk-punctuation-mode))
+               (string-match  emacspeak-horizontal-rule line))
+          (dtk-tone 350   100 t))
+         ((and (not (eq 'all dtk-punctuation-mode))
+               (string-match  emacspeak-decoration-rule line) )
+          (dtk-tone 450   100 t))
+         ((and (not (eq 'all dtk-punctuation-mode))
+               (string-match  emacspeak-unspeakable-rule line))
+          (dtk-tone 550   100 t))
+         (t
+          (let*
+              ((l (length line))
+               (speakable ;; should we speak this line?
+                (cond
+                 ((or selective-display
+                      (< l emacspeak-speak-maximum-line-length)
+                      (get-text-property start 'speak-line))
+                  t)
+                 ((y-or-n-p (format "Speak  this  %s long line? " l))
+                  (setq emacspeak-speak-maximum-line-length (1+ l))
+                  (with-silent-modifications
+                    (put-text-property start end 'speak-line t))
+                  t))))
+            (when  speakable
               (cond
-               ((or selective-display
-                    (< l emacspeak-speak-maximum-line-length)
-                    (get-text-property start 'speak-line))
-                t)
-               ((y-or-n-p (format "Speak  this  %s long line? " l))
-                (setq emacspeak-speak-maximum-line-length (1+ l))
-                (ems-modify-buffer-safely
-                 (put-text-property start end 'speak-line t))
-                t))))
-          (when  speakable
-            (cond
-             ((and indent
-                   (eq 'speak emacspeak-audio-indentation-method )
-                   (null arg )
-                   (> indent 0))
-              (setq indent (format "indent %d" indent))
-              (put-text-property   0 (length indent)
-                                   'personality voice-indent   indent )
-              (dtk-speak (concat indent line)))
-             (t (dtk-speak line))))))))))
+               ((and indent
+                     (eq 'speak emacspeak-audio-indentation-method )
+                     (null arg )
+                     (> indent 0))
+                (setq indent (format "indent %d" indent))
+                (put-text-property   0 (length indent)
+                                     'personality voice-indent   indent )
+                (dtk-speak (concat indent line)))
+               (t (dtk-speak line)))))))))))
 
 (defvar emacspeak-speak-last-spoken-word-position nil
   "Records position of the last word that was spoken.
@@ -1078,7 +1045,7 @@ Pronounces character phonetically unless  called with a PREFIX arg."
         (display (get-char-property (point) 'display)))
     (when char
       (cond
-       (display (dtk-speak display))
+       ((stringp display) (dtk-speak display))
        ((> char 128) (emacspeak-speak-char-name char))
        ((and (not prefix)
              (emacspeak-is-alpha-p char))
@@ -1093,7 +1060,7 @@ Pronounces character phonetically unless  called with a PREFIX arg."
         (display (get-char-property (1- (point)) 'display)))
     (when char
       (cond
-       (display (dtk-speak display))
+       ((stringp display) (dtk-speak display))
        ((> char 128) (emacspeak-speak-char-name char))
        (t (emacspeak-speak-this-char char))))))
 
@@ -1292,7 +1259,7 @@ Useful to listen to a buffer without switching  contexts."
    (list
     (read-buffer "Speak buffer: "
                  nil t)))
-  (save-excursion
+  (save-current-buffer
     (set-buffer buffer)
     (emacspeak-speak-buffer)))
 
@@ -1322,7 +1289,7 @@ Negative prefix arg speaks from start of buffer to point."
            (get-buffer "*Help*"))))
     (cond
      (help-buffer
-      (save-excursion
+      (save-current-buffer
         (set-buffer help-buffer)
         (emacspeak-speak-buffer arg )))
      (t (dtk-speak "First ask for help" )))))
@@ -1336,7 +1303,7 @@ Negative prefix arg speaks from start of buffer to point."
 Negative prefix arg speaks from start of buffer to point."
   (interactive "P" )
   (let ((minibuff (window-buffer (minibuffer-window ))))
-    (save-excursion
+    (save-current-buffer
       (set-buffer minibuff)
       (emacspeak-speak-buffer arg))))
 
@@ -2195,25 +2162,24 @@ Speak that chunk after moving."
 (defun emacspeak-execute-repeatedly (command)
   "Execute COMMAND repeatedly."
   (interactive
-   (list
-    (read-command "Command to execute repeatedly:")))  (let ((key "")
-                                                             (position (point ))
-                                                             (continue t )
-                                                             (message (format "Press space to execute %s again" command)))
-                                                         (while continue
-                                                           (call-interactively command )
-                                                           (cond
-                                                            ((= (point) position ) (setq continue nil))
-                                                            (t (setq position (point))
-                                                               (setq key
-                                                                     (let ((dtk-stop-immediately nil ))
-                                        ;(sit-for 2)
-                                                                       (read-key-sequence message )))
-                                                               (when(and (stringp key)
-                                                                         (not (=  32  (string-to-char key ))))
-                                                                 (dtk-stop)
-                                                                 (setq continue nil )))))
-                                                         (dtk-speak "Exited continuous mode ")))
+   (list (read-command "Command to execute repeatedly:")))
+  (let ((key "")
+        (position (point ))
+        (continue t )
+        (message (format "Press space to execute %s again" command)))
+    (while continue
+      (call-interactively command )
+      (cond
+       ((= (point) position ) (setq continue nil))
+       (t (setq position (point))
+          (setq key
+                (let ((dtk-stop-immediately nil ))
+                  (read-key-sequence message )))
+          (when(and (stringp key)
+                    (not (=  32  (string-to-char key ))))
+            (dtk-stop)
+            (setq continue nil )))))
+    (dtk-speak "Exited continuous mode ")))
 
 ;;;###autoload
 (defun emacspeak-speak-continuously ()
@@ -2224,10 +2190,9 @@ etc.  Speaking commences at current buffer position.  Pressing
 \\[keyboard-quit] breaks out, leaving point on last chunk that
 was spoken.  Any other key continues to speak the buffer."
   (interactive)
-  (let ((command (key-binding
-                  (read-key-sequence "Press key sequence to repeat: "))))
-    (unless command
-      (error "You specified an invalid key sequence.  " ))
+  (let ((command
+         (key-binding (read-key-sequence "Press key sequence to repeat: "))))
+    (unless command (error "You specified an invalid key sequence.  " ))
     (emacspeak-execute-repeatedly command)))
 
 ;;;###autoload
@@ -2492,16 +2457,17 @@ if `emacspeak-speak-message-again-should-copy-to-kill-ring' is set."
     (when (and (ems-interactive-p )
                emacspeak-speak-message-again-should-copy-to-kill-ring)
       (kill-new emacspeak-last-message)))
-   (t (save-excursion
-        (set-buffer "*Messages*")
-        (goto-char (point-max))
-        (skip-syntax-backward " ")
-        (emacspeak-speak-line)
-        (when (and (ems-interactive-p )
-                   emacspeak-speak-message-again-should-copy-to-kill-ring)
-          (kill-new
-           (buffer-substring (line-beginning-position)
-                             (line-end-position))))))))
+   (t
+    (save-current-buffer
+      (set-buffer "*Messages*")
+      (goto-char (point-max))
+      (skip-syntax-backward " ")
+      (emacspeak-speak-line)
+      (when (and (ems-interactive-p )
+                 emacspeak-speak-message-again-should-copy-to-kill-ring)
+        (kill-new
+         (buffer-substring (line-beginning-position)
+                           (line-end-position))))))))
 
 (defun emacspeak-announce (announcement)
   "Speak the ANNOUNCEMENT, if possible.
@@ -2551,7 +2517,7 @@ Optional argument ARG  specifies `other' window to speak."
   (save-excursion
     (save-window-excursion
       (other-window arg )
-      (save-excursion
+      (save-current-buffer
         (set-buffer (window-buffer))
         (emacspeak-speak-region
          (max (point-min) (window-start) )
@@ -2596,18 +2562,16 @@ Numeric prefix arg COUNT can specify number of lines to move."
   (interactive "p")
   (setq count (or count 1 ))
   (let  ((residue nil )
-         (old-buffer (current-buffer )))
-    (unwind-protect
-        (progn
-          (set-buffer (window-buffer (next-window )))
-          (end-of-line)
-          (setq residue (forward-line count))
-          (cond
-           ((> residue 0) (message "At bottom of other window "))
-           (t (set-window-point (get-buffer-window (current-buffer ))
-                                (point))
-              (emacspeak-speak-line ))))
-      (set-buffer old-buffer ))))
+         )
+    (save-current-buffer
+      (set-buffer (window-buffer (next-window )))
+      (end-of-line)
+      (setq residue (forward-line count))
+      (cond
+       ((> residue 0) (message "At bottom of other window "))
+       (t (set-window-point (get-buffer-window (current-buffer ))
+                            (point))
+          (emacspeak-speak-line ))))))
 
 ;;;###autoload
 (defun emacspeak-owindow-previous-line (count)
@@ -2615,31 +2579,26 @@ Numeric prefix arg COUNT can specify number of lines to move."
 Numeric prefix arg COUNT specifies number of lines to move."
   (interactive "p")
   (setq count (or count 1 ))
-  (let  ((residue nil )
-         (old-buffer (current-buffer )))
-    (unwind-protect
-        (progn
-          (set-buffer (window-buffer (next-window )))
-          (end-of-line)
-          (setq residue (forward-line (- count)))
-          (cond
-           ((> 0 residue) (message "At top of other window "))
-           (t (set-window-point (get-buffer-window (current-buffer ))
-                                (point))
-              (emacspeak-speak-line ))))
-      (set-buffer old-buffer ))))
+  (let  ((residue nil ))
+    (save-current-buffer
+      (set-buffer (window-buffer (next-window )))
+      (end-of-line)
+      (setq residue (forward-line (- count)))
+      (cond
+       ((> 0 residue) (message "At top of other window "))
+       (t (set-window-point (get-buffer-window (current-buffer ))
+                            (point))
+          (emacspeak-speak-line ))))))
 
 ;;;###autoload
 (defun emacspeak-owindow-speak-line ()
   "Speak the current line in the other window."
   (interactive)
-  (let  ((old-buffer (current-buffer )))
-    (unwind-protect
-        (progn
-          (set-buffer (window-buffer (next-window )))
-          (goto-char (window-point ))
-          (emacspeak-speak-line))
-      (set-buffer old-buffer ))))
+  (save-current-buffer
+    (set-buffer (window-buffer (next-window )))
+    (goto-char (window-point ))
+    (emacspeak-speak-line)))
+
 ;;;###autoload
 (defun emacspeak-speak-predefined-window (&optional arg)
   "Speak one of the first 10 windows on the screen.
@@ -2660,8 +2619,8 @@ Semantics  of `other' is the same as for the builtin Emacs command
               (error nil ))))))
     (or (numberp window)
         (setq window
-              (read-minibuffer "Window   between 1 and 9 to
-speak")))
+              (read-minibuffer
+               "Window   between 1 and 9 to speak")))
     (setq window (1- window))
     (save-excursion
       (save-window-excursion
@@ -2800,7 +2759,7 @@ Argument PERSONALITY gives the value for property personality."
                   (symbol-name key))))
 
 ;;;###autoload
-(defun emacspeak-voicify-rectangle (start end &optional personality )
+(defun emacspeak-voiceify-rectangle (start end &optional personality )
   "Voicify the current rectangle.
 When calling from a program,arguments are
 START END personality
@@ -2814,14 +2773,14 @@ Prompts for PERSONALITY  with completion when called interactively."
             (read
              (completing-read "Use personality: "
                               personality-table nil t ))))
-    (ems-modify-buffer-safely
-     (operate-on-rectangle
-      (function (lambda ( start-seg begextra endextra )
-                  (emacspeak-put-personality start-seg  (point) personality )))
-      start end  nil))))
+    (with-silent-modifications
+      (operate-on-rectangle
+       (function (lambda ( start-seg begextra endextra )
+                   (emacspeak-put-personality start-seg  (point) personality )))
+       start end  nil))))
 
 ;;;###autoload
-(defun emacspeak-voicify-region (start end &optional personality )
+(defun emacspeak-voiceify-region (start end &optional personality )
   "Voicify the current region.
 When calling from a program,arguments are
 START END personality.
@@ -3005,11 +2964,9 @@ builtin blink-paren function which does not talk."
 (defsubst emacspeak-overlay-get-text (o)
   "Return text under overlay OVERLAY.
 Argument O specifies overlay."
-  (save-excursion
+  (save-current-buffer
     (set-buffer (overlay-buffer o ))
-    (buffer-substring
-     (overlay-start o)
-     (overlay-end o ))))
+    (buffer-substring (overlay-start o) (overlay-end o ))))
 
 ;;}}}
 ;;{{{ Speaking spaces
@@ -3063,22 +3020,22 @@ Argument O specifies overlay."
 
 (defsubst emacspeak-get-minibuffer-contents ()
   "Return contents of the minibuffer."
-  (save-excursion
+  (save-current-buffer
     (set-buffer (window-buffer (minibuffer-window)))
     (minibuffer-contents-no-properties)))
 
 ;;; Make all occurrences of string inaudible
 (defsubst emacspeak-make-string-inaudible(string)
   (unless (string-match "^ *$" string)
-    (ems-modify-buffer-safely
-     (save-excursion
-       (goto-char (point-min))
-       (save-match-data
-         (ems-modify-buffer-safely
-          (while (search-forward string nil t)
-            (put-text-property (match-beginning 0)
-                               (match-end 0)
-                               'personality 'inaudible))))))))
+    (with-silent-modifications
+      (save-excursion
+        (goto-char (point-min))
+        (save-match-data
+          (with-silent-modifications
+            (while (search-forward string nil t)
+              (put-text-property (match-beginning 0)
+                                 (match-end 0)
+                                 'personality 'inaudible))))))))
 
 ;;;###autoload
 (defun emacspeak-switch-to-reference-buffer ()
@@ -3311,7 +3268,8 @@ which media players get silenced or paused/resumed."
 ;;{{{ Network interface utils:
 
 (defvar emacspeak-speak-network-interfaces-list
-  (mapcar 'car (network-interface-list))
+  (when (boundp 'network-interface-list)
+    (mapcar 'car (network-interface-list)))
   "Used when prompting for an interface to query.")
 
 (defsubst ems-get-ip-address  (&optional dev)
@@ -3325,7 +3283,8 @@ which media players get silenced or paused/resumed."
 
 (defsubst ems-get-active-network-interfaces  ()
   "Return  names of active network interfaces."
-  (mapconcat #'car (network-interface-list) " "))
+  (when (fboundp 'network-interface-list)
+    (mapconcat #'car (network-interface-list) " ")))
 
 ;;}}}
 ;;{{{ Show active network interfaces

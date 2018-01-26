@@ -1,5 +1,5 @@
 ;;; emacspeak-ispell.el --- Speech enable Ispell -- Emacs' interactive spell checker
-;;; $Id: emacspeak-flyspell.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
+;;; $Id: emacspeak-flyspell.el 8574 2013-11-24 02:01:07Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $ 
 ;;; Description:  Emacspeak extension to speech enable flyspell
 ;;; Keywords: Emacspeak, Ispell, Spoken Output, fly spell checking
@@ -46,8 +46,10 @@
 
 ;;}}}
 ;;{{{ Requires
+(require 'cl)
+(declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
-
+(require 'flyspell)
 ;;}}}
 ;;{{{  define personalities
 
@@ -95,9 +97,9 @@
   "Put property personality with value
 `voice-animate' from beg to end"
   (declare (special voice-animate))
-  (ems-modify-buffer-safely
-   (put-text-property beg end 'personality
-                      voice-animate))
+  (with-silent-modifications
+    (put-text-property beg end 'personality
+                       voice-animate))
   (emacspeak-speak-region beg end)
   nil)
 

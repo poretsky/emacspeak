@@ -1,5 +1,5 @@
 ;;; emacspeak-js2.el --- Speech-enable JS2
-;;; $Id: emacspeak-js2.el 8276 2013-03-30 15:19:30Z tv.raman.tv $
+;;; $Id: emacspeak-js2.el 8404 2013-09-06 17:13:23Z tv.raman.tv $
 ;;; $Author: raman $
 ;;; Description:  Speech-enable JS2 An Emacs Interface to js2
 ;;; Keywords: Emacspeak,  Audio Desktop js2
@@ -57,19 +57,19 @@
 
 (voice-setup-add-map
  '(
-   (js2-error-face voice-bolden-extra)
-   (js2-external-variable-face voice-animate) 
-   (js2-function-param-face voice-lighten-extra)
-   (js2-instance-member-face voice-lighten-medium)
-   (js2-jsdoc-html-tag-delimiter-face voice-smoothen)
-   (js2-jsdoc-html-tag-name-face voice-bolden-medium)
-   (js2-jsdoc-tag-face voice-bolden-medium)
-   (js2-jsdoc-type-face voice-smoothen-medium)
-   (js2-jsdoc-value-face voice-lighten-medium)
-   (js2-magic-paren-face voice-lighten)
-   (js2-private-function-call-face voice-smoothen-extra)
-   (js2-private-member-face voice-lighten-extra)
-   (js2-warning-face voice-bolden-and-animate)
+   (js2-error voice-bolden-extra)
+   (js2-external-variable voice-animate) 
+   (js2-function-param voice-lighten-extra)
+   (js2-instance-member voice-lighten-medium)
+   (js2-jsdoc-html-tag-delimiter voice-smoothen)
+   (js2-jsdoc-html-tag-name voice-bolden-medium)
+   (js2-jsdoc-tag voice-bolden-medium)
+   (js2-jsdoc-type voice-smoothen-medium)
+   (js2-jsdoc-value voice-lighten-medium)
+   (js2-magic-paren voice-lighten)
+   (js2-private-function-call voice-smoothen-extra)
+   (js2-private-member voice-lighten-extra)
+   (js2-warning voice-bolden-and-animate)
    ))
 
 ;;}}}

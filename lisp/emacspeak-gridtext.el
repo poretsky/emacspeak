@@ -1,5 +1,5 @@
 ;;; emacspeak-gridtext.el --- Overlay Grids To filter columnar text
-;;; $Id: emacspeak-gridtext.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
+;;; $Id: emacspeak-gridtext.el 8535 2013-11-13 01:49:39Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak module for laying grids on text
 ;;; Keywords: Emacspeak, gridtext
@@ -169,7 +169,7 @@ end   as specified by grid."
   (let ((buffer (find-file-noselect
                  (expand-file-name file
                                    emacspeak-resource-directory))))
-    (save-excursion
+    (save-current-buffer
       (set-buffer buffer)
       (erase-buffer)
       (loop for key being the hash-keys of

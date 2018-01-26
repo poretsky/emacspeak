@@ -1,5 +1,5 @@
 ;;; emacspeak-calendar.el --- Speech enable Emacs Calendar -- maintain a diary and appointments
-;;; $Id: emacspeak-calendar.el 8276 2013-03-30 15:19:30Z tv.raman.tv $
+;;; $Id: emacspeak-calendar.el 8574 2013-11-24 02:01:07Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak extensions to speech enable the calendar.
 ;;; Keywords: Emacspeak, Calendar, Spoken Output
@@ -47,6 +47,7 @@
 ;;; Code:
 (require 'emacspeak-preamble)
 (require 'calendar)
+(require 'appt)
 ;;}}}
 ;;{{{  personalities
 (voice-setup-add-map
@@ -56,7 +57,7 @@
    (diary-face voice-bolden)
    ))
 
-(defcustom emacspeak-calendar-mark-personality 'ursula
+(defcustom emacspeak-calendar-mark-personality voice-bolden
   "Personality to use when showing marked calendar entries."
   :type 'symbol
   :group 'emacspeak-calendar)
@@ -110,9 +111,8 @@
     (emacspeak-calendar-speak-date)))
 
 (declaim (special diary-display-hook))
-(when (boundp 'diary-display-hook)
-  (unless (memq 'fancy-diary-display diary-display-hook)
-    (add-hook 'diary-display-hook 'fancy-diary-display)))
+(when (boundp 'diary-display-function)
+  (add-hook 'diary-display-function 'fancy-diary-display))
 (add-hook 'calendar-mode-hook
           'gcal-emacs-calendar-setup)
 (add-hook 'calendar-mode-hook
@@ -134,22 +134,23 @@
     (let ((emacspeak-speak-messages nil))
       (cond
        ((buffer-live-p (get-buffer "*Fancy Diary Entries*"))
-        (save-excursion
+        (save-current-buffer
           (set-buffer "*Fancy Diary Entries*")
-          (tts-with-punctuations "some"
-                                 (emacspeak-speak-buffer))))
+          (tts-with-punctuations
+           "some"
+           (emacspeak-speak-buffer))))
        (t (dtk-speak "No diary entries."))))))
 
 (defadvice  mark-visible-calendar-date (after emacspeak pre act )
   "Use voice locking to mark date. "
   (let ((date (ad-get-arg 0 )))
     (if (calendar-date-is-valid-p date)
-        (save-excursion
+        (save-current-buffer
           (set-buffer calendar-buffer)
           (calendar-cursor-to-visible-date date)
-          (ems-modify-buffer-safely
-           (put-text-property  (1-(point)) (1+ (point))
-                               'personality   emacspeak-calendar-mark-personality ))))))
+          (with-silent-modifications
+            (put-text-property  (1-(point)) (1+ (point))
+                                'personality   emacspeak-calendar-mark-personality ))))))
 
 (defvar emacspeak-calendar-mode-line-format
   '((calendar-date-string (calendar-current-date))  "Calendar")
@@ -372,7 +373,7 @@
 (defun emacspeak-calendar-setup()
   "Set up appropriate bindings for calendar"
   (declare (special calendar-buffer calendar-mode-map emacspeak-prefix ))
-  (save-excursion
+  (save-current-buffer
     (set-buffer calendar-buffer)
     (local-unset-key emacspeak-prefix)
     (define-key calendar-mode-map "v" 'view-diary-entries)
@@ -409,9 +410,10 @@
 (defun emacspeak-appt-delete-display ()
   "Function to delete appointment message"
   (and (get-buffer appt-buffer-name)
-       (save-excursion
+       (save-current-buffer
          (set-buffer appt-buffer-name)
          (erase-buffer))))
+
 (declaim (special appt-delete-window
                   appt-disp-window-function))
 
@@ -425,7 +427,7 @@
   (let  ((appt-buffer (get-buffer appt-buffer-name)))
     (cond
      ( appt-buffer
-       (save-excursion
+       (save-current-buffer
          (set-buffer  appt-buffer)
          (emacspeak-dtk-sync)
          (if (= (point-min) (point-max))

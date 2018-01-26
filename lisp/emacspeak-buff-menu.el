@@ -1,5 +1,5 @@
 ;;; emacspeak-buff-menu.el --- Speech enable Buffer Menu Mode -- used to manage buffers
-;;; $Id: emacspeak-buff-menu.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
+;;; $Id: emacspeak-buff-menu.el 8534 2013-11-13 01:43:12Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $ 
 ;;; Description: Auditory interface to buff-menu
 ;;; Keywords: Emacspeak, Speak, Spoken Output, buff-menu
@@ -89,7 +89,7 @@
               this-buffer-mode-name
               this-buffer-directory
               (dtk-stop-immediately nil))
-          (save-excursion
+          (save-current-buffer
             (set-buffer buffer)
             (setq this-buffer-read-only buffer-read-only)
             (setq this-buffer-modified-p (buffer-modified-p))

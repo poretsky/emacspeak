@@ -1,5 +1,5 @@
 ;;; amixer.el --- Control AMixer from Emacs
-;;;$Id: amixer.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
+;;;$Id: amixer.el 8529 2013-11-11 20:23:38Z tv.raman.tv $
 ;;;Emacs front-end to AMixer
 ;;{{{  Copyright:
 
@@ -66,7 +66,7 @@
         (fields nil)
         (slots nil)
         (current nil))
-    (save-excursion
+    (save-current-buffer
       (set-buffer scratch)
       (setq buffer-undo-list t)
       (erase-buffer)
@@ -116,7 +116,7 @@
         (controls nil)
         (fields nil)
         (slots nil))
-    (save-excursion
+    (save-current-buffer
       (set-buffer scratch)
       (setq buffer-undo-list t)
       (erase-buffer)
@@ -159,7 +159,7 @@
   "Return list of enumerated values."
   (let ((buffer (get-buffer-create " *amixer*"))
         (values nil))
-    (save-excursion
+    (save-current-buffer
       (set-buffer buffer)
       (setq buffer-undo-list t)
       (erase-buffer)

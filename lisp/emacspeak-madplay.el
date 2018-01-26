@@ -1,5 +1,5 @@
 ;;; emacspeak-madplay.el --- Control madplay from Emacs
-;;; $Id: emacspeak-madplay.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
+;;; $Id: emacspeak-madplay.el 8535 2013-11-13 01:49:39Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description: Controlling madplay from emacs 
 ;;; Keywords: Emacspeak, madplay
@@ -52,6 +52,7 @@
 ;;{{{  Required modules
 
 (require 'emacspeak-preamble)
+(require 'emacspeak-aumix)
 (require 'desktop)
 (require 'dired)
 ;;}}}
@@ -65,7 +66,7 @@
 (define-prefix-command 'emacspeak-madplay-prefix-command
   'emacspeak-madplay-mode-map)
 
-(define-derived-mode emacspeak-madplay-mode fundamental-mode 
+(define-derived-mode emacspeak-madplay-mode special-mode 
   "Madplay Interaction"
   "Major mode for madplay interaction. \n\n
 \\{emacspeak-madplay-mode-map}"
@@ -85,7 +86,7 @@
   (declare (special emacspeak-madplay-process))
   (let*  ((buffer (process-buffer emacspeak-madplay-process))
           (mark nil))
-    (save-excursion
+    (save-current-buffer
       (set-buffer buffer)
       (setq mark (point-max))
       (process-send-string
@@ -169,7 +170,7 @@ The player is placed in a buffer in emacspeak-madplay-mode."
         (read-file-name-completion-ignore-case t)
         (buffer (get-buffer-create
                  emacspeak-madplay-buffer-name)))
-    (save-excursion
+    (save-current-buffer
       (set-buffer buffer)
       (erase-buffer)
       (setq emacspeak-madplay-process

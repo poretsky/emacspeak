@@ -1,5 +1,5 @@
 ;;; emacspeak-man.el --- Speech enable Man mode -- Use this for UNIX Man pages
-;;; $Id: emacspeak-man.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
+;;; $Id: emacspeak-man.el 8433 2013-10-23 00:24:02Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $ 
 ;;; DescriptionEmacspeak extensions for man-mode
 ;;; Keywords:emacspeak, audio interface to emacs man 
@@ -129,7 +129,7 @@ Also provide an auditory icon"
     (emacspeak-auditory-icon 'close-object)
     (emacspeak-speak-mode-line )))
 
-(defadvice manual-entry (after emacspeak pre act )
+(defadvice man (after emacspeak pre act )
   "Provide auditory feedback"
   (when (ems-interactive-p )
     (emacspeak-speak-mode-line )))

@@ -1,5 +1,5 @@
 ;;; emacspeak-xslt-process.el --- speech-enable xslt-process 
-;;; $Id: emacspeak-xslt-process.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
+;;; $Id: emacspeak-xslt-process.el 8574 2013-11-24 02:01:07Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak module for speech-enabling
 ;;; xslt-process mode
@@ -101,11 +101,11 @@
       (let ((start (point))
             (end (progn (end-of-line)
                         (point))))
-        (ems-modify-buffer-safely
-         (put-text-property start end
-                            'auditory-icon 'mark-object)
-         (put-text-property start end
-                            'personality voice-animate))
+        (with-silent-modifications
+          (put-text-property start end
+                             'auditory-icon 'mark-object)
+          (put-text-property start end
+                             'personality voice-animate))
         (emacspeak-speak-line)
         (emacspeak-auditory-icon 'mark-object)))))
 (defadvice xslt-process-remove-breakpoint (after emacspeak pre
@@ -117,9 +117,9 @@
       (let ((start (point))
             (end (progn (end-of-line)
                         (point))))
-        (ems-modify-buffer-safely
-         (put-text-property start end
-                            'auditory-icon nil))
+        (with-silent-modifications
+          (put-text-property start end
+                             'auditory-icon nil))
         (emacspeak-speak-line)
         (emacspeak-auditory-icon 'deselect-object)))))
 

@@ -1,5 +1,5 @@
 ;;; g.el --- Google Client
-;;;$Id: g.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
+;;;$Id: g.el 8374 2013-07-27 19:33:27Z tv.raman.tv $
 ;;; $Author: raman $
 ;;; Description:  Google Client
 ;;; Keywords: emacs g-client, Google   Atom API, Google Services
@@ -51,7 +51,7 @@
 ;;; Top-level bootstrap module for Google Client.
 ;;; Loads in authentication module and sets up per-service
 ;;modules:
-;;; Google Reader: greader
+;;; gmaps: Google Maps 
 ;;; Google Calendar: gcal
 ;;; ...
 

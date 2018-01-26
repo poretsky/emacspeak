@@ -1,5 +1,5 @@
 ;;; emacspeak-alsaplayer.el --- Control alsaplayer from Emacs
-;;; $Id: emacspeak-alsaplayer.el 8266 2013-03-29 00:52:59Z tv.raman.tv $
+;;; $Id: emacspeak-alsaplayer.el 8539 2013-11-13 17:05:25Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description: Controlling alsaplayer from emacs 
 ;;; Keywords: Emacspeak, alsaplayer
@@ -50,7 +50,7 @@
 
 ;;}}}
 ;;{{{  Required modules
-
+(require 'derived)
 (require 'emacspeak-preamble)
 (require 'emacspeak-amark)
 
@@ -78,9 +78,8 @@ grep path:")))
       (substring  path
                   (length (file-name-directory path))))
      (t "New Session"))))
-(declare-function fundamental-mode ())
 
-(define-derived-mode emacspeak-alsaplayer-mode fundamental-mode 
+(define-derived-mode emacspeak-alsaplayer-mode special-mode 
   "Alsaplayer Interaction"
   "Major mode for alsaplayer interaction. \n\n
 \\{emacspeak-alsaplayer-mode-map}"

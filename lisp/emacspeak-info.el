@@ -1,5 +1,5 @@
 ;;; emacspeak-info.el --- Speech enable Info -- Emacs' online documentation viewer
-;;; $Id: emacspeak-info.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
+;;; $Id: emacspeak-info.el 8577 2013-11-25 16:34:15Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Module for customizing Emacs info
 ;;; Keywords:emacspeak, audio interface to emacs
@@ -43,7 +43,7 @@
 ;;}}}
 ;;{{{ requires
 (require 'emacspeak-preamble)
-(eval-when-compile (require 'info))
+(require 'info)
 ;;}}}
 ;;{{{  Variables:
 
@@ -57,6 +57,7 @@
 ;;{{{  Voices
 (voice-setup-add-map
  '(
+   (info-index-match 'voice-bolden-medium)
    (info-title-1 voice-bolden-extra)
    (info-title-2 voice-bolden-medium)
    (info-title-3 voice-bolden)
@@ -176,14 +177,7 @@ and then cue the next selected buffer."
 
 ;;}}}
 ;;{{{  Emacs 21
-;;; There is a bug in Emacs 21 that causes info-extract-pointer to be
-;;; called erroneously.
 
-(defadvice Info-extract-pointer  (around emacspeak pre act comp)
-  "Silence emacspeak during call."
-  (let ((emacspeak-speak-messages nil)
-        (emacspeak-use-auditory-icons nil))
-    ad-do-it))
 ;;}}}
 ;;{{{ keymaps
 (declaim (special Info-mode-map))
@@ -205,6 +199,7 @@ node-spec."
   (emacspeak-info-visit-node))
 
 ;;}}}
+
 (provide  'emacspeak-info)
 ;;{{{  emacs local variables
 

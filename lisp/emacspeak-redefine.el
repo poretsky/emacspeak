@@ -1,5 +1,5 @@
 ;;; emacspeak-redefine.el --- Redefines some key Emacs builtins to speak
-;;; $Id: emacspeak-redefine.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
+;;; $Id: emacspeak-redefine.el 8511 2013-11-03 20:14:57Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak's redefinition of some key functions.
 ;;; Emacspeak does most of its work by advising other functions to speak.
@@ -95,7 +95,7 @@ Speech flushes as you type."
     (let ((display (get-char-property (1- (point)) 'display)))
       (dtk-stop)
       (cond
-       (display (dtk-say display))
+       ((stringp display) (dtk-say display))
        ((and emacspeak-word-echo
              (= (char-syntax last-command-event )32 ))
         (save-excursion
@@ -117,6 +117,7 @@ See  command emacspeak-toggle-word-echo bound to
 eech flushes as you type."
   (declare (special last-command-event 
                     emacspeak-character-echo emacspeak-word-echo))
+  (when buffer-read-only (dtk-speak "Buffer is read-only. "))
   (when
       (and (eq (preceding-char) last-command-event) ; Sanity check.
            (not executing-kbd-macro)
@@ -124,7 +125,7 @@ eech flushes as you type."
     (let ((display (get-char-property (1- (point)) 'display)))
       (dtk-stop)
       (cond
-       (display (dtk-say display))
+       ((stringp display) (dtk-say display))
        ((and emacspeak-word-echo
              (= (char-syntax last-command-event )32 ))
         (save-excursion
@@ -135,8 +136,15 @@ eech flushes as you type."
        (emacspeak-character-echo
         (emacspeak-speak-this-char (preceding-char)))))))
 (when (= 24 emacs-major-version)  
-  (add-hook 'post-self-insert-hook 'emacspeak-post-self-insert-hook))
-
+  (add-hook 'post-self-insert-hook
+            'emacspeak-post-self-insert-hook)
+  (unless (boundp 'command-error-function)
+    (defadvice self-insert-command (before emacspeak pre act comp)
+      "Provide feedback for read-only context."
+      (when (and (ems-interactive-p)
+                 (or buffer-read-only
+                     (get-text-property (point)  'read-only)))
+        (dtk-speak "Text is read-only")))))
 ;;;###autoload
 (defun emacspeak-forward-char (&optional arg)
   "Forward-char redefined to speak char moved to. "
@@ -179,7 +187,7 @@ eech flushes as you type."
        #'(lambda (key)
            (global-set-key key new-fn )))
      keys )))
-;;; self-insert-char is removed since we can use
+;;; self-insert-command is removed since we can use
 ;;; post-self-insert-hook
 
 (defvar emacspeak-functions-that-bypass-function-cell

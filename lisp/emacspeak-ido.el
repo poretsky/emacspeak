@@ -1,5 +1,5 @@
 ;;; emacspeak-ido.el --- speech-enable ido
-;;; $Id: emacspeak-ido.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
+;;; $Id: emacspeak-ido.el 8434 2013-10-23 00:28:28Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:   extension to speech enable ido
 ;;; Keywords: Emacspeak, Audio Desktop
@@ -58,7 +58,7 @@
 ;;{{{ required modules
 
 (require 'emacspeak-preamble)
-
+(require 'ido)
 ;;}}}
 ;;{{{ speech-enable feedback routines
 

@@ -1,5 +1,5 @@
 ;;; emacspeak-daisy.el --- daisy Front-end for emacspeak desktop
-;;; $Id: emacspeak-daisy.el 8262 2013-03-28 15:52:57Z tv.raman.tv $
+;;; $Id: emacspeak-daisy.el 8574 2013-11-24 02:01:07Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak front-end for DAISY Talking Books
 ;;; Keywords: Emacspeak, daisy Digital Talking Books
@@ -218,7 +218,7 @@ to convert and view Daisy Books as a Web page."
             (cons "base"
                   (format "'%s'"
                           path)))))
-    (save-excursion
+    (save-current-buffer
       (set-buffer result)
       (browse-url-of-buffer))
     (kill-buffer result)))
@@ -241,7 +241,7 @@ Contents are indexed by src."
   (let ((smil
          (find-file-noselect
           (emacspeak-daisy-resolve-uri src book))))
-    (save-excursion
+    (save-current-buffer
       (set-buffer smil)
       (goto-char (point-min))
       (search-forward"<smil")
@@ -549,7 +549,7 @@ navigation buffer that can be used to browse and read the book."
                           (file-name-nondirectory filename )))))
     (setf (emacspeak-daisy-book-content book)
           (make-hash-table :test #'equal))
-    (save-excursion
+    (save-current-buffer
       (set-buffer ncx)
       (goto-char (point-min))
       (search-forward"<ncx")
@@ -625,7 +625,7 @@ navigation buffer that can be used to browse and read the book."
         (bookmarks (emacspeak-daisy-collect-bookmarks-in-buffer))
         (buffer (find-file-noselect
                  (emacspeak-speak-get-directory-settings default-directory))))
-    (save-excursion
+    (save-current-buffer
       (set-buffer buffer)
       (goto-char (point-max))
       (insert
@@ -643,22 +643,22 @@ navigation buffer that can be used to browse and read the book."
   "Applies specified list of bookmarks to navigation buffer."
   (unless (eq major-mode 'emacspeak-daisy-mode)
     (error "Not in emacspeak-daisy-mode."))
-  (ems-modify-buffer-safely
-   (save-excursion
-     (goto-char (point-min))
-     (let ((entry nil)
-           (start nil)
-           (end nil)
-           (bookmark nil))
-       (while bookmarks
-         (setq entry (pop bookmarks))
-         (setq start (car (first entry))
-               end (cdr (first entry))
-               bookmark (second entry))
-         (put-text-property start end
-                            'bookmark bookmark)
-         (put-text-property start end
-                            'face 'highlight))))))
+  (with-silent-modifications
+    (save-excursion
+      (goto-char (point-min))
+      (let ((entry nil)
+            (start nil)
+            (end nil)
+            (bookmark nil))
+        (while bookmarks
+          (setq entry (pop bookmarks))
+          (setq start (car (first entry))
+                end (cdr (first entry))
+                bookmark (second entry))
+          (put-text-property start end
+                             'bookmark bookmark)
+          (put-text-property start end
+                             'face 'highlight))))))
 
 ;;;###autoload
 (defun emacspeak-daisy-mark-position-in-content-under-point ()
@@ -667,14 +667,14 @@ No-op if content under point is not currently displayed."
   (interactive)
   (cond
    ((get-text-property (point) 'viewer)
-    (ems-modify-buffer-safely
-     (put-text-property (line-beginning-position) (line-end-position)
-                        'bookmark
-                        (save-excursion
-                          (set-buffer (get-text-property (point) 'viewer))
-                          (point)))
-     (put-text-property (line-beginning-position) (line-end-position)
-                        'face 'highlight))
+    (with-silent-modifications
+      (put-text-property (line-beginning-position) (line-end-position)
+                         'bookmark
+                         (save-current-buffer
+                           (set-buffer (get-text-property (point) 'viewer))
+                           (point)))
+      (put-text-property (line-beginning-position) (line-end-position)
+                         'face 'highlight))
     (message "Marked position."))
    (t (message "Content not currently displayed."))))
 
@@ -734,7 +734,7 @@ No-op if content under point is not currently displayed."
   (setq outline-regexp regexp)
   (let ((buffer (find-file-noselect
                  (emacspeak-speak-get-directory-settings default-directory))))
-    (save-excursion
+    (save-current-buffer
       (set-buffer buffer)
       (goto-char (point-max))
       (insert
@@ -771,7 +771,7 @@ Also puts the displayed buffer in outline-minor-mode and gives it
              (outline-minor-mode 1)
              (setq outline-regexp ,outline)
              (rename-buffer title 'uniquely)
-             (save-excursion
+             (save-current-buffer
                (set-buffer ,nav-center)
                (put-text-property ,start ,end
                                   'viewer  buffer))
@@ -783,7 +783,7 @@ Also puts the displayed buffer in outline-minor-mode and gives it
 
 ;;}}}
 ;;{{{ w3 support update:
-eed to handle text/xml and application/xml
+;;; need to handle text/xml and application/xml
 (defun w3-fetch-callback (url)
   (w3-nasty-disgusting-http-equiv-handling (current-buffer) url)
   ;; Process any cookie and refresh headers.

@@ -1,5 +1,5 @@
 ;;; emacspeak-jde.el --- Speech enable JDE -- An integrated Java Development Environment
-;;; $Id: emacspeak-jde.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
+;;; $Id: emacspeak-jde.el 8574 2013-11-24 02:01:07Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $ 
 ;;; Description: Auditory interface to JDE
 ;;; Keywords: Emacspeak, Speak, Spoken Output, Java
@@ -196,9 +196,9 @@
       (beginning-of-line)
       (setq  start (point))
       (end-of-line)
-      (ems-modify-buffer-safely
-       (put-text-property start (point)
-                          'auditory-icon 'mark-object)))))
+      (with-silent-modifications
+        (put-text-property start (point)
+                           'auditory-icon 'mark-object)))))
 
 (defadvice jde-bug-remove-breakpoint-highlight (after emacspeak pre act comp)
   "Clear auditory annotation"
@@ -207,10 +207,10 @@
       (beginning-of-line)
       (setq  start (point))
       (end-of-line)
-      (ems-modify-buffer-safely
-       (remove-text-properties
-        start (point)
-        (list 'auditory-icon 'mark-object))))))
+      (with-silent-modifications
+        (remove-text-properties
+         start (point)
+         (list 'auditory-icon 'mark-object))))))
 
 (defadvice jde-bug-up-stack (after emacspeak pre act comp)
   "Speak the line we stepped to "

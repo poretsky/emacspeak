@@ -1,5 +1,5 @@
 ;;; emacspeak-keymap.el --- Setup all keymaps and keybindings provided by Emacspeak
-;;; $Id: emacspeak-keymap.el 8260 2013-03-28 15:21:49Z tv.raman.tv $
+;;; $Id: emacspeak-keymap.el 8574 2013-11-24 02:01:07Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Module for setting up emacspeak keybindings
 ;;; Keywords: Emacspeak
@@ -518,7 +518,7 @@ relief."
 ;;{{{  removing emacspeak-self-insert-command in non-edit modes.
 ;;;###autoload
 (defun emacspeak-keymap-remove-emacspeak-edit-commands
-  (keymap)
+    (keymap)
   "We define keys that invoke editing commands to be undefined"
   (loop for k in
         (where-is-internal 'emacspeak-self-insert-command

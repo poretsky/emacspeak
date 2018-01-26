@@ -1,5 +1,5 @@
 ;;; emacspeak-eperiodic.el --- Speech-enable Periodic Table
-;;; $Id: emacspeak-eperiodic.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
+;;; $Id: emacspeak-eperiodic.el 8575 2013-11-24 02:06:18Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak speech-enabler for Periodic Table
 ;;; Keywords: Emacspeak, periodic  Table
@@ -141,7 +141,7 @@
     (funcall emacspeak-media-player 
              (format  emacspeak-eperiodic-media-location
                       (eperiodic-get-element-property e 'symbol))
-             nil 'noselect)))
+             nil)))
 
 ;;}}}
 ;;{{{ advice interactive commands
@@ -179,7 +179,7 @@
     (let ((b (get-buffer "*EPeriodic Element*")))
       (unless b
         (error "Cannot find displayed info."))
-      (save-excursion
+      (save-current-buffer
         (set-buffer b)
         (emacspeak-speak-buffer)))))
 

@@ -1,5 +1,5 @@
 ;;; gweb.el --- Google Search
-;;;$Id: gweb.el 8158 2013-02-19 01:37:29Z tv.raman.tv $
+;;;$Id: gweb.el 8387 2013-08-18 00:02:05Z tv.raman.tv $
 ;;; $Author: raman $
 ;;; Description:  AJAX Search -> Lisp
 ;;; Keywords: Google   AJAX API
@@ -57,6 +57,7 @@
 
 (require 'cl)
 (declaim  (optimize  (safety 0) (speed 3)))
+(require 'json)
 (require 'g-utils)
 
 ;;}}}
@@ -91,21 +92,25 @@
 ;;; Service Names: (corpus)
 ;; youtube : 'youtube',
 ;; 			books : 'books',
-;; 			products : 'products',
-;; 			news : 'news',
-;; 			images : 'img',
+;; 			products : 'products-cc',
+;; 			news : 'news-cc',
+;; 			img : 'img',
 ;; 			web : 'psy'
+;; youtube: 'youtube
+ 
 (defvar gweb-suggest-url
   "http://clients1.google.com/complete/search?json=t&nohtml=t&nolabels=t&client=%s&q=%s"
   "URL  that gets suggestions from Google as JSON.")
 ;;; corpus is ds=n for News
+;;; ds=r for recipes 
 
 (defsubst gweb-suggest (input &optional corpus)
   "Get completion list from Google Suggest."
   (declare (special gweb-suggest-url))
   (unless (> (length input) 0) (setq input minibuffer-default))
   (g-using-scratch
-   (let ((url
+   (let ((js nil)
+         (url
           (format gweb-suggest-url (or corpus "psy")
                   (g-url-encode input))))
      (call-process
@@ -113,12 +118,13 @@
       nil t nil
       "-s" url)
      (goto-char (point-min))
-                                        ; nuke comma separator gives:   json array -> lisp vector
-     (while (re-search-forward "\"," nil t) (replace-match "\""))
-     (goto-char (point-min)))
-   ;; The  JSON array is now a vector. So  read it
-                                        ; and turn it into a list
-   (append (aref (read (current-buffer)) 1) nil)))
+     (setq js (json-read))
+     (setq js  (aref js 1))
+     (loop for e across js
+           collect
+           (replace-regexp-in-string
+            "</?b>" ""
+            (aref e 0))))))
 
 (defvar gweb-google-suggest-metadata
   '(metadata .
@@ -147,7 +153,7 @@
 
 ;;{{{  Generate suggest handlers for Google properties
 (loop for c in
-      '("news" "products" "youtube" "books")
+      '("news-cc" "products-cc" "youtube" "books" "img")
       do
       (eval
        `(defun
@@ -234,7 +240,7 @@ Uses specified corpus for prompting and suggest selection."
     (setq query
           (completing-read
            (or prompt "Google News: ")
-           'gweb-news-suggest-completer
+           'gweb-news-cc-suggest-completer
            nil nil
            word 'gweb-history))
     (pushnew  query gweb-history)

@@ -54,7 +54,9 @@
 (require 'cl)
 (declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
+(require 'dired)
 (require 'browse-url)
+(require 'emacspeak-we)
 (require 'emacspeak-webutils)
 (require 'emacspeak-xslt)
 (require 'xml-parse)
@@ -99,6 +101,7 @@ This is used by the various Bookshare view commands to display
   content from Daisy books."
   :type '(choice
           (function-item :tag "Emacs W3" :value  browse-url-w3)
+          (function-item :tag "Emacs EWW" :value  browse-url-eww)
           (function-item :tag "Mozilla" :value  browse-url-mozilla)
           (function-item :tag "Firefox" :value browse-url-firefox)
           (function-item :tag "Chromium" :value browse-url-chromium)
@@ -195,7 +198,7 @@ Optional argument `no-auth' says no user auth needed."
     (setq page (string-match "/page/" root))
     (cond
      (page
-      (setq page (split-string root "/page/"))Already paged once
+      (setq page (split-string root "/page/"));Already paged once
       (format "%s/page/%s/for/%s?api_key=%s"
               (first page)
               (1+ (read (second page)))
@@ -237,7 +240,7 @@ Argument id specifies content. Argument fmt = 0 for Braille, 1
          (coding-system-for-read 'binary)
          (coding-system-for-write 'binary)
          (buffer-undo-list t))
-     (save-excursion
+     (save-current-buffer
        (set-buffer buffer)
        (kill-all-local-variables)
        (erase-buffer)
@@ -619,8 +622,8 @@ b Browse
       do
       (eval
        `(defun
-          ,(intern (format "emacspeak-bookshare-%s-handler" container))
-          (element)
+            ,(intern (format "emacspeak-bookshare-%s-handler" container))
+            (element)
           "Process children silently."
           (mapc #'emacspeak-bookshare-apply-handler (xml-tag-children element)))))
 
@@ -752,8 +755,8 @@ b Browse
       do
       (eval
        `(defun
-          ,(intern (format "emacspeak-bookshare-%s-handler" e))
-          (element)
+            ,(intern (format "emacspeak-bookshare-%s-handler" e))
+            (element)
           ,(format "Handle leaf-level element  %s. " e)
           (insert (format "%s:\t" ,e))
           (mapc #'insert (xml-tag-children  element))
@@ -805,7 +808,7 @@ b Browse
       do
       (eval
        `(defsubst ,(intern (format "emacspeak-bookshare-get-%s" p)) ()
-          ,(format "Get %s at point. " p)
+          ,(format "Auto-generated function: Get %s at point. " p)
           (get-text-property (point) ',p))))
 
 ;;}}}
@@ -821,6 +824,7 @@ b Browse
           ("f" emacspeak-bookshare-flush-lines)
           ("v" emacspeak-bookshare-view)
           ("c" emacspeak-bookshare-toc-at-point)
+          ("\C-m" emacspeak-bookshare-toc-at-point)
           ("\M-n" emacspeak-bookshare-next-result)
           ("\M-p" emacspeak-bookshare-previous-result)
           ("["  backward-page)
@@ -1011,6 +1015,8 @@ Target location is generated from author and title."
 
 (defsubst emacspeak-bookshare-xslt (directory)
   "Return suitable XSL  transform."
+  (declare (special emacspeak-bookshare-xslt
+                    emacspeak-xslt-directory))
   (let ((xsl (expand-file-name emacspeak-bookshare-xslt directory)))
     (cond
      ((file-exists-p xsl) xsl)
@@ -1022,7 +1028,8 @@ Target location is generated from author and title."
 
 (defsubst emacspeak-bookshare-toc-xslt ()
   "Return suitable XSL  transform for TOC."
-  (declare (special emacspeak-bookshare-toc-xslt))
+  (declare (special emacspeak-bookshare-toc-xslt
+                    emacspeak-xslt-directory))
 
   (expand-file-name emacspeak-bookshare-toc-xslt emacspeak-xslt-directory))
 
@@ -1101,10 +1108,11 @@ Make sure it's downloaded and unpacked first."
 (defun emacspeak-bookshare-extract-and-view (url)
   "Extract content referred to by link under point, and render via the browser."
   (interactive "sURL: ")
-  (declare (special emacspeak-bookshare-browser-function))
+  (declare (special emacspeak-bookshare-browser-function
+                    emacspeak-xslt-directory))
   (let ((result (emacspeak-bookshare-extract-xml url))
         (browse-url-browser-function emacspeak-bookshare-browser-function))
-    (save-excursion
+    (save-current-buffer
       (set-buffer result)
       (emacspeak-webutils-autospeak)
       (browse-url-of-buffer ))))
@@ -1123,7 +1131,7 @@ Make sure it's downloaded and unpacked first."
             (cons "start" (format "'%s'" start ))
             (cons "end" (format "'%s'" end )))))
          (browse-url-browser-function emacspeak-bookshare-browser-function))
-    (save-excursion
+    (save-current-buffer
       (set-buffer result)
       (emacspeak-webutils-autospeak)
       (browse-url-of-buffer))

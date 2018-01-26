@@ -1,5 +1,5 @@
 ;;; emacspeak-xml-shell.el --- Implements a simple XML browser
-;;; $Id: emacspeak-xml-shell.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
+;;; $Id: emacspeak-xml-shell.el 8441 2013-10-23 00:59:13Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Contains  xml-shell
 ;;; Keywords: Emacspeak,  Audio Desktop Xml-Shell
@@ -51,6 +51,7 @@
 
 (require 'emacspeak-preamble)
 (require 'comint)
+(require 'emacspeak-xslt)
 ;;}}}
 ;;{{{ Customizations
 ;;;###autoload

@@ -1,5 +1,5 @@
 ;;; emacspeak-w3m.el --- speech-enables w3m-el
-;;;$Id: emacspeak-w3m.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
+;;;$Id: emacspeak-w3m.el 8500 2013-11-02 01:54:49Z tv.raman.tv $
 ;;{{{ Copyright
 
 ;;; This file is not part of Emacs, but the same terms and
@@ -86,7 +86,7 @@ instead of the modeline."
 (define-key w3m-mode-map "l" 'emacspeak-webutils-play-media-at-point)
 (define-key w3m-mode-map "\C-t" 'emacspeak-webutils-transcode-current-url-via-google)
 (define-key w3m-mode-map "\M-t" 'emacspeak-webutils-transcode-via-google)
-' Moved keybindings to avoid conflict with emacs org mode
+                                        ; Moved keybindings to avoid conflict with emacs org mode
                                         ; Avoid use of C-g on request of Raman due to concerns of misuse/confusion
                                         ; because C-g used for emacs quit 
                                         ; Moved google related operations to C-cg prefix, with exception of 

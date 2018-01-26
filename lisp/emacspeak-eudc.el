@@ -1,5 +1,5 @@
 ;;; emacspeak-eudc.el --- Speech enable  directory client 
-;;; $Id: emacspeak-eudc.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
+;;; $Id: emacspeak-eudc.el 8574 2013-11-24 02:01:07Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:   extension to speech enable universal directory client 
 ;;; Keywords: Emacspeak, Audio Desktop
@@ -162,10 +162,10 @@ Summarize the form to welcome the user. "
     ad-do-it)
    (t (let ((start (point)))
         ad-do-it
-        (ems-modify-buffer-safely
-         (put-text-property start (point)
-                            'personality
-                            emacspeak-eudc-attribute-value-personality)))))
+        (with-silent-modifications
+          (put-text-property start (point)
+                             'personality
+                             emacspeak-eudc-attribute-value-personality)))))
   ad-return-value)
 
 ;;}}}

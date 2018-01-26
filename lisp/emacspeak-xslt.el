@@ -1,5 +1,5 @@
 ;;; emacspeak-xslt.el --- Implements Emacspeak  xslt transform engine
-;;; $Id: emacspeak-xslt.el 8276 2013-03-30 15:19:30Z tv.raman.tv $
+;;; $Id: emacspeak-xslt.el 8574 2013-11-24 02:01:07Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  xslt transformation routines
 ;;; Keywords: Emacspeak,  Audio Desktop XSLT
@@ -70,7 +70,7 @@
    (cons "base"
          (format "\"'%s'\""
                  base))))
-
+(declaim (special emacspeak-xslt-directory))
 ;;;###autoload
 (defsubst emacspeak-xslt-get (style)
   "Return fully qualified stylesheet path."
@@ -217,7 +217,7 @@ part of the libxslt package."
              (or parameters "")
              xsl url
              (unless emacspeak-xslt-keep-errors " 2>/dev/null "))))
-    (save-excursion
+    (save-current-buffer
       (set-buffer result)
       (kill-all-local-variables)
       (erase-buffer)
@@ -253,8 +253,7 @@ and return the results in a newly created buffer.
   This uses XSLT processor xsltproc available as
 part of the libxslt package."
   (declare (special emacspeak-xslt-program
-                    emacspeak-xslt-use-wget-to-download
-                    modification-flag
+                    modification-flag emacspeak-xslt-use-wget-to-download
                     emacspeak-xslt-keep-errors))
   (let ((result (get-buffer-create " *xslt result*"))
         (command nil)
@@ -282,7 +281,7 @@ part of the libxslt package."
              (or parameters "")
              xsl url
              (unless emacspeak-xslt-keep-errors " 2>/dev/null "))))
-    (save-excursion
+    (save-current-buffer
       (set-buffer result)
       (kill-all-local-variables)
       (erase-buffer)
@@ -315,6 +314,7 @@ part of the libxslt package."
     (read-file-name "Style File: "
                     emacspeak-xslt-directory)
     (read-file-name "File:" default-directory)))
+  (declare (special emacspeak-xslt-directory))
   (with-temp-buffer
     (let ((coding-system-for-read 'utf-8)
           (coding-system-for-write 'utf-8)
@@ -339,7 +339,8 @@ part of the libxslt package."
      (read-file-name "XSL Transformation: "
                      emacspeak-xslt-directory))
     (read-string "URL: " (browse-url-url-at-point))))
-  (declare (special emacspeak-xslt-options))
+  (declare (special emacspeak-xslt-options
+                    emacspeak-xslt-directory))
   (emacspeak-webutils-with-xsl-environment
    style
    nil
@@ -363,7 +364,7 @@ part of the libxslt package."
                  (format "\"'%s'\""
                          url))))))
     (when (ems-interactive-p ) (emacspeak-webutils-autospeak))
-    (save-excursion
+    (save-current-buffer
       (set-buffer src-buffer)
       (when unescape-charent
         (emacspeak-webutils-unescape-charent (point-min) (point-max)))
@@ -381,9 +382,9 @@ part of the libxslt package."
     (mark)
     current-prefix-arg))
   (let ((src-buffer
-         (ems-modify-buffer-safely
-          (emacspeak-xslt-region style start end))))
-    (save-excursion
+         (with-silent-modifications
+           (emacspeak-xslt-region style start end))))
+    (save-current-buffer
       (set-buffer src-buffer)
       (when unescape-charent
         (emacspeak-webutils-unescape-charent (point-min) (point-max)))

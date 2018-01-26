@@ -1,5 +1,5 @@
 ;;; emacspeak.el --- Emacspeak -- The Complete Audio Desktop
-;;; $Id: emacspeak.el 8344 2013-05-11 16:15:32Z tv.raman.tv $
+;;; $Id: emacspeak.el 8580 2013-11-25 23:35:01Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak: A speech interface to Emacs
 ;;; Keywords: Emacspeak, Speech, Dectalk,
@@ -53,6 +53,7 @@
 (require 'cl)
 (declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
+(require 'dtk-speak)
 (require 'emacspeak-sounds)
 
 ;;}}}
@@ -165,6 +166,7 @@ speech-enabling extensions."
 (emacspeak-do-package-setup "pianobar" 'emacspeak-pianobar)
 (emacspeak-do-package-setup "proced" 'emacspeak-proced)
 (emacspeak-do-package-setup "ecb" 'emacspeak-ecb)
+(emacspeak-do-package-setup "ein" 'emacspeak-ein)
 (emacspeak-do-package-setup "cus-edit" 'emacspeak-custom)
 (emacspeak-do-package-setup "damlite" 'emacspeak-damlite)
 (emacspeak-do-package-setup "desktop" 'emacspeak-desktop )
@@ -185,6 +187,7 @@ speech-enabling extensions."
 (emacspeak-do-package-setup "eshell" 'emacspeak-eshell)
 (emacspeak-do-package-setup "ess" 'emacspeak-ess)
 (emacspeak-do-package-setup "eclim" 'emacspeak-eclim)
+(emacspeak-do-package-setup "eww" 'emacspeak-eww)
 (emacspeak-do-package-setup "enriched" 'emacspeak-enriched)
 (emacspeak-do-package-setup "facemenu" 'emacspeak-facemenu)
 (emacspeak-do-package-setup "find-dired" 'emacspeak-find-dired)
@@ -212,12 +215,12 @@ speech-enabling extensions."
 (emacspeak-do-package-setup "jde" 'emacspeak-jde)
 (emacspeak-do-package-setup "js2" 'emacspeak-js2)
 (emacspeak-do-package-setup "js2-mode" 'emacspeak-js2)
+(emacspeak-do-package-setup "jss" 'emacspeak-jss)
 (emacspeak-do-package-setup "kite" 'emacspeak-kite)
 (emacspeak-do-package-setup "kmacro" 'emacspeak-kmacro)
 (emacspeak-do-package-setup "magit" 'emacspeak-magit)
 (emacspeak-do-package-setup "make-mode" 'emacspeak-make-mode)
 (emacspeak-do-package-setup "man" 'emacspeak-man)
-(emacspeak-do-package-setup "moz" 'emacspeak-moz)
 (emacspeak-do-package-setup "message" 'emacspeak-message)
 (emacspeak-do-package-setup "meta-mode" 'emacspeak-metapost)
 (emacspeak-do-package-setup "mpg123" 'emacspeak-mpg123)
@@ -359,36 +362,37 @@ sets punctuation mode to all, activates the dictionary and turns on split caps."
    #'(lambda (hook)
        (add-hook hook
                  'emacspeak-setup-programming-mode))
-   (list 'c-mode-common-hook
-         'conf-unix-mode-hook
-         'prolog-mode-hook
-         'lisp-mode-hook
-         'emacs-lisp-mode-hook
-         'lisp-interaction-mode-hook
-         'javascript-mode-hook
-         'js2-mode-hook
-         'scala-mode-hook
-         'midge-mode-hook
-         'meta-common-mode-hook
-         'perl-mode-hook
-         'muse-mode-hook
-         'cperl-mode-hook
-         'sh-mode-hook
-         'ruby-mode-hook
-         'sql-mode-hook
-         'sgml-mode-hook
-         'xml-mode-hook
-         'nxml-mode-hook
-         'xsl-mode-hook
-         'makefile-mode-hook
-         'TeX-mode-hook
-         'LaTeX-mode-hook
-         'bibtex-mode-hook
-         'tcl-mode-hook
-         'html-helper-mode-hook
-         'scheme-mode-hook
-         'dired-mode-hook
-         'python-mode-hook)))
+   (list
+    'prog-mode-hook'c-mode-common-hook
+    'conf-unix-mode-hook
+    'prolog-mode-hook
+    'lisp-mode-hook
+    'emacs-lisp-mode-hook
+    'lisp-interaction-mode-hook
+    'javascript-mode-hook
+    'js2-mode-hook
+    'scala-mode-hook
+    'midge-mode-hook
+    'meta-common-mode-hook
+    'perl-mode-hook
+    'muse-mode-hook
+    'cperl-mode-hook
+    'sh-mode-hook
+    'ruby-mode-hook
+    'sql-mode-hook
+    'sgml-mode-hook
+    'xml-mode-hook
+    'nxml-mode-hook
+    'xsl-mode-hook
+    'makefile-mode-hook
+    'TeX-mode-hook
+    'LaTeX-mode-hook
+    'bibtex-mode-hook
+    'tcl-mode-hook
+    'html-helper-mode-hook
+    'scheme-mode-hook
+    'dired-mode-hook
+    'python-mode-hook)))
 
 ;;}}}
 ;;{{{ set up after-init-hook to fix interactive functions

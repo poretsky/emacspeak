@@ -1,5 +1,5 @@
 ;;; emacspeak-xslide.el --- Speech enable  XSL authoring
-;;; $Id: emacspeak-xslide.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
+;;; $Id: emacspeak-xslide.el 8500 2013-11-02 01:54:49Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:   extension to speech enable xslide
 ;;; Keywords: Emacspeak, Audio Desktop
@@ -115,10 +115,10 @@
 ;;}}}
 ;;{{{ voice locking
 
-(defvar xsl-xsl-alternate-personality
+(defvar xsl-alternate-personality
   voice-animate
-  "Personality used in xsl highlighting."
-  :group 'emacspeak-xslide)
+  "Personality used in xsl highlighting.")
+
 (defcustom xsl-fo-alternate-personality voice-monotone
   "Personality used in XSL highlighting."
   :group 'emacspeak-xslide)

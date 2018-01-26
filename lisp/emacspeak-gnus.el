@@ -1,5 +1,5 @@
 ;;; emacspeak-gnus.el --- Speech enable GNUS -- Fluent spoken access to usenet
-;;; $Id: emacspeak-gnus.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
+;;; $Id: emacspeak-gnus.el 8535 2013-11-13 01:49:39Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $ 
 ;;; Description:  Emacspeak extension to speech enable Gnus
 ;;; Keywords: Emacspeak, Gnus, Advice, Spoken Output, News
@@ -155,8 +155,7 @@ reading news."
   (declare (special emacspeak-gnus-large-article
                     voice-lock-mode dtk-punctuation-mode
                     gnus-article-buffer))
-  (save-excursion
-    (set-buffer  gnus-article-buffer)
+  (with-current-buffer gnus-article-buffer
     (goto-char (point-min))
     (setq dtk-punctuation-mode 'some)
     (emacspeak-dtk-sync)
@@ -652,8 +651,8 @@ indicating the article is being opened."
     (emacspeak-gnus-summary-speak-subject)
     (sit-for 2)
     (emacspeak-auditory-icon 'open-object)
-    (save-excursion
-      (set-buffer  gnus-article-buffer)
+    (with-current-buffer
+        gnus-article-buffer
       (emacspeak-dtk-sync)
       (let ((start  (point ))
             (window (get-buffer-window (current-buffer ))))
@@ -732,8 +731,8 @@ instead you hear only the first screenful.")
   (declare (special gnus-article-buffer))
   (dtk-stop)
   (emacspeak-auditory-icon 'scroll)
-  (save-excursion
-    (set-buffer  gnus-article-buffer)
+  (with-current-buffer
+      gnus-article-buffer
     (let ((start  (point ))
           (window (get-buffer-window (current-buffer ))))
       (with-selected-window window
@@ -747,7 +746,7 @@ instead you hear only the first screenful.")
   (declare (special gnus-article-buffer))
   (dtk-stop)
   (emacspeak-auditory-icon 'scroll)
-  (save-excursion
+  (save-current-buffer
     (set-buffer  gnus-article-buffer)
     (let ((start  (point ))
           (window (get-buffer-window (current-buffer ))))
@@ -760,16 +759,16 @@ instead you hear only the first screenful.")
 (defadvice gnus-summary-beginning-of-article (after emacspeak pre act)
   "Speak the first line. "
   (declare (special gnus-article-buffer))
-  (save-excursion
+  (save-current-buffer
     (set-buffer gnus-article-buffer)
     (emacspeak-speak-line )))
 
 (defadvice gnus-summary-end-of-article
 
-  (after emacspeak pre act)
+    (after emacspeak pre act)
   "Speak the first line. "
   (declare (special gnus-article-buffer))
-  (save-excursion
+  (save-current-buffer
     (set-buffer gnus-article-buffer)
     (emacspeak-speak-line )))
 

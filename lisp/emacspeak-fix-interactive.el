@@ -1,5 +1,5 @@
 ;;; emacspeak-fix-interactive.el --- Tools to make  Emacs' builtin prompts   speak
-;;; $Id: emacspeak-fix-interactive.el 8273 2013-03-29 15:41:45Z tv.raman.tv $
+;;; $Id: emacspeak-fix-interactive.el 8500 2013-11-02 01:54:49Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description: Fixes functions that use interactive to prompt for args.
 ;;; Approach suggested by hans@cs.buffalo.edu
@@ -123,7 +123,7 @@ use the minibuffer."
       (put sym 'emacspeak-auto-advised t)
       (eval
        `(defadvice ,sym
-          (before  emacspeak-auto pre act  protect compile)
+            (before  emacspeak-auto pre act  protect compile)
           "Automatically defined advice to speak interactive prompts. "
           (interactive
            (nconc
