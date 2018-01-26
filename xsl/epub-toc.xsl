@@ -41,6 +41,9 @@
         </xsl:attribute>
         <xsl:value-of select="./ns:navLabel/ns:text"/>
       </a>
+      <xsl:if test="ns:navPoint">
+        <ol><xsl:apply-templates select="ns:navPoint"/></ol>
+      </xsl:if>
     </li>
   </xsl:template>
 </xsl:stylesheet>

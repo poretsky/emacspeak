@@ -1,5 +1,5 @@
 ;;; emacspeak-man.el --- Speech enable Man mode -- Use this for UNIX Man pages
-;;; $Id: emacspeak-man.el 7323 2011-10-26 00:50:39Z tv.raman.tv $
+;;; $Id: emacspeak-man.el 7520 2012-02-27 01:07:12Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $ 
 ;;; DescriptionEmacspeak extensions for man-mode
 ;;; Keywords:emacspeak, audio interface to emacs man 
@@ -157,9 +157,7 @@ Also provide an auditory icon"
   (emacspeak-execute-repeatedly 'forward-paragraph))
 (autoload 'emacspeak-view-line-to-top 
   "emacspeak-view" "Move current line to top of window"  t)
-(declaim (special Man-mode-map))
-(eval-when (load)
-  )
+
 (declaim (special  Man-mode-map))
 (define-key Man-mode-map ";"
   'emacspeak-speak-current-window)
@@ -168,6 +166,8 @@ Also provide an auditory icon"
 (define-key Man-mode-map "." 'emacspeak-man-browse-man-page)
 (define-key Man-mode-map "t" 'emacspeak-view-line-to-top)
 (define-key Man-mode-map "'" 'emacspeak-speak-rest-of-buffer)
+(define-key Man-mode-map "N" 'emacspeak-speak-next-personality-chunk)
+(define-key Man-mode-map "P" 'emacspeak-speak-previous-personality-chunk)
 (define-key Man-mode-map "[" 'backward-paragraph)
 (define-key Man-mode-map "]" 'forward-paragraph)
 

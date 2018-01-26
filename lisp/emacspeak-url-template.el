@@ -1,5 +1,5 @@
 ;;; emacspeak-url-template.el --- Create library of URI templates
-;;; $Id: emacspeak-url-template.el 7425 2011-11-22 01:55:17Z tv.raman.tv $
+;;; $Id: emacspeak-url-template.el 7570 2012-03-11 16:20:35Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:   Implement library of URI templates
 ;;; Keywords: Emacspeak, Audio Desktop
@@ -557,9 +557,9 @@ dont-url-encode if true then url arguments are not url-encoded "
 
 (defun emacspeak-url-template-setup-content-filter ()
   "Set up content filter in displayed page."
-  (declare (special emacspeak-we-xpath-filter))
+  (declare (special emacspeak-we-xpath-filter emacspeak-we-paragraphs-xpath-filter))
   (setq emacspeak-we-xpath-filter
-        emacspeak-we-recent-xpath-filter))
+        emacspeak-we-paragraphs-xpath-filter))
 
 ;;}}}
 ;;{{{ webmaster tools
@@ -751,7 +751,9 @@ http://www.google.com/calendar/a/<my-corp>/m?output=xhtml"
 (emacspeak-url-template-define
  "YouTube Results"
  "http://gdata.youtube.com/feeds/api/videos?vq=%s"
- (list "YouTube:")
+ (list
+  #'(lambda ()
+      (gweb-google-autocomplete-with-corpus "youtube")))
  #'(lambda ()
      (declare (special emacspeak-we-url-executor))
      (setq emacspeak-we-url-executor
@@ -959,10 +961,10 @@ Here are some examples:
  "Google Scholar"
  "http://scholar.google.com/scholar?ie=UTF-8&oe=UTF-8&hl=en&btnG=Search&num=25&q=%s"
  (list "Google Scholar Search: ")
- #'(lambda nil
-     (search-forward "Results" nil t)
-     (emacspeak-speak-line))
- "Google Scholar Search")
+ nil
+ "Google Scholar Search"
+ #'(lambda (url)
+     (emacspeak-we-extract-by-class "gs_r" url 'speak)))
 
 ;;}}}
 ;;{{{ google images
@@ -1240,7 +1242,7 @@ from English to German.")
 
 (emacspeak-url-template-define
  "Tech News From CNet"
- "http://rss.com.com/2547-12-0-20.xml"
+ "http://news.com.com/2547-1_3-0-5.xml"
  nil
  'emacspeak-url-template-setup-content-filter
  "Display tech news from CNET"
@@ -1616,7 +1618,7 @@ name of the list.")
  "Read pulpit from PBS. Published on the Thursday of the week."
  #'(lambda (url)
      (emacspeak-we-xslt-filter
-      "//p" url 'speak)))
+      emacspeak-we-recent-xpath-filter url 'speak)))
 
 ;;}}}
 ;;{{{  The Linux Show

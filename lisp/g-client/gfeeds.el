@@ -1,5 +1,5 @@
 ;;; gfeeds.el --- Google Access To Feeds
-;;;$Id: gfeeds.el 6402 2009-11-25 16:13:26Z tv.raman.tv $
+;;;$Id: gfeeds.el 7472 2011-11-29 15:17:56Z tv.raman.tv $
 ;;; $Author: raman $
 ;;; Description:  AJAX Feeds -> Lisp
 ;;; Keywords: Google   AJAX Feeds API
@@ -83,8 +83,11 @@
   (format gfeeds-base-url "find")
   "Rest end-point for finding feeds.")
 
-(defvar gfeeds-referer "http://emacspeak.sf.net"
-  "Referer URL to send to the API.")
+(defcustom gfeeds-referer nil
+  "Referer URL to send to the API.
+Customize this to point to your Web location."
+  :type 'string
+  :group 'gfeeds)
 
 ;;}}}
 ;;{{{ gfeed Helpers
@@ -224,6 +227,14 @@ Interactive prefix arg causes the feed url to be looked up given a Web site."
        (insert html)
        (browse-url-of-buffer))))))
 
+;;;###autoload
+(defun gfeeds-lookup-and-view (site)
+  "Lookup feed URL for a site and browse result."
+  (interactive
+   (list
+    (read-from-minibuffer "Site: " (browse-url-url-at-point))))
+  (gfeeds-view site 'lookup))
+  
 ;;}}}
 (provide 'gfeeds)
 ;;{{{ end of file
@@ -235,7 +246,7 @@ Interactive prefix arg causes the feed url to be looked up given a Web site."
 
 ;;}}}
 ;;; gfeeds.el --- Google Feeds
-;;;$Id: gfeeds.el 6402 2009-11-25 16:13:26Z tv.raman.tv $
+;;;$Id: gfeeds.el 7472 2011-11-29 15:17:56Z tv.raman.tv $
 ;;; $Author: raman $
 ;;; Description:  AJAX Feeds -> Lisp
 ;;; Keywords: Google   AJAX API

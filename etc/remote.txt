@@ -1,5 +1,7 @@
 *Running Speech Server  remotely
 
+For  using ssh port forwarding, see remote-tts-setup.
+
 ** Using SSH 
 
 0) Make sure you can ssh from the remote machine to the local
@@ -60,7 +62,7 @@ typically use C-r
 Now for the script--
 
 #!/bin/sh
-#$Id: remote.txt 4047 2006-08-11 19:11:17Z tv.raman.tv $
+#$Id: remote.txt 7702 2012-04-19 15:38:21Z tv.raman.tv $
 #Description: Launch a speech server on  a remote host.
 remote=labrador
 tcl=/usr/local/bin/tcl

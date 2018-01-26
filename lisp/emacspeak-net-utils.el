@@ -1,5 +1,5 @@
 ;;; emacspeak-net-utils.el --- Speech enable net-utils
-;;; $Id: emacspeak-net-utils.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
+;;; $Id: emacspeak-net-utils.el 7733 2012-05-03 02:12:31Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $ 
 ;;; Description:  Emacspeak extension to speech enable net-utils
 ;;; Keywords: Emacspeak, network utilities 
@@ -55,8 +55,10 @@
     route
     traceroute
     ifconfig
+    iwconfig
     ping
     netstat
+    dns-lookup-host
     nslookup-host)
   "Commands to speech enable")
 

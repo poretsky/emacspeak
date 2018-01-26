@@ -1,4 +1,4 @@
-#$Id: .servers 6988 2011-04-24 16:24:29Z tv.raman.tv $
+#$Id: .servers 7509 2012-02-09 23:19:55Z tv.raman.tv $
 dtk-exp
 dtk-mv
 dtk-soft
@@ -11,3 +11,4 @@ espeak
 32-outloud
 ssh-32-outloud
 mac
+plain

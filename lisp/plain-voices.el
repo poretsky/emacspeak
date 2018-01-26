@@ -1,8 +1,8 @@
-;;; dectalk-voices.el --- Define various device independent voices in terms of Dectalk codes.
-;;; $Id: dectalk-voices.el 7511 2012-02-13 21:55:37Z tv.raman.tv $
+;;; plain-voices.el --- Define various device independent voices in terms of Plain codes.
+;;; $Id: plain-voices.el 6959 2011-04-01 15:39:52Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
-;;; Description:  Module to set up Dectalk voices and personalities
-;;; Keywords: Voice, Personality, Dectalk
+;;; Description:  Module to set up Plain voices and personalities
+;;; Keywords: Voice, Personality, Plain
 ;;{{{  LCD Archive entry:
 
 ;;; LCD Archive Entry:
@@ -42,7 +42,7 @@
 
 ;;; Commentary:
 ;;; This module defines the various voices used in voice-lock mode.
-;;; This module is Dectalk specific.
+;;; This module is Plain  i.e. suitable for a device  for which you haven't yet implemented appropriate voice-locking controls
 
 ;;}}}
 ;;{{{ required modules
@@ -54,15 +54,15 @@
 
 ;;}}}
 ;;{{{  Top-level TTS  switcher
+
 ;;;### autoload
-(defun dectalk ()
-  "Select Dectalk TTS server."
+(defun plain ()
+  "Select Plain TTS server."
   (interactive)
-  (dtk-select-server "dtk-exp")
+  (dtk-select-server "plain")
   (dtk-initialize))
 
 ;;;### autoload
-(defalias 'dtk-exp 'dectalk)
 
 ;;}}}
 ;;{{{ Forward declarations:
@@ -70,123 +70,122 @@
 ;;; From dtk-speak.el:
 
 (defvar tts-default-speech-rate )
-(defvar dectalk-default-speech-rate )
+(defvar plain-default-speech-rate 75)
 (defvar dtk-speech-rate-step )
 (defvar dtk-speech-rate-base )
 
 ;;}}}
 ;;{{{  voice table
 
-(defvar dectalk-default-voice-string ""
-  "Dectalk string for  default voice --set to be a no-op.")
+(defvar plain-default-voice-string ""
+  "Plain string for  default voice --set to be a no-op.")
 
-(defvar dectalk-voice-table (make-hash-table)
-  "Association between symbols and strings to set Dectalk voices.
-The string can set any Dectalk parameter.")
+(defvar plain-voice-table (make-hash-table)
+  "Association between symbols and strings to set Plain voices.
+The string can set any  parameter.")
 
-(defsubst dectalk-define-voice (name command-string)
-  "Define a Dectalk voice named NAME.
+(defsubst plain-define-voice (name command-string)
+  "Define a Plain voice named NAME.
 This voice will be set   by sending the string
-COMMAND-STRING to the Dectalk."
-  (declare (special dectalk-voice-table ))
-  (puthash  name command-string  dectalk-voice-table))
+COMMAND-STRING to the TTS server."
+  (declare (special plain-voice-table ))
+  (puthash  name command-string  plain-voice-table))
 
-(defsubst dectalk-get-voice-command (name)
+(defsubst plain-get-voice-command (name)
   "Retrieve command string for  voice NAME."
-  (declare (special dectalk-voice-table ))
+  (declare (special plain-voice-table ))
   (cond
    ((listp name)
-    (mapconcat #'dectalk-get-voice-command name " "))
-   (t (or  (gethash name dectalk-voice-table)
-           dectalk-default-voice-string))))
+    (mapconcat #'plain-get-voice-command name " "))
+   (t (or  (gethash name plain-voice-table)
+           plain-default-voice-string))))
 
-(defsubst dectalk-voice-defined-p (name)
+(defsubst plain-voice-defined-p (name)
   "Check if there is a voice named NAME defined."
-  (declare (special dectalk-voice-table ))
-  (gethash name dectalk-voice-table ))
+  (declare (special plain-voice-table ))
+  (gethash name plain-voice-table ))
 
 ;;}}}
 ;;{{{ voice definitions
 
 ;;; the nine predefined voices:
-(dectalk-define-voice 'paul "[:np ]")
-(dectalk-define-voice 'harry "[:nh ]")
-(dectalk-define-voice 'dennis "[:nd]")
-(dectalk-define-voice 'frank "[:nf]")
-(dectalk-define-voice 'betty "[:nb]")
-(dectalk-define-voice 'ursula "[:nu]")
-(dectalk-define-voice 'rita "[:nr]")
-(dectalk-define-voice 'wendy "[:nw]")
-(dectalk-define-voice 'kit "[:nk]")
+(plain-define-voice 'paul "")
+(plain-define-voice 'harry "")
+(plain-define-voice 'dennis "")
+(plain-define-voice 'frank "")
+(plain-define-voice 'betty "")
+(plain-define-voice 'ursula "")
+(plain-define-voice 'rita "")
+(plain-define-voice 'wendy "")
+(plain-define-voice 'kit "")
 
 ;;}}}
 ;;{{{  the inaudible voice
+
 ;;; no special code needed --handled by Emacspeak engine.
 
-(dectalk-define-voice 'inaudible "")
+(plain-define-voice 'inaudible "")
 
 ;;}}}
-;;{{{  Mapping css parameters to Dectalk codes
+;;{{{  Mapping css parameters to Plain codes
 
 ;;{{{ voice family codes
 
-(defvar dectalk-family-table nil
-  "Association list of Dectalk voice names and control codes.")
+(defvar plain-family-table nil
+  "Association list of Plain voice names and control codes.")
 
-(defsubst dectalk-set-family-code (name code)
+(defsubst plain-set-family-code (name code)
   "Set control code for voice family NAME  to CODE."
-  (declare (special dectalk-family-table))
-  (when (stringp name)
-    (setq name (intern name)))
-  (setq dectalk-family-table
+  (declare (special plain-family-table))
+  (when (stringp name) (setq name (intern name)))
+  (setq plain-family-table
         (cons (list name code )
-              dectalk-family-table)))
+              plain-family-table)))
 
-(defsubst dectalk-get-family-code (name)
+(defsubst plain-get-family-code (name)
   "Get control code for voice family NAME."
-  (declare (special dectalk-family-table ))
+  (declare (special plain-family-table ))
   (when (stringp name)
     (setq name (intern name )))
-  (or (cadr (assq  name dectalk-family-table))
+  (or (cadr (assq  name plain-family-table))
       ""))
 
-(dectalk-set-family-code 'paul ":np")
-(dectalk-set-family-code 'harry ":nh")
-(dectalk-set-family-code 'dennis ":nd")
-(dectalk-set-family-code 'frank ":nf")
-(dectalk-set-family-code 'betty ":nb")
-(dectalk-set-family-code 'ursula ":nu")
-(dectalk-set-family-code 'wendy ":nw")
-(dectalk-set-family-code 'rita ":nr")
-(dectalk-set-family-code 'kid ":nk")
+(plain-set-family-code 'paul "")
+(plain-set-family-code 'harry "")
+(plain-set-family-code 'dennis "")
+(plain-set-family-code 'frank "")
+(plain-set-family-code 'betty "")
+(plain-set-family-code 'ursula "")
+(plain-set-family-code 'wendy "")
+(plain-set-family-code 'rita "")
+(plain-set-family-code 'kid "")
 
 ;;}}}
 ;;{{{  hash table for mapping families to their dimensions
 
-(defvar dectalk-css-code-tables (make-hash-table)
-  "Hash table holding vectors of Dectalk codes.
+(defvar plain-css-code-tables (make-hash-table)
+  "Hash table holding vectors of Plain codes.
 Keys are symbols of the form <FamilyName-Dimension>.
 Values are vectors holding the control codes for the 10 settings.")
 
-(defsubst dectalk-css-set-code-table (family dimension table)
+(defsubst plain-css-set-code-table (family dimension table)
   "Set up voice FAMILY.
 Argument DIMENSION is the dimension being set,
 and TABLE gives the values along that dimension."
-  (declare (special dectalk-css-code-tables))
+  (declare (special plain-css-code-tables))
   (let ((key (intern (format "%s-%s" family dimension))))
-    (puthash  key table dectalk-css-code-tables )))
+    (puthash  key table plain-css-code-tables )))
 
-(defsubst dectalk-css-get-code-table (family dimension)
+(defsubst plain-css-get-code-table (family dimension)
   "Retrieve table of values for specified FAMILY and DIMENSION."
-  (declare (special dectalk-css-code-tables))
+  (declare (special plain-css-code-tables))
   (let ((key (intern (format "%s-%s" family dimension))))
-    (gethash key dectalk-css-code-tables)))
+    (gethash key plain-css-code-tables)))
 
 ;;}}}
 ;;{{{ volume
 
-;;; Note:volume settings not implemented for Dectalks.
-(defvar dectalk-gain-table (make-vector  10 "")
+(defvar plain-gain-table (make-vector  10 "")
   "Maps CSS volume settings to actual synthesizer codes.")
 
 ;;}}}
@@ -197,7 +196,7 @@ and TABLE gives the values along that dimension."
 ;;; Average pitch varies inversely with speaker head size --a child
 ;;; has a small head and a higher pitched voice.
 ;;; We change parameter head-size in conjunction with average pitch to
-;;; produce a more natural change on the Dectalk.
+;;; produce a more natural change 
 
 ;;{{{  paul average pitch
 
@@ -207,9 +206,8 @@ and TABLE gives the values along that dimension."
     (lambda (setting)
       (aset table
             (first setting)
-            (format " ap %s hs % s"
-                    (second setting)
-                    (third setting)))))
+            (format "") ;no-op -- change to taste
+            )))
    '(
      (0 96 115)
      (1 101 112)
@@ -222,7 +220,7 @@ and TABLE gives the values along that dimension."
      (8 140 94)
      (9 147 91)
      ))
-  (dectalk-css-set-code-table 'paul 'average-pitch table ))
+  (plain-css-set-code-table 'paul 'average-pitch table ))
 
 ;;}}}
 ;;{{{  harry average pitch
@@ -234,9 +232,8 @@ and TABLE gives the values along that dimension."
     (lambda (setting)
       (aset table
             (first setting)
-            (format " ap %s hs % s"
-                    (second setting)
-                    (third setting)))))
+            (format "") ; no-op --- change to taste
+            )))
    '(
      (0 50 125)
      (1 59 123)
@@ -249,7 +246,7 @@ and TABLE gives the values along that dimension."
      (8 125 100)
      (9 140 95)
      ))
-  (dectalk-css-set-code-table 'harry 'average-pitch table ))
+  (plain-css-set-code-table 'harry 'average-pitch table ))
 
 ;;}}}
 ;;{{{  betty average pitch
@@ -260,9 +257,8 @@ and TABLE gives the values along that dimension."
     (lambda (setting)
       (aset table
             (first setting)
-            (format " ap %s hs % s"
-                    (second setting)
-                    (third setting)))))
+            (format ""); no-op --- change to taste
+            )))
    '(
      (0 160 115)
      (1 170 112)
@@ -275,15 +271,15 @@ and TABLE gives the values along that dimension."
      (8 240 94)
      (9 260  91)
      ))
-  (dectalk-css-set-code-table 'betty 'average-pitch table ))
+  (plain-css-set-code-table 'betty 'average-pitch table ))
 
 ;;}}}
 
-(defsubst dectalk-get-average-pitch-code (value family)
+(defsubst plain-get-average-pitch-code (value family)
   "Get  AVERAGE-PITCH for specified VALUE and  FAMILY."
   (or family (setq family 'paul))
   (if value
-      (aref (dectalk-css-get-code-table family 'average-pitch)
+      (aref (plain-css-get-code-table family 'average-pitch)
             value)
     ""))
 
@@ -304,9 +300,8 @@ and TABLE gives the values along that dimension."
     (lambda (setting)
       (aset table
             (first setting)
-            (format " pr %s as %s "
-                    (second setting)
-                    (third setting)))))
+            (format ""); no-op --- chagne to taste.
+            )))
    '(
      (0 0 0)
      (1 20 10)
@@ -319,7 +314,7 @@ and TABLE gives the values along that dimension."
      (8 211 80)
      (9 250 100)
      ))
-  (dectalk-css-set-code-table 'paul 'pitch-range table ))
+  (plain-css-set-code-table 'paul 'pitch-range table ))
 
 ;;}}}
 ;;{{{  harry pitch range
@@ -330,9 +325,8 @@ and TABLE gives the values along that dimension."
     (lambda (setting)
       (aset table
             (first setting)
-            (format " pr %s as %s "
-                    (second setting)
-                    (third setting)))))
+            (format ""); no-op --- change to taste
+            )))
    '(
      (0 0 0)
      (1 16 20)
@@ -345,7 +339,7 @@ and TABLE gives the values along that dimension."
      (8 211 100)
      (9 250 100)
      ))
-  (dectalk-css-set-code-table 'harry 'pitch-range table ))
+  (plain-css-set-code-table 'harry 'pitch-range table ))
 
 ;;}}}
 ;;{{{  betty pitch range
@@ -356,9 +350,8 @@ and TABLE gives the values along that dimension."
     (lambda (setting)
       (aset table
             (first setting)
-            (format " pr %s as %s "
-                    (second setting)
-                    (third setting)))))
+            (format ""); no-op --- change to taste
+            )))
    '(
      (0 0 0)
      (1 50 10)
@@ -371,21 +364,21 @@ and TABLE gives the values along that dimension."
      (8 220 87)
      (9 250 100)
      ))
-  (dectalk-css-set-code-table 'betty 'pitch-range table ))
+  (plain-css-set-code-table 'betty 'pitch-range table ))
 
 ;;}}}
-(defsubst dectalk-get-pitch-range-code (value family)
+(defsubst plain-get-pitch-range-code (value family)
   "Get pitch-range code for specified VALUE and FAMILY."
   (or family (setq family 'paul))
   (if value
-      (aref (dectalk-css-get-code-table family 'pitch-range)
+      (aref (plain-css-get-code-table family 'pitch-range)
             value)
     ""))
 
 ;;}}}
 ;;{{{  stress
 
-;;; On the Dectalk we vary four parameters
+;;;  we vary four parameters
 ;;; The hat rise which controls the overall shape of the F0 contour
 ;;; for sentence level intonation and stress,
 ;;; The stress rise that controls the level of stress on stressed
@@ -402,11 +395,8 @@ and TABLE gives the values along that dimension."
     (lambda (setting)
       (aset table
             (first setting)
-            (format " hr %s sr %s qu %s bf %s "
-                    (second setting)
-                    (third setting)
-                    (fourth setting)
-                    (fifth setting)))))
+            (format "") ; no-op --- edit to taste
+            )))
    '(
      (0  0 0 0 0)
      (1 3 6  20 3)
@@ -419,7 +409,7 @@ and TABLE gives the values along that dimension."
      (8 63 82 100 60)
      (9 80  90 100  40)
      ))
-  (dectalk-css-set-code-table 'paul 'stress table))
+  (plain-css-set-code-table 'paul 'stress table))
 
 ;;}}}
 ;;{{{  harry stress
@@ -430,11 +420,8 @@ and TABLE gives the values along that dimension."
     (lambda (setting)
       (aset table
             (first setting)
-            (format " hr %s sr %s qu %s bf %s "
-                    (second setting)
-                    (third setting)
-                    (fourth setting)
-                    (fifth setting)))))
+            (format "") ; no-op --- change to taste
+            )))
    '(
      (0  0 0 0 0)
      (1 4 6 2 2 )
@@ -447,7 +434,7 @@ and TABLE gives the values along that dimension."
      (8 80 78 77 34)
      (9 100 100 100 40)
      ))
-  (dectalk-css-set-code-table 'harry 'stress table))
+  (plain-css-set-code-table 'harry 'stress table))
 
 ;;}}}
 ;;{{{  betty stress
@@ -458,11 +445,8 @@ and TABLE gives the values along that dimension."
     (lambda (setting)
       (aset table
             (first setting)
-            (format " hr %s sr %s qu %s bf %s "
-                    (second setting)
-                    (third setting)
-                    (fourth setting)
-                    (fifth setting)))))
+            (format "") ; no-op --- change to taste.
+            )))
    '(
      (0  1 1 0 0)
      (1 3 4 11 0)
@@ -475,13 +459,13 @@ and TABLE gives the values along that dimension."
      (8 77 90 85 30)
      (9 100 100 100 40)
      ))
-  (dectalk-css-set-code-table 'betty 'stress table))
+  (plain-css-set-code-table 'betty 'stress table))
 
 ;;}}}
-(defsubst dectalk-get-stress-code (value family)
+(defsubst plain-get-stress-code (value family)
   (or family (setq family 'paul ))
   (if value
-      (aref (dectalk-css-get-code-table family 'stress)
+      (aref (plain-css-get-code-table family 'stress)
             value)
     ""))
 
@@ -498,9 +482,8 @@ and TABLE gives the values along that dimension."
    (function
     (lambda (setting)
       (aset table (first setting)
-            (format " ri %s sm %s "
-                    (second setting)
-                    (third setting)))))
+            (format "") ; no-op --- change to taste
+            )))
    '(
      (0 0 100)
      (1 14 80)
@@ -513,7 +496,7 @@ and TABLE gives the values along that dimension."
      (8 80 8 20)
      (9 100  0)
      ))
-  (dectalk-css-set-code-table 'paul 'richness table))
+  (plain-css-set-code-table 'paul 'richness table))
 
 ;;}}}
 ;;{{{  harry richness
@@ -523,9 +506,8 @@ and TABLE gives the values along that dimension."
    (function
     (lambda (setting)
       (aset table (first setting)
-            (format " ri %s sm %s "
-                    (second setting)
-                    (third setting)))))
+            (format "") ; no-op --- change to taste
+            )))
    '(
      (0 100 0)
      (1 96 3)
@@ -538,7 +520,7 @@ and TABLE gives the values along that dimension."
      (8 20 65)
      (9 0 70)
      ))
-  (dectalk-css-set-code-table 'harry 'richness table))
+  (plain-css-set-code-table 'harry 'richness table))
 
 ;;}}}
 ;;{{{  betty richness
@@ -548,9 +530,8 @@ and TABLE gives the values along that dimension."
    (function
     (lambda (setting)
       (aset table (first setting)
-            (format " ri %s sm %s "
-                    (second setting)
-                    (third setting)))))
+            (format "") ; no-op -- change to taste.
+            )))
    '(
      (0 0 100)
      (1 8 76)
@@ -563,82 +544,77 @@ and TABLE gives the values along that dimension."
      (8 80 8 2)
      (9 100  0)
      ))
-  (dectalk-css-set-code-table 'betty 'richness table))
+  (plain-css-set-code-table 'betty 'richness table))
 
 ;;}}}
 
-(defsubst dectalk-get-richness-code (value family)
+(defsubst plain-get-richness-code (value family)
   (or family (setq family 'paul))
   (if value
-      (aref (dectalk-css-get-code-table family 'richness)
+      (aref (plain-css-get-code-table family 'richness)
             value)
     ""))
 
 ;;}}}
 ;;{{{  punctuations
 
-(defsubst dectalk-get-punctuations-code (value)
+(defsubst plain-get-punctuations-code (value)
   "Return string needed to set specified punctuations mode."
   (if value
-      (format " :pu %s " value)
+      (format "") ; no-op --- change to taste
     ""))
 
 ;;}}}
 
 ;;}}}
-;;{{{  dectalk-define-voice-from-speech-style
+;;{{{  plain-define-voice-from-speech-style
 
-(defun dectalk-define-voice-from-speech-style (name style)
-  "Define NAME to be a Dectalk voice as specified by settings in STYLE."
+(defun plain-define-voice-from-speech-style (name style)
+  "Define NAME to be a Plain voice as specified by settings in STYLE."
   (let* ((family(acss-family style))
          (command
-          (concat "["
-                  (dectalk-get-family-code family)
-                  (dectalk-get-punctuations-code (acss-punctuations style))
-                  (when (or (acss-average-pitch style)
-                            (acss-pitch-range style)
-                            (acss-stress style )
-                            (acss-richness style))
-                    (concat " :dv "
-                            (dectalk-get-average-pitch-code (acss-average-pitch style) family)
-                            (dectalk-get-pitch-range-code (acss-pitch-range style) family)
-                            (dectalk-get-stress-code (acss-stress style ) family)
-                            (dectalk-get-richness-code (acss-richness style) family)))
-                  "]")))
-    (dectalk-define-voice name command)))
+          (concat 
+           (plain-get-family-code family)
+           (plain-get-punctuations-code (acss-punctuations style))
+           (when (or (acss-average-pitch style)
+                     (acss-pitch-range style)
+                     (acss-stress style )
+                     (acss-richness style))
+             (concat "  "
+                     (plain-get-average-pitch-code (acss-average-pitch style) family)
+                     (plain-get-pitch-range-code (acss-pitch-range style) family)
+                     (plain-get-stress-code (acss-stress style ) family)
+                     (plain-get-richness-code (acss-richness style) family))))))
+    (plain-define-voice name command)))
 
 ;;}}}
 ;;{{{ list voices
 
-(defun dectalk-list-voices ()
+(defun plain-list-voices ()
   "List defined voices."
-  (declare (special dectalk-voice-table))
-  (loop for k being the hash-keys of dectalk-voice-table
+  (declare (special plain-voice-table))
+  (loop for k being the hash-keys of plain-voice-table
         collect   k))
 
 ;;}}}
 ;;{{{ configurater
 ;;;###autoload
-(defun dectalk-configure-tts ()
-  "Configures TTS environment to use Dectalk family of synthesizers."
-  (declare (special  dectalk-default-speech-rate
+(defun plain-configure-tts ()
+  "Configures TTS environment to use Plain family of synthesizers."
+  (declare (special  plain-default-speech-rate
                      tts-default-speech-rate
                      tts-default-voice))
   (setq tts-default-voice 'paul)
-  (fset 'tts-list-voices 'dectalk-list-voices)
-  (fset 'tts-voice-defined-p 'dectalk-voice-defined-p)
-  (fset 'tts-get-voice-command 'dectalk-get-voice-command)
-  (fset 'tts-voice-defined-p 'dectalk-voice-defined-p)
-  (fset 'tts-define-voice-from-speech-style 'dectalk-define-voice-from-speech-style)
-  (setq tts-default-speech-rate dectalk-default-speech-rate)
-  (set-default 'tts-default-speech-rate dectalk-default-speech-rate)
-  (setq dtk-speech-rate-step 50
-        dtk-speech-rate-base 150)
-  (setq-default dtk-speech-rate-step 50
-                dtk-speech-rate-base 150))
+  (fset 'tts-list-voices 'plain-list-voices)
+  (fset 'tts-voice-defined-p 'plain-voice-defined-p)
+  (fset 'tts-get-voice-command 'plain-get-voice-command)
+  (fset 'tts-voice-defined-p 'plain-voice-defined-p)
+  (fset 'tts-define-voice-from-speech-style 'plain-define-voice-from-speech-style)
+  (setq tts-default-speech-rate plain-default-speech-rate)
+  (set-default 'tts-default-speech-rate plain-default-speech-rate))
 
 ;;}}}
-(provide 'dectalk-voices)
+(provide 'plain-voices)
 ;;{{{  emacs local variables
 
 ;;; local variables:

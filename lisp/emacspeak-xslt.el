@@ -1,5 +1,5 @@
 ;;; emacspeak-xslt.el --- Implements Emacspeak  xslt transform engine
-;;; $Id: emacspeak-xslt.el 7214 2011-09-23 15:43:53Z tv.raman.tv $
+;;; $Id: emacspeak-xslt.el 7668 2012-04-07 17:07:15Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  xslt transformation routines
 ;;; Keywords: Emacspeak,  Audio Desktop XSLT
@@ -160,9 +160,12 @@ part of the libxslt package."
     (current-buffer)))
 
 ;;;###autoload
-(defsubst emacspeak-xslt-run (xsl start end)
-  "Run xslt on region, and return output filtered by sort -u"
+(defsubst emacspeak-xslt-run (xsl &optional start end)
+  "Run xslt on region, and return output filtered by sort -u.
+Region defaults to entire buffer."
   (declare (special emacspeak-xslt-program emacspeak-xslt-options))
+  (or start (setq start (point-min)))
+  (or end (setq end (point-max)))
   (let ((coding-system-for-read 'utf-8)
         (coding-system-for-write 'utf-8)
         (buffer-file-coding-system 'utf-8))
@@ -322,7 +325,7 @@ part of the libxslt package."
           (buffer-file-coding-system 'utf-8))
       (insert-file file)
       (shell-command
-       (format "%s   --nonet --param base %s  %s  %s  2>/dev/null"
+       (format "%s   --novalid --nonet --param base %s  %s  %s  2>/dev/null"
                emacspeak-xslt-program 
                (format "\"'file://%s'\"" (expand-file-name file))
                (expand-file-name style)

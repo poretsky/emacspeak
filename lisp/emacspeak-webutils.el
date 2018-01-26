@@ -1,5 +1,5 @@
 ;;; emacspeak-webutils.el --- Common Web Utilities For Emacspeak
-;;; $Id: emacspeak-webutils.el 7378 2011-11-10 17:34:32Z tv.raman.tv $
+;;; $Id: emacspeak-webutils.el 7571 2012-03-12 22:54:24Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak Webutils
 ;;; Keywords: Emacspeak, web
@@ -129,7 +129,7 @@ Note that the Web browser should reset this hook after using it.")
                 (declare (special emacspeak-we-xpath-filter))
                 (let ((inhibit-read-only t))
                   (setq emacspeak-we-xpath-filter
-                        "//p")
+                        emacspeak-we-paragraphs-xpath-filter)
                   (emacspeak-speak-buffer)))
             'at-end))
 
@@ -457,9 +457,8 @@ Optional interactive prefix arg `playlist-p' says to treat the link as a playlis
      ((null buffer)
       (message "Nothing to display."))
      (t
-      (emacspeak-webutils-without-xsl
-       (save-excursion
-         (set-buffer buffer)
+      (with-current-buffer buffer
+        (emacspeak-webutils-without-xsl
          (goto-char (point-min))
          (search-forward "\n\n")
          (delete-region (point-min) (point))

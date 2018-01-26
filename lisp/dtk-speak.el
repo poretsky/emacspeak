@@ -1,5 +1,5 @@
 ;;; dtk-speak.el --- Provides Emacs Lisp interface to speech server
-;;;$Id: dtk-speak.el 7409 2011-11-16 03:22:20Z tv.raman.tv $
+;;;$Id: dtk-speak.el 7733 2012-05-03 02:12:31Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacs interface to TTS
 ;;; Keywords: Dectalk Emacs Elisp
@@ -57,10 +57,7 @@
 (require 'custom)
 (require 'dtk-interp)
 (require 'dtk-unicode)
-(require 'dectalk-voices)
-(require 'outloud-voices)
-(require 'multispeech-voices)
-(require 'mac-voices)
+
 (require 'espeak-voices)
 (require 'flite-voices)
 
@@ -341,10 +338,7 @@ Optional argument FORCE  flushes the command to the speech server."
   (interactive "sEnter new language: \n")
   (declare (special dtk-quiet dtk-speaker-process
                     dtk-speak-server-initialized))
-  ;;  (unless dtk-quiet
-  (when dtk-speak-server-initialized
-    (dtk-interp-language lang (interactive-p))))
-;;)
+  (when dtk-speak-server-initialized (dtk-interp-language lang (interactive-p))))
 
 (defun dtk-set-next-language ()
   "Switch to the next available language"
@@ -396,8 +390,9 @@ will set \"en_GB\".
 ;;;  [] marks dtk commands; {} is special to tcl
 ;;; Optionally post-process the text with cleanup function if one is specified.
 (defconst dtk-bracket-regexp
-  "[][{}<>\\|`#]"
+  "[][{}<>\\|`#\n]"
   "Brackets and other chars  that are special to dtk and tcl.
+Newlines  become spaces so each server request is a single line.
 {} is special to tcl.
 [] is special to both dtk and tcl.
 <> and | are fixed to improve pronunciation.
@@ -412,7 +407,7 @@ will set \"en_GB\".
 
 (defsubst  dtk-fix-brackets (mode)
   "Quote any delimiters that need special treatment.
-Argument MODE  specifies the current pronunciation mode."
+Argument MODE  specifies the current pronunciation mode --- See \\[dtk-bracket-regexp]"
   (declare  (special dtk-bracket-regexp ))
   (let ((inhibit-read-only t))
     (goto-char (point-min))
@@ -426,6 +421,8 @@ Argument MODE  specifies the current pronunciation mode."
                 (get-text-property
                  start 'personality))
           (cond
+           ((= 10  (char-after (match-beginning 0 ))) ; newline
+            (replace-match " "))
            ((= ?| (char-after (match-beginning 0 )))
             (replace-match " pipe "))
            ((= ?< (char-after (match-beginning 0 )))
@@ -452,6 +449,7 @@ Argument MODE  specifies the current pronunciation mode."
      (t
       (while (re-search-forward dtk-bracket-regexp   nil t )
         (replace-match " " nil t ))))))
+
 ;;;###autoload
 (defcustom dtk-speak-nonprinting-chars nil
   "*Option that specifies handling of non-printing chars.
@@ -641,15 +639,6 @@ Argument COMPLEMENT  is the complement of separator."
 ;;; causes the sound
 ;;; to be queued.
 
-(defsubst tts-get-overlay-personality (position)
-  "Return personality at the front of the overlay list at position."
-  (car
-   (delete nil
-           (mapcar
-            #'(lambda (o)
-                (overlay-get o 'personality))
-            (overlays-at position)))))
-
 (defsubst tts-get-overlay-auditory-icon (position)
   "Return auditory icon  at the front of the overlay list at position."
   (car
@@ -657,6 +646,15 @@ Argument COMPLEMENT  is the complement of separator."
            (mapcar
             #'(lambda (o)
                 (overlay-get o 'auditory-icon))
+            (overlays-at position)))))
+
+(defsubst tts-get-overlay-personality (position)
+  "Return personality at the front of the overlay list at position."
+  (car
+   (delete nil
+           (mapcar
+            #'(lambda (o)
+                (overlay-get o 'personality))
             (overlays-at position)))))
 
 (defsubst next-true-single-property-change (start  prop object  limit)
@@ -822,8 +820,6 @@ current local  value to the result."
       (setq dtk-speech-rate rate))
      (t (setq dtk-speech-rate rate)))
     (dtk-interp-set-rate rate)
-    (when prefix
-      (tts-configure-synthesis-setup dtk-program))
     (when (interactive-p)
       (message "Set speech rate to %s %s"
                rate
@@ -1017,31 +1013,19 @@ Typically used after the Dectalk has been power   cycled."
   "Records if speech has been paused.")
 
 ;;;###autoload
-(defun dtk-pause (&optional prefix)
-  "Pause ongoing speech.
-The speech can be resumed with command `dtk-resume'
-normally bound to \\[dtk-resume].  Pausing speech is useful when one needs to
-perform a few actions before continuing to read a large document.  Emacspeak
-gives you speech feedback as usual once speech has been paused.  `dtk-resume'
-continues the interrupted speech irrespective of the buffer
-in which it is executed.
-Optional PREFIX arg flushes any previously paused speech."
-  (interactive "P")
+(defun dtk-pause ()
+  "Temporarily pause / rsume speech."
+  (interactive)
   (declare (special dtk-paused))
   (cond
    ((not dtk-paused)
     (dtk-interp-pause)
     (setq dtk-paused t)
     (emacspeak-auditory-icon 'button))
-   ((and (interactive-p)
-         prefix
-         dtk-paused)
-    (dtk-interp-pause)
-    (dtk-speak "Flushed previously paused speech ")
-    (setq dtk-paused t))
-   ((and dtk-paused
-         (interactive-p))
-    (emacspeak-auditory-icon 'warn-user))))
+   (t
+    (setq dtk-paused nil)
+    (dtk-interp-resume))))
+
 ;;;###autoload
 (defcustom dtk-resume-should-toggle t
   "*T means `dtk-resume' acts as a toggle."
@@ -1553,8 +1537,8 @@ This is setup on a per engine basis.")
                                         ; exact match
    ((string-match "^espeak$" tts-name) (espeak-configure-tts))
    ((string-match "^eflite$" tts-name) (flite-configure-tts))
-                                        ;will become generic configure
-   (t (dectalk-configure-tts)))
+                                        ; generic configure
+   (t (plain-configure-tts)))
   (when (string-match "^ssh" tts-name)  ;remote server
     (setq emacspeak-auditory-icon-function 'emacspeak-serve-auditory-icon))
   (load-library "voice-setup")
@@ -1817,11 +1801,9 @@ No-op if variable `dtk-quiet' is set to t.
 If option `outline-minor-mode' is on and selective display is in effect,
 only speak upto the first ctrl-m."
   (declare (special dtk-speaker-process dtk-stop-immediately
-                    tts-strip-octals
-                    inhibit-point-motion-hooks
+                    tts-strip-octals inhibit-point-motion-hooks
                     dtk-speak-server-initialized emacspeak-use-auditory-icons
-                    dtk-speech-rate
-                    dtk-speak-nonprinting-chars
+                    dtk-speech-rate dtk-speak-nonprinting-chars
                     dtk-speak-treat-embedded-punctuations-specially
                     dtk-quiet  dtk-chunk-separator-syntax
                     voice-lock-mode   dtk-punctuation-mode

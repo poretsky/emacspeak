@@ -1,5 +1,5 @@
 ;;; emacspeak-table-ui.el --- Emacspeak's current notion of an ideal table UI
-;;; $Id: emacspeak-table-ui.el 7409 2011-11-16 03:22:20Z tv.raman.tv $
+;;; $Id: emacspeak-table-ui.el 7733 2012-05-03 02:12:31Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description: Emacspeak table handling module
 ;;; Keywords:emacspeak, audio interface to emacs tables are structured
@@ -1031,6 +1031,17 @@ table markup.")
                                   (emacspeak-table-markup-get-table
                                    'latex2e-mode))
 
+(emacspeak-table-markup-set-table
+ 'org-mode
+ (emacspeak-table-make-markup
+  :table-start ""
+  :table-end ""
+  :row-start "|"
+  :row-end "|\n"
+  :col-start ""
+  :col-end ""
+  :col-separator "|"))
+
 (emacspeak-table-markup-set-table 'fundamental-mode
                                   (emacspeak-table-make-markup
                                    :table-start ""
@@ -1090,8 +1101,7 @@ markup to use."
         (col-end nil)
         (col-separator nil))
     (cond
-     (read-only
-      (error "Cannot paste into read only buffer."))
+     (read-only (error "Cannot paste into read only buffer."))
      (t (setq markup  (emacspeak-table-markup-get-table mode))
         (setq table-start (emacspeak-table-markup-table-start markup)
               table-end (emacspeak-table-markup-table-end markup)

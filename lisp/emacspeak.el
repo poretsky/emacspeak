@@ -1,5 +1,5 @@
 ;;; emacspeak.el --- Emacspeak -- The Complete Audio Desktop
-;;; $Id: emacspeak.el 7370 2011-11-08 16:44:59Z tv.raman.tv $
+;;; $Id: emacspeak.el 7695 2012-04-18 15:34:29Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak: A speech interface to Emacs
 ;;; Keywords: Emacspeak, Speech, Dectalk,
@@ -187,6 +187,7 @@ speech-enabling extensions."
 (emacspeak-do-package-setup "enriched" 'emacspeak-enriched)
 (emacspeak-do-package-setup "facemenu" 'emacspeak-facemenu)
 (emacspeak-do-package-setup "find-dired" 'emacspeak-find-dired)
+(emacspeak-do-package-setup "find-things-fast" 'emacspeak-ftf)
 (emacspeak-do-package-setup "find-func" 'emacspeak-find-func)
 (emacspeak-do-package-setup "flyspell" 'emacspeak-flyspell)
 (emacspeak-do-package-setup "folding" 'emacspeak-folding)

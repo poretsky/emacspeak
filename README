@@ -1,5 +1,5 @@
-Emacspeak  Revision 7435:7437
-Distribution created by raman on lapdog
+Emacspeak  Revision 7735:7736
+Distribution created by raman on retriever.mtv.corp.google.com
 Unpack the  distribution And type make config 
 Then type make
 See the Makefile for details. 

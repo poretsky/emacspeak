@@ -397,7 +397,7 @@ Interactive prefix arg filters search by category."
 Optional interactive prefix arg filters by category."
   (interactive
    (list
-    (read-from-minibuffer "Date: ")
+    (read-from-minibuffer "Date:MMDDYYYY ")
     current-prefix-arg))
   (cond
    ((null category)                     ; plain search
@@ -490,7 +490,7 @@ Optional interactive prefix arg prompts for a category to use as a filter."
   (or (gethash action emacspeak-bookshare-action-table)
       (error "No handler defined for action %s" action)))
 
-(define-derived-mode emacspeak-bookshare-mode text-mode
+(define-derived-mode emacspeak-bookshare-mode special-mode
   "Bookshare Library Of Accessible Books And Periodicals"
   "A Bookshare front-end for the Emacspeak desktop.
 
@@ -796,10 +796,11 @@ b Browse
   (declare (special emacspeak-bookshare-mode-map))
   (loop for k in
         '(
+          ("e" emacspeak-epub)
           ("q" bury-buffer)
           ("f" emacspeak-bookshare-flush-lines)
           ("v" emacspeak-bookshare-view)
-          ("c" emacspeak-bookshare-toc)
+          ("c" emacspeak-bookshare-toc-at-point)
           ("\M-n" emacspeak-bookshare-next-result)
           ("\M-p" emacspeak-bookshare-previous-result)
           ("["  backward-page)
@@ -808,7 +809,7 @@ b Browse
           (" " emacspeak-bookshare-expand-at-point)
           ("U" emacspeak-bookshare-unpack-at-point)
           ("V" emacspeak-bookshare-view-at-point)
-          ("C" emacspeak-bookshare-toc-at-point)
+          ("C" emacspeak-bookshare-fulltext)
           ("D" emacspeak-bookshare-download-daisy-at-point)
           ("B" emacspeak-bookshare-download-brf-at-point)
           ("j" next-line)
@@ -919,7 +920,11 @@ Target location is generated from author and title."
                     'auditory-icon 'select-object))
         (emacspeak-auditory-icon 'task-done)
         (message "Downloaded content to %s" target))
-       (t (error "Error downloading content.")))))))
+       (t
+        (let ((new-target (read-from-minibuffer "Retry with new target:" target)))
+          (if (zerop (emacspeak-bookshare-download-daisy id new-target))
+              (message "Downloaded to %s" new-target)
+            (error "Error downloading to %s" new-target)))))))))
 
 (defun emacspeak-bookshare-download-brf-at-point ()
   "Download Braille version of book under point.
@@ -977,7 +982,7 @@ Target location is generated from author and title."
 
 ;;;###autoload
 (defcustom emacspeak-bookshare-xslt
-  "DaisyTransform.xsl"
+  "daisyTransform.xsl"
   "Name of bookshare  XSL transform."
   :type '(choice :tag "Key: "
                  (const :tag "Daisy transform from Bookshare"  "daisyTransform.xsl")
@@ -989,8 +994,7 @@ Target location is generated from author and title."
   (let ((xsl (expand-file-name emacspeak-bookshare-xslt directory)))
     (cond
      ((file-exists-p xsl) xsl)
-     (t (expand-file-name emacspeak-bookshare-xslt
-                          emacspeak-xslt-directory)))))
+     (t (expand-file-name emacspeak-bookshare-xslt emacspeak-xslt-directory)))))
 
 (defvar emacspeak-bookshare-toc-xslt
   "bookshare-toc.xsl"
@@ -1039,20 +1043,23 @@ Make sure it's downloaded and unpacked first."
         (directory (emacspeak-bookshare-get-directory))
         (title (emacspeak-bookshare-get-title))
         (xsl (emacspeak-bookshare-toc-xslt)))
-    (unless (file-exists-p target)
-      (error "First download this content."))
-    (unless (file-exists-p directory)
-      (error "First unpack this content."))
-    (add-hook
-     'emacspeak-web-post-process-hook
-     #'(lambda ()
-         (declare (special emacspeak-we-url-executor))
-         (setq emacspeak-we-url-executor 'emacspeak-bookshare-url-executor)))
-    (emacspeak-xslt-view-file
-     xsl
-     (shell-quote-argument
-      (first
-       (directory-files directory 'full ".xml"))))))
+    (cond
+     ((null target) (call-interactively 'emacspeak-bookshare-toc))
+     (t
+      (unless (file-exists-p target)
+        (error "First download this content."))
+      (unless (file-exists-p directory)
+        (error "First unpack this content."))
+      (add-hook
+       'emacspeak-web-post-process-hook
+       #'(lambda ()
+           (declare (special emacspeak-we-url-executor))
+           (setq emacspeak-we-url-executor 'emacspeak-bookshare-url-executor)))
+      (emacspeak-xslt-view-file
+       xsl
+       (shell-quote-argument
+        (first
+         (directory-files directory 'full ".xml"))))))))
 
 (defun emacspeak-bookshare-extract-xml (url)
   "Extract content refered to by link under point, and return an XML buffer."
@@ -1073,15 +1080,11 @@ Make sure it's downloaded and unpacked first."
 (defun emacspeak-bookshare-extract-and-view (url)
   "Extract content refered to by link under point, and render via the browser."
   (interactive "sURL: ")
-  (declare (special emacspeak-bookshare-xslt))
   (let ((result (emacspeak-bookshare-extract-xml url)))
     (save-excursion
       (set-buffer result)
       (emacspeak-webutils-autospeak)
-      (emacspeak-webutils-with-xsl-environment
-       (expand-file-name emacspeak-bookshare-xslt emacspeak-xslt-directory)
-       nil emacspeak-xslt-options             ;options
-       (browse-url-of-buffer )))))
+      (browse-url-of-buffer ))))
 
 (defun emacspeak-bookshare-view-page-range (url )
   "Play pages in specified page range from URL."
@@ -1137,8 +1140,49 @@ Make sure it's downloaded and unpacked first."
          (setq emacspeak-we-url-executor 'emacspeak-bookshare-url-executor)))
     (emacspeak-xslt-view-file
      xsl
-     (shell-quote-argument
-      (first (directory-files directory 'full ".xml"))))))
+     (first (directory-files directory 'full ".xml")))))
+;;;###autoload
+(defcustom emacspeak-bookshare-html-to-text-command
+  "lynx -dump -stdin"
+  "Command to convert html to text on stdin."
+  
+  :type '(choice
+          (const :tag "lynx"  "lynx -dump -stdin")
+          (const "html2text" "html2text"))
+  :group 'emacspeak-bookshare)(defun emacspeak-bookshare-fulltext (directory)
+                                "Display fulltext contents of  book in specified directory.
+Useful for fulltext search in a book."
+                                (interactive
+                                 (list
+                                  (or (emacspeak-bookshare-get-directory)
+                                      (let ((completion-ignore-case t)
+                                            (emacspeak-speak-messages nil)
+                                            (read-file-name-completion-ignore-case t))
+                                        (read-directory-name "Book: "
+                                                             (when (eq major-mode 'dired-mode) (dired-get-filename))
+                                                             emacspeak-bookshare-directory)))))
+                                (declare (special emacspeak-bookshare-html-to-text-command
+                                                  emacspeak-bookshare-directory))
+                                (let ((xsl (emacspeak-bookshare-xslt directory))
+                                      (buffer (get-buffer-create "Full Text"))
+                                      (command nil)
+                                      (inhibit-read-only t))
+                                  (with-current-buffer buffer
+                                    (setq command
+                                          (format
+                                           "%s  --nonet --novalid %s %s | %s"
+                                           emacspeak-xslt-program xsl
+                                           (shell-quote-argument
+                                            (first (directory-files directory 'full ".xml")))
+                                           emacspeak-bookshare-html-to-text-command))
+                                    (erase-buffer)
+                                    (setq buffer-undo-list t)
+                                    (shell-command command (current-buffer) nil)
+                                    (setq buffer-read-only t)
+                                    (goto-char (point-min)))
+                                  (switch-to-buffer buffer)
+                                  (emacspeak-auditory-icon 'open-object)
+                                  (emacspeak-speak-mode-line)))
 
 (defun emacspeak-bookshare-sign-out ()
   "Sign out, clearing password."

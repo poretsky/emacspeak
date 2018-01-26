@@ -1,5 +1,5 @@
 ;;; emacspeak-python.el --- Speech enable Python development environment
-;;; $Id: emacspeak-py.el 7168 2011-09-04 14:56:44Z tv.raman.tv $
+;;; $Id: emacspeak-py.el 7471 2011-11-29 04:03:26Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $ 
 ;;; Description: Auditory interface to python mode
 ;;; Keywords: Emacspeak, Speak, Spoken Output, python
@@ -55,6 +55,11 @@
 ;;{{{ Advice interactive commands:
 
 ;;{{{  electric editing
+
+(defadvice py-electric-comment (after emacspeak pre act comp)
+  "Speak what you inserted"
+  (when (interactive-p)
+    (dtk-say " pound ")))
 
 (defadvice py-electric-colon (after emacspeak pre act comp)
   "Speak what you inserted"

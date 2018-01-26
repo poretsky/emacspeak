@@ -1,11 +1,11 @@
-@c $Id: commands.texi 7426 2011-11-22 03:59:31Z tv.raman.tv $
+@c $Id: commands.texi 7732 2012-05-02 23:47:21Z tv.raman.tv $
 @node Emacspeak Commands
 @chapter Emacspeak Commands
 
 This chapter is generated automatically from the source-level documentation.
 Any errors or corrections should be made to the source-level
 documentation.
-This chapter documents a total of 947 commands.
+This chapter documents a total of 963 commands.
 
 @menu
 * cd-tool::
@@ -93,7 +93,6 @@ This chapter documents a total of 947 commands.
 * emacspeak-org::
 * emacspeak-piglets::
 * emacspeak-w3m::
-* emacspeak-webmarks::
 * URL Templates ::
 @end menu
 
@@ -199,14 +198,7 @@ Port  defaults to  dtk-local-server-port
 @deffn {Interactive Command} dtk-pause nil
 @kbd{ control e p }
 
-Pause ongoing speech.
-The speech can be resumed with command `dtk-resume'
-normally bound to M-x dtk-resume.  Pausing speech is useful when one needs to
-perform a few actions before continuing to read a large document.  Emacspeak
-gives you speech feedback as usual once speech has been paused.  `dtk-resume'
-continues the interrupted speech irrespective of the buffer
-in which it is executed.
-Optional PREFIX arg flushes any previously paused speech.
+Temporarily pause / rsume speech.
 @end deffn
 
 @deffn {Interactive Command} dtk-reset-state nil
@@ -257,13 +249,13 @@ Argument S specifies the syntax class.
 @end deffn
 
 @deffn {Interactive Command} dtk-set-language nil
-@kbd{Not bound to any key.}
+@kbd{ control e d  cap S  }
 
 Set language according to the argument lang.
 @end deffn
 
 @deffn {Interactive Command} dtk-set-next-language nil
-@kbd{Not bound to any key.}
+@kbd{ control e d  cap N  }
 
 Switch to the next available language
 @end deffn
@@ -289,7 +281,7 @@ will set "en_GB".
 @end deffn
 
 @deffn {Interactive Command} dtk-set-previous-language nil
-@kbd{Not bound to any key.}
+@kbd{ control e d  cap P  }
 
 Switch to the previous available language
 @end deffn
@@ -929,6 +921,13 @@ Extract content refered to by link under point, and return an XML buffer.
 Flush lines matching regexp in Bookshare buffer.
 @end deffn
 
+@deffn {Interactive Command} emacspeak-bookshare-fulltext nil
+@kbd{Not bound to any key.}
+
+Display fulltext contents of  book in specified directory.
+Useful for fulltext search in a book.
+@end deffn
+
 @deffn {Interactive Command} emacspeak-bookshare-fulltext-search nil
 @kbd{Not bound to any key.}
 
@@ -993,7 +992,7 @@ SPC		emacspeak-bookshare-expand-at-point
 +		emacspeak-bookshare-action
 A		emacspeak-bookshare-action
 B		emacspeak-bookshare-download-brf-at-point
-C		emacspeak-bookshare-toc-at-point
+C		emacspeak-bookshare-fulltext
 D		emacspeak-bookshare-download-daisy-at-point
 I		emacspeak-bookshare-action
 P		emacspeak-bookshare-action
@@ -1004,8 +1003,9 @@ V		emacspeak-bookshare-view-at-point
 ]		forward-page
 a		emacspeak-bookshare-action
 b		emacspeak-bookshare-browse
-c		emacspeak-bookshare-toc
+c		emacspeak-bookshare-toc-at-point
 d		emacspeak-bookshare-action
+e		emacspeak-epub
 f		emacspeak-bookshare-flush-lines
 i		emacspeak-bookshare-action
 j		next-line
@@ -1019,7 +1019,7 @@ v		emacspeak-bookshare-view
 M-n		emacspeak-bookshare-next-result
 M-p		emacspeak-bookshare-previous-result
 
-In addition to any hooks its parent mode `text-mode' might have run,
+In addition to any hooks its parent mode `special-mode' might have run,
 this mode runs the hook `emacspeak-bookshare-mode-hook', as the final step
 during initialization.
 @end deffn
@@ -1625,20 +1625,60 @@ Commentary:
 In celebration of a million books and more to read from
 Google Books
 The EPubs format is slightly simpler than full Daisy ---
-emacspeak-daisy.el
+(see) emacspeak-daisy.el
 Since it only needs one level of indirection (no audio,
 therefore no smil). This module is consequently simpler than
 emacspeak-daisy.el.
-This module will also implement the Google Books GData API
+This module will eventually  implement the Google Books  API
 --- probably by invoking the yet-to-be-written gbooks.el in emacs-g-client
+As we move to epub-3, this module will bring back audio layers etc., perhaps via a simplified smil implementation.
 
 Automatically generated documentation
 for commands defined in module  emacspeak-epub.
 
 @deffn {Interactive Command} emacspeak-epub nil
-@kbd{Not bound to any key.}
+@kbd{ control e g }
 
 EPub  Interaction.
+For detailed documentation, see M-x emacspeak-epub-mode
+@end deffn
+
+@deffn {Interactive Command} emacspeak-epub-bookshelf-load nil
+@kbd{Not bound to any key.}
+
+Load bookshelf metadata from disk.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-epub-bookshelf-refresh nil
+@kbd{Not bound to any key.}
+
+Refresh and redraw bookshelf.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-epub-bookshelf-save nil
+@kbd{Not bound to any key.}
+
+Save bookshelf metadata.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-epub-browse-files nil
+@kbd{Not bound to any key.}
+
+Browse list of HTML files in an EPub.
+Useful if table of contents in toc.ncx is empty.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-epub-delete nil
+@kbd{Not bound to any key.}
+
+Delete EPub under point.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-epub-fulltext nil
+@kbd{Not bound to any key.}
+
+Display fulltext from EPub in a buffer.
+Suitable for text searches.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-epub-google nil
@@ -1647,28 +1687,74 @@ EPub  Interaction.
 Search for Epubs from Gooble Books.
 @end deffn
 
+@deffn {Interactive Command} emacspeak-epub-gutenberg-catalog nil
+@kbd{Not bound to any key.}
+
+Open Gutenberg catalog.
+Fetch if needed, or if refresh is T.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-epub-gutenberg-download nil
+@kbd{Not bound to any key.}
+
+Download specified EBook to local cache
+@end deffn
+
 @deffn {Interactive Command} emacspeak-epub-mode nil
 @kbd{Not bound to any key.}
 
 An EPub Front-end.
-
-In addition to any hooks its parent mode `text-mode' might have run,
-this mode runs the hook `emacspeak-epub-mode-hook', as the final step
-during initialization.
+Letters do not insert themselves; instead, they are commands.
 
 key             binding
 ---             -------
 
+RET		emacspeak-epub-open
+C-x		Prefix Command
+ESC		Prefix Command
+C		emacspeak-epub-gutenberg-catalog
+G		emacspeak-epub-gutenberg-download
+d		emacspeak-epub-delete
+f		emacspeak-epub-browse-files
 g		emacspeak-epub-google
+n		next-line
 o		emacspeak-epub-open
+p		previous-line
+t		emacspeak-epub-fulltext
+<return>	emacspeak-epub-open
 
+C-x C-q		emacspeak-epub-bookshelf-refresh
+C-x C-s		emacspeak-epub-bookshelf-save
+
+M-s		emacspeak-epub-bookshelf-save
+
+In addition to any hooks its parent mode `special-mode' might have run,
+this mode runs the hook `emacspeak-epub-mode-hook', as the final step
+during initialization.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-epub-next nil
+@kbd{Not bound to any key.}
+
+Move to next book.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-epub-open nil
 @kbd{Not bound to any key.}
 
 Open specified Epub.
-`toc' is the pathname to an EPubs table of contents.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-epub-previous nil
+@kbd{Not bound to any key.}
+
+Move to previous book.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-epub-url-executor nil
+@kbd{Not bound to any key.}
+
+Custom URL executor for use in EPub Mode.
 @end deffn
 
 @node emacspeak-erc
@@ -2264,6 +2350,12 @@ Change  blog in the currently active toolbelt.
 Change  books in the currently active toolbelt.
 @end deffn
 
+@deffn {Interactive Command} emacspeak-google-toolbelt-change-books-format nil
+@kbd{Not bound to any key.}
+
+Change  books-format in the currently active toolbelt.
+@end deffn
+
 @deffn {Interactive Command} emacspeak-google-toolbelt-change-books-type nil
 @kbd{Not bound to any key.}
 
@@ -2310,6 +2402,12 @@ Change  forums in the currently active toolbelt.
 @kbd{Not bound to any key.}
 
 Change  images in the currently active toolbelt.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-google-toolbelt-change-literal nil
+@kbd{Not bound to any key.}
+
+Change  literal in the currently active toolbelt.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-google-toolbelt-change-news nil
@@ -3004,6 +3102,13 @@ Reset MPlayer options to initial defaults.
 Reset playing speed to normal.
 @end deffn
 
+@deffn {Interactive Command} emacspeak-m-player-resume nil
+@kbd{Not bound to any key.}
+
+Resume M-Player where it was stopped if possible.
+Only works for local media sources, not Internet streams.
+@end deffn
+
 @deffn {Interactive Command} emacspeak-m-player-scale-speed nil
 @kbd{Not bound to any key.}
 
@@ -3637,7 +3742,7 @@ Forward-char redefined to speak char moved to.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-self-insert-command nil
-@kbd{ SPACE   € }
+@kbd{ SPACE..~   €..ÿ }
 
 Insert a character.
 Speaks the character if emacspeak-character-echo is true.
@@ -6235,9 +6340,11 @@ F		emacspeak-webspace-feed-view
 R		emacspeak-webspace-rss-view
 b		emacspeak-webspace-previous-link
 f		emacspeak-webspace-next-link
+g		emacspeak-webspace-reader-refresh
 n		next-line
 p		previous-line
 q		bury-buffer
+r		greader-reading-list
 t		emacspeak-webspace-transcode
 y		emacspeak-webspace-yank-link
 <S-tab>		emacspeak-webspace-previous-link
@@ -6269,6 +6376,13 @@ Move to previous link.
 @kbd{Not bound to any key.}
 
 Display Google Reader Feed list in a WebSpace buffer.
+Optional interactive prefix arg forces a refresh.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-webspace-reader-refresh nil
+@kbd{Not bound to any key.}
+
+Refresh Reader.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-webspace-reader-unsubscribe nil
@@ -6837,7 +6951,7 @@ SUDo command --run command as super user.
 @deffn {Interactive Command} emacspeak-sudo-edit nil
 @kbd{Not bound to any key.}
 
-Not Documented
+Edit file as Root.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-switch-to-previous-buffer nil
@@ -7160,6 +7274,12 @@ Navigate to and speak next `bullet'.
 Move point to the next interactive defun
 @end deffn
 
+@deffn {Interactive Command} emacspeak-wizards-next-shell nil
+@kbd{Not bound to any key.}
+
+Switch to next shell.
+@end deffn
+
 @deffn {Interactive Command} emacspeak-wizards-occur-header-lines nil
 @kbd{Not bound to any key.}
 
@@ -7227,6 +7347,12 @@ key             binding
 Navigate to and speak previous `bullet'.
 @end deffn
 
+@deffn {Interactive Command} emacspeak-wizards-previous-shell nil
+@kbd{Not bound to any key.}
+
+Switch to previous shell.
+@end deffn
+
 @deffn {Interactive Command} emacspeak-wizards-refresh-shell-history nil
 @kbd{Not bound to any key.}
 
@@ -7250,6 +7376,13 @@ RIVO is implemented by rivo.pl ---
 @kbd{Not bound to any key.}
 
 Run rpm -qi on current dired entry.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-wizards-shell nil
+@kbd{Not bound to any key.}
+
+Run Emacs built-in `shell' command when not in a shell buffer, or when called with a prefix argument. 
+When called from a shell buffer, switches to `next' shell buffer.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-wizards-shell-toggle nil
@@ -7312,6 +7445,13 @@ Squeeze multiple blank lines in current buffer.
 @kbd{Not bound to any key.}
 
 Display sunrise/sunset for specified address.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-wizards-switch-shell nil
+@kbd{Not bound to any key.}
+
+Switch to next/previous shell buffer.
+Direction specifies previous/next.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-wizards-term nil
@@ -8215,55 +8355,6 @@ for commands defined in module  emacspeak-w3m.
 Preview this buffer in w3m.
 
 (fn)
-@end deffn
-
-@node emacspeak-webmarks
-@section emacspeak-webmarks
-
-Commentary:
-http://www.google.com/bookmarks provides a simple bookmark
-facility
-emacspeak-webmarks provides direct minibuffer-level access to
-these in the spirit of the Emacspeak Web Command Line.
-For now, the emacspeak-webmarks-key needs to be set by hand
- after doing the following:
-0) sign in to google using xml-forms/glogin.xml
-1) search for a bookmark using xml-forms/bookmark-find.xml
-will work around this eventually.
-
-Automatically generated documentation
-for commands defined in module  emacspeak-webmarks.
-
-@deffn {Interactive Command} emacspeak-webmarks-add nil
-@kbd{Not bound to any key.}
-
-Add WebMark.
-
-(fn URL TITLE LABELS NOTES)
-@end deffn
-
-@deffn {Interactive Command} emacspeak-webmarks-history nil
-@kbd{Not bound to any key.}
-
-Search search history.
-
-(fn QUERY)
-@end deffn
-
-@deffn {Interactive Command} emacspeak-webmarks-list nil
-@kbd{Not bound to any key.}
-
-List WebMarks.
-
-(fn)
-@end deffn
-
-@deffn {Interactive Command} emacspeak-webmarks-search nil
-@kbd{Not bound to any key.}
-
-Search WebMarks.
-
-(fn QUERY)
 @end deffn
 
 @node URL Templates 

@@ -1,5 +1,5 @@
 ;;; outloud-voices.el --- Define various device independent voices in terms of OutLoud tags
-;;; $Id: outloud-voices.el 7366 2011-11-08 01:50:29Z tv.raman.tv $
+;;; $Id: outloud-voices.el 7511 2012-02-13 21:55:37Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Module to set up Eloquent voices and personalities
 ;;; Keywords: Voice, Personality, IBM ViaVoice Outloud
@@ -470,7 +470,7 @@ and TABLE gives the values along that dimension."
 
 ;;}}}
 ;;{{{ Configurater 
-
+;;;###autoload
 (defun outloud-configure-tts ()
   "Configure TTS environment to use ViaVoice  family of synthesizers."
   (declare (special tts-default-speech-rate

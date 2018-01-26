@@ -1,5 +1,5 @@
 ;;; emacspeak-redefine.el --- Redefines some key Emacs builtins to speak
-;;; $Id: emacspeak-redefine.el 6859 2011-02-18 01:55:06Z tv.raman.tv $
+;;; $Id: emacspeak-redefine.el 7725 2012-04-26 15:22:15Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak's redefinition of some key functions.
 ;;; Emacspeak does most of its work by advising other functions to speak.
@@ -92,17 +92,19 @@ Speech flushes as you type."
        (pop buffer-undo-list ))
   (self-insert-command  arg )
   (when (interactive-p)
-    (dtk-stop)
-    (cond
-     ((and emacspeak-word-echo
-           (= (char-syntax last-command-event )32 ))
-      (save-excursion
-        (condition-case nil
-            (forward-word -1)
-          (error nil))
-        (emacspeak-speak-word)))
-     (emacspeak-character-echo
-      (emacspeak-speak-this-char (preceding-char) ))))
+    (let ((display (get-char-property (1- (point)) 'display)))
+      (dtk-stop)
+      (cond
+       (display (dtk-say display))
+       ((and emacspeak-word-echo
+             (= (char-syntax last-command-event )32 ))
+        (save-excursion
+          (condition-case nil
+              (forward-word -1)
+            (error nil))
+          (emacspeak-speak-word)))
+       (emacspeak-character-echo
+        (emacspeak-speak-this-char (preceding-char))))))
   (and auto-fill-function
        (= (char-syntax  last-command-event) 32)
        (>= (current-column) fill-column)

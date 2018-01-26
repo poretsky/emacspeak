@@ -1,5 +1,5 @@
 ;;; emacspeak-org.el --- Speech-enable org
-;;; $Id: emacspeak-org.el 7378 2011-11-10 17:34:32Z tv.raman.tv $
+;;; $Id: emacspeak-org.el 7733 2012-05-03 02:12:31Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak front-end for ORG
 ;;; Keywords: Emacspeak, org
@@ -94,6 +94,7 @@
         org-goto-quit
         org-next-item org-previous-item
         org-metaleft org-metaright org-metaup org-metadown
+        org-meta-return
         org-shiftmetaleft org-shiftmetaright org-shiftmetaup org-shiftmetadown
         )
       do
@@ -318,6 +319,12 @@
   (declare (special org-goto-map org-mode-map))
   (loop for k in
         '(
+          ([(meta return)] org-meta-return)
+          ([(meta up)] org-metaup)
+          ([(meta down)] org-metadown)
+          ([(meta left)] org-metaleft)
+          ([(shift right)] org-shiftright)
+          ([(meta right)] org-metaright)
           ([(shift tab)]    org-shifttab)
           ([(shift up)] org-shiftup)
           ([(shift down)] org-shiftdown)

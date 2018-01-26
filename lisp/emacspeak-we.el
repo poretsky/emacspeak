@@ -1,5 +1,5 @@
 ;;; emacspeak-we.el --- Transform Web Pages Using XSLT
-;;; $Id: emacspeak-we.el 7398 2011-11-13 21:28:33Z tv.raman.tv $
+;;; $Id: emacspeak-we.el 7484 2011-12-20 16:48:38Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Edit/Transform Web Pages using XSLT
 ;;; Keywords: Emacspeak,  Audio Desktop Web, XSLT
@@ -250,6 +250,10 @@ Nil means no transform is used. "
     (message "Turned %s xslt keep results."
              (if emacspeak-we-xsl-keep-result
                  'on 'off))))
+(defcustom emacspeak-we-filters-rename-buffer nil
+  "Set to T  if you want the buffer name to contain the applied filter."
+  :type  'boolean
+  :group 'emacspeak-we)
 
 ;;;###autoload
 (defun emacspeak-we-xslt-filter (path    url  &optional speak)
@@ -260,9 +264,10 @@ from Web page -- default is the current page being viewed."
     (read-from-minibuffer "XPath: ")
     (emacspeak-webutils-read-url)
     current-prefix-arg))
-  (declare (special emacspeak-we-xsl-filter ))
+  (declare (special emacspeak-we-xsl-filter
+                    emacspeak-we-filters-rename-buffer))
   (let ((params (emacspeak-xslt-params-from-xpath  path url)))
-    (emacspeak-webutils-rename-buffer (format "Filtered %s" path))
+    (when emacspeak-we-filters-rename-buffer(emacspeak-webutils-rename-buffer (format "Filtered %s" path)))
     (when speak (emacspeak-webutils-autospeak))
     (emacspeak-webutils-with-xsl-environment
      emacspeak-we-xsl-filter
@@ -883,7 +888,7 @@ specifies the page to extract contents  from."
 
 (defvar emacspeak-we-xpath-filter-history 
   (list
-   "//p"
+   emacspeak-we-recent-xpath-filter
    "//p|//div"
    "//p|//ol|//ul|//dl|//h1|//h2|//h3|//h4|//h5|//h6|//blockquote")
   "History list recording XPath filters we've used.")
@@ -895,10 +900,17 @@ specifies the page to extract contents  from."
 urls.")
 
 (make-variable-buffer-local 'emacspeak-we-xpath-filter)
+;;;###autoload
 (defcustom emacspeak-we-recent-xpath-filter
   "//p|//ol|//ul|//dl|//h1|//h2|//h3|//h4|//h5|//h6|//blockquote|//div"
   "Caches most recently used xpath filter.
 Can be customized to set up initial default."
+  :type 'string
+  :group 'emacspeak-we)
+;;;###autoload
+(defcustom emacspeak-we-paragraphs-xpath-filter
+  "//p"
+  "Filter paragraphs."
   :type 'string
   :group 'emacspeak-we)
 

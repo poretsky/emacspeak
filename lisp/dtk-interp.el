@@ -1,5 +1,5 @@
 ;;; dtk-interp.el --- Language specific (e.g. TCL) interface to speech server
-;;; $Id: dtk-interp.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
+;;; $Id: dtk-interp.el 7526 2012-02-29 18:39:31Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Interfacing to the speech server
 ;;; Keywords: TTS, Dectalk, Speech Server
@@ -291,7 +291,7 @@
 (defsubst dtk-interp-resume ()
   (declare (special dtk-speaker-process))
   (process-send-string dtk-speaker-process
-                       "tts_resume\n"))
+                       "\n"))
 
 ;;}}}
 

@@ -1,5 +1,5 @@
 ;;; emacspeak-w3.el --- Speech enable W3 WWW browser -- includes ACSS Support
-;;; $Id: emacspeak-w3.el 7282 2011-10-16 16:21:03Z tv.raman.tv $
+;;; $Id: emacspeak-w3.el 7733 2012-05-03 02:12:31Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak enhancements for W3
 ;;; Keywords: Emacspeak, W3, WWW
@@ -830,7 +830,37 @@ HTML."
     (error nil)))
 
 ;;}}}
+;;{{{ Fix url breakage in emacs 24 GIT:
 
+Tue Apr 24 17:33:27 PDT 2012
+;;; pattern: http://www.google.com/url?q=http://emacspeak.sourceforge.net/&sa=U&ei=GceWT42_EY_ViALW84nlCQ&ved=0CBIQFjAA&usg=AFQjCNGz91Z7Yz9dPVoKPP6HVGZ0UqFhRA
+;;; prefix: http://www.google.com/url?q=
+;;; Suffix: &sa=...
+
+(defsubst emacspeak-w3-canonicalize-google-result-url (url)
+  "Strip out the actual result URL from the redirect wrapper."
+  (declare (special emacspeak-websearch-google-use-https))
+  (substring url
+             (if emacspeak-websearch-google-use-https 29 28)
+             (string-match "&sa=" url)))
+
+(defsubst emacspeak-w3-google-result-url-prefix ()
+  "Return prefix of result urls."
+  (declare (special emacspeak-websearch-google-use-https))
+  (format "%s://www.google.com/url?q="
+          (if emacspeak-websearch-google-use-https "https" "http")))
+
+(defadvice url-retrieve-internal (before fix-bug pre act comp)
+  "Fix bug in handling of google result urls."
+  (let ((u (ad-get-arg 0)))
+    (when (string-prefix-p (emacspeak-w3-google-result-url-prefix) u)
+      (ad-set-arg 0 (emacspeak-w3-canonicalize-google-result-url u)))))
+
+(defun foo (x y)
+  "show x"
+  (message (concat x y)))
+
+;;}}}
 ;;{{{  emacs local variables
 
 ;;; local variables:

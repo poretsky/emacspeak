@@ -1,5 +1,5 @@
 ;;; emacspeak-advice.el --- Advice all core Emacs functionality to speak intelligently
-;;; $Id: emacspeak-advice.el 7430 2011-11-22 23:49:59Z tv.raman.tv $
+;;; $Id: emacspeak-advice.el 7733 2012-05-03 02:12:31Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Core advice forms that make emacspeak work
 ;;; Keywords: Emacspeak, Speech, Advice, Spoken  output
@@ -490,24 +490,52 @@ the words that were capitalized."
        (t (message "Deleting possible subsequent blank lines"))))))
 
 ;;}}}
+;;{{{  Advice PComplete 
+
+(defadvice pcomplete-list (after emacspeak pre act )
+  "Provide auditory feedback."
+  (when (interactive-p)
+    (emacspeak-auditory-icon 'help)
+    (emacspeak-auditory-icon 'help)))
+
+(defadvice pcomplete-show-completions (around emacspeak pre act comp)
+  (let ((emacspeak-speak-messages nil))
+    ad-do-it))
+
+(defadvice pcomplete (around emacspeak pre act)
+  "Say what you completed."
+  (let ((orig (point)))
+    ad-do-it
+    (when  (interactive-p)
+      (emacspeak-speak-region orig (point))
+      (emacspeak-auditory-icon 'complete))
+    ad-return-value))
+
+;;}}}
 ;;{{{  advice insertion commands to speak.
 
 (defadvice completion-separator-self-insert-autofilling (after emacspeak pre act)
   "Speak what was completed."
   (declare (special emacspeak-word-echo))
   (when (and emacspeak-word-echo  (interactive-p ))
-    (condition-case nil
-        (save-excursion
-          (skip-syntax-backward " ")
-          (backward-char 1)
-          (emacspeak-speak-word))
-      (error nil ))))
+    (let ((display (get-char-property (1- (point)) 'display)))
+      (if display
+          (dtk-say display)
+        (condition-case nil
+            (save-excursion
+              (skip-syntax-backward " ")
+              (backward-char 1)
+              (emacspeak-speak-word))
+          (error nil ))))))
 
 (defadvice completion-separator-self-insert-command (after emacspeak act comp)
   "Speak char after inserting it."
   (declare (special emacspeak-character-echo))
   (when (and emacspeak-character-echo  (interactive-p))
-    (emacspeak-speak-this-char (preceding-char ))))
+    (let ((display (get-char-property (1- (point)) 'display)))
+      (if display
+          (dtk-say display)
+        (emacspeak-speak-this-char (preceding-char ))))))
 
 (defadvice quoted-insert  (after emacspeak pre act )
   "Speak the character that was inserted."
@@ -677,6 +705,17 @@ Produce an auditory icon if possible."
   ad-return-value )
 
 ;;}}}
+;;{{{ Advice completion-at-point:
+(defadvice completion-at-point (around emacspeak pre act)
+  "Say what you completed."
+  (let ((orig (point)))
+    ad-do-it
+    (when  (interactive-p)
+      (emacspeak-speak-region orig (point))
+      (emacspeak-auditory-icon 'complete))
+    ad-return-value))
+
+;;}}}
 ;;{{{  advice various input functions to speak:
 
 (defadvice read-key-sequence(around emacspeak pre act )
@@ -689,11 +728,18 @@ Produce an auditory icon if possible."
                                         ;(tts-with-punctuations 'all
                                         ;(dtk-speak (format "%s" ad-return-value)))
     ad-return-value))
-(defadvice read-passwd (before emacspeak pre act comp)
-  "Speak the prompt."
-  (emacspeak-auditory-icon 'open-object)
-  (dtk-stop)
-  (dtk-speak (ad-get-arg 0)))
+(defadvice read-passwd (around emacspeak pre act comp)
+  "Speak the prompt.
+Do not echo the passwd chars as they are typed."
+  (cond
+   ((not (interactive-p)) ad-do-it)
+   (t
+    (let ((echo-keystrokes 0))
+      (emacspeak-auditory-icon 'open-object)
+      (dtk-stop)
+      (dtk-speak (ad-get-arg 0))
+      ad-do-it)))
+  ad-return-value)
 
 (defadvice read-char (before emacspeak pre act comp)
   "Speak the prompt"
@@ -709,7 +755,13 @@ Produce an auditory icon if possible."
         (chars (ad-get-arg 1)))
     (tts-with-punctuations
      'all
-     (dtk-speak (format "%s" prompt))))) 
+     (dtk-speak
+      (format "%s: %s"
+              prompt
+              (mapconcat
+               #'(lambda (c) (format "%c" c))
+               chars
+               ", "))))))
 
 (defadvice read-char-exclusive (before emacspeak pre act comp)
   "Speak the prompt"
@@ -1105,8 +1157,10 @@ Produce an auditory icon if possible."
           (emacspeak-speak-messages nil))
       ad-do-it
       (if (> (point) prior)
-          (tts-with-punctuations 'all
-                                 (dtk-speak (buffer-substring prior (point ))))
+          (tts-with-punctuations
+           'all
+           (emacspeak-auditory-icon 'complete)
+           (dtk-speak (buffer-substring prior (point ))))
         (emacspeak-speak-completions-if-available))))
    (t ad-do-it))
   ad-return-value)
@@ -1695,7 +1749,9 @@ Indicate change of selection with
 
 (defadvice describe-function (after emacspeak pre act)
   "Speak the help."
-  (when (interactive-p) (emacspeak-speak-help )))
+  (when (interactive-p)
+    (emacspeak-auditory-icon 'help)
+    (emacspeak-speak-help )))
 
 (defadvice describe-variable (after emacspeak pre act)
   "Speak the help."
@@ -1704,6 +1760,7 @@ Indicate change of selection with
 (defadvice describe-key (after emacspeak pre act)
   "Speak the help."
   (when (interactive-p)
+    (emacspeak-auditory-icon 'help)
     (emacspeak-speak-help )))
 
 (defadvice help-with-tutorial (after emacspeak pre act comp)
@@ -2056,6 +2113,34 @@ Provide an auditory icon if possible."
   (when (interactive-p)
     (emacspeak-auditory-icon 'select-object)
     (emacspeak-speak-mode-line )))
+
+(defvar emacspeak--help-char-helpbuf " *Char Help*"
+  "This is hard-coded in subr.el")
+
+(defadvice help-form-show (after emacspeak pre act comp)
+  "Speak displayed help form."
+  (declare (special emacspeak--help-char-helpbuf))
+  (when (buffer-live-p (get-buffer emacspeak--help-char-helpbuf))
+    (with-current-buffer emacspeak--help-char-helpbuf
+      (goto-char (point-min))
+      (emacspeak-speak-buffer))))
+
+(defadvice tooltip-show-help(after emacspeak pre act comp)
+  "Provide auditory feedback."
+  (let ((msg (ad-get-arg 0)))
+    (if msg
+        (dtk-speak msg)
+      (emacspeak-auditory-icon 'close-object))))
+
+(loop for f in
+      '(tooltip-show-help-non-mode tooltip-sho)
+      do
+      (eval
+       `(defadvice ,f (after emacspeak pre act comp)
+          "Speak the tooltip."
+          (let ((help (ad-get-arg 0)))
+            (dtk-speak help)
+            (emacspeak-auditory-icon 'help)))))
 
 ;;}}}
 ;;{{{  Emacs server

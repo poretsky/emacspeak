@@ -6,7 +6,7 @@
 ;;; Using patch from Lukas.
 ;;
 ;; Author: Lukas Loehrer <loehrerl |at| gmx.net>
-;; Version: $Id: dtk-unicode.el 7378 2011-11-10 17:34:32Z tv.raman.tv $
+;; Version: $Id: dtk-unicode.el 7734 2012-05-03 02:20:29Z tv.raman.tv $
 ;; Keywords:  TTS, Unicode
 
 ;;}}}
@@ -67,7 +67,7 @@
   "Customization group for dtk-unicode."
   :group 'emacspeak
   :prefix "dtk-unicode-")
-
+;;;###autoload
 (defcustom dtk-unicode-character-replacement-alist
   '(
     (? . "-")                   ; START OF GUARDED AREA
@@ -102,6 +102,15 @@
           :key-type (character :tag "character")
           :value-type (string :tag "replacement"))
   )
+
+;;;###autoload
+(defcustom dtk-unicode-process-utf8 t
+  "Turn this off when working with TTS  engines that handle UTF8
+themselves, e.g., when using an Asian language."
+  :type 'boolean
+  :group 'dtk-unicode)
+
+  
 
 (defcustom dtk-unicode-name-transformation-rules-alist
   '(
@@ -301,7 +310,8 @@ This is meant to be used in places where the user asks for a short description o
 This is the main entry point for this module.
 The argument MODE specifies the current punctuation mode.
 Does nothing for unibyte buffers."
-  (when enable-multibyte-characters
+  (declare (special dtk-unicode-process-utf8))
+  (when  dtk-unicode-process-utf8
     (let ((inhibit-read-only t))
       (goto-char (point-min))
       (while (re-search-forward dtk-unicode-charset-filter-regexp  nil t)

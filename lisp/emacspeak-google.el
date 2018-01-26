@@ -165,6 +165,14 @@ This variable is buffer-local.")
         :default 0
         :type 'tbm
         :value 0)
+;;; epub 
+       (make-emacspeak-google-tool
+        :name "books-format"
+        :param "bft"
+        :range '("p" "e")
+        :default "e"
+        :type 'tbs
+        :value "e")
 ;;; Books viewability
        (make-emacspeak-google-tool
         :name "books-viewability"
@@ -285,6 +293,14 @@ This variable is buffer-local.")
         :default 0
         :type 'tbs
         :value 0)
+;;; verbatim/literal search
+       (make-emacspeak-google-tool
+        :name "literal"
+        :param "li"
+        :range '(0 1)
+        :default 0
+        :type 'tbs
+        :value 0)
        ;;; shopping
        (make-emacspeak-google-tool
         :name "Shopping"
@@ -399,12 +415,13 @@ This variable is buffer-local.")
         ("i" emacspeak-google-toolbelt-change-images)
         ("B" emacspeak-google-toolbelt-change-books)
         ("t" emacspeak-google-toolbelt-change-books-type)
+        ("L" emacspeak-google-toolbelt-change-literal)
         ("\C-t" emacspeak-google-show-toolbelt)
         ("T" emacspeak-google-toolbelt-change-timeline)
-        ("\C-b" emacspeak-google-toolbelt-change-books-viewability)
+        ("\C-b" emacspeak-google-toolbelt-change-books-format)
         ("l" emacspeak-google-toolbelt-change-non-commercial)
-        ("s"
-         emacspeak-google-toolbelt-change-structured-snippets)
+        ("S" emacspeak-google-toolbelt-change-shopping)
+        ("s" emacspeak-google-toolbelt-change-structured-snippets)
         ("S" emacspeak-google-toolbelt-change-social)
         ("a" emacspeak-websearch-google)
         ("A" emacspeak-websearch-accessible-google)

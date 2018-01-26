@@ -1,5 +1,5 @@
 ;;; emacspeak-pronounce.el --- Implements Emacspeak pronunciation dictionaries
-;;; $Id: emacspeak-pronounce.el 7430 2011-11-22 23:49:59Z tv.raman.tv $
+;;; $Id: emacspeak-pronounce.el 7733 2012-05-03 02:12:31Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description: Emacspeak pronunciation dictionaries
 ;;; Keywords:emacspeak, audio interface to emacs customized pronunciation
@@ -782,7 +782,7 @@ specified pronunciation dictionary key."
       (and
        (= 40 (length sha))
        (string-match "[0-9a-f]+" sha))
-  (format "sha: %s " (substring sha 0 5))))
+    (format "sha: %s " (substring sha 0 5))))
 
 ;;}}}
 

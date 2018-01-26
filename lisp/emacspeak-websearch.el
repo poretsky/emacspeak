@@ -1,5 +1,5 @@
 ;;; emacspeak-websearch.el --- search utilities
-;;; $Id: emacspeak-websearch.el 7425 2011-11-22 01:55:17Z tv.raman.tv $
+;;; $Id: emacspeak-websearch.el 7724 2012-04-26 03:02:37Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak extension to make Web searching convenient
 ;;; Keywords: Emacspeak, WWW interaction
@@ -936,6 +936,7 @@ Optional second arg as-html processes the results as HTML rather than data."
 
 ;;}}}
 ;;{{{ google
+;;;###autoload
 (defcustom emacspeak-websearch-google-use-https t
   "Specify whether we use secure connections for Google search."
   :type 'boolean
@@ -1019,6 +1020,7 @@ Uses  customizable option `emacspeak-websearch-google-results-only' to determine
                "&btnI="
                (emacspeak-url-encode "I'm Feeling Lucky"))))))
       (cond
+       (lucky (browse-url search-url))
        (emacspeak-websearch-google-results-only
         (emacspeak-we-extract-by-id-list
          (list "subform_ctrl" "res" "nav")

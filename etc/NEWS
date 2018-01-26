@@ -1,67 +1,44 @@
 Emacspeak News --History Of User-Visible Changes
-$Id: NEWS 7432 2011-11-23 03:51:49Z tv.raman.tv $
-Author: T. V. Raman <raman@users.sf.net>
+$Id: NEWS 7704 2012-04-19 15:53:22Z tv.raman.tv $
+Author: T. V. Raman <tv.raman.tv@gmail.com>
 
-* Emacspeak 35 -- Emacspeak 35 User Visible Changes 
-** emacspeak-magit.el:
+* Emacspeak 36 -- Emacspeak 36 User Visible Changes 
 
-Speech-enable magit -- a powerful mode for git interaction from Emacs.
+
+** emacspeak-epub.el: Full EPub Support
+Implements epub support including an interactive bookshelf.
+EPub books on the bookshelf can be read directly without
+unpacking.
 ** emacspeak-websearch.el:
+Updated websearch support for new search innovations on the Web.
 
-More options for controlling Google search, including better
-toolbelt integration.
-New customize option emacspeak-websearch-google-results-only  ---
-set to T by default ---
-displays only results and the nav bar for Google search
-results. You can easily repeat the search with additional search
-toolbelt options via the commands available on C-t.
-** emacspeak-epub.el: 
-Preliminary epub support.
-** emacspeak-woman.el:
+** emacspeak-magit.el:
+Speech-enables magit for fluent git interaction.
 
-Add emacspeak support to WoMan -- man pages in Emacs Lisp.
+** emacspeak-ftf.el:
+Speech-enable package find-things-fast.
 
-** emacspeak-dbus.el:
+** TTS:
 
-Add DBus support for Emacspeak.
-When loaded, Emacspeak watches DBus signals for network
-connect/disconnet.
-
-** emacspeak-pianobar.el:
-One-click access to Pandora Radio using pianobar.
+Fixed bug in language switching and bound language switching
+commands in dtk-keymap.
 
 
-** Emacspeak-npr.el: NPR  API Client
-One-click access to NPR  programming.
 
-** emacspeak-url-templates:
-
-Many new and updated URL  templates
-
-** emacspeak-librivox.el: API  Client For Free Audio Books 
+** emacspeak-url-templates.el
+Updated url templates for faster Web access.
 
 
-Search, locate and listen to free audio books from the comfort of
-the audio desktop.
 
-** emacspeak-bookshare.el: Bookshare API  Client
+** SSH Port Forwarding And Remote TTS:
 
-Bookshare subscribers now have one click access to all of
-Bookshares Daisy EBooks.
+etc/remote-tts-setup: Added remote-tts sample for configuring remote TTS via ssh port
+forwarding.
 
-** servers/mac: Support For Mac TTS
+** plain-voices.el
 
-Preliminary support for the Mac OS  platform --- thanks to Bart
-Bunting and David Tseng.
-** Mode-line Cleanups:
-
-Emacspeak rendering  of the modeline has been cleaned up to be
-more succint.
-** Emacs 24 Support:
-
-
-Adds support for Emacs 24
-
+Implements a default  interface for use with  unsupported  TTS
+engines.
 
 
 # local variables:

@@ -1,5 +1,5 @@
 ;;; emacspeak-personality.el ---Emacspeak's new personality interface
-;;; $Id: emacspeak-personality.el 7409 2011-11-16 03:22:20Z tv.raman.tv $
+;;; $Id: emacspeak-personality.el 7578 2012-03-17 02:52:37Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Voice lock implementation
 ;;; Keywords: Emacspeak,  Spoken Output, audio formatting
@@ -88,12 +88,12 @@
 
 ;;;###autoload
 (defsubst emacspeak-personality-put (start end personality object)
-  "Apply personality to specified region, over-writing any current
-personality settings."
+  "Apply personality to specified region, over-writing any current personality settings."
   (when (and (integer-or-marker-p start)
              (integer-or-marker-p end )
              (not (= start end)))
-    (let ((v (if (listp personality)
+    (let ((inhibit-read-only t)
+          (v (if (listp personality)
                  (delete-duplicates personality :test #'eq)
                personality)))
       (ems-modify-buffer-safely
@@ -108,7 +108,8 @@ Existing personality properties on the text range are preserved."
                  (integer-or-marker-p end )
                  (not (= start end)))
         (ems-modify-buffer-safely
-         (let ((v (if (listp personality)
+         (let ((inhibit-read-only t)
+               (v (if (listp personality)
                       (delete-duplicates personality :test #'eq)
                     personality))
                (orig (get-text-property start 'personality object))

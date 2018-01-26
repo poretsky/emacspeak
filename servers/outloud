@@ -5,8 +5,8 @@
 # LCD Archive Entry:
 # emacspeak| T. V. Raman |raman@cs.cornell.edu
 # A speech interface to Emacs |
-# $Date: 2011-10-14 12:08:56 -0700 (Fri, 14 Oct 2011) $ |
-#  $Revision: 7276 $ | 
+# $Date: 2012-04-19 08:31:22 -0700 (Thu, 19 Apr 2012) $ |
+#  $Revision: 7699 $ | 
 # Location undetermined
 #
 
@@ -201,7 +201,7 @@ proc r {rate} {
 # langsynth(top)=2
 # langlabel: what will be announced
 # e.g. langlabel(0)="Finnish"
-# This variable is set by tcldtk? doesn't work
+# This variable ? doesn't work
 
 #set langlabel(0) "American"
 
@@ -277,12 +277,14 @@ proc set_previous_lang {say_it} {
 proc set_lang {{name "en"} {say_it "nil"}} {
     global langsynth
     global langalias
-
+global langlabel
      if { ![info exists langalias($name)]} {
+         puts stderr "Language $name not found."
 	return
      }
 
      if { $langalias($name) == $langsynth(current) } {
+         puts stderr "$name is already the current language."
 	return
      }
     
@@ -300,7 +302,7 @@ proc set_lang {{name "en"} {say_it "nil"}} {
     }
 
     if { $say_it == "t"} {
-	tts_say "$langlabel($langsynthkey) "
+        tts_say "$langlabel($langsynthkey) "
     }
 }
 
@@ -472,7 +474,7 @@ if {[info exists server_p]} {
 set servers [file dirname $argv0]
 set tclTTS $servers/linux-outloud
 #set ECIINI unless already set
-if {![info exists env(ECIINI)] || ![file exists $env(ECIINI)] } {
+if {[info exists env(ECIINI)] &&  ![file exists $env(ECIINI)] } {
     set env(ECIINI) $tclTTS/eci.ini
 }
 load $tclTTS/atcleci.so

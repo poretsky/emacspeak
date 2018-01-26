@@ -1,5 +1,5 @@
 ;;; emacspeak-webspace.el --- Webspaces In Emacspeak
-;;; $Id: emacspeak-webspace.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
+;;; $Id: emacspeak-webspace.el 7720 2012-04-25 02:46:26Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description: WebSpace provides smart updates from the Web.
 ;;; Keywords: Emacspeak, Audio Desktop webspace
@@ -80,13 +80,15 @@
         ("b" emacspeak-webspace-previous-link)
         ("y" emacspeak-webspace-yank-link)
         ("A"emacspeak-webspace-atom-view)
+        ("r" greader-reading-list)
         ("R" emacspeak-webspace-rss-view)
         ("F" emacspeak-webspace-feed-view)
         ("t" emacspeak-webspace-transcode)
         ("\C-m" emacspeak-webspace-open)
         ("." emacspeak-webspace-filter)
         ("n" next-line)
-        ("p" previous-line))
+        ("p" previous-line)
+        ("g" emacspeak-webspace-reader-refresh))
       do
       (emacspeak-keymap-update  emacspeak-webspace-mode-map k))
 
@@ -106,17 +108,18 @@
 (defun emacspeak-webspace-atom-view ()
   "View Atom feed."
   (interactive)
+  (emacspeak-webutils-autospeak)
   (emacspeak-webspace-act-on-link 'emacspeak-webutils-atom-display))
 
 (defun emacspeak-webspace-rss-view ()
   "View RSS feed."
   (interactive)
+  (emacspeak-webutils-autospeak)
   (emacspeak-webspace-act-on-link 'emacspeak-webutils-rss-display))
 
 (defun emacspeak-webspace-feed-view ()
   "View  feed using gfeeds."
   (interactive)
-  (emacspeak-webutils-autospeak)
   (emacspeak-webspace-act-on-link 'gfeeds-view))
 
 ;;;###autoload
@@ -129,7 +132,7 @@
       (kill-new link)
       (emacspeak-auditory-icon 'yank-object)
       (message link))
-     (t (error "No link under point")))))k
+     (t (error "No link under point")))))
 
 (defadvice gfeeds-view (around emacspeak pre act comp)
   "Automatically speak display."
@@ -142,7 +145,6 @@
 (defun emacspeak-webspace-open ()
   "Open headline at point by following its link property."
   (interactive)
-  (emacspeak-webutils-autospeak)
   (emacspeak-webspace-act-on-link 'browse-url))
 
 ;;;###autoload
@@ -152,7 +154,7 @@
   (let ((link (get-text-property (point) 'link)))
     (if link
         (emacspeak-we-xslt-filter
-         "//p"
+         emacspeak-we-recent-xpath-filter
          link 'speak)
       (message "No link under point."))))
 ;;;###autoload
@@ -220,6 +222,7 @@ Generates auditory and visual display."
       '(
         ("w" emacspeak-webspace-weather)
         ("h" emacspeak-webspace-headlines)
+        ("r" greader-reading-list)
         )
       do
       (define-key emacspeak-webspace-keymap (first k) (second k)))
@@ -418,15 +421,24 @@ Updated weather is found in `emacspeak-webspace-current-weather'."
     buffer))
 
 ;;;###autoload 
-(defun emacspeak-webspace-reader ()
-  "Display Google Reader Feed list in a WebSpace buffer."
-  (interactive)
+(defun emacspeak-webspace-reader (&optional refresh)
+  "Display Google Reader Feed list in a WebSpace buffer.
+Optional interactive prefix arg forces a refresh."
+  (interactive "P")
   (declare (special emacspeak-webspace-reader-buffer))
-  (unless (buffer-live-p  (get-buffer emacspeak-webspace-reader-buffer))
+  (when (or refresh
+            (not (buffer-live-p  (get-buffer emacspeak-webspace-reader-buffer))))
     (emacspeak-webspace-reader-create))
   (switch-to-buffer emacspeak-webspace-reader-buffer)
   (goto-char (point-min))
   (emacspeak-speak-mode-line)
+  (emacspeak-auditory-icon 'open-object))
+
+;;;###autoload
+(defun emacspeak-webspace-reader-refresh ()
+  "Refresh Reader."
+  (interactive )
+  (emacspeak-webspace-reader 'refresh)  (emacspeak-speak-mode-line)
   (emacspeak-auditory-icon 'open-object))
 
 ;;;###autoload

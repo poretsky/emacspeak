@@ -1,4 +1,4 @@
-# $Id: Makefile 7329 2011-10-28 00:26:36Z tv.raman.tv $
+# $Id: Makefile 7695 2012-04-18 15:34:29Z tv.raman.tv $
 # $Author: tv.raman.tv $
 # Description:  Makefile for Emacspeak
 # Keywords: Emacspeak, Dectalk, Makefile
@@ -60,6 +60,7 @@ COMPILE =  -f batch-byte-compile
 #The various modules:
 DTK_OBJECTS = acss-structure.elc \
 dtk-speak.elc		dectalk-voices.elc\
+plain-voices.elc \
 outloud-voices.elc multispeech-voices.elc mac-voices.elc\
 espeak-voices.elc dtk-interp.elc dtk-unicode.elc
 
@@ -82,10 +83,10 @@ emacspeak-re-builder.elc \
 	emacspeak-replace.elc \
         emacspeak-table.elc \
         emacspeak-table-ui.elc \
-	emacspeak-tabulate.elc
-
-AUX_OBJECTS =  cd-tool.elc \
+	emacspeak-tabulate.elc \
+cd-tool.elc \
 amixer.elc \
+shr-url.elc \
 nm.elc \
 emacspeak-add-log.elc \
 emacspeak-alsaplayer.elc \
@@ -143,6 +144,7 @@ emacspeak-eudc.elc \
 emacspeak-facemenu.elc \
 emacspeak-filtertext.elc \
 emacspeak-find-dired.elc \
+emacspeak-ftf.elc \
 emacspeak-find-func.elc \
 emacspeak-finder.elc \
 emacspeak-flyspell.elc \
@@ -236,7 +238,6 @@ emacspeak-wdired.elc \
 emacspeak-we.elc \
 emacspeak-webspace.elc \
 emacspeak-webutils.elc \
-emacspeak-webmarks.elc \
 emacspeak-websearch.elc \
 emacspeak-widget.elc \
 emacspeak-windmove.elc \
@@ -251,9 +252,7 @@ emacspeak-zinf.elc
 
 ADDON_OBJECTS= tapestry.elc   stack-f.elc  xml-parse.elc toy-braille.elc
 
-OBJECTS = $(DTK_OBJECTS) $(SPEAK_OBJECTS) $(CORE_OBJECTS)  \
-	$(AUX_OBJECTS) $(ADDON_OBJECTS)
-
+OBJECTS = $(DTK_OBJECTS) $(SPEAK_OBJECTS) $(CORE_OBJECTS) $(ADDON_OBJECTS)
 # }}}
 # {{{  User level targets all
 
@@ -300,6 +299,7 @@ dtk-speak.elc: dtk-speak.el  dtk-interp.elc dtk-unicode.elc
 acss-structure.elc: acss-structure.el
 dectalk-voices.elc: dectalk-voices.el voice-setup.elc
 outloud-voices.elc: outloud-voices.el voice-setup.elc
+plain-voices.elc: plain-voices.el voice-setup.elc
 multispeech-voices.elc: multispeech-voices.el voice-setup.elc
 mac-voices.elc: mac-voices.el voice-setup.elc
 espeak-voices.elc: espeak-voices.el voice-setup.elc
@@ -309,6 +309,7 @@ ommacspeak-amark.elc: emacspeak-amark.el
 cd-tool.elc: cd-tool.el
 nm.elc: nm.el
 amixer.elc: amixer.el
+shr-url.elc: shr-url.el
 emacspeak-actions.elc: emacspeak-actions.el
 emacspeak-add-log.elc: emacspeak-add-log.el dtk-speak.elc voice-setup.elc
 emacspeak-advice.elc: emacspeak-advice.el dtk-speak.elc voice-setup.elc
@@ -365,6 +366,7 @@ emacspeak-eudc.elc: emacspeak-eudc.el dtk-speak.elc voice-setup.elc
 emacspeak-facemenu.elc: emacspeak-facemenu.el dtk-speak.elc voice-setup.elc
 emacspeak-filtertext.elc: emacspeak-filtertext.el dtk-speak.elc voice-setup.elc
 emacspeak-find-dired.elc: emacspeak-find-dired.el dtk-speak.elc voice-setup.elc
+emacspeak-ftf.elc: emacspeak-ftf.el dtk-speak.elc
 emacspeak-find-func.elc: emacspeak-find-func.el dtk-speak.elc voice-setup.elc
 emacspeak-finder.elc: emacspeak-finder.el
 emacspeak-fix-interactive.elc: emacspeak-fix-interactive.el dtk-speak.elc voice-setup.elc

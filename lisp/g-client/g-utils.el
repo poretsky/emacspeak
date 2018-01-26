@@ -1,5 +1,5 @@
 ;;; g-utils.el --- Google Client Utilities
-;;;$Id: g-utils.el 6513 2010-06-02 15:33:54Z tv.raman.tv $
+;;;$Id: g-utils.el 7562 2012-03-08 16:55:53Z tv.raman.tv $
 ;;; $Author: raman $
 ;;; Description:  Google Client utilities
 ;;; Keywords: Google   Atom API, Google Services
@@ -165,7 +165,7 @@ Customize this to live on your local disk."
 
 (defsubst g-url-encode (str)
   "URL encode  string."
-  (mapconcat '(lambda (c)
+  (mapconcat #'(lambda (c)
                 (cond ((= c 32) "+")
                       ((or (and (>= c ?a) (<= c ?z))
                            (and (>= c ?A) (<= c ?Z))

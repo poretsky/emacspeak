@@ -1,5 +1,5 @@
 ;;; emacspeak-keymap.el --- Setup all keymaps and keybindings provided by Emacspeak
-;;; $Id: emacspeak-keymap.el 7289 2011-10-20 03:39:22Z tv.raman.tv $
+;;; $Id: emacspeak-keymap.el 7701 2012-04-19 15:35:14Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Module for setting up emacspeak keybindings
 ;;; Keywords: Emacspeak
@@ -384,7 +384,7 @@ field in the customization buffer.  You can use the notation
         ("b" emacspeak-speak-buffer)
         ("c" emacspeak-speak-char)
         ("f" emacspeak-speak-buffer-filename )
-        ("g" emacspeak-ebook-command)
+        ("g" emacspeak-epub)
         ("h" emacspeak-speak-help)
         ("i" emacspeak-tabulate-region)
         ("j" emacspeak-hide-or-expose-block)
@@ -442,8 +442,11 @@ field in the customization buffer.  You can use the notation
         ("k" emacspeak-toggle-character-echo)
         ("l" emacspeak-toggle-line-echo)
         ("n" dtk-toggle-speak-nonprinting-chars)
+        ("N" dtk-set-next-language)
+        ("S" dtk-set-language)
         ("o" dtk-toggle-strip-octals)
         ("p" dtk-set-punctuations)
+        ("P" dtk-set-previous-language)
         ("q" dtk-toggle-quiet )
         ("r" dtk-set-rate)
         ("s" dtk-toggle-split-caps)
