@@ -1,5 +1,5 @@
 ;;; emacspeak-reftex.el --- speech enable reftex
-;;; $Id: emacspeak-reftex.el 6342 2009-10-20 19:12:40Z tv.raman.tv $
+;;; $Id: emacspeak-reftex.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak extension to speech enable
 ;;; reftex 
@@ -17,7 +17,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (C) 1995 -- 2009, T. V. Raman<raman@cs.cornell.edu>
+;;; Copyright (C) 1995 -- 2011, T. V. Raman<raman@cs.cornell.edu>
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -94,7 +94,6 @@
       (emacspeak-outline-speak-this-heading))
      (t
       (emacspeak-speak-predefined-window 1)))))
-      
 
 (defadvice reftex-toc-goto-line-and-hide (after emacspeak pre act comp)
   "Speech enable  by speaking toc entry."

@@ -1,5 +1,5 @@
 ;;; emacspeak-proced.el --- Speech-enable PROCED Task Manager
-;;; $Id: emacspeak-proced.el 6434 2010-02-01 23:40:33Z tv.raman.tv $
+;;; $Id: emacspeak-proced.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Speech-enable PROCED A Task manager for Emacs
 ;;; Keywords: Emacspeak,  Audio Desktop proced Task Manager
@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2009, T. V. Raman
+;;;Copyright (C) 1995 -- 2011, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -110,7 +110,7 @@
 (defsubst emacspeak-proced-field-to-position (field)
   "Return column position of this field."
   (declare (special emacspeak-proced-fields))
-  (cdr (assoc-ignore-case field emacspeak-proced-fields)))
+  (cdr (assoc-string field emacspeak-proced-fields)))
 
 (defun emacspeak-proced-position-to-field (position)
   "Return field  for this position."
@@ -218,7 +218,7 @@
        (mapcar 'emacspeak-proced-field-name emacspeak-proced-fields)
        nil t nil))))
   (declare (special emacspeak-proced-fields))
-  (let ((field (assoc-ignore-case field-name emacspeak-proced-fields)))
+  (let ((field (assoc-string field-name emacspeak-proced-fields)))
     (emacspeak-proced-speak-this-field
      (emacspeak-proced-field-start field))))
 
@@ -233,9 +233,10 @@
   (define-key proced-mode-map [backtab] 'emacspeak-proced-previous-field)
   (define-key proced-mode-map "." 'emacspeak-proced-speak-field)
   (define-key proced-mode-map "<" 'beginning-of-buffer)
-  (define-key proced-mode-map ">" 'end-of-buffer))
-(define-key proced-mode-map "\;" 'emacspeak-proced-speak-that-field)
-(define-key proced-mode-map "," 'emacspeak-proced-speak-this-field)
+  (define-key proced-mode-map ">" 'end-of-buffer)
+  (define-key proced-mode-map "\;" 'emacspeak-proced-speak-that-field)
+  (define-key proced-mode-map "," 'emacspeak-proced-speak-this-field))
+
 (add-hook 'proced-mode-hook
           'emacspeak-proced-add-keys)
 
@@ -329,7 +330,7 @@
           (let ((emacspeak-speak-messages nil))
             ad-do-it
             (when (interactive-p)
-              (let ((target (cdr (assoc-ignore-case "ARGS" emacspeak-proced-fields))))
+              (let ((target (cdr (assoc-string "ARGS" emacspeak-proced-fields))))
                 (emacspeak-auditory-icon 'task-done)
                 (dtk-speak
                  (format "%d of %d: %s"

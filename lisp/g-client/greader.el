@@ -1,5 +1,5 @@
 ;;; greader.el --- Google Reader
-;;;$Id: greader.el 6530 2010-06-24 21:37:45Z tv.raman.tv $
+;;;$Id: greader.el 6936 2011-03-15 00:10:25Z tv.raman.tv $
 ;;; $Author: raman $
 ;;; Description:  Google Reader
 ;;; Keywords: Google   Atom API
@@ -95,7 +95,7 @@
   (string-equal service greader-service-name))
 
 (defvar greader-base-url
-  "http://www.google.com/reader/"
+  "https://www.google.com/reader/"
   "Base URL for Google Reader  API.")
 
 ;;}}}
@@ -114,11 +114,26 @@
   "Greader auth handle.
 Holds user's email address, password, and the auth token received
 from the server.")
+;;; All edit actions need an additional token obtained from:
+;;; http://www.google.com/reader/api/0/token
 
-(defun greader-authenticate ()
-  "Authenticate into Google Reader."
-  (declare (special greader-auth-handle))
-  (g-authenticate greader-auth-handle))
+ 
+
+(defvar greader-edit-token-endpoint
+  "http://www.google.com/reader/api/0/token"
+  "End point where we get an edit token.")
+(defun greader-get-edit-token ()
+  "Get edit token and save it in our handle."
+  (declare (special greader-auth-handle greader-edit-token-endpoint
+                    g-curl-program g-curl-common-options
+                    greader-default-state g-atom-view-xsl))
+(setf (g-auth-token greader-auth-handle)
+  (g-get-result
+    (format
+    "%s %s %s %s 2>/dev/null"
+    g-curl-program g-curl-common-options
+    (g-authorization greader-auth-handle)
+    greader-edit-token-endpoint))))
 
 ;;}}}
 ;;{{{ Generators:
@@ -203,7 +218,7 @@ from the server.")
   "URL  for  finding feeds.")
 
 (defvar greader-edit-url-pattern
-  "'http://www.google.com/reader/api/0/%s/edit'"
+  "'http://www.google.com/reader/api/0/%s/edit?client=emacs-g-client'"
   "URL  pattern for  edit URLs.")
 
 (defvar greader-edit-alist
@@ -533,7 +548,6 @@ user."
 (defun greader-unsubscribe-feed (feed-url )
   "UnSubscribe from specified feed."
   (interactive "sURL:")
-
   (greader-update-subscription feed-url 'unsubscribe))
 ;;;###autoload
 (defun greader-title-feed (feed-url )
@@ -561,46 +575,46 @@ user."
                           (funcall g-url-under-point))))
   (greader-update-subscription feed-url 'remove-tags))
 
+(defun greader-build-edit-command (feed-url action)
+  "Build up edit command."
+  (format
+                    "%s %s %s  -X POST -d '%s' %s "
+                    g-curl-program g-curl-common-options
+                    (g-authorization greader-auth-handle)
+                    (format "T=%s&ac=%s&s=feed%%2F%s%s%s"
+                            (g-auth-token greader-auth-handle)
+                            (ecase action
+                              ('title "edit")
+                              ('subscribe "subscribe")
+                              ('unsubscribe "unsubscribe")
+                              ('add-tags "edit")
+                              ('remove-tags "edit"))
+                            (g-url-encode feed-url)
+                            (ecase action
+                              ('title "&t=")
+                              ('subscribe "")
+                              ('unsubscribe "")
+                              ('add-tags "&a=user/0/label/")
+                              ('remove-tags "&r=user/0/label/"))
+                            (if (memq action '(add-tags remove-tags title))
+                                (read-from-minibuffer
+                                 (ecase action
+                                   ('title "Title:")
+                                   ('add-tags "Add Tag:")
+                                   ('remove-tags "Remove Tag:")))
+                              ""))
+                    (greader-edit-url "subscription")))
+
+;;;###autoload
 (defun greader-update-subscription (feed-url action )
   "Perform specified subscribe, unsubscribe, or edit action."
   (declare (special g-curl-program g-curl-common-options
                     greader-auth-handle))
   (g-auth-ensure-token greader-auth-handle)
   (g-using-scratch
-   (let ((cl  nil))
-     (insert
-      (format "T=%s&ac=%s&s=feed%%2F%s&%s%s"
-              (g-auth-token greader-auth-handle)
-              (ecase action
-                ('title "edit")
-                ('subscribe "subscribe")
-                ('unsubscribe "unsubscribe")
-                ('add-tags "edit")
-                ('remove-tags "edit"))
-              (g-url-encode feed-url)
-              (ecase action
-                ('title "t=")
-                ('subscribe "")
-                ('unsubscribe "")
-                ('add-tags "a=user/0/label/")
-                ('remove-tags "r=user/0/label/"))
-              (if (memq action '(add-tags remove-tags title))
-                  (read-from-minibuffer
-                   (ecase action
-                     ('title "Title:")
-                     ('add-tags "Add Tag:")
-                     ('remove-tags "Remove Tag:")))
-                "")))
-     (setq cl (format "'-H Content-Length: %s'" (g-buffer-bytes)))
-     (shell-command-on-region
-      (point-min) (point-max)
-      (format
-       "%s %s %s %s -X POST --data-binary @- %s 2>/dev/null"
-       g-curl-program g-curl-common-options
-       (g-authorization greader-auth-handle)
-       cl                               ; content-length header
-       (greader-edit-url "subscription"))
-      (current-buffer) 'replace))
+     (shell-command
+      (greader-build-edit-command feed-url action)
+      (current-buffer))
    (goto-char (point-min))
    (cond
     ((looking-at "OK")
@@ -704,7 +718,7 @@ user."
 
 (defvar greader-contents-rest-url
   "http://www.google.com/reader/api/0/stream/items/contents"
-  "REST endpoint for getting content.")e
+  "REST endpoint for getting content.")
 
 (defun greader-search-results (query)
   "Return GReader search results."
@@ -783,7 +797,8 @@ session."))))
   (setq greader-user-email
         (read-from-minibuffer "User Email:"))
   (setq greader-auth-handle (make-greader-auth))
-  (g-authenticate greader-auth-handle))
+  (g-authenticate greader-auth-handle)
+  (greader-get-edit-token))
 
 ;;;###autoload
 (defun greader-re-authenticate()
@@ -793,6 +808,7 @@ session."))))
   (cond
    (greader-auth-handle
   (g-authenticate greader-auth-handle)
+  (greader-get-edit-token)
   (message "Re-authenticated %s"
            (g-auth-email greader-auth-handle)))
    (t (error "You've not signed in yet."))))

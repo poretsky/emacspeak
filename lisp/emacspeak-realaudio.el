@@ -1,5 +1,5 @@
 ;;; emacspeak-realaudio.el --- Play realaudio from Emacs
-;;; $Id: emacspeak-realaudio.el 6342 2009-10-20 19:12:40Z tv.raman.tv $
+;;; $Id: emacspeak-realaudio.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description: Single click access to RealAudio from emacspeak
 ;;; Keywords: Emacspeak, RealAudio
@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (c) 1995 -- 2009, T. V. Raman
+;;; Copyright (c) 1995 -- 2011, T. V. Raman
 ;;; All Rights Reserved. 
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -420,7 +420,6 @@ commands via single keystrokes."
       (setq component
             (concat component option )))
     (emacspeak-realaudio-play  component)))
-     
 
 ;;}}}
 ;;{{{ define a derived mode for realaudio interaction 

@@ -1,5 +1,5 @@
 ;;; emacspeak-daisy.el --- daisy Front-end for emacspeak desktop
-;;; $Id: emacspeak-daisy.el 5798 2008-08-22 17:35:01Z tv.raman.tv $
+;;; $Id: emacspeak-daisy.el 6866 2011-02-19 16:41:30Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak front-end for DAISY Talking Books
 ;;; Keywords: Emacspeak, daisy Digital Talking Books
@@ -123,13 +123,11 @@
 ;;{{{ return matching children
 (defun xml-children-by-name  (tag name)
   "Return list of children  matching NAME, of an xml-parse'd XML TAG."
-  (let ((children (xml-tag-children tag))
-        (result nil))
-    (while children
-      (when (string-equal name (xml-tag-name (car children)))
-        (nconc result (car children)))
-      (setq children (cdr children)))
-    result))
+  (let ((children (xml-tag-children tag)))
+    (remove-if 
+     #'(lambda (tag)
+         (not (string-equal name (xml-tag-name tag))))
+     children)))
 
 ;;}}}
 ;;{{{  play audio clip
@@ -168,18 +166,28 @@ Clip is the result of parsing element <audio .../> as defined by Daisy 3."
   "Play text clip specified by clip.
 Clip is the result of parsing SMIL element <text .../> as used by Daisy 3."
   (declare (special emacspeak-daisy-this-book))
-  (unless
-      (string-equal "text" (xml-tag-name clip))
-    (error "Invalid audio clip."))
+  (unless (string-equal "text" (xml-tag-name clip))
+    (error "Invalid text clip."))
   (let* ((src (xml-tag-attr  clip "src"))
          (split (split-string src "#"))
          (relative (first split))
          (fragment (second split))
-         (path (emacspeak-daisy-resolve-uri relative
-                                            emacspeak-daisy-this-book)))
+         (path (emacspeak-daisy-resolve-uri relative emacspeak-daisy-this-book)))
     (emacspeak-we-xslt-filter
      (format "//*[@id=\"%s\"]" fragment)
      (concat "file:" path))))
+;;;###autoload
+
+(defun emacspeak-daisy-html ()
+  "Apply xslt transform specified by \\{emacspeak-daisy-xsl}
+to convert and view Daisy Books as a Web page."
+  (interactive)
+  (declare (special emacspeak-daisy-xsl emacspeak-daisy-this-book))
+  (emacspeak-xslt-view-file
+   emacspeak-daisy-xsl
+   (expand-file-name
+    (format "%s.xml" (emacspeak-daisy-book-basename emacspeak-daisy-this-book))
+    (emacspeak-daisy-book-base emacspeak-daisy-this-book))))
 
 ;;;###autoload
 (defun emacspeak-daisy-play-page-range (start end )
@@ -262,10 +270,8 @@ the clip."
         (seq (xml-tag-child  clip "seq")))
     (when (and (not audio) seq)
       (setq audio (xml-tag-child seq "audio")))
-    (when audio
-      (emacspeak-daisy-play-audio audio))
-    (when text
-      (emacspeak-daisy-play-text text))))
+    (when audio (emacspeak-daisy-play-audio audio))
+    (when text (emacspeak-daisy-play-text text))))
 
 (defun emacspeak-daisy-play-content (content)
   "Play SMIL content specified by content.
@@ -317,6 +323,7 @@ Return buffer that holds the result of playing the content."
    "head"
    "title"
    "docTitle"
+   "docAuthor"
    "text"
    "audio"
    "content"
@@ -325,6 +332,7 @@ Return buffer that holds the result of playing the content."
    "navLabel"
    "navLisp"
    "navMap"
+   "navInfo"
    "navPoint"
    "navTarget")
   "Daisy XML elements.")
@@ -344,11 +352,10 @@ Return buffer that holds the result of playing the content."
   (let* ((tag (xml-tag-name element))
          (handler  (emacspeak-daisy-get-handler tag)))
     (cond
-     ((and handler
-           (fboundp handler))(funcall handler element))
+     ((and handler (fboundp handler))
+      (funcall handler element))
      (t
-      (insert
-       (format "Handler for %s not implemented yet.\n" tag))))))
+      (insert (format "Handler for %s not implemented yet.\n" tag))))))
 
 (defun  emacspeak-daisy-ncx-handler (ncx)
   "Process top-level NCX element."
@@ -399,17 +406,23 @@ Return buffer that holds the result of playing the content."
   (mapc #'emacspeak-daisy-apply-handler
         (xml-tag-children element )))
 
+(defun emacspeak-daisy-navInfo-handler (element)
+  "Handle navInfo element."
+  (mapc #'emacspeak-daisy-apply-handler
+        (xml-tag-children element )))
+
 (defun emacspeak-daisy-navPoint-handler (element)
   "Handle navPoint element."
   (let ((label (xml-tag-child element "navLabel"))
         (content (xml-tag-child element "content"))
         (nav-points (xml-children-by-name element "navPoint"))
         (start (point)))
+    (when label (print label))
     (when label (emacspeak-daisy-navLabel-handler label))
     (when content
-      (put-text-property start (point)
-                         'content content))
-    (mapc #'emacspeak-daisy-apply-handler nav-points)))
+      (put-text-property start (point) 'content content))
+    (message "navPoint Children: %s" (length nav-points))
+    (mapc #'emacspeak-daisy-navPoint-handler nav-points)))
 
 (defun emacspeak-daisy-docTitle-handler (element)
   "Handle <doctitle>...</doctitle>"
@@ -420,8 +433,19 @@ Return buffer that holds the result of playing the content."
     (put-text-property start (point)
                        'audio audio)))
 
+(defun emacspeak-daisy-docAuthor-handler (element)
+  "Handle <docAuthor>...</docAuthor>"
+  (let ((text (xml-tag-child  element "text"))
+        (audio (xml-tag-child element "audio"))
+        (start (point)))
+    (emacspeak-daisy-text-handler   text)
+    (put-text-property start (point)
+                       'audio audio)))
+
 ;;; Ignore navList for now
 (emacspeak-daisy-set-handler "navList" 'ignore)
+                                        ; ignore pageList
+(emacspeak-daisy-set-handler "pageList" 'ignore)
 ;;}}}
 ;;{{{  emacspeak-daisy mode
 
@@ -452,17 +476,13 @@ Here is a list of all emacspeak DAISY commands along with their key-bindings:
 
 \\{emacspeak-daisy-mode-map}"
   (progn))
-
+(define-key emacspeak-daisy-mode-map "h" 'emacspeak-daisy-html)
 (define-key emacspeak-daisy-mode-map "?" 'describe-mode)
 (define-key emacspeak-daisy-mode-map "m" 'emacspeak-daisy-mark-position-in-content-under-point)
-(define-key emacspeak-daisy-mode-map "s"
-  'emacspeak-daisy-stop-audio)
-(define-key emacspeak-daisy-mode-map "n"
-  'emacspeak-daisy-next-line)
-(define-key emacspeak-daisy-mode-map "p"
-  'emacspeak-daisy-previous-line)
-(define-key emacspeak-daisy-mode-map "o"
-  'emacspeak-daisy-define-outline-pattern)
+(define-key emacspeak-daisy-mode-map "s" 'emacspeak-daisy-stop-audio)
+(define-key emacspeak-daisy-mode-map "n" 'emacspeak-daisy-next-line)
+(define-key emacspeak-daisy-mode-map "p" 'emacspeak-daisy-previous-line)
+(define-key emacspeak-daisy-mode-map "o" 'emacspeak-daisy-define-outline-pattern)
 (define-key emacspeak-daisy-mode-map "S" 'emacspeak-daisy-save-bookmarks)
 (define-key emacspeak-daisy-mode-map "q" 'bury-buffer)
 (define-key emacspeak-daisy-mode-map " "
@@ -483,6 +503,14 @@ Here is a list of all emacspeak DAISY commands along with their key-bindings:
   "Customize this to the root of where books are organized."
   :type 'directory
   :group 'emacspeak-daisy)
+
+(defcustom emacspeak-daisy-xsl
+  (expand-file-name "daisyTransform.xsl" emacspeak-daisy-books-directory)
+  "Style sheet for transforming Daisy books to HTML. 
+Bookshare provides this with newer books."
+  :type 'file
+  :group 'emacspeak-daisy)
+
 (defcustom emacspeak-daisy-completion-extensions-to-ignore
   '(".xml" ".smil" ".bks"
     "~" ".opf" ".css" ".espeak.el")
@@ -754,7 +782,79 @@ Also puts the displayed buffer in outline-minor-mode and gives it
               (t (emacspeak-speak-mode-line)))))))
 
 ;;}}}
+;;{{{ w3 support update:
+eed to handle text/xml and application/xml
+(defun w3-fetch-callback (url)
+  (w3-nasty-disgusting-http-equiv-handling (current-buffer) url)
+  ;; Process any cookie and refresh headers.
+  (let (headers)
+    (ignore-errors
+      (save-restriction
+        (mail-narrow-to-head)
+        (goto-char (point-min))
+        (unless (save-excursion
+                  (search-forward ":" (line-end-position) t))
+          (forward-line))
+        (setq headers (mail-header-extract))
+        (let (refreshed)
+          (dolist (header headers)
+            ;; Act on multiple cookies if necessary, but only on a
+            ;; single refresh request in case there's more than one.
+            (case (car header)
+              (refresh (unless refreshed
+                         (w3-handle-refresh-header (cdr header))
+                         (setq refreshed t))))))))
+    (let ((handle (mm-dissect-buffer t))
+          (w3-explicit-coding-system
+           (or w3-explicit-coding-system
+               (w3-recall-explicit-coding-system url)))
+          (buff nil))
+      (message "Downloading of `%s' complete." url)
+      (url-mark-buffer-as-dead (current-buffer))
+      (unless headers
+        (setq headers (list (cons 'content-type
+                                  (mm-handle-media-type handle)))))
+      ;; Fixme: can handle be null?
+      (cond
+       ((or (equal (mm-handle-media-type handle) "text/html")
+            ;; Ultimately this should be handled by an XML parser, but
+            ;; this will mostly work for now:
+            (equal (mm-handle-media-type handle) "application/xhtml+xml")
+            (equal (mm-handle-media-type handle) "text/xml")
+            (equal (mm-handle-media-type handle) "application/xml"))
+        ;; Special case text/html if it comes through w3-fetch
+        (set-buffer (generate-new-buffer " *w3-html*"))
+        (mm-insert-part handle)
+        (w3-decode-charset handle)
+        (setq url-current-object (url-generic-parse-url url))
+        (w3-prepare-buffer)
+        (setq url-current-mime-headers headers)
+        (w3-notify-when-ready (current-buffer))
+        (mm-destroy-parts handle))
+       ((equal (car-safe (mm-handle-type handle))
+               "application/x-elisp-parsed-html")
+        ;; Also need to special-case pre-parsed representations of HTML.
+        ;; Fixme: will this need decoding?
+        (w3-prepare-tree (read (set-marker (make-marker) 1
+                                           (mm-handle-buffer handle)))))
+       ((mm-inlinable-p handle)
+        ;; We can view it inline!
+        (set-buffer (generate-new-buffer url))
+        (require 'mm-view)             ; make sure methods are defined
+        (mm-display-part handle)
+        (set-buffer-modified-p nil)
+        (w3-mode)
+        (if (equal "image" (mm-handle-media-supertype handle))
+            (setq cursor-type nil))
+        (setq url-current-mime-headers headers)
+        (w3-notify-when-ready (current-buffer)))
+       (t
+        ;; Must be an external viewer
+        (mm-display-part handle)
+        ;;(mm-destroy-parts handle)
+        )))))
 
+;;}}}
 (provide 'emacspeak-daisy)
 ;;{{{ end of file
 

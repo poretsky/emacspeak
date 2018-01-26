@@ -1,5 +1,5 @@
 ;;; emacspeak-widget.el --- Speech enable Emacs' native GUI widget library
-;;; $Id: emacspeak-widget.el 6342 2009-10-20 19:12:40Z tv.raman.tv $
+;;; $Id: emacspeak-widget.el 6921 2011-03-09 16:09:36Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $ 
 ;;; Description: Emacspeak extensions to widgets
 ;;; Keywords:emacspeak, audio interface to emacs customized widgets
@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2009, T. V. Raman 
+;;;Copyright (C) 1995 -- 2011, T. V. Raman 
 ;;; Copyright (c) 1995 by T. V. Raman  
 ;;; All Rights Reserved. 
 ;;;
@@ -180,8 +180,6 @@ Returns a string with appropriate personality."
     (concat label
             help-echo
             value)))
-     
-           
 
 (widget-put (get 'default 'widget-type)
             :emacspeak-help 'emacspeak-widget-default-summarize)
@@ -252,7 +250,6 @@ Returns a string with appropriate personality."
     (concat label
             help-echo
             context )))
-       
 
 (widget-put (get 'push-button 'widget-type)
             :emacspeak-help 'emacspeak-widget-help-push-button)
@@ -373,7 +370,6 @@ Returns a string with appropriate personality."
             (if child
                 (widget-apply child :emacspeak-help)
               value))))
-      
 
 (widget-put (get 'menu-choice 'widget-type)
             :emacspeak-help 'emacspeak-widget-help-menu-choice)
@@ -411,8 +407,6 @@ Returns a string with appropriate personality."
             " has "
             selections 
             " checked ")))
-     
-      
 
 (widget-put (get 'checklist 'widget-type)
             :emacspeak-help 'emacspeak-widget-help-checklist)
@@ -520,9 +514,6 @@ Returns a string with appropriate personality."
 ;;}}}
 ;;{{{  Widget motion
 
-
-
-
 ;;; avoid redundant message speech output
 (defadvice widget-echo-help (around emacspeak pre act comp)
   (let ((emacspeak-speak-messages nil))
@@ -583,19 +574,27 @@ Returns a string with appropriate personality."
   (let ((inhibit-read-only t)
         (widget (widget-at (ad-get-arg 0))))
     (cond
-     (widget                            ; First record some state:
+     (widget                           ; First record some state:
       (let ((pos (ad-get-arg 0))
             (old-position (point)))
-        (when (eq major-mode 'w3-mode)
-          (emacspeak-auditory-icon 'button))
-        ad-do-it
         (cond
-         ((= old-position (point ))     ;did not move
+         ((and
+           (or (eq major-mode 'w3-mode) (eq major-mode 'w3m-mode))
+           emacspeak-webutils-url-at-point
+           (funcall emacspeak-webutils-url-at-point)
+           emacspeak-we-url-executor
+           (boundp 'emacspeak-we-url-executor)
+           (fboundp emacspeak-we-url-executor))
           (emacspeak-auditory-icon 'button)
-          (emacspeak-widget-summarize (widget-at pos)))
-         (t  (emacspeak-auditory-icon 'large-movement)
-             (or (emacspeak-widget-summarize (widget-at (point)))
-                 (emacspeak-speak-line))))))
+          (call-interactively 'emacspeak-we-url-expand-and-execute))
+         (t ad-do-it
+            (cond
+             ((= old-position (point )) ;did not move
+              (emacspeak-auditory-icon 'button)
+              (emacspeak-widget-summarize (widget-at pos)))
+             (t  (emacspeak-auditory-icon 'large-movement)
+                 (or (emacspeak-widget-summarize (widget-at (point)))
+                     (emacspeak-speak-line))))))))
      (t ad-do-it))
     ad-return-value))
 

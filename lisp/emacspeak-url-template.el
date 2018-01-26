@@ -1,5 +1,5 @@
 ;;; emacspeak-url-template.el --- Create library of URI templates
-;;; $Id: emacspeak-url-template.el 6620 2010-10-19 21:00:44Z tv.raman.tv $
+;;; $Id: emacspeak-url-template.el 7018 2011-05-04 03:15:57Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:   Implement library of URI templates
 ;;; Keywords: Emacspeak, Audio Desktop
@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (C) 1995 -- 2009, T. V. Raman<raman@cs.cornell.edu>
+;;; Copyright (C) 1995 -- 2011, T. V. Raman<raman@cs.cornell.edu>
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -268,8 +268,7 @@ dont-url-encode if true then url arguments are not url-encoded "
  nil
  "Display package tracking information from UPS."
  #'(lambda (url)
-     (emacspeak-we-extract-table-by-match "Package Progress"
-                                          url 'speak)))
+     (emacspeak-we-extract-by-class "dataTable" url 'speak)))
 
 ;;}}}
 ;;{{{ amazon
@@ -281,29 +280,7 @@ dont-url-encode if true then url arguments are not url-encoded "
  "Retrieve product details from Amazon by either ISBN or ASIN.")
 ;;}}}
 ;;{{{ bookshare
-(defcustom emacspeak-bookshare-user-id nil
-  "Bookshare user Id."
-  :type '(choice :tag "Bookshare User id"
-                 (const :tag "None" nil)
-                 (string :tag "Email"))
-  :group 'emacspeak-url-template)
-
-(emacspeak-url-template-define
- "BookShare"
- "https://www.bookshare.org/whiteListRedirect?j_userName=%s"
- (list
-  #'(lambda nil
-      (read-from-minibuffer "Bookshare UserId: "
-                            emacspeak-bookshare-user-id)))
- nil
- "Bookshare Login")
-
-(emacspeak-url-template-define
- "BookShare Search"
- "http://www.bookshare.org/quickSearch?keyword=%s&search=Search"
- (list "BookShare Query: ")
- nil
- "BookShare Search")
+;;; replacing with API  client:
 
 (defun emacspeak-url-template-calendar-to-seconds ()
   "Convert date under cursor to seconds since epoch."
@@ -316,15 +293,6 @@ dont-url-encode if true then url arguments are not url-encoded "
                           (second date)
                           (first date)
                           (third date)))))        )
-
-(emacspeak-url-template-define
- "Periodicals from Bookshare"
- "http://www.bookshare.org/web/DownloadPeriodical.html?publishtitleid=%s&date=%s&format=1"
- (list
-  "Periodical: "
-  'emacspeak-url-template-calendar-to-seconds)
- nil
- "Fetch periodical from Bookshare.")
 
 ;;}}}
 ;;{{{ shoutcast
@@ -432,9 +400,9 @@ dont-url-encode if true then url arguments are not url-encoded "
  "BBC iPlayer"
  #'(lambda (url)
      (emacspeak-webutils-with-xsl-environment
-     (expand-file-name "bbc-iplayer.xsl" emacspeak-xslt-directory)
-     nil emacspeak-xslt-options
-     (browse-url url))))
+      (expand-file-name "bbc-iplayer.xsl" emacspeak-xslt-directory)
+      nil emacspeak-xslt-options
+      (browse-url url))))
 
 ;;}}}
 ;;{{{ bbc
@@ -501,7 +469,6 @@ dont-url-encode if true then url arguments are not url-encoded "
       "id(\"res0\")/.."
       url )))
 
-
 ;;; Google Realtime standalone:
 
 (emacspeak-url-template-define
@@ -524,10 +491,9 @@ dont-url-encode if true then url arguments are not url-encoded "
  nil
  "Display financial market summary."
  #'(lambda (url)
-     (emacspeak-we-extract-by-id-list
+     (emacspeak-we-extract-id-list-text
       (list "mktsumm" "sfe-mktsumm" )
       url 'speak)))
-
 
 ;;}}}
 ;;{{{ google CSE and Google Reader:
@@ -1003,10 +969,10 @@ Here are some examples:
 
 (emacspeak-url-template-define
  "Google Image Search"
- "http://images.google.com/images?hl=en&tab=wi&ie=UTF-8&q=%s"
+"http://images.google.com/images?hl=en&source=hp&q=%s&btnG=Search+Images&gbv=1"
  (list "Google Image Search: ")
  #'(lambda ()
-     (search-forward "Showing" nil t)
+     (search-forward "results" nil t)
      (emacspeak-speak-line))
  "Google Image Search"
  #'(lambda (url)
@@ -1109,7 +1075,7 @@ from English to German.")
 
 (emacspeak-url-template-define
  "1Box Google"
- "https://www.google.com/search?q=%s"
+ "http://www.google.com/search?q=%s"
  (list 'gweb-google-autocomplete)
  nil
  "Show 1box result from Google."
@@ -1117,7 +1083,6 @@ from English to German.")
      (emacspeak-we-extract-by-class-list
       (list "rbt" "e" "std" "med")
       url 'speak)))
-
 
 (emacspeak-url-template-define
  "Answers from Google Squared"
@@ -1600,7 +1565,7 @@ name of the list.")
  #'(lambda (url)
      (emacspeak-we-extract-by-id
       "wsod_marketsOverview" 
-       url 'speak)))
+      url 'speak)))
 
 (emacspeak-url-template-define
  "CNN Content "
@@ -1640,143 +1605,6 @@ name of the list.")
  #'(lambda (url)
      (emacspeak-we-xslt-filter
       "//p" url 'speak)))
-
-;;}}}
-;;{{{  NPR programs
-
-(emacspeak-url-template-define
- "American Life On Demand."
-                                        ;"http://www.wbez.org/ta/%s.rm"
- "http://www.thislife.org/ra/%s.ram"
- (list "Episode: ")
- nil
- "Play This American Life  shows on demand."
- #'(lambda (url)
-     (funcall emacspeak-media-player url 'play-list)))
-
-(emacspeak-url-template-define
- "Wait Wait, Dont Tell Me (NPR)"
- "http://www.npr.org/dmg/dmg.php?mediaURL=/waitwait/%s_waitwait&mediaType=RM"
- (list
-  #'(lambda ()
-      (emacspeak-url-template-collect-date "Date: (Saturdays)"
-                                           "%Y%m%d")))
- nil
- "Play Wait, Wait Dont Tell Me from NPR."
- #'(lambda (url)
-     (funcall emacspeak-media-player url 'play-list)))
-
-(emacspeak-url-template-define
- "NPR On Demand"
- "http://www.npr.org/dmg/dmg.php?prgCode=%s&showDate=%s&segNum=%s&mediaPref=RM"
- (list
-  #'(lambda ()
-      (upcase (read-from-minibuffer "Program code:")))
-  #'(lambda ()
-      (emacspeak-url-template-collect-date "Date:"
-                                           "%d-%b-%Y"))
-  "Segment:")
- nil
- "Play NPR shows on demand.
-Program is specified as a program code:
-
-ME              Morning Edition
-ATC             All Things Considered
-day             Day To Day
-newsnotes       News And Notes
-totn            Talk Of The Nation
-fa              Fresh Air
-wesat           Weekend Edition Saturday
-wesun           Weekend Edition Sunday
-fool            The Motley Fool
-
-Segment is specified as a two digit number --specifying a blank value
-plays entire program."
- #'(lambda (url)
-     (funcall emacspeak-media-player url 'play-list)
-     (emacspeak-xslt-view
-      (expand-file-name "smil-anchors.xsl"
-                        emacspeak-xslt-directory)
-      url)))
-
-(emacspeak-url-template-define
- "All Things Considered Stream from NPR"
-
- "http://www.npr.org/dmg/dmg.php?prgCode=ATC&showDate=%s&segNum=&mediaPref=RM"
- (list
-  #'(lambda ()
-      (emacspeak-url-template-collect-date "Date:"
-                                           "%d-%b-%Y")))
- nil
- "Play NPR All Things Considered stream."
- #'(lambda (url)
-     (funcall emacspeak-media-player url 'play-list)))
-
-(emacspeak-url-template-define
- "Talk Of The Nation  Stream from NPR"
- "http://www.npr.org/ramfiles/totn/%s.totn.ram"
- (list 'emacspeak-url-template-date-YearMonthDate)
- nil
- "Play NPR Talk Of The Nation  stream."
- #'(lambda (url)
-     (funcall emacspeak-media-player url 'play-list)))
-
-(emacspeak-url-template-define
- "Morning Edition Stream from NPR"
- "http://www.npr.org/dmg/dmg.php?prgCode=ME&showDate=%s&segNum=&mediaPref=RM"
- (list
-  #'(lambda ()
-      (emacspeak-url-template-collect-date "Date:"
-                                           "%d-%b-%Y")))
- nil
- "Play NPR Morning Edition  stream."
- #'(lambda (url)
-     (funcall emacspeak-media-player url 'play-list)))
-
-(emacspeak-url-template-define
- "Motley Fool Radio from NPR"
- "http://www.npr.org/dmg/dmg.php?prgCode=FOOL&showDate=%s&segNum=&mediaPref=RM"
- (list
-  #'(lambda ()
-      (emacspeak-url-template-collect-date "Date:"
-                                           "%d-%b-%Y")))
- nil
- "Play NPR Motley Fool   stream."
- #'(lambda (url)
-     (funcall emacspeak-media-player url 'play-list)))
-
-(emacspeak-url-template-define
- "Talk Of The Nation from NPR"
- "rtsp://audio.npr.org/totn/%s_totn_%s.rm"
- (list
-  'emacspeak-url-template-date-YearMonthDate
-  "Segment: ")
- nil
- "Play NPR Talk Of The Nation segment."
- #'(lambda (url)
-     (funcall emacspeak-media-player url 'play-list)))
-
-(emacspeak-url-template-define
- "All Things Considered from NPR"
- "rtsp://audio.npr.org/atc/%s_atc_%s.rm"
- (list
-  'emacspeak-url-template-date-YearMonthDate
-  "Segment: ")
- nil
- "Play All Things Considered segment."
- #'(lambda (url)
-     (funcall emacspeak-media-player url 'play-list)))
-
-(emacspeak-url-template-define
- "Morning Edition from NPR"
- "rtsp://audio.npr.org/me/%s_me_%s.rm"
- (list
-  'emacspeak-url-template-date-YearMonthDate
-  "Segment:")
- nil
- "Play Morning Edition segment."
- #'(lambda (url)
-     (funcall emacspeak-media-player url 'play-list)))
 
 ;;}}}
 ;;{{{  The Linux Show
@@ -2122,14 +1950,7 @@ Meerkat realy needs an xml-rpc method for getting this.")
 
 ;;}}}
 ;;{{{  flight arrival
-(emacspeak-url-template-define
- "Flight Tracker"
- "http://tracker.flightview.com/fvAirwise/fvCPL.exe?qtype=htm&AL=%s&acid=%s&FIND1=Find+flight"
- (list "Airline: " "Flight number: ")
- #'(lambda nil
-     (search-forward "Airline: " nil t)
-     (emacspeak-speak-line))
- "Display flight arrival and departure information.")
+
 
 ;;}}}
 ;;{{{ weather underground
@@ -2259,8 +2080,8 @@ Meerkat realy needs an xml-rpc method for getting this.")
  "Show table of recent quakes."
  #'(lambda (url)
      (emacspeak-we-xslt-filter "//tr[position() < 10]"
-			       url
-			       'speak)))
+                               url
+                               'speak)))
 
 ;;}}}
 
@@ -2383,9 +2204,9 @@ Each URL template carries out the following steps:
   customizations.
 @end itemize
 
-As an example, the URL templates that enable access to NPR media
-streams prompt for a program id and date, and automatically
-launch the realmedia player after fetching the resource.\n\n"
+As an example, the URL templates that enable access to map directions
+prompt for address and automatically
+speak the relevant results.\n\n"
     (mapconcat #'key-description
                (where-is-internal
                 'emacspeak-url-template-fetch)
@@ -2414,4 +2235,3 @@ launch the realmedia player after fetching the resource.\n\n"
 ;;; end:
 
 ;;}}}
-

@@ -1,5 +1,5 @@
 ;;; emacspeak-webutils.el --- Common Web Utilities For Emacspeak
-;;; $Id: emacspeak-webutils.el 6529 2010-06-24 16:07:57Z tv.raman.tv $
+;;; $Id: emacspeak-webutils.el 7003 2011-04-29 22:52:10Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak Webutils
 ;;; Keywords: Emacspeak, web
@@ -82,9 +82,9 @@ Note that the Web browser should reset this hook after using it.")
   (declare (special emacspeak-web-post-process-hook))
   (when     emacspeak-web-post-process-hook
     (condition-case nil
-         (run-hooks  'emacspeak-web-post-process-hook)
+        (run-hooks  'emacspeak-web-post-process-hook)
       (error 
-      (setq emacspeak-web-post-process-hook nil)))
+       (setq emacspeak-web-post-process-hook nil)))
     (setq emacspeak-web-post-process-hook nil)))
 
 ;;}}}
@@ -135,10 +135,10 @@ Note that the Web browser should reset this hook after using it.")
   "Setup post process hook to cache google query when rendered."
   (declare (special emacspeak-google-query))
   (let ((cache
-  (eval `(function
-          (lambda nil
-             (setq emacspeak-google-query ,query))))))
-  (add-hook 'emacspeak-web-post-process-hook cache 'at-end)))
+         (eval `(function
+                 (lambda nil
+                   (setq emacspeak-google-query ,query))))))
+    (add-hook 'emacspeak-web-post-process-hook cache 'at-end)))
 
 (defsubst emacspeak-webutils-cache-google-toolbelt(belt)
   "Setup post process hook to cache google toolbelt when rendered."
@@ -405,12 +405,13 @@ instances."
       (error "Title not found in body."))))
 
 ;;;###autoload
-(defun emacspeak-webutils-play-media-at-point ()
-  "Play media url under point "
-  (interactive )
+(defun emacspeak-webutils-play-media-at-point (&optional  playlist-p)
+  "Play media url under point.
+Optional interactive prefix arg `playlist-p' says to treat the link as a playlist. "
+  (interactive "P" )
   (let ((url (funcall emacspeak-webutils-url-at-point)))
     (message "Playing media  URL under point")
-    (funcall emacspeak-media-player  url)))
+    (funcall  emacspeak-media-player  url  playlist-p)))
 
 ;;;###autoload
 (defun emacspeak-webutils-view-feed-via-google-reader ()
@@ -536,13 +537,11 @@ unescape HTML tags."
 
 ;;;###autoload
 
-  
 (defun emacspeak-webutils-open-subscribed-feeds ()
   "Feed list specified by OPML file customized via emacspeak-my-subscribed-feeds"
   (interactive)
   (declare (special emacspeak-my-subscribed-feeds))
   (emacspeak-opml-display emacspeak-my-subscribed-feeds))
-
 
 ;;;###autoload
 (defun emacspeak-rss-browse (feed)
@@ -632,7 +631,6 @@ Stack is a list of the form ((element-name (attribute-alist)))."
     (nreverse (delq nil props))))
 
 ;;}}}
-   
 
 (provide 'emacspeak-webutils)
 ;;{{{ end of file

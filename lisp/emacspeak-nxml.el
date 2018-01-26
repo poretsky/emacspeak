@@ -1,5 +1,5 @@
 ;;; emacspeak-nxml.el --- Speech enable nxml mode
-;;; $Id: emacspeak-nxml.el 6342 2009-10-20 19:12:40Z tv.raman.tv $
+;;; $Id: emacspeak-nxml.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description: Controlling mplayer from emacs 
 ;;; Keywords: Emacspeak, nxml streaming media 
@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (c) 1995 -- 2009, T. V. Raman
+;;; Copyright (c) 1995 -- 2011, T. V. Raman
 ;;; All Rights Reserved. 
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -160,7 +160,6 @@
         (emacspeak-auditory-icon 'close-object))))
    (t ad-do-it))
   ad-return-value)
-    
 
 (defadvice nxml-complete (around emacspeak pre act comp)
   "Provide spoken feedback."
@@ -236,7 +235,7 @@
           (when (interactive-p)
             (emacspeak-auditory-icon 'open-object)
             (emacspeak-speak-line)))))
- 
+
 ;;}}}
 ;;{{{ Outline summarizer:
 
@@ -259,7 +258,7 @@
                     (overlay-get o-close 'display)))))
     (emacspeak-auditory-icon 'ellipses))
    (t (message "Not on a hidden outline"))))
-  
+
 ;;}}}
 ;;}}}
 (provide 'emacspeak-nxml)

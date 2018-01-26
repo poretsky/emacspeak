@@ -6,7 +6,7 @@
 ;;; Using patch from Lukas.
 ;;
 ;; Author: Lukas Loehrer <loehrerl |at| gmx.net>
-;; Version: $Id: dtk-unicode.el 6342 2009-10-20 19:12:40Z tv.raman.tv $
+;; Version: $Id: dtk-unicode.el 6941 2011-03-20 18:14:04Z tv.raman.tv $
 ;; Keywords:  TTS, Unicode
 
 ;;}}}
@@ -22,7 +22,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2009, T. V. Raman
+;;;Copyright (C) 1995 -- 2011, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -148,7 +148,7 @@ A handler returns a non-nil value if the   replacement was successful, nil other
           (setq min 32 max 127)
         (setq min 33 max 126))
       (list (make-char charset min min) (make-char charset max max))))))
-          
+
 (defun dtk-unicode-build-skip-regexp (charsets)
   "Construct regexp to match all but the characters in dtk-unicode-untouched-charsets."
   (format "[^%s]"
@@ -206,8 +206,6 @@ charsets returned by operations such as `find-charset-region'."
           (puthash char ad-return-value dtk-unicode-cache))
       (setq ad-return-value result))))
 
-
-
 (defsubst dtk-unicode-char-properties (char)
   "Return unicode properties for CHAR.
 
@@ -222,23 +220,13 @@ Converts char to unicode if necessary (for emacs 22)."
 (defsubst dtk-unicode-char-property (char prop-name)
   "Get character property by name."
   (second (assoc prop-name (dtk-unicode-char-properties char))))
-;;; Let's use the cache  built in ucs-names --- more efficient.
-;; (defun dtk-unicode-name-for-char (char)
-;;   "Return unicode name for character CHAR.
-
-;; nil if CHAR is not in Unicode."
-;;   (let ((name (dtk-unicode-char-property char "Name")))
-;;     (when (and (stringp name) (string-equal name "<control>"))
-;;       (setq name (dtk-unicode-char-property char "Old name")))
-;;     (and (stringp name) (downcase name))))
 
 (defsubst dtk-unicode-name-for-char (char)
   "Return unicode name for character CHAR.
 nil if CHAR is not in Unicode."
   (downcase
-   (or  (car (rassq char (ucs-names)))
-        "")))
-    
+   (or (cadar (describe-char-unicode-data char)) "")))
+   
 
 (defsubst dtk-unicode-char-punctuation-p (char)
   "Use unicode properties to determine whether CHAR is a ppunctuation character."
@@ -280,7 +268,6 @@ When called interactively, CHAR defaults to the character after point."
 (defsubst dtk-unicode-user-table-handler (char)
   "Return user defined replacement character if it exists."
   (cdr (assq char dtk-unicode-character-replacement-alist)))
-        
 
 (defsubst dtk-unicode-full-table-handler (char)
   "Uses the unicode data file to find the name of CHAR."

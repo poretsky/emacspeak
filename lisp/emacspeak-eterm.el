@@ -1,5 +1,5 @@
 ;;; emacspeak-eterm.el --- Speech enable eterm -- Emacs' terminal emulator  term.el
-;;; $Id: emacspeak-eterm.el 6342 2009-10-20 19:12:40Z tv.raman.tv $
+;;; $Id: emacspeak-eterm.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $ 
 ;;; Description:  Emacspeak extension to speech enable eterm. 
 ;;; Keywords: Emacspeak, Eterm, Terminal emulation, Spoken Output
@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2009, T. V. Raman 
+;;;Copyright (C) 1995 -- 2011, T. V. Raman 
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved. 
 ;;;
@@ -656,7 +656,6 @@ sent to the terminal as if it were typed by the user."
     (aset win 3 left-stretch )
     win))
 
-  
 (defsubst emacspeak-eterm-window-top-left (w) (aref w 0 ))
 (defsubst emacspeak-eterm-window-bottom-right (w) (aref w 1 ))
 (defsubst emacspeak-eterm-window-right-stretch (w) (aref w 2 ))
@@ -684,7 +683,7 @@ Argument ID specifies the window."
             (> row bottom-right-row )
             (and (not left-stretch ) (< column top-left-column ))
             (and (not right-stretch ) (> column bottom-right-column )))))))
- 
+
 ;;; Translate a screen position to a buffer position
 
 (defun emacspeak-eterm-coordinates-to-position (coordinates)
@@ -1056,9 +1055,9 @@ Each term-mode buffer has a buffer local value of this variable. ")
   "Tells if eterm output is automatically spoken when in line mode.
 Use command emacspeak-toggle-eterm-autospeak bound to
 \\[emacspeak-toggle-eterm-autospeak] to set this.")
-  
+
 (make-variable-buffer-local 'emacspeak-eterm-autospeak)
-  
+
 (ems-generate-switcher 'emacspeak-toggle-eterm-autospeak
                        'emacspeak-eterm-autospeak
                        "Toggle state of eterm autospeak.
@@ -1183,7 +1182,6 @@ When emacspeak eterm is in pointer mode, the eterm read pointer
 stays where it is rather than automatically moving to the terminal cursor when
 there is terminal activity.")
 
-   
 (defadvice term-dynamic-complete (around emacspeak pre act)
   "Speak the completion. "
   (declare (special emacspeak-eterm-row term-current-row))
@@ -1363,7 +1361,7 @@ emacspeak-eterm-remote-hostnames")
   (unless (intern-soft host emacspeak-eterm-remote-hosts-table)
     (emacspeak-eterm-cache-remote-host host))
   (switch-to-buffer (format "*%s-terminal*" host) ))
-     
+
 ;;}}}
 (provide 'emacspeak-eterm)
 ;;{{{  emacs local variables

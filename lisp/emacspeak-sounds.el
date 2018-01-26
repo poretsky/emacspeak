@@ -1,5 +1,5 @@
 ;;; emacspeak-sounds.el --- Defines Emacspeak auditory icons
-;;; $Id: emacspeak-sounds.el 6447 2010-03-09 19:50:13Z tv.raman.tv $
+;;; $Id: emacspeak-sounds.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Module for adding sound cues to emacspeak
 ;;; Keywords:emacspeak, audio interface to emacs, auditory icons
@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2009, T. V. Raman
+;;;Copyright (C) 1995 -- 2011, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -393,7 +393,7 @@ emacspeak-queue-auditory-icon when using software TTS."
     (emacspeak-select-auditory-icon-player )))
   (declare (special emacspeak-auditory-icon-function))
   (setq emacspeak-auditory-icon-function player))  (when (interactive-p)
-  (emacspeak-auditory-icon 'select-object))
+                                                     (emacspeak-auditory-icon 'select-object))
 
 ;;}}}
 ;;{{{ Show all icons

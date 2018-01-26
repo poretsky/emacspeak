@@ -1,5 +1,5 @@
 ;;; emacspeak-pronounce.el --- Implements Emacspeak pronunciation dictionaries
-;;; $Id: emacspeak-pronounce.el 6342 2009-10-20 19:12:40Z tv.raman.tv $
+;;; $Id: emacspeak-pronounce.el 6975 2011-04-13 20:37:39Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description: Emacspeak pronunciation dictionaries
 ;;; Keywords:emacspeak, audio interface to emacs customized pronunciation
@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2009, T. V. Raman 
+;;;Copyright (C) 1995 -- 2011, T. V. Raman 
 ;;; Copyright (c) 1995 by T. V. Raman 
 ;;; All Rights Reserved.
 ;;;
@@ -127,7 +127,6 @@ Argument KEY specifies a dictionary key e.g. directory, mode etc."
     (remhash    string
                 emacspeak-pronounce-pronunciation-table)))
 
-  
 (defun emacspeak-pronounce-add-buffer-local-dictionary-entry  (string pronunciation)
   "Add specified pronunciation for current buffer.
 Arguments STRING and PRONUNCIATION specify what is being defined."
@@ -226,6 +225,13 @@ modes."
 (emacspeak-pronounce-add-super 'text-mode 'plain-tex-mode)
 ;;;xsl inherits from xml
 (emacspeak-pronounce-add-super 'xml-mode 'xsl-mode)
+
+
+;;; VM, w3m, w3
+(emacspeak-pronounce-add-super 'text-mode 'w3m-mode)
+(emacspeak-pronounce-add-super 'text-mode 'w3-mode)
+(emacspeak-pronounce-add-super 'text-mode 'vm-presentation-mode)
+
 ;;}}}
 ;;{{{  Composing and applying dictionaries:
 
@@ -739,7 +745,7 @@ specified pronunciation dictionary key."
                 (+ 1900 (third fields)))
                (t (third fields)))))
        'personality voice-punctuations-some))))
-                   
+
 ;;}}}
 ;;{{{ phone numbers
 

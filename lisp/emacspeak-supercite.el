@@ -1,5 +1,5 @@
 ;;; emacspeak-supercite.el --- Speech enable supercite
-;;; $Id: emacspeak-supercite.el 6342 2009-10-20 19:12:40Z tv.raman.tv $
+;;; $Id: emacspeak-supercite.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $ 
 ;;; Description:  Emacspeak extension to speech enable supercite
 ;;; Keywords: Emacspeak, supercite, mail
@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2009, T. V. Raman 
+;;;Copyright (C) 1995 -- 2011, T. V. Raman 
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved. 
 ;;;
@@ -93,7 +93,7 @@
   (when (interactive-p)
     (emacspeak-speak-line)
     (emacspeak-auditory-icon 'yank-object)))
-  
+
 (defadvice sc-open-line (after emacspeak pre act comp)
   "Provide auditory feedback"
   (when (interactive-p)

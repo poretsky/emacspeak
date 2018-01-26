@@ -1,5 +1,5 @@
 ;;; emacspeak-w3m.el --- speech-enables w3m-el
-;;;$Id: emacspeak-w3m.el 6411 2009-11-29 17:13:35Z tv.raman.tv $
+;;;$Id: emacspeak-w3m.el 6997 2011-04-28 15:36:06Z tv.raman.tv $
 ;;{{{ Copyright
 
 ;;; This file is not part of Emacs, but the same terms and
@@ -43,6 +43,7 @@
 (eval-when-compile
   (condition-case nil
       (require 'w3m)
+    (require 'w3m-util)
     (error nil)))
 (eval-when (load)
   (require 'w3m-util)
@@ -86,11 +87,11 @@ instead of the modeline."
 (define-key w3m-mode-map "\C-t" 'emacspeak-webutils-transcode-current-url-via-google)
 (define-key w3m-mode-map "\M-t" 'emacspeak-webutils-transcode-via-google)
 ' Moved keybindings to avoid conflict with emacs org mode
-; Avoid use of C-g on request of Raman due to concerns of misuse/confusion
-; because C-g used for emacs quit 
-; Moved google related operations to C-cg prefix, with exception of 
-; google transcode operations, which are left as they were on C-t 
-; and M-t. TX
+                                        ; Avoid use of C-g on request of Raman due to concerns of misuse/confusion
+                                        ; because C-g used for emacs quit 
+                                        ; Moved google related operations to C-cg prefix, with exception of 
+                                        ; google transcode operations, which are left as they were on C-t 
+                                        ; and M-t. TX
 (define-key w3m-mode-map "\C-cgg" 'emacspeak-webutils-google-on-this-site)
 (define-key w3m-mode-map "\C-cgx" 'emacspeak-webutils-google-extract-from-cache)
 (define-key w3m-mode-map "\C-cgl" 'emacspeak-webutils-google-similar-to-this-page)
@@ -131,7 +132,7 @@ instead of the modeline."
                        newstring)
     newstring))
 
-(defsubst emacspeak-w3m-url-at-point ()
+(defun emacspeak-w3m-url-at-point ()
   "Return the url at point in w3m."
   (or (w3m-anchor (point)) (w3m-image (point))))
 
@@ -178,7 +179,7 @@ instead of the modeline."
                 (when (or (eq start (point-max)) (and (integerp value-at-pos) (not (eq value-at-pos anchor-index))))
                   (return (apply 'concat  (nreverse anchor-text)))))))
     default))
-                                
+
 (defun emacspeak-w3m-speak-cursor-anchor ()
   (dtk-speak (emacspeak-w3m-anchor-text "Not found")))
 

@@ -1,5 +1,5 @@
 ;;; emacspeak-ses.el --- Speech-enable ses spread-sheet
-;;; $Id: emacspeak-ses.el 5798 2008-08-22 17:35:01Z tv.raman.tv $
+;;; $Id: emacspeak-ses.el 6673 2010-12-17 18:29:43Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak front-end for SES 
 ;;; Keywords: Emacspeak, ses 
@@ -176,8 +176,7 @@ is nil if SYM is not a symbol that names a cell."
                     'emacspeak-ses-backward-row-and-summarize
                     ses-mode-map)
   )
-        
-        
+
 (defadvice ses-forward-or-insert (after emacspeak pre act comp)
   "Provide auditory feedback."
   (when (interactive-p)

@@ -1,5 +1,5 @@
 ;;; outloud-voices.el --- Define various device independent voices in terms of OutLoud tags
-;;; $Id: outloud-voices.el 6342 2009-10-20 19:12:40Z tv.raman.tv $
+;;; $Id: outloud-voices.el 6959 2011-04-01 15:39:52Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Module to set up Eloquent voices and personalities
 ;;; Keywords: Voice, Personality, IBM ViaVoice Outloud
@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;;Copyright (C) 1995 -- 2009, T. V. Raman 
+;;;Copyright (C) 1995 -- 2011, T. V. Raman 
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -39,19 +39,46 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-;;; Commentary:
 ;;{{{  Introduction:
 
+;;; Commentary:
 ;;; This module defines the various voices used in voice-lock mode.
 ;;; This module is IBM ViaVoice Outloud specific.
-
+;;; Code:
 ;;}}}
 ;;{{{ Required modules
 
-;;; Code:
 (require 'cl)
 (declaim  (optimize  (safety 0) (speed 3)))
 (require 'acss-structure)
+(require 'dtk-unicode)
+
+;;}}}
+;;{{{ Forward declarations:
+
+;;; From dtkk-speak.el:
+(defvar dtk-speech-rate)
+(defvar tts-default-speech-rate )
+(defvar dectalk-default-speech-rate )
+(defvar dtk-speech-rate-step )
+(defvar dtk-speech-rate-base )
+(defvar outloud-default-speech-rate)
+;;}}}
+;;{{{ Top level TTS  switcher
+
+;;;### autoload
+(defun outloud ()
+  "Select Outloud server."
+  (interactive)
+  (dtk-select-server "outloud")
+  (dtk-initialize))
+
+(defun outloud-32()
+  "Select 32-Outloud server."
+  (interactive)
+  (dtk-select-server "32-outloud")
+  (dtk-initialize))
+
 
 ;;}}}
 ;;{{{  voice table
@@ -449,14 +476,19 @@ and TABLE gives the values along that dimension."
   "Configure TTS environment to use ViaVoice  family of synthesizers."
   (declare (special tts-default-speech-rate
                     outloud-default-speech-rate
+                    dtk-speech-rate-step
+                    dtk-speech-rate-base
                     dtk-speaker-process))
   (fset 'tts-list-voices'outloud-list-voices)
   (fset 'tts-voice-defined-p 'outloud-voice-defined-p)
   (fset 'tts-get-voice-command 'outloud-get-voice-command)
   (fset 'tts-define-voice-from-speech-style 'outloud-define-voice-from-speech-style)
   (setq tts-default-speech-rate outloud-default-speech-rate)
-  (set-default 'tts-default-speech-rate
-               outloud-default-speech-rate)
+  (set-default 'tts-default-speech-rate outloud-default-speech-rate)
+  (setq dtk-speech-rate-step 8
+        dtk-speech-rate-base 50)
+  (setq-default dtk-speech-rate-step 8
+                dtk-speech-rate-base 50)
   (dtk-unicode-update-untouched-charsets '(ascii latin-iso8859-1 latin-iso8859-15 latin-iso8859-9 eight-bit-graphic)))
 
 ;;}}}

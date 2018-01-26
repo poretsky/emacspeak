@@ -1,5 +1,5 @@
 ;;; g-auth.el --- Google Authentication Module
-;;;$Id: g-auth.el 5911 2008-09-12 13:35:07Z tv.raman.tv $
+;;;$Id: g-auth.el 6924 2011-03-09 23:56:46Z tv.raman.tv $
 ;;; $Author: raman $
 ;;; Description:  Google Authentication Module
 ;;; Keywords: Google   Auth
@@ -149,8 +149,9 @@
 
 (defsubst g-auth-expired-p (auth-handle)
   "Check if  token for specified service has expired."
-  (or (null (g-auth-token auth-handle))
-       (null (g-auth-cookie-alist auth-handle))
+  (or
+   (and (null (g-auth-token auth-handle))
+        (null (g-auth-cookie-alist auth-handle)))
    (time-less-p (g-auth-lifetime auth-handle)
                 (time-since (g-auth-timestamp auth-handle)))))
 

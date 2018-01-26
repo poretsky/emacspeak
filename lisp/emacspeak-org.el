@@ -1,5 +1,5 @@
 ;;; emacspeak-org.el --- Speech-enable org
-;;; $Id: emacspeak-org.el 6569 2010-08-26 22:53:31Z tv.raman.tv $
+;;; $Id: emacspeak-org.el 6866 2011-02-19 16:41:30Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak front-end for ORG
 ;;; Keywords: Emacspeak, org
@@ -87,7 +87,7 @@
 
 (loop for f in
       '(org-mark-ring-goto
-        org-next-link org-previous-link
+        org-next-link org-previous-link org-open-at-point
         org-goto  org-goto-ret
         org-goto-left org-goto-right
         org-goto-quit
@@ -150,12 +150,12 @@
 (loop for f in
       '(
         org-insert-heading org-insert-todo-heading
-        org-insert-subheading org-insert-todo-subheading
-        org-promote-subtree org-demote-subtree
-        org-do-promote org-do-demote
-        org-move-subtree-up org-move-subtree-down
-        org-convert-to-odd-levels org-convert-to-oddeven-levels
-        )
+                           org-insert-subheading org-insert-todo-subheading
+                           org-promote-subtree org-demote-subtree
+                           org-do-promote org-do-demote
+                           org-move-subtree-up org-move-subtree-down
+                           org-convert-to-odd-levels org-convert-to-oddeven-levels
+                           )
       do
       (eval
        `(defadvice ,f(after emacspeak pre act comp)
@@ -170,8 +170,8 @@
 (loop for f in
       '(
         org-cut-subtree org-copy-subtree
-        org-paste-subtree org-archive-subtree
-        org-narrow-to-subtree )
+                        org-paste-subtree org-archive-subtree
+                        org-narrow-to-subtree )
       do
       (eval
        `(defadvice ,f(after emacspeak pre act comp)
@@ -222,7 +222,7 @@
 (loop for f in
       '(
         org-timestamp-down org-timestamp-down-day
-        org-timestamp-up org-timestamp-up-day)
+                           org-timestamp-up org-timestamp-up-day)
       do
       (eval
        `(defadvice ,f (after emacspeak pre act comp)
@@ -243,9 +243,9 @@
 (loop for f in
       '(
         org-agenda-next-date-line org-agenda-previous-date-line
-        org-agenda-next-line org-agenda-previous-line
-        org-agenda-goto-today
-        )
+                                  org-agenda-next-line org-agenda-previous-line
+                                  org-agenda-goto-today
+                                  )
       do
       (eval
        `(defadvice ,f (after emacspeak pre act comp)
@@ -253,7 +253,7 @@
           (when (interactive-p)
             (emacspeak-auditory-icon 'select-object)
             (emacspeak-speak-line)))))
-            
+
 (loop for f in
       '(
         org-agenda-quit org-agenda-exit)
@@ -280,7 +280,7 @@
   (when (interactive-p)
     (emacspeak-auditory-icon 'open-object)
     (emacspeak-speak-line)))
-                                  
+
 ;;}}}
 ;;{{{ tables:
 
@@ -327,6 +327,7 @@
           ([(meta shift left)] org-shiftmetaleft)
           ([(meta shift right)] org-shiftmetaright)
           ([(meta shift return)] org-insert-todo-heading)
+          ("\C-e" emacspeak-prefix-command)
           ("\C-j" org-insert-heading)
           ("\M-n" org-next-item)
           ("\M-p" org-previous-item)
@@ -358,7 +359,7 @@
   "speak char that was inserted."
   (when (and emacspeak-character-echo
              (interactive-p ))
-    (when dtk-stop-immediately-while-typing (dtk-stop))
+    (dtk-stop)
     (emacspeak-speak-this-char last-input-event )))
 
 (defadvice org-delete-char (around emacspeak pre act)
@@ -413,18 +414,16 @@
 (loop for f in
       '(
         org-occur org-next-link org-previous-link
-        org-beginning-of-item
-        org-beginning-of-item-list
-        org-back-to-heading
-        org-insert-heading org-insert-todo-heading)
+                  org-beginning-of-item
+                  org-beginning-of-item-list
+                  org-back-to-heading
+                  org-insert-heading org-insert-todo-heading)
       do
       (eval
        `(defadvice ,f (around emacspeak pre act comp)
           "Avoid outline errors bubbling up."
           
           (ems-with-errors-silenced ad-do-it))))
-           
-          
 
 ;;}}}
 ;;{{{ global input wizard
@@ -434,6 +433,40 @@
   "Pops up an org input area."
   (interactive)
   (emacspeak-wizards-popup-input-buffer 'org-mode))
+
+;;}}}
+;;{{{ org capture
+
+(defcustom emacspeak-org-bookmark-key "h"
+  "Key of template used for capturing  hot list."
+  :type 'string
+  :group 'emacspeak-org)
+
+;;;###autoload
+(defun emacspeak-org-bookmark (&optional goto)
+  "Bookmark from org."
+  (interactive "P")
+  (declare (special emacspeak-org-bookmark-key))
+  (org-capture goto emacspeak-org-bookmark-key))
+
+(defadvice org-capture-goto-last-stored (after emacspeak pre act comp)
+  "Provide auditory feedback."
+  (when (interactive-p)
+    (emacspeak-auditory-icon 'large-movement)
+    (emacspeak-speak-line)))
+
+(defadvice org-capture-goto-target (after emacspeak pre act comp)
+  "Provide auditory feedback."
+  (emacspeak-auditory-icon 'large-movement)
+  (emacspeak-speak-line))
+
+(defadvice org-capture-finalize (after emacspeak pre act comp)
+  "Provide auditory feedback."
+  (emacspeak-auditory-icon 'save-object))
+
+(defadvice org-capture-kill (after emacspeak pre act comp)
+  "Provide auditory feedback."
+  (emacspeak-auditory-icon 'close-object))
 
 ;;}}}
 (provide 'emacspeak-org)

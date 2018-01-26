@@ -14,7 +14,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2009, T. V. Raman 
+;;;Copyright (C) 1995 -- 2011, T. V. Raman 
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved. 
 ;;;
@@ -75,9 +75,9 @@
 (loop for f in 
       '(
         next-error previous-error
-        compilation-next-file compilation-previous-file
-        compile-goto-error compile-mouse-goto-error
-        )
+                   compilation-next-file compilation-previous-file
+                   compile-goto-error compile-mouse-goto-error
+                   )
       do
       (eval
        `(defadvice ,f (after  emacspeak pre act )

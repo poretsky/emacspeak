@@ -1,5 +1,5 @@
 ;;; emacspeak-autoload.el --- Emacspeak Autoload Generator
-;;; $Id: emacspeak-autoload.el 6342 2009-10-20 19:12:40Z tv.raman.tv $
+;;; $Id: emacspeak-autoload.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  autoload Wizard for the emacspeak desktop
 ;;; Keywords: Emacspeak,  Audio Desktop autoload
@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2009, T. V. Raman
+;;;Copyright (C) 1995 -- 2011, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;

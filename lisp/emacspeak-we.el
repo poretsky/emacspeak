@@ -1,5 +1,5 @@
 ;;; emacspeak-we.el --- Transform Web Pages Using XSLT
-;;; $Id: emacspeak-we.el 6363 2009-11-03 16:57:25Z tv.raman.tv $
+;;; $Id: emacspeak-we.el 6957 2011-04-01 00:55:39Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Edit/Transform Web Pages using XSLT
 ;;; Keywords: Emacspeak,  Audio Desktop Web, XSLT
@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2009, T. V. Raman
+;;;Copyright (C) 1995 -- 2011, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -82,15 +82,13 @@ a rewrite rule even if one is already defined."
   (let ((url (funcall emacspeak-webutils-url-at-point))
         (redirect nil))
     (unless url (error "Not on a link."))
-    (when (or prompt
-              (null emacspeak-we-url-rewrite-rule))
+    (when (or prompt (null emacspeak-we-url-rewrite-rule))
       (setq emacspeak-we-url-rewrite-rule
             (read-minibuffer  "Specify rewrite rule: " "(")))
     (setq redirect
           (replace-regexp-in-string
            (first emacspeak-we-url-rewrite-rule)
-           (second emacspeak-we-url-rewrite-rule) url)
-          url)
+           (second emacspeak-we-url-rewrite-rule)))
     (emacspeak-auditory-icon 'select-object)
     (browse-url (or redirect url))))
 
@@ -269,8 +267,7 @@ from Web page -- default is the current page being viewed."
      emacspeak-we-xsl-filter
      params
      emacspeak-xslt-options             ;options
-     (browse-url url)
-     (or speak (interactive-p)))))
+     (browse-url url))))
 
 ;;;###autoload
 (defun emacspeak-we-xslt-junk (path    url &optional speak)
@@ -450,8 +447,7 @@ Default is to extract from current page."
    (format "/descendant::table[%s]"
            position)
    url
-   (or (interactive-p)
-       speak)))
+       speak))
 
 ;;;###autoload
 (defun emacspeak-we-extract-tables-by-position-list (positions url &optional speak)
@@ -624,9 +620,9 @@ buffer. Interactive use provides list of class values as completion."
     current-prefix-arg))
   (let ((filter (format "//*[contains(@class,\"%s\")]" class)))
     (emacspeak-we-xslt-junk filter
-                              url
-                              (or (interactive-p)
-                                  speak))))
+                            url
+                            (or (interactive-p)
+                                speak))))
 
 (defsubst  emacspeak-we-get-id-list ()
   "Collect a list of ids by prompting repeatedly in the
@@ -689,7 +685,7 @@ values as completion. "
      (or (interactive-p) speak))))
 ;;;###autoload
 (defun emacspeak-we-junk-by-class-list(classes   url &optional
-                                                    speak)
+                                                 speak)
   "Extract elements not having class specified in list `classes' from HTML.
 Extracts specified elements from current WWW page and displays it
 in a separate buffer.  Interactive use provides list of class
@@ -725,10 +721,10 @@ Interactive use provides list of id values as completion."
     (emacspeak-webutils-read-url)
     current-prefix-arg))
   (emacspeak-we-xslt-filter
-   (format "id(\"%s\")"
+   (format "//*[@id=\"%s\"]"
            id)
    url
-   (or (interactive-p) speak)))
+   speak))
 
 ;;;###autoload
 (defun emacspeak-we-extract-by-id-list(ids   url &optional speak)
@@ -753,28 +749,48 @@ separate buffer. Interactive use provides list of id values as completion. "
          speak))))
 
 ;;;###autoload
-(defun emacspeak-we-junk-by-class-list(classes   url &optional speak)
-  "Junk elements having class specified in list `classes' from HTML.
-Extracts specified elements from current WWW page and displays it in a
-separate buffer.
- Interactive use provides list of class values as
-completion. "
+(defun emacspeak-we-extract-id-text (id   url &optional speak)
+  "Extract text nodes from elements having specified id attribute from HTML. Extracts
+specified elements from current WWW page and displays it in a separate
+buffer.
+Interactive use provides list of id values as completion."
   (interactive
    (list
-    (emacspeak-we-css-get-class-list)
+    (let ((completion-ignore-case t))
+      (completing-read "Id: "
+                       emacspeak-we-buffer-id-cache))
+    (emacspeak-webutils-read-url)
+    current-prefix-arg))
+  (emacspeak-we-xslt-filter
+   (format "//*[@id=\"%s\"]//text()"
+           id)
+   url
+   speak))
+
+;;;###autoload
+(defun emacspeak-we-extract-id-list-text(ids   url &optional speak)
+  "Extract text nodes from elements having id specified in list `ids' from HTML.
+Extracts specified elements from current WWW page and displays it in a
+separate buffer. Interactive use provides list of id values as completion. "
+  (interactive
+   (list
+    (emacspeak-we-get-id-list)
     (emacspeak-webutils-read-url)
     current-prefix-arg))
   (let ((filter
          (mapconcat
           #'(lambda  (c)
-              (format "(@class=\"%s\")" c))
-          classes
+              (format "(@id=\"%s\")" c))
+          ids
           " or ")))
-    (emacspeak-we-xslt-junk
-     (format "//*[%s]" filter)
+    (emacspeak-we-xslt-filter
+     (format "//*[%s]//text()" filter)
      url
      (or (interactive-p)
          speak))))
+
+
+;;;###autoload
 
 (defvar emacspeak-we-url-rewrite-rule nil
   "URL rewrite rule to use in current buffer.")
@@ -920,8 +936,6 @@ used as well."
                               (or redirect url)
                               'speak)))
 
-
-
 (defvar emacspeak-we-class-filter-history 
   nil
   "History list recording Class filters we've used.")
@@ -971,8 +985,8 @@ used as well."
             emacspeak-we-class-filter))
     (emacspeak-we-xslt-filter
      (format "//*[@class=\"%s\"]"emacspeak-we-class-filter)
-                              (or redirect url)
-                              'speak)))
+     (or redirect url)
+     'speak)))
 
 (defvar emacspeak-we-xpath-junk nil
   "Records XPath pattern used to junk elements.")
@@ -1049,9 +1063,6 @@ and provide a completion list of applicable  property values. Filter document by
                     property v))))
     (emacspeak-we-xslt-filter filter url
                               (or (interactive-p) speak))))
-    
-  
-    
 
 ;;}}}
 ;;{{{  xsl keymap
@@ -1084,7 +1095,7 @@ and provide a completion list of applicable  property values. Filter document by
         ("k" emacspeak-we-toggle-xsl-keep-result)
         ("m" emacspeak-we-extract-table-by-match)
         ("o" emacspeak-we-xsl-toggle)
-("p" emacspeak-we-xpath-filter-and-follow)
+        ("p" emacspeak-we-xpath-filter-and-follow)
         ("v" emacspeak-we-class-filter-and-follow-link)
         ("r" emacspeak-we-extract-media-streams)
         ("S" emacspeak-we-style-filter)

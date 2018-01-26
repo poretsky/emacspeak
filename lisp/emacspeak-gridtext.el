@@ -1,5 +1,5 @@
 ;;; emacspeak-gridtext.el --- Overlay Grids To filter columnar text
-;;; $Id: emacspeak-gridtext.el 5798 2008-08-22 17:35:01Z tv.raman.tv $
+;;; $Id: emacspeak-gridtext.el 6673 2010-12-17 18:29:43Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak module for laying grids on text
 ;;; Keywords: Emacspeak, gridtext
@@ -85,7 +85,7 @@ future  use."
   (declare (special  major-mode))
   (or (buffer-file-name)
       (format "%s:%s" (buffer-name) major-mode)))
-   
+
 (defun emacspeak-gridtext-vector-region (start end grid)
   "Returns a vector containing the text bounded by start and
 end   as specified by grid."
@@ -128,7 +128,6 @@ end   as specified by grid."
               (forward-line 1))
         result-grid))))
 
-          
 ;;}}}
 ;;{{{  persistent store 
 
@@ -209,7 +208,6 @@ end   as specified by grid."
      (emacspeak-gridtext-generate-key) grid)
     (emacspeak-table-prepare-table-buffer grid-table buffer)))
 
-                         
 ;;}}}
 ;;{{{  keymaps 
 (defvar emacspeak-gridtext-keymap nil

@@ -1,5 +1,5 @@
 ;;; emacspeak-firevox.el.el --- FireVox Piglet
-;;; $Id: emacspeak-firevox.el 6342 2009-10-20 19:12:40Z tv.raman.tv $
+;;; $Id: emacspeak-firevox.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Play Firevox game from Emacs in Firefox
 ;;; Keywords: Emacspeak,  Audio Desktop Firefox, Piglets 
@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2009, T. V. Raman
+;;;Copyright (C) 1995 -- 2011, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -93,9 +93,6 @@
   (emacspeak-moz-eval-expression
    "CLC_SR_StopSpeaking();CLC_SR_ReadContent(-1)\n"))
 
-             
-          
-           
 (defun emacspeak-firevox-read-current ()
   "Read current node."
   (emacspeak-moz-eval-expression

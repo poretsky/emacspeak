@@ -1,5 +1,5 @@
 ;;; emacspeak-speak.el --- Implements Emacspeak's core speech services
-;;; $Id: emacspeak-speak.el 6594 2010-09-08 17:27:26Z tv.raman.tv $
+;;; $Id: emacspeak-speak.el 6942 2011-03-20 18:33:49Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Contains the functions for speaking various chunks of text
 ;;; Keywords: Emacspeak,  Spoken Output
@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2009, T. V. Raman
+;;;Copyright (C) 1995 -- 2011, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -59,9 +59,29 @@
 (require 'time-date)
 (require 'voice-setup)
 (require 'thingatpt)
+(require 'dtk-speak)
+(require 'dtk-unicode)
 (eval-when-compile
   (require 'shell)
   (require 'which-func nil))
+
+;;}}}
+;;{{{ forward declarations:
+(defvar emacspeak-codename)
+(defvar emacspeak-last-message)
+(defvar emacspeak-resource-directory)
+(defvar emacspeak-sounds-directory)
+(defvar emacspeak-version)
+(defvar semantic--buffer-cache)
+(defvar voice-animate)
+(defvar voice-annotate)
+(defvar voice-bolden)
+(defvar voice-bolden-medium)
+(defvar voice-indent)
+(defvar voice-punctuations-some)
+(defvar voice-smoothen)
+
+(declare-function operate-on-rectangle(start end coerse-tabs))
 
 ;;}}}
 ;;{{{  custom group
@@ -594,8 +614,8 @@ current local  value to the result.")
    (format
     "(cl-puthash
 (intern \"%s\")
- '%s
- emacspeak-speak-filter-table)\n" k v )))
+'%s
+emacspeak-speak-filter-table)\n" k v )))
 
 (defcustom emacspeak-speak-filter-persistent-store
   (expand-file-name ".filters"
@@ -1068,7 +1088,7 @@ Pronounces character phonetically unless  called with a PREFIX arg."
 (defun emacspeak-speak-char-name (char)
   "tell me what this is"
   (interactive)
-  (dtk-speak (cadar (describe-char-unicode-data char))))
+  (dtk-speak (dtk-unicode-name-for-char char)))
 
 (defun emacspeak-speak-this-char (char)
   "Speak this CHAR."
@@ -1468,13 +1488,17 @@ indicating the arrival  of new mail when displaying the mode line.")
 (defsubst emacspeak-get-voicefied-mode-name (mode-name)
   "Return voicefied version of this mode-name."
   (declare (special emacspeak-voicefied-mode-names))
-  (let ((result (gethash mode-name emacspeak-voicefied-mode-names)))
+  (let* ((mode-name-str
+          (if (stringp mode-name)
+              mode-name
+            (format-mode-line mode-name)))
+         (result (gethash mode-name-str emacspeak-voicefied-mode-names)))
     (or result
         (progn
-          (setq result (copy-sequence mode-name))
+          (setq result (copy-sequence mode-name-str))
           (put-text-property 0 (length result)
                              'personality voice-animate result)
-          (puthash mode-name result emacspeak-voicefied-mode-names)
+          (puthash mode-name-str result emacspeak-voicefied-mode-names)
           result))))
 
 ;;}}}
@@ -1541,37 +1565,6 @@ semantic to do the work."
                (which-function)
                "Not inside a function."))))
 ;;; not used
-(defsubst ems-process-mode-line-format (spec)
-  "Process mode line format spec."
-  (cond
-;;; leaves
-   ((symbolp spec) (symbol-value  spec))
-   ((stringp spec) spec)
-;;; leaf + tree:
-   ((and (listp spec)
-         (stringp (car spec)))
-    (concat
-     (car spec)
-     (ems-process-mode-line-format (cdr spec))))
-   ((and (listp spec)
-         (symbolp (car spec))
-         (null (car spec)))
-    (ems-process-mode-line-format (cdr spec)))
-   ((and (listp spec)
-         (eq :eval  (car spec)))
-    (eval (cadr spec)))
-   ((and (listp spec)
-         (symbolp (car spec)))
-    (concat
-     (ems-process-mode-line-format (symbol-value (car spec)))
-     (if (cdr spec)
-         (ems-process-mode-line-format (cdr spec))
-       "")))
-   ((and (listp spec)
-         (caar spec))
-    (concat
-     (ems-process-mode-line-format  (symbol-value (cadar spec)))
-     (ems-process-mode-line-format (cdr spec))))))
 
 (defun emacspeak-speak-buffer-info ()
   "Speak buffer information."
@@ -1754,12 +1747,10 @@ dont customize the header."
   :type 'boolean
   :group 'emacspeak)
 
-(defvar emacspeak-default-header-line-format
+(defvar emacspeak-header-line-format
   '((:eval (buffer-name)))
   "Default header-line-format defined by Emacspeak.
 Displays name of current buffer.")
-
-    
 
 (defun emacspeak-speak-header-line ()
   "Speak header line if set."
@@ -1775,14 +1766,14 @@ Displays name of current buffer.")
 (defun emacspeak-toggle-header-line ()
   "Toggle Emacspeak's default header line."
   (interactive)
-  (declare (special emacspeak-default-header-line-format
-                    default-header-line-format))
-  (if default-header-line-format
-      (setq default-header-line-format nil)
-    (setq default-header-line-format emacspeak-default-header-line-format))
-  (emacspeak-auditory-icon (if default-header-line-format 'on 'off))
+  (declare (special emacspeak-header-line-format
+                    header-line-format))
+  (if header-line-format
+      (setq header-line-format nil)
+    (setq header-line-format emacspeak-header-line-format))
+  (emacspeak-auditory-icon (if header-line-format 'on 'off))
   (message "Turned %s default header line."
-           (if default-header-line-format 'on 'off)))
+           (if header-line-format 'on 'off)))
 
 ;;}}}
 ;;{{{  Speak text without moving point
@@ -2145,7 +2136,7 @@ Speak that chunk after moving."
      (buffer-substring start end))
     (goto-char end)
     (emacspeak-auditory-icon 'large-movement)))
-    
+
 ;;}}}
 ;;{{{ speaking Face chunks
 
@@ -2205,23 +2196,23 @@ Speak that chunk after moving."
   (interactive
    (list
     (read-command "Command to execute repeatedly:")))  (let ((key "")
-    (position (point ))
-    (continue t )
-    (message (format "Press space to execute %s again" command)))
-   (while continue
-     (call-interactively command )
-     (cond
-      ((= (point) position ) (setq continue nil))
-      (t (setq position (point))
-         (setq key
-               (let ((dtk-stop-immediately nil ))
+                                                             (position (point ))
+                                                             (continue t )
+                                                             (message (format "Press space to execute %s again" command)))
+                                                         (while continue
+                                                           (call-interactively command )
+                                                           (cond
+                                                            ((= (point) position ) (setq continue nil))
+                                                            (t (setq position (point))
+                                                               (setq key
+                                                                     (let ((dtk-stop-immediately nil ))
                                         ;(sit-for 2)
-                 (read-key-sequence message )))
-         (when(and (stringp key)
-                   (not (=  32  (string-to-char key ))))
-           (dtk-stop)
-           (setq continue nil )))))
-   (dtk-speak "Exited continuous mode ")))
+                                                                       (read-key-sequence message )))
+                                                               (when(and (stringp key)
+                                                                         (not (=  32  (string-to-char key ))))
+                                                                 (dtk-stop)
+                                                                 (setq continue nil )))))
+                                                         (dtk-speak "Exited continuous mode ")))
 
 ;;;###autoload
 (defun emacspeak-speak-continuously ()
@@ -2324,8 +2315,7 @@ Speech is scaled by the value of dtk-speak-skim-scale"
   (interactive)
   (declare (special completion-reference-buffer))
   (let ((completion-ignore-case t))
-    (choose-completion-string (emacspeak-get-current-completion)
-                              completion-reference-buffer))
+    (choose-completion-string (emacspeak-get-current-completion) completion-reference-buffer))
   (emacspeak-auditory-icon 'select-object)
   (cond
    ((not (or
@@ -2420,8 +2410,6 @@ message area.  You can use command
 ;;}}}
 ;;{{{  Moving across fields:
 ;;; Fields are defined by property 'field
-
-
 
 ;;; helper function: speak a field
 (defsubst  emacspeak-speak-field (start end )
@@ -2710,7 +2698,7 @@ Argument PROMPT specifies the prompt to display."
 any other key to speak entire buffer."
   (interactive)
   (emacspeak-speak-buffer
-   (emacspeak-ask-how-to-speak "buffer" (sit-for 1 0 nil ))))
+   (emacspeak-ask-how-to-speak "buffer" (sit-for 1))))
 
 ;;;###autoload
 (defun emacspeak-speak-help-interactively ()
@@ -2720,7 +2708,7 @@ any other key to speak entire buffer."
 any other key to speak entire help."
   (interactive)
   (emacspeak-speak-help
-   (emacspeak-ask-how-to-speak "help" (sit-for 1 0 nil ))))
+   (emacspeak-ask-how-to-speak "help" (sit-for 1))))
 
 ;;;###autoload
 (defun emacspeak-speak-line-interactively ()
@@ -2730,7 +2718,7 @@ any other key to speak entire help."
 any other key to speak entire line."
   (interactive)
   (emacspeak-speak-line
-   (emacspeak-ask-how-to-speak "line" (sit-for 1 0 nil ))))
+   (emacspeak-ask-how-to-speak "line" (sit-for 1))))
 
 ;;;###autoload
 (defun emacspeak-speak-paragraph-interactively ()
@@ -2740,7 +2728,7 @@ any other key to speak entire line."
 any other key to speak entire paragraph."
   (interactive)
   (emacspeak-speak-paragraph
-   (emacspeak-ask-how-to-speak "paragraph" (sit-for 1 0 nil ))))
+   (emacspeak-ask-how-to-speak "paragraph" (sit-for 1))))
 
 ;;;###autoload
 (defun emacspeak-speak-page-interactively ()
@@ -2750,7 +2738,7 @@ any other key to speak entire paragraph."
 any other key to speak entire page."
   (interactive)
   (emacspeak-speak-page
-   (emacspeak-ask-how-to-speak "page" (sit-for 1 0 nil ))))
+   (emacspeak-ask-how-to-speak "page" (sit-for 1))))
 
 ;;;###autoload
 (defun emacspeak-speak-word-interactively ()
@@ -2760,7 +2748,7 @@ any other key to speak entire page."
 any other key to speak entire word."
   (interactive)
   (emacspeak-speak-word
-   (emacspeak-ask-how-to-speak "word" (sit-for 1 0 nil ))))
+   (emacspeak-ask-how-to-speak "word" (sit-for 1))))
 
 ;;;###autoload
 (defun emacspeak-speak-sexp-interactively ()
@@ -2770,7 +2758,7 @@ any other key to speak entire word."
 any other key to speak entire sexp."
   (interactive)
   (emacspeak-speak-sexp
-   (emacspeak-ask-how-to-speak "sexp" (sit-for 1 0 nil ))))
+   (emacspeak-ask-how-to-speak "sexp" (sit-for 1))))
 
 ;;}}}
 ;;{{{  emacs rectangles and regions:
@@ -3137,14 +3125,11 @@ char, or dont move. "
 
 (add-hook 'completion-setup-hook 'emacspeak-completion-setup-hook)
 
-(declaim (special completion-list-mode-map))
-(define-key completion-list-mode-map "\C-o"
-  'emacspeak-switch-to-reference-buffer)
+(declaim (special completion-list-mode-map))  
+(define-key completion-list-mode-map "\C-o" 'emacspeak-switch-to-reference-buffer)
 (define-key completion-list-mode-map " "'next-completion)
-(define-key completion-list-mode-map [S-Return]
-  'choose-completion)
-(define-key completion-list-mode-map "\C-m"
-  'emacspeak-completion-pick-completion)
+(define-key completion-list-mode-map "\C-m"  'choose-completion)
+(define-key completion-list-mode-map "\M-\C-m" 'emacspeak-completion-pick-completion)
 (let ((chars
        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"))
   (loop for char across chars
@@ -3292,6 +3277,38 @@ settings? "))
           (load-file settings)
         (error (message "Error loading settings %s" settings))))))
 
+;;}}}
+;;{{{ silence:
+;;;###autoload
+(defcustom emacspeak-silence-hook nil
+  "Functions run after emacspeak-silence is called."
+  :type '(repeat  function)
+  :group 'emacspeak)
+
+;;;###autoload
+(defun emacspeak-silence()
+  "Silence is golden. Stop speech, and pause/resume any media
+streams.
+Runs `emacspeak-silence-hook' which can be used to configure
+which media players get silenced or paused/resumed."
+  (interactive)
+  (declare (special  emacspeak-silence-hook))
+  (dtk-stop)
+  (run-hooks 'emacspeak-silence-hook))
+
+;;}}}
+;;{{{ Search 
+
+(defcustom emacspeak-search 'emacspeak-websearch-google
+  "Default search engine."
+  :type 'function
+  :group 'emacspeak)
+
+(defun emacspeak-search ()
+  "Call search defined in \\[emacspeak-search]."
+  (interactive)
+  (declare (special emacspeak-search))
+  (call-interactively emacspeak-search))
 ;;}}}
 (provide 'emacspeak-speak )
 ;;{{{ end of file

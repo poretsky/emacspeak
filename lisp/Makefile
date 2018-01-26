@@ -1,4 +1,4 @@
-# $Id: Makefile 6597 2010-09-12 19:38:13Z tv.raman.tv $
+# $Id: Makefile 7020 2011-05-09 15:49:00Z tv.raman.tv $
 # $Author: tv.raman.tv $
 # Description:  Makefile for Emacspeak
 # Keywords: Emacspeak, Dectalk, Makefile
@@ -60,7 +60,7 @@ COMPILE =  -f batch-byte-compile
 #The various modules:
 DTK_OBJECTS = acss-structure.elc \
 dtk-speak.elc		dectalk-voices.elc\
-outloud-voices.elc multispeech-voices.elc \
+outloud-voices.elc multispeech-voices.elc mac-voices.elc\
 espeak-voices.elc dtk-interp.elc dtk-unicode.elc
 
 SPEAK_OBJECTS =   \
@@ -89,7 +89,6 @@ amixer.elc \
 emacspeak-add-log.elc \
 emacspeak-alsaplayer.elc \
 emacspeak-amark.elc \
-emacspeak-amphetadesk.elc \
 emacspeak-analog.elc \
 emacspeak-ansi-color.elc \
 emacspeak-apt-sources.elc \
@@ -102,6 +101,7 @@ emacspeak-babel.elc \
 emacspeak-bbdb.elc \
 emacspeak-bibtex.elc \
 emacspeak-bookmark.elc \
+emacspeak-bookshare.elc \
 emacspeak-bmk-mgr.elc \
 emacspeak-browse-kill-ring.elc \
 emacspeak-bs.elc \
@@ -166,6 +166,7 @@ emacspeak-jde.elc \
 emacspeak-jawbreaker.elc \
 emacspeak-js2.elc \
 emacspeak-kmacro.elc  \
+emacspeak-librivox.elc \
 emacspeak-madplay.elc \
 emacspeak-m-player.elc \
 emacspeak-make-mode.elc \
@@ -181,6 +182,7 @@ emacspeak-net-utils.elc \
 emacspeak-newsticker.elc \
 emacspeak-ocr.elc \
 emacspeak-org.elc \
+emacspeak-npr.elc \
 emacspeak-nxml.elc \
 emacspeak-outline.elc \
 emacspeak-pcl-cvs.elc \
@@ -198,7 +200,6 @@ emacspeak-remote.elc \
 emacspeak-rmail.elc \
 emacspeak-rpm.elc  \
 emacspeak-ruby.elc \
-emacspeak-sawfish.elc \
 emacspeak-ses.elc \
 emacspeak-setup.el \
 emacspeak-sgml-mode.elc \
@@ -220,10 +221,8 @@ emacspeak-tetris.elc \
 emacspeak-texinfo.elc \
 emacspeak-tnt.elc \
 emacspeak-todo-mode.elc \
-emacspeak-twit.elc \
 emacspeak-twittering.elc \
 emacspeak-url-template.elc \
-emacspeak-view-process.elc \
 emacspeak-view.elc \
 emacspeak-vm.elc \
 emacspeak-w3.elc \
@@ -258,7 +257,11 @@ all: $(OBJECTS)
 force:
 
 config: emacspeak-loaddefs.el emacspeak-cus-load.el emacspeak-finder-inf.el
-
+lint:
+	echo "." |\
+emacs -batch -q \
+-l advice.el -l emacspeak-load-path.el  -l emacspeak-loaddefs.el \
+-f elint-directory 
 # }}}
 # {{{build time target --loaddefs
 
@@ -292,11 +295,11 @@ acss-structure.elc: acss-structure.el
 dectalk-voices.elc: dectalk-voices.el voice-setup.elc
 outloud-voices.elc: outloud-voices.el voice-setup.elc
 multispeech-voices.elc: multispeech-voices.el voice-setup.elc
+mac-voices.elc: mac-voices.el voice-setup.elc
 espeak-voices.elc: espeak-voices.el voice-setup.elc
 voice-setup.elc: voice-setup.el acss-structure.elc
 emacspeak-alsaplayer.elc: emacspeak-alsaplayer.el
-emacspeak-amark.elc: emacspeak-amark.el
-emacspeak-amphetadesk.elc: emacspeak-amphetadesk.el
+ommacspeak-amark.elc: emacspeak-amark.el
 cd-tool.elc: cd-tool.el
 amixer.elc: amixer.el
 emacspeak-actions.elc: emacspeak-actions.el
@@ -314,6 +317,7 @@ emacspeak-babel.elc: emacspeak-babel.el dtk-speak.elc voice-setup.elc
 emacspeak-bbdb.elc: emacspeak-bbdb.el dtk-speak.elc voice-setup.elc
 emacspeak-bibtex.elc: emacspeak-bibtex.el dtk-speak.elc voice-setup.elc
 emacspeak-bookmark.elc: emacspeak-bookmark.el dtk-speak.elc voice-setup.elc
+emacspeak-bookshare.elc: emacspeak-bookmark.el dtk-speak.elc voice-setup.elc
 emacspeak-bmk-mgr.elc: emacspeak-bmk-mgr.el dtk-speak.elc voice-setup.elc
 emacspeak-browse-kill-ring.elc: emacspeak-browse-kill-ring.el dtk-speak.elc voice-setup.elc
 emacspeak-bs.elc: emacspeak-bs.el dtk-speak.elc voice-setup.elc
@@ -380,6 +384,7 @@ emacspeak-js2.elc: emacspeak-js2.el dtk-speak.elc voice-setup.elc
 emacspeak-jawbreaker.elc: emacspeak-jawbreaker.el emacspeak-piglets.elc
 emacspeak-keymap.elc: emacspeak-keymap.el
 emacspeak-kmacro.elc: emacspeak-kmacro.el dtk-speak.elc voice-setup.elc
+emacspeak-librivox.elc: emacspeak-librivox.el dtk-speak.elc voice-setup.elc
 emacspeak-loaddefs.elc: emacspeak-loaddefs.el
 emacspeak-load-path.elc: emacspeak-load-path.elc
 emacspeak-madplay.elc: emacspeak-madplay.el dtk-speak.elc voice-setup.elc
@@ -395,6 +400,7 @@ emacspeak-muse.elc: emacspeak-muse.el dtk-speak.elc
 emacspeak-mspools.elc: emacspeak-mspools.el dtk-speak.elc voice-setup.elc
 emacspeak-net-utils.elc: emacspeak-net-utils.el dtk-speak.elc voice-setup.elc
 emacspeak-newsticker.elc: emacspeak-newsticker.el dtk-speak.elc voice-setup.elc
+emacspeak-npr.elc: emacspeak-npr.el dtk-speak.elc voice-setup.elc
 emacspeak-nxml.elc: emacspeak-nxml.el dtk-speak.elc voice-setup.elc
 emacspeak-org.elc: emacspeak-org.el dtk-speak.elc
 emacspeak-outline.elc: emacspeak-outline.el dtk-speak.elc voice-setup.elc
@@ -417,7 +423,6 @@ emacspeak-remote.elc: emacspeak-remote.el
 emacspeak-replace.elc: emacspeak-replace.el dtk-speak.elc voice-setup.elc
 emacspeak-ruby.elc: emacspeak-ruby.el dtk-speak.elc
 emacspeak-rmail.elc: emacspeak-rmail.el dtk-speak.elc voice-setup.elc
-emacspeak-sawfish.elc: emacspeak-sawfish.el dtk-speak.elc voice-setup.elc
 emacspeak-ses.elc: emacspeak-ses.el dtk-speak.elc voice-setup.elc
 emacspeak-setup.elc: emacspeak-setup.el
 emacspeak-sgml-mode.elc: emacspeak-sgml-mode.el dtk-speak.elc voice-setup.elc
@@ -445,10 +450,8 @@ emacspeak-tetris.elc: emacspeak-tetris.el dtk-speak.elc voice-setup.elc
 emacspeak-texinfo.elc: emacspeak-texinfo.el dtk-speak.elc voice-setup.elc
 emacspeak-tnt.elc: emacspeak-tnt.el dtk-speak.elc voice-setup.elc
 emacspeak-todo-mode.elc: emacspeak-todo-mode.el dtk-speak.elc voice-setup.elc
-emacspeak-twit.elc: emacspeak-twit.el dtk-speak.elc voice-setup.elc
 emacspeak-twittering.elc: emacspeak-twittering.el dtk-speak.elc voice-setup.elc
 emacspeak-url-template.elc: emacspeak-url-template.el emacspeak-webutils.elc emacspeak-we.elc
-emacspeak-view-process.elc: emacspeak-view-process.el dtk-speak.elc voice-setup.elc
 emacspeak-view.elc: emacspeak-view.el dtk-speak.elc voice-setup.elc
 emacspeak-vm.elc: emacspeak-vm.el dtk-speak.elc voice-setup.elc
 emacspeak-w3.elc: emacspeak-w3.el emacspeak-webutils.elc emacspeak-we.elc

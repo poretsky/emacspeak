@@ -1,11 +1,11 @@
-#$Id: tts-lib.tcl 6540 2010-06-29 22:41:23Z tv.raman.tv $
+#$Id: tts-lib.tcl 6851 2011-02-15 03:56:01Z tv.raman.tv $
 # {{{ LCD Entry: 
 #x
 # LCD Archive Entry:
 # emacspeak| T. V. Raman |raman@cs.cornell.edu
 # A speech interface to Emacs |
-# $Date: 2010-06-29 15:41:23 -0700 (Tue, 29 Jun 2010) $ |
-#  $Revision: 6540 $ | 
+# $Date: 2011-02-14 19:56:01 -0800 (Mon, 14 Feb 2011) $ |
+#  $Revision: 6851 $ | 
 # Location undetermined
 #
 
@@ -183,7 +183,7 @@ proc queue_restore {} {
 #play a sound over the server
 proc p {sound} {
     global tts
-    catch "exec $tts(play) -q $sound &" errcode
+    catch "exec $tts(play) -q $tts(play_dev) $sound &" errcode
     speech_task
 }
 
@@ -319,7 +319,7 @@ proc tts_setserial {} {
 # {{{tts initialize  
 
 proc tts_initialize {} {
-    global tts backup  queue
+    global tts backup  queue env
     #split caps flag: 
     set tts(split_caps) 1
     # Capitalize flag
@@ -340,6 +340,12 @@ proc tts_initialize {} {
         set tts(play)  $env(EMACSPEAK_PLAY_PROGRAM)
     } else {
         set tts(play) "/usr/bin/aplay"
+    }
+# aplay device options:
+    if {[info exists env(ALSA_DEFAULT)] } {
+        set tts(play_dev)  "-D $env(ALSA_DEFAULT)"
+    } else {
+        set tts(play_dev) ""
     }
     
     #optional debuggin output

@@ -1,21 +1,22 @@
-@c $Id: commands.texi 6604 2010-09-25 18:45:52Z tv.raman.tv $
+@c $Id: commands.texi 7019 2011-05-08 14:48:19Z tv.raman.tv $
 @node Emacspeak Commands
 @chapter Emacspeak Commands
 
 This chapter is generated automatically from the source-level documentation.
 Any errors or corrections should be made to the source-level
 documentation.
-This chapter documents a total of 890 commands.
+This chapter documents a total of 938 commands.
 
 @menu
 * cd-tool::                     
+* dectalk-voices::              
 * dtk-speak::                   
 * dtk-unicode::                 
 * emacspeak-alsaplayer::        
 * emacspeak-amark::             
-* emacspeak-amphetadesk::       
 * emacspeak-arc::               
 * emacspeak-aumix::             
+* emacspeak-bookshare::         
 * emacspeak-bs::                
 * emacspeak-buff-menu::         
 * emacspeak-c::                 
@@ -33,7 +34,6 @@ This chapter documents a total of 890 commands.
 * emacspeak-eperiodic::         
 * emacspeak-erc::               
 * emacspeak-eterm::             
-* emacspeak-eudc::              
 * emacspeak-filtertext::        
 * emacspeak-fix-interactive::   
 * emacspeak-forms::             
@@ -51,6 +51,7 @@ This chapter documents a total of 890 commands.
 * emacspeak-m-player::          
 * emacspeak-madplay::           
 * emacspeak-man::               
+* emacspeak-npr::               
 * emacspeak-ocr::               
 * emacspeak-outline::           
 * emacspeak-pronounce::         
@@ -75,7 +76,6 @@ This chapter documents a total of 890 commands.
 * emacspeak-w3::                
 * emacspeak-w3m::               
 * emacspeak-we::                
-* emacspeak-webmarks::          
 * emacspeak-websearch::         
 * emacspeak-webspace::          
 * emacspeak-webutils::          
@@ -92,6 +92,7 @@ This chapter documents a total of 890 commands.
 * emacspeak-moz::               
 * emacspeak-org::               
 * emacspeak-piglets::           
+* emacspeak-webmarks::          
 * URL Templates ::              
 @end menu
 
@@ -136,6 +137,22 @@ cap C   Save clip to disk
 
 @end deffn
 
+@node dectalk-voices
+@section dectalk-voices
+
+Commentary:
+This module defines the various voices used in voice-lock mode.
+This module is Dectalk specific.
+
+Automatically generated documentation
+for commands defined in module  dectalk-voices.
+
+@deffn {Interactive Command} dtk-exp nil
+@kbd{Not bound to any key.}
+
+Select Dectalk TTS server.
+@end deffn
+
 @node dtk-speak
 @section dtk-speak
 
@@ -158,6 +175,15 @@ pattern `.' (this is already added by default) emacspeak
 will say ``aw fifteen dot'' when speaking the string
 ``...............'' instead of ``period period period period
 ''
+@end deffn
+
+@deffn {Interactive Command} dtk-async-server nil
+@kbd{ control e d  cap A  }
+
+Select and start an async  speech server interactively.
+Async servers allow external programs like self-voicing Web browsers to use
+the Emacspeak TTS server abstraction.
+Argument PROGRAM specifies the speech server program.
 @end deffn
 
 @deffn {Interactive Command} dtk-pause nil
@@ -195,8 +221,10 @@ and option `dtk-resume-should-toggle' is set,
 @kbd{ control e d d }
 
 Select a speech server interactively.
-Argument PROGRAM specifies the speech server program.
-When called  interactively, The selected server is started immediately. 
+Argument PROGRAM specifies the speech server program. When called
+interactively, The selected server is started
+immediately. Optional arg device sets up environment variable
+ALSA_DEFAULT to specified device before starting the server.
 @end deffn
 
 @deffn {Interactive Command} dtk-set-character-scale nil
@@ -288,7 +316,7 @@ current local  value to the result.
 @end deffn
 
 @deffn {Interactive Command} dtk-stop nil
-@kbd{ <pause>   control e s }
+@kbd{ control e s }
 
 Stop speech now.
 @end deffn
@@ -373,15 +401,6 @@ unresponsive when asked to stop talking.  Splitting on white
 space makes emacspeak's stop command responsive.  However,
 when splitting on white space, the speech sounds choppy
 since the synthesizer is getting a word at a time.
-@end deffn
-
-@deffn {Interactive Command} dtk-toggle-stop-immediately-while-typing nil
-@kbd{ control e d  cap I  }
-
-Toggle state of variable `dtk-stop-immediately-while-typing'.
-As the name implies, if T then speech flushes immediately as you
-type.  Optional argument PREFIX specifies if the setting applies
-to all buffers.
 @end deffn
 
 @deffn {Interactive Command} dtk-toggle-strip-octals nil
@@ -703,27 +722,6 @@ Locate AMarks file from current directory, and load it.
 Save buffer-local AMarks in current directory.
 @end deffn
 
-@node emacspeak-amphetadesk
-@section emacspeak-amphetadesk
-
-No Commentary
-
-Automatically generated documentation
-for commands defined in module  emacspeak-amphetadesk.
-
-@deffn {Interactive Command} emacspeak-amphetadesk nil
-@kbd{Not bound to any key.}
-
-Open amphetadesk.
-Interactive prefix-arg use-opml opens the myChannels.opml file.
-@end deffn
-
-@deffn {Interactive Command} emacspeak-amphetadesk-quick-add nil
-@kbd{Not bound to any key.}
-
-Quick add URL to Amphetadesk by prompting for URL.
-@end deffn
-
 @node emacspeak-arc
 @section emacspeak-arc
 
@@ -812,6 +810,309 @@ Decrease volume of wave output.
 @kbd{Not bound to any key.}
 
 Increase volume of wave output. 
+@end deffn
+
+@node emacspeak-bookshare
+@section emacspeak-bookshare
+
+Commentary:
+BOOKSHARE == http://www.bookshare.org provides book access to print-disabled users.
+It provides a simple Web  API http://developer.bookshare.org
+This module implements an Emacspeak Bookshare client.
+For now, users will need to get their own API key
+
+Automatically generated documentation
+for commands defined in module  emacspeak-bookshare.
+
+@deffn {Interactive Command} emacspeak-bookshare nil
+@kbd{ control e control b }
+
+Bookshare  Interaction.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-bookshare-action nil
+@kbd{Not bound to any key.}
+
+Call action specified by  invoking key.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-bookshare-author-search nil
+@kbd{Not bound to any key.}
+
+Perform a Bookshare author search.
+Interactive prefix arg filters search by category.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-bookshare-browse nil
+@kbd{Not bound to any key.}
+
+Browse Bookshare.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-bookshare-browse-latest nil
+@kbd{Not bound to any key.}
+
+Return latest books.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-bookshare-browse-popular nil
+@kbd{Not bound to any key.}
+
+Browse popular books.
+Optional interactive prefix arg prompts for a category to use as a filter.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-bookshare-download-brf nil
+@kbd{Not bound to any key.}
+
+Download Daisy format of specified book to target location.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-bookshare-download-brf-at-point nil
+@kbd{Not bound to any key.}
+
+Download Braille version of book under point.
+Target location is generated from author and title.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-bookshare-download-daisy nil
+@kbd{Not bound to any key.}
+
+Download Daisy format of specified book to target location.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-bookshare-download-daisy-at-point nil
+@kbd{Not bound to any key.}
+
+Download Daisy version of book under point.
+Target location is generated from author and title.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-bookshare-download-internal nil
+@kbd{Not bound to any key.}
+
+Download content  to target location.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-bookshare-expand-at-point nil
+@kbd{Not bound to any key.}
+
+Expand entry at point by retrieving metadata.
+Once retrieved, memoize to avoid multiple retrievals.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-bookshare-extract-and-view nil
+@kbd{Not bound to any key.}
+
+Extract content refered to by link under point, and render via the browser.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-bookshare-extract-xml nil
+@kbd{Not bound to any key.}
+
+Extract content refered to by link under point, and return an XML buffer.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-bookshare-flush-lines nil
+@kbd{Not bound to any key.}
+
+Flush lines matching regexp in Bookshare buffer.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-bookshare-fulltext-search nil
+@kbd{Not bound to any key.}
+
+Perform a Bookshare fulltext search.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-bookshare-get-more-results nil
+@kbd{Not bound to any key.}
+
+Get next page of results for last query.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-bookshare-id-search nil
+@kbd{Not bound to any key.}
+
+Perform a Bookshare id search.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-bookshare-isbn-search nil
+@kbd{Not bound to any key.}
+
+Perform a Bookshare isbn search.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-bookshare-list-preferences nil
+@kbd{Not bound to any key.}
+
+Return preference list.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-bookshare-mode nil
+@kbd{Not bound to any key.}
+
+A Bookshare front-end for the Emacspeak desktop.
+
+The Emacspeak Bookshare front-end is launched by command
+emacspeak-bookshare bound to C-e C-b
+
+This command switches to a special buffer that has Bookshare
+commands bounds to single keystrokes-- see the ke-binding list at
+the end of this description. Use Emacs online help facility to
+look up help on these commands.
+
+emacspeak-bookshare-mode provides the necessary functionality to
+Search and download Bookshare material,
+Manage a local library of downloaded Bookshare content,
+And commands to easily read newer Daisy books from Bookshare.
+
+Here is a list of all emacspeak Bookshare commands along with their key-bindings:
+a Author Search
+A Author/Title Search
+t Title Search
+s Full Text Search
+d Date Search
+b Browse
+
+key             binding
+---             -------
+
+ESC		Prefix Command
+SPC		emacspeak-bookshare-expand-at-point
++		emacspeak-bookshare-action
+A		emacspeak-bookshare-action
+B		emacspeak-bookshare-download-brf-at-point
+C		emacspeak-bookshare-toc-at-point
+D		emacspeak-bookshare-download-daisy-at-point
+I		emacspeak-bookshare-action
+P		emacspeak-bookshare-action
+S		emacspeak-bookshare-action
+U		emacspeak-bookshare-unpack-at-point
+V		emacspeak-bookshare-view-at-point
+[		backward-page
+]		forward-page
+a		emacspeak-bookshare-action
+b		emacspeak-bookshare-browse
+c		emacspeak-bookshare-toc
+d		emacspeak-bookshare-action
+f		emacspeak-bookshare-flush-lines
+i		emacspeak-bookshare-action
+j		next-line
+k		previous-line
+l .. m		emacspeak-bookshare-action
+p		emacspeak-bookshare-action
+q		bury-buffer
+s .. t		emacspeak-bookshare-action
+v		emacspeak-bookshare-view
+
+M-n		emacspeak-bookshare-next-result
+M-p		emacspeak-bookshare-previous-result
+
+In addition to any hooks its parent mode `text-mode' might have run,
+this mode runs the hook `emacspeak-bookshare-mode-hook', as the final step
+during initialization.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-bookshare-next-result nil
+@kbd{Not bound to any key.}
+
+Move to next result.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-bookshare-periodical-list nil
+@kbd{Not bound to any key.}
+
+Return list of periodicals.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-bookshare-previous-result nil
+@kbd{Not bound to any key.}
+
+Move to previous result.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-bookshare-set-preference nil
+@kbd{Not bound to any key.}
+
+Set preference preference-id to value.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-bookshare-sign-out nil
+@kbd{Not bound to any key.}
+
+Sign out, clearing password.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-bookshare-since-search nil
+@kbd{Not bound to any key.}
+
+Perform a Bookshare date  search.
+Optional interactive prefix arg filters by category.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-bookshare-title-search nil
+@kbd{Not bound to any key.}
+
+Perform a Bookshare title search.
+Interactive prefix arg filters search by category.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-bookshare-title/author-search nil
+@kbd{Not bound to any key.}
+
+Perform a Bookshare title/author  search.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-bookshare-toc nil
+@kbd{Not bound to any key.}
+
+View TOC for book in specified directory.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-bookshare-toc-at-point nil
+@kbd{Not bound to any key.}
+
+View TOC for book at point.
+Make sure it's downloaded and unpacked first.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-bookshare-unpack-at-point nil
+@kbd{Not bound to any key.}
+
+Unpack downloaded content if necessary.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-bookshare-url-executor nil
+@kbd{Not bound to any key.}
+
+Custom URL executor for use in Bookshare TOC.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-bookshare-version-handler nil
+@kbd{Not bound to any key.}
+
+Do nothing and return nil.
+This function accepts any number of arguments, but ignores them.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-bookshare-view nil
+@kbd{Not bound to any key.}
+
+View book in specified directory.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-bookshare-view-at-point nil
+@kbd{Not bound to any key.}
+
+View book at point.
+Make sure it's downloaded and unpacked first.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-bookshare-view-page-range nil
+@kbd{Not bound to any key.}
+
+Play pages in specified page range from URL.
 @end deffn
 
 @node emacspeak-bs
@@ -956,6 +1257,15 @@ for commands defined in module  emacspeak-daisy.
 Define persistent outline regexp for this book.
 @end deffn
 
+@deffn {Interactive Command} emacspeak-daisy-html nil
+@kbd{Not bound to any key.}
+
+Apply xslt transform specified by 
+Uses keymap "emacspeak-daisy-xsl", which is not currently defined.
+
+to convert and view Daisy Books as a Web page.
+@end deffn
+
 @deffn {Interactive Command} emacspeak-daisy-mark-position-in-content-under-point nil
 @kbd{Not bound to any key.}
 
@@ -975,7 +1285,7 @@ Pre-requisites:
 2) xml-parse.el for parsing XML in Emacs Lisp.
 
 The Emacspeak DAISY front-end is launched by command
-emacspeak-daisy-open-book  bound to C-e C-b.
+emacspeak-daisy-open-book  bound to M-x emacspeak-daisy-open-book.
 
 This command switches to a special buffer that has DAISY
 commands bounds to single keystrokes-- see the ke-binding
@@ -995,6 +1305,7 @@ SPC		emacspeak-daisy-play-audio-under-point
 ?		describe-mode
 P		emacspeak-daisy-play-page-range
 S		emacspeak-daisy-save-bookmarks
+h		emacspeak-daisy-html
 m		emacspeak-daisy-mark-position-in-content-under-point
 n		emacspeak-daisy-next-line
 o		emacspeak-daisy-define-outline-pattern
@@ -1014,7 +1325,7 @@ Move to next line.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-daisy-open-book nil
-@kbd{ control e control b }
+@kbd{Not bound to any key.}
 
 Open Digital Talking Book specified by navigation file filename.
 
@@ -1691,24 +2002,6 @@ all output to the terminal is automatically spoken.
   current local  value to the result. 
 @end deffn
 
-@node emacspeak-eudc
-@section emacspeak-eudc
-
-Commentary:
-EUDC --Emacs Universal Directory Client 
-provides a unified interface to directory servers
-e.g. ldap servers
-this module speech enables eudc 
-
-Automatically generated documentation
-for commands defined in module  emacspeak-eudc.
-
-@deffn {Interactive Command} emacspeak-eudc-send-mail nil
-@kbd{Not bound to any key.}
-
-Send email to the address given by the current record. 
-@end deffn
-
 @node emacspeak-filtertext
 @section emacspeak-filtertext
 
@@ -1945,170 +2238,176 @@ This variable is buffer-local.")
                                (emacspeak-google-tool-value tool)))))
                belt))))
     (when settings 
-    (concat "&tbs="
-            (mapconcat #'identity settings ",")))))
-   
+      (concat "&tbs="
+              (mapconcat #'identity settings ",")))))
 
 (defun emacspeak-google-toolbelt ()
   "Returns buffer-local toolbelt or a a newly initialized toolbelt."
   (declare (special emacspeak-google-toolbelt))
   (or emacspeak-google-toolbelt
-  (list
+      (list
 video vid: 1/0
-   (make-emacspeak-google-tool
-    :name "video"
-    :param "vid"
-    :range '(0 1)
-    :default 0
-    :default 0
-    :value 0)
+       (make-emacspeak-google-tool
+        :name "video"
+        :param "vid"
+        :range '(0 1)
+        :default 0
+        :default 0
+        :value 0)
 Recent
-   (make-emacspeak-google-tool
-    :name "recent"
-    :param "rcnt"
-    :range '( 0 1)
-    :default 0
-    :value 0)
+       (make-emacspeak-google-tool
+        :name "recent"
+        :param "rcnt"
+        :range '( 0 1)
+        :default 0
+        :value 0)
 Duration restrict for video
-   (make-emacspeak-google-tool
-    :name "duration"
-    :param "dur"
-    :range '("m" "s" "l")
-    :default "m"
-    :value "m")
+       (make-emacspeak-google-tool
+        :name "duration"
+        :param "dur"
+        :range '("m" "s" "l")
+        :default "m"
+        :value "m")
 Blog mode
-   (make-emacspeak-google-tool
-    :name "blog"
-    :param "blg"
-    :range '(0 1)
-    :default 0
-    :value 0)
+       (make-emacspeak-google-tool
+        :name "blog"
+        :param "blg"
+        :range '(0 1)
+        :default 0
+        :value 0)
 Books mode
-   (make-emacspeak-google-tool
-    :name "books"
-    :param "bks"
-    :range '(0 1)
-    :default 0
-    :default 0
-    :value 0)
+       (make-emacspeak-google-tool
+        :name "books"
+        :param "bks"
+        :range '(0 1)
+        :default 0
+        :default 0
+        :value 0)
 Books viewability
-   (make-emacspeak-google-tool
-    :name "books-viewability"
-    :param "bkv"
-    :range '("a" "f")
-    :default "a"
-    :value "a")
+       (make-emacspeak-google-tool
+        :name "books-viewability"
+        :param "bkv"
+        :range '("a" "f")
+        :default "a"
+        :value "a")
 Book Type
-   (make-emacspeak-google-tool
-    :name "books-type"
-    :param "bkt"
-    :range '("b" "p" "m")
-    :default "b"
-    :value "b")
+       (make-emacspeak-google-tool
+        :name "books-type"
+        :param "bkt"
+        :range '("b" "p" "m")
+        :default "b"
+        :value "b")
 Forums Mode
-   (make-emacspeak-google-tool
-    :name "forums"
-    :param "frm"
-    :range '(0 1)
-    :default 0
-    :value 0)
+       (make-emacspeak-google-tool
+        :name "forums"
+        :param "frm"
+        :range '(0 1)
+        :default 0
+        :value 0)
 News Mode
-   (make-emacspeak-google-tool
-    :name "news"
-    :param "nws"
-    :range '(0 1)
-    :default 0
-    :value 0)
+       (make-emacspeak-google-tool
+        :name "news"
+        :param "nws"
+        :range '(0 1)
+        :default 0
+        :value 0)
 Reviews
-   (make-emacspeak-google-tool
-    :name "reviews"
-    :param "rvw"
-    :range '(0 1)
-    :default 0
-    :value 0)
+       (make-emacspeak-google-tool
+        :name "reviews"
+        :param "rvw"
+        :range '(0 1)
+        :default 0
+        :value 0)
 Web History Visited
-   (make-emacspeak-google-tool
-    :name "web-history-visited"
-    :param "whv"
-    :range '(0 1)
-    :default 0
-    :value 0)
+       (make-emacspeak-google-tool
+        :name "web-history-visited"
+        :param "whv"
+        :range '(0 1)
+        :default 0
+        :value 0)
 Web History Not Visited
-   (make-emacspeak-google-tool
-    :name "web-history-not-visited"
-    :param "whnv"
-    :range '(0 1)
-    :default 0
-    :value 0)
+       (make-emacspeak-google-tool
+        :name "web-history-not-visited"
+        :param "whnv"
+        :range '(0 1)
+        :default 0
+        :value 0)
 Images
-   (make-emacspeak-google-tool
-    :name "images"
-    :param "img"
-    :range '(0 1)
-    :default 0
-    :value 0)
+       (make-emacspeak-google-tool
+        :name "images"
+        :param "img"
+        :range '(0 1)
+        :default 0
+        :value 0)
 Structured Snippets
-   (make-emacspeak-google-tool
-    :name "structured-snippets"
-    :param "sts"
-    :range '(0 1)
-    :default 0
-    :value 0)
+       (make-emacspeak-google-tool
+        :name "structured-snippets"
+        :param "sts"
+        :range '(0 1)
+        :default 0
+        :value 0)
 sort by date
-   (make-emacspeak-google-tool
-    :name "sort-by-date"
-    :param "std"
-    :range '(0 1)
-    :default 0
-    :value 0)
+       (make-emacspeak-google-tool
+        :name "sort-by-date"
+        :param "std"
+        :range '(0 1)
+        :default 0
+        :value 0)
 Timeline
-   (make-emacspeak-google-tool
-    :name "timeline"
-    :param "tl"
-    :range '(0 1)
-    :default 0
-    :value 0)
+       (make-emacspeak-google-tool
+        :name "timeline"
+        :param "tl"
+        :range '(0 1)
+        :default 0
+        :value 0)
 Timeline Low
-   (make-emacspeak-google-tool
-    :name "timeline-low"
-    :param "tll"
-    :range "YYYY/MM"
-    :default ""
-    :value "")
+       (make-emacspeak-google-tool
+        :name "timeline-low"
+        :param "tll"
+        :range "YYYY/MM"
+        :default ""
+        :value "")
 Date Filter
-   (make-emacspeak-google-tool
-    :name "date-filter"
-    :param "qdr"
-    :range "tn"
-    :default ""
-    :value "")
+       (make-emacspeak-google-tool
+        :name "date-filter"
+        :param "qdr"
+        :range "tn"
+        :default ""
+        :value "")
 Timeline High
-   (make-emacspeak-google-tool
-    :name "timeline-high"
-    :param "tlh"
-    :range "YYYY/MM"
-    :default ""
-    :value "")
+       (make-emacspeak-google-tool
+        :name "timeline-high"
+        :param "tlh"
+        :range "YYYY/MM"
+        :default ""
+        :value "")
 more:commercial promotion with prices
-   (make-emacspeak-google-tool
-    :name "commercial"
-    :param "cpk"
-    :range '(0 1)
-    :default 0
-    :value 0)
-   (make-emacspeak-google-tool
-    :name "commercial-prices"
-    :param "cp"
-    :range '(0 1)
-    :default 0
-    :value 0)
+       (make-emacspeak-google-tool
+        :name "commercial"
+        :param "cpk"
+        :range '(0 1)
+        :default 0
+        :value 0)
+       (make-emacspeak-google-tool
+        :name "commercial-prices"
+        :param "cp"
+        :range '(0 1)
+        :default 0
+        :value 0)
 less:commercial (demotion)
-   (make-emacspeak-google-tool
-    :name "non-commercial" 
-    :param "cdcpk"
-    :range '(0 1)
-    :default 0
-    :value 0))))
+       (make-emacspeak-google-tool
+        :name "non-commercial" 
+        :param "cdcpk"
+        :range '(0 1)
+        :default 0
+        :value 0)
+       ;;; soc
+       (make-emacspeak-google-tool
+        :name "social" 
+        :param "sa"
+        :range '(0 1)
+        :default 0
+        :value 0))))
 
 (loop for this-tool in
       (emacspeak-google-toolbelt)
@@ -2161,13 +2460,13 @@ Prompt using completion
 (defun emacspeak-google-realtime-search (&optional prefix)
   "Retrieve realtime searches for  current query."
   (interactive "P")
-  (declare (special emacspeak-websearch-google-uri emacspeak-google-query))
+  (declare (special  emacspeak-google-query))
   (let ((uri
-         (concat emacspeak-websearch-google-uri
+         (concat (emacspeak-websearch-google-uri)
                  (if prefix
                      (gweb-google-autocomplete)
-                 (or emacspeak-google-query (gweb-google-autocomplete))   )
-                 ;"&esrch=RTSearch"
+                   (or emacspeak-google-query (gweb-google-autocomplete))   )
+                                        ;"&esrch=RTSearch"
                  )))
     (emacspeak-webutils-cache-google-query emacspeak-google-query)
     (emacspeak-we-extract-by-id "rtr" uri 'speak)))
@@ -2178,11 +2477,6 @@ Prompt using completion
   (declare (special emacspeak-google-query))
   (let ((emacspeak-websearch-google-options "&tbo=1"))
     (emacspeak-websearch-google emacspeak-google-query)))
-
-  
-  
-  
-                                                    
 
 ###autoload
 (define-prefix-command  'emacspeak-google-command
@@ -2198,8 +2492,8 @@ Prompt using completion
         ("n" emacspeak-google-toolbelt-change-news)
         ("c" emacspeak-google-toolbelt-change-commercial)
         ("d" emacspeak-google-toolbelt-change-sort-by-date)
-	("p" emacspeak-google-toolbelt-change-commercial-prices)
-	("f" emacspeak-google-toolbelt-change-forums)
+        ("p" emacspeak-google-toolbelt-change-commercial-prices)
+        ("f" emacspeak-google-toolbelt-change-forums)
         ("v" emacspeak-google-toolbelt-change-video)
         ("i" emacspeak-google-toolbelt-change-images)
         ("B" emacspeak-google-toolbelt-change-books)
@@ -2210,6 +2504,7 @@ Prompt using completion
         ("l" emacspeak-google-toolbelt-change-non-commercial)
         ("s"
          emacspeak-google-toolbelt-change-structured-snippets)
+        ("S" emacspeak-google-toolbelt-change-social)
         ("a" emacspeak-websearch-google)
         ("A" emacspeak-websearch-accessible-google)
         ("R" emacspeak-google-realtime-search)
@@ -2320,6 +2615,12 @@ Change  recent in the currently active toolbelt.
 @kbd{Not bound to any key.}
 
 Change  reviews in the currently active toolbelt.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-google-toolbelt-change-social nil
+@kbd{Not bound to any key.}
+
+Change  social in the currently active toolbelt.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-google-toolbelt-change-sort-by-date nil
@@ -2761,6 +3062,13 @@ Display length of track in seconds.
 Scale speed by 0.5.
 @end deffn
 
+@deffn {Interactive Command} emacspeak-m-player-load nil
+@kbd{Not bound to any key.}
+
+Load specified resource into a running  m-player.
+Interactive prefix arg appends the new resource to what is playing.
+@end deffn
+
 @deffn {Interactive Command} emacspeak-m-player-load-file nil
 @kbd{Not bound to any key.}
 
@@ -2782,7 +3090,7 @@ key             binding
 ---             -------
 
 C-e		Prefix Command
-RET		emacspeak-m-player
+RET		emacspeak-m-player-load
 ESC		Prefix Command
 SPC		emacspeak-m-player-pause
 +		emacspeak-m-player-volume-up
@@ -2803,6 +3111,7 @@ c		emacspeak-m-player-slave-command
 e		emacspeak-m-player-add-equalizer
 f		emacspeak-m-player-add-filter
 g		emacspeak-m-player-seek-absolute
+k		emacspeak-m-player-bind-accelerator
 l		emacspeak-m-player-get-length
 m		emacspeak-m-player-speak-mode-line
 n		emacspeak-m-player-next-track
@@ -3028,6 +3337,37 @@ Browse the man page --read it a paragraph at a time
 @kbd{Not bound to any key.}
 
 Speak current section
+@end deffn
+
+@node emacspeak-npr
+@section emacspeak-npr
+
+Commentary:
+NPR == http://wwwnpr.org National Public Radio in the US
+It provides a simple Web  API http://www.npr.org/api/
+This module implements an Emacspeak Npr client.
+
+For now, users will need to get their own API key
+
+Automatically generated documentation
+for commands defined in module  emacspeak-npr.
+
+@deffn {Interactive Command} emacspeak-npr-listing nil
+@kbd{Not bound to any key.}
+
+Display specified listing.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-npr-listing-url-executor nil
+@kbd{Not bound to any key.}
+
+Special executor for use in NPR  listings.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-npr-view nil
+@kbd{Not bound to any key.}
+
+View results as Atom.
 @end deffn
 
 @node emacspeak-ocr
@@ -3531,8 +3871,7 @@ Insert a character.
 Speaks the character if emacspeak-character-echo is true.
 See  command emacspeak-toggle-word-echo bound to
 C-e d w.
-Toggle variable dtk-stop-immediately-while-typing if you want to have
-speech flush as you type.
+Speech flushes as you type.
 @end deffn
 
 @node emacspeak-remote
@@ -3829,6 +4168,21 @@ Default is to read the previous line.
 
 Read previous word, specified as a prefix arg, without moving.
 Default is to read the previous word. 
+@end deffn
+
+@deffn {Interactive Command} emacspeak-search nil
+@kbd{ <search> }
+
+Call search defined in <search>.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-silence nil
+@kbd{ <silence> }
+
+Silence is golden. Stop speech, and pause/resume any media
+streams.
+Runs `emacspeak-silence-hook' which can be used to configure
+which media players get silenced or paused/resumed.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-speak-and-skip-extent-upto-char nil
@@ -5484,6 +5838,23 @@ Interactively prompt for an HTML property, e.g. id or class,
 and provide a completion list of applicable  property values. Filter document by property that is specified.
 @end deffn
 
+@deffn {Interactive Command} emacspeak-we-extract-id-list-text nil
+@kbd{Not bound to any key.}
+
+Extract text nodes from elements having id specified in list `ids' from HTML.
+Extracts specified elements from current WWW page and displays it in a
+separate buffer. Interactive use provides list of id values as completion. 
+@end deffn
+
+@deffn {Interactive Command} emacspeak-we-extract-id-text nil
+@kbd{Not bound to any key.}
+
+Extract text nodes from elements having specified id attribute from HTML. Extracts
+specified elements from current WWW page and displays it in a separate
+buffer.
+Interactive use provides list of id values as completion.
+@end deffn
+
 @deffn {Interactive Command} emacspeak-we-extract-matching-urls nil
 @kbd{Not bound to any key.}
 
@@ -5579,11 +5950,10 @@ buffer. Interactive use provides list of class values as completion.
 @deffn {Interactive Command} emacspeak-we-junk-by-class-list nil
 @kbd{Not bound to any key.}
 
-Junk elements having class specified in list `classes' from HTML.
-Extracts specified elements from current WWW page and displays it in a
-separate buffer.
- Interactive use provides list of class values as
-completion. 
+Extract elements not having class specified in list `classes' from HTML.
+Extracts specified elements from current WWW page and displays it
+in a separate buffer.  Interactive use provides list of class
+values as completion. 
 @end deffn
 
 @deffn {Interactive Command} emacspeak-we-style-filter nil
@@ -5669,47 +6039,6 @@ Junk elements matching specified locator.
 @kbd{Not bound to any key.}
 
 Select XSL transformation applied to Web pages before they are displayed .
-@end deffn
-
-@node emacspeak-webmarks
-@section emacspeak-webmarks
-
-Commentary:
-http://www.google.com/bookmarks provides a simple bookmark
-facility
-emacspeak-webmarks provides direct minibuffer-level access to
-these in the spirit of the Emacspeak Web Command Line.
-For now, the emacspeak-webmarks-key needs to be set by hand
- after doing the following:
-0) sign in to google using xml-forms/glogin.xml
-1) search for a bookmark using xml-forms/bookmark-find.xml
-will work around this eventually.
-
-Automatically generated documentation
-for commands defined in module  emacspeak-webmarks.
-
-@deffn {Interactive Command} emacspeak-webmarks-add nil
-@kbd{Not bound to any key.}
-
-Add WebMark.
-@end deffn
-
-@deffn {Interactive Command} emacspeak-webmarks-history nil
-@kbd{Not bound to any key.}
-
-Search search history.
-@end deffn
-
-@deffn {Interactive Command} emacspeak-webmarks-list nil
-@kbd{Not bound to any key.}
-
-List WebMarks.
-@end deffn
-
-@deffn {Interactive Command} emacspeak-webmarks-search nil
-@kbd{Not bound to any key.}
-
-Search WebMarks.
 @end deffn
 
 @node emacspeak-websearch
@@ -6190,7 +6519,8 @@ t		emacspeak-webspace-transcode
 y		emacspeak-webspace-yank-link
 <S-tab>		emacspeak-webspace-previous-link
 
-This mode runs the hook `emacspeak-webspace-mode-hook', as the final step
+In addition to any hooks its parent mode `special-mode' might have run,
+this mode runs the hook `emacspeak-webspace-mode-hook', as the final step
 during initialization.
 @end deffn
 
@@ -6354,7 +6684,8 @@ Feed list specified by OPML file customized via emacspeak-my-subscribed-feeds
 @deffn {Interactive Command} emacspeak-webutils-play-media-at-point nil
 @kbd{Not bound to any key.}
 
-Play media url under point 
+Play media url under point.
+Optional interactive prefix arg `playlist-p' says to treat the link as a playlist. 
 @end deffn
 
 @deffn {Interactive Command} emacspeak-webutils-rss-display nil
@@ -7651,29 +7982,98 @@ Site-specific websearch enhancements
 (emacspeak-websearch-set-key ?I'ibm-internal)
 
 (defvar emacspeak-websearch-ibm-internal-uri
-  "http://trevi.almaden.ibm.com/TreviSearch/search?query=%s&btnG=Search+IBM&mode=query&toolbarUsed=false"
-  "*URI for IBM internal  search")
+  "http://w3search.torolab.ibm.com/search.mod"
+  "*URI for IBM My News  search")
 
 (defun emacspeak-websearch-ibm-internal (query )
-  "Search IBM using trevi"
+  "Search IBM My News"
   (interactive
    (list
     (emacspeak-websearch-read-query "IBM Internal  Search ")))
   (declare (special emacspeak-websearch-ibm-internal-uri))
+  (let ((url-be-asynchronous nil))
     (browse-url 
-     (format  emacspeak-websearch-ibm-internal-uri
-(webjump-url-encode query)))
+     (concat emacspeak-websearch-ibm-internal-uri
+"?q="
+             (webjump-url-encode query))))
+  (emacspeak-websearch-post-process "Your query "
+                                    'emacspeak-speak-line)
   )
+
+(emacspeak-websearch-set-searcher 'ibm-my-news
+                                  'emacspeak-websearch-ibm-my-news)
+bind it to tab 
+(emacspeak-websearch-set-key 9 'ibm-my-news)
+
+(defvar emacspeak-websearch-ibm-my-news-uri
+  "http://w3search.torolab.ibm.com/search.mod?do=w3-1.ibm.com%2Fnews%2F&mh=100&ei=1&mo=fl"
+  "*URI for IBM My News  search")
+
+(defun emacspeak-websearch-ibm-my-news (query )
+  "Search IBM My News"
+  (interactive
+   (list
+    (emacspeak-websearch-read-query "My News Search ")))
+  (declare (special emacspeak-websearch-ibm-my-news-uri))
+  (let ((url-be-asynchronous nil))
+    (browse-url 
+     (concat emacspeak-websearch-ibm-my-news-uri
+"&q="
+             (webjump-url-encode query))))
+  (emacspeak-websearch-post-process "Your query "
+                                    'emacspeak-speak-line))
+
+(emacspeak-websearch-set-searcher 'blue-pages
+                                  'emacspeak-websearch-blue-pages)
+
+(emacspeak-websearch-set-key ?B 'blue-pages)
+
+(defvar emacspeak-websearch-blue-pages-uri
+  "http://bluepages.ibm.com/cgi-bin/bluepages.pl?"
+  "*URI for BluePages search")
+
+(defun emacspeak-websearch-blue-pages (query &optional prefix)
+  "Search IBM Blue Pages"
+  (interactive
+   (list
+    (emacspeak-websearch-read-query "Look in Blue Pages for:
+")
+    current-prefix-arg))
+  (declare (special emacspeak-websearch-blue-pages-uri))
+  (let ((url-be-asynchronous nil))
+    (browse-url 
+     (concat emacspeak-websearch-blue-pages-uri
+             (format "directory=%s&"
+                     (if prefix
+                         (read-from-minibuffer "Location: ")
+                       "almaden"))
+"&Selection=Name&selectOn="
+             (webjump-url-encode query))))
+  (emacspeak-websearch-post-process
+   "Tie Line"
+   'emacspeak-speak-line))
 
 (provide 'emacspeak-w3search)
 
 Automatically generated documentation
 for commands defined in module  emacspeak-w3search.
 
+@deffn {Interactive Command} emacspeak-websearch-blue-pages nil
+@kbd{Not bound to any key.}
+
+Search IBM Blue Pages
+@end deffn
+
 @deffn {Interactive Command} emacspeak-websearch-ibm-internal nil
 @kbd{Not bound to any key.}
 
-Search IBM using trevi
+Search IBM My News
+@end deffn
+
+@deffn {Interactive Command} emacspeak-websearch-ibm-my-news nil
+@kbd{Not bound to any key.}
+
+Search IBM My News
 @end deffn
 
 @node emacspeak-firevox
@@ -7959,6 +8359,14 @@ or http://orgmode.org/
 Automatically generated documentation
 for commands defined in module  emacspeak-org.
 
+@deffn {Interactive Command} emacspeak-org-bookmark nil
+@kbd{Not bound to any key.}
+
+Bookmark from org.
+
+(fn &optional GOTO)
+@end deffn
+
 @deffn {Interactive Command} emacspeak-org-popup-input nil
 @kbd{Not bound to any key.}
 
@@ -8044,13 +8452,62 @@ Kill TTS  process.
 (fn)
 @end deffn
 
+@node emacspeak-webmarks
+@section emacspeak-webmarks
+
+Commentary:
+http://www.google.com/bookmarks provides a simple bookmark
+facility
+emacspeak-webmarks provides direct minibuffer-level access to
+these in the spirit of the Emacspeak Web Command Line.
+For now, the emacspeak-webmarks-key needs to be set by hand
+ after doing the following:
+0) sign in to google using xml-forms/glogin.xml
+1) search for a bookmark using xml-forms/bookmark-find.xml
+will work around this eventually.
+
+Automatically generated documentation
+for commands defined in module  emacspeak-webmarks.
+
+@deffn {Interactive Command} emacspeak-webmarks-add nil
+@kbd{Not bound to any key.}
+
+Add WebMark.
+
+(fn URL TITLE LABELS NOTES)
+@end deffn
+
+@deffn {Interactive Command} emacspeak-webmarks-history nil
+@kbd{Not bound to any key.}
+
+Search search history.
+
+(fn QUERY)
+@end deffn
+
+@deffn {Interactive Command} emacspeak-webmarks-list nil
+@kbd{Not bound to any key.}
+
+List WebMarks.
+
+(fn)
+@end deffn
+
+@deffn {Interactive Command} emacspeak-webmarks-search nil
+@kbd{Not bound to any key.}
+
+Search WebMarks.
+
+(fn QUERY)
+@end deffn
+
 @node URL Templates 
 @section  URL Templates
 
 This section is generated automatically from the source-level documentation.
 Any errors or corrections should be made to the source-level
 documentation.
-This section documents a total of 150 URL Templates.
+This section documents a total of 137 URL Templates.
 
 All of these URL templates can be invoked via command
   @kbd{M-x emacspeak-url-template-fetch} normally bound to
@@ -8065,9 +8522,9 @@ Each URL template carries out the following steps:
   customizations.
 @end itemize
 
-As an example, the URL templates that enable access to NPR media
-streams prompt for a program id and date, and automatically
-launch the realmedia player after fetching the resource.
+As an example, the URL templates that enable access to map directions
+prompt for address and automatically
+speak the relevant results.
 
 @kbd{1Box Google}
 
@@ -8081,21 +8538,9 @@ Find live streams for Air Traffic Control.
 
 Display airport conditions from the FAA.
 
-@kbd{All Things Considered Stream from NPR}
-
-Play NPR All Things Considered stream.
-
-@kbd{All Things Considered from NPR}
-
-Play All Things Considered segment.
-
 @kbd{Amazon Product Details By ASIN}
 
 Retrieve product details from Amazon by either ISBN or ASIN.
-
-@kbd{American Life On Demand.}
-
-Play This American Life  shows on demand.
 
 @kbd{Anonymize Google Search}
 
@@ -8148,14 +8593,6 @@ Display MLB standings.
 @kbd{BlogSearch Google}
 
 Google Blog Search
-
-@kbd{BookShare}
-
-Bookshare Login
-
-@kbd{BookShare Search}
-
-BookShare Search
 
 @kbd{CNN Content }
 
@@ -8246,10 +8683,6 @@ Display content from Google Finance.
 
 Display content from Google Finance.
 
-@kbd{Flight Tracker}
-
-Display flight arrival and departure information.
-
 @kbd{GCalendar Mobile}
 
 Google Calendar XHTML version.
@@ -8331,6 +8764,10 @@ Perform Google Product Search
 @kbd{Google Reader}
 
 View feed via Google Reader.
+
+@kbd{Google Realtime Search}
+
+Perform Google Realtime Search
 
 @kbd{Google Recent News Search}
 
@@ -8416,18 +8853,6 @@ Display content from Google Finance.
 
 CNN Content
 
-@kbd{Morning Edition Stream from NPR}
-
-Play NPR Morning Edition  stream.
-
-@kbd{Morning Edition from NPR}
-
-Play Morning Edition segment.
-
-@kbd{Motley Fool Radio from NPR}
-
-Play NPR Motley Fool   stream.
-
 @kbd{Mozilla Developers Corner}
 
 Pull specified resource from MDC.
@@ -8442,24 +8867,6 @@ from English to German
 @kbd{Music Search}
 
 Music search on Google.
-
-@kbd{NPR On Demand}
-
-Play NPR shows on demand.
-Program is specified as a program code:
-
-ME              Morning Edition
-ATC             All Things Considered
-day             Day To Day
-newsnotes       News And Notes
-totn            Talk Of The Nation
-fa              Fresh Air
-wesat           Weekend Edition Saturday
-wesun           Weekend Edition Sunday
-fool            The Motley Fool
-
-Segment is specified as a two digit number --specifying a blank value
-plays entire program.
 
 @kbd{NY Times RSS Feeds}
 
@@ -8492,10 +8899,6 @@ Play Prairie Home Companion
 @kbd{Patent Search From Google}
 
 Perform patent search via Google
-
-@kbd{Periodicals from Bookshare}
-
-Fetch periodical from Bookshare.
 
 @kbd{PodCast CNet}
 
@@ -8545,14 +8948,6 @@ Seeking Alpha search.
 
 Locate and display Shoutcast streams.
 
-@kbd{Talk Of The Nation  Stream from NPR}
-
-Play NPR Talk Of The Nation  stream.
-
-@kbd{Talk Of The Nation from NPR}
-
-Play NPR Talk Of The Nation segment.
-
 @kbd{Tech News From CNet}
 
 Display tech news from CNET
@@ -8579,10 +8974,6 @@ Twitter search and display results feed.
 @kbd{UPS Packages}
 
 Display package tracking information from UPS.
-
-@kbd{Wait Wait, Dont Tell Me (NPR)}
-
-Play Wait, Wait Dont Tell Me from NPR.
 
 @kbd{Walking Directions From Google}
 

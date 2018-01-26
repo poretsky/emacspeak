@@ -1,5 +1,5 @@
 ;;; emacspeak-keymap.el --- Setup all keymaps and keybindings provided by Emacspeak
-;;; $Id: emacspeak-keymap.el 6560 2010-07-16 21:43:35Z tv.raman.tv $
+;;; $Id: emacspeak-keymap.el 6962 2011-04-02 00:32:15Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Module for setting up emacspeak keybindings
 ;;; Keywords: Emacspeak
@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2009, T. V. Raman
+;;;Copyright (C) 1995 -- 2011, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -340,7 +340,7 @@ field in the customization buffer.  You can use the notation
         ("[" emacspeak-speak-page)
         ("\"" emacspeak-speak-sexp-interactively)
         ("\C-@" emacspeak-speak-current-mark )
-        ("\C-b" emacspeak-daisy-open-book)
+        ("\C-b" emacspeak-bookshare)
         ("\C-c" emacspeak-clipboard-copy)
         ("\C-d" emacspeak-toggle-show-point)
         ("\C-i" emacspeak-table-display-table-in-region)
@@ -425,11 +425,11 @@ field in the customization buffer.  You can use the notation
       '(
         (" " dtk-toggle-splitting-on-white-space)
         ("C" dtk-toggle-allcaps-beep)
-        ("I" dtk-toggle-stop-immediately-while-typing )
         ("R" dtk-reset-state)
         ("V" tts-speak-version)
         ("\C-m" dtk-set-chunk-separator-syntax)
         ("\M-\C-b" tts-show-debug-buffer)
+        ("A" dtk-async-server)
         ("a" dtk-add-cleanup-pattern)
         ("b" dtk-toggle-debug)
         ("," dtk-toggle-punctuation-mode)
@@ -449,6 +449,10 @@ field in the customization buffer.  You can use the notation
         ("v" voice-lock-mode)
         ("w" emacspeak-toggle-word-echo)
         ("z" emacspeak-zap-tts)
+        ("\C-d" dectalk)
+        ("\C-e" espeak)
+        ("\C-o" outloud)
+("\C-v" outloud-32)
         )
       do
       (emacspeak-keymap-update emacspeak-dtk-submap binding))
@@ -460,7 +464,7 @@ field in the customization buffer.  You can use the notation
 (global-set-key [(shift right)] 'next-buffer)
 (global-set-key [(control left)] 'emacspeak-previous-frame-or-buffer)
 (global-set-key [(control right)] 'emacspeak-next-frame-or-buffer)
-(global-set-key [pause] 'dtk-stop)
+(global-set-key [pause] 'tts-cycle-device)   
 (global-set-key [(control down)] 'emacspeak-mark-forward-mark)
 (global-set-key [(control up)] 'emacspeak-mark-backward-mark)
 (global-set-key [(shift up)] 'emacspeak-skip-blank-lines-backward)
@@ -480,8 +484,10 @@ field in the customization buffer.  You can use the notation
 (global-set-key [67108908] 'emacspeak-alt-keymap)
 (global-set-key  [67108903] 'emacspeak-super-keymap)
 (global-set-key [67108923] 'emacspeak-hyper-keymap)
-
-
+;;; Our very own silence key on the console
+;;; I use the Windows key.
+(global-set-key '[silence] 'emacspeak-silence)
+(global-set-key '[search] 'emacspeak-search)
 ;;}}}
 ;;{{{ Interactively switching the emacspeak-prefix
 ;;;###autoload

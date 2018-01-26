@@ -1,5 +1,5 @@
 ;;; emacspeak.el --- Emacspeak -- The Complete Audio Desktop
-;;; $Id: emacspeak.el 6577 2010-09-02 15:55:57Z tv.raman.tv $
+;;; $Id: emacspeak.el 6900 2011-03-04 22:30:41Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak: A speech interface to Emacs
 ;;; Keywords: Emacspeak, Speech, Dectalk,
@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2009, T. V. Raman
+;;;Copyright (C) 1995 -- 2011, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -151,7 +151,6 @@ speech-enabling extensions."
 (emacspeak-do-package-setup "bookmark" 'emacspeak-bookmark)
 (emacspeak-do-package-setup "bmk-mgr" 'emacspeak-bmk-mgr)
 (emacspeak-do-package-setup "browse-kill-ring" 'emacspeak-browse-kill-ring )
-(emacspeak-do-package-setup "buff-sel" 'emacspeak-buff-sel)
 (emacspeak-do-package-setup "bs" 'emacspeak-bs)
 (emacspeak-do-package-setup "buff-menu" 'emacspeak-buff-menu)
 (emacspeak-do-package-setup "cc-mode" 'emacspeak-c)
@@ -241,7 +240,6 @@ speech-enabling extensions."
 (emacspeak-do-package-setup "sigbegone" 'emacspeak-sigbegone)
 (emacspeak-do-package-setup "solitaire" 'emacspeak-solitaire)
 (emacspeak-do-package-setup "speedbar" 'emacspeak-speedbar)
-(emacspeak-do-package-setup "sawfish" 'emacspeak-sawfish)
 (emacspeak-do-package-setup "ses" 'emacspeak-ses)
 (emacspeak-do-package-setup "sql-mode" 'emacspeak-sql)
 (emacspeak-do-package-setup "sql" 'emacspeak-sql)
@@ -266,9 +264,10 @@ speech-enabling extensions."
 (emacspeak-do-package-setup "twit" 'emacspeak-twit)
 (emacspeak-do-package-setup "twittering-mode" 'emacspeak-twittering)
 (emacspeak-do-package-setup "view" 'emacspeak-view)
-(emacspeak-do-package-setup "view-process-mode" 'emacspeak-view-process)
+(emacspeak-do-package-setup "view-pr" 'emacspeak-view-process)
 (emacspeak-do-package-setup "vm" 'emacspeak-vm)
 (emacspeak-do-package-setup "w3" 'emacspeak-w3)
+(emacspeak-do-package-setup "w3-display" 'emacspeak-w3)
 (emacspeak-do-package-setup "w3m" 'emacspeak-w3m)
 (emacspeak-do-package-setup "wdired" 'emacspeak-wdired)
 (emacspeak-do-package-setup "cus-edit" 'emacspeak-custom)

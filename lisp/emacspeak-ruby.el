@@ -1,5 +1,5 @@
 ;;; emacspeak-ruby.el --- Speech enable Ruby Mode 
-;;; $Id: emacspeak-ruby.el 6342 2009-10-20 19:12:40Z tv.raman.tv $
+;;; $Id: emacspeak-ruby.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $ 
 ;;; DescriptionEmacspeak extensions for Ruby mode
 ;;; Keywords:emacspeak, audio interface to emacs Ruby
@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2009, T. V. Raman 
+;;;Copyright (C) 1995 -- 2011, T. V. Raman 
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved. 
 ;;;

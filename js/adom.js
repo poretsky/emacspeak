@@ -1,4 +1,16 @@
-//$Id: adom.js 6308 2009-10-12 21:04:41Z tv.raman.tv $
+//$Id: adom.js 6864 2011-02-18 23:59:21Z tv.raman.tv $
+// <Helper: beget
+
+// useful if we use the prototypical pattern, rather than classical inheritance
+if (typeof Object.beget !== 'function') {
+  Object.beget = function (o) {
+    var F = function () {};
+    F.prototype = o;
+    return new F();
+  };
+}
+
+// >
 // <Class ADom
 
 /*

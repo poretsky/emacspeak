@@ -1,5 +1,5 @@
 ;;; emacspeak-sudoku.el --- Play SuDoku 
-;;; $Id: emacspeak-sudoku.el 6342 2009-10-20 19:12:40Z tv.raman.tv $
+;;; $Id: emacspeak-sudoku.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description: Playing SuDoku ;;; Keywords: Emacspeak, sudoku
 ;;{{{  LCD Archive entry: 
@@ -15,7 +15,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (c) 1995 -- 2009, T. V. Raman
+;;; Copyright (c) 1995 -- 2011, T. V. Raman
 ;;; All Rights Reserved. 
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -72,9 +72,7 @@ s   Sub-square Distribution.
       (?s (call-interactively
            'emacspeak-sudoku-board-sub-squares-summarize))
       (otherwise (message "Unknown summary type?")))))
-      
-    
-    
+
 (defun emacspeak-sudoku-board-distribution-summarize ()
   "Shows distribution of filled numbers."
   (interactive)
@@ -116,7 +114,7 @@ s   Sub-square Distribution.
    (loop for s from 0 to 8
          collect  (count 0 (sudoku-subsquare current-board s)))
    3))
-             
+
 (defun emacspeak-sudoku-speak-current-cell-coordinates ()
 
   "speak current cell coordinates."
@@ -303,7 +301,7 @@ s   Sub-square Distribution.
   "Return list of cells in sub-square."
   (let ((row-start (* (/ square 3)  3)) 
         (col-start (* (% square 3)  3)))
-        
+    
     (loop for r from row-start to (+ 2 row-start)
           nconc
           (loop  for c from col-start to (+ 2 col-start)
@@ -319,7 +317,6 @@ s   Sub-square Distribution.
     (emacspeak-sudoku-erase-these-cells square-cells))
   (when (interactive-p)
     (emacspeak-auditory-icon 'delete-object)))
-     
 
 ;;}}}
 ;;{{{ advice motion:
@@ -386,7 +383,7 @@ See
               current-board)
   (emacspeak-auditory-icon 'mark-object)
   (message "Saved state on history stack."))
-  
+
 (defun emacspeak-sudoku-history-pop ()
   "Pop saved state off stack and redraw board."
   (interactive)

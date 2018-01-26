@@ -1,5 +1,5 @@
 ;;; emacspeak-w3.el --- Speech enable W3 WWW browser -- includes ACSS Support
-;;; $Id: emacspeak-w3.el 6342 2009-10-20 19:12:40Z tv.raman.tv $
+;;; $Id: emacspeak-w3.el 6915 2011-03-08 21:55:39Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak enhancements for W3
 ;;; Keywords: Emacspeak, W3, WWW
@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2009, T. V. Raman
+;;;Copyright (C) 1995 -- 2011, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -613,7 +613,7 @@ element. "
 ;;; this will go away
 (defalias 'make-dtk-speech-style 'make-acss)
 (defalias 'dtk-personality-from-speech-style 'acss-personality-from-speech-style)
-(provide 'dtk-css-speech)
+
 
 ;;}}}
 ;;{{{ define pronunciation for document's base URI
@@ -801,6 +801,22 @@ HTML."
   (condition-case nil
       ad-do-it
     (error nil)))
+
+;;}}}
+;;{{{ handle xml as HTML:
+;;; fix mm-inline-types
+(require 'mm-decode)
+(declaim (special  mm-inline-media-tests))
+(loop for mm in
+      '("application/xml"
+        "application/xml+xhtml"
+        "text/xml")
+      do
+(pushnew
+(list mm
+  'mm-inline-text-html-render-with-w3
+  #'(lambda (&rest args) mm-text-html-renderer))
+mm-inline-media-tests))
 
 ;;}}}
 ;;{{{  emacs local variables

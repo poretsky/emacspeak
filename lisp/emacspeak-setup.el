@@ -1,5 +1,5 @@
 ;;; emacspeak-setup.el --- Setup Emacspeak environment --loaded to start Emacspeak
-;;; $Id: emacspeak-setup.el 6642 2010-11-24 16:28:52Z tv.raman.tv $
+;;; $Id: emacspeak-setup.el 7023 2011-05-12 15:38:42Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  File for setting up and starting Emacspeak
 ;;; Keywords: Emacspeak, Setup, Spoken Output
@@ -15,7 +15,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;;Copyright (C) 1995 -- 2009, T. V. Raman
+;;;Copyright (C) 1995 -- 2011, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -98,53 +98,60 @@ pronunciation dictionaries are stored. ")
 
 ;;;###autoload
 (defconst emacspeak-version
-  (eval-when-compile
-    (format
-     "33.0 %s"
-     (cond
-      ((file-exists-p emacspeak-readme-file)
-       (let ((buffer (find-file-noselect emacspeak-readme-file))
-             (revision nil))
-         (save-excursion
-           (set-buffer buffer)
-           (goto-char (point-min))
-           (setq revision
-                 (format "Revision %s"
-                         (or
-                          (nth 2 (split-string
-                                  (buffer-substring-no-properties
-                                   (line-beginning-position)
-                                   (line-end-position))))
-                          "unknown"))))
-         (kill-buffer buffer)
-         revision))
-      (t ""))))
+  (format
+   "34.0 %s"
+   (cond
+    ((file-exists-p emacspeak-readme-file)
+     (let ((buffer (find-file-noselect emacspeak-readme-file))
+           (revision nil))
+       (save-excursion
+         (set-buffer buffer)
+         (goto-char (point-min))
+         (setq revision
+               (format "Revision %s"
+                       (or
+                        (nth 2 (split-string
+                                (buffer-substring-no-properties
+                                 (line-beginning-position)
+                                 (line-end-position))))
+                        "unknown"))))
+       (kill-buffer buffer)
+       revision))
+    (t "")))
   "Version number for Emacspeak.")
 
 ;;;###autoload
 (defconst emacspeak-codename
-  "StarDog"
+  "Bubbles"
   "Code name of present release.")
 
 ;;}}}
 ;;{{{ speech rate
 
+;;;###autoload
 (defcustom outloud-default-speech-rate 50
   "Default speech rate for outloud."
   :group 'tts
   :type 'integer)
 
+;;;###autoload
+(defcustom mac-default-speech-rate 225
+  "Default speech rate for mac."
+  :group 'tts
+  :type 'integer)
+
+;;;###autoload
 (defcustom multispeech-default-speech-rate 225
   "Default speech rate for multispeech."
   :group 'tts
   :type 'integer)
-
+;;;###autoload
 (defcustom dectalk-default-speech-rate 225
   "*Default speech rate at which TTS is started. "
   :group 'tts
   :type 'integer)
-
-(defcustom espeak-default-speech-rate 170
+;;;###autoload
+(defcustom espeak-default-speech-rate 100
   "Default speech rate for eSpeak."
   :group 'tts
   :type 'integer)
@@ -174,20 +181,19 @@ pronunciation dictionaries are stored. ")
 (defun emacspeak-setup-header-line ()
   "Set up Emacspeak to show a default header line."
   (declare (special emacspeak-use-header-line
-                    default-header-line-format
-                    emacspeak-default-header-line-format))
+                    header-line-format
+                    emacspeak-header-line-format))
   (when emacspeak-use-header-line
-    (setq default-header-line-format
-          emacspeak-default-header-line-format)))
+    (setq header-line-format
+          emacspeak-header-line-format)))
 (defun emacspeak-tvr-startup-hook ()
   "Emacspeak startup hook that I use."
   (load-library "emacspeak-alsaplayer")
-  (load-library "emacspeak-webmarks")
   (load-library "emacspeak-webspace"))
 
 (add-hook 'emacspeak-startup-hook 'emacspeak-setup-header-line)
 (add-hook 'emacspeak-startup-hook 'emacspeak-tvr-startup-hook)
-          
+
 ;;; Use (add-hook 'emacspeak-startup-hook ...)
 ;;; to add your personal settings.
 

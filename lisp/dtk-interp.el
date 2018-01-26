@@ -1,5 +1,5 @@
 ;;; dtk-interp.el --- Language specific (e.g. TCL) interface to speech server
-;;; $Id: dtk-interp.el 6342 2009-10-20 19:12:40Z tv.raman.tv $
+;;; $Id: dtk-interp.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Interfacing to the speech server
 ;;; Keywords: TTS, Dectalk, Speech Server
@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;;Copyright (C) 1995 -- 2009, T. V. Raman
+;;;Copyright (C) 1995 -- 2011, T. V. Raman
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -55,6 +55,17 @@
 
 (require 'cl)
 (declaim  (optimize  (safety 0) (speed 3)))
+
+;;}}}
+;;{{{ Forward declarations:
+;;; From dtk-speak.el
+
+(defvar dtk-speaker-process)
+(defvar dtk-punctuation-mode )
+(defvar dtk-capitalize )
+(defvar dtk-allcaps-beep )
+(defvar dtk-split-caps )
+(defvar dtk-speech-rate )
 
 ;;}}}
 ;;{{{ macros

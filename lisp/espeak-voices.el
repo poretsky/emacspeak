@@ -5,7 +5,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2009, T. V. Raman 
+;;;Copyright (C) 1995 -- 2011, T. V. Raman 
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -28,10 +28,9 @@
 ;;}}}
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
-;;; Commentary:
 ;;{{{  Introduction:
 
+;;; Commentary:
 ;;; This module defines the various voices used in voice-lock mode.
 ;;; This module is Espeak specific.
 
@@ -42,6 +41,16 @@
 (require 'cl)
 (declaim  (optimize  (safety 0) (speed 3)))
 (require 'acss-structure)
+
+;;}}}
+;;{{{ Top-Level TTS Call
+
+;;;###autoload
+(defun espeak ()
+  "Start ESpeak engine."
+  (interactive)
+  (dtk-select-server "espeak")
+  (dtk-initialize))
 
 ;;}}}
 ;;{{{  voice table

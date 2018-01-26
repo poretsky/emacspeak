@@ -1,5 +1,5 @@
 ;;; emacspeak-advice.el --- Advice all core Emacs functionality to speak intelligently
-;;; $Id: emacspeak-advice.el 6563 2010-08-16 02:47:30Z tv.raman.tv $
+;;; $Id: emacspeak-advice.el 6976 2011-04-16 05:18:39Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Core advice forms that make emacspeak work
 ;;; Keywords: Emacspeak, Speech, Advice, Spoken  output
@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;;Copyright (C) 1995 -- 2009, T. V. Raman
+;;;Copyright (C) 1995 -- 2011, T. V. Raman
 ;;; Copyright (c) 1995, 1996,  1997 by T. V. Raman
 ;;; All Rights Reserved.
 ;;;
@@ -74,6 +74,10 @@
 (require 'dtk-speak)
 (require 'emacspeak-speak)
 (require 'emacspeak-sounds)
+
+;;}}}
+;;{{{ Forward Declarations:
+(defvar emacspeak-prefix)
 
 ;;}}}
 ;;{{{ Advice ding
@@ -256,7 +260,7 @@ If you moved more than a line,
   "Speak the screenful."
   (when (interactive-p)
     (emacspeak-auditory-icon 'scroll)
-    (dtk-speak (emacspeak-get-window-contents))))e
+    (dtk-speak (emacspeak-get-window-contents))))
 (defadvice scroll-up-command (after emacspeak pre act comp)
   "Speak the next screenful."
   (when (interactive-p)
@@ -381,7 +385,6 @@ the words that were capitalized."
     ad-do-it)
    (t ad-do-it))
   ad-return-value)
-
 
 (defadvice ucs-insert (after emacspeak pre act comp)
   "Speak char we inserted."
@@ -770,6 +773,19 @@ Produce an auditory icon if possible."
                (or emacspeak-last-message "")))
       ad-return-value)))
 
+(defadvice minibuffer-complete-shell-command (around emacspeak pre act)
+  "Say what you completed."
+  (let ((emacspeak-speak-messages nil)
+        (emacspeak-last-message nil))
+    ad-do-it
+    (when  (interactive-p)
+      (dtk-speak
+       (format "%s %s"
+               (save-excursion (backward-char 1)
+                               (sexp-at-point ))
+               (or emacspeak-last-message "")))
+      ad-return-value)))
+
 (defadvice  next-completion (after emacspeak  pre act comp)
   "Provide auditory feedback."
   (when (interactive-p)
@@ -1032,7 +1048,7 @@ Produce an auditory icon if possible."
   "Make comint speak its output."
   (let ((inhibit-read-only t)
         (monitor emacspeak-comint-output-monitor)
-		(buffer (process-buffer (ad-get-arg 0)))
+        (buffer (process-buffer (ad-get-arg 0)))
         (dtk-stop-immediately nil))
     (set-buffer buffer)
     ad-do-it
@@ -1452,10 +1468,9 @@ Produce an auditory icon if possible."
 Use an auditory icon if possible."
   (cond
    ((interactive-p)
-    (let ((count (count-lines (region-beginning)
-                              (region-end))))
-      ad-do-it
+    (let ((count (count-lines (region-beginning) (region-end))))
       (emacspeak-auditory-icon 'delete-object )
+      ad-do-it
       (message "Killed region containing %s lines" count)))
    (t ad-do-it))
   ad-return-value)
@@ -2505,7 +2520,6 @@ emacspeak running."
   (when (interactive-p)
     (dtk-speak ad-return-value))
   ad-return-value)
-  
 
 (defadvice where-is (around emacspeak pre act comp)
   "Provide spoken feedback"
@@ -2806,6 +2820,12 @@ Variable mark-even-if-inactive is set true ."
     (dtk-speak
      (format "Current input method is %s"
              (or current-input-method "none")))))
+
+;;}}}
+;;{{{ silence midnight cleanup:
+(defadvice clean-buffer-list(around emacspeak pre act comp)
+  (let ((emacspeak-speak-messages nil))
+    ad-do-it))
 
 ;;}}}
 (provide 'emacspeak-advice)

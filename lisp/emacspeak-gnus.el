@@ -1,5 +1,5 @@
 ;;; emacspeak-gnus.el --- Speech enable GNUS -- Fluent spoken access to usenet
-;;; $Id: emacspeak-gnus.el 6607 2010-10-02 20:29:06Z tv.raman.tv $
+;;; $Id: emacspeak-gnus.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $ 
 ;;; Description:  Emacspeak extension to speech enable Gnus
 ;;; Keywords: Emacspeak, Gnus, Advice, Spoken Output, News
@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2009, T. V. Raman 
+;;;Copyright (C) 1995 -- 2011, T. V. Raman 
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved. 
 ;;;
@@ -53,7 +53,7 @@
 ;; This may not be needed. It seems emacs version of gnus had 
 ;; gnus-article-buffer as far back as emacs 21.
 (unless (and (symbolp 'gnus-article-buffer)
-	     (boundp 'gnus-article-buffer))
+             (boundp 'gnus-article-buffer))
   (defvar gnus-article-buffer "*Article*"))
 
 ;;}}}
@@ -154,7 +154,7 @@ reading news."
 (defsubst emacspeak-gnus-speak-article-body ()
   (declare (special emacspeak-gnus-large-article
                     voice-lock-mode dtk-punctuation-mode
-		    gnus-article-buffer))
+                    gnus-article-buffer))
   (save-excursion
     (set-buffer  gnus-article-buffer)
     (goto-char (point-min))
@@ -616,8 +616,6 @@ the previous group was closed."
     (emacspeak-auditory-icon 'close-object)
     (emacspeak-speak-line )))
 
-  
-
 (defadvice gnus-summary-mark-as-unread-forward (after emacspeak pre act)
   "Speak the line.
  Produce an auditory icon if possible."
@@ -723,9 +721,6 @@ Produce an auditory icon if possible."
 emacspeak-gnus-large-article lines will be considered to be a large article.
 A large article is not spoken all at once;
 instead you hear only the first screenful.")
-
-           
-           
 
 (defadvice gnus-summary-show-article (after emacspeak pre act)
   "Start speaking the article. "

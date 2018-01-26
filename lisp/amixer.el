@@ -1,9 +1,9 @@
 ;;; amixer.el --- Control AMixer from Emacs
-;;;$Id: amixer.el 6342 2009-10-20 19:12:40Z tv.raman.tv $
+;;;$Id: amixer.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
 ;;;Emacs front-end to AMixer
 ;;{{{  Copyright:
 
-;;; Copyright (C) 1995 -- 2009, T. V. Raman<raman@cs.cornell.edu>
+;;; Copyright (C) 1995 -- 2011, T. V. Raman<raman@cs.cornell.edu>
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -49,6 +49,9 @@
 (defstruct amixer-control
   numid iface name setting)
 
+(declare-function amixer-control-name  "amixer.el" (amixer))
+(declare-function amixer-control-numid  "amixer.el" (amixer))
+(declare-function amixer-control-iface  "amixer.el" (amixer))
 (defstruct amixer-control-setting
   type access values
   min max step
@@ -103,7 +106,7 @@
              :step (nth 5 slots)
              :current current))))
   control)
-  
+
 (defun amixer-build-db ()
   "Create a database of amixer controls and their settings."
   (declare (special amixer-db))
@@ -177,8 +180,6 @@
            values))
         (forward-line 1))
       (nreverse values))))
-
-                  
 
 ;;;###autoload
 (defun amixer (&optional refresh)

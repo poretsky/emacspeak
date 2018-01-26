@@ -1,5 +1,5 @@
 ;;; emacspeak-desktop.el ---  Speech-enable desktop
-;;; $Id: emacspeak-desktop.el 6342 2009-10-20 19:12:40Z tv.raman.tv $
+;;; $Id: emacspeak-desktop.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  desktop transformation routines
 ;;; Keywords: Emacspeak,  Audio Desktop, DESKTOP
@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2009, T. V. Raman
+;;;Copyright (C) 1995 -- 2011, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;

@@ -1,5 +1,5 @@
 ;;; gweb.el --- Google Search
-;;;$Id: gweb.el 6458 2010-03-13 15:18:18Z tv.raman.tv $
+;;;$Id: gweb.el 6826 2011-02-09 17:58:31Z tv.raman.tv $
 ;;; $Author: raman $
 ;;; Description:  AJAX Search -> Lisp
 ;;; Keywords: Google   AJAX API
@@ -60,6 +60,68 @@
 (require 'g-utils)
 
 ;;}}}
+;;{{{ Emacs patch (pending)
+
+;;; Allow caller to control if completions are sorted:
+(defvar minibuffer-completion-sort 'string-lessp 
+  "Function used to sort minibuffer completions. Nil means dont sort.")
+
+
+(defun minibuffer-completion-help ()
+  "Display a list of possible completions of the current minibuffer contents."
+  (interactive)
+  (message "Making completion list...")
+  (lexical-let* ((start (field-beginning))
+                 (end (field-end))
+		 (string (field-string))
+		 (completions (completion-all-completions
+			       string
+			       minibuffer-completion-table
+			       minibuffer-completion-predicate
+			       (- (point) (field-beginning)))))
+    (message nil)
+    (if (and completions
+             (or (consp (cdr completions))
+                 (not (equal (car completions) string))))
+        (let* ((last (last completions))
+               (base-size (cdr last))
+               ;; If the *Completions* buffer is shown in a new
+               ;; window, mark it as softly-dedicated, so bury-buffer in
+               ;; minibuffer-hide-completions will know whether to
+               ;; delete the window or not.
+               (display-buffer-mark-dedicated 'soft))
+          (with-output-to-temp-buffer "*Completions*"
+            ;; Remove the base-size tail because `sort' requires a properly
+            ;; nil-terminated list.
+            (when last (setcdr last nil))
+            (when (and minibuffer-completion-sort (fboundp  minibuffer-completion-sort))
+              (setq completions (sort completions minibuffer-completion-sort)))
+            (when completion-annotate-function
+              (setq completions
+                    (mapcar (lambda (s)
+                              (let ((ann
+                                     (funcall completion-annotate-function s)))
+                                (if ann (list s ann) s)))
+                            completions)))
+            (with-current-buffer standard-output
+              (set (make-local-variable 'completion-base-position)
+                   (list (+ start base-size)
+                         ;; FIXME: We should pay attention to completion
+                         ;; boundaries here, but currently
+                         ;; completion-all-completions does not give us the
+                         ;; necessary information.
+                         end)))
+            (display-completion-list completions)))
+
+      ;; If there are no completions, or if the current input is already the
+      ;; only possible completion, then hide (previous&stale) completions.
+      (minibuffer-hide-completions)
+      (ding)
+      (minibuffer-message
+       (if completions "Sole completion" "No completions")))
+    nil))
+
+;;}}}
 ;;{{{ Customizations
 
 (defgroup gweb nil
@@ -97,26 +159,22 @@
 (defsubst gweb-suggest (input &optional corpus)
   "Get completion list from Google Suggest."
   (declare (special gweb-suggest-url))
-  (unless (and (stringp input)
-               (> (length input) 0))
-    (setq input minibuffer-default))
+  (unless (> (length input) 0) (setq input minibuffer-default))
   (g-using-scratch
    (let ((url (format gweb-suggest-url (g-url-encode input))))
      (when corpus
-       (setq url
-             (format "%s&%s"
-                     url corpus)))
+       (setq url (format "%s&%s" url corpus)))
      (call-process
       g-curl-program
       nil t nil
       "-s" url)
+     (goto-char (point-min))
+                                        ; nuke comma separator gives:   json array -> lisp vector
+     (while (re-search-forward "\"," nil t) (replace-match "\""))
      (goto-char (point-min)))
-   ;; A JSON array is a vector.
-   ;; read it, filter the comma separators found as symbols.
-   (delq'\,
-    (append                             ; vector->list
-     (aref (read (current-buffer)) 2)
-     nil))))
+   ;; The  JSON array is now a vector. So  read it
+                                        ; and turn it into a list
+   (append (aref (read (current-buffer)) 1) nil)))
 
 (defun gweb-suggest-completer (string predicate mode)
   "Generate completions using Google Suggest. "
@@ -159,20 +217,17 @@
     (defsubst gweb-google-autocomplete (&optional prompt)
       "Read user input using Google Suggest for auto-completion."
       (let* ((minibuffer-completing-file-name t) ;; accept spaces
+             (minibuffer-completion-sort nil)
              (completion-ignore-case t)
              (word (thing-at-point 'word))
-             (suggestions
-              (when (and word (> (length word) 0))
-                (set-text-properties 0 (length word) nil word)
-                (cons  word (gweb-suggest  word))))
              (query nil))
         (setq query
               (completing-read
                (or prompt "Google: ")
-               'gweb-suggest-completer
-               nil nil
-               word 'gweb-history
-               suggestions))
+               'gweb-suggest-completer ; collection
+               nil nil ; predicate required-match
+               word ; initial input
+               'gweb-history))
         (pushnew  query gweb-history)
         (g-url-encode query)))
 ;;; Emacs 22

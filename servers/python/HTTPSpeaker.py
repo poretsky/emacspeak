@@ -12,10 +12,10 @@ calls speaker.cmd(arg)
 
 """
 
-__id__ = "$Id: HTTPSpeaker.py 5584 2008-05-20 00:49:13Z tv.raman.tv $"
+__id__ = "$Id: HTTPSpeaker.py 6994 2011-04-26 22:44:55Z tv.raman.tv $"
 __author__ = "$Author: tv.raman.tv $"
-__version__ = "$Revision: 5584 $"
-__date__ = "$Date: 2008-05-19 17:49:13 -0700 (Mon, 19 May 2008) $"
+__version__ = "$Revision: 6994 $"
+__date__ = "$Date: 2011-04-26 15:44:55 -0700 (Tue, 26 Apr 2011) $"
 __copyright__ = "Copyright (c) 2005 T. V. Raman"
 __license__ = "LGPL"
 
@@ -59,7 +59,7 @@ class SpeakHTTPRequestHandler(BaseHTTPRequestHandler):
                 'version'             ]
 
     def do_GET(self):
-        """Produce speech."""
+        """Not Implemented."""
         #cmd = None
         #arg = None
         if hasattr(self.server.speaker, cmd):
@@ -77,9 +77,10 @@ class SpeakHTTPRequestHandler(BaseHTTPRequestHandler):
         if contentLength:
             contentLength = int(contentLength)
             inputBody = self.rfile.read(contentLength)
+            sys.stderr.write(inputBody  + "\n")
             if inputBody.startswith("speak:"):
                 text = inputBody[6:]
-                self.server.speaker.speak(text )
+                self.server.speaker.sayUtterances([text] )
                 self.send_response(200, 'OK')
             elif inputBody == "stop":
                 self.server.speaker.stop()
@@ -105,7 +106,6 @@ def start():
         rate = int(sys.argv[3])
     else:
         rate = 75
-    server_address = ('', port)
     server_address = ('', port)
     httpd = HTTPSpeaker  (server_address,
     SpeakHTTPRequestHandler, engine, rate)

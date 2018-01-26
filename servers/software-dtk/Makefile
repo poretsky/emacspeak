@@ -1,4 +1,4 @@
-#$Id: Makefile 6213 2009-08-27 15:10:49Z tv.raman.tv $
+#$Id: Makefile 6669 2010-12-04 01:52:30Z tv.raman.tv $
 #
 LABEL=1.1
 DIST=software-dtk-$(LABEL)
@@ -11,7 +11,7 @@ SERVER_DIR=/usr/share/emacs/site-lisp/emacspeak/servers/software-dtk
 FILES=tcldtk.c tcldtk.so tcldtk.o Makefile
 
 tcldtk.so: tcldtk.o
-	$(CC) -shared -o $@ $< $(LIBS)
+	$(CC) $(LDFLAGS) -shared -o $@ $< $(LIBS)
 
 dist: software-dtk.tar.gz
 

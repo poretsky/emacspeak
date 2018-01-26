@@ -1,11 +1,11 @@
-@c $Id: options.texi 6604 2010-09-25 18:45:52Z tv.raman.tv $
+@c $Id: options.texi 7016 2011-05-04 03:07:39Z tv.raman.tv $
 @node Emacspeak Customizations
 @chapter Emacspeak Customizations 
 
 This chapter is generated automatically from the source-level documentation.
 Any errors or corrections should be made to the source-level
 documentation.
-This chapter documents a total of 653 user customizable
+This chapter documents a total of 657 user customizable
   options.
 
 @menu
@@ -15,10 +15,10 @@ This chapter documents a total of 653 user customizable
 * emacspeak-add-log Options::   
 * emacspeak-advice Options::    
 * emacspeak-alsaplayer Options::  
-* emacspeak-amphetadesk Options::  
 * emacspeak-auctex Options::    
 * emacspeak-aumix Options::     
 * emacspeak-bbdb Options::      
+* emacspeak-bookshare Options::  
 * emacspeak-calendar Options::  
 * emacspeak-compile Options::   
 * emacspeak-custom Options::    
@@ -31,7 +31,6 @@ This chapter documents a total of 653 user customizable
 * emacspeak-erc Options::       
 * emacspeak-eshell Options::    
 * emacspeak-eterm Options::     
-* emacspeak-eudc Options::      
 * emacspeak-forms Options::     
 * emacspeak-gnus Options::      
 * emacspeak-hide Options::      
@@ -47,6 +46,7 @@ This chapter documents a total of 653 user customizable
 * emacspeak-make-mode Options::  
 * emacspeak-message Options::   
 * emacspeak-muse Options::      
+* emacspeak-npr Options::       
 * emacspeak-ocr Options::       
 * emacspeak-outline Options::   
 * emacspeak-pcl-cvs Options::   
@@ -68,7 +68,6 @@ This chapter documents a total of 653 user customizable
 * emacspeak-w3 Options::        
 * emacspeak-w3m Options::       
 * emacspeak-we Options::        
-* emacspeak-webmarks Options::  
 * emacspeak-websearch Options::  
 * emacspeak-webspace Options::  
 * emacspeak-webutils Options::  
@@ -151,15 +150,12 @@ Set things like speech rate, punctuation mode etc in this
 hook.
 @end defvar
 
-@defvar {User Option} dtk-stop-immediately-while-typing
-*Set it to nil if you dont want speech to flush as you
-type.  You can use command
-`dtk-toggle-stop-immediately-while-typing' bound to
-C-e d I to toggle this setting.
-@end defvar
-
 @defvar {User Option} dtk-use-tones
 Allow tones to be turned off.
+@end defvar
+
+@defvar {User Option} tts-device-list
+List of ALSA sound devices  we can use.
 @end defvar
 
 @defvar {User Option} tts-strip-octals
@@ -328,25 +324,6 @@ Directory to look for media files.
 Alsaplayer executable.
 @end defvar
 
-@node emacspeak-amphetadesk Options
-@section emacspeak-amphetadesk Options
-
-Automatically generated documentation
-for options defined in module  emacspeak-amphetadesk.
-These options are customizable via Emacs' Custom interface.
-
-@defvar {User Option} emacspeak-amphetadesk-port
-Port where AmphetaDesk listens.
-@end defvar
-
-@defvar {User Option} emacspeak-amphetadesk-program
-Script that launches amphetadesk.
-@end defvar
-
-@defvar {User Option} emacspeak-amphetadesk-uri
-URI for Amphetadesk home.
-@end defvar
-
 @node emacspeak-auctex Options
 @section emacspeak-auctex Options
 
@@ -487,6 +464,35 @@ Personality used for bbdb-name
 This personality uses  voice-bolden whose  effect can be changed globally by customizing voice-bolden-settings.
 @end defvar
 
+@node emacspeak-bookshare Options
+@section emacspeak-bookshare Options
+
+Commentary:
+BOOKSHARE == http://www.bookshare.org provides book access to print-disabled users.
+It provides a simple Web  API http://developer.bookshare.org
+This module implements an Emacspeak Bookshare client.
+For now, users will need to get their own API key
+
+Automatically generated documentation
+for options defined in module  emacspeak-bookshare.
+These options are customizable via Emacs' Custom interface.
+
+@defvar {User Option} emacspeak-bookshare-api-key
+Web API  key for this application.
+@end defvar
+
+@defvar {User Option} emacspeak-bookshare-directory
+Customize this to the root of where books are organized.
+@end defvar
+
+@defvar {User Option} emacspeak-bookshare-downloads-directory
+Customize this to the root of where books are organized.
+@end defvar
+
+@defvar {User Option} emacspeak-bookshare-user-id
+Bookshare user Id.
+@end defvar
+
 @node emacspeak-calendar Options
 @section emacspeak-calendar Options
 
@@ -567,6 +573,11 @@ Customize this to the root of where books are organized.
 These file name extensions are ignored when locating the
 navigation file for a book. Include all extensions except `.ncx'
   for optimal performance.
+@end defvar
+
+@defvar {User Option} emacspeak-daisy-xsl
+Style sheet for transforming Daisy books to HTML. 
+Bookshare provides this with newer books.
 @end defvar
 
 @node emacspeak-dired Options
@@ -957,23 +968,6 @@ File where list of known remote hosts is cached
 Personality to indicate terminal underlining.
 @end defvar
 
-@node emacspeak-eudc Options
-@section emacspeak-eudc Options
-
-Commentary:
-EUDC --Emacs Universal Directory Client 
-provides a unified interface to directory servers
-e.g. ldap servers
-this module speech enables eudc 
-
-Automatically generated documentation
-for options defined in module  emacspeak-eudc.
-These options are customizable via Emacs' Custom interface.
-
-@defvar {User Option} emacspeak-eudc-attribute-value-personality
-Personality t use for voiceifying attribute values. 
-@end defvar
-
 @node emacspeak-forms Options
 @section emacspeak-forms Options
 
@@ -1319,6 +1313,10 @@ option.
 Name of executable that plays sound files. 
 @end defvar
 
+@defvar {User Option} emacspeak-silence-hook
+Functions run after emacspeak-silence is called.
+@end defvar
+
 @defvar {User Option} emacspeak-sounds-default-theme
 Default theme for auditory icons. 
 @end defvar
@@ -1378,7 +1376,7 @@ YouTube download tool
 
 @defvar {User Option} emacspeak-media-location-bindings
 *Map specific key sequences to launching MPlayer accelerators 
-on a specific director.
+on a specific directory.
 @end defvar
 
 @node emacspeak-madplay Options
@@ -1508,6 +1506,28 @@ This personality uses  voice-brighten whose  effect can be changed globally by c
 @defvar {User Option} emacspeak-muse-verbatim-personality
 Personality used for muse-verbatim-face
 This personality uses  voice-monotone whose  effect can be changed globally by customizing voice-monotone-settings.
+@end defvar
+
+@node emacspeak-npr Options
+@section emacspeak-npr Options
+
+Commentary:
+NPR == http://wwwnpr.org National Public Radio in the US
+It provides a simple Web  API http://www.npr.org/api/
+This module implements an Emacspeak Npr client.
+
+For now, users will need to get their own API key
+
+Automatically generated documentation
+for options defined in module  emacspeak-npr.
+These options are customizable via Emacs' Custom interface.
+
+@defvar {User Option} emacspeak-npr-api-key
+Web API  key for this application.
+@end defvar
+
+@defvar {User Option} emacspeak-npr-user-id
+Npr user Id.
 @end defvar
 
 @node emacspeak-ocr Options
@@ -1990,6 +2010,10 @@ Mail spool file examined  to alert you about newly
 arrived mail.
 @end defvar
 
+@defvar {User Option} emacspeak-search
+Default search engine.
+@end defvar
+
 @defvar {User Option} emacspeak-speak-directory-settings
 *Name of file that holds directory specific settings.
 @end defvar
@@ -2191,10 +2215,6 @@ Automatically generated documentation
 for options defined in module  emacspeak-url-template.
 These options are customizable via Emacs' Custom interface.
 
-@defvar {User Option} emacspeak-bookshare-user-id
-Bookshare user Id.
-@end defvar
-
 @defvar {User Option} emacspeak-url-template-gmail-search-url
 URL eng-point for GMail searches.
 For  corporate email using GMail, change /a/google.com/ to /a/<your.domain>/
@@ -2372,29 +2392,6 @@ Specifies transform to use before displaying a page.
 Nil means no transform is used. 
 @end defvar
 
-@node emacspeak-webmarks Options
-@section emacspeak-webmarks Options
-
-Commentary:
-http://www.google.com/bookmarks provides a simple bookmark
-facility
-emacspeak-webmarks provides direct minibuffer-level access to
-these in the spirit of the Emacspeak Web Command Line.
-For now, the emacspeak-webmarks-key needs to be set by hand
- after doing the following:
-0) sign in to google using xml-forms/glogin.xml
-1) search for a bookmark using xml-forms/bookmark-find.xml
-will work around this eventually.
-
-Automatically generated documentation
-for options defined in module  emacspeak-webmarks.
-These options are customizable via Emacs' Custom interface.
-
-@defvar {User Option} emacspeak-webmarks-key
-Magic cookie key to send for bookmark operations.
-This gets set the first time we sign in using a browser.
-@end defvar
-
 @node emacspeak-websearch Options
 @section emacspeak-websearch Options
 
@@ -2415,6 +2412,10 @@ Number of results to return from google search.
 
 @defvar {User Option} emacspeak-websearch-google-options
 Additional options to pass to Google e.g. &xx=yy...
+@end defvar
+
+@defvar {User Option} emacspeak-websearch-google-use-https
+Specify whether we use secure connections for Google search.
 @end defvar
 
 @node emacspeak-webspace Options

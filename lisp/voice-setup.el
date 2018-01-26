@@ -1,5 +1,5 @@
 ;;; voice-setup.el --- Setup voices for voice-lock
-;;; $Id: voice-setup.el 6342 2009-10-20 19:12:40Z tv.raman.tv $
+;;; $Id: voice-setup.el 6979 2011-04-21 17:30:15Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Voice lock mode for Emacspeak
 ;;{{{  LCD Archive entry:
@@ -14,7 +14,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;;Copyright (C) 1995 -- 2009, T. V. Raman
+;;;Copyright (C) 1995 -- 2011, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -94,6 +94,7 @@
 (require 'acss-structure)
 (require 'outloud-voices)
 (require 'multispeech-voices)
+(require 'mac-voices)
 (require 'espeak-voices)
 (require 'dectalk-voices)
 ;;}}}
@@ -159,7 +160,7 @@
    voice-setup-face-voice-table
    unless (facep v)
    collect v))
-        
+
 ;;}}}
 ;;{{{ special form def-voice-font
 
@@ -277,9 +278,9 @@ command \\[customize-variable] on <personality>-settings.. "
   `(progn
      (defvar  ,personality
        (voice-setup-personality-from-style ,settings)
-       (concat
-        ,doc
-        ,(format "Customize this overlay via %s-settings."
+       ,(concat
+         doc
+         (format "Customize this overlay via %s-settings."
                  personality )))
      (defcustom ,(intern (format "%s-settings"  personality))
        ,settings
@@ -312,7 +313,7 @@ command \\[customize-variable] on <personality>-settings.. "
        '(lambda  (sym val)
           (let ((voice-name (voice-setup-personality-from-style val)))
             (setq ,personality voice-name)
-;;; update all observers                ; ; ; ; ; ; ; ; ; ; ; ; ; ; ; ; ; ; ; ; ; ;
+;;; update all observers                ; ; ; ; ; ; ; ; ; ; ; ; ; ; ; ; ; ; ; ; ; ; ;
             (voice-setup-update-personalities ',personality)
             (set-default sym val))))))
 

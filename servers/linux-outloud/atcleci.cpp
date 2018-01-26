@@ -1,5 +1,5 @@
 /*
- * $Id: atcleci.cpp 6501 2010-05-27 00:32:28Z tv.raman.tv $
+ * $Id: atcleci.cpp 6846 2011-02-14 17:21:20Z tv.raman.tv $
  */
 // <copyright info
 
@@ -470,7 +470,10 @@ int
 alsa_init()
 {
   int             err;
-  const char           *device = "default";
+  const char           *device = getenv ("ALSA_DEFAULT");
+  if (device == NULL) {
+    device = "default";
+  }
   size_t          chunk_bytes = 0;
   if ((err =
        snd_pcm_open(&AHandle, device, SND_PCM_STREAM_PLAYBACK, 0)) < 0) {
@@ -682,7 +685,7 @@ Atcleci_Init(Tcl_Interp * interp)
   chunk_bytes = alsa_init();
   // <Finally, allocate waveBuffer
 
-  fprintf(stderr, "allocating %d samples\n", chunk_bytes);
+  fprintf(stderr, "allocating %d samples\n", (int)chunk_bytes);
   waveBuffer = (short *) malloc(chunk_bytes * sizeof(short));
   if (waveBuffer == NULL) {
     fprintf(stderr, "not enough memory");
@@ -715,7 +718,7 @@ Atcleci_Init(Tcl_Interp * interp)
     return TCL_ERROR;
   }
   fprintf(stderr,
-          "output buffered to waveBuffer with size %d\n", chunk_bytes);
+          "output buffered to waveBuffer with size %d\n", (int) chunk_bytes);
 
   // >
   // <register tcl commands

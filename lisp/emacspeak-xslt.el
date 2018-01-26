@@ -1,5 +1,5 @@
 ;;; emacspeak-xslt.el --- Implements Emacspeak  xslt transform engine
-;;; $Id: emacspeak-xslt.el 6492 2010-05-14 20:48:09Z tv.raman.tv $
+;;; $Id: emacspeak-xslt.el 7011 2011-05-01 03:18:26Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  xslt transformation routines
 ;;; Keywords: Emacspeak,  Audio Desktop XSLT
@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2009, T. V. Raman
+;;;Copyright (C) 1995 -- 2011, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -317,12 +317,10 @@ part of the libxslt package."
           (coding-system-for-write 'utf-8)
           (buffer-file-coding-system 'utf-8))
       (insert-file file)
-      (shell-command-on-region
-       (point-min) (point-max)
-       (format "%s --param base %s  %s - %s "
-               emacspeak-xslt-program
-                 (format "\"'file://%s'\""
-                         (expand-file-name file))
+      (shell-command
+       (format "%s  --param base %s  %s  %s  2>/dev/null"
+               emacspeak-xslt-program 
+               (format "\"'file://%s'\"" (expand-file-name file))
                (expand-file-name style)
                (expand-file-name file))
        (current-buffer) 'replace)
@@ -343,7 +341,7 @@ part of the libxslt package."
    style
    nil
    emacspeak-xslt-options
-   url))
+   (browse-url url)))
 
 ;;;###autoload
 (defun emacspeak-xslt-view-xml (style url &optional unescape-charent)
@@ -361,8 +359,7 @@ part of the libxslt package."
            (cons "base"
                  (format "\"'%s'\""
                          url))))))
-    (when (interactive-p)
-      (emacspeak-webutils-autospeak))
+    (when (interactive-p) (emacspeak-webutils-autospeak))
     (save-excursion
       (set-buffer src-buffer)
       (when unescape-charent
@@ -390,7 +387,6 @@ part of the libxslt package."
       (emacspeak-webutils-without-xsl
        (browse-url-of-buffer)))
     (kill-buffer src-buffer)))
-
 
 ;;}}}
 (provide 'emacspeak-xslt)

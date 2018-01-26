@@ -1,5 +1,5 @@
 ;;; emacspeak-speedbar.el --- Speech enable speedbar -- Tool for context-sensitive navigation
-;;; $Id: emacspeak-speedbar.el 6342 2009-10-20 19:12:40Z tv.raman.tv $
+;;; $Id: emacspeak-speedbar.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $ 
 ;;; Description: Auditory interface to speedbar
 ;;; Keywords: Emacspeak, Speedbar
@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (c) 1995 -- 2009, T. V. Raman
+;;; Copyright (c) 1995 -- 2011, T. V. Raman
 ;;; All Rights Reserved. 
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -209,8 +209,6 @@ An automatically updating speedbar consumes resources.")
                (setq start (point))
                (end-of-line)
                (buffer-substring start (point)))))))
-  
-  
 
 (defun emacspeak-speedbar-click ()
   "Does the equivalent of the mouse click from the keyboard"

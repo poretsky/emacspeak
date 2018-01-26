@@ -1,5 +1,5 @@
 ;;; emacspeak-jde.el --- Speech enable JDE -- An integrated Java Development Environment
-;;; $Id: emacspeak-jde.el 6342 2009-10-20 19:12:40Z tv.raman.tv $
+;;; $Id: emacspeak-jde.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $ 
 ;;; Description: Auditory interface to JDE
 ;;; Keywords: Emacspeak, Speak, Spoken Output, Java
@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (c) 1995 -- 2009, T. V. Raman
+;;; Copyright (c) 1995 -- 2011, T. V. Raman
 ;;; All Rights Reserved. 
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -67,7 +67,7 @@
                                         ;jde-java-font-lock-link-face
                                         ;jde-java-font-lock-doc-tag-face
                                         ;jde-java-font-lock-modifier-face
-                                        
+
 ;;}}}
 ;;{{{ Advice interactive commands:
 (defadvice jde-open-class-source (after emacspeak pre act comp)
@@ -274,7 +274,6 @@
     (emacspeak-auditory-icon 'delete-object)
     (message "Cleared all break points.")))
 
-    
 ;;}}}
 ;;{{{ advice jde-xref
 (defadvice jde-xref-first-caller(after emacspeak pre act comp)
@@ -294,9 +293,6 @@ If we are on the last call, do nothing."
      (emacspeak-speak-line))
    (t ad-do-it))
   ad-return-value)
-  
-   
-  
 
 ;;}}}
 ;;{{{ Advice EFC widgets:
@@ -306,8 +302,6 @@ If we are on the last call, do nothing."
   (emacspeak-auditory-icon 'open-object)
   (dtk-speak
    (ad-get-arg 0)))
-            
-            
 
 ;;}}}
 ;;{{{ camel case deletion
@@ -319,7 +313,6 @@ If we are on the last call, do nothing."
      (buffer-substring
       (point)
       (save-excursion (jde-end-of-camel-tok))))))
-    
 
 ;;}}}
 

@@ -1,5 +1,5 @@
 ;;; dectalk-voices.el --- Define various device independent voices in terms of Dectalk codes.
-;;; $Id: dectalk-voices.el 6342 2009-10-20 19:12:40Z tv.raman.tv $
+;;; $Id: dectalk-voices.el 6959 2011-04-01 15:39:52Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Module to set up Dectalk voices and personalities
 ;;; Keywords: Voice, Personality, Dectalk
@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2009, T. V. Raman
+;;;Copyright (C) 1995 -- 2011, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -51,6 +51,29 @@
 (require 'cl)
 (declaim  (optimize  (safety 0) (speed 3)))
 (require 'acss-structure)
+
+;;}}}
+;;{{{  Top-level TTS  switcher
+;;;### autoload
+(defun dectalk ()
+  "Select Dectalk TTS server."
+  (interactive)
+  (dtk-select-server "dtk-exp")
+  (dtk-initialize))
+
+;;;### autoload
+(defalias 'dtk-exp 'dectalk)
+
+;;}}}
+;;{{{ Forward declarations:
+
+;;; From dtk-speak.el:
+
+(defvar tts-default-speech-rate )
+(defvar dectalk-default-speech-rate )
+(defvar dtk-speech-rate-step )
+(defvar dtk-speech-rate-base )
+
 ;;}}}
 ;;{{{  voice table
 
@@ -608,7 +631,11 @@ and TABLE gives the values along that dimension."
   (fset 'tts-voice-defined-p 'dectalk-voice-defined-p)
   (fset 'tts-define-voice-from-speech-style 'dectalk-define-voice-from-speech-style)
   (setq tts-default-speech-rate dectalk-default-speech-rate)
-  (set-default 'tts-default-speech-rate dectalk-default-speech-rate))
+  (set-default 'tts-default-speech-rate dectalk-default-speech-rate)
+  (setq dtk-speech-rate-step 50
+        dtk-speech-rate-base 150)
+  (setq-default dtk-speech-rate-step 50
+                dtk-speech-rate-base 150))
 
 ;;}}}
 (provide 'dectalk-voices)

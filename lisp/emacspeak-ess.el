@@ -1,5 +1,5 @@
 ;;; emacspeak-ess.el --- Speech-enable ESS: Emacs Speaks Statistics 
-;;; $Id: emacspeak-ess.el 6342 2009-10-20 19:12:40Z tv.raman.tv $
+;;; $Id: emacspeak-ess.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Speech-enable ESS An Emacs Interface to R and others
 ;;; Keywords: Emacspeak,  Audio Desktop Statistics, R
@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2009, T. V. Raman
+;;;Copyright (C) 1995 -- 2011, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -108,13 +108,13 @@ Cue electric insertion with a tone."
 (loop for f in
       '(
         ess-eval-function ess-eval-buffer
-        ess-eval-function-and-go ess-eval-buffer-and-go
-        ess-eval-chunk ess-eval-chunk-and-go
-        ess-eval-line ess-eval-line-and-go
-        ess-eval-paragraph ess-eval-paragraph-and-go
-        ess-eval-paragraph-and-step
-        ess-eval-region ess-eval-region-and-go
-        ess-eval-line-and-step ess-eval-function-or-paragraph-and-step)
+                          ess-eval-function-and-go ess-eval-buffer-and-go
+                          ess-eval-chunk ess-eval-chunk-and-go
+                          ess-eval-line ess-eval-line-and-go
+                          ess-eval-paragraph ess-eval-paragraph-and-go
+                          ess-eval-paragraph-and-step
+                          ess-eval-region ess-eval-region-and-go
+                          ess-eval-line-and-step ess-eval-function-or-paragraph-and-step)
       do
       (eval
        `

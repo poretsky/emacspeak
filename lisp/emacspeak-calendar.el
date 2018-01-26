@@ -1,5 +1,5 @@
 ;;; emacspeak-calendar.el --- Speech enable Emacs Calendar -- maintain a diary and appointments
-;;; $Id: emacspeak-calendar.el 6610 2010-10-04 23:50:20Z tv.raman.tv $
+;;; $Id: emacspeak-calendar.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak extensions to speech enable the calendar.
 ;;; Keywords: Emacspeak, Calendar, Spoken Output
@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2009, T. V. Raman
+;;;Copyright (C) 1995 -- 2011, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -144,7 +144,7 @@
 (defadvice  mark-visible-calendar-date (after emacspeak pre act )
   "Use voice locking to mark date. "
   (let ((date (ad-get-arg 0 )))
-    (if (calendar-date-is-legal-p date)
+    (if (calendar-date-is-valid-p date)
         (save-excursion
           (set-buffer calendar-buffer)
           (calendar-cursor-to-visible-date date)
@@ -382,7 +382,7 @@
             (function (lambda ()
                         ))))
 
-;(add-hook 'calendar-initial-window-hook 'emacspeak-calendar-setup t)
+                                        ;(add-hook 'calendar-initial-window-hook 'emacspeak-calendar-setup t)
 
 ;;}}}
 ;;{{{  Appointments:
@@ -460,7 +460,6 @@ To use, configure variable gweb-my-address via M-x customize-variable."
           calendar-longitude (g-json-get 'lng gweb-my-location))
     (message "Setup for %s"
              gweb-my-address))))
-
 
 (defadvice calendar-sunrise-sunset (around emacspeak pre act comp)
   "Like calendar's sunrise-sunset, but speaks location intelligently."

@@ -1,5 +1,5 @@
 ;;; emacspeak-emms.el --- Speech-enable EMMS Multimedia UI
-;;; $Id: emacspeak-emms.el 6182 2009-07-01 13:38:30Z tv.raman.tv $
+;;; $Id: emacspeak-emms.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak extension to speech-enable EMMS
 ;;; Keywords: Emacspeak, Multimedia
@@ -142,7 +142,7 @@
   (when (interactive-p)
     (emacspeak-auditory-icon 'select-object)
     (emacspeak-speak-mode-line )))
-      
+
 ;;}}}
 ;;{{{ silence chatter from info
 
@@ -154,7 +154,20 @@
     ad-do-it))
 
 ;;}}}
+;;{{{ pause/resume if needed
 
+;;;###autoload
+(defun emacspeak-emms-pause-or-resume ()
+  "Pause/resume if emms is running. For use  in
+emacspeak-silence-hook."
+  (declare (special emms-player-playing-p))
+  (when (and (boundp 'emms-player-playing-p)
+             (not (null emms-player-playing-p)))
+    (emms-player-pause)))
+
+(add-hook 'emacspeak-silence-hook 'emacspeak-emms-pause-or-resume)
+
+;;}}}
 (provide 'emacspeak-emms)
 ;;{{{ end of file
 

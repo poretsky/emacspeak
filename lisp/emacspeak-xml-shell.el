@@ -1,5 +1,5 @@
 ;;; emacspeak-xml-shell.el --- Implements a simple XML browser
-;;; $Id: emacspeak-xml-shell.el 6342 2009-10-20 19:12:40Z tv.raman.tv $
+;;; $Id: emacspeak-xml-shell.el 6880 2011-02-22 19:10:32Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Contains  xml-shell
 ;;; Keywords: Emacspeak,  Audio Desktop Xml-Shell
@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2009, T. V. Raman 
+;;;Copyright (C) 1995 -- 2011, T. V. Raman 
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -131,7 +131,7 @@ Interactive XML browser.
              (eq 'run 
                  (process-status  emacspeak-xml-shell-process)))
         emacspeak-xml-shell-document
-      (read-from-minibuffer
+      (read-file-name
        "Browse XML: "))))
   (declare (special emacspeak-xml-shell-process
                     emacspeak-xml-shell-document))
@@ -148,8 +148,7 @@ Interactive XML browser.
   (switch-to-buffer (process-buffer
                      emacspeak-xml-shell-process))
   (emacspeak-speak-mode-line))
-  
-   
+
 ;;}}}
 ;;{{{ Navigate the tree
 

@@ -1,4 +1,4 @@
-#$Id: Makefile 6639 2010-11-23 18:57:26Z tv.raman.tv $
+#$Id: Makefile 6669 2010-12-04 01:52:30Z tv.raman.tv $
 
 INSTALL = install
 PREFIX = /usr
@@ -15,10 +15,10 @@ LIBS= -ltcl$(TCL_VERSION) -lasound -ldl
 all:   atcleci.so
 
 atcleci.so: langswitch.o atcleci.o
-	$(CXX) -m32 -shared -o $@ langswitch.o atcleci.o $(LIBS)
+	$(CXX) $(LDFLAGS) -m32 -shared -o $@ langswitch.o atcleci.o $(LIBS)
 
 alsaparams: alsaparams.o
-	$(CC) -o $@ alsaparams.o -lasound
+	$(CC) $(LDFLAGS) -o $@ alsaparams.o -lasound
 
 clean:
 	rm -f *.so *.o 

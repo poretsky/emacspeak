@@ -1,5 +1,5 @@
 ;;; emacspeak-ido.el --- speech-enable ido
-;;; $Id: emacspeak-ido.el 6342 2009-10-20 19:12:40Z tv.raman.tv $
+;;; $Id: emacspeak-ido.el 6716 2011-01-09 02:55:41Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:   extension to speech enable ido
 ;;; Keywords: Emacspeak, Audio Desktop
@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (C) 1995 -- 2009, T. V. Raman<raman@cs.cornell.edu>
+;;; Copyright (C) 1995 -- 2011, T. V. Raman<raman@cs.cornell.edu>
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -65,16 +65,14 @@
 (defvar emacspeak-ido-cache-current-directory nil
   "Cached value of ido-current-directory.")
 
-(defadvice ido-set-current-directory (before emacspeak pre act
-                                             comp)
+(defadvice ido-set-current-directory (before emacspeak pre act comp)
   "Cache previous value of ido-current-directory."
-  (setq emacspeak-ido-cache-current-directory
-        ido-current-directory))
+  (setq emacspeak-ido-cache-current-directory ido-current-directory))
 
 (defadvice ido-exhibit (after emacspeak pre act comp)
   "Speak first of the displayed matches."
   (when (and ido-matches
-             (sit-for 0.5))
+             (sit-for 0.3))
     (emacspeak-auditory-icon 'progress))
   (dtk-speak
    (concat 
@@ -98,20 +96,14 @@ The default value of 12 is too high for using ido effectively with speech. "
   (when (interactive-p)
     (emacspeak-auditory-icon
      (if ido-mode 'on 'off))
-    (dtk-speak
-     (format "IDo set to %s"
-             ido-mode))))
+    (dtk-speak (format "IDo set to %s" ido-mode))))
 
 (defadvice ido-everywhere (after emacspeak pre act comp)
   "Provide auditory feedback."
   (when (interactive-p)
-    (emacspeak-auditory-icon
-     (if ido-everywhere 'on 'off))
+    (emacspeak-auditory-icon (if ido-everywhere 'on 'off))
     (dtk-speak
-     (format "Turned %s IDo everywhere."
-             (if ido-everywhere " on " " off ")))))
-
- 
+     (format "Turned %s IDo everywhere." (if ido-everywhere " on " " off ")))))
 
 (defadvice ido-toggle-case (after emacspeak pre act comp)
   "Provide auditory feedback."
@@ -155,11 +147,8 @@ The default value of 12 is too high for using ido effectively with speech. "
     (dtk-speak (car ido-matches))))
 
 (loop for f in
-      '(ido-find-file ido-find-file-other-frame
-                      ido-find-file-other-window
-                      ido-find-alternate-file
-                      ido-find-file-read-only
-                      ido-find-file-read-only-other-window ido-find-file-read-only-other-frame)
+      '(ido-find-file ido-find-file-other-frame ido-find-file-other-window
+                      ido-find-alternate-file ido-find-file-read-only ido-find-file-read-only-other-window ido-find-file-read-only-other-frame)
       do
       (eval
        `(defadvice   ,f(around emacspeak pre act comp)
@@ -176,8 +165,7 @@ The default value of 12 is too high for using ido effectively with speech. "
 
 (loop for f in
       '(ido-switch-buffer ido-switch-buffer-other-window
-                          ido-switch-buffer-other-frame
-                          ido-display-buffer)
+                          ido-switch-buffer-other-frame ido-display-buffer)
       do
       (eval
        `(defadvice   ,f(around emacspeak pre act comp)
@@ -229,14 +217,14 @@ The default value of 12 is too high for using ido effectively with speech. "
   "Emacspeak ido customizations."
   :group  'emacspeak
   )
+
 (voice-setup-add-map
  '(
    (ido-first-match voice-brighten-extra)
    (ido-only-match voice-bolden)
    (ido-subdir voice-lighten-extra)
    (ido-indicator voice-smoothen)
-   (ido-incomplete-regexp voice-monotone)
-   ))
+   (ido-incomplete-regexp voice-monotone)))
 
 ;;}}}
 ;;{{{ Additional keybindings 

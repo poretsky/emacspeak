@@ -1,5 +1,5 @@
 ;;; emacspeak-table.el --- Implements data model for table browsing
-;;; $Id: emacspeak-table.el 6342 2009-10-20 19:12:40Z tv.raman.tv $
+;;; $Id: emacspeak-table.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $ 
 ;;; Description: Emacspeak table handling module
 ;;; Keywords:emacspeak, audio interface to emacs tables are structured
@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2009, T. V. Raman 
+;;;Copyright (C) 1995 -- 2011, T. V. Raman 
 ;;; Copyright (c) 1995 by T. V. Raman  
 ;;; All Rights Reserved. 
 ;;;
@@ -197,7 +197,6 @@ Calls callback once per column."
       (setf (emacspeak-table-current-column table) column))
      (t (error "Current table has %s rows and %s columns"
                row-count column-count )))))
-        
 
 (defun emacspeak-table-move-up (table &optional count)
   "Move up in the table if possible."

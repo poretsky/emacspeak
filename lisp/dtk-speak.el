@@ -1,5 +1,5 @@
 ;;; dtk-speak.el --- Provides Emacs Lisp interface to speech server
-;;;$Id: dtk-speak.el 6342 2009-10-20 19:12:40Z tv.raman.tv $
+;;;$Id: dtk-speak.el 6991 2011-04-25 17:43:52Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacs interface to TTS
 ;;; Keywords: Dectalk Emacs Elisp
@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2009, T. V. Raman
+;;;Copyright (C) 1995 -- 2011, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -60,8 +60,21 @@
 (require 'dectalk-voices)
 (require 'outloud-voices)
 (require 'multispeech-voices)
+(require 'mac-voices)
 (require 'espeak-voices)
 (require 'flite-voices)
+
+;;}}}
+;;{{{ Forward Declarations:
+(declare-function emacspeak-auditory-icon "emacspeak-sounds.el" (icon))
+(declare-function emacspeak-queue-auditory-icon "emacspeak-sounds.el" (icon))
+ 
+(defvar emacspeak-pronounce-pronunciation-table)
+(defvar emacspeak-ssh-tts-server )
+(defvar emacspeak-auditory-icon-function )
+(defvar emacspeak-directory )
+(defvar emacspeak-use-auditory-icons )
+(defvar emacspeak-pronounce-pronunciation-personality )
 
 ;;}}}
 ;;{{{  user customizations:
@@ -79,14 +92,6 @@ Particularly useful for web browsing."
   :group  'tts)
 (make-variable-buffer-local 'tts-strip-octals)
 ;;;###autoload
-(defcustom dtk-stop-immediately-while-typing t
-  "*Set it to nil if you dont want speech to flush as you
-type.  You can use command
-`dtk-toggle-stop-immediately-while-typing' bound to
-\\[dtk-toggle-stop-immediately-while-typing] to toggle this setting."
-  :group 'tts
-  :type 'boolean)
-(make-variable-buffer-local 'dtk-stop-immediately-while-typing)
 ;;;###autoload
 (defcustom dtk-speech-rate-base 50
   "*Value of lowest tolerable speech rate."
@@ -849,7 +854,7 @@ speech rate:")))
         (when (interactive-p)
           (message "Set speech rate to level %s %s"
                    level
-                   (if prefix " globaly " " locally ")))))))
+                   (if prefix " globally " " locally ")))))))
 
 ;;;###autoload
 (defun dtk-set-character-scale (factor &optional prefix)
@@ -879,13 +884,6 @@ current local  value to the result."
                        "Toggles state of  dtk-quiet.
 Turning on this switch silences speech.
 Optional interactive prefix arg causes this setting to become global.")
-
-(ems-generate-switcher 'dtk-toggle-stop-immediately-while-typing
-                       'dtk-stop-immediately-while-typing
-                       "Toggle state of variable `dtk-stop-immediately-while-typing'.
-As the name implies, if T then speech flushes immediately as you
-type.  Optional argument PREFIX specifies if the setting applies
-to all buffers.")
 
 (ems-generate-switcher 'dtk-toggle-split-caps
                        'dtk-split-caps
@@ -1541,30 +1539,95 @@ This is setup on a per engine basis.")
                     tts-voice-reset-code))
   (unless tts-name (setq tts-name dtk-program))
   (cond
-   ((string-match "outloud" tts-name)
-    (outloud-configure-tts))
-   ((string-match "multispeech" tts-name)
-    (multispeech-configure-tts))
-   ((string-match "espeak" tts-name)
-    (espeak-configure-tts))
-   ((string-match "dtk-" tts-name)      ;all dectalks
-    (dectalk-configure-tts))
-   ((string-match "eflite" tts-name)
-    (flite-configure-tts))
-   (t (dectalk-configure-tts)           ; will become
-                                        ; generic-configure)))
-      ))
+                                        ;viavoice outloud family 
+   ((string-match "outloud" tts-name) (outloud-configure-tts))
+                                        ;all dectalks
+   ((string-match "dtk-" tts-name) (dectalk-configure-tts))
+   ((string-match "^multispeech$" tts-name) (multispeech-configure-tts))
+                                        ;exact match
+   ((string-match "^mac$" tts-name) (mac-configure-tts))
+                                        ; exact match
+   ((string-match "^espeak$" tts-name) (espeak-configure-tts))
+   ((string-match "^eflite$" tts-name) (flite-configure-tts))
+                                        ;will become generic configure
+   (t (dectalk-configure-tts)))
   (when (string-match "^ssh" tts-name)  ;remote server
     (setq emacspeak-auditory-icon-function 'emacspeak-serve-auditory-icon))
   (load-library "voice-setup")
   (setq tts-voice-reset-code (tts-get-voice-command tts-default-voice)))
 
-;;; forward declaration.
+(defvar tts-device "default"
+  "Name of current sound device in use.")
+
 ;;;###autoload
-(defun dtk-select-server (program )
+(defun dtk-select-server (program &optional device)
   "Select a speech server interactively.
-Argument PROGRAM specifies the speech server program.
-When called  interactively, The selected server is started immediately. "
+Argument PROGRAM specifies the speech server program. When called
+interactively, The selected server is started
+immediately. Optional arg device sets up environment variable
+ALSA_DEFAULT to specified device before starting the server."
+  (interactive
+   (list
+    (completing-read
+     "Select speech server:"
+     (or dtk-servers-alist
+         (tts-setup-servers-alist))
+     nil
+     t  )
+    current-prefix-arg))
+  (declare (special   dtk-program dtk-servers-alist
+                      tts-device emacspeak-servers-directory
+                      emacspeak-ssh-tts-server))
+  (when (and (interactive-p) device)
+    (setq tts-device (read-from-minibuffer "ALSA_DEFAULT: ")))
+  (setenv "ALSA_DEFAULT" tts-device)
+  (let ((ssh-server (format "ssh-%s" dtk-program)))
+    (setq dtk-program program)
+    (when (file-exists-p (expand-file-name ssh-server emacspeak-servers-directory))
+      (setq emacspeak-ssh-tts-server ssh-server)
+      (setq-default emacspeak-ssh-tts-server ssh-server))
+    (tts-configure-synthesis-setup dtk-program)
+    (when (interactive-p)
+      (dtk-initialize))))
+
+(defcustom tts-device-list (list "default")
+  "List of ALSA sound devices  we can use."
+  :type '(repeat
+          (choice :tag "Device"
+                  (const   "default")
+                  (const   "$ALSA_DEFAULT")
+                  (string )))
+  :group 'dtk)
+
+;;;###autoload
+(defun tts-cycle-device (&optional restart)
+  "Cycle through available ALSA devices.
+Optional interactive prefix arg restarts current TTS server."
+  (interactive "P")
+  (declare (special tts-device tts-device-list))
+  (let ((pos (position tts-device tts-device-list :test
+                       #'string=))
+        (len (length tts-device-list)))
+    (cond
+     ((= len 1) (message "Only  one ALSA device."))
+     (t                                 ; Cycle
+      (setq tts-device
+            (nth
+             (% (+ 1 pos) len)
+             tts-device-list))
+      (setenv "ALSA_DEFAULT" tts-device)
+      (message "ALSA_DEFAULT: %s" tts-device)
+      (when current-prefix-arg (tts-restart))))))
+
+(defvar dtk-async-server-process nil
+  "Process handle to async server.")
+
+;;;###autoload
+(defun dtk-async-server (program)
+  "Select and start an async  speech server interactively.
+Async servers allow external programs like self-voicing Web browsers to use
+the Emacspeak TTS server abstraction.
+Argument PROGRAM specifies the speech server program."
   (interactive
    (list
     (completing-read
@@ -1573,16 +1636,19 @@ When called  interactively, The selected server is started immediately. "
          (tts-setup-servers-alist))
      nil
      t  )))
-  (declare (special   dtk-program dtk-servers-alist
-                      emacspeak-servers-directory emacspeak-ssh-tts-server))
-  (let ((ssh-server (format "ssh-%s" dtk-program)))
-    (setq dtk-program program)
-    (tts-configure-synthesis-setup dtk-program)
-    (when (file-exists-p (expand-file-name ssh-server emacspeak-servers-directory))
-      (setq emacspeak-ssh-tts-server ssh-server)
-      (setq-default emacspeak-ssh-tts-server ssh-server))
-    (when (interactive-p)
-      (dtk-initialize))))
+  (declare (special    dtk-servers-alist
+                       dtk-async-server-process emacspeak-servers-directory ))
+  (when (and
+         dtk-async-server-process
+         (eq 'run (process-status dtk-async-server-process)))
+    (kill-process dtk-async-server-process))
+  (setq dtk-async-server-process
+        (start-process
+         "AsyncTTS"
+         "*AsyncTTS*"
+         (executable-find "python")
+         (expand-file-name "python/HTTPSpeaker.py" emacspeak-servers-directory)
+         program)))
 
 ;;}}}
 ;;{{{  initialize the speech process
@@ -1609,15 +1675,12 @@ Default is to use pipes.")
                     dtk-speak-server-initialized
                     dtk-startup-hook emacspeak-servers-directory))
   (let ((new-process nil)
-        (process-connection-type  dtk-speak-process-connection-type)
-        (dtk-program (expand-file-name dtk-program
-                                       emacspeak-servers-directory)))
+        (process-connection-type  dtk-speak-process-connection-type))
     (setq new-process
           (start-process
            "speaker"
            (and dtk-debug tts-debug-buffer)
-           (expand-file-name dtk-program
-                             emacspeak-servers-directory)))
+           (expand-file-name dtk-program emacspeak-servers-directory)))
     (setq dtk-speak-server-initialized
           (or (eq 'run (process-status new-process ))
               (eq 'open (process-status new-process))))
@@ -1631,7 +1694,6 @@ Default is to use pipes.")
         (delete-process dtk-speaker-process ))
       (setq dtk-speaker-process new-process)
       (set-process-coding-system dtk-speaker-process 'utf-8 'utf-8)
-      (tts-configure-synthesis-setup dtk-program)
       (run-hooks 'dtk-startup-hook ))
      (t
       (when (interactive-p)

@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2009, T. V. Raman
+;;;Copyright (C) 1995 -- 2011, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -185,13 +185,19 @@
   (let ((emacspeak-speak-messages nil))
     ad-do-it))
 
+(defadvice twittering-http-get-default-sentinel (around emacspeak pre act comp)
+  "Silence spoken messages while twitter is updating."
+  (let ((emacspeak-speak-messages nil))
+    ad-do-it))
+
 ;;}}}
 ;;{{{ additional interactive comand
 
 (defun emacspeak-twittering-jump-to-following-url ()
   "Move to and open closest URI  following point."
   (interactive)
-  (let ((moved t))
+  (let ((moved t)
+        (url nil))
     (while (and moved
                 (not (looking-at "http")))
       (setq moved
