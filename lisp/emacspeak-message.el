@@ -1,5 +1,5 @@
 ;;; emacspeak-message.el --- Speech enable Message -- Used to compose news postings and replies
-;;; $Id: emacspeak-message.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
+;;; $Id: emacspeak-message.el 7823 2012-06-03 01:16:29Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $ 
 ;;; Description: Emacspeak extensions for posting
 ;;; Keywords:emacspeak, audio interface to emacs posting messages
@@ -94,132 +94,132 @@
 
 (defadvice message-goto-to (after emacspeak pre act comp)
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'large-movement)
     (emacspeak-speak-line)))
 
 (defadvice message-goto-summary (after emacspeak pre act comp)
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'large-movement)
     (emacspeak-speak-line)))
 
 (defadvice message-goto-subject (after emacspeak pre act comp)
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'large-movement)
     (emacspeak-speak-line)))
 
 (defadvice message-goto-cc (after emacspeak pre act comp)
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'large-movement)
     (emacspeak-speak-line)))
 
 (defadvice message-goto-bcc (after emacspeak pre act comp)
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'large-movement)
     (emacspeak-speak-line)))
 
 (defadvice message-goto-fcc (after emacspeak pre act comp)
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'large-movement)
     (emacspeak-speak-line)))
 
 (defadvice message-goto-keywords (after emacspeak pre act comp)
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'large-movement)
     (emacspeak-speak-line)))
 
 (defadvice message-goto-newsgroups (after emacspeak pre act comp)
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'large-movement)
     (emacspeak-speak-line)))
 
 (defadvice message-goto-followup-to (after emacspeak pre act comp)
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'large-movement)
     (emacspeak-speak-line)))
 
 (defadvice message-goto-reply-to (after emacspeak pre act comp)
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'large-movement)
     (emacspeak-speak-line)))
 
 (defadvice message-goto-body (after emacspeak pre act comp)
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'large-movement)
     (message "Beginning of message body")))
 
 (defadvice message-goto-signature (after emacspeak pre act comp)
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'large-movement)
     (emacspeak-speak-line)))
 
 (defadvice message-goto-distribution (after emacspeak pre act comp)
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'large-movement)
     (emacspeak-speak-line)))
 
 (defadvice message-insert-citation-line (after emacspeak pre act comp)
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'large-movement)
     (emacspeak-speak-line)))
 
 (defadvice message-insert-to (after emacspeak pre act comp)
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'large-movement)
     (emacspeak-speak-line)))
 
 (defadvice message-insert-signature (after emacspeak pre act comp)
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (message "Signed the article.")))
 
 (defadvice message-insert-newsgroups (after emacspeak pre act comp)
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'large-movement)
     (emacspeak-speak-line)))
 
 (defadvice message-insert-courtesy-copy (after emacspeak pre act comp)
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'large-movement)
     (emacspeak-speak-line)))
 
 (defadvice message-beginning-of-line (before emacspeak pre act)
   "Stop speech first."
-  (when (interactive-p) (dtk-stop )
+  (when (ems-interactive-p ) (dtk-stop )
         (emacspeak-auditory-icon 'select-object)
         (dtk-speak "beginning of line")))
 
 (defadvice message-goto-from (after emacspeak pre act comp)
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'large-movement)
     (emacspeak-speak-line)))
 
 (defadvice message-goto-mail-followup-to (after emacspeak pre act comp)
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'large-movement)
     (emacspeak-speak-line)))
 
 (defadvice message-newline-and-reformat (after emacspeak pre act)
   "Provide auditory feedback."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'fill-object )
     (message "newline and reformat")))
 

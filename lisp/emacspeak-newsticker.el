@@ -1,5 +1,5 @@
 ;;; emacspeak-newsticker.el --- Speech-enable newsticker
-;;; $Id: emacspeak-newsticker.el 7378 2011-11-10 17:34:32Z tv.raman.tv $
+;;; $Id: emacspeak-newsticker.el 8026 2012-09-25 16:48:36Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak front-end for NEWSTICKER 
 ;;; Keywords: Emacspeak, newsticker 
@@ -50,7 +50,6 @@
 
 ;;; Code:
 (require 'emacspeak-preamble)
-(require 'backquote)
 ;;}}}
 ;;{{{ define personalities 
 (voice-setup-add-map
@@ -98,7 +97,7 @@
       (eval
        `(defadvice ,f (after emacspeak pre act comp)
           "Provide spoken feedback."
-          (when (interactive-p)
+          (when (ems-interactive-p )
             (emacspeak-auditory-icon 'large-movement)
             (emacspeak-newsticker-summarize-item)))))
 

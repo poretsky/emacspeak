@@ -1,5 +1,5 @@
 ;;; emacspeak-replace.el --- Speech enable interactive search and replace
-;;; $Id: emacspeak-replace.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
+;;; $Id: emacspeak-replace.el 7908 2012-06-22 15:45:37Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $ 
 ;;; Description:  Emacspeak extension for replace.el
 ;;; Keywords: Emacspeak, Speech feedback, query replace (replace.el)
@@ -89,8 +89,7 @@ that is being replaced."
             emacspeak-speak-messages t))))
 
 (defadvice query-replace (around emacspeak pre act compile)
-  "Stop message from chattering.
- Turn on voice lock temporarily. "
+  "Stop message from chattering."
   (declare (special voice-lock-mode ))
   (let ((saved-voice-lock voice-lock-mode)
         (emacspeak-speak-messages nil))
@@ -105,7 +104,10 @@ that is being replaced."
       (emacspeak-auditory-icon 'task-done)
       (setq voice-lock-mode saved-voice-lock
             emacspeak-speak-messages t))))
-
+(defadvice perform-replace (around emacspeak pre act  comp)
+  "Silence help message."
+  (let ((emacspeak-speak-messages nil))
+    ad-do-it))
 (defadvice replace-highlight (before  emacspeak pre act)
   "Voicify and speak the line containing the replacement. "
   (declare (special emacspeak-replace-highlight-on

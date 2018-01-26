@@ -1,4 +1,4 @@
-# $Id: Makefile 7198 2011-09-20 00:22:45Z tv.raman.tv $
+# $Id: Makefile 7743 2012-05-05 03:23:15Z tv.raman.tv $
 # $Author: tv.raman.tv $
 # Description:  Makefile for Emacspeak
 # Keywords: Emacspeak,  TTS,Makefile
@@ -241,7 +241,7 @@ EXCLUDES=--exclude='*/CVS' --exclude='*/.svn' \
 tar:
 	make ${ID}
 	tar cvf  emacspeak.tar $(EXCLUDES) $(DISTFILES)   $(ID) \
-			 ${TABLE_SAMPLES} ${REALAUDIO} ${SHOUTCAST} ${FORMS} \
+			 ${TABLE_SAMPLES} ${REALAUDIO}  ${FORMS} \
 	${SOUNDS}
 
 dist: $(DISTFILES)
@@ -301,8 +301,6 @@ install:
 	chmod -R go+rX  $(DESTDIR)$(libdir)/sounds
 	$(CP) -r $(REALAUDIO) $(DESTDIR)$(libdir)
 	chmod -R go+rX  $(DESTDIR)$(libdir)/realaudio
-	$(CP) -r $(SHOUTCAST) $(DESTDIR)$(libdir)
-	chmod -R go+rX  $(DESTDIR)$(libdir)/shoutcast
 	$(INSTALL) -d $(DESTDIR)$(libdir)/etc/forms
 	$(INSTALL)  -m 0644 $(FORMS) $(DESTDIR)$(libdir)/etc/forms
 	$(INSTALL) -d $(DESTDIR)$(libdir)/etc/tables

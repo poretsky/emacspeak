@@ -1,5 +1,5 @@
 ;;; emacspeak-tnt.el --- Instant Messenger 
-;;; $Id: emacspeak-tnt.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
+;;; $Id: emacspeak-tnt.el 7823 2012-06-03 01:16:29Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Speech-enable AOL Instant Messenger Client TNT
 ;;; Keywords: Emacspeak, Instant Messaging 
@@ -56,7 +56,7 @@
 
 (defadvice tnt-kill (after emacspeak pre act comp)
   "Provide additional auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'close-object)))
 (declaim (special emacspeak-pronounce-internet-smileys-pronunciations))
 (emacspeak-pronounce-augment-pronunciations 'tnt-im-mode
@@ -66,7 +66,7 @@
 
 (defadvice tnt-open (after emacspeak pre act comp)
   "Provide auditory feedback."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (timer-activate tnt-idle-timer)
     (emacspeak-pronounce-refresh-pronunciations)
     (emacspeak-auditory-icon 'open-object)))
@@ -74,38 +74,38 @@
 (defadvice tnt-im (after emacspeak pre act comp)
   "Provide auditory feedback."
   (emacspeak-pronounce-refresh-pronunciations)
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'open-object)
     (emacspeak-speak-mode-line)))
 
 (defadvice tnt-send-text-as-instant-message (after emacspeak pre act comp)
   "Provide auditory feedback."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'close-object)
     (emacspeak-speak-line)))
 
 (defadvice tnt-join-chat (after emacspeak pre act comp)
   "Provide auditory feedback."
   (emacspeak-pronounce-refresh-pronunciations)
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'open-object)
     (emacspeak-speak-mode-line)))
 
 (defadvice tnt-send-text-as-chat-message (after emacspeak pre act comp)
   "Provide auditory feedback."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'close-object)
     (message "Sent chat message.")))
 
 (defadvice tnt-send-text-as-chat-whisper (after emacspeak pre act comp)
   "Provide auditory feedback."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'close-object)
     (message "Sent whisper message.")))
 
 (defadvice tnt-send-text-as-chat-invitation (after emacspeak pre act comp)
   "Provide auditory feedback."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'close-object)
     (message "Sent invitation message.")))
 
@@ -113,7 +113,7 @@
                                               act comp)
   "Speak the participant list. "
   (cond
-   ((interactive-p)
+   ((ems-interactive-p )
     (let ((start (point)))
       ad-do-it
       (emacspeak-speak-region start (point))))
@@ -122,63 +122,63 @@
 
 (defadvice tnt-show-buddies (after emacspeak pre act comp)
   "Provide auditory feedback."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'open-object)
     (emacspeak-speak-mode-line)))
 
 (defadvice tnt-next-buddy (after emacspeak pre act comp)
   "Provide auditory feedback."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'select-object)
     (emacspeak-speak-line)))
 (defadvice tnt-prev-buddy (after emacspeak pre act comp)
   "Provide auditory feedback."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'select-object)
     (emacspeak-speak-line)))
 
 (defadvice tnt-next-group (after emacspeak pre act comp)
   "Provide auditory feedback."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'select-object)
     (emacspeak-speak-line)))
 
 (defadvice tnt-prev-group (after emacspeak pre act comp)
   "Provide auditory feedback."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'select-object)
     (emacspeak-speak-line)))
 
 (defadvice tnt-edit-buddies (after emacspeak pre act comp)
   "Provide auditory feedback."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'open-object)
     (emacspeak-speak-mode-line)))
 
 (defadvice tnt-save-buddy-list (after emacspeak pre act comp)
   "Provide auditory feedback."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'save-object)
     (emacspeak-speak-mode-line)))
 
 (defadvice tnt-accept (after emacspeak pre act comp)
   "Provide auditory feedback."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'select-object)))
 
 (defadvice tnt-reject (after emacspeak pre act comp)
   "Provide auditory feedback."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'warn-user)))
 
 (defadvice tnt-prev-event (after emacspeak pre act comp)
   "Provide auditory feedback."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'select-object)))
 
 (defadvice tnt-next-event (after emacspeak pre act comp)
   "Provide auditory feedback."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'select-object)))
 
 ;;}}}
@@ -222,7 +222,7 @@ automatically."
    (t (make-local-variable 'emacspeak-tnt-autospeak)
       (setq emacspeak-tnt-autospeak
             (not emacspeak-tnt-autospeak ))))
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon
      (if emacspeak-tnt-autospeak 'on 'off))
     (message "Turned %s TNT autospeak  %s "

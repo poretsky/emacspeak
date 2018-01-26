@@ -1,5 +1,5 @@
 ;;; emacspeak-redefine.el --- Redefines some key Emacs builtins to speak
-;;; $Id: emacspeak-redefine.el 7725 2012-04-26 15:22:15Z tv.raman.tv $
+;;; $Id: emacspeak-redefine.el 7823 2012-06-03 01:16:29Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak's redefinition of some key functions.
 ;;; Emacspeak does most of its work by advising other functions to speak.
@@ -91,7 +91,7 @@ Speech flushes as you type."
        (null (car buffer-undo-list))
        (pop buffer-undo-list ))
   (self-insert-command  arg )
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (let ((display (get-char-property (1- (point)) 'display)))
       (dtk-stop)
       (cond
@@ -109,6 +109,34 @@ Speech flushes as you type."
        (= (char-syntax  last-command-event) 32)
        (>= (current-column) fill-column)
        (funcall auto-fill-function)))
+
+(defun emacspeak-post-self-insert-hook ()
+  "Speaks the character if emacspeak-character-echo is true.
+See  command emacspeak-toggle-word-echo bound to
+\\[emacspeak-toggle-word-echo].
+eech flushes as you type."
+  (declare (special last-command-event 
+                    emacspeak-character-echo emacspeak-word-echo))
+  (when
+      (and (eq (preceding-char) last-command-event) ; Sanity check.
+           (not executing-kbd-macro)
+           (not noninteractive))
+    (let ((display (get-char-property (1- (point)) 'display)))
+      (dtk-stop)
+      (cond
+       (display (dtk-say display))
+       ((and emacspeak-word-echo
+             (= (char-syntax last-command-event )32 ))
+        (save-excursion
+          (condition-case nil
+              (forward-word -1)
+            (error nil))
+          (emacspeak-speak-word)))
+       (emacspeak-character-echo
+        (emacspeak-speak-this-char (preceding-char)))))))
+(when (= 24 emacs-major-version)  
+  (add-hook 'post-self-insert-hook 'emacspeak-post-self-insert-hook))
+
 ;;;###autoload
 (defun emacspeak-forward-char (&optional arg)
   "Forward-char redefined to speak char moved to. "
@@ -118,7 +146,7 @@ Speech flushes as you type."
   (cond
    ((<= (+ arg (point)) (point-max))
     (forward-char arg)
-    (when (interactive-p)
+    (when (ems-interactive-p )
       (and dtk-stop-immediately (dtk-stop))
       (emacspeak-speak-char t  )))
    (t(ding)
@@ -132,7 +160,7 @@ Speech flushes as you type."
   (cond
    ((>= (- (point) arg) (point-min))
     (backward-char arg)
-    (when (interactive-p)
+    (when (ems-interactive-p )
       (and dtk-stop-immediately (dtk-stop))
       (emacspeak-speak-char t )))
    (t (ding)
@@ -151,12 +179,17 @@ Speech flushes as you type."
        #'(lambda (key)
            (global-set-key key new-fn )))
      keys )))
+;;; self-insert-char is removed since we can use
+;;; post-self-insert-hook
 
 (defvar emacspeak-functions-that-bypass-function-cell
-  (list 'backward-char 'forward-char 'self-insert-command )
+  (list 'backward-char 'forward-char  )
   "These commands are activated directly through C,
 rather than through their function cell.
 They have to be redefined and rebound to make them talk. " )
+
+(unless (= 24 emacs-major-version)
+  (push 'self-insert-command emacspeak-functions-that-bypass-function-cell))
 
 (mapcar
  #'(lambda (f)

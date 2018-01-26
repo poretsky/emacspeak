@@ -1,4 +1,4 @@
-# $Id: Makefile 7695 2012-04-18 15:34:29Z tv.raman.tv $
+# $Id: Makefile 8048 2012-12-21 16:37:17Z tv.raman.tv $
 # $Author: tv.raman.tv $
 # Description:  Makefile for Emacspeak
 # Keywords: Emacspeak, Dectalk, Makefile
@@ -86,7 +86,6 @@ emacspeak-re-builder.elc \
 	emacspeak-tabulate.elc \
 cd-tool.elc \
 amixer.elc \
-shr-url.elc \
 nm.elc \
 emacspeak-add-log.elc \
 emacspeak-alsaplayer.elc \
@@ -116,6 +115,7 @@ emacspeak-cedet.elc \
 emacspeak-checkdoc.elc \
 emacspeak-cmuscheme.elc \
 emacspeak-compile.elc \
+congrats.elc \
 emacspeak-cperl.elc \
 emacspeak-custom.elc \
 emacspeak-daisy.elc \
@@ -124,6 +124,7 @@ emacspeak-dbus.elc \
 emacspeak-dictation.elc \
 emacspeak-dictionary.elc \
 emacspeak-desktop.elc \
+emacspeak-diff-mode.elc \
 emacspeak-dired.elc \
 emacspeak-dismal.elc \
 emacspeak-dmacro.elc \
@@ -169,6 +170,7 @@ emacspeak-jabber.elc \
 emacspeak-jde.elc \
 emacspeak-jawbreaker.elc \
 emacspeak-js2.elc \
+emacspeak-kite.elc \
 emacspeak-kmacro.elc  \
 emacspeak-librivox.elc \
 emacspeak-madplay.elc \
@@ -250,7 +252,7 @@ emacspeak-xslt.elc \
 emacspeak-xslt-process.elc   \
 emacspeak-zinf.elc
 
-ADDON_OBJECTS= tapestry.elc   stack-f.elc  xml-parse.elc toy-braille.elc
+ADDON_OBJECTS= tapestry.elc   stack-f.elc  xml-parse.elc toy-braille.elc tetris.elc
 
 OBJECTS = $(DTK_OBJECTS) $(SPEAK_OBJECTS) $(CORE_OBJECTS) $(ADDON_OBJECTS)
 # }}}
@@ -325,7 +327,7 @@ emacspeak-babel.elc: emacspeak-babel.el dtk-speak.elc voice-setup.elc
 emacspeak-bbdb.elc: emacspeak-bbdb.el dtk-speak.elc voice-setup.elc
 emacspeak-bibtex.elc: emacspeak-bibtex.el dtk-speak.elc voice-setup.elc
 emacspeak-bookmark.elc: emacspeak-bookmark.el dtk-speak.elc voice-setup.elc
-emacspeak-bookshare.elc: emacspeak-bookmark.el dtk-speak.elc voice-setup.elc
+emacspeak-bookshare.elc: emacspeak-bookshare.el dtk-speak.elc voice-setup.elc emacspeak-webutils.elc
 emacspeak-bmk-mgr.elc: emacspeak-bmk-mgr.el dtk-speak.elc voice-setup.elc
 emacspeak-browse-kill-ring.elc: emacspeak-browse-kill-ring.el dtk-speak.elc voice-setup.elc
 emacspeak-bs.elc: emacspeak-bs.el dtk-speak.elc voice-setup.elc
@@ -337,6 +339,8 @@ emacspeak-calculator.elc: emacspeak-calculator.el  dtk-speak.elc voice-setup.elc
 emacspeak-calendar.elc: emacspeak-calendar.el dtk-speak.el
 emacspeak-cedet.elc: emacspeak-cedet.el dtk-speak.elc voice-setup.elc
 emacspeak-checkdoc.elc: emacspeak-checkdoc.el dtk-speak.elc voice-setup.elc
+emacspeak-compile.elc: emacspeak-compile.el  dtk-speak.elc
+congrats.elc: congrats.el dtk-speak.elc
 emacspeak-cperl.elc: emacspeak-cperl.el dtk-speak.elc voice-setup.elc
 emacspeak-custom.elc: emacspeak-custom.el dtk-speak.elc voice-setup.elc
 emacspeak-cyclebuffer.elc: emacspeak-cyclebuffer.el dtk-speak.elc
@@ -347,6 +351,7 @@ emacspeak-dbus.elc: emacspeak-dbus.el dtk-speak.elc nm.elc
 emacspeak-desktop.elc: emacspeak-desktop.el dtk-speak.elc voice-setup.elc
 emacspeak-dictation.elc: emacspeak-dictation.el dtk-speak.elc voice-setup.elc
 emacspeak-dictionary.elc: emacspeak-dictionary.el dtk-speak.elc voice-setup.elc
+emacspeak-diff-mode.elc: emacspeak-diff-mode.el dtk-speak.elc voice-setup.elc
 emacspeak-dired.elc: emacspeak-dired.el dtk-speak.elc voice-setup.elc
 emacspeak-dismal.elc: emacspeak-dismal.el dtk-speak.elc voice-setup.elc
 emacspeak-dmacro.elc: emacspeak-dmacro.el dtk-speak.elc voice-setup.elc
@@ -393,6 +398,7 @@ emacspeak-jde.elc: emacspeak-jde.el dtk-speak.elc voice-setup.elc
 emacspeak-js2.elc: emacspeak-js2.el dtk-speak.elc voice-setup.elc
 emacspeak-jawbreaker.elc: emacspeak-jawbreaker.el emacspeak-piglets.elc
 emacspeak-keymap.elc: emacspeak-keymap.el
+emacspeak-kite.elc: emacspeak-kite.el dtk-speak.elc voice-setup.elc
 emacspeak-kmacro.elc: emacspeak-kmacro.el dtk-speak.elc voice-setup.elc
 emacspeak-librivox.elc: emacspeak-librivox.el dtk-speak.elc voice-setup.elc
 emacspeak-loaddefs.elc: emacspeak-loaddefs.el

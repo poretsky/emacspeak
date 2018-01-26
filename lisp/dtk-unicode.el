@@ -6,7 +6,7 @@
 ;;; Using patch from Lukas.
 ;;
 ;; Author: Lukas Loehrer <loehrerl |at| gmx.net>
-;; Version: $Id: dtk-unicode.el 7734 2012-05-03 02:20:29Z tv.raman.tv $
+;; Version: $Id: dtk-unicode.el 7832 2012-06-03 20:13:54Z tv.raman.tv $
 ;; Keywords:  TTS, Unicode
 
 ;;}}}
@@ -109,8 +109,6 @@
 themselves, e.g., when using an Asian language."
   :type 'boolean
   :group 'dtk-unicode)
-
-  
 
 (defcustom dtk-unicode-name-transformation-rules-alist
   '(

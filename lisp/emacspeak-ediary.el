@@ -1,5 +1,5 @@
 ;;; emacspeak-ediary.el --- Speech-enable ediary
-;;; $Id: emacspeak-ediary.el 7378 2011-11-10 17:34:32Z tv.raman.tv $
+;;; $Id: emacspeak-ediary.el 7823 2012-06-03 01:16:29Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak speech-enabler for ediary 
 ;;; Keywords: Emacspeak, diary
@@ -69,7 +69,7 @@
       (eval
        `(defadvice ,f (after emacspeak pre act comp)
           "Speak the entry."
-          (when (interactive-p)
+          (when (ems-interactive-p )
             (emacspeak-speak-line)
             (emacspeak-auditory-icon 'select-object)))))
 

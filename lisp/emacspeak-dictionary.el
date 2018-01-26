@@ -1,5 +1,5 @@
 ;;; emacspeak-dictionary.el --- speech-enable dictionaries 
-;;; $Id: emacspeak-dictionary.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
+;;; $Id: emacspeak-dictionary.el 7823 2012-06-03 01:16:29Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:   Speech enable dictionary mode
 ;;; Keywords: Emacspeak, Audio Desktop
@@ -51,56 +51,56 @@
 ;;{{{ Advice interactive commands to speak.
 (defadvice dictionary (after emacspeak pre act comp)
   "Provide auditory feedback."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'open-object)
     (emacspeak-speak-mode-line)))
 (defadvice dictionary-close (after emacspeak pre act comp)
   "Provide auditory feedback."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'close-object)
     (emacspeak-speak-mode-line)))
 (defadvice dictionary-select-dictionary (after emacspeak pre act comp)
   "Provide auditory feedback."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'select-object)
     (message "Selected dictionary")))
 (defadvice dictionary-select-strategy (after emacspeak pre act comp)
   "Provide auditory feedback."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'select-object)
     (message "Selected strategy")))
 
 (defadvice dictionary-search (after emacspeak pre act comp)
   "Provide auditory feedback."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'search-hit)
     (emacspeak-speak-line)))
 (defadvice dictionary-lookup-definition (after emacspeak pre act comp)
   "Provide auditory feedback."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'search-hit)
     (emacspeak-speak-line)))
 
 (defadvice dictionary-match-words (after emacspeak pre act comp)
   "Provide auditory feedback."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'search-hit)
     (emacspeak-speak-line)))
 
 (defadvice dictionary-previous (after emacspeak pre act comp)
   "Provide auditory feedback."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'large-movement)
     (emacspeak-speak-line)))
 (defadvice dictionary-prev-link (after emacspeak pre act comp)
   "Provide auditory feedback."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'large-movement)
     (emacspeak-speak-text-range 'link-function)))
 
 (defadvice dictionary-next-link (after emacspeak pre act comp)
   "Provide auditory feedback."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'large-movement)
     (emacspeak-speak-text-range 'link-function)))
 

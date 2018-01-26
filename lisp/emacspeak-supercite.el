@@ -1,5 +1,5 @@
 ;;; emacspeak-supercite.el --- Speech enable supercite
-;;; $Id: emacspeak-supercite.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
+;;; $Id: emacspeak-supercite.el 7823 2012-06-03 01:16:29Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $ 
 ;;; Description:  Emacspeak extension to speech enable supercite
 ;;; Keywords: Emacspeak, supercite, mail
@@ -54,7 +54,7 @@
 ;;{{{ Advice
 (defadvice sc-cite-region (after emacspeak pre act comp)
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'mark-object)
     (message "Cited region containing %s lines"
              (count-lines (ad-get-arg 0)
@@ -62,7 +62,7 @@
 
 (defadvice sc-recite-region (after emacspeak pre act comp)
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'mark-object)
     (message "Re-cited region containing %s lines"
              (count-lines (ad-get-arg 0)
@@ -70,7 +70,7 @@
 
 (defadvice sc-uncite-region (after emacspeak pre act comp)
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'mark-object)
     (message "Uncited region containing %s lines"
              (count-lines (ad-get-arg 0)
@@ -80,7 +80,7 @@
                                        comp)
   "Speak what we inserted"
   (cond
-   ((interactive-p)
+   ((ems-interactive-p )
     (let ((opoint (point)))
       ad-do-it
       (emacspeak-speak-region opoint (point))
@@ -90,13 +90,13 @@
 (defadvice sc-insert-citation (after emacspeak pre act
                                      comp)
   "Speak what we inserted"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-speak-line)
     (emacspeak-auditory-icon 'yank-object)))
 
 (defadvice sc-open-line (after emacspeak pre act comp)
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'open-object)
     (dtk-speak "Opened a blank line")))
 

@@ -1,5 +1,5 @@
 ;;; emacspeak-proced.el --- Speech-enable PROCED Task Manager
-;;; $Id: emacspeak-proced.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
+;;; $Id: emacspeak-proced.el 7823 2012-06-03 01:16:29Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Speech-enable PROCED A Task manager for Emacs
 ;;; Keywords: Emacspeak,  Audio Desktop proced Task Manager
@@ -277,31 +277,31 @@
 
 (defadvice proced-mark (before emacspeak pre act comp)
   "Provide auditory feedback."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'mark-object)
     (emacspeak-proced-speak-this-field)))
 
 (defadvice proced-unmark (before emacspeak pre act comp)
   "Provide auditory feedback."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'deselect-object)
     (emacspeak-proced-speak-this-field)))
 
 (defadvice proced-mark-all (after emacspeak pre act comp)
   "Provide auditory feedback."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (message "Marked all processes. ")
     (emacspeak-auditory-icon 'mark-object)))
 
 (defadvice proced-unmark-all (after emacspeak pre act comp)
   "Provide auditory feedback."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (message "Removed all marks. ")
     (emacspeak-auditory-icon 'deselect-object)))
 
 (defadvice proced(before emacspeak pre act comp)
   "Provide auditory feedback."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'open-object)))
 
 (loop for f in
@@ -314,7 +314,7 @@
             ad-do-it
             (emacspeak-proced-update-fields)
             (emacspeak-proced-update-process-cache)
-            (when (interactive-p)
+            (when (ems-interactive-p )
               (let ((header-line-format nil))
                 (emacspeak-speak-mode-line)))))))
 
@@ -325,20 +325,10 @@
                          proced-sort-pid)
       do
       (eval
-       `(defadvice ,f (around emacspeak pre act comp)
+       `(defadvice ,f (after emacspeak pre act comp)
           "Provide auditory feedbak."
-          (let ((emacspeak-speak-messages nil))
-            ad-do-it
-            (when (interactive-p)
-              (let ((target (cdr (assoc-string "ARGS" emacspeak-proced-fields))))
-                (emacspeak-auditory-icon 'task-done)
-                (dtk-speak
-                 (format "%d of %d: %s"
-                         (line-number-at-pos)
-                         (count-lines (point-min) (point-max))
-                         (buffer-substring
-                          (+ (point) (car target))
-                          (+ (point) (cdr target)))))))))))
+          (when (ems-interactive-p )
+            (emacspeak-auditory-icon 'task-done)))))
 
 ;;}}}
 ;;{{{ additional commands:

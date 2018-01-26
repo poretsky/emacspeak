@@ -1,5 +1,5 @@
 ;;; emacspeak-piglets.el.el --- Result of large pigs connecting over a socket
-;;; $Id: emacspeak-piglets.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
+;;; $Id: emacspeak-piglets.el 7823 2012-06-03 01:16:29Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Result of connecting Emacs and Firefox
 ;;; Keywords: Emacspeak,  Audio Desktop Firefox, Piglets 
@@ -166,7 +166,7 @@ Keystrokes are sent to a connected Firefox."
   "Send last keypress to Firefox."
   (interactive)
   (declare (special last-input-event))
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-piglets-silence))
   (emacspeak-piglets-keypress last-input-event))
 

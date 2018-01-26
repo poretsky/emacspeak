@@ -1,5 +1,5 @@
 ;;; emacspeak-info.el --- Speech enable Info -- Emacs' online documentation viewer
-;;; $Id: emacspeak-info.el 7409 2011-11-16 03:22:20Z tv.raman.tv $
+;;; $Id: emacspeak-info.el 7823 2012-06-03 01:16:29Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Module for customizing Emacs info
 ;;; Keywords:emacspeak, audio interface to emacs
@@ -115,13 +115,13 @@ emacspeak-info-select-node-speak-chunk"
 
 (defadvice info (after emacspeak pre act)
   "Cue user that info is up."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'help)
     (emacspeak-speak-line)))
 
 (defadvice Info-scroll-up (after emacspeak pre act)
   "Speak the screenful."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'scroll)
     (let ((start  (point ))
           (window (get-buffer-window (current-buffer ))))
@@ -131,7 +131,7 @@ emacspeak-info-select-node-speak-chunk"
 
 (defadvice Info-scroll-down (after emacspeak pre act)
   "Speak the screenful."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'scroll)
     (let ((start  (point ))
           (window (get-buffer-window (current-buffer ))))
@@ -142,19 +142,19 @@ emacspeak-info-select-node-speak-chunk"
 (defadvice Info-exit (after emacspeak pre act)
   "Play an auditory icon to close info,
 and then cue the next selected buffer."
-  (when (interactive-p )
+  (when (ems-interactive-p  )
     (dtk-stop)
     (emacspeak-auditory-icon 'close-object)
     (emacspeak-speak-mode-line)))
 
 (defadvice Info-next-reference (after emacspeak pre act)
   "Speak the line. "
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-speak-line)))
 
 (defadvice Info-prev-reference (after emacspeak pre act)
   "Speak the line. "
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-speak-line)))
 
 ;;}}}

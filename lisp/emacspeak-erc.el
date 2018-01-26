@@ -1,5 +1,5 @@
 ;;; emacspeak-erc.el --- speech-enable erc irc client
-;;; $Id: emacspeak-erc.el 7378 2011-11-10 17:34:32Z tv.raman.tv $
+;;; $Id: emacspeak-erc.el 8032 2012-10-07 16:42:12Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak module for speech-enabling erc.el
 ;;; Keywords: Emacspeak, erc
@@ -103,18 +103,18 @@ server."
 
 (defadvice erc-select (after emacspeak pre act comp)
   "Provide auditory feedback."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'open-object)
     (emacspeak-speak-mode-line)))
 (defadvice erc-send-current-line (after emacspeak pre act
                                         comp)
   "Provide auditory icon."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'select-object)))
 (defadvice erc-send-paragraph (after emacspeak pre act
                                      comp)
   "Provide auditory icon."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'paragraph)))
 
 ;;}}}
@@ -241,8 +241,7 @@ set the current local value to the result.")
                     emacspeak-erc-my-nick))
   (let ( (buffer (ad-get-arg 1))
          (case-fold-search t))
-    (save-excursion
-      (set-buffer buffer)
+    (with-current-buffer  buffer
       (when (and emacspeak-erc-room-monitor
                  emacspeak-erc-monitor-my-messages)
         (let ((emacspeak-speak-messages nil)

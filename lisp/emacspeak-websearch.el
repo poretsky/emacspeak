@@ -1,5 +1,5 @@
 ;;; emacspeak-websearch.el --- search utilities
-;;; $Id: emacspeak-websearch.el 7724 2012-04-26 03:02:37Z tv.raman.tv $
+;;; $Id: emacspeak-websearch.el 8033 2012-10-16 16:43:51Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak extension to make Web searching convenient
 ;;; Keywords: Emacspeak, WWW interaction
@@ -124,7 +124,7 @@
               (princ "\n"))
         (help-setup-xref
          (list #'emacspeak-websearch-help)
-         (interactive-p))))
+         (ems-interactive-p ))))
     (pop-to-buffer "*Help*")
     (help-mode)
     (goto-char (point-min))
@@ -631,8 +631,7 @@ Retrieves company news, research, profile, insider trades,  or upgrades/downgrad
                          (?t "/ta")
                          (?e "/ce")
                          (?o "/op")
-                         (?s "/sec")
-                         ))
+                         (?s "/sec")))
                (format "s=%s" ticker)))
       (emacspeak-webutils-post-process
        (format-time-string "%Y")
@@ -962,7 +961,7 @@ Optional second arg as-html processes the results as HTML rather than data."
   :group 'emacspeak-websearch)
 
 (defvar emacspeak-websearch-google-uri-template
-  "www.google.com/search?q="
+  "www.google.com/search?source=hp&q="
   "*URI for Google search")
 
 (defsubst emacspeak-websearch-google-uri ()

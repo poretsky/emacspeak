@@ -1,5 +1,5 @@
 ;;; emacspeak-speak.el --- Implements Emacspeak's core speech services
-;;; $Id: emacspeak-speak.el 7710 2012-04-22 20:50:15Z tv.raman.tv $
+;;; $Id: emacspeak-speak.el 8026 2012-09-25 16:48:36Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Contains the functions for speaking various chunks of text
 ;;; Keywords: Emacspeak,  Spoken Output
@@ -53,7 +53,6 @@
 ;;{{{  Required modules
 
 (require 'cl)
-(eval-when-compile (require 'backquote))
 (declaim  (optimize  (safety 0) (speed 3)))
 (require 'custom)
 (require 'time-date)
@@ -173,6 +172,8 @@ Argument BODY specifies forms to execute."
            (buffer-read-only nil )
            (save-inhibit-read-only inhibit-read-only)
            (inhibit-read-only t)
+           (save-inhibit-modification-hooks inhibit-modification-hooks)
+           (inhibit-modification-hooks nil)
            (save-inhibit-point-motion-hooks inhibit-point-motion-hooks)
            (inhibit-point-motion-hooks t)
            (modification-flag (buffer-modified-p)))
@@ -188,6 +189,7 @@ Argument BODY specifies forms to execute."
           (min (point-max)  ,end) 'personality saved-personality)
          (setq buffer-read-only save-read-only
                inhibit-read-only save-inhibit-read-only
+               inhibit-modification-hooks save-inhibit-modification-hooks
                inhibit-point-motion-hooks save-inhibit-point-motion-hooks)
          (set-buffer-modified-p modification-flag )))))
 
@@ -969,7 +971,7 @@ spelt instead of being spoken."
        ((< arg 0) (setq end orig )))
       ;; select speak or spell
       (cond
-       ((and (interactive-p)
+       ((and (ems-interactive-p )
              (eq emacspeak-speak-last-spoken-word-position orig))
         (setq speaker 'emacspeak-speak-spell-word)
         (setq emacspeak-speak-last-spoken-word-position nil))
@@ -1060,6 +1062,16 @@ char is assumed to be one of a--z."
           " ")))
 
 ;;}}}
+;;{{{ Speak Chars:
+
+(defsubst emacspeak-speak-this-char (char)
+  "Speak this CHAR."
+  (when char
+    (cond
+     ((emacspeak-is-alpha-p char) (dtk-letter (char-to-string
+                                               char )))
+     ((> char 128) (emacspeak-speak-char-name char))
+     (t (dtk-dispatch (dtk-char-to-speech char ))))))
 ;;;###autoload
 (defun emacspeak-speak-char (&optional prefix)
   "Speak character under point.
@@ -1077,20 +1089,24 @@ Pronounces character phonetically unless  called with a PREFIX arg."
        (t (emacspeak-speak-this-char char))))))
 
 ;;;###autoload
+(defun emacspeak-speak-preceding-char ()
+  "Speak character before point."
+  (interactive)
+  (let ((char  (preceding-char ))
+        (display (get-char-property (1- (point)) 'display)))
+    (when char
+      (cond
+       (display (dtk-speak display))
+       ((> char 128) (emacspeak-speak-char-name char))
+       (t (emacspeak-speak-this-char char))))))
+
+;;;###autoload
 (defun emacspeak-speak-char-name (char)
   "tell me what this is"
   (interactive)
   (dtk-speak (dtk-unicode-name-for-char char)))
 
-(defun emacspeak-speak-this-char (char)
-  "Speak this CHAR."
-  (when char
-    (cond
-     ((emacspeak-is-alpha-p char) (dtk-letter (char-to-string
-                                               char )))
-     ((> char 128) (emacspeak-speak-char-name char))
-     (t (dtk-dispatch
-         (dtk-char-to-speech char ))))))
+;;}}}
 
 ;;{{{ emacspeak-speak-display-char
 
@@ -1561,6 +1577,7 @@ semantic to do the work."
            (if (= 1 (point-min))
                ""
              "with narrowing in effect. ")))
+(voice-setup-map-face 'header-line 'voice-bolden)
 
 (defun emacspeak-speak-mode-line (&optional buffer-info)
   "Speak the mode-line.
@@ -1573,7 +1590,7 @@ Interactive prefix arg speaks buffer info."
                      column-number-mode line-number-mode
                      emacspeak-mail-alert mode-line-format ))
   (cond
-   ((and header-line-format (not (interactive-p)))
+   ((and header-line-format (not (ems-interactive-p )))
     (emacspeak-speak-header-line))
    (buffer-info (emacspeak-speak-buffer-info))
    (t
@@ -2474,7 +2491,7 @@ if `emacspeak-speak-message-again-should-copy-to-kill-ring' is set."
   (cond
    (from-message-cache
     (dtk-speak   emacspeak-last-message)
-    (when (and (interactive-p)
+    (when (and (ems-interactive-p )
                emacspeak-speak-message-again-should-copy-to-kill-ring)
       (kill-new emacspeak-last-message)))
    (t (save-excursion
@@ -2482,7 +2499,7 @@ if `emacspeak-speak-message-again-should-copy-to-kill-ring' is set."
         (goto-char (point-max))
         (skip-syntax-backward " ")
         (emacspeak-speak-line)
-        (when (and (interactive-p)
+        (when (and (ems-interactive-p )
                    emacspeak-speak-message-again-should-copy-to-kill-ring)
           (kill-new
            (buffer-substring (line-beginning-position)
@@ -2638,7 +2655,7 @@ Semantics  of `other' is the same as for the builtin Emacs command
   (let* ((window-size-change-functions nil)
          (window
           (cond
-           ((not (interactive-p)) arg)
+           ((not (ems-interactive-p )) arg)
            (t
             (condition-case nil
                 (read (format "%c" last-input-event ))
@@ -2794,7 +2811,7 @@ Prompts for PERSONALITY  with completion when called interactively."
   (require 'rect)
   (require 'emacspeak-personality )
   (let ((personality-table (emacspeak-possible-voices )))
-    (when (interactive-p)
+    (when (ems-interactive-p )
       (setq personality
             (read
              (completing-read "Use personality: "
@@ -2814,7 +2831,7 @@ Prompts for PERSONALITY  with completion when called interactively."
   (interactive "r")
   (require 'emacspeak-personality )
   (let ((personality-table (emacspeak-possible-voices )))
-    (when (interactive-p)
+    (when (ems-interactive-p )
       (setq personality
             (read
              (completing-read "Use personality: "
@@ -2974,7 +2991,7 @@ We need to call this in case Emacs is anal and loads its own
 builtin blink-paren function which does not talk."
   (interactive)
   (fset 'blink-matching-open (symbol-function 'emacspeak-blink-matching-open))
-  (and (interactive-p)
+  (and (ems-interactive-p )
        (message "Using customized blink-paren function provided by Emacspeak.")))
 
 ;;}}}
@@ -3073,7 +3090,7 @@ Argument O specifies overlay."
   (if completion-reference-buffer
       (switch-to-buffer completion-reference-buffer)
     (error "Reference buffer not found."))
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-speak-line)
     (emacspeak-auditory-icon 'select-object)))
 
@@ -3150,7 +3167,7 @@ char, or dont move. "
       (set-marker (mark-marker)  (point) (current-buffer))
       (goto-char (marker-position target))
       (move-marker target nil)
-      (when (interactive-p)
+      (when (ems-interactive-p )
         (emacspeak-mark-speak-mark-line)))))
 
 ;;}}}
@@ -3246,7 +3263,7 @@ or an ascendant directory."
 This is typically used to load up settings that are specific to
 an electronic book consisting of many files in the same
 directory."
-  (interactive "%DDirectory:")
+  (interactive "DDirectory:")
   (or directory
       (setq directory default-directory))
   (let ((settings (emacspeak-speak-get-directory-settings directory)))

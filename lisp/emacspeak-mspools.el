@@ -1,5 +1,5 @@
 ;;; emacspeak-mspools.el --- Speech enable MSpools -- Monitor multiple mail drops
-;;; $Id: emacspeak-mspools.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
+;;; $Id: emacspeak-mspools.el 7823 2012-06-03 01:16:29Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $ 
 ;;; Description: Auditory interface to mail spool tracker
 ;;; Keywords: Emacspeak, Speak, Spoken Output, mspools
@@ -52,12 +52,12 @@
 
 (defadvice mspools-show (after emacspeak pre act comp)
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'open-object)
     (emacspeak-speak-mode-line)))
 (defadvice mspools-quit (after emacspeak pre act comp)
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'close-object)
     (emacspeak-speak-mode-line)))
 

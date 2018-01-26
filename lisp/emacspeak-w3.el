@@ -1,5 +1,5 @@
 ;;; emacspeak-w3.el --- Speech enable W3 WWW browser -- includes ACSS Support
-;;; $Id: emacspeak-w3.el 7733 2012-05-03 02:12:31Z tv.raman.tv $
+;;; $Id: emacspeak-w3.el 8037 2012-12-15 17:54:29Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak enhancements for W3
 ;;; Keywords: Emacspeak, W3, WWW
@@ -639,7 +639,7 @@ element. "
        emacspeak-w3-base-uri-pronunciation ))))
 (defadvice url-view-url (around emacspeak pre act comp)
   (cond
-   ((interactive-p)
+   ((ems-interactive-p )
     (let ((save-pronunciations emacspeak-pronounce-pronunciation-table))
       (setq emacspeak-pronounce-pronunciation-table nil)
       ad-do-it
@@ -661,7 +661,7 @@ element. "
        (next-single-property-change (point) 'html-stack)))))
   (when (null (emacspeak-w3-html-stack))
     (goto-char (next-single-property-change (point) 'html-stack)))
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-speak-line)
     (emacspeak-auditory-icon 'large-movement)))
 
@@ -685,7 +685,7 @@ and make the redirect available via the minibuffer history.
 If a rewrite rule is defined in the current buffer, we change
   this command to behave as if it were called with an
   interactive prefix."
-  (when (and (interactive-p)
+  (when (and (ems-interactive-p )
              emacspeak-we-url-rewrite-rule)
     (ad-set-arg 0 t)
     (let ((url (w3-view-this-url t))
@@ -767,7 +767,7 @@ If a rewrite rule is defined in the current buffer, we change
 
 ;;}}}
 ;;{{{ advice to call xslt
-(defadvice  w3-parse-buffer (before emacspeak pre act comp)
+(defadvice  w3-slow-parse-buffer (before emacspeak pre act comp)
   "Apply requested XSL transform if any before displaying the
 HTML."
   (when (and emacspeak-we-cleanup-bogus-quotes
@@ -840,9 +840,10 @@ Tue Apr 24 17:33:27 PDT 2012
 (defsubst emacspeak-w3-canonicalize-google-result-url (url)
   "Strip out the actual result URL from the redirect wrapper."
   (declare (special emacspeak-websearch-google-use-https))
+(url-unhex-string 
   (substring url
              (if emacspeak-websearch-google-use-https 29 28)
-             (string-match "&sa=" url)))
+             (string-match "&sa=" url))))
 
 (defsubst emacspeak-w3-google-result-url-prefix ()
   "Return prefix of result urls."
@@ -850,11 +851,18 @@ Tue Apr 24 17:33:27 PDT 2012
   (format "%s://www.google.com/url?q="
           (if emacspeak-websearch-google-use-https "https" "http")))
 
-(defadvice url-retrieve-internal (before fix-bug pre act comp)
-  "Fix bug in handling of google result urls."
-  (let ((u (ad-get-arg 0)))
-    (when (string-prefix-p (emacspeak-w3-google-result-url-prefix) u)
-      (ad-set-arg 0 (emacspeak-w3-canonicalize-google-result-url u)))))
+(loop
+ for f in 
+ '(url-retrieve-internal w3-fetch url-truncate-url-for-viewing)
+ do
+ (eval
+  `(defadvice ,f (before fix-bug pre act comp)
+     "Canonicalize Google search URLs."
+     (let ((u (ad-get-arg 0)))
+       (cond
+        ((and u (stringp u)
+              (string-prefix-p (emacspeak-w3-google-result-url-prefix) u))
+         (ad-set-arg 0 (emacspeak-w3-canonicalize-google-result-url u))))))))
 
 (defun foo (x y)
   "show x"

@@ -1,5 +1,5 @@
 ;;; emacspeak-desktop.el ---  Speech-enable desktop
-;;; $Id: emacspeak-desktop.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
+;;; $Id: emacspeak-desktop.el 7823 2012-06-03 01:16:29Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  desktop transformation routines
 ;;; Keywords: Emacspeak,  Audio Desktop, DESKTOP
@@ -51,11 +51,11 @@
 
 (defadvice desktop-clear (after emacspeak pre act comp)
   "Provide auditory feedback."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'delete-object)))
 (defadvice desktop-save (after emacspeak pre act comp)
   "Provide auditory feedback."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'save-object)))
 
 (defadvice desktop-lazy-create-buffer (around emacspeak pre act

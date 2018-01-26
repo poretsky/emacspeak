@@ -1,5 +1,5 @@
 ;;; emacspeak-webutils.el --- Common Web Utilities For Emacspeak
-;;; $Id: emacspeak-webutils.el 7571 2012-03-12 22:54:24Z tv.raman.tv $
+;;; $Id: emacspeak-webutils.el 8026 2012-09-25 16:48:36Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak Webutils
 ;;; Keywords: Emacspeak, web
@@ -51,7 +51,6 @@
 ;;; Code:
 (require 'cl)
 (declaim  (optimize  (safety 0) (speed 3)))
-(require 'backquote)
 (require 'emacspeak-preamble)
 (require 'url)
 (require 'gfeeds)
@@ -533,7 +532,7 @@ unescape HTML tags."
   (interactive
    (list
     (car (browse-url-interactive-arg "OPML  URL: "))
-    (or (interactive-p)
+    (or (ems-interactive-p )
         current-prefix-arg)))
   (emacspeak-webutils-feed-display
    opml-url

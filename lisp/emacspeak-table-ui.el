@@ -1,5 +1,5 @@
 ;;; emacspeak-table-ui.el --- Emacspeak's current notion of an ideal table UI
-;;; $Id: emacspeak-table-ui.el 7733 2012-05-03 02:12:31Z tv.raman.tv $
+;;; $Id: emacspeak-table-ui.el 7835 2012-06-03 23:00:34Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description: Emacspeak table handling module
 ;;; Keywords:emacspeak, audio interface to emacs tables are structured
@@ -731,7 +731,7 @@ browsing table elements"
   "Function to call when automatically speaking table elements.")
 
 (make-variable-buffer-local 'emacspeak-table-speak-element)
-
+;;;###autoload
 (defun emacspeak-table-next-row (&optional count)
   "Move to the next row if possible"
   (interactive "p")
@@ -743,7 +743,7 @@ browsing table elements"
    (t (emacspeak-table-move-down emacspeak-table count )
       (emacspeak-table-synchronize-display)
       (funcall emacspeak-table-speak-element))))
-
+;;;###autoload
 (defun emacspeak-table-previous-row (&optional count)
   "Move to the previous row if possible"
   (interactive "p")
@@ -755,7 +755,7 @@ browsing table elements"
    (t (emacspeak-table-move-up emacspeak-table count )
       (emacspeak-table-synchronize-display)
       (funcall emacspeak-table-speak-element))))
-
+;;;###autoload
 (defun emacspeak-table-next-column (&optional count)
   "Move to the next column if possible"
   (interactive "p")
@@ -767,7 +767,7 @@ browsing table elements"
    (t(emacspeak-table-move-right emacspeak-table count )
      (emacspeak-table-synchronize-display)
      (funcall emacspeak-table-speak-element))))
-
+;;;###autoload
 (defun emacspeak-table-previous-column (&optional count)
   "Move to the previous column  if possible"
   (interactive "p")
@@ -946,7 +946,7 @@ match, makes the matching row or column current."
   (declare (special emacspeak-table ))
   (when (boundp 'emacspeak-table)
     (kill-new  (emacspeak-table-current-element emacspeak-table))
-    (when (interactive-p)
+    (when (ems-interactive-p )
       (emacspeak-auditory-icon 'delete-object)
       (message "Copied element to kill ring"))))
 
@@ -957,7 +957,7 @@ match, makes the matching row or column current."
   (when  (boundp 'emacspeak-table)
     (set-register register (emacspeak-table-current-element
                             emacspeak-table))
-    (when (interactive-p)
+    (when (ems-interactive-p )
       (emacspeak-auditory-icon 'select-object)
       (message "Copied element to register %c" register))))
 

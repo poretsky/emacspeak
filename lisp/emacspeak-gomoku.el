@@ -1,5 +1,5 @@
 ;;; emacspeak-gomoku.el --- Speech enable the game of Gomoku
-;;; $Id: emacspeak-gomoku.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
+;;; $Id: emacspeak-gomoku.el 7823 2012-06-03 01:16:29Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $ 
 ;;; Description: Auditory interface to gomoku
 ;;; Keywords: Emacspeak, Speak, Spoken Output, gomoku
@@ -254,68 +254,68 @@
                                         ;       (format
                                         ;        "(defadvice %s  (after emacspeak pre act comp)
                                         ;              \"Provide auditory feedback\"
-                                        ;              (when (interactive-p)
+                                        ;              (when (ems-interactive-p )
                                         ;                (emacspeak-auditory-icon 'select-object)
                                         ;                (emacspeak-gomoku-speak-square)))\n\n"
                                         ;        command)))
 
 (defadvice gomoku-beginning-of-line  (after emacspeak pre act comp)
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'select-object)
     (emacspeak-gomoku-speak-square)))
 
 (defadvice gomoku-end-of-line  (after emacspeak pre act comp)
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'select-object)
     (emacspeak-gomoku-speak-square)))
 
 (defadvice gomoku-move-down  (after emacspeak pre act comp)
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'select-object)
     (emacspeak-gomoku-speak-square)))
 
 (defadvice gomoku-move-up  (after emacspeak pre act comp)
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'select-object)
     (emacspeak-gomoku-speak-square)))
 
 (defadvice gomoku-move-left  (after emacspeak pre act comp)
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'select-object)
     (emacspeak-gomoku-speak-square)))
 
 (defadvice gomoku-move-right  (after emacspeak pre act comp)
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'select-object)
     (emacspeak-gomoku-speak-square)))
 
 (defadvice gomoku-move-ne  (after emacspeak pre act comp)
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'select-object)
     (emacspeak-gomoku-speak-square)))
 
 (defadvice gomoku-move-nw  (after emacspeak pre act comp)
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'select-object)
     (emacspeak-gomoku-speak-square)))
 
 (defadvice gomoku-move-se  (after emacspeak pre act comp)
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'select-object)
     (emacspeak-gomoku-speak-square)))
 
 (defadvice gomoku-move-sw  (after emacspeak pre act comp)
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'select-object)
     (emacspeak-gomoku-speak-square)))
 
@@ -342,7 +342,7 @@
 
 (defadvice gomoku (after emacspeak pre act comp)
   "Speech enable gomoku"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-gomoku-setup-keys)))
 ;;}}}
 ;;{{{ keybindings

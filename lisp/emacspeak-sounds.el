@@ -1,5 +1,5 @@
 ;;; emacspeak-sounds.el --- Defines Emacspeak auditory icons
-;;; $Id: emacspeak-sounds.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
+;;; $Id: emacspeak-sounds.el 8020 2012-09-23 18:40:26Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Module for adding sound cues to emacspeak
 ;;; Keywords:emacspeak, audio interface to emacs, auditory icons
@@ -63,12 +63,11 @@
 ;;{{{ required modules
 
 ;;; Code:
-(require 'cl)
+(eval-when-compile (require 'cl))
 (declaim  (optimize  (safety 0) (speed 3)))
 (require 'custom)
 (eval-when (compile)
-  (require 'dtk-speak)
-  (require 'emacspeak-aumix))
+  (require 'dtk-speak))
 
 ;;}}}
 ;;{{{  state of auditory icons
@@ -240,7 +239,6 @@ Do not set this by hand;
   (emacspeak-sounds-define-theme-if-necessary theme)
   (emacspeak-auditory-icon 'select-object))
 
-;;;###autoload
 (defsubst emacspeak-get-sound-filename (sound-name)
   "Retrieve name of sound file that produces  auditory icon SOUND-NAME."
   (declare (special emacspeak-sounds-themes-table
@@ -392,7 +390,7 @@ emacspeak-queue-auditory-icon when using software TTS."
    (list
     (emacspeak-select-auditory-icon-player )))
   (declare (special emacspeak-auditory-icon-function))
-  (setq emacspeak-auditory-icon-function player))  (when (interactive-p)
+  (setq emacspeak-auditory-icon-function player))  (when (ems-interactive-p )
                                                      (emacspeak-auditory-icon 'select-object))
 
 ;;}}}
@@ -402,10 +400,10 @@ emacspeak-queue-auditory-icon when using software TTS."
   "Plays all defined icons and speaks their names."
   (interactive)
   (mapcar
-   '(lambda (f)
-      (emacspeak-auditory-icon f)
-      (dtk-speak (format "%s" f))
-      (sleep-for 2))
+   #'(lambda (f)
+       (emacspeak-auditory-icon f)
+       (dtk-speak (format "%s" f))
+       (sleep-for 2))
    (emacspeak-sounds-icon-list)))
 
 ;;}}}

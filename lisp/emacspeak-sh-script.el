@@ -1,5 +1,5 @@
 ;;; emacspeak-sh-script.el --- Speech enable  sh-script mode
-;;; $Id: emacspeak-sh-script.el 7323 2011-10-26 00:50:39Z tv.raman.tv $
+;;; $Id: emacspeak-sh-script.el 7998 2012-08-25 15:53:21Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:   extension to speech enable sh-script 
 ;;; Keywords: Emacspeak, Audio Desktop
@@ -66,18 +66,22 @@
 
 (defadvice sh-indent-line (after emacspeak pre act comp)
   "Provide auditory feedback to indicate indentation."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'large-movement)
     (emacspeak-speak-current-column)))
-(defadvice sh-assignment (after emacspeak pre act comp)
-  "Speak assignment as it is inserted."
-  (when (interactive-p)
-    (emacspeak-speak-this-char (preceding-char))))
+
+(unless (and (boundp 'post-self-insert-hook)
+             post-self-insert-hook
+             (memq 'emacspeak-post-self-insert-hook post-self-insert-hook))
+  (defadvice sh-assignment (after emacspeak pre act comp)
+    "Speak assignment as it is inserted."
+    (when (ems-interactive-p )
+      (emacspeak-speak-this-char (preceding-char)))))
 
 (defadvice sh-maybe-here-document(around emacspeak pre act comp)
   "Spoken feedback based on what we insert."
   (cond
-   ((interactive-p)
+   ((ems-interactive-p )
     (let ((start (point)))
       ad-do-it
       (if (= (point) (1+ start))
@@ -87,33 +91,36 @@
   ad-return-value)
 (defadvice sh-newline-and-indent (after emacspeak pre act comp)
   "Provide auditory feedback to indicate indentation."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-speak-line)))
 (defadvice sh-beginning-of-command(after emacspeak pre act
                                          comp)
   "Speak point moved to."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'large-movement)
     (emacspeak-speak-line)))
 (defadvice sh-end-of-command(after emacspeak pre act
                                    comp)
   "Speak point moved to."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'large-movement)
     (emacspeak-speak-line)))
 
 ;;}}}
 ;;{{{ advice skeleton insertion 
-(defadvice skeleton-pair-insert-maybe(around emacspeak pre
-                                             act comp)
-  "Speak what you inserted."
-  (cond
-   ((interactive-p)
-    (let ((orig (point)))
-      ad-do-it
-      (emacspeak-speak-region orig (point))))
-   (t ad-do-it))
-  ad-return-value)
+(unless (and (boundp 'post-self-insert-hook)
+             post-self-insert-hook
+             (memq 'emacspeak-post-self-insert-hook post-self-insert-hook))
+  (defadvice skeleton-pair-insert-maybe(around emacspeak pre
+                                               act comp)
+    "Speak what you inserted."
+    (cond
+     ((ems-interactive-p )
+      (let ((orig (point)))
+        ad-do-it
+        (emacspeak-speak-region orig (point))))
+     (t ad-do-it))
+    ad-return-value))
 
 ;;}}}
 (provide 'emacspeak-sh-script)

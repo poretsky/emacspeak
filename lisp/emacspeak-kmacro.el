@@ -1,5 +1,5 @@
 ;;; emacspeak-kmacro.el --- Speech-enable kbd macro interface
-;;; $Id: emacspeak-kmacro.el 7378 2011-11-10 17:34:32Z tv.raman.tv $
+;;; $Id: emacspeak-kmacro.el 7823 2012-06-03 01:16:29Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak front-end for KMACRO 
 ;;; Keywords: Emacspeak, kmacro 
@@ -58,14 +58,14 @@
 
 (defadvice kmacro-start-macro (before emacspeak pre act comp)
   "Provide auditory icon."
-  (when  (interactive-p)
+  (when  (ems-interactive-p )
     (emacspeak-auditory-icon 'select-object)
     (message "Defining new kbd macro.")))
 
 (defadvice kmacro-start-macro-or-insert-counter (before
                                                  emacspeak pre act comp)
   "Provide auditory icon if new macro is being defined."
-  (when (and (interactive-p)
+  (when (and (ems-interactive-p )
              (not  defining-kbd-macro )
              (not executing-kbd-macro))
     (emacspeak-auditory-icon 'select-object)
@@ -74,7 +74,7 @@
 (defadvice kmacro-end-or-call-macro (before emacspeak pre act comp)
   "Provide auditory feedback about we are about to do."
   (cond
-   ((and (interactive-p)
+   ((and (ems-interactive-p )
          defining-kbd-macro)
     (message "Finished defining kbd macro."))
    (t(emacspeak-auditory-icon 'select-object)
@@ -83,7 +83,7 @@
 (defadvice kmacro-end-or-call-macro-repeat (before emacspeak pre act comp)
   "Provide auditory feedback about we are about to do."
   (cond
-   ((and (interactive-p)
+   ((and (ems-interactive-p )
          defining-kbd-macro)
     (message "Finished defining kbd macro."))
    (t(emacspeak-auditory-icon 'select-object)
@@ -92,13 +92,13 @@
 (defadvice kmacro-edit-macro-repeat (after emacspeak pre act
                                            comp)
   "Provide auditory feedback."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'open-object)
     (emacspeak-speak-mode-line)))
 (defadvice kmacro-call-ring-2nd-repeat (before emacspeak pre act
                                                comp)
   "Provide auditory feedback."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (message "Calling  second macro from ring.")))
 
 ;;}}}

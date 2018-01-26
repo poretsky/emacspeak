@@ -1,5 +1,5 @@
 ;;; emacspeak-entertain.el --- Speech enable misc games
-;;; $Id: emacspeak-entertain.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
+;;; $Id: emacspeak-entertain.el 7823 2012-06-03 01:16:29Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $ 
 ;;; Description: Auditory interface to diversions
 ;;; Keywords: Emacspeak, Speak, Spoken Output, games
@@ -76,7 +76,7 @@
 (defadvice dun-parse (around emacspeak pre act comp)
   "Provide auditory feedback"
   (cond
-   ((interactive-p)
+   ((ems-interactive-p )
     (let ((orig (point)))
       ad-do-it
       (emacspeak-auditory-icon 'mark-object)
@@ -105,7 +105,7 @@
 
 (defadvice hm-self-guess-char (after eemacspeak pre act comp)
   "Speak the char."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'select-object)))
 
 (defun emacspeak-hangman-speak-guess ()
@@ -125,7 +125,7 @@
 
 (defadvice hangman (after emacseak pre act comp)
   "Speech enable hangman."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-hangman-setup-pronunciations)
     (emacspeak-auditory-icon 'open-object)))
 (declaim (special hm-map))

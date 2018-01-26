@@ -1,5 +1,5 @@
 ;;; emacspeak-eudc.el --- Speech enable  directory client 
-;;; $Id: emacspeak-eudc.el 7323 2011-10-26 00:50:39Z tv.raman.tv $
+;;; $Id: emacspeak-eudc.el 7823 2012-06-03 01:16:29Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:   extension to speech enable universal directory client 
 ;;; Keywords: Emacspeak, Audio Desktop
@@ -57,14 +57,14 @@
 
 (defadvice eudc-move-to-next-record (after emacspeak pre act comp)
   "Provide auditory feedback. "
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'select-object)
     (emacspeak-speak-line)))
 
 (defadvice eudc-move-to-previous-record (after emacspeak pre act
                                                comp)
   "Provide auditory feedback. "
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'select-object)
     (emacspeak-speak-line)))
 

@@ -1,5 +1,5 @@
 ;;; emacspeak-dmacro.el --- Speech enable DMacro -- Dynamic  Macros 
-;;; $Id: emacspeak-dmacro.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
+;;; $Id: emacspeak-dmacro.el 7823 2012-06-03 01:16:29Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $ 
 ;;; DescriptionEmacspeak extensions for dmacro
 ;;; Keywords:emacspeak, audio interface to emacs dmacro
@@ -53,7 +53,7 @@
 ;;; A simple minded thing to do is to at least speak the line that point is on
 (defadvice insert-dmacro (after emacspeak pre act )
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-speak-line )))
 
 ;;}}}

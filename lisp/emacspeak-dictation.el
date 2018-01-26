@@ -1,5 +1,5 @@
 ;;; emacspeak-dictation.el --- Speech enable dictation -- Dictation Interface
-;;; $Id: emacspeak-dictation.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
+;;; $Id: emacspeak-dictation.el 7823 2012-06-03 01:16:29Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $ 
 ;;; Description: Auditory interface to dictation
 ;;; Keywords: Emacspeak, Speak, Spoken Output, dictation
@@ -57,7 +57,7 @@
 ;;{{{  advice interactive commands 
 (defadvice dictation-toggle (after emacspeak pre act comp)
   "Provide an auditory icon."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'button)))
 
 (defadvice dictation-filter (around emacspeak pre act comp)

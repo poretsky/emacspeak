@@ -1,5 +1,5 @@
 ;;; emacspeak-texinfo.el --- Speech enable texinfo mode
-;;; $Id: emacspeak-texinfo.el 7323 2011-10-26 00:50:39Z tv.raman.tv $
+;;; $Id: emacspeak-texinfo.el 7823 2012-06-03 01:16:29Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $ 
 ;;; Description:  Emacspeak extension to speech enable
 ;;; texinfo mode
@@ -71,28 +71,28 @@
 (defadvice texinfo-insert-@end (after emacspeak pre act
                                       comp)
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'close-object)
     (emacspeak-speak-line)))
 
 (defadvice TeXinfo-insert-environment (after emacspeak pre act
                                              comp)
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'open-object)
     (emacspeak-speak-line)))
 
 (defadvice texinfo-insert-@item (after emacspeak pre act
                                        comp)
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'item)
     (emacspeak-speak-line)))
 
 (defadvice texinfo-insert-@node (after emacspeak pre act
                                        comp)
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'open-object)
     (emacspeak-speak-line)))
 

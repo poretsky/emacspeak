@@ -1,5 +1,5 @@
 ;;; emacspeak-ispell.el --- Speech enable Ispell -- Emacs' interactive spell checker
-;;; $Id: emacspeak-flyspell.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
+;;; $Id: emacspeak-flyspell.el 7994 2012-08-23 21:12:08Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $ 
 ;;; Description:  Emacspeak extension to speech enable flyspell
 ;;; Keywords: Emacspeak, Ispell, Spoken Output, fly spell checking
@@ -59,7 +59,7 @@
 
 (voice-setup-add-map
  '(
-   (flyspell-incorrect-face voice-bolden)
+   (flyspell-incorrect voice-bolden)
    ))
 
 ;;}}}
@@ -70,7 +70,7 @@
 (defadvice flyspell-auto-correct-word (around emacspeak pre act comp)
   "Speak the correction we inserted"
   (cond
-   ((interactive-p)
+   ((ems-interactive-p )
     ad-do-it
     (dtk-speak (car  (flyspell-get-word nil)))
     (emacspeak-auditory-icon 'select-object))

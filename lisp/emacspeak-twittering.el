@@ -69,7 +69,7 @@
 
 (defadvice twittering-toggle-activate-buffer (after emacspeak pre act comp)
   "Provide auditory feedback."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon
      (if twittering-active-mode 'on 'off))
     (message "Turned %s twittering-active-mode"
@@ -77,14 +77,14 @@
 
 (defadvice twittering-scroll-mode (after emacspeak pre act comp)
   "Provide auditory feedback."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon
      (if twittering-scroll-mode 'on 'off))
     (message "Turned %s twittering-scroll-mode"
              (if twittering-scroll-mode 'on 'off))))
 (defadvice twit (after emacspeak pre act comp)
   "Provide auditory feedback."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-speak-mode-line)
     (emacspeak-auditory-icon 'open-object)))
 
@@ -95,7 +95,7 @@
       (eval
        `(defadvice ,command (after emacspeak pre act comp)
           "Speak thing moved to."
-          (when (interactive-p)
+          (when (ems-interactive-p )
             (emacspeak-auditory-icon 'mark-object)
             (emacspeak-speak-this-face-chunk)))))
 
@@ -121,18 +121,18 @@
       (eval
        `(defadvice ,command (after emacspeak pre act comp)
           "Speak status moved to."
-          (when (interactive-p)
+          (when (ems-interactive-p )
             (emacspeak-auditory-icon 'select-object)
             (emacspeak-twittering-speak-this-tweet)))))
 
 (defadvice twittering-edit-post-status (after emacspeak pre act comp)
   "Produce auditory feedback."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'close-object)
     (emacspeak-speak-mode-line)))
 (defadvice twittering-update-status-interactive (after emacspeak pre act comp)
   "Provide auditory feedback."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'open-object)))
 
 (loop for command in
@@ -153,12 +153,12 @@
       (eval
        `(defadvice ,command (after emacspeak pre act comp)
           "Provide spoken and auditory feedback."
-          (when (interactive-p)
+          (when (ems-interactive-p )
             (emacspeak-auditory-icon 'task-done)
             (emacspeak-speak-mode-line)))))
 (defadvice twittering-kill-buffer (after emacspeak pre act comp)
   "Provide auditory feedback."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'close-object)
     (emacspeak-speak-mode-line)))
 ;;}}}>
@@ -179,10 +179,13 @@
   (let ((emacspeak-speak-messages nil))
     ad-do-it))
 
-(defadvice twittering-http-default-sentinel (around emacspeak pre act comp)
-  "Silence spoken messages while twitter is updating."
-  (let ((emacspeak-speak-messages nil))
-    ad-do-it))
+(loop for f in
+      '(twittering-http-default-sentinel twittering-http-post-default-sentinel)
+      do
+      (eval
+       `(defadvice ,f  (around emacspeak pre act comp)
+          "Silence spoken messages while twitter is updating."
+          (let ((emacspeak-speak-messages nil)) ad-do-it))))
 
 (defadvice twittering-http-get-default-sentinel (around emacspeak pre act comp)
   "Silence spoken messages while twitter is updating."

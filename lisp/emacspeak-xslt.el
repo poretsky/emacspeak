@@ -1,5 +1,5 @@
 ;;; emacspeak-xslt.el --- Implements Emacspeak  xslt transform engine
-;;; $Id: emacspeak-xslt.el 7668 2012-04-07 17:07:15Z tv.raman.tv $
+;;; $Id: emacspeak-xslt.el 7823 2012-06-03 01:16:29Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  xslt transformation routines
 ;;; Keywords: Emacspeak,  Audio Desktop XSLT
@@ -366,7 +366,7 @@ part of the libxslt package."
            (cons "base"
                  (format "\"'%s'\""
                          url))))))
-    (when (interactive-p) (emacspeak-webutils-autospeak))
+    (when (ems-interactive-p ) (emacspeak-webutils-autospeak))
     (save-excursion
       (set-buffer src-buffer)
       (when unescape-charent

@@ -1,5 +1,5 @@
 ;;; emacspeak-solitaire.el --- Speech enable Solitaire game
-;;; $Id: emacspeak-solitaire.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
+;;; $Id: emacspeak-solitaire.el 7823 2012-06-03 01:16:29Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $ 
 ;;; Description: Auditory interface to solitaire
 ;;; Keywords: Emacspeak, Speak, Spoken Output, solitaire
@@ -142,7 +142,7 @@
 
 (defadvice solitaire-left (after emacspeak pre act comp)
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (let ((dtk-stop-immediately nil))
       (emacspeak-auditory-icon 'select-object)
       (and emacspeak-solitaire-autoshow (emacspeak-solitaire-show-column))
@@ -150,7 +150,7 @@
 
 (defadvice solitaire-right (after emacspeak pre act comp)
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (let ((dtk-stop-immediately nil))
       (emacspeak-auditory-icon 'select-object)
       (and emacspeak-solitaire-autoshow  (emacspeak-solitaire-show-column))
@@ -158,7 +158,7 @@
 
 (defadvice solitaire-up (after emacspeak pre act comp)
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (let ((dtk-stop-immediately nil))
       (emacspeak-auditory-icon 'select-object)
       (and emacspeak-solitaire-autoshow (emacspeak-solitaire-show-row))
@@ -166,7 +166,7 @@
 
 (defadvice solitaire-down (after emacspeak pre act comp)
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (let ((dtk-stop-immediately nil))
       (emacspeak-auditory-icon 'select-object)
       (and emacspeak-solitaire-autoshow (emacspeak-solitaire-show-row))
@@ -174,7 +174,7 @@
 
 (defadvice solitaire-center-point (after emacspeak pre act comp)
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'large-movement)
     (emacspeak-solitaire-speak-coordinates)))
 
@@ -203,7 +203,7 @@ Emacspeak specific commands:
                \\[emacspeak-solitaire-show-column] emacspeak-solitaire-show-column
 \\[emacspeak-solitaire-show-row]                emacspeak-solitaire-show-row
                \\[emacspeak-solitaire-speak-coordinates]  emacspeak-solitaire-speak-coordinates"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (delete-other-windows)
     (emacspeak-auditory-icon 'alarm)
     (emacspeak-solitaire-setup-keymap)
@@ -211,7 +211,7 @@ Emacspeak specific commands:
 
 (defadvice solitaire-quit (after emacspeak pre act comp)
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'task-done)
     (emacspeak-speak-mode-line)))
 

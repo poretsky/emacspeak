@@ -1,5 +1,5 @@
 ;;; emacspeak-nxml.el --- Speech enable nxml mode
-;;; $Id: emacspeak-nxml.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
+;;; $Id: emacspeak-nxml.el 7993 2012-08-23 19:32:24Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description: Controlling mplayer from emacs 
 ;;; Keywords: Emacspeak, nxml streaming media 
@@ -59,43 +59,43 @@
 ;;{{{ voice locking 
 (voice-setup-add-map
  '(
-   (nxml-attribute-colon-face voice-monotone)
-   (nxml-attribute-local-name-face voice-animate)
-   (nxml-attribute-prefix-face voice-monotone-medium)
-   (nxml-attribute-value-delimiter-face voice-smoothen)
-   (nxml-attribute-value-face voice-lighten)
-   (nxml-cdata-section-CDATA-face voice-animate-extra)
-   (nxml-cdata-section-content-face  voice-monotone )
-   (nxml-cdata-section-delimiter-face voice-monotone-medium)
-   (nxml-char-ref-delimiter-face voice-smoothen)
-   (nxml-char-ref-number-face voice-animate-medium)
-   (nxml-comment-content-face voice-monotone)
-   (nxml-comment-delimiter-face  voice-smoothen-medium)
-   (nxml-delimited-data-face voice-animate-medium)
-   (nxml-delimiter-face voice-bolden-medium)
-   (nxml-element-colon-face voice-monotone)
-   (nxml-element-local-name-face voice-bolden)
-   (nxml-element-prefix-face voice-monotone-medium)
-   (nxml-entity-ref-delimiter-face voice-smoothen)
-   (nxml-entity-ref-name-face voice-lighten-medium)
-   (nxml-hash-face voice-monotone)
-   (nxml-markup-declaration-delimiter-face voice-smoothen)
-   (nxml-name-face voice-animate-extra)
-   (nxml-namespace-attribute-colon-face voice-monotone)
-   (nxml-namespace-attribute-prefix-face voice-animate)
-   (nxml-namespace-attribute-value-delimiter-face voice-smoothen)
-   (nxml-namespace-attribute-value-face voice-lighten)
-   (nxml-namespace-attribute-xmlns-face voice-smoothen-extra)
-   (nxml-processing-instruction-content-face voice-animate)
-   (nxml-processing-instruction-delimiter-face voice-lighten-extra)
-   (nxml-processing-instruction-target-face voice-animate-extra)
-   (nxml-prolog-keyword-face voice-animate-extra)
-   (nxml-prolog-literal-content-face voice-monotone-medium)
-   (nxml-prolog-literal-delimiter-face voice-monotone)
-   (nxml-ref-face voice-animate-medium)
-   (nxml-tag-delimiter-face voice-smoothen)
-   (nxml-tag-slash-face voice-smoothen-medium)
-   (rng-error-face voice-bolden-and-animate)
+   (nxml-attribute-colon voice-monotone)
+   (nxml-attribute-local-name voice-animate)
+   (nxml-attribute-prefix voice-monotone-medium)
+   (nxml-attribute-value-delimiter voice-smoothen)
+   (nxml-attribute-value voice-lighten)
+   (nxml-cdata-section-CDATA voice-animate-extra)
+   (nxml-cdata-section-content  voice-monotone )
+   (nxml-cdata-section-delimiter voice-monotone-medium)
+   (nxml-char-ref-delimiter voice-smoothen)
+   (nxml-char-ref-number voice-animate-medium)
+   (nxml-comment-content voice-monotone)
+   (nxml-comment-delimiter  voice-smoothen-medium)
+   (nxml-delimited-data voice-animate-medium)
+   (nxml-delimiter voice-bolden-medium)
+   (nxml-element-colon voice-monotone)
+   (nxml-element-local-name voice-bolden)
+   (nxml-element-prefix voice-monotone-medium)
+   (nxml-entity-ref-delimiter voice-smoothen)
+   (nxml-entity-ref-name  voice-lighten-medium)
+   (nxml-hash  voice-monotone)
+   (nxml-markup-declaration-delimiter  voice-smoothen)
+   (nxml-name  voice-animate-extra)
+   (nxml-namespace-attribute-colon  voice-monotone)
+   (nxml-namespace-attribute-prefix  voice-animate)
+   (nxml-namespace-attribute-value-delimiter  voice-smoothen)
+   (nxml-namespace-attribute-value  voice-lighten)
+   (nxml-namespace-attribute-xmlns  voice-smoothen-extra)
+   (nxml-processing-instruction-content  voice-animate)
+   (nxml-processing-instruction-delimiter  voice-lighten-extra)
+   (nxml-processing-instruction-target  voice-animate-extra)
+   (nxml-prolog-keyword  voice-animate-extra)
+   (nxml-prolog-literal-content  voice-monotone-medium)
+   (nxml-prolog-literal-delimiter  voice-monotone)
+   (nxml-ref  voice-animate-medium)
+   (nxml-tag-delimiter  voice-smoothen)
+   (nxml-tag-slash  voice-smoothen-medium)
+   (rng-error  voice-bolden-and-animate)
 
    ;; the following are for emacs 23
 
@@ -152,7 +152,7 @@
 (defadvice nxml-electric-slash (around emacspeak pre act comp)
   "Provide spoken feedback."
   (cond
-   ((interactive-p)
+   ((ems-interactive-p )
     (let ((start (point)))
       ad-do-it
       (emacspeak-speak-region start (point))
@@ -164,7 +164,7 @@
 (defadvice nxml-complete (around emacspeak pre act comp)
   "Provide spoken feedback."
   (cond
-   ((interactive-p)
+   ((ems-interactive-p )
     (let ((start (point)))
       ad-do-it
       (emacspeak-speak-region start (point))))
@@ -173,7 +173,7 @@
 (defadvice nxml-insert-xml-declaration (after emacspeak pre act
                                               comp)
   "Provide spoken feedback."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-speak-line)))
 (loop for f in 
       '(nxml-backward-up-element
@@ -189,7 +189,7 @@
       (eval
        `(defadvice ,f (after emacspeak pre act comp)
           "Provide auditory feedback."
-          (when (interactive-p)
+          (when (ems-interactive-p )
             (emacspeak-auditory-icon 'large-movement)
             (emacspeak-speak-line)))))
 
@@ -201,7 +201,7 @@
       (eval
        `(defadvice ,f (after emacspeak pre act comp)
           "Provide auditory feedback."
-          (when (interactive-p)
+          (when (ems-interactive-p )
             (emacspeak-auditory-icon 'close-object)
             (dtk-speak
              (format "Closed %s"
@@ -218,7 +218,7 @@
       (eval
        `(defadvice ,f (after emacspeak pre act comp)
           "Provide auditory icon."
-          (when (interactive-p)
+          (when (ems-interactive-p )
             (emacspeak-auditory-icon 'close-object)
             (emacspeak-speak-line)))))
 
@@ -232,7 +232,7 @@
       (eval
        `(defadvice ,f (after emacspeak pre act comp)
           "Provide auditory icon."
-          (when (interactive-p)
+          (when (ems-interactive-p )
             (emacspeak-auditory-icon 'open-object)
             (emacspeak-speak-line)))))
 

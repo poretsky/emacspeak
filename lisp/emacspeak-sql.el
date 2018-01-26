@@ -1,5 +1,5 @@
 ;;; emacspeak-sql.el --- Speech enable sql-mode
-;;; $Id: emacspeak-sql.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
+;;; $Id: emacspeak-sql.el 7823 2012-06-03 01:16:29Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak extension to speech enable sql-mode
 ;;; Keywords: Emacspeak, database interaction
@@ -59,7 +59,7 @@
 
 (defadvice sqlplus-execute-command (after emacspeak pre act comp)
   "Provide auditory feedback and place point at the start of the output."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'scroll)
     (sqlplus-back-command 2)
     (forward-line 1)
@@ -67,7 +67,7 @@
 
 (defadvice sqlplus-back-command (after emacspeak pre act
                                        comp)"Move prompt appropriately,  and speak the line."
-                                       (when (interactive-p)
+                                       (when (ems-interactive-p )
                                          (emacspeak-auditory-icon 'large-movement)
                                          (forward-line 1)
                                          (emacspeak-speak-line)))
@@ -75,27 +75,27 @@
 (defadvice sqlplus-forward-command (after emacspeak pre act
                                           comp)
   "Move prompt appropriately,  and speak the line."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'large-movement)
     (forward-line 1)
     (emacspeak-speak-line)))
 
 (defadvice sqlplus-next-command (after emacspeak pre act comp)
   "Speak the line."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'select-object)
     (emacspeak-speak-line)))
 
 (defadvice sqlplus-previous-command (after emacspeak pre act comp)
   "Speak the line."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'select-object)
     (emacspeak-speak-line)))
 
 (defadvice sql-send-region (around emacspeak pre act comp)
   "Provide auditory feedback."
   (cond
-   ((interactive-p)
+   ((ems-interactive-p )
     (emacspeak-auditory-icon 'select-object)
     ad-do-it
     (emacspeak-auditory-icon 'mark-object))
@@ -105,7 +105,7 @@
 (defadvice sql-send-buffer (around emacspeak pre act comp)
   "Provide auditory feedback."
   (cond
-   ((interactive-p)
+   ((ems-interactive-p )
     (emacspeak-auditory-icon 'select-object)
     ad-do-it
     (emacspeak-auditory-icon 'mark-object))

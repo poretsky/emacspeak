@@ -1,5 +1,5 @@
 ;;; emacspeak-sgml-mode.el --- Speech enable SGML mode
-;;; $Id: emacspeak-sgml-mode.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
+;;; $Id: emacspeak-sgml-mode.el 7823 2012-06-03 01:16:29Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $ 
 ;;; Description: Emacspeak extension for sgml mode
 ;;; Keywords:emacspeak, audio interface to emacs sgml 
@@ -51,30 +51,30 @@
 
 (defadvice sgml-skip-tag-forward (after emacspeak pre act comp)
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'large-movement)
     (emacspeak-speak-line)))
 
 (defadvice sgml-skip-tag-backward (after emacspeak pre act comp)
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'large-movement)
     (emacspeak-speak-line)))
 
 (defadvice sgml-slash (after emacspeak pre act comp)
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-speak-this-char (preceding-char))))
 
 (defadvice sgml-delete-tag (after emacspeak pre act comp)
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'delete-object)))
 
 (defadvice sgml-name-char (around emacspeak pre act comp)
   "Speak the character you typed"
   (cond
-   ((interactive-p)
+   ((ems-interactive-p )
     (let ((start (point)))
       (message "Type the char: ")
       ad-do-it
@@ -84,7 +84,7 @@
 
 (defadvice sgml-tags-invisible (after emacspeak pre act comp)
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'button)
     (dtk-speak  "Toggled display of tags")))
 

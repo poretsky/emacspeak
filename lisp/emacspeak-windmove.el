@@ -1,5 +1,5 @@
 ;;; emacspeak-windmove.el --- speech-enable windmove 
-;;; $Id: emacspeak-windmove.el 7378 2011-11-10 17:34:32Z tv.raman.tv $
+;;; $Id: emacspeak-windmove.el 7823 2012-06-03 01:16:29Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak front-end for WINDMOVE
 ;;; Keywords: Emacspeak, windmove
@@ -65,7 +65,7 @@
       (eval
        `(defadvice  ,f (after emacspeak pre act comp)
           "Provide auditory feedback."
-          (when (interactive-p)
+          (when (ems-interactive-p )
             (emacspeak-auditory-icon 'select-object)
             (emacspeak-speak-mode-line)))))
 

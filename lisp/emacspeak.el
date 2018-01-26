@@ -1,5 +1,5 @@
 ;;; emacspeak.el --- Emacspeak -- The Complete Audio Desktop
-;;; $Id: emacspeak.el 7695 2012-04-18 15:34:29Z tv.raman.tv $
+;;; $Id: emacspeak.el 8047 2012-12-20 02:59:43Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak: A speech interface to Emacs
 ;;; Keywords: Emacspeak, Speech, Dectalk,
@@ -52,7 +52,6 @@
 
 (require 'cl)
 (declaim  (optimize  (safety 0) (speed 3)))
-(require 'backquote)
 (require 'emacspeak-preamble)
 (require 'emacspeak-sounds)
 
@@ -169,6 +168,7 @@ speech-enabling extensions."
 (emacspeak-do-package-setup "cus-edit" 'emacspeak-custom)
 (emacspeak-do-package-setup "damlite" 'emacspeak-damlite)
 (emacspeak-do-package-setup "desktop" 'emacspeak-desktop )
+(emacspeak-do-package-setup "diff-mode" 'emacspeak-diff-mode )
 (emacspeak-do-package-setup "dired" 'emacspeak-dired )
 (emacspeak-do-package-setup "dismal" 'emacspeak-dismal)
 (emacspeak-do-package-setup "dictation" 'emacspeak-dictation)
@@ -209,6 +209,8 @@ speech-enabling extensions."
 (emacspeak-do-package-setup "jabber" 'emacspeak-jabber)
 (emacspeak-do-package-setup "jde" 'emacspeak-jde)
 (emacspeak-do-package-setup "js2" 'emacspeak-js2)
+(emacspeak-do-package-setup "js2-mode" 'emacspeak-js2)
+(emacspeak-do-package-setup "kite" 'emacspeak-kite)
 (emacspeak-do-package-setup "kmacro" 'emacspeak-kmacro)
 (emacspeak-do-package-setup "magit" 'emacspeak-magit)
 (emacspeak-do-package-setup "make-mode" 'emacspeak-make-mode)
@@ -295,8 +297,7 @@ speech-enabling extensions."
   (when
       (yes-or-no-p "Are you sure you want to submit a bug report? ")
     (let (
-          (vars '(window-system
-                  window-system-version
+          (vars '(
                   emacs-version
                   system-type
                   emacspeak-version  dtk-program
@@ -439,21 +440,17 @@ term package that comes with emacs-19.29 and later.
 See the online documentation for individual commands and
 functions for details.   "
   (interactive)
-  (declare (special mark-even-if-inactive
-                    emacspeak-pronounce-load-pronunciations-on-startup
+  (declare (special emacspeak-pronounce-load-pronunciations-on-startup
                     emacspeak-pronounce-dictionaries-file
-                    default-enable-multibyte-characters
                     emacspeak-play-program
                     emacspeak-sounds-directory))
-;;; fixes transient mark mode in emacspeak
-  (setq mark-even-if-inactive t)
   (emacspeak-export-environment)
   (require 'emacspeak-personality)
   (dtk-initialize)
   (tts-configure-synthesis-setup)
   (require 'emacspeak-redefine)
-  (require 'emacspeak-advice)
   (require 'emacspeak-replace)
+  (require 'emacspeak-advice)
   (emacspeak-play-startup-icon)
   (emacspeak-sounds-define-theme-if-necessary emacspeak-sounds-default-theme)
   (when emacspeak-pronounce-load-pronunciations-on-startup

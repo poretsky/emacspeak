@@ -1,5 +1,5 @@
 ;;; emacspeak-m-player.el --- Control mplayer from Emacs
-;;; $Id: emacspeak-m-player.el 7733 2012-05-03 02:12:31Z tv.raman.tv $
+;;; $Id: emacspeak-m-player.el 7832 2012-06-03 20:13:54Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description: Controlling mplayer from emacs 
 ;;; Keywords: Emacspeak, m-player streaming media 
@@ -193,7 +193,8 @@ on a specific directory."
   (cond
    ((and emacspeak-m-player-process
          (eq 'run (process-status emacspeak-m-player-process)))
-    (call-interactively 'emacspeak-m-player-command))
+    (with-current-buffer (process-buffer emacspeak-m-player-process)
+      (call-interactively 'emacspeak-m-player-command)))
    (t  (call-interactively 'emacspeak-m-player))))
 
 (defun emacspeak-m-player-command (key)
@@ -593,16 +594,16 @@ A string of the form `<number> 1' sets volume as an absolute."
 (defun emacspeak-m-player-slave-command ()
   "Dispatch slave command read from minibuffer."
   (interactive)
-  (let* ((command
-          (completing-read "Slave Command: " (emacspeak-m-player-command-list)))
-         (args
-          (when (cdr (assoc command emacspeak-m-player-command-list))
-            (read-from-minibuffer
-             (mapconcat #'identity
-                        (cdr (assoc command emacspeak-m-player-command-list))
-                        " ")))))
-    (message 
-     (emacspeak-m-player-dispatch (format "%s %s" command args)))))
+  (with-current-buffer (process-buffer emacspeak-m-player-process)
+    (let* ((command (completing-read "Slave Command: " (emacspeak-m-player-command-list)))
+           (args
+            (when (cdr (assoc command emacspeak-m-player-command-list))
+              (read-from-minibuffer
+               (mapconcat #'identity
+                          (cdr (assoc command emacspeak-m-player-command-list))
+                          " ")))))
+      (message 
+       (emacspeak-m-player-dispatch (format "%s %s" command args))))))
 
 ;;;###autoload
 (defun emacspeak-m-player-get-length ()
@@ -615,7 +616,7 @@ A string of the form `<number> 1' sets volume as an absolute."
   (interactive)
   (emacspeak-m-player-dispatch
    "get_time_pos\nget_percent_pos\nget_time_length\nget_file_name\n")
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'select-object)))
 
 (defun emacspeak-m-player-load-file(f)

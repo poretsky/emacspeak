@@ -1,5 +1,5 @@
 ;;; emacspeak-facemenu.el --- Map default Emacs faces like bold to appropriate speech personalities 
-;;; $Id: emacspeak-facemenu.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
+;;; $Id: emacspeak-facemenu.el 7823 2012-06-03 01:16:29Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $ 
 ;;; Description: Emacspeak module to map standard faces to voices
 ;;; Keywords:emacspeak, audio interface to emacs rich text
@@ -59,7 +59,7 @@
 
 (defadvice facemenu-remove-all (after emacspeak pre act comp)
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'button)
     (message "Removed all text properties from region")))
 

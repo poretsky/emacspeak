@@ -1,5 +1,5 @@
 ;;; emacspeak-keymap.el --- Setup all keymaps and keybindings provided by Emacspeak
-;;; $Id: emacspeak-keymap.el 7701 2012-04-19 15:35:14Z tv.raman.tv $
+;;; $Id: emacspeak-keymap.el 8028 2012-09-28 02:47:39Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Module for setting up emacspeak keybindings
 ;;; Keywords: Emacspeak
@@ -268,8 +268,8 @@ field in the customization buffer.  You can use the notation
 (define-key emacspeak-hyper-keymap " " 'emacspeak-webspace)
 ;;}}}
 ;;{{{ helper: emacspeak-keymap-update
-
-(defsubst emacspeak-keymap-update (keymap binding)
+;;;###autoload
+(defun emacspeak-keymap-update (keymap binding)
   "Update keymap with specified binding."
   (define-key keymap (first binding) (second binding)))
 

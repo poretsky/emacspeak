@@ -1,5 +1,5 @@
 ;;; emacspeak-analog.el --- Speech-enable analog -- a log viewer
-;;; $Id: emacspeak-analog.el 7378 2011-11-10 17:34:32Z tv.raman.tv $
+;;; $Id: emacspeak-analog.el 7823 2012-06-03 01:16:29Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak front-end for ANALOG log analyzer
 ;;; Keywords: Emacspeak, analog
@@ -60,19 +60,19 @@
 ;;{{{ advice interactive commands
 (defadvice analog (after emacspeak pre act comp)
   "Provide auditory feedback."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'open-object)
     (emacspeak-analog-update-edit-keys)
     (emacspeak-speak-mode-line)))
 
 (defadvice analog-quit (after emacspeak pre act comp)
   "Provide auditory feedback."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'close-object)
     (emacspeak-speak-mode-line)))
 (defadvice analog-bury-buffer (after emacspeak pre act comp)
   "Provide auditory feedback."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'select-object)
     (emacspeak-speak-mode-line)))
 
@@ -87,7 +87,7 @@
       (eval
        `(defadvice ,command (after emacspeak pre act comp)
           "Provide auditory feedback."
-          (when (interactive-p)
+          (when (ems-interactive-p )
             (emacspeak-speak-line)
             (emacspeak-auditory-icon 'select-object)))))
 

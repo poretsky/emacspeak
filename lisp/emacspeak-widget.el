@@ -1,5 +1,5 @@
 ;;; emacspeak-widget.el --- Speech enable Emacs' native GUI widget library
-;;; $Id: emacspeak-widget.el 6921 2011-03-09 16:09:36Z tv.raman.tv $
+;;; $Id: emacspeak-widget.el 7836 2012-06-03 23:03:21Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $ 
 ;;; Description: Emacspeak extensions to widgets
 ;;; Keywords:emacspeak, audio interface to emacs customized widgets
@@ -522,7 +522,7 @@ Returns a string with appropriate personality."
 (defadvice widget-beginning-of-line (after emacspeak pre act comp)
   "Provide auditory feedback"
   (cond
-   ((interactive-p)
+   ((ems-interactive-p )
     (let ((widget (widget-at (point ))))
       ad-do-it
       (emacspeak-auditory-icon 'select-object)
@@ -536,7 +536,7 @@ Returns a string with appropriate personality."
 (defadvice widget-end-of-line (around emacspeak pre act comp)
   "Provide auditory feedback"
   (cond
-   ((interactive-p)
+   ((ems-interactive-p )
     (let ((widget (widget-at (point ))))
       ad-do-it
       (emacspeak-auditory-icon 'select-object)
@@ -549,19 +549,19 @@ Returns a string with appropriate personality."
 
 (defadvice widget-forward (after emacspeak pre act comp)
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'large-movement)
     (emacspeak-widget-summarize (widget-at  (point )))))
 
 (defadvice widget-backward (after emacspeak pre act comp)
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'large-movement)
     (emacspeak-widget-summarize (widget-at (point)))))
 
 (defadvice widget-kill-line (after emacspeak pre act comp)
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'delete-object)
     (emacspeak-speak-current-kill 0)
     (dtk-tone 500 30)))
@@ -571,6 +571,8 @@ Returns a string with appropriate personality."
 
 (defadvice widget-button-press (around emacspeak pre act comp)
   "Provide auditory feedback"
+  (declare (special emacspeak-webutils-url-at-point
+                    emacspeak-we-url-executor))
   (let ((inhibit-read-only t)
         (widget (widget-at (ad-get-arg 0))))
     (cond

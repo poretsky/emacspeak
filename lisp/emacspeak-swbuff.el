@@ -1,5 +1,5 @@
 ;;; emacspeak-swbuff.el --- speech-enable swbuff mode
-;;; $Id: emacspeak-swbuff.el 7378 2011-11-10 17:34:32Z tv.raman.tv $
+;;; $Id: emacspeak-swbuff.el 7823 2012-06-03 01:16:29Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak module for speech-enabling swbuff 
 ;;; Keywords: Emacspeak, swbuff
@@ -52,14 +52,14 @@
 (defadvice swbuff-switch-to-previous-buffer (after emacspeak pre act
                                                    comp)
   "Provide auditory feedback."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'select-object)
     (emacspeak-speak-current-buffer-name)))
 
 (defadvice swbuff-switch-to-next-buffer (after emacspeak pre act
                                                comp)
   "Provide auditory feedback."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'select-object)
     (emacspeak-speak-current-buffer-name)))
 

@@ -1,5 +1,5 @@
 ;;; emacspeak-pronounce.el --- Implements Emacspeak pronunciation dictionaries
-;;; $Id: emacspeak-pronounce.el 7733 2012-05-03 02:12:31Z tv.raman.tv $
+;;; $Id: emacspeak-pronounce.el 8022 2012-09-25 00:48:36Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description: Emacspeak pronunciation dictionaries
 ;;; Keywords:emacspeak, audio interface to emacs customized pronunciation
@@ -64,9 +64,8 @@
 (require 'cl)
 (declaim  (optimize  (safety 0) (speed 3)))
 (require 'custom)
-(eval-when-compile (require 'wid-edit)
-                   (require 'calendar)
-                   (require 'emacspeak-personality))
+(eval-when-compile (require 'calendar))
+                   
 (require 'voice-setup)
 (require 'thingatpt)
 (eval-when (compile)
@@ -102,6 +101,8 @@ Values are alists containing string.pronunciation pairs.")
   (when (stringp key)
     (setq key (intern key )))
   (gethash key emacspeak-pronounce-dictionaries))
+
+;;;###autoload
 (defun emacspeak-pronounce-add-dictionary-entry  (key string pronunciation)
   "Add dictionary entry.
 This adds pronunciation pair
@@ -143,7 +144,7 @@ Arguments STRING and PRONUNCIATION specify what is being defined."
           (emacspeak-pronounce-compose-pronunciation-table))))
   (puthash    string pronunciation
               emacspeak-pronounce-pronunciation-table)
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (message "Added  local pronunciation in buffer %s"
              (buffer-name))))
 
@@ -404,7 +405,7 @@ Returns a pair of the form (key-type . key)."
           (completing-read
            "Define pronunciation that is specific to: "
            emacspeak-pronounce-pronunciation-keys nil t ) )))
-    (when (interactive-p)               ;cleanup minibuffer history
+    (when (ems-interactive-p )               ;cleanup minibuffer history
       (pop minibuffer-history))
     (cond
      ((eq key-type 'buffer)
@@ -538,7 +539,7 @@ Activates pronunciation dictionaries if not already active."
    (t                                   ;turn it on
     (setq emacspeak-pronounce-pronunciation-table
           (emacspeak-pronounce-compose-pronunciation-table))))
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'on)
     (message
      "Refreshed pronunciations for this buffer")))
@@ -548,6 +549,7 @@ Activates pronunciation dictionaries if not already active."
 
 (defcustom emacspeak-pronounce-internet-smileys-pronunciations 
   '((":-)" . " smile ")
+    (";)" . " half-wink ")
     (":)" . " grin ")
     (":-(" . " frown ") 
     (":(" . " sigh ")

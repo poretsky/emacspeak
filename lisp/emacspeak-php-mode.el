@@ -1,5 +1,5 @@
 ;;; emacspeak-php-mode.el --- Speech-Enable php-mode 
-;;; $Id: emacspeak-php-mode.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
+;;; $Id: emacspeak-php-mode.el 7823 2012-06-03 01:16:29Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description: speech-enable php-mode
 ;;; Keywords: Emacspeak, php
@@ -54,7 +54,7 @@
 
 (defadvice php-search-documentation (after emacspeak pre act comp)
   "Provide auditory feedback."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-speak-mode-line)
     (emacspeak-auditory-icon 'select-object)))
 

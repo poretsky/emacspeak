@@ -1,5 +1,5 @@
 ;;; emacspeak-tcl.el --- Speech enable TCL development environment
-;;; $Id: emacspeak-tcl.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
+;;; $Id: emacspeak-tcl.el 8030 2012-10-07 16:38:04Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $ 
 ;;; DescriptionEmacspeak extensions for tcl-mode
 ;;; Keywords:emacspeak, audio interface to emacs tcl
@@ -119,38 +119,44 @@ is a Tcl expression, and the last argument is Tcl commands.")
 
 ;;}}}
 ;;{{{  Advice electric insertion to talk:
-
-(defadvice tcl-electric-hash (after emacspeak pre act comp )
-  "Speak what you inserted."
-  (when (interactive-p)
-    (emacspeak-speak-this-char last-input-event)))
-
-(defadvice tcl-electric-char (after emacspeak pre act comp )
-  "Speak what you inserted."
-  (when (interactive-p)
-    (emacspeak-speak-this-char last-input-event)))
-
-(defadvice tcl-electric-brace (after emacspeak pre act comp )
-  "Speak what you inserted."
-  (when (interactive-p)
-    (emacspeak-speak-this-char last-input-event)))
+(unless (and (boundp 'post-self-insert-hook)
+             post-self-insert-hook
+             (memq 'emacspeak-post-self-insert-hook post-self-insert-hook))
+  (defadvice tcl-electric-hash (after emacspeak pre act comp )
+    "Speak what you inserted."
+    (when (ems-interactive-p )
+      (emacspeak-speak-this-char last-input-event))))
+(unless (and (boundp 'post-self-insert-hook)
+             post-self-insert-hook
+             (memq 'emacspeak-post-self-insert-hook post-self-insert-hook))
+  (defadvice tcl-electric-char (after emacspeak pre act comp )
+    "Speak what you inserted."
+    (when (ems-interactive-p )
+      (emacspeak-speak-this-char last-input-event))))
+(unless (and (boundp 'post-self-insert-hook)
+             post-self-insert-hook
+             (memq 'emacspeak-post-self-insert-hook post-self-insert-hook))
+  (defadvice tcl-electric-brace (after emacspeak pre act comp )
+    "Speak what you inserted."
+    (when (ems-interactive-p )
+      (emacspeak-speak-this-char last-input-event))))
 
 ;;}}}
 ;;{{{  Actions in the tcl mode buffer:
 
 (defadvice switch-to-tcl (before emacspeak pre act comp)
   "Announce yourself."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (message "Switching to the Inferior TCL buffer")))
 
 (defadvice tcl-eval-region (after emacspeak  pre act comp)
   "Announce what you did."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (message "Evaluating contents of region")))
 
 (defadvice tcl-eval-defun (after emacspeak pre act comp )
   "Announce what you did"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (let* ((start nil)
            (proc-line
             (save-excursion
@@ -162,40 +168,38 @@ is a Tcl expression, and the last argument is Tcl commands.")
 
 (defadvice tcl-help-on-word (after emacspeak pre act comp)
   "Speak  the help."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'help)
-    (save-excursion
-      (set-buffer "*Tcl help*")
-      (emacspeak-speak-buffer ))))
+    (with-current-buffer "*Tcl help*"      (emacspeak-speak-buffer ))))
 
 ;;}}}
 ;;{{{  Program structure:
 
 (defadvice tcl-mark-defun (after emacspeak pre act comp)
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'mark-object)
     (message "Marked procedure")))
 
 (defadvice tcl-beginning-of-defun (after emacspeak pre act comp)
   "Provide auditory feedback."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'large-movement)
     (emacspeak-speak-line )))
 
 (defadvice tcl-end-of-defun (after emacspeak pre act comp)
   "Provide auditory feedback."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'large-movement)))
 
 (defadvice indent-tcl-exp (after emacspeak pre act )
   "Produce an auditory icon"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'fill-object)))
 
 (defadvice tcl-indent-line (after emacspeak pre act)
   "Speak the line"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-speak-line)))
 ;;}}}
 

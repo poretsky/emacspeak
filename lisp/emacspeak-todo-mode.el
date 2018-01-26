@@ -1,5 +1,5 @@
 ;;; emacspeak-todo-mode.el --- speech-enable todo-mode
-;;; $Id: emacspeak-todo-mode.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
+;;; $Id: emacspeak-todo-mode.el 7823 2012-06-03 01:16:29Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description: todo-mode  for maintaining todo lists 
 ;;; Keywords: Emacspeak, todo-mode 
@@ -65,18 +65,18 @@
       (eval
        `(defadvice ,f (after emacspeak pre act comp)
           "Provide auditory feedback."
-          (when (interactive-p)
+          (when (ems-interactive-p )
             (emacspeak-auditory-icon 'select-object)
             (emacspeak-speak-line)))))
 
 (defadvice todo-save (after emacspeak pre act comp)
   "Provide auditory feedback."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'save-object)))
 
 (defadvice todo-quit (after emacspeak pre act comp)
   "Provide auditory feedback."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'close-object)
     (emacspeak-speak-mode-line)))
 

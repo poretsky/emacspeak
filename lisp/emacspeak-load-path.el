@@ -1,5 +1,5 @@
 ;;; emacspeak-load-path.el -- Setup Emacs load-path for compiling Emacspeak
-;;; $Id: emacspeak-load-path.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
+;;; $Id: emacspeak-load-path.el 8015 2012-09-22 15:54:22Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $ 
 ;;; Description:  Sets up load-path for emacspeak compilation and installation
 ;;; Keywords: Emacspeak, Speech extension for Emacs
@@ -45,17 +45,19 @@
 
 (unless (member emacspeak-lisp-directory load-path )
   (setq load-path
-        (cons emacspeak-lisp-directory load-path ))
-  (setq load-path
-        (cons
-         (expand-file-name "atom-blogger" emacspeak-lisp-directory )
-         load-path )))
+        (cons emacspeak-lisp-directory load-path )))
 
 (defvar emacspeak-resource-directory (expand-file-name "~/.emacspeak")
   "Directory where Emacspeak resource files such as pronunciation dictionaries are stored. ")
 
-(setq byte-compile-warnings
-      '(redefine callargs free-vars
-                 unresolved obsolete))
+(setq byte-compile-warnings t)
+                                        ;'(redefine callargs free-vars unresolved obsolete))
+
+(cond
+ ((fboundp 'called-interactively-p)
+  (defsubst ems-interactive-p  ()
+    "called-interactively-p 'interactive"
+    (called-interactively-p 'interactive)))
+ (t (defalias 'ems-interactive-p  'interactive-p )))
 
 (provide 'emacspeak-load-path)

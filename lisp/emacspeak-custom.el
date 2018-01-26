@@ -1,5 +1,5 @@
 ;;; emacspeak-custom.el --- Speech enable interactive Emacs customization 
-;;; $Id: emacspeak-custom.el 7322 2011-10-26 00:43:56Z tv.raman.tv $
+;;; $Id: emacspeak-custom.el 8034 2012-12-07 00:12:05Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $ 
 ;;; Description: Auditory interface to custom
 ;;; Keywords: Emacspeak, Speak, Spoken Output, custom
@@ -41,6 +41,8 @@
 ;;{{{  Required modules
 
 (require 'emacspeak-preamble)
+(eval-when-compile (load-library "cus-edit")
+                   (provide 'cus-edit))
 ;;}}}
 ;;{{{  Introduction
 
@@ -54,81 +56,81 @@
 
 (defadvice Custom-reset-current (after emacspeak pre act comp)
   "Provide auditory feedback."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'item)
     (dtk-speak "Reset current")))
 
 (defadvice Custom-reset-saved(after emacspeak pre act comp)
   "Provide auditory feedback."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'unmodified-object)
     (dtk-speak "Reset to saved")))
 
 (defadvice Custom-reset-standard (after emacspeak act comp)
   "Provide auditory feedback."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'delete-object)
     (dtk-speak "Erase customization")))
 
 (defadvice Custom-set (after emacspeak pre act comp)
   "Provide auditory feedback."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'button)
     (dtk-speak "Set for current session")))
 
 (defadvice Custom-save (after emacspeak pre act comp)
   "Provide auditory feedback."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'save-object)
     (dtk-speak "Set and saved")))
 
 (defadvice Custom-buffer-done (after emacspeak pre act comp)
   "Provide auditory feedback."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'close-object)
     (emacspeak-speak-line)))
 
 (defadvice customize-save-customized (after emacspeak pre act comp)
   "Provide auditory feedback. "
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'save-object)
     (message "Saved customizations.")))
 
 (defadvice custom-save-all (after emacspeak pre
                                   act comp)
   "Provide auditory feedback. "
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'save-object)
     (message "Saved customizations.")))
 (defadvice custom-set (after emacspeak pre act comp)
   "Provide auditory feedback. "
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'mark-object)
     (message "Set all updates.")))
 
 (defadvice customize (after emacspeak pre act comp)
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'open-object)
     (emacspeak-custom-goto-group)
     (emacspeak-speak-line)))
 
 (defadvice customize-group (after emacspeak pre act comp)
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'open-object)
     (emacspeak-custom-goto-group)
     (emacspeak-speak-line)))
 
 (defadvice customize-browse (after emacspeak pre act comp)
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'open-object)
     (emacspeak-speak-mode-line)))
 
 (defadvice customize-option (after emacspeak pre act comp)
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (let ((symbol (ad-get-arg 0)))
       (emacspeak-auditory-icon 'open-object)
       (search-forward (custom-unlispify-tag-name symbol))
@@ -137,7 +139,7 @@
 
 (defadvice customize-apropos (after emacspeak pre act comp)
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (let ((symbol (ad-get-arg 0)))
       (emacspeak-auditory-icon 'open-object)
       (beginning-of-line)
@@ -145,7 +147,7 @@
 
 (defadvice customize-variable (after emacspeak pre act comp)
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (let ((symbol (ad-get-arg 0)))
       (emacspeak-auditory-icon 'open-object)
       (search-forward (custom-unlispify-tag-name symbol))
@@ -154,13 +156,13 @@
 
 (defadvice Custom-goto-parent (after emacspeak pre act comp)
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'large-movement)
     (emacspeak-speak-line)))
 
 (defadvice Custom-newline (after emacspeak pre act comp)
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'button)))
 
 ;;}}}
@@ -181,19 +183,17 @@
    (custom-button-mouse voice-bolden-medium)
    (custom-button-unraised voice-smoothen)
    (custom-changed voice-smoothen)
-   (custom-comment-face voice-monotone-medium)
+   (custom-comment voice-monotone-medium)
    (custom-comment-tag voice-monotone)
-   (custom-comment-tag-face voice-monotone)
    (custom-documentation voice-brighten-medium)
    (custom-face-tag voice-lighten)
    (custom-group-tag voice-bolden)
    (custom-group-tag-1 voice-lighten-medium)
-   (custom-group-tag-face voice-bolden)
    (custom-invalid voice-animate-extra)
    (custom-link voice-bolden)
    (custom-modified voice-lighten-medium)
    (custom-rogue voice-bolden-and-animate)
-   (custom-modified-face voice-lighten-medium)
+   (custom-modified voice-lighten-medium)
    (custom-saved voice-smoothen-extra)
    (custom-set voice-smoothen-medium)
    (custom-state voice-smoothen)

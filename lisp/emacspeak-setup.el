@@ -1,5 +1,5 @@
 ;;; emacspeak-setup.el --- Setup Emacspeak environment --loaded to start Emacspeak
-;;; $Id: emacspeak-setup.el 7731 2012-05-02 21:25:49Z tv.raman.tv $
+;;; $Id: emacspeak-setup.el 8039 2012-12-16 17:00:41Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  File for setting up and starting Emacspeak
 ;;; Keywords: Emacspeak, Setup, Spoken Output
@@ -99,7 +99,7 @@ pronunciation dictionaries are stored. ")
 ;;;###autoload
 (defconst emacspeak-version
   (format
-   "36.0 %s"
+   "37.0 %s"
    (cond
     ((file-exists-p emacspeak-readme-file)
      (let ((buffer (find-file-noselect emacspeak-readme-file))
@@ -122,7 +122,7 @@ pronunciation dictionaries are stored. ")
 
 ;;;###autoload
 (defconst emacspeak-codename
-  "EPubDog"
+  "SolidDog"
   "Code name of present release.")
 
 ;;}}}
@@ -165,8 +165,10 @@ pronunciation dictionaries are stored. ")
 (load-library "emacspeak")
 
 (defvar dtk-startup-hook nil)
+;;;###autoload
 (defun emacspeak-tts-startup-hook ()
   "Default hook function run after TTS is started."
+  (declare (special tts-default-speech-rate))
   (tts-configure-synthesis-setup)
   (dtk-set-rate tts-default-speech-rate t)
   (dtk-interp-sync))

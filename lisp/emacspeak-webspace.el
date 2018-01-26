@@ -1,5 +1,5 @@
 ;;; emacspeak-webspace.el --- Webspaces In Emacspeak
-;;; $Id: emacspeak-webspace.el 7720 2012-04-25 02:46:26Z tv.raman.tv $
+;;; $Id: emacspeak-webspace.el 7998 2012-08-25 15:53:21Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description: WebSpace provides smart updates from the Web.
 ;;; Keywords: Emacspeak, Audio Desktop webspace
@@ -136,7 +136,7 @@
 
 (defadvice gfeeds-view (around emacspeak pre act comp)
   "Automatically speak display."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-webutils-autospeak))
   ad-do-it
   ad-return-value)
@@ -180,7 +180,7 @@
 ;;}}}
 ;;{{{ WebSpace Display:
 
-(global-set-key [C-return] 'emacspeak-webspace-headlines-view)
+(global-set-key [C-return] 'emacspeak-webspace-reading-list-view)
 
 ;;;###autoload
 (defun emacspeak-webspace-headlines-view ()
@@ -222,7 +222,7 @@ Generates auditory and visual display."
       '(
         ("w" emacspeak-webspace-weather)
         ("h" emacspeak-webspace-headlines)
-        ("r" greader-reading-list)
+        ("r" emacspeak-webspace-reading-list)
         )
       do
       (define-key emacspeak-webspace-keymap (first k) (second k)))
@@ -294,7 +294,7 @@ Updated headlines found in emacspeak-webspace-headlines."
            60 t 'emacspeak-webspace-headlines-refresh))
     (setq slow-timer 
           (run-with-idle-timer
-           3600 
+           3600
            t 'emacspeak-webspace-headlines-populate))
     (setf (emacspeak-webspace-fs-timer emacspeak-webspace-headlines) timer)
     (setf (emacspeak-webspace-fs-slow-timer emacspeak-webspace-headlines) slow-timer)))
@@ -303,12 +303,13 @@ Updated headlines found in emacspeak-webspace-headlines."
   "Return next headline to display."
   (declare (special emacspeak-webspace-headlines))
   (let ((titles (emacspeak-webspace-fs-titles emacspeak-webspace-headlines)))
-    (when (ring-empty-p titles)
+    (cond
+     ((ring-empty-p titles)
       (emacspeak-webspace-headlines-refresh)
       "No News Is Good News")
-    (let ((h (ring-remove titles 0)))
-      (ring-insert-at-beginning titles h)
-      h)))
+     (t (let ((h (ring-remove titles 0)))
+          (ring-insert-at-beginning titles h)
+          h)))))
 
 ;;;###autoload
 (defun emacspeak-webspace-headlines ()
@@ -435,6 +436,55 @@ Optional interactive prefix arg forces a refresh."
   (emacspeak-auditory-icon 'open-object))
 
 ;;;###autoload
+(defvar emacspeak-webspace-reading-list-buffer
+  "Reading List"
+  "Buffer where we accumulate reading list headlines.")
+
+(defconst emacspeak-webspace-reading-list-max-size 1800
+  "How many headlines we keep around.")
+
+(defun emacspeak-webspace-reading-list-accumulate ()
+  "Accumulate  items from Google Reader Reading List (river of news) in a Webspace buffer."
+  (interactive)
+  (declare (special emacspeak-webspace-reading-list-buffer
+                    emacspeak-webspace-reading-list-max-size))
+  (let ((buffer (get-buffer-create emacspeak-webspace-reading-list-buffer))
+        (start nil)
+        (titles (greader-reading-list-titles))
+        (inhibit-read-only t))
+    (with-current-buffer buffer
+      (emacspeak-webspace-mode)
+      (goto-char (point-min))
+      (loop for title in titles
+            do
+            (setq start (point))
+            (insert (first (split-string (cdr title) "\n")))
+            (put-text-property  start (point)
+                                'link (car title))
+            (insert "\n"))
+      (goto-char (point-min))
+      (when (> (count-lines (point-min) (point-max))
+               emacspeak-webspace-reading-list-max-size)
+        (forward-line  emacspeak-webspace-reading-list-max-size)
+        (delete-region (point) (point-max)))
+      (when (ems-interactive-p)
+        (switch-to-buffer buffer)
+        (goto-char (point-min))
+        (emacspeak-speak-mode-line)
+        (emacspeak-auditory-icon 'select-object)))))
+
+;;;###autoload
+(defun emacspeak-webspace-reading-list-view ()
+  "Switch to reading list view, creating it if needed."
+  (interactive)
+  (declare (special emacspeak-webspace-reading-list-buffer))
+  (unless (buffer-live-p (get-buffer emacspeak-webspace-reading-list-buffer))
+    (emacspeak-webspace-reading-list-accumulate))
+  (emacspeak-auditory-icon 'select-object)
+  (switch-to-buffer emacspeak-webspace-reading-list-buffer)
+  (emacspeak-speak-mode-line))
+
+;;;###autoload
 (defun emacspeak-webspace-reader-refresh ()
   "Refresh Reader."
   (interactive )
@@ -450,6 +500,36 @@ Optional interactive prefix arg forces a refresh."
      (link 
       (greader-unsubscribe-feed link))
      (t (call-interactively 'greader-unsubscribe-feed)))))
+
+(defun emacspeak-webspace-reading-list-get-some-title ()
+  "Returns a title chosen at random.
+Leaves point on the title returned in the reading list buffer."
+  (declare (special emacspeak-webspace-reading-list-buffer))
+  (unless (buffer-live-p (get-buffer emacspeak-webspace-reading-list-buffer))
+    (emacspeak-webspace-reading-list-accumulate))
+  (with-current-buffer (get-buffer emacspeak-webspace-reading-list-buffer)
+    (let ((choice
+           (random  (count-lines (point-min) (point-max)))))
+      (goto-char (point-min))
+      (forward-line (1- choice))
+      (buffer-substring (line-beginning-position)
+                        (line-end-position)))))
+
+(defvar emacspeak-webspace-reading-list-timer nil
+  "Timer used to  regularly update river of news.")
+
+;;;###autoload
+(defun emacspeak-webspace-reading-list ()
+  "Set up scroling reading list in header."
+  (interactive)
+  (declare (special emacspeak-webspace-reading-list-buffer
+                    emacspeak-webspace-reading-list-timer))
+  (unless (buffer-live-p (get-buffer emacspeak-webspace-reading-list-buffer))
+    (emacspeak-webspace-reading-list-accumulate))
+  (unless emacspeak-webspace-reading-list-timer
+    (setq emacspeak-webspace-reading-list-timer
+          (run-with-timer 1800 1800   'emacspeak-webspace-reading-list-accumulate)))
+  (emacspeak-webspace-display '((:eval (emacspeak-webspace-reading-list-get-some-title)))))
 
 ;;}}}
 ;;{{{ Google Search in WebSpace:

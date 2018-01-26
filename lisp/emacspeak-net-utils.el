@@ -1,5 +1,5 @@
 ;;; emacspeak-net-utils.el --- Speech enable net-utils
-;;; $Id: emacspeak-net-utils.el 7733 2012-05-03 02:12:31Z tv.raman.tv $
+;;; $Id: emacspeak-net-utils.el 7823 2012-06-03 01:16:29Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $ 
 ;;; Description:  Emacspeak extension to speech enable net-utils
 ;;; Keywords: Emacspeak, network utilities 
@@ -67,7 +67,7 @@
       (eval
        `(defadvice ,f  (after emacspeak pre act comp)
           "Speak output"
-          (when (interactive-p)
+          (when (ems-interactive-p )
             (emacspeak-auditory-icon 'open-object)
             (message "Displayed results of %s in other window"
                      (quote ,f))))))

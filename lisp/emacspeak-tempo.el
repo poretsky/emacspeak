@@ -1,5 +1,5 @@
 ;;; emacspeak-tempo.el --- Speech enable tempo -- template library used for Java and HTML authoring
-;;; $Id: emacspeak-tempo.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
+;;; $Id: emacspeak-tempo.el 7823 2012-06-03 01:16:29Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $ 
 ;;; Description:  Emacspeak extensions for tempo.el (used by html-helper-mode)
 ;;; Keywords: Emacspeak, Spoken Feedback, Template filling, html editing
@@ -65,17 +65,17 @@
 
 (defadvice tempo-forward-mark (after emacspeak pre act)
   "Speak the line."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-speak-line)))
 
 (defadvice tempo-backward-mark (after emacspeak pre act)
   "Speak the line."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-speak-line)))
 
 (defadvice html-helper-smart-insert-item  (after emacspeak pre act)
   "Speak the line."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-speak-line)))
 
 ;;}}}

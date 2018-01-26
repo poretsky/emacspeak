@@ -1,5 +1,5 @@
 ;;; voice-setup.el --- Setup voices for voice-lock
-;;; $Id: voice-setup.el 7409 2011-11-16 03:22:20Z tv.raman.tv $
+;;; $Id: voice-setup.el 8046 2012-12-20 01:33:38Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Voice lock mode for Emacspeak
 ;;{{{  LCD Archive entry:
@@ -48,7 +48,6 @@
 ;;
 ;; Comments will be spoken in `emacspeak-voice-lock-comment-personality'.
 ;; Strings will be spoken in `emacspeak-voice-lock-string-personality'.
-;; Doc strings will be spoken in `emacspeak-voice-lock-doc-string-personality'.
 ;; Function and variable names (in their defining forms) will be
 ;;  spoken in `emacspeak-voice-lock-function-name-personality'.
 ;; Reserved words will be spoken in `emacspeak-voice-lock-keyword-personality'.
@@ -90,7 +89,6 @@
 (require 'cl)
 (declaim  (optimize  (safety 0) (speed 3)))
 (require 'custom)
-(require 'backquote)
 (eval-when-compile (require 'easy-mmode))
 (require 'custom)
 (require 'acss-structure)
@@ -155,14 +153,11 @@
   (declare (special  voice-setup-face-voice-table))
   (gethash face voice-setup-face-voice-table))
 
-(defun voice-setup-show-rogue-voices ()
+(defun voice-setup-show-rogue-faces ()
   "Return list of voices that map to non-existent faces."
   (declare (special voice-setup-face-voice-table))
-  (loop
-   for v being the hash-keys of
-   voice-setup-face-voice-table
-   unless (facep v)
-   collect v))
+  (loop for f being the hash-keys of voice-setup-face-voice-table
+        unless (facep f) collect f))
 
 ;;}}}
 ;;{{{ special form def-voice-font
@@ -428,9 +423,9 @@ punctuations.")
 (voice-setup-add-map
  '(
    (bold voice-bolden)
+   (variable-pitch voice-animate)
    (bold-italic voice-bolden-and-animate)
    (button voice-bolden)
-   (fixed voice-monotone)
    (fixed-pitch voice-monotone)
    (font-lock-builtin-face voice-bolden)
    (font-lock-comment-face voice-monotone)
@@ -440,12 +435,10 @@ punctuations.")
    (font-lock-negation-char-face voice-brighten-extra)
    (font-lock-constant-face voice-lighten)
    (font-lock-doc-face voice-monotone-medium)
-   (font-lock-doc-string-face voice-smoothen-extra)
    (font-lock-function-name-face voice-bolden-medium)
    (font-lock-keyword-face voice-animate-extra)
    (font-lock-preprocessor-face voice-monotone-medium)
    (shadow voice-monotone-medium)
-   (font-lock-reference-face voice-animate-medium)
    (font-lock-string-face voice-lighten-extra)
    (font-lock-type-face voice-smoothen)
    (font-lock-variable-name-face voice-bolden)
@@ -465,9 +458,9 @@ punctuations.")
 (define-minor-mode voice-lock-mode
   "Toggle voice lock mode."
   t nil nil
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (let ((state (if voice-lock-mode 'on 'off)))
-      (when (interactive-p)
+      (when (ems-interactive-p )
         (emacspeak-auditory-icon state)))))
 
 ;;;###autoload
@@ -489,10 +482,12 @@ punctuations.")
   (if voice-lock-mode
       (turn-off-voice-lock)
     (turn-on-voice-lock))
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (let ((state (if voice-lock-mode 'on 'off)))
-      (when (interactive-p)
+      (when (ems-interactive-p )
         (emacspeak-auditory-icon state)))))
+
+;;;###autoload
 (defvar global-voice-lock-mode t
   "Global value of voice-lock-mode.")
 
@@ -502,7 +497,7 @@ punctuations.")
     :initialize 'custom-initialize-delay
     :init-value (not (or noninteractive emacs-basic-display))
     :group 'voice-lock
-    :version "22.1"))
+    :version "24.1"))
 
 ;; Install ourselves:
 (declaim (special text-property-default-nonsticky))

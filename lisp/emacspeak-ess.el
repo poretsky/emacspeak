@@ -1,5 +1,5 @@
 ;;; emacspeak-ess.el --- Speech-enable ESS: Emacs Speaks Statistics 
-;;; $Id: emacspeak-ess.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
+;;; $Id: emacspeak-ess.el 7998 2012-08-25 15:53:21Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Speech-enable ESS An Emacs Interface to R and others
 ;;; Keywords: Emacspeak,  Audio Desktop Statistics, R
@@ -56,25 +56,28 @@
 
 (defadvice ess-indent-command(after emacspeak pre act comp)
   "Speak the line."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-speak-line)))
 
 (defadvice ess-smart-underscore (around emacspeak pre act comp)
   "Speak what you inserted."
   (cond
-   ((interactive-p)
+   ((ems-interactive-p )
     (let ((orig (point)))
       ad-do-it
       (dtk-speak (buffer-substring orig (point)))))
    (t ad-do-it))
   ad-return-value)
-(defadvice ess-electric-brace (after emacspeak pre act comp)
-  "Speak what you inserted.
+(unless (and (boundp 'post-self-insert-hook)
+             post-self-insert-hook
+             (memq 'emacspeak-post-self-insert-hook post-self-insert-hook))
+  (defadvice ess-electric-brace (after emacspeak pre act comp)
+    "Speak what you inserted.
 Cue electric insertion with a tone."
-  (when (interactive-p)
-    (let ((emacspeak-speak-messages nil))
-      (emacspeak-speak-this-char last-input-event)
-      (dtk-tone 800 50 t))))
+    (when (ems-interactive-p )
+      (let ((emacspeak-speak-messages nil))
+        (emacspeak-speak-this-char last-input-event)
+        (dtk-tone 800 50 t)))))
 
 ;;}}}
 ;;{{{ Structure commands 
@@ -85,20 +88,20 @@ Cue electric insertion with a tone."
       (eval
        `(defadvice ,f (after emacspeak pre act comp)
           "Produce auditory feedback."
-          (when (interactive-p)
+          (when (ems-interactive-p )
             (emacspeak-auditory-icon 'large-movement)
             (emacspeak-speak-line)))))
 
 (defadvice ess-mark-function (after emacspeak pre act comp)
   "Provide auditory feedback."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'select-object)
     (message "Marked function containing %s lines."
              (count-lines (point) (mark)))))
 
 (defadvice ess-indent-exp  (after emacspeak pre act)
   "Provide auditory feedback."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'fill-object )
     (message "Indented current s expression ")))
 
@@ -120,7 +123,7 @@ Cue electric insertion with a tone."
        `
        (defadvice ,f (after emacspeak pre act comp)
          "Provide auditory feedback."
-         (when (interactive-p)
+         (when (ems-interactive-p )
            (emacspeak-auditory-icon 'select-object)))))
 
 ;;}}}
@@ -128,7 +131,7 @@ Cue electric insertion with a tone."
 (defadvice ess-display-help-on-object(after emacspeak pre act
                                             comp)
   "Announce help."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'help)
     (message "Displayed help in other window.")))
 (loop for f in
@@ -138,7 +141,7 @@ Cue electric insertion with a tone."
       (eval
        `(defadvice ,f (after emacspeak pre act comp)
           "Provide auditory feedback."
-          (when (interactive-p)
+          (when (ems-interactive-p )
             (emacspeak-auditory-icon 'select-object)
             (emacspeak-speak-mode-line)))))
 

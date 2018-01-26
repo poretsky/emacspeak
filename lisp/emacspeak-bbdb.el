@@ -1,6 +1,6 @@
 ;;; emacspeak-bbdb.el --- Speech enable BBDB -- a powerful address manager
 
-;;; $Id: emacspeak-bbdb.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
+;;; $Id: emacspeak-bbdb.el 7998 2012-08-25 15:53:21Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $ 
 ;;; DescriptionEmacspeak extensions for bbdb 
 ;;; Keywords:emacspeak, audio interface to emacs bbdb 
@@ -48,12 +48,6 @@
 ;;}}}
 ;;{{{ personalities 
 
-(voice-setup-add-map
- '(
-   (bbdb-company voice-brighten)
-   (bbdb-field-name voice-smoothen)
-   (bbdb-field-value voice-animate)
-   (bbdb-name voice-bolden)))
 ;;{{{  Variable settings:
 
 ;;; Emacspeak will not work if bbdb is in electric mode
@@ -75,7 +69,7 @@
 
 (defadvice              bbdb-delete-current-field-or-record (after emacspeak pre act )
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'delete-object)
     (save-excursion
       (when (looking-at  "?")
@@ -84,12 +78,12 @@
 
 (defadvice bbdb-edit-current-field (before emacspeak pre act )
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'open-object )))
 
 (defadvice bbdb-send-mail (before emacspeak pre act )
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (let ((to (if (consp (ad-get-arg 0))
                   (bbdb-dwim-net-address
                    (car (ad-get-arg 0)))
@@ -105,7 +99,7 @@
 
 (defadvice bbdb-next-record (after emacspeak pre act )
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'large-movement )
     (save-excursion
       (when (looking-at  "?")
@@ -114,7 +108,7 @@
 
 (defadvice bbdb-prev-record (after emacspeak pre act )
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'large-movement )
     (save-excursion
       (when (looking-at  "?")
@@ -123,24 +117,24 @@
 
 (defadvice bbdb-omit-record (after emacspeak pre act )
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'close-object)
     (emacspeak-speak-line)))
 
 (defadvice bbdb-bury-buffer (after emacspeak pre act )
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'close-object)
     (emacspeak-speak-mode-line )))
 
 (defadvice bbdb-elide-record (after emacspeak pre act )
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (message "Toggled  record display")))
 
 (defadvice bbdb-transpose-fields (after emacspeak pre act )
   "Provide auditory feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'large-movement)
     (emacspeak-speak-line )))
 
@@ -148,7 +142,7 @@
   "Provide spoken feedback"
   (declare (special completion-reference-buffer))
   (cond
-   ((interactive-p)
+   ((ems-interactive-p )
     (let ((prior (point))
           (completion-ignore-case t)
           (completions nil )
@@ -173,17 +167,17 @@
 
 (defadvice bbdb/vm-show-sender (after emacspeak pre act comp)
   "Provide spoken feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-speak-other-window 1)))
 
 (defadvice bbdb/rmail-show-sender (after emacspeak pre act comp)
   "Provide spoken feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-speak-other-window 1)))
 
 (defadvice bbdb/mh-show-sender (after emacspeak pre act comp)
   "Provide spoken feedback"
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-speak-other-window 1)))
 
 ;;}}}

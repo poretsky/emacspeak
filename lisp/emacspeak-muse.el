@@ -1,5 +1,5 @@
 ;;; emacspeak-muse.el --- Speech-enable Muse
-;;; $Id: emacspeak-muse.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
+;;; $Id: emacspeak-muse.el 7823 2012-06-03 01:16:29Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Speech-enable Muse
 ;;; Keywords: Emacspeak,  Audio Desktop Muse
@@ -80,7 +80,7 @@
       (eval
        `(defadvice   ,f (after emacspeak pre act comp)
           "Provide auditory feedback."
-          (when (interactive-p)
+          (when (ems-interactive-p )
             (emacspeak-auditory-icon 'large-movement)
             (emacspeak-speak-line)))))
 

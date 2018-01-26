@@ -1,5 +1,5 @@
 ;;; emacspeak-calc.el --- Speech enable the Emacs Calculator -- a powerful symbolic algebra system
-;;; $Id: emacspeak-calc.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
+;;; $Id: emacspeak-calc.el 7823 2012-06-03 01:16:29Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $ 
 ;;; Description: 
 ;;; Keywords:
@@ -53,12 +53,12 @@
 ;;{{{  advice calc interaction 
 (defadvice calc-dispatch (after emacspeak pre act comp)
   "Provide auditory feedback."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'open-object)))
 
 (defadvice calc-quit (after emacspeak pre act )
   "Announce the buffer that becomes current when calc is quit."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'close-object)
     (emacspeak-speak-mode-line)))
 
@@ -68,7 +68,7 @@
 (defadvice calc-call-last-kbd-macro (around emacspeak pre act)
   "Provide spoken feedback."
   (cond
-   ((interactive-p)
+   ((ems-interactive-p )
     (let ((emacspeak-speak-messages nil)
           (dtk-quiet t)
           (emacspeak-use-auditory-icons nil))

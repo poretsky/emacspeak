@@ -1,46 +1,26 @@
 Emacspeak News --History Of User-Visible Changes
-$Id: NEWS 7704 2012-04-19 15:53:22Z tv.raman.tv $
+$Id: NEWS 8049 2012-12-21 19:06:10Z tv.raman.tv $
 Author: T. V. Raman <tv.raman.tv@gmail.com>
 
-* Emacspeak 36 -- Emacspeak 36 User Visible Changes 
+* Emacspeak 37 -- Emacspeak 37 User Visible Changes 
 
 
-** emacspeak-epub.el: Full EPub Support
-Implements epub support including an interactive bookshelf.
-EPub books on the bookshelf can be read directly without
-unpacking.
-** emacspeak-websearch.el:
-Updated websearch support for new search innovations on the Web.
+** emacspeak-js2.el:
 
-** emacspeak-magit.el:
-Speech-enables magit for fluent git interaction.
+Updated support for JS2 mode.
 
-** emacspeak-ftf.el:
-Speech-enable package find-things-fast.
+** emacspeak-kite:
 
-** TTS:
+Speech-enables Module Kite which enables connecting to   the
+Chrome debugger for live-debugging Web applications.
 
-Fixed bug in language switching and bound language switching
-commands in dtk-keymap.
+** Emacs 23: 
 
+Tested with stock Emacs 23 on Lucid and Precise.
 
+** Emacs 24.3:
 
-** emacspeak-url-templates.el
-Updated url templates for faster Web access.
-
-
-
-** SSH Port Forwarding And Remote TTS:
-
-etc/remote-tts-setup: Added remote-tts sample for configuring remote TTS via ssh port
-forwarding.
-
-** plain-voices.el
-
-Implements a default  interface for use with  unsupported  TTS
-engines.
-
-
+Updated to work with Emacs from tip of tree.
 # local variables:
 # mode: org
 # end:

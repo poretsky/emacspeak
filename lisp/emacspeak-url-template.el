@@ -1,5 +1,5 @@
 ;;; emacspeak-url-template.el --- Create library of URI templates
-;;; $Id: emacspeak-url-template.el 7570 2012-03-11 16:20:35Z tv.raman.tv $
+;;; $Id: emacspeak-url-template.el 7998 2012-08-25 15:53:21Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:   Implement library of URI templates
 ;;; Keywords: Emacspeak, Audio Desktop
@@ -491,9 +491,9 @@ dont-url-encode if true then url arguments are not url-encoded "
  nil
  "Display financial market summary."
  #'(lambda (url)
-     (emacspeak-we-extract-id-list-text
-      (list "mktsumm" "sfe-mktsumm" )
-      url 'speak)))
+     (let ((w3-auto-image-alt nil))
+       (emacspeak-we-extract-by-class
+        "id-summary-chart" url 'speak))))
 
 ;;}}}
 ;;{{{ google CSE and Google Reader:
@@ -1236,6 +1236,14 @@ from English to German.")
  #'(lambda (url)
      (emacspeak-webutils-without-xsl
       (browse-url url))))
+
+(emacspeak-url-template-define
+ "IToRSS"
+ "http://feedflipper.net/convert.php?feed=%s"
+ (list "ITunes URL: ")
+ nil
+ "Pull RSS  feed corresponding to an ITunes Podcast."
+ 'emacspeak-webutils-rss-display)
 
 ;;}}}
 ;;{{{  cnet news

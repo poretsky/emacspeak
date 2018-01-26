@@ -1,5 +1,5 @@
 ;;; emacspeak-ocr.el --- ocr Front-end for emacspeak desktop
-;;; $Id: emacspeak-ocr.el 7378 2011-11-10 17:34:32Z tv.raman.tv $
+;;; $Id: emacspeak-ocr.el 7823 2012-06-03 01:16:29Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak front-end for OCR
 ;;; Keywords: Emacspeak, ocr
@@ -413,7 +413,7 @@ Pick a short but meaningful name."
         (when emacspeak-ocr-keep-uncompressed-image
           (format "rm -f temp%s"
                   emacspeak-ocr-image-extension))))
-      (when (interactive-p)
+      (when (ems-interactive-p )
         (setq emacspeak-ocr-last-page-number
               (1+ emacspeak-ocr-last-page-number)))
       (message "Acquired  image to file %s"
@@ -450,7 +450,7 @@ The scanned image is converted to JPEG."
                   pnm)
         (format "rm -f temp.pnm"))))
     (when (and metadata
-               (interactive-p))
+               (ems-interactive-p ))
       (setq metadata
             (read-from-minibuffer "Enter picture description: "))
       (let ((tempfile (format "temp%s.jpg" (gensym))))

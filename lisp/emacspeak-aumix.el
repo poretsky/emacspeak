@@ -1,5 +1,5 @@
 ;;; emacspeak-aumix.el --- Configure audio device settings
-;;; $Id: emacspeak-aumix.el 6853 2011-02-16 01:32:04Z tv.raman.tv $
+;;; $Id: emacspeak-aumix.el 8019 2012-09-23 18:38:50Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak extension to conveniently set audio display
 ;;; Keywords: Emacspeak, Audio Desktop
@@ -43,7 +43,6 @@
 (require 'cl)
 (declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-speak)
-(require 'emacspeak-forms)
 (require 'emacspeak-sounds)
 ;;}}}
 ;;{{{  Introduction:
@@ -149,9 +148,8 @@ display."
      (format "%s %s"
              emacspeak-aumix-program
              emacspeak-aumix-reset-options))))
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'close-object)))
-(eval-when-compile (require 'emacspeak-forms))
 (defun emacspeak-aumix-edit ()
   "Edit aumix settings interactively. 
 Run command \\[emacspeak-aumix-reset]
@@ -188,7 +186,7 @@ you are done."
        ((and description
              (string-equal "reset" description))
         (emacspeak-aumix-reset)
-        (when (interactive-p)
+        (when (ems-interactive-p )
           (emacspeak-auditory-icon 'close-object))
         (setq done t))
        (description

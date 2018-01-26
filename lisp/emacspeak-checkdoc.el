@@ -1,5 +1,5 @@
 ;;; emacspeak-checkdoc.el --- Speech-enable checkdoc
-;;; $Id: emacspeak-checkdoc.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
+;;; $Id: emacspeak-checkdoc.el 7823 2012-06-03 01:16:29Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:Speech-enable checkdoc
 ;;; Keywords: Emacspeak, Speak, Spoken Output, maintain code 
@@ -55,7 +55,7 @@
 (defadvice checkdoc (around emacspeak pre act comp)
   "Advice read-event temporarily."
   (cond
-   ((interactive-p)
+   ((ems-interactive-p )
     (save-match-data
       (ad-enable-advice  'read-event 'before 'emacspeak-checkdoc )
       (ad-activate 'read-event)

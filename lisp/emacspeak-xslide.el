@@ -1,5 +1,5 @@
 ;;; emacspeak-xslide.el --- Speech enable  XSL authoring
-;;; $Id: emacspeak-xslide.el 7323 2011-10-26 00:50:39Z tv.raman.tv $
+;;; $Id: emacspeak-xslide.el 7998 2012-08-25 15:53:21Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:   extension to speech enable xslide
 ;;; Keywords: Emacspeak, Audio Desktop
@@ -54,37 +54,39 @@
 
 ;;}}}
 ;;{{{  speech-enable interactive commands
-
-(defadvice xsl-electric-apos (after emacspeak pre act comp)
-  "Speak char we inserted."
-  (when (interactive-p)
-    (emacspeak-speak-this-char (preceding-char))))
+(unless (and (boundp 'post-self-insert-hook)
+             post-self-insert-hook
+             (memq 'emacspeak-post-self-insert-hook post-self-insert-hook))
+  (defadvice xsl-electric-apos (after emacspeak pre act comp)
+    "Speak char we inserted."
+    (when (ems-interactive-p )
+      (emacspeak-speak-this-char (preceding-char)))))
 
 (defadvice xsl-electric-quote (after emacspeak pre act comp)
   "Speak char we inserted."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-speak-this-char (preceding-char))))
 (defadvice xsl-electric-lsqb (after emacspeak pre act comp)
   "Speak char we inserted."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-speak-this-char (preceding-char))))
 (defadvice xsl-electric-lpar (after emacspeak pre act comp)
   "Speak char we inserted."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-speak-this-char (preceding-char))))
 
 (defadvice xsl-electric-lcub (after emacspeak pre act comp)
   "Speak char we inserted."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-speak-this-char (preceding-char))))
 (defadvice xsl-electric-less-than (after emacspeak pre act comp)
   "Speak char we inserted."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-speak-this-char (preceding-char))))
 
 (defadvice xsl-electric-slash (after emacspeak pre act comp)
   "Speak char we inserted."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-speak-this-char (preceding-char))))
 
 (defadvice xsl-complete (around emacspeak pre act com)

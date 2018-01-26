@@ -1,5 +1,5 @@
 ;;; emacspeak-hideshow.el --- speech-enable hideshow
-;;; $Id: emacspeak-hideshow.el 6708 2011-01-04 02:27:29Z tv.raman.tv $
+;;; $Id: emacspeak-hideshow.el 7823 2012-06-03 01:16:29Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:   extension to speech enable hideshow
 ;;; Keywords: Emacspeak, Audio Desktop
@@ -54,48 +54,48 @@
 
 (defadvice hs-hide-all (after emacspeak pre act comp)
   "Provide auditory feedback."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'close-object)
     (message "Hid all blocks.")))
 (defadvice hs-show-all (after emacspeak pre act comp)
   "Provide auditory feedback."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'open-object)
     (message "Exposed all blocks.")))
 
 (defadvice hs-hide-block (after emacspeak pre act comp)
   "Provide auditory feedback."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'close-object)
     (message "Hid current block.")))
 
 (defadvice hs-show-block (after emacspeak pre act comp)
   "Provide auditory feedback."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'open-object)
     (message "Exposed current  block.")))
 
 (defadvice hs-show-region (after emacspeak pre act comp)
   "Provide auditory feedback."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'open-object)
     (message "Exposed region.")))
 
 (defadvice hs-hide-level (after emacspeak pre act comp)
   "Provide auditory feedback."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'close-object)
     (message "Hid all blocks below specified level.")))
 
 (defadvice hs-toggle-hiding (after emacspeak pre act comp)
   "Provide auditory feedback."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'close-object)
     (message "Toggled HideShow.")))
 
 (defadvice hs-hide-initial-comment-block (after emacspeak pre act comp)
   "Provide auditory feedback."
-  (when (interactive-p)
+  (when (ems-interactive-p )
     (emacspeak-auditory-icon 'close-object)
     (message "Hid initial comment block.")))
 
