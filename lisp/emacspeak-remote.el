@@ -1,5 +1,5 @@
 ;;; emacspeak-remote.el --- Enables running remote Emacspeak sessions
-;;; $Id: emacspeak-remote.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
+;;; $Id: emacspeak-remote.el 9269 2014-07-25 20:52:29Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description: Auditory interface to remote speech server
 ;;; Keywords: Emacspeak, Speak, Spoken Output, remote server
@@ -219,7 +219,7 @@ port that that host is listening on for speech requests."
     (read-from-minibuffer "Remote port:" dtk-local-server-port)))
   (declare (special dtk-speaker-process dtk-program 
                     dtk-local-server-port
-                    emacspeak-eterm-remote-hosts-table))
+                    dtk-local-engine emacspeak-eterm-remote-hosts-table))
   (let* ((dtk-program dtk-local-engine)
          (process-connection-type nil)  ;dont waste a pty
          (old-process dtk-speaker-process)

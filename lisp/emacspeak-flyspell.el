@@ -1,5 +1,5 @@
 ;;; emacspeak-ispell.el --- Speech enable Ispell -- Emacs' interactive spell checker
-;;; $Id: emacspeak-flyspell.el 8574 2013-11-24 02:01:07Z tv.raman.tv $
+;;; $Id: emacspeak-flyspell.el 9214 2014-05-28 16:01:33Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $ 
 ;;; Description:  Emacspeak extension to speech enable flyspell
 ;;; Keywords: Emacspeak, Ispell, Spoken Output, fly spell checking
@@ -46,10 +46,12 @@
 
 ;;}}}
 ;;{{{ Requires
+
 (require 'cl)
 (declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
-(require 'flyspell)
+(eval-when-compile (require 'flyspell "flyspell" 'no-error))
+
 ;;}}}
 ;;{{{  define personalities
 

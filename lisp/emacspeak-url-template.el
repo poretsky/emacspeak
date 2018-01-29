@@ -1,5 +1,5 @@
 ;;; emacspeak-url-template.el --- Create library of URI templates
-;;; $Id: emacspeak-url-template.el 9165 2014-05-07 00:12:51Z tv.raman.tv $
+;;; $Id: emacspeak-url-template.el 9549 2014-11-12 02:01:08Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:   Implement library of URI templates
 ;;; Keywords: Emacspeak, Audio Desktop
@@ -348,13 +348,6 @@ dont-url-encode if true then url arguments are not url-encoded "
  "BBC PodCast Directory"
  #'emacspeak-feeds-opml-display)
 
-(emacspeak-url-template-define
- "Mobile BBC"
- "http://www.bbc.co.uk/mobile/radio/listen/"
- nil
- nil
- "BBC Mobile Streams.")
-
 ;;}}}
 ;;{{{ html5irc 
 
@@ -366,6 +359,7 @@ dont-url-encode if true then url arguments are not url-encoded "
  "Show HTML5 IRC log.")
 
 ;;}}}
+
 ;;{{{ market summary from google finance
 
 (emacspeak-url-template-define
@@ -381,33 +375,11 @@ dont-url-encode if true then url arguments are not url-encoded "
 
 ;;}}}
 ;;{{{ google CSE and Google Reader:
-(defcustom emacspeak-url-template-reading-list-opml nil
-  "OPML feed location to use for our Custom Search."
-  :type '(choice
-          (const :tag "None" nil)
-          (string :tag "URL"))
-  :group 'emacspeak-url-template)
 
-(defsubst emacspeak-url-template-make-cse (meta-url)
-  "Builds up a CSE url for specified meta-url."
-  (format
-   "http://www.google.com/cse/tools/makecse?url=%s"
-   meta-url))
 
-(emacspeak-url-template-define
- "Reader Subscription Search"
- "http://www.google.com/cse?q=%s&loading=1&cref=%s"
- (list
-  "Reader Search: "
-  #'(lambda nil
-      (declare
-       (special emacspeak-url-template-reading-list-opml))
-      (emacspeak-url-template-make-cse
-       (emacspeak-url-encode emacspeak-url-template-reading-list-opml))))
- nil
- "Search within feeds subscribed to in Google Reader."
- #'(lambda (url)
-     (emacspeak-we-extract-by-class "g" url 'speak)))
+
+
+
 
 (emacspeak-url-template-define
  "Official GoogleBlog Search"
@@ -422,9 +394,16 @@ dont-url-encode if true then url arguments are not url-encoded "
  #'(lambda (url)
      (emacspeak-we-extract-by-class "g" url 'speak)))
 
+
+(defsubst emacspeak-url-template-make-cse (meta-url)
+  "Builds up a CSE url for specified meta-url."
+  (format
+   "http://www.google.com/cse/tools/makecse?url=%s"
+   meta-url))
+
 (emacspeak-url-template-define
  "On The Fly CSE"
- "http://www.google.com/cse?q=%s&loading=1&cref=%s"
+ "http://www.google.com/cse?q=%s&loading=1&cref=%s&nojs=1"
  (list
   "Search This CSE: "
   #'(lambda nil
@@ -560,17 +539,6 @@ http://www.google.com/calendar/a/<my-corp>/m?output=xhtml"
      (setq emacspeak-we-url-executor
            'emacspeak-m-player-youtube-player))
  "YouTube Search Via Feeds"
- #'emacspeak-feeds-atom-display)
-
-;;}}}
-;;{{{ Google Reader:
-
-(emacspeak-url-template-define
- "Google Reader"
- "http://www.google.com/reader/public/atom/feed/%s?n=100"
- (list 'emacspeak-webutils-read-this-url )
- nil
- "Google Reader"
  #'emacspeak-feeds-atom-display)
 
 ;;}}}
@@ -753,40 +721,6 @@ from English to German.")
 
 ;;}}}
 ;;{{{  google filters
-(emacspeak-url-template-define
- "Google WebQuotes"
- "http://labs.google.com/cgi-bin/webquotes?num_quotes=3&q=%s&btnG=Google+WebQuotes+Search&show_titles=1&bold_links=1&snippet_threshold=3"
- (list "Query: ")
- nil
- "Google WebQuotes.")
-(emacspeak-url-template-define
- "Google Glossary"
- "http://labs.google.com/glossary?q=%s"
- (list "Term: ")
- nil
- "Google Glossary lookup.")
-
-(emacspeak-url-template-define
- "Google Results"
- "http://www.google.com/search?q=%s&num=25"
- (list 'gweb-google-autocomplete)
- nil
- "Show just results and nav bar."
- #'(lambda (url)
-     (emacspeak-we-extract-by-id-list
-      (list "subform_ctrl" "res" "nav")
-      url 'speak)))
-
-(emacspeak-url-template-define
- "1Box Google"
- "http://www.google.com/search?q=%s"
- (list 'gweb-google-autocomplete)
- nil
- "Show 1box result from Google. Actually now shows just the results."
- #'(lambda (url)
-     (emacspeak-we-extract-by-id
-      "res"
-      url 'speak)))
 
 (emacspeak-url-template-define
  "Google Hits"
@@ -904,16 +838,6 @@ from English to German.")
  nil
  "Display specified news feed."
  #'emacspeak-feeds-atom-display)
-
-(emacspeak-url-template-define
- "Google Feeds"
- "http://news.google.com/intl/en_us/news_feed_terms.html"
- nil
- nil
- "List  Google news Feeds."
- #'(lambda (url)
-     (emacspeak-we-extract-table-by-match "Sports"
-                                          url 'speak)))
 
 ;;}}}
 ;;{{{ Google Archive Search
@@ -1170,15 +1094,6 @@ name of the list.")
      (emacspeak-we-extract-by-id "cnn_maincntnr"url 'speak)))
 
 (emacspeak-url-template-define
- "CNN headlines "
- "http://www.cnn.com"
- nil
- nil
- "Retrieve and speak headline news from CNN."
- #'(lambda (url)
-     (emacspeak-we-extract-by-class "cnnMainT1" url 'speak)))
-
-(emacspeak-url-template-define
  "CNN technology "
  "http://www.cnn.com/TECH/"
  nil
@@ -1203,7 +1118,7 @@ name of the list.")
  "CNN Money"
  #'(lambda (url)
      (emacspeak-we-extract-by-id
-      "wsod_marketsOverview" 
+      "cnnBody" ;"wsod_marketsOverview" 
       url 'speak)))
 
 (emacspeak-url-template-define
@@ -1455,20 +1370,7 @@ name of the list.")
 Set up URL rewrite rule to get print page."
  )
 
-(emacspeak-url-template-define
- "Cartoon You Said It By Laxman"
- "http://www1.indiatimes.com/cartoon/%scart%s.htm"
- (list
-  (lambda ()
-    (read-from-minibuffer "Month: "
-                          (downcase
-                           (format-time-string "%h"))))
-  (lambda ()
-    (read-from-minibuffer "Date: "
-                          (format-time-string "%d"))))
- 'emacspeak-speak-buffer
- "Retrieve Cartoon Times Of India."
- )
+
 
 ;;}}}
 ;;{{{ weather underground
@@ -1728,8 +1630,7 @@ resources."
 ;;{{{ Generate texinfo documentation for all defined url
 
 (defun emacspeak-url-template-generate-texinfo-documentation (buffer)
-  "Generates texinfo section documenting all defined URL
-  templates."
+  "Generates texinfo section documenting all defined URL templates."
   (declare (special emacspeak-url-template-table))
   (insert
    "@node URL Templates \n@section  URL Templates\n\n")
@@ -1755,9 +1656,8 @@ Each URL template carries out the following steps:
   customizations.
 @end itemize
 
-As an example, the URL templates that enable access to map directions
-prompt for address and automatically
-speak the relevant results.\n\n"
+As an example, the URL templates for weather forecasts 
+prompts for a location and speaks the forecast. \n\n"
     (mapconcat #'key-description
                (where-is-internal
                 'emacspeak-url-template-fetch)

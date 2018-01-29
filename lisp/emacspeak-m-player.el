@@ -1,5 +1,5 @@
 ;;; emacspeak-m-player.el --- Control mplayer from Emacs
-;;; $Id: emacspeak-m-player.el 9079 2014-04-17 15:41:09Z tv.raman.tv $
+;;; $Id: emacspeak-m-player.el 9502 2014-10-25 16:19:16Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description: Controlling mplayer from emacs 
 ;;; Keywords: Emacspeak, m-player streaming media 
@@ -614,8 +614,8 @@ A string of the form `<number> 1' sets volume as an absolute."
                (mapconcat #'identity
                           (cdr (assoc command emacspeak-m-player-command-list))
                           " ")))))
-      (message 
-       (emacspeak-m-player-dispatch (format "%s %s" command args))))))
+      (message  "%s"
+                (emacspeak-m-player-dispatch (format "%s %s" command args))))))
 
 ;;;###autoload
 (defun emacspeak-m-player-get-length ()

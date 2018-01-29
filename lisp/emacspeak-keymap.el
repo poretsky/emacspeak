@@ -1,5 +1,5 @@
 ;;; emacspeak-keymap.el --- Setup all keymaps and keybindings provided by Emacspeak
-;;; $Id: emacspeak-keymap.el 9086 2014-04-21 02:34:20Z tv.raman.tv $
+;;; $Id: emacspeak-keymap.el 9561 2014-11-14 22:25:31Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Module for setting up emacspeak keybindings
 ;;; Keywords: Emacspeak
@@ -310,7 +310,6 @@ field in the customization buffer.  You can use the notation
         ("'" emacspeak-speak-sexp)
         ("#" emacspeak-gridtext)
         ("%" emacspeak-speak-current-percentage)
-        ("&" emacspeak-wizards-show-eval-result)
         ("(" emacspeak-audio-setup)
         (")" emacspeak-sounds-select-theme)
         ("," emacspeak-speak-browse-buffer )
@@ -416,6 +415,7 @@ field in the customization buffer.  You can use the notation
         ([insert] emacspeak-emergency-tts-restart)
         ([delete] emacspeak-ssh-tts-restart)
         ([(deletechar)] emacspeak-ssh-tts-restart)
+        ("\M-%" emacspeak-goto-percent)
         )
       do
       (emacspeak-keymap-update emacspeak-keymap binding))
@@ -472,8 +472,8 @@ field in the customization buffer.  You can use the notation
 (global-set-key [(shift right)] 'next-buffer)
 (global-set-key [(control left)] 'emacspeak-previous-frame-or-buffer)
 (global-set-key [(control right)] 'emacspeak-next-frame-or-buffer)
-(global-set-key [pause] 'tts-cycle-device)   
-(global-set-key [(control down)] 'emacspeak-mark-forward-mark)
+                                        ;(global-set-key [pause] 'tts-cycle-device)   
+(global-set-key [(control down)] 'pop-to-mark-command)
 (global-set-key [(control up)] 'emacspeak-mark-backward-mark)
 (global-set-key [(shift up)] 'emacspeak-skip-blank-lines-backward)
 (global-set-key [(shift down)] 'emacspeak-skip-blank-lines-forward)

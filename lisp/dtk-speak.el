@@ -1,5 +1,5 @@
 ;;; dtk-speak.el --- Provides Emacs Lisp interface to speech server
-;;;$Id: dtk-speak.el 8744 2013-12-28 17:20:28Z tv.raman.tv $
+;;;$Id: dtk-speak.el 9269 2014-07-25 20:52:29Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacs interface to TTS
 ;;; Keywords: Dectalk Emacs Elisp
@@ -1546,10 +1546,13 @@ This is setup on a per engine basis.")
                                         ; exact match
    ((string-match "^espeak$" tts-name) (espeak-configure-tts))
    ((string-match "^eflite$" tts-name) (flite-configure-tts))
-   ((string-match "^log-server$" tts-name) t); use previous configuration
+   ((string-match "^log-server$" tts-name) t) ; use previous configuration
                                         ; generic configure
    (t (plain-configure-tts)))
-  (when (string-match "^ssh" tts-name)  ;remote server
+  (when
+      (or 
+       (string-match "^ssh" tts-name)   ;remote server
+       (string-match "^cloud" tts-name))
     (setq emacspeak-auditory-icon-function 'emacspeak-serve-auditory-icon))
   (load-library "voice-setup")
   (setq tts-voice-reset-code (tts-get-voice-command tts-default-voice)))
@@ -1660,6 +1663,7 @@ Argument PROGRAM specifies the speech server program."
   :group 'dtk)
 (defvar dtk-local-server-port "2222"
   "Port where we run our local server.")
+;;;###autoload 
 
 (defcustom dtk-local-engine "outloud"
   "Engine we use  for our local TTS  server."
@@ -1668,7 +1672,6 @@ Argument PROGRAM specifies the speech server program."
           (const :tag "Viavoice Outloud" "outloud")
           (const :tag "32Bit ViaVoice on 64Bit Linux" "32-outloud"))
   :group 'dtk)
-
 (defun dtk-local-server (program)
   "Select and start an local  speech server interactively.
 Local server lets Emacspeak on a remote host connect back via SSH  port forwarding for instance.
@@ -1687,7 +1690,7 @@ Port  defaults to  dtk-local-server-port"
   (when (and
          dtk-local-server-process
          (eq 'run (process-status dtk-local-server-process)))
-    (kill-process dtk-async-server-process))
+    (kill-process dtk-local-server-process))
   (setq dtk-local-server-process
         (start-process
          "LocalTTS"

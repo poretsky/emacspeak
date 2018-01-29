@@ -61,7 +61,7 @@
 (require 'derived)
 (require 'html2text)
 ;;}}}
-;;{{{ Data Structures 
+;;{{{ Data Structures
 
 ;;; One tool on a tool-belt
 
@@ -89,7 +89,7 @@ This variable is buffer-local.")
   (let
       ((settings
         (delq nil
-              (mapcar 
+              (mapcar
                #'(lambda (tool)
                    (when (eq 'tbm (emacspeak-google-tool-type tool))
                      (cond
@@ -99,7 +99,7 @@ This variable is buffer-local.")
                       (t (format "%s"
                                  (emacspeak-google-tool-param tool))))))
                belt))))
-    (when settings 
+    (when settings
       (concat "&tbm="
               (mapconcat #'identity settings ",")))))
 
@@ -108,7 +108,7 @@ This variable is buffer-local.")
   (let
       ((settings
         (delq nil
-              (mapcar 
+              (mapcar
                #'(lambda (tool)
                    (when (eq 'tbs (emacspeak-google-tool-type tool))
                      (cond
@@ -119,254 +119,258 @@ This variable is buffer-local.")
                                  (emacspeak-google-tool-param tool)
                                  (emacspeak-google-tool-value tool))))))
                belt))))
-    (when settings 
+    (when settings
       (concat "&tbs="
               (mapconcat #'identity settings ",")))))
+(defvar emacspeak-google-toolbelt-names  nil
+  "Cache of available toolbelt names.")
 
 (defun emacspeak-google-toolbelt ()
   "Returns buffer-local toolbelt or a a newly initialized toolbelt."
-  (declare (special emacspeak-google-toolbelt))
+  (declare (special emacspeak-google-toolbelt ))
   (or emacspeak-google-toolbelt
-      (list
+      (setq
+       emacspeak-google-toolbelt
+       (list
 ;;; video vid: 1/0
-       (make-emacspeak-google-tool
-        :name "video"
-        :param "vid"
-        :range '(0 1)
-        :default 0
-        :type 'tbm
-        :value 0)
+        (make-emacspeak-google-tool
+         :name "video"
+         :param "vid"
+         :range '(0 1)
+         :default 0
+         :type 'tbm
+         :value 0)
 ;;; Recent
-       (make-emacspeak-google-tool
-        :name "recent"
-        :param "rcnt"
-        :range '( 0 1)
-        :default 0
-        :value 0
-        :type 'tbs)
+        (make-emacspeak-google-tool
+         :name "recent"
+         :param "rcnt"
+         :range '( 0 1)
+         :default 0
+         :value 0
+         :type 'tbs)
 ;;; Duration restrict for video
-       (make-emacspeak-google-tool
-        :name "duration"
-        :param "dur"
-        :range '("m" "s" "l")
-        :default "m"
-        :value "m"
-        :type 'tbs)
-;;; Recipes 
-       (make-emacspeak-google-tool
-        :name "recipes"
-        :param "rcp"
-        :range '(0 1)
-        :default 0
-        :value 0
-        :type 'tbm)
+        (make-emacspeak-google-tool
+         :name "duration"
+         :param "dur"
+         :range '("m" "s" "l")
+         :default "m"
+         :value "m"
+         :type 'tbs)
+;;; Recipes
+        (make-emacspeak-google-tool
+         :name "recipes"
+         :param "rcp"
+         :range '(0 1)
+         :default 0
+         :value 0
+         :type 'tbm)
 ;;; places/local:
-       (make-emacspeak-google-tool
-        :name "places"
-        :param "plcs"
-        :range '(0 1)
-        :default 0
-        :value 0
-        :type 'tbm)
-                                        ; patents 
-       (make-emacspeak-google-tool
-        :name "patents"
-        :param "pts"
-        :range '(0 1)
-        :default 0
-        :value 0
-        :type 'tbm)
+        (make-emacspeak-google-tool
+         :name "places"
+         :param "plcs"
+         :range '(0 1)
+         :default 0
+         :value 0
+         :type 'tbm)
+;;; patents
+        (make-emacspeak-google-tool
+         :name "patents"
+         :param "pts"
+         :range '(0 1)
+         :default 0
+         :value 0
+         :type 'tbm)
 ;;; discussions/forums
-       (make-emacspeak-google-tool
-        :name "discussions"
-        :param "dsc"
-        :range '(0 1)
-        :default 0
-        :value 0
-        :type 'tbm)
+        (make-emacspeak-google-tool
+         :name "discussions"
+         :param "dsc"
+         :range '(0 1)
+         :default 0
+         :value 0
+         :type 'tbm)
 ;;; Blog mode
-       (make-emacspeak-google-tool
-        :name "blog"
-        :param "blg"
-        :range '(0 1)
-        :default 0
-        :value 0
-        :type 'tbm)
+        (make-emacspeak-google-tool
+         :name "blog"
+         :param "blg"
+         :range '(0 1)
+         :default 0
+         :value 0
+         :type 'tbm)
 ;;; Books mode
-       (make-emacspeak-google-tool
-        :name "books"
-        :param "bks"
-        :range '(0 1)
-        :default 0
-        :type 'tbm
-        :value 0)
-;;; epub 
-       (make-emacspeak-google-tool
-        :name "books-format"
-        :param "bft"
-        :range '("p" "e")
-        :default "e"
-        :type 'tbs
-        :value "e")
+        (make-emacspeak-google-tool
+         :name "books"
+         :param "bks"
+         :range '(0 1)
+         :default 0
+         :type 'tbm
+         :value 0)
+;;; epub
+        (make-emacspeak-google-tool
+         :name "books-format"
+         :param "bft"
+         :range '("p" "e")
+         :default "e"
+         :type 'tbs
+         :value "e")
 ;;; Books viewability
-       (make-emacspeak-google-tool
-        :name "books-viewability"
-        :param "bkv"
-        :range '("a" "f")
-        :default "a"
-        :value "a"
-        :type 'tbs)
+        (make-emacspeak-google-tool
+         :name "books-viewability"
+         :param "bkv"
+         :range '("a" "f")
+         :default "a"
+         :value "a"
+         :type 'tbs)
 ;;; Book Type
-       (make-emacspeak-google-tool
-        :name "books-type"
-        :param "bkt"
-        :range '("b" "p" "m")
-        :default "b"
-        :value "b"
-        :type 'tbs)
+        (make-emacspeak-google-tool
+         :name "books-type"
+         :param "bkt"
+         :range '("b" "p" "m")
+         :default "b"
+         :value "b"
+         :type 'tbs)
 ;;; Forums Mode
-       (make-emacspeak-google-tool
-        :name "forums"
-        :param "frm"
-        :range '(0 1)
-        :default 0
-        :value 0
-        :type 'tbs)
+        (make-emacspeak-google-tool
+         :name "forums"
+         :param "frm"
+         :range '(0 1)
+         :default 0
+         :value 0
+         :type 'tbs)
 ;;; News Mode
-       (make-emacspeak-google-tool
-        :name "news"
-        :param "nws"
-        :range '(0 1)
-        :default 0
-        :value 0
-        :type 'tbm)
+        (make-emacspeak-google-tool
+         :name "news"
+         :param "nws"
+         :range '(0 1)
+         :default 0
+         :value 0
+         :type 'tbm)
 ;;; Reviews
-       (make-emacspeak-google-tool
-        :name "reviews"
-        :param "rvw"
-        :range '(0 1)
-        :default 0
-        :value 0
-        :type 'tbs)
+        (make-emacspeak-google-tool
+         :name "reviews"
+         :param "rvw"
+         :range '(0 1)
+         :default 0
+         :value 0
+         :type 'tbs)
 ;;; Web History Visited
-       (make-emacspeak-google-tool
-        :name "web-history-visited"
-        :param "whv"
-        :range '(0 1)
-        :default 0
-        :type 'tbs
-        :value 0)
+        (make-emacspeak-google-tool
+         :name "web-history-visited"
+         :param "whv"
+         :range '(0 1)
+         :default 0
+         :type 'tbs
+         :value 0)
 ;;; Web History Not Visited
-       (make-emacspeak-google-tool
-        :name "web-history-not-visited"
-        :param "whnv"
-        :type 'tbs
-        :range '(0 1)
-        :default 0
-        :value 0)
+        (make-emacspeak-google-tool
+         :name "web-history-not-visited"
+         :param "whnv"
+         :type 'tbs
+         :range '(0 1)
+         :default 0
+         :value 0)
 ;;; Images
-       (make-emacspeak-google-tool
-        :name "images"
-        :param "isch"
-        :range '(0 1)
-        :default 0
-        :value 0
-        :type 'tbm)
+        (make-emacspeak-google-tool
+         :name "images"
+         :param "isch"
+         :range '(0 1)
+         :default 0
+         :value 0
+         :type 'tbm)
 ;;; Structured Snippets
-       (make-emacspeak-google-tool
-        :name "structured-snippets"
-        :param "sts"
-        :range '(0 1)
-        :default 0
-        :value 0
-        :type 'tbs)
+        (make-emacspeak-google-tool
+         :name "structured-snippets"
+         :param "sts"
+         :range '(0 1)
+         :default 0
+         :value 0
+         :type 'tbs)
 ;;; sort by date
-       (make-emacspeak-google-tool
-        :name "sort-by-date"
-        :param "std"
-        :range '(0 1)
-        :default 0
-        :value 0
-        :type 'tbs)
+        (make-emacspeak-google-tool
+         :name "sort-by-date"
+         :param "std"
+         :range '(0 1)
+         :default 0
+         :value 0
+         :type 'tbs)
 ;;; Timeline
-       (make-emacspeak-google-tool
-        :name "timeline"
-        :param "tl"
-        :range '(0 1)
-        :default 0
-        :type 'tbs
-        :value 0)
+        (make-emacspeak-google-tool
+         :name "timeline"
+         :param "tl"
+         :range '(0 1)
+         :default 0
+         :type 'tbs
+         :value 0)
 ;;; Timeline Low
-       (make-emacspeak-google-tool
-        :name "timeline-low"
-        :param "tll"
-        :type 'tbs
-        :range "YYYY/MM"
-        :default ""
-        :value "")
+        (make-emacspeak-google-tool
+         :name "timeline-low"
+         :param "tll"
+         :type 'tbs
+         :range "YYYY/MM"
+         :default ""
+         :value "")
 ;;; Date Filter
-       (make-emacspeak-google-tool
-        :name "date-filter"
-        :param "qdr"
-        :range "tn"
-        :default ""
-        :type 'tbs
-        :value "")
+        (make-emacspeak-google-tool
+         :name "date-filter"
+         :param "qdr"
+         :range '("d"h" "n" " "m" "w" "y")
+         :default ""
+         :type 'tbs
+         :value "")
 ;;; Timeline High
-       (make-emacspeak-google-tool
-        :name "timeline-high"
-        :param "tlh"
-        :range "YYYY/MM"
-        :default ""
-        :type 'tbs
-        :value "")
+        (make-emacspeak-google-tool
+         :name "timeline-high"
+         :param "tlh"
+         :range "YYYY/MM"
+         :default ""
+         :type 'tbs
+         :value "")
 ;;; more:commercial promotion with prices
-       (make-emacspeak-google-tool
-        :name "commercial"
-        :param "cpk"
-        :range '(0 1)
-        :default 0
-        :type 'tbs
-        :value 0)
+        (make-emacspeak-google-tool
+         :name "commercial"
+         :param "cpk"
+         :range '(0 1)
+         :default 0
+         :type 'tbs
+         :value 0)
 ;;; verbatim/literal search
-       (make-emacspeak-google-tool
-        :name "literal"
-        :param "li"
-        :range '(0 1)
-        :default 0
-        :type 'tbs
-        :value 0)
+        (make-emacspeak-google-tool
+         :name "literal"
+         :param "li"
+         :range '(0 1)
+         :default 0
+         :type 'tbs
+         :value 0)
 ;;; shopping
-       (make-emacspeak-google-tool
-        :name "Shopping"
-        :param "shop"
-        :range '(0 1)
-        :default 0
-        :type 'tbm
-        :value 0)
-       (make-emacspeak-google-tool
-        :name "commercial-prices"
-        :param "cp"
-        :range '(0 1)
-        :default 0
-        :type 'tbs
-        :value 0)
+        (make-emacspeak-google-tool
+         :name "Shopping"
+         :param "shop"
+         :range '(0 1)
+         :default 0
+         :type 'tbm
+         :value 0)
+        (make-emacspeak-google-tool
+         :name "commercial-prices"
+         :param "cp"
+         :range '(0 1)
+         :default 0
+         :type 'tbs
+         :value 0)
 ;;; less:commercial (demotion)
-       (make-emacspeak-google-tool
-        :name "non-commercial" 
-        :param "cdcpk"
-        :range '(0 1)
-        :default 0
-        :type 'tbs
-        :value 0)
+        (make-emacspeak-google-tool
+         :name "non-commercial"
+         :param "cdcpk"
+         :range '(0 1)
+         :default 0
+         :type 'tbs
+         :value 0)
 ;;; soc
-       (make-emacspeak-google-tool
-        :name "social" 
-        :param "sa"
-        :range '(0 1)
-        :default 0
-        :type 'tbs
-        :value 0))))
+        (make-emacspeak-google-tool
+         :name "social"
+         :param "sa"
+         :range '(0 1)
+         :default 0
+         :type 'tbs
+         :value 0)))))
 
 ;;}}}
 ;;{{{  URL Fixup
@@ -378,7 +382,7 @@ This variable is buffer-local.")
 (defsubst emacspeak-google-canonicalize-result-url (url)
   "Strip out the actual result URL from the redirect wrapper."
   (declare (special emacspeak-websearch-google-use-https))
-  (url-unhex-string 
+  (url-unhex-string
    (substring url
               (if emacspeak-websearch-google-use-https 29 28)
               (string-match "&sa=" url))))
@@ -438,9 +442,39 @@ This variable is buffer-local.")
                   (concat
                    (emacspeak-google-toolbelt-to-tbs belt)
                    (emacspeak-google-toolbelt-to-tbm belt))))
+              (emacspeak-webutils-cache-google-toolbelt belt)
               (emacspeak-websearch-google
                (or emacspeak-google-query
                    (gweb-google-autocomplete))))))))
+
+(defvar emacspeak-google-toolbelt-names nil
+  "Cache of tool names.")
+(make-variable-buffer-local 'emacspeak-google-toolbelt-names)
+
+(defsubst emacspeak-google-toolbelt-names ()
+  "Return memoized cache of names."
+  (declare (special emacspeak-google-toolbelt-names))
+  (or emacspeak-google-toolbelt-names
+      (setq emacspeak-google-toolbelt-names
+            (loop
+             for b in emacspeak-google-toolbelt
+             collect (emacspeak-google-tool-name b)))))
+
+(defsubst emacspeak-google-toolbelt-names-from-toolbelt (toolbelt)
+  "Return list of names in toolbelt."
+  (loop
+   for b in toolbelt
+   collect (emacspeak-google-tool-name b)))
+
+(defun emacspeak-google-toolbelt-change ()
+  "Command to change values in the toolbelt and execute the query."
+  (interactive)
+  (call-interactively
+   (read
+    (format  "emacspeak-google-toolbelt-change-%s"
+             (completing-read
+              "Toolbelt: "
+              (emacspeak-google-toolbelt-names))))))
 
 (defun emacspeak-google-show-toolbelt()
   "Reload search page with toolbelt showing."
@@ -471,10 +505,7 @@ This variable is buffer-local.")
   (interactive)
   (declare (special emacspeak-google-sign-out-url))
   (browse-url emacspeak-google-sign-out-url))
-(declaim (special emacspeak-google-keymap))
-(define-key emacspeak-google-keymap "a" 'emacspeak-google-sign-out)
-(define-key emacspeak-google-keymap "A" 'emacspeak-google-sign-in)
-         
+
 ;;}}}
 ;;{{{  keymap
 ;;;###autoload
@@ -483,34 +514,13 @@ This variable is buffer-local.")
 
 (loop for k in
       '(
-        ("B" emacspeak-google-toolbelt-change-books)
-        ("C" emacspeak-google-toolbelt-change-commercial)
-        ("D" emacspeak-google-toolbelt-change-discussions)
-        ("H" emacspeak-google-toolbelt-change-web-history-not-visited)
-        ("I" emacspeak-google-toolbelt-change-patents)
-        ("L" emacspeak-google-toolbelt-change-literal)
-        ("P" emacspeak-google-toolbelt-change-places)
-        ("R" emacspeak-google-toolbelt-change-recipes)
-        ("S" emacspeak-google-toolbelt-change-shopping)
-        ("S" emacspeak-google-toolbelt-change-structured-snippets)
-        ("T" emacspeak-google-toolbelt-change-timeline)
-        ("\C-b" emacspeak-google-toolbelt-change-books-format)
-        ("\C-s" emacspeak-google-toolbelt-change-social)
-        ("\C-t" emacspeak-google-show-toolbelt)
-        ("b" emacspeak-google-toolbelt-change-blog)
+        ("." emacspeak-google-toolbelt-change)("." emacspeak-google-toolbelt-change)
+        ("A" emacspeak-google-sign-in)
+        ("a" emacspeak-google-sign-out)
         ("c" emacspeak-webutils-google-extract-from-cache)
-        ("d" emacspeak-google-toolbelt-change-sort-by-date)
-        ("f" emacspeak-google-toolbelt-change-forums)
         ("g" emacspeak-websearch-google)
-        ("h" emacspeak-google-toolbelt-change-web-history-visited)
-        ("i" emacspeak-google-toolbelt-change-images)
         ("l" emacspeak-webutils-google-who-links-to-this-page)
-        ("n" emacspeak-google-toolbelt-change-news)
-        ("p" emacspeak-google-toolbelt-change-commercial-prices)
-        ("r" emacspeak-google-toolbelt-change-recent)
         ("s" emacspeak-webutils-google-similar-to-this-page)
-        ("t" emacspeak-google-toolbelt-change-books-type)
-        ("v" emacspeak-google-toolbelt-change-video)
         )
       do
       (emacspeak-keymap-update emacspeak-google-keymap k))
@@ -551,7 +561,7 @@ This variable is buffer-local.")
    ((ems-interactive-p)
     ad-do-it
     (emacspeak-speak-region  (point)
-                             (or 
+                             (or
                               (next-single-property-change (point) 'place-details )
                               (point-max))))
    (t ad-do-it))

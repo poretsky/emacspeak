@@ -84,6 +84,17 @@
   :group 'emacspeak-xsl)
 
 ;;;###autoload
+(defvar emacspeak-feeds-feeds-table (make-hash-table :test #'equal)
+  "Hash table to enable efficient feed look up when adding feeds.")
+
+(defun emacspeak-feeds-cache-feeds ()
+  "Cache feeds in emacspeak-feeds in a hash table."
+  (declare (special emacspeak-feeds))
+    (loop
+   for f in emacspeak-feeds
+   do
+   (puthash (second f) f emacspeak-feeds-feeds-table)))
+
 (defcustom emacspeak-feeds
   '(
     ("Wired News" "http://www.wired.com/news_drop/netcenter/netcenter.rdf"  rss)
@@ -91,7 +102,7 @@
     ("BBC News"  "http://www.bbc.co.uk/syndication/feeds/news/ukfs_news/front_page/rss091.xml"  rss)
     ("CNet Tech News"  "http://feeds.feedburner.com/cnet/tcoc"  rss)
     )
-  "Table of RSS feeds."
+  "Table of RSS/Atom feeds."
   :type '(repeat
           (list :tag "Feed"
                 (string :tag "Title")
@@ -106,8 +117,14 @@
       (set-default
        sym
        (sort val #'(lambda (a b)
-                     (string-lessp (first a) (first b))))))
+                     (string-lessp (first a) (first b)))))
+       (emacspeak-feeds-cache-feeds))
   :group 'emacspeak-feeds)
+   
+(defsubst emacspeak-feeds-added-p (feed-url)
+  "Check if this feed has been added before."
+  (declare (special emacspeak-feeds-feeds-table))
+  (gethash feed-url emacspeak-feeds-feeds-table))
 
 (defun emacspeak-feeds-add-feed (title url type)
   "Add specified feed to our feed store."
@@ -120,18 +137,15 @@
       (?o 'opml)
       (?r 'rss))))
   (declare (special emacspeak-feeds))
-  (let ((found
-         (find-if #'(lambda (f) (string= url (second f))) emacspeak-feeds)))
+  (let ((found (emacspeak-feeds-added-p url)))
     (cond
      (found
       (message "Feed already present  as %s" (first found)))
-     (t (pushnew
-         (list title url type)
-         emacspeak-feeds
-         :test #'(lambda (a b) (string= (second a) (second b))))
+     (t (push (list title url type) emacspeak-feeds)
         (let ((dtk-quiet t))
           (customize-save-variable 'emacspeak-feeds emacspeak-feeds))
         (message "Added feed as %s" title)))))
+
 (defvar emacspeak-feeds-archive-file
   (expand-file-name "feeds.el" emacspeak-resource-directory)
   "Feed archive.")
@@ -179,6 +193,24 @@ Archiving is useful when synchronizing feeds across multiple machines."
         (y-or-n-p
          (format "After restoring %d feeds, we have a total of %d feeds. Save? "
                  (length feeds) (length emacspeak-feeds)))
+      (customize-save-variable 'emacspeak-feeds emacspeak-feeds))))
+
+;;;###autoload
+
+(defun emacspeak-feeds-fastload-feeds ()
+  "Fast load list of feeds from archive.
+This directly  updates emacspeak-feeds from the archive, rather than adding those entries to the current set of subscribed feeds."
+  (interactive)
+  (declare (special emacspeak-feeds-archive-file emacspeak-feeds))
+  (unless (file-exists-p emacspeak-feeds-archive-file)
+    (error "No archived feeds to restore. "))
+  (let ((buffer (find-file-noselect emacspeak-feeds-archive-file)))
+    (setq emacspeak-feeds (read buffer))
+    (kill-buffer buffer)
+    (when
+        (y-or-n-p
+         (format "After restoring  we have a total of %d feeds. Save? "
+                 (length emacspeak-feeds)))
       (customize-save-variable 'emacspeak-feeds emacspeak-feeds))))
 
 ;;}}}
@@ -273,8 +305,7 @@ Argument `feed' is a feed structure (label url type)."
   (interactive
    (list
     (let ((completion-ignore-case t))
-      (completing-read "Feed:"
-                       emacspeak-feeds))))
+      (completing-read "Feed:" emacspeak-feeds))))
   (emacspeak-feeds-browse-feed
    (assoc feed emacspeak-feeds)
    'speak))

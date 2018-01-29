@@ -1,5 +1,5 @@
 ;;; emacspeak-re-builder.el --- speech-enable re-builder
-;;; $Id: emacspeak-re-builder.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
+;;; $Id: emacspeak-re-builder.el 9459 2014-09-22 02:03:04Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:   extension to speech enable re-builder
 ;;; Keywords: Emacspeak, Audio Desktop
@@ -113,6 +113,9 @@
   (when (ems-interactive-p )
     (emacspeak-auditory-icon 'close-object)))
 
+(defadvice reb-auto-update (after emacspeak pre act comp)
+  "Provide spoken feedback after update is done."
+  (emacspeak-speak-message-again))
 ;;}}}
 (provide 'emacspeak-re-builder)
 ;;{{{ end of file

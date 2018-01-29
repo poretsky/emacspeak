@@ -1,4 +1,4 @@
-# $Id: Makefile 8905 2014-03-21 20:42:56Z tv.raman.tv $
+# $Id: Makefile 9454 2014-09-19 16:03:28Z tv.raman.tv $
 # $Author: tv.raman.tv $
 # Description:  Makefile for Emacspeak
 # Keywords: Emacspeak, Dectalk, Makefile
@@ -115,10 +115,10 @@ emacspeak-cedet.elc \
 emacspeak-checkdoc.elc \
 emacspeak-cmuscheme.elc \
 emacspeak-compile.elc \
+emacspeak-company.elc \
 congrats.elc \
 emacspeak-cperl.elc \
 emacspeak-custom.elc \
-emacspeak-daisy.elc \
 emacspeak-damlite.elc \
 emacspeak-dbus.elc \
 emacspeak-dictation.elc \
@@ -137,9 +137,11 @@ emacspeak-eww.elc \
 flite-voices.elc \
 emacspeak-eclim.elc \
 emacspeak-enriched.elc \
+emacspeak-xkcd.elc \
 emacspeak-emms.elc \
 emacspeak-entertain.elc \
 emacspeak-eperiodic.elc \
+emacspeak-espn.elc \
 emacspeak-erc.elc \
 emacspeak-eshell.elc \
 emacspeak-ess.elc \
@@ -152,12 +154,14 @@ emacspeak-find-dired.elc \
 emacspeak-ftf.elc \
 emacspeak-find-func.elc \
 emacspeak-finder.elc \
+emacspeak-flycheck.elc \
 emacspeak-flyspell.elc \
 emacspeak-folding.elc \
 emacspeak-forms.elc \
 emacspeak-generic.elc \
 emacspeak-gnuplot.elc \
 emacspeak-gnus.elc\
+emacspeak-go-mode.elc \
 emacspeak-gomoku.elc \
 emacspeak-google.elc \
 emacspeak-gridtext.elc \
@@ -170,7 +174,6 @@ emacspeak-ido.elc \
 emacspeak-imenu.elc \
 emacspeak-info.elc\
 emacspeak-ispell.elc \
-emacspeak-iswitchb.elc \
 emacspeak-jabber.elc \
 emacspeak-jde.elc \
 emacspeak-js2.elc \
@@ -230,6 +233,7 @@ emacspeak-tcl.elc \
 emacspeak-tdtd.elc \
 emacspeak-tempo.elc \
 emacspeak-tetris.elc \
+emacspeak-2048.elc \
 emacspeak-texinfo.elc \
 emacspeak-tnt.elc \
 emacspeak-todo-mode.elc \
@@ -342,11 +346,11 @@ emacspeak-calendar.elc: emacspeak-calendar.el dtk-speak.el
 emacspeak-cedet.elc: emacspeak-cedet.el dtk-speak.elc voice-setup.elc
 emacspeak-checkdoc.elc: emacspeak-checkdoc.el dtk-speak.elc voice-setup.elc
 emacspeak-compile.elc: emacspeak-compile.el  dtk-speak.elc
+emacspeak-company.elc: emacspeak-company.el dtk-speak.elc
 congrats.elc: congrats.el dtk-speak.elc
 emacspeak-cperl.elc: emacspeak-cperl.el dtk-speak.elc voice-setup.elc
 emacspeak-custom.elc: emacspeak-custom.el dtk-speak.elc voice-setup.elc
 emacspeak-cyclebuffer.elc: emacspeak-cyclebuffer.el dtk-speak.elc
-emacspeak-daisy.elc: emacspeak-daisy.el dtk-speak.elc voice-setup.elc
 emacspeak-epub.elc: emacspeak-epub.el dtk-speak.elc voice-setup.elc
 emacspeak-damlite.elc: emacspeak-damlite.el dtk-speak.elc voice-setup.elc
 emacspeak-dbus.elc: emacspeak-dbus.el dtk-speak.elc nm.elc
@@ -361,12 +365,14 @@ emacspeak-ecb.elc: emacspeak-ecb.el dtk-speak.elc voice-setup.elc
 emacspeak-ein.elc: emacspeak-ein.el dtk-speak.elc voice-setup.elc
 emacspeak-ediary.elc: emacspeak-ediary.el dtk-speak.elc voice-setup.elc
 emacspeak-ediff.elc: emacspeak-ediff.el dtk-speak.elc voice-setup.elc
+emacspeak-xkcd.elc: emacspeak-xkcd.el dtk-speak.elc
 flite-voices.elc: flite-voices.el
 emacspeak-eclim.elc: emacspeak-eclim.el dtk-speak.elc voice-setup.elc
 emacspeak-enriched.elc: emacspeak-enriched.el dtk-speak.elc voice-setup.elc
 emacspeak-emms.elc: emacspeak-emms.el dtk-speak.elc
 emacspeak-entertain.elc: emacspeak-entertain.el dtk-speak.elc voice-setup.elc
 emacspeak-eperiodic.elc: emacspeak-eperiodic.el dtk-speak.elc voice-setup.elc
+emacspeak-espn.elc: emacspeak-espn.el dtk-speak.elc
 emacspeak-erc.elc: emacspeak-erc.el dtk-speak.elc voice-setup.elc
 emacspeak-eshell.elc: emacspeak-eshell.el dtk-speak.elc voice-setup.elc
 emacspeak-ess.elc: emacspeak-ess.el dtk-speak.elc voice-setup.elc
@@ -381,6 +387,7 @@ emacspeak-ftf.elc: emacspeak-ftf.el dtk-speak.elc
 emacspeak-find-func.elc: emacspeak-find-func.el dtk-speak.elc voice-setup.elc
 emacspeak-finder.elc: emacspeak-finder.el
 emacspeak-fix-interactive.elc: emacspeak-fix-interactive.el dtk-speak.elc voice-setup.elc
+emacspeak-flycheck.elc: emacspeak-flycheck.el dtk-speak.elc voice-setup.elc
 emacspeak-flyspell.elc: emacspeak-flyspell.el dtk-speak.elc voice-setup.elc
 emacspeak-folding.elc: emacspeak-folding.el dtk-speak.elc voice-setup.elc
 emacspeak-forms.elc: emacspeak-forms.el dtk-speak.elc voice-setup.elc
@@ -388,6 +395,7 @@ emacspeak-generic.elc: emacspeak-generic.el dtk-speak.elc voice-setup.elc
 emacspeak-gnuplot.elc: emacspeak-gnuplot.el dtk-speak.elc voice-setup.elc
 emacspeak-gnus.elc: emacspeak-gnus.el dtk-speak.elc voice-setup.elc
 emacspeak-google.elc: emacspeak-google.el dtk-speak.elc
+emacspeak-go-mode.elc: emacspeak-go-mode.el dtk-speak.elc
 emacspeak-gomoku.elc: emacspeak-gomoku.el dtk-speak.elc voice-setup.elc
 emacspeak-gridtext.elc: emacspeak-gridtext.el dtk-speak.elc voice-setup.elc
 emacspeak-gtags.elc: emacspeak-gtags.el dtk-speak.elc voice-setup.elc
@@ -399,7 +407,6 @@ emacspeak-ido.elc: emacspeak-ido.el dtk-speak.elc voice-setup.elc
 emacspeak-imenu.elc: emacspeak-imenu.el dtk-speak.elc voice-setup.elc
 emacspeak-info.elc: emacspeak-info.el dtk-speak.elc voice-setup.elc
 emacspeak-ispell.elc: emacspeak-ispell.el dtk-speak.elc voice-setup.elc
-emacspeak-iswitchb.elc: emacspeak-iswitchb.el dtk-speak.elc voice-setup.elc
 emacspeak-jabber.elc: emacspeak-jabber.el dtk-speak.elc
 emacspeak-jde.elc: emacspeak-jde.el dtk-speak.elc voice-setup.elc
 emacspeak-js2.elc: emacspeak-js2.el dtk-speak.elc voice-setup.elc
@@ -471,6 +478,7 @@ emacspeak-tcl.elc: emacspeak-tcl.el dtk-speak.elc voice-setup.elc
 emacspeak-tdtd.elc: emacspeak-tdtd.el dtk-speak.elc voice-setup.elc
 emacspeak-tempo.elc: emacspeak-tempo.el dtk-speak.elc voice-setup.elc
 emacspeak-tetris.elc: emacspeak-tetris.el dtk-speak.elc voice-setup.elc
+emacspeak-2048.elc: emacspeak-2048.el dtk-speak.elc
 emacspeak-texinfo.elc: emacspeak-texinfo.el dtk-speak.elc voice-setup.elc
 emacspeak-tnt.elc: emacspeak-tnt.el dtk-speak.elc voice-setup.elc
 emacspeak-todo-mode.elc: emacspeak-todo-mode.el dtk-speak.elc voice-setup.elc

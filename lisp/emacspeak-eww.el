@@ -67,21 +67,182 @@
 
 (require 'xml)
 ;;}}}
+;;{{{ Compatibility Helpers:
+
+;;; For compatibility between Emacs 24 and Emacs 25
+;;; eww in emacs-24 used eww-current-title etc as variables.
+;;; eww in emacs 25 groups these as properties on eww-data.
+;;; Emacspeak-eww defines wrapper functions to hide this difference.
+
+(loop
+ for name in
+ '(title url source dom)
+ do
+ (cond
+  ((boundp 'eww-data)
+   (eval
+    `(defsubst
+       ,(intern (format "emacspeak-eww-current-%s" name)) ()
+       , (format "Return eww-current-%s." name)
+         (declare (special eww-data))
+         (plist-get eww-data
+                    ,(intern (format ":%s" name))))))
+  (t
+   (eval
+    `(defsubst
+       ,(intern (format "emacspeak-eww-current-%s" name))
+       ()
+       , (format "Return eww-current-%s." name)
+         ,(intern (format "eww-current-%s" name)))))))
+
+;;}}}
 ;;{{{ Inline Helpers:
 
 (defsubst emacspeak-eww-prepare-eww ()
   "Ensure that we are in an EWW buffer that is well set up."
-  (declare (special major-mode eww-current-dom eww-cache-updated))
+  (declare (special major-mode  emacspeak-eww-cache-updated))
   (unless (eq major-mode 'eww-mode) (error "Not in EWW buffer."))
-  (unless (and (boundp 'eww-current-dom) eww-current-dom)
-    (error "No DOM to filter!"))
-  (unless eww-cache-updated (eww-update-cache eww-current-dom)) )
+  (unless (emacspeak-eww-current-dom) (error "No DOM!"))
+  (unless emacspeak-eww-cache-updated (eww-update-cache (emacspeak-eww-current-dom))))
 
 (defsubst emacspeak-eww-post-render-actions ()
   "Post-render actions for setting up emacspeak."
-
   (emacspeak-eww-prepare-eww)
   (emacspeak-pronounce-toggle-use-of-dictionaries t))
+
+;;}}}
+;;{{{ Setup EWW Initialization:
+
+;;; Inform emacspeak-webutils about EWW:
+
+(add-hook
+ 'eww-mode-hook
+ #'(lambda ()
+     (setq
+      emacspeak-webutils-document-title (emacspeak-eww-current-title)
+      emacspeak-webutils-url-at-point
+      #'(lambda ()
+          (let ((url (get-text-property (point) 'help-echo)))
+            (cond
+             ((and url
+                   (stringp url)
+                   (string-prefix-p
+                    (emacspeak-google-result-url-prefix) url))
+              (emacspeak-google-canonicalize-result-url url))
+             ((and url (stringp url))url)
+             (t (error "No URL under point.")))))
+      emacspeak-webutils-current-url (emacspeak-eww-current-url))))
+
+(defvar emacspeak-eww-masquerade t
+  "Says if we masquerade as a mainstream browser.")
+
+(defun emacspeak-eww-masquerade ()
+  "Toggle masquerade state."
+  (interactive)
+  (declare (special emacspeak-eww-masquerade))
+  (setq emacspeak-eww-masquerade (not emacspeak-eww-masquerade))
+  (message "Turned %s masquerade"
+           (if emacspeak-eww-masquerade "on" "off"))
+  (emacspeak-auditory-icon
+   (if emacspeak-eww-masquerade 'on 'off)))
+
+(defcustom  emacspeak-eww-masquerade-as
+  (format "User-Agent: %s %s %s\r\n"
+          "Mozilla/5.0 (X11; Linux x86_64)"
+          "AppleWebKit/537.36 (KHTML, like Gecko)"
+          "Chrome/36.0.1964.2 Safari/537.36")
+  "User Agent string that is  sent when masquerading is on."
+  :type 'string
+  :group 'emacspeak-eww)
+
+;;; Advice note: Setting ad-return-value in one arm of the cond appears to perculate to both arms.
+
+(defadvice url-http-user-agent-string (around emacspeak pre act comp)
+  "Respond to user  asking us to masquerade."
+  (cond
+   ((and emacspeak-eww-masquerade
+         (eq browse-url-browser-function 'eww-browse-url))
+    (setq ad-return-value emacspeak-eww-masquerade-as))
+   (t (setq ad-return-value "User-Agent: URL/Emacs \r\n"))))
+
+(defun emacspeak-eww-setup ()
+  "Setup keymaps etc."
+  (declare (special eww-mode-map eww-link-keymap
+                    shr-inhibit-images emacspeak-pronounce-common-xml-namespace-uri-pronunciations
+                    emacspeak-eww-masquerade emacspeak-pronounce-load-pronunciations-on-startup))
+  (when emacspeak-pronounce-load-pronunciations-on-startup
+    (emacspeak-pronounce-augment-pronunciations
+     'eww-mode emacspeak-pronounce-common-xml-namespace-uri-pronunciations)
+    (emacspeak-pronounce-add-dictionary-entry
+     'eww-mode
+     emacspeak-speak-rfc-3339-datetime-pattern
+     (cons 're-search-forward 'emacspeak-speak-decode-rfc-3339-datetime)))
+;;; turn off images
+  (setq shr-inhibit-images t)
+                                        ; remove "I" "o" from
+                                        ; eww-link-keymap
+  (loop
+   for c in
+   '(?I ?o)
+   do
+   (when (assoc  c eww-link-keymap)
+     (delete (assoc  c eww-link-keymap) eww-link-keymap)))
+
+  (define-key eww-link-keymap  "k" 'shr-copy-url)
+  (loop
+   for binding  in
+   '(
+     ( "\C-t" emacspeak-google-command)
+     ("'" emacspeak-speak-rest-of-buffer)
+     ("*" eww-add-bookmark)
+     ("," emacspeak-eww-previous-h)
+     ("." emacspeak-eww-next-h)
+     ("/" search-forward)
+     ("1" emacspeak-eww-next-h1)
+     ("2" emacspeak-eww-next-h2)
+     ("3" emacspeak-eww-next-h3)
+     ("=" dtk-toggle-punctuation-mode)
+     ("?" emacspeak-webutils-google-similar-to-this-page)
+     ("A" eww-view-dom-having-attribute)
+     ("C" eww-view-dom-having-class)
+     ("E" eww-view-dom-having-elements)
+     ("G" emacspeak-google-command)
+     ("I" eww-view-dom-having-id)
+     ("J" emacspeak-eww-next-element-like-this)
+     ("K" emacspeak-eww-previous-element-like-this)
+     ("N" emacspeak-eww-next-element-from-history)
+     ("O" emacspeak-eww-previous-li)
+     ("P" emacspeak-eww-previous-element-from-history)
+     ("Q" emacspeak-kill-buffer-quietly)
+     ("R" eww-view-dom-having-role)
+     ("T" emacspeak-eww-previous-table)
+     ("[" emacspeak-eww-previous-p)
+     ("\;" emacspeak-webutils-play-media-at-point)
+     ("\C-e" emacspeak-prefix-command)
+     ("\M- " emacspeak-eww-speak-this-element)
+     ("\M-1" emacspeak-eww-previous-h1)
+     ("\M-2" emacspeak-eww-previous-h2)
+     ("\M-3" emacspeak-eww-previous-h3)
+     ("\M-a" eww-view-dom-not-having-attribute)
+     ("\M-c" eww-view-dom-not-having-class)
+     ("\M-e" eww-view-dom-not-having-element-list)
+     ("\M-i" eww-view-dom-not-having-id)
+     ("\M-r" eww-view-dom-not-having-role)
+     ("\d" emacspeak-eww-restore)
+     ("]" emacspeak-eww-next-p)
+     ("b" shr-previous-link)
+     ("e" emacspeak-we-xsl-map)
+     ("f" shr-next-link)
+     ("k" eww-copy-page-url)
+     ("n" emacspeak-eww-next-element)
+     ("o" emacspeak-eww-next-li)
+     ("p" emacspeak-eww-previous-element)
+     ("t" emacspeak-eww-next-table)
+     )
+   do
+   (emacspeak-keymap-update eww-mode-map binding)))
+
+(when (boundp 'eww-mode-map) (emacspeak-eww-setup))
 
 ;;}}}
 ;;{{{ Map Faces To Voices:
@@ -103,12 +264,11 @@
               eww-back-url eww-forward-url)
  do
  (eval
-  `
-  (defadvice ,f (after emacspeak pre act comp)
-    "Provide auditory feedback"
-    (when (ems-interactive-p)
-      (emacspeak-auditory-icon 'open-object)
-      (dtk-speak eww-current-title)))))
+  `(defadvice ,f (after emacspeak pre act comp)
+     "Provide auditory feedback"
+     (when (ems-interactive-p)
+       (emacspeak-auditory-icon 'open-object)
+       (dtk-speak (emacspeak-eww-current-title))))))
 
 (defvar emacspeak-eww-style nil
   "Record if we applied an  xsl style in this buffer.")
@@ -150,14 +310,14 @@ If we came from a url-template, reload that template.
 Retain previously set punctuations  mode."
   (add-hook 'emacspeak-web-post-process-hook 'emacspeak-eww-post-render-actions)
   (cond
-   ((and eww-current-url
+   ((and (emacspeak-eww-current-url)
          emacspeak-eww-feed
          emacspeak-eww-style)
                                         ; this is a displayed feed
     (lexical-let
         ((p dtk-punctuation-mode)
          (r dtk-speech-rate)
-         (u eww-current-url )
+         (u (emacspeak-eww-current-url) )
          (s emacspeak-eww-style))
       (kill-buffer)
       (add-hook
@@ -168,7 +328,7 @@ Retain previously set punctuations  mode."
            (emacspeak-dtk-sync))
        'at-end)
       (emacspeak-feeds-feed-display u s 'speak)))
-   ((and eww-current-url emacspeak-eww-url-template)
+   ((and (emacspeak-eww-current-url) emacspeak-eww-url-template)
                                         ; this is a url template
     (lexical-let
         ((n emacspeak-eww-url-template)
@@ -190,26 +350,41 @@ Retain previously set punctuations  mode."
  '(eww eww-reload eww-open-file)
  do
  (eval
-  `
-  (defadvice ,f (after emacspeak pre act comp)
-    "Provide auditory feedback"
-    (when (ems-interactive-p)
-      (emacspeak-auditory-icon 'open-object)))))
+  `(defadvice ,f (after emacspeak pre act comp)
+     "Provide auditory feedback"
+     (when (ems-interactive-p)
+       (emacspeak-auditory-icon 'open-object)))))
 
 (defvar emacspeak-eww-rename-result-buffer t
   "Result buffer is renamed to document title.")
 
-(defadvice eww-render (after emacspeak pre act comp)
-  "Setup Emacspeak for rendered buffer.
-If buffer was result of displaying a feed, reload feed.
-If we came from a url-template, reload that template."
-  (declare (special eww-cache-updated emacspeak-eww-buffer-hash))
-  (when (eq eww-current-title "") (setq eww-current-title "Untitled"))
-  (when emacspeak-eww-rename-result-buffer (rename-buffer eww-current-title 'unique))
-  (puthash  eww-current-url (current-buffer)emacspeak-eww-buffer-hash)
+(defun emacspeak-eww-after-render-hook ()
+  "Setup Emacspeak for rendered buffer. "
+  (declare (special emacspeak-eww-cache-updated emacspeak-eww-buffer-hash))
+  (let ((title (emacspeak-eww-current-title)))
+    (when emacspeak-eww-rename-result-buffer
+      (when (= 0 (length title)) (setq title "EWW: Untitled"))
+      (rename-buffer title 'unique)))
+  (puthash  (emacspeak-eww-current-url) (current-buffer)emacspeak-eww-buffer-hash)
   (unless emacspeak-web-post-process-hook (emacspeak-speak-mode-line))
   (emacspeak-webutils-run-post-process-hook)
-  (when (eq major-mode 'eww-mode) (eww-update-header-line-format)))
+  (when (eq major-mode 'eww-mode)
+    (eww-update-header-line-format)))
+
+(cond
+ ((boundp  'eww-after-render-hook) ; emacs 25
+  ; temporary solution since eww-after-render-hook is called too early by EWW
+  (defadvice shr-insert-document (after emacspeak pre act comp)
+    (emacspeak-eww-after-render-hook))
+  )
+ (t
+  (defadvice eww-render (after emacspeak pre act comp)
+    "Setup Emacspeak for rendered buffer."
+    (emacspeak-eww-after-render-hook))))
+    
+;;(when (symbolp 'eww-after-render-hook)
+  ;(add-hook 'eww-after-render-hook
+            ;'emacspeak-eww-after-render-hook)))
 
 (defadvice eww-add-bookmark (after emacspeak pre act comp)
   "Provide auditory feedback."
@@ -248,11 +423,10 @@ If we came from a url-template, reload that template."
  '(eww-next-bookmark eww-previous-bookmark)
  do
  (eval
-  `
-  (defadvice ,f(after emacspeak pre act comp)
-    "Provide auditory feedback."
-    (when (ems-interactive-p) (emacspeak-auditory-icon 'select-object))
-    (emacspeak-speak-line))))
+  `(defadvice ,f(after emacspeak pre act comp)
+     "Provide auditory feedback."
+     (when (ems-interactive-p) (emacspeak-auditory-icon 'select-object))
+     (emacspeak-speak-line))))
 
 (defadvice eww-quit(after emacspeak pre act comp)
   "Provide auditory feedback."
@@ -265,34 +439,31 @@ If we came from a url-template, reload that template."
    eww-submit)
  do
  (eval
-  `
-  (defadvice ,f (after emacspeak pre act comp)
-    "Provide auditory feedback."
-    (when (ems-interactive-p)
-      (emacspeak-auditory-icon 'button)))))
+  `(defadvice ,f (after emacspeak pre act comp)
+     "Provide auditory feedback."
+     (when (ems-interactive-p)
+       (emacspeak-auditory-icon 'button)))))
 
 (loop
  for f in
  '(shr-next-link shr-previous-link)
  do
  (eval
-  `
-  (defadvice ,f (around emacspeak pre act comp)
-    "Provide auditory feedback."
-    (let ((emacspeak-speak-messages nil))
-      ad-do-it
-      (when (ems-interactive-p)
-        (emacspeak-auditory-icon 'large-movement)
-        (emacspeak-speak-region
-         (point)
-         (next-single-property-change (point) 'help-echo  nil (point-max))))))))
+  `(defadvice ,f (around emacspeak pre act comp)
+     "Provide auditory feedback."
+     (let ((emacspeak-speak-messages nil))
+       ad-do-it
+       (when (ems-interactive-p)
+         (emacspeak-auditory-icon 'large-movement)
+         (emacspeak-speak-region
+          (point)
+          (next-single-property-change (point) 'help-echo  nil (point-max))))))))
 
 ;;; Handle emacspeak-we-url-executor
 
 (defadvice eww-follow-link (around emacspeak pre act comp)
   "Respect emacspeak-we-url-executor if set."
-  (when (ems-interactive-p)
-    (emacspeak-auditory-icon 'button))
+  (emacspeak-auditory-icon 'button)
   (cond
    ((and (ems-interactive-p)
          (boundp 'emacspeak-we-url-executor)
@@ -303,162 +474,68 @@ If we came from a url-template, reload that template."
    (t ad-do-it)))
 
 ;;}}}
-;;{{{ Setup EWW Initialization:
+;;{{{ xslt transform on request:
 
-;;; Inform emacspeak-webutils about EWW:
+(defadvice eww-display-html (before emacspeak pre act comp)
+  "Apply XSLT transform if requested."
+  (let ((orig (point)))
+    (when (and emacspeak-we-xsl-p emacspeak-we-xsl-transform)
+      (emacspeak-xslt-region
+       emacspeak-we-xsl-transform (point) (point-max)
+       emacspeak-we-xsl-params))
+    (goto-char orig)))
 
-(add-hook
- 'eww-mode-hook
- #'(lambda ()
-     (setq
-      emacspeak-webutils-document-title
-      #'(lambda ()
-          (declare (special  eww-current-title))
-          eww-current-title)
-      emacspeak-webutils-url-at-point
-      #'(lambda ()
-          (let ((url (get-text-property (point) 'help-echo)))
-            (cond
-             ((and url
-                   (stringp url)
-                   (string-prefix-p
-                    (emacspeak-google-result-url-prefix) url))
-              (emacspeak-google-canonicalize-result-url url))
-             ((and url (stringp url))url)
-             (t (error "No URL under point.")))))
-      emacspeak-webutils-current-url
-      #'(lambda ()
-          (declare (special eww-current-url))
-          eww-current-url))))
+;;}}}
+;;{{{ DOM Structure In Rendered Buffer:
 
-(defvar emacspeak-eww-masquerade t
-  "Says if we masquerade as a mainstream browser.")
+(loop
+ for  tag in
+ '(h1 h2 h3 div                    ; sectioning
+      ul ol dl                     ; Lists
+      li dt dd p                   ; block-level: bullets, paras
+      form blockquote              ; block-level
+      a b it em span               ; in-line
+      br hr                        ; separators
+      th tr table )
+ do
+ (eval
+  `
+  (defadvice  ,(intern (format "shr-tag-%s" tag)) (around emacspeak pre act comp)
+    (let ((start (point)))
+      ad-do-it
+      (let ((start (if (char-equal (following-char) ?\n)
+                       (min (point-max) (1+ start) )start))
+            (end (if (> (point) start) (1- (point)) (point))))
+        (put-text-property start end
+                           (quote ,tag) 'eww-tag)
+        (when (memq (quote ,tag) '(h1 h2 h3))
+          (put-text-property start end 'h 'eww-tag)))))))
 
-(defun emacspeak-eww-masquerade ()
-  "Toggle masquerade state."
-  (interactive)
-  (declare (special emacspeak-eww-masquerade))
-  (setq emacspeak-eww-masquerade (not emacspeak-eww-masquerade))
-  (message "Turned %s masquerade"
-           (if emacspeak-eww-masquerade "on" "off"))
-  (emacspeak-auditory-icon
-   (if emacspeak-eww-masquerade 'on 'off)))
-                                    
-(defcustom  emacspeak-eww-masquerade-as
-  (format "User-Agent: %s %s %s\r\n"
-          "Mozilla/5.0 (X11; Linux x86_64)"
-          "AppleWebKit/537.36 (KHTML, like Gecko)"
-          "Chrome/36.0.1964.2 Safari/537.36")
-  "User Agent string that is  sent when masquerading is on."
-  :type 'string
+;;}}}
+;;{{{  Customize image loading:
+
+(defcustom emacspeak-eww-silence-images t
+  "Set to nil if you want EWW to load images."
+  :type 'boolean
   :group 'emacspeak-eww)
-;;; Advice note: Setting ad-return-value in one arm of the cond appears to perculate to both arms.
 
-(defadvice url-http-user-agent-string (around emacspeak pre act comp)
-  "Respond to user  asking us to masquerade."
-  (cond
-   ((and emacspeak-eww-masquerade
-         (eq browse-url-browser-function 'eww-browse-url))
-         (setq ad-return-value emacspeak-eww-masquerade-as))
-   (t (setq ad-return-value "User-Agent: URL/Emacs \r\n"))))
-                                    
-                                    
-  
-  
-           
-
-(defun emacspeak-eww-setup ()
-  "Setup keymaps etc."
-  (declare (special eww-mode-map eww-link-keymap
-                    shr-inhibit-images
-                    emacspeak-pronounce-common-xml-namespace-uri-pronunciations
-                     emacspeak-eww-masquerade emacspeak-pronounce-load-pronunciations-on-startup))
-  ;(unless emacspeak-eww-masquerade (emacspeak-eww-masquerade))
-  (when emacspeak-pronounce-load-pronunciations-on-startup
-    (emacspeak-pronounce-augment-pronunciations
-     'eww-mode emacspeak-pronounce-common-xml-namespace-uri-pronunciations)
-    (emacspeak-pronounce-add-dictionary-entry
-     'eww-mode
-     emacspeak-speak-rfc-3339-datetime-pattern
-     (cons 're-search-forward 'emacspeak-speak-decode-rfc-3339-datetime)))
-  ;;; turn off images
-  (setq shr-inhibit-images t)
-                                        ; remove "I" "o" from
-                                        ; eww-link-keymap
-  (loop
-   for c in
-   '(?I ?o)
-   do
-   (when (assoc  c eww-link-keymap)
-     (delete (assoc  c eww-link-keymap) eww-link-keymap)))
-
-  (define-key eww-link-keymap  "k" 'shr-copy-url)
-  (loop
-   for binding  in
-   '(
-     ("\d" emacspeak-eww-restore)
-     ( "\C-t" emacspeak-google-command)
-     ("'" emacspeak-speak-rest-of-buffer)
-     ("*" eww-add-bookmark)
-     ("," emacspeak-eww-previous-h)
-     ("." emacspeak-eww-next-h)
-     ("=" dtk-toggle-punctuation-mode)
-     ("/" search-forward)
-     ("1" emacspeak-eww-next-h1)
-     ("2" emacspeak-eww-next-h2)
-     ("3" emacspeak-eww-next-h3)
-     ("?" emacspeak-webutils-google-similar-to-this-page)
-     ("A" eww-view-dom-having-attribute)
-     ("C" eww-view-dom-having-class)
-     ("E" eww-view-dom-having-elements)
-     ("G" emacspeak-google-command)
-     ("I" eww-view-dom-having-id)
-     ("K" emacspeak-kill-buffer-quietly)
-     ("N" emacspeak-eww-next-element-from-history)
-     ("O" emacspeak-eww-previous-li)
-     ("P" emacspeak-eww-previous-element-from-history)
-     ("Q" emacspeak-kill-buffer-quietly)
-     ("R" eww-view-dom-having-role)
-     ("T" emacspeak-eww-previous-table)
-     ("[" emacspeak-eww-previous-p)
-     ("\C-e" emacspeak-prefix-command)
-     ("\M-1" emacspeak-eww-previous-h1)
-     ("\M-2" emacspeak-eww-previous-h2)
-     ("\M-3" emacspeak-eww-previous-h3)
-     ("\;" emacspeak-webutils-play-media-at-point)
-     ("\M-a" eww-view-dom-not-having-attribute)
-     ("\M-c" eww-view-dom-not-having-class)
-     ("\M-e" eww-view-dom-not-having-element-list)
-     ("\M-i" eww-view-dom-not-having-id)
-     ("\M-r" eww-view-dom-not-having-role)
-     ("]" emacspeak-eww-next-p)
-     ("b" shr-previous-link)
-     ("e" emacspeak-we-xsl-map)
-     ("f" shr-next-link)
-     ("k" eww-copy-page-url)
-     ("n" emacspeak-eww-next-element)
-     ("o" emacspeak-eww-next-li)
-     ("p" emacspeak-eww-previous-element)
-     ("t" emacspeak-eww-next-table)
-     )
-   do
-   (emacspeak-keymap-update eww-mode-map binding)))
-
-(when (boundp 'eww-mode-map) (emacspeak-eww-setup))
+(defadvice eww-display-image (around emacspeak pre act comp)
+  "Dont load images if asked to silence them."
+  (unless emacspeak-eww-silence-images ad-do-it))
 
 ;;}}}
 ;;{{{ element, class, role, id caches:
 
-(defvar eww-cache-updated nil
+(defvar emacspeak-eww-cache-updated nil
   "Records if caches are updated.")
 
-(make-variable-buffer-local 'eww-cache-updated)
+(make-variable-buffer-local 'emacspeak-eww-cache-updated)
 
 ;;; Mark cache to be dirty if we restore history:
 
 (defadvice eww-restore-history (after emacspeak pre act comp)
   "mark cache dirty."
-  (setq eww-cache-updated nil)
+  (setq emacspeak-eww-cache-updated nil)
   (emacspeak-eww-prepare-eww))
 
 (defvar eww-id-cache nil
@@ -475,6 +552,7 @@ If we came from a url-template, reload that template."
   "Cache of role values. Is buffer-local.")
 
 (make-variable-buffer-local 'eww-role-cache)
+;;; Holds element names as strings.
 
 (defvar eww-element-cache nil
   "Cache of element names. Is buffer-local.")
@@ -484,7 +562,7 @@ If we came from a url-template, reload that template."
 (defun eww-update-cache (dom)
   "Update element, role, class and id cache."
   (declare (special eww-element-cache eww-id-cache
-                    eww-role-cache eww-class-cache eww-cache-updated))
+                    eww-role-cache eww-class-cache emacspeak-eww-cache-updated))
   (when (listp dom) ; build cache
     (let ((id (xml-get-attribute-or-nil dom 'id))
           (class (xml-get-attribute-or-nil dom 'class))
@@ -496,7 +574,7 @@ If we came from a url-template, reload that template."
       (when role (pushnew role eww-role-cache))
       (when el (pushnew el eww-element-cache))
       (when children (mapc #'eww-update-cache children)))
-    (setq eww-cache-updated t)))
+    (setq emacspeak-eww-cache-updated t)))
 
 ;;}}}
 ;;{{{ Filter DOM:
@@ -613,12 +691,11 @@ for use as a DOM filter."
   "Display DOM filtered by specified id=value test.
 Optional interactive arg `multi' prompts for multiple classes."
   (interactive "P")
-  (declare (special  eww-current-dom))
   (emacspeak-eww-prepare-eww)
   (let
       ((dom
         (eww-dom-keep-if
-         eww-current-dom
+         (emacspeak-eww-current-dom)
          (eww-attribute-list-tester
           (if multi
               (loop
@@ -631,11 +708,10 @@ Optional interactive arg `multi' prompts for multiple classes."
   "Display DOM filtered by specified nodes not passing  id=value test.
 Optional interactive arg `multi' prompts for multiple classes."
   (interactive "P")
-  (declare (special  eww-current-dom))
   (emacspeak-eww-prepare-eww)
   (let ((dom
          (eww-dom-remove-if
-          eww-current-dom
+          (emacspeak-eww-current-dom)
           (eww-attribute-list-tester
            (if multi
                (loop
@@ -670,11 +746,10 @@ Optional interactive arg `multi' prompts for multiple classes."
   "Display DOM filtered by specified attribute=value test.
 Optional interactive arg `multi' prompts for multiple classes."
   (interactive "P")
-  (declare (special   eww-current-dom))
   (emacspeak-eww-prepare-eww)
   (let ((dom
          (eww-dom-keep-if
-          eww-current-dom
+          (emacspeak-eww-current-dom)
           (eww-attribute-list-tester
            (if multi
                (ems-eww-read-list 'ems-eww-read-attribute-and-value)
@@ -685,11 +760,10 @@ Optional interactive arg `multi' prompts for multiple classes."
   "Display DOM filtered by specified nodes not passing  attribute=value test.
 Optional interactive arg `multi' prompts for multiple classes."
   (interactive "P")
-  (declare (special   eww-current-dom))
   (emacspeak-eww-prepare-eww)
   (let ((dom
          (eww-dom-remove-if
-          eww-current-dom
+          (emacspeak-eww-current-dom)
           (eww-attribute-list-tester
            (if multi
                (ems-eww-read-list 'ems-eww-read-attribute-and-value)
@@ -707,11 +781,10 @@ Optional interactive arg `multi' prompts for multiple classes."
   "Display DOM filtered by specified class=value test.
 Optional interactive arg `multi' prompts for multiple classes."
   (interactive "P")
-  (declare (special    eww-current-dom))
   (emacspeak-eww-prepare-eww)
   (let ((dom
          (eww-dom-keep-if
-          eww-current-dom
+          (emacspeak-eww-current-dom)
           (eww-attribute-list-tester
            (if multi
                (loop
@@ -724,11 +797,10 @@ Optional interactive arg `multi' prompts for multiple classes."
   "Display DOM filtered by specified nodes not passing   class=value test.
 Optional interactive arg `multi' prompts for multiple classes."
   (interactive "P")
-  (declare (special  eww-current-dom))
   (emacspeak-eww-prepare-eww)
   (let ((dom
          (eww-dom-remove-if
-          eww-current-dom
+          (emacspeak-eww-current-dom)
           (eww-attribute-list-tester
            (if multi
                (loop
@@ -748,11 +820,10 @@ Optional interactive arg `multi' prompts for multiple classes."
   "Display DOM filtered by specified role=value test.
 Optional interactive arg `multi' prompts for multiple classes."
   (interactive "P")
-  (declare (special  eww-current-dom))
   (emacspeak-eww-prepare-eww)
   (let ((dom
          (eww-dom-keep-if
-          eww-current-dom
+          (emacspeak-eww-current-dom)
           (eww-attribute-list-tester
            (if multi
                (loop
@@ -765,11 +836,11 @@ Optional interactive arg `multi' prompts for multiple classes."
   "Display DOM filtered by specified  nodes not passing   role=value test.
 Optional interactive arg `multi' prompts for multiple classes."
   (interactive "P")
-  (declare (special  eww-shr-render-functions eww-current-dom))
+  (declare (special  eww-shr-render-functions ))
   (emacspeak-eww-prepare-eww)
   (let ((dom
          (eww-dom-remove-if
-          eww-current-dom
+          (emacspeak-eww-current-dom)
           (eww-attribute-list-tester
            (if multi
                (loop
@@ -788,11 +859,10 @@ Optional interactive arg `multi' prompts for multiple classes."
   "Display DOM filtered by specified elements.
 Optional interactive prefix arg `multi' prompts for multiple elements."
   (interactive "P")
-  (declare (special  eww-current-dom ))
   (emacspeak-eww-prepare-eww)
   (let ((dom
          (eww-dom-keep-if
-          eww-current-dom
+          (emacspeak-eww-current-dom)
           (eww-elements-tester
            (if multi
                (ems-eww-read-list 'ems-eww-read-element)
@@ -805,11 +875,10 @@ Optional interactive prefix arg `multi' prompts for multiple elements."
   "Display DOM filtered by specified nodes not passing   el list.
 Optional interactive prefix arg `multi' prompts for multiple elements."
   (interactive "P")
-  (declare (special  eww-current-dom ))
   (emacspeak-eww-prepare-eww)
   (let ((dom
          (eww-dom-remove-if
-          eww-current-dom
+          (emacspeak-eww-current-dom)
           (eww-elements-tester
            (if multi
                (ems-eww-read-list 'ems-eww-read-element)
@@ -825,55 +894,8 @@ Optional interactive prefix arg `multi' prompts for multiple elements."
   (emacspeak-auditory-icon 'open-object))
 
 ;;}}}
-;;{{{  Customize image loading:
-
-(defcustom emacspeak-eww-silence-images t
-  "Set to nil if you want EWW to load images."
-  :type 'boolean
-  :group 'emacspeak-eww)
-
-(defadvice eww-display-image (around emacspeak pre act comp)
-  "Dont load images if asked to silence them."
-  (unless emacspeak-eww-silence-images ad-do-it))
-
-;;}}}
-;;{{{ xslt transform on request:
-
-(defadvice eww-display-html (before emacspeak pre act comp)
-  "Apply XSLT transform if requested."
-  (let ((orig (point)))
-    (when (and emacspeak-we-xsl-p emacspeak-we-xsl-transform)
-      (emacspeak-xslt-region
-       emacspeak-we-xsl-transform (point) (point-max)
-       emacspeak-we-xsl-params))
-    (goto-char orig)))
-
-;;}}}
-;;{{{ DOM Structure In Rendered Buffer:
-
-(loop
- for  tag in
- '(h1 h2 h3 div
-      ul ol dl
-      li dt dd p
-      form blockquote
-      table )
- do
- (eval
-  `
-  (defadvice  ,(intern (format "shr-tag-%s" tag)) (around emacspeak pre act comp)
-    (let ((start (point)))
-      ad-do-it
-      (let ((start (if (char-equal (following-char) ?\n)
-                       (min (point-max) (1+ start) )start))
-            (end (if (> (point) start) (1- (point)) (point))))
-        (put-text-property start end
-                           (quote ,tag) t)
-        (when (memq (quote ,tag) '(h1 h2 h3))
-          (put-text-property start end 'h t)))))))
-
-;;}}}
 ;;{{{ Element Navigation:
+;;; Try only storing symbols, not strings.
 
 (defvar emacspeak-eww-element-navigation-history nil
   "History for element navigation.")
@@ -884,8 +906,10 @@ Optional interactive prefix arg `multi' prompts for multiple elements."
    (list
     (progn
       (emacspeak-eww-prepare-eww)
-      (intern (completing-read "Element: " eww-element-cache nil 'must-match
-                               nil 'emacspeak-eww-element-navigation-history)))))
+      (intern
+       (completing-read "Element: "
+                        eww-element-cache nil 'must-match
+                        nil 'emacspeak-eww-element-navigation-history)))))
   (declare (special eww-element-cache emacspeak-eww-element-navigation-history))
   (let*
       ((start
@@ -897,6 +921,8 @@ Optional interactive prefix arg `multi' prompts for multiple elements."
     (cond
      (next
       (goto-char next)
+      (setq emacspeak-eww-element-navigation-history (delq el emacspeak-eww-element-navigation-history))
+      (push  el emacspeak-eww-element-navigation-history)
       (emacspeak-auditory-icon 'large-movement)
       (emacspeak-speak-region next (next-single-property-change next el)))
      (t (message "No next %s" el)))))
@@ -919,6 +945,8 @@ Optional interactive prefix arg `multi' prompts for multiple elements."
     (cond
      (previous
       (goto-char (or (previous-single-property-change previous el) (point-min)))
+      (setq emacspeak-eww-element-navigation-history (delq el emacspeak-eww-element-navigation-history))
+      (push  el emacspeak-eww-element-navigation-history)
       (emacspeak-auditory-icon 'large-movement)
       (emacspeak-speak-region (point) previous))
      (t (message "No previous  %s" el)))))
@@ -928,8 +956,8 @@ Optional interactive prefix arg `multi' prompts for multiple elements."
   (interactive)
   (declare (special emacspeak-eww-element-navigation-history))
   (cond
-   ((and emacspeak-eww-element-navigation-history (car emacspeak-eww-element-navigation-history))
-    (emacspeak-eww-next-element (intern (car emacspeak-eww-element-navigation-history))))
+   (emacspeak-eww-element-navigation-history
+    (emacspeak-eww-next-element  (car emacspeak-eww-element-navigation-history)))
    (t (error "No elements in navigation history"))))
 
 (defun emacspeak-eww-previous-element-from-history ()
@@ -937,26 +965,79 @@ Optional interactive prefix arg `multi' prompts for multiple elements."
   (interactive)
   (declare (special emacspeak-eww-element-navigation-history))
   (cond
-   ((and emacspeak-eww-element-navigation-history (car emacspeak-eww-element-navigation-history))
-    (emacspeak-eww-previous-element (intern (car emacspeak-eww-element-navigation-history))))
+   (emacspeak-eww-element-navigation-history
+    (emacspeak-eww-previous-element  (car emacspeak-eww-element-navigation-history)))
    (t (error "No elements in navigation history"))))
+
+(defsubst emacspeak-eww-here-tags ()
+  "Return list of enclosing tags at point."
+  (let* ((eww-tags (text-properties-at (point))))
+    (loop
+     for i from 0 to (1- (length eww-tags)) by 2
+     if (eq (plist-get eww-tags (nth i eww-tags)) 'eww-tag )
+     collect (nth i eww-tags))))
+
+(defsubst emacspeak-eww-read-tags-like-this(&optional prompt)
+  "Read tag for like-this navigation."
+  (let ((tags (emacspeak-eww-here-tags)))
+    (cond
+     ((null tags) (error "No enclosing element here."))
+     ((= 1 (length tags))  (first tags))
+     (t (intern
+         (completing-read
+          (or prompt "Jump to: ")
+          (mapcar #'symbol-name tags)
+          nil t
+          nil emacspeak-eww-element-navigation-history))))))
+
+(defun emacspeak-eww-next-element-like-this (element)
+  "Moves to next element like current.
+Prompts if content at point is enclosed by multiple elements."
+  (interactive
+   (list (emacspeak-eww-read-tags-like-this)))
+  (emacspeak-eww-next-element  element))
+
+(defun emacspeak-eww-previous-element-like-this (element)
+  "Moves to next element like current.
+Prompts if content at point is enclosed by multiple elements."
+  (interactive
+   (list (emacspeak-eww-read-tags-like-this)))
+  (emacspeak-eww-previous-element  element))
+
+(defun emacspeak-eww-speak-this-element (element)
+  "Speaks  to next element like current.
+Uses most recently navigated structural unit.
+Otherwise, prompts if content at point is enclosed by multiple elements."
+  (interactive
+   (list
+    (or (car emacspeak-eww-element-navigation-history)
+    (emacspeak-eww-read-tags-like-this "Read: "))))
+  (let ((start (point)))
+    (save-excursion
+      (emacspeak-eww-next-element  element)
+      (emacspeak-auditory-icon 'select-object)
+      (emacspeak-speak-region start (point)))))
 
 (loop
  for  f in
  '(h h1 h2 h3 li table ol ul p)
  do
  (eval
-  `
-  (defun ,(intern (format "emacspeak-eww-next-%s" f)) ()
-    ,(format "Move forward to the next %s" f)
-    (interactive)
-    (funcall 'emacspeak-eww-next-element (intern ,(format "%s" f)))))
+  `(defun ,(intern (format "emacspeak-eww-next-%s" f)) (&optional speak)
+     ,(format "Move forward to the next %s.
+Optional interactive prefix arg speaks the structural unit." f)
+     (interactive "P")
+     (funcall 'emacspeak-eww-next-element (intern ,(format "%s" f)))
+     (when speak
+       (emacspeak-eww-speak-element-like-this (intern ,(format "%s" f))))))
  (eval
-  `
-  (defun ,(intern (format "emacspeak-eww-previous-%s" f)) ()
-    ,(format "Move backward to the next %s" f)
-    (interactive)
-    (funcall 'emacspeak-eww-previous-element (intern ,(format "%s" f))))))
+  `(defun ,(intern (format "emacspeak-eww-previous-%s" f)) (&optional speak)
+     ,(format "Move backward to the next %s.
+Optional interactive prefix arg speaks the structural unit." f)
+     (interactive "P")
+     (funcall 'emacspeak-eww-previous-element (intern ,(format "%s" f)))
+     (when speak
+       (emacspeak-eww-speak-element-like-this (intern ,(format "%s" f)))))))
 
 ;;}}}
 ;;{{{ Google Search  fixes:
@@ -996,8 +1077,7 @@ Optional interactive prefix arg `multi' prompts for multiple elements."
 Warning, this is fragile, and depends on a stable id for the
   knowledge card."
   (interactive)
-  (declare (special eww-shr-render-functions eww-current-dom
-                    emacspeak-eww-masquerade))
+  (declare (special eww-shr-render-functions emacspeak-eww-masquerade))
   (unless emacspeak-eww-masquerade
     (error "Repeat search after turning on masquerade mode to see knowledge cards."))
   (unless (eq major-mode 'eww-mode)
@@ -1006,12 +1086,12 @@ Warning, this is fragile, and depends on a stable id for the
     (error "This doesn't look like a Google results page."))
   (let*
       ((emacspeak-eww-rename-result-buffer nil)
-       (value "kno-result")
+       (value "rhs")
        (media "rg_meta")
        (inhibit-read-only t)
        (dom
         (eww-dom-remove-if
-         (eww-dom-keep-if eww-current-dom (eww-attribute-tester 'id value))
+         (eww-dom-keep-if (emacspeak-eww-current-dom) (eww-attribute-tester 'id value))
          (eww-attribute-tester 'class media)))
        (shr-external-rendering-functions eww-shr-render-functions))
     (cond

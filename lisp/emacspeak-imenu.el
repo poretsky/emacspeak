@@ -1,5 +1,5 @@
 ;;; emacspeak-imenu.el --- Speech enable Imenu -- produce buffer-specific table of contents
-;;; $Id: emacspeak-imenu.el 8443 2013-10-23 23:48:27Z tv.raman.tv $
+;;; $Id: emacspeak-imenu.el 9419 2014-09-13 15:49:10Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description: Auditory interface buffer indices
 ;;; Keywords: Emacspeak, Speak, Spoken Output, indices
@@ -95,10 +95,8 @@
 
 (defadvice imenu (after emacspeak pre act comp)
   "Provide auditory feedback"
-  (when (ems-interactive-p )
-    (ems-set-personality-temporarily (point) (1+ (point))
-                                     voice-animate
-                                     (emacspeak-speak-line))))
+  (when t ;(ems-interactive-p )
+    (emacspeak-speak-line)))
 
 (defadvice imenu-go-find-at-position (around emacspeak pre act comp)
   "Provide auditory feedback"

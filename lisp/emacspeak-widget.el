@@ -1,5 +1,5 @@
 ;;; emacspeak-widget.el --- Speech enable Emacs' native GUI widget library
-;;; $Id: emacspeak-widget.el 9168 2014-05-08 15:55:31Z tv.raman.tv $
+;;; $Id: emacspeak-widget.el 9459 2014-09-22 02:03:04Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $ 
 ;;; Description: Emacspeak extensions to widgets
 ;;; Keywords:emacspeak, audio interface to emacs customized widgets
@@ -570,7 +570,6 @@ Returns a string with appropriate personality."
 ;;{{{  activating widgets:
 ;;; forward declaration:
 
-
 (defadvice widget-button-press (around emacspeak pre act comp)
   "Provide auditory feedback"
   (declare (special emacspeak-webutils-url-at-point
@@ -665,19 +664,17 @@ widget before summarizing."
 (defadvice widget-setup (after emacspeak pre act comp)
   "Update widget keymaps."
   (declare (special emacspeak-prefix
-                    widget-keymap widget-field-keymap widget-text-keymap))
-  (loop for map in
-        (list widget-keymap
-              widget-field-keymap
-              widget-text-keymap
-              )
-        do
-        (define-key map  emacspeak-prefix 'emacspeak-prefix-command)
-                                        ;(define-key map  "\C-e\C-e" 'widget-end-of-line)
-        (define-key map "\M-h" 'emacspeak-widget-help)
-        (define-key map "\M-p" 'emacspeak-widget-summarize-parent)
-        (define-key map "\M-\C-m"
-          'emacspeak-widget-update-from-minibuffer)))
+                    widget-field-keymap widget-text-keymap))
+  (loop
+   for map in
+   '(widget-keymap  widget-field-keymap widget-text-keymap)
+   do
+   (when  (keymapp map)
+     (define-key map  emacspeak-prefix 'emacspeak-prefix-command)
+     (define-key map  "\C-e\C-e" 'widget-end-of-line)
+     (define-key map "\M-h" 'emacspeak-widget-help)
+     (define-key map "\M-p" 'emacspeak-widget-summarize-parent)
+     (define-key map "\M-\C-m" 'emacspeak-widget-update-from-minibuffer))))
 
 ;;}}}
 ;;{{{ augment widgets 

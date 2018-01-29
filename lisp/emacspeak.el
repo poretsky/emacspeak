@@ -1,5 +1,5 @@
 ;;; emacspeak.el --- Emacspeak -- The Complete Audio Desktop
-;;; $Id: emacspeak.el 8655 2013-12-12 22:34:25Z tv.raman.tv $
+;;; $Id: emacspeak.el 9454 2014-09-19 16:03:28Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak: A speech interface to Emacs
 ;;; Keywords: Emacspeak, Speech, Dectalk,
@@ -161,6 +161,7 @@ speech-enabling extensions."
 (emacspeak-do-package-setup "semantic" 'emacspeak-cedet)
 (emacspeak-do-package-setup "checkdoc" 'emacspeak-checkdoc)
 (emacspeak-do-package-setup "cmuscheme" 'emacspeak-cmuscheme)
+(emacspeak-do-package-setup "company" 'emacspeak-company)
 (emacspeak-do-package-setup "compile" 'emacspeak-compile)
 (emacspeak-do-package-setup "cperl-mode" 'emacspeak-cperl)
 (emacspeak-do-package-setup "pianobar" 'emacspeak-pianobar)
@@ -181,6 +182,7 @@ speech-enabling extensions."
 (emacspeak-do-package-setup "ediary" 'emacspeak-ediary)
 (emacspeak-do-package-setup "ediff" 'emacspeak-ediff)
 (emacspeak-do-package-setup "ediff-mult" 'emacspeak-ediff)
+(emacspeak-do-package-setup "emacs-xkcd" 'emacspeak-xkcd)
 (emacspeak-do-package-setup "emms" 'emacspeak-emms)
 (emacspeak-do-package-setup "eperiodic" 'emacspeak-eperiodic)
 (emacspeak-do-package-setup "erc" 'emacspeak-erc)
@@ -193,6 +195,7 @@ speech-enabling extensions."
 (emacspeak-do-package-setup "find-dired" 'emacspeak-find-dired)
 (emacspeak-do-package-setup "find-things-fast" 'emacspeak-ftf)
 (emacspeak-do-package-setup "find-func" 'emacspeak-find-func)
+(emacspeak-do-package-setup "flycheck" 'emacspeak-flycheck)
 (emacspeak-do-package-setup "flyspell" 'emacspeak-flyspell)
 (emacspeak-do-package-setup "folding" 'emacspeak-folding)
 (emacspeak-do-package-setup "forms" 'emacspeak-forms)
@@ -203,6 +206,7 @@ speech-enabling extensions."
 (emacspeak-do-package-setup "gomoku" 'emacspeak-gomoku)
 (emacspeak-do-package-setup "gud" 'emacspeak-gud)
 (emacspeak-do-package-setup "gdb-ui" 'emacspeak-gud)
+(emacspeak-do-package-setup "go-mode" 'emacspeak-go-mode)
 (emacspeak-do-package-setup "hangman" 'emacspeak-entertain)
 (emacspeak-do-package-setup "hideshow" 'emacspeak-hideshow)
 (emacspeak-do-package-setup "imenu" 'emacspeak-imenu)
@@ -210,7 +214,7 @@ speech-enabling extensions."
 (emacspeak-do-package-setup "ido" 'emacspeak-ido)
 (emacspeak-do-package-setup "info" 'emacspeak-info)
 (emacspeak-do-package-setup "ispell" 'emacspeak-ispell)
-(emacspeak-do-package-setup "iswitchb" 'emacspeak-iswitchb)
+(emacspeak-do-package-setup "iswi" 'emacspeak-iswitchb)
 (emacspeak-do-package-setup "jabber" 'emacspeak-jabber)
 (emacspeak-do-package-setup "jde" 'emacspeak-jde)
 (emacspeak-do-package-setup "js2" 'emacspeak-js2)
@@ -268,6 +272,7 @@ speech-enabling extensions."
 (emacspeak-do-package-setup "term" 'emacspeak-eterm )
 (emacspeak-do-package-setup "eudc" 'emacspeak-eudc )
 (emacspeak-do-package-setup "tetris" 'emacspeak-tetris)
+(emacspeak-do-package-setup "2048-game" 'emacspeak-2048)
 (emacspeak-do-package-setup "tex-site" 'emacspeak-auctex)
 (emacspeak-do-package-setup "texinfo" 'emacspeak-texinfo)
 (emacspeak-do-package-setup "tmm" 'emacspeak-facemenu)

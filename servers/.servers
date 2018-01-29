@@ -1,4 +1,8 @@
-#$Id: .servers 8069 2013-01-14 00:56:26Z tv.raman.tv $
+#$Id: .servers 9270 2014-07-26 00:49:10Z tv.raman.tv $
+cloud 
+cloud-dtk
+cloud-outloud
+cloud-espeak
 dtk-exp
 dtk-mv
 dtk-soft

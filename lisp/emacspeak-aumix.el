@@ -1,5 +1,5 @@
 ;;; emacspeak-aumix.el --- Configure audio device settings
-;;; $Id: emacspeak-aumix.el 8439 2013-10-23 00:44:50Z tv.raman.tv $
+;;; $Id: emacspeak-aumix.el 9333 2014-08-17 15:30:51Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak extension to conveniently set audio display
 ;;; Keywords: Emacspeak, Audio Desktop
@@ -96,11 +96,6 @@ display."
 
 (defcustom emacspeak-aumix-multichannel-capable-p t
   "*Set to T if the sound card is capable of mixing multiple channels of audio."
-  :group 'emacspeak-aumix
-  :type 'boolean)
-
-(defcustom emacspeak-aumix-full-duplex-p t
-  "*Set to T if the sound card is truly full duplex."
   :group 'emacspeak-aumix
   :type 'boolean)
 

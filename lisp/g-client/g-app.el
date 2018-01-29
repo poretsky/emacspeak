@@ -1,5 +1,5 @@
 ;;; g-app.el --- Google Client APP methods
-;;;$Id: g-app.el 8374 2013-07-27 19:33:27Z tv.raman.tv $
+;;;$Id: g-app.el 9437 2014-09-15 21:07:42Z tv.raman.tv $
 ;;; $Author: raman $
 ;;; Description:  Google Client APP
 ;;; Keywords: Google   Atom API, Google Services
@@ -62,14 +62,12 @@
 
 ;;}}}
 ;;{{{  APP Methods
-(if (fboundp 'nxml-mode)
-    (defalias 'xml-mode 'nxml-mode))
-
-(define-derived-mode g-app-mode xml-mode
+(define-derived-mode g-app-mode nxml-mode
   "Atom  Publishing Interaction"
   "Major mode for APP interaction\n\n
 \\{g-app-mode-map"
   (auto-fill-mode 1))
+
 (declaim (special g-app-mode-map))
 (define-key g-app-mode-map "\C-c\C-c" 'g-app-publish)
 

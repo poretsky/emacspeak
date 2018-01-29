@@ -1,5 +1,5 @@
 ;;; emacspeak-webutils.el --- Common Web Utilities For Emacspeak
-;;; $Id: emacspeak-webutils.el 9107 2014-04-27 15:17:48Z tv.raman.tv $
+;;; $Id: emacspeak-webutils.el 9551 2014-11-13 19:49:00Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak Webutils
 ;;; Keywords: Emacspeak, web
@@ -82,9 +82,10 @@
 (declaim (special emacspeak-web-prefix))
 (loop for k in
       '(
-        ("b" browse-url-of-buffer)
-        ("r" browse-url-of-region)
         ("R" emacspeak-xslt-view-region)
+        ("b" browse-url-of-buffer)
+        ("m" emacspeak-wizards-eww-buffer-list)
+        ("r" browse-url-of-region)
         )
       do
       (emacspeak-keymap-update  emacspeak-web-prefix k))
@@ -103,7 +104,7 @@ Note that the Web browser should reset this hook after using it.")
     (condition-case nil
         (let ((inhibit-read-only t))
           (run-hooks  'emacspeak-web-post-process-hook))
-      (error  (message "Caught error  in post-process hook.")
+      ((debug error)  (message "Caught error  in post-process hook.")
               (setq emacspeak-web-post-process-hook nil)))
     (setq emacspeak-web-post-process-hook nil)))
 

@@ -1,5 +1,5 @@
 ;;; emacspeak-c.el --- Speech enable CC-mode and friends -- supports C, C++, Java
-;;; $Id: emacspeak-c.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
+;;; $Id: emacspeak-c.el 9336 2014-08-18 01:26:04Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; DescriptionEmacspeak extensions for C and C++ mode
 ;;; Keywords:emacspeak, audio interface to emacs C, C++
@@ -77,13 +77,7 @@
 
 ;;}}}
 ;;{{{  advice things to speak
-
 ;;{{{  Electric chars speak
-
-(defadvice c-electric-star (after emacspeak pre act )
-  "Speak what you typed"
-  (when (ems-interactive-p ) (dtk-say "star")))
-
 (defadvice c-electric-semi&comma (after emacspeak pre act )
   "Speak the line when a statement is completed."
   (when (ems-interactive-p )
@@ -91,58 +85,65 @@
      ((= last-input-event ?,) (dtk-speak " comma "))
      (t (emacspeak-speak-line )))))
 
-(defadvice c-electric-slash (after emacspeak pre act )
-  "Speak the line when a statement is completed."
-  (when (ems-interactive-p )
-    (dtk-say "slash")))
+(unless
+    (and (boundp 'post-self-insert-hook)
+         post-self-insert-hook
+         (memq 'emacspeak-post-self-insert-hook post-self-insert-hook))
+  
+  (defadvice c-electric-star (after emacspeak pre act )
+    "Speak what you typed"
+    (when (ems-interactive-p ) (dtk-say "star")))
 
-(defadvice c-electric-lt-gt (after emacspeak pre act )
-  "Speak what you typed"
-  (declare (special last-input-event))
-  (when (ems-interactive-p )
-    (emacspeak-speak-this-char last-input-event)))
+  (defadvice c-electric-slash (after emacspeak pre act )
+    "Speak slash"
+    (when (ems-interactive-p )
+      (dtk-say "slash")))
 
-(defadvice electric-c-terminator (after emacspeak pre act )
-  "Speak what was typed. "
-  (when (ems-interactive-p )
-    (emacspeak-speak-this-char last-input-event)))
-(unless (and (boundp 'post-self-insert-hook)
-             post-self-insert-hook
-             (memq 'emacspeak-post-self-insert-hook post-self-insert-hook))
+  (defadvice c-electric-lt-gt (after emacspeak pre act )
+    "Speak what you typed"
+    (declare (special last-input-event))
+    (when (ems-interactive-p )
+      (emacspeak-speak-this-char last-input-event)))
+
+  (defadvice electric-c-terminator (after emacspeak pre act )
+    "Speak what was typed. "
+    (when (ems-interactive-p )
+      (emacspeak-speak-this-char last-input-event)))
+
   (defadvice c-electric-colon (after emacspeak pre act )
     "Speak the character you inserted"
     (when (ems-interactive-p )
-      (emacspeak-speak-this-char last-input-event))))(unless (and (boundp 'post-self-insert-hook)
-                                                                  post-self-insert-hook
-                                                                  (memq 'emacspeak-post-self-insert-hook post-self-insert-hook))
-                                                       (defadvice c-electric-paren (after emacspeak pre act )
-                                                         "Speak the character you inserted"
-                                                         (when (ems-interactive-p )
-                                                           (emacspeak-speak-this-char last-input-event))))
+      (emacspeak-speak-this-char last-input-event)))
 
-(defadvice c-electric-pound (after emacspeak pre act )
-  "Speak the character you inserted"
-  (when (ems-interactive-p )
-    (emacspeak-speak-this-char last-input-event)))
-(defadvice c-electric-brace (after emacspeak pre act )
-  "Speak the character you inserted"
-  (when (ems-interactive-p )
-    (emacspeak-speak-this-char last-input-event)))
+  (defadvice c-electric-paren (after emacspeak pre act )
+    "Speak the character you inserted"
+    (when (ems-interactive-p )
+      (emacspeak-speak-this-char last-input-event)))
 
-(defadvice electric-c-semi (after emacspeak pre act )
-  "Speak what was typed. "
-  (when (ems-interactive-p )
-    (emacspeak-speak-this-char last-input-event)))
+  (defadvice c-electric-pound (after emacspeak pre act )
+    "Speak the character you inserted"
+    (when (ems-interactive-p )
+      (emacspeak-speak-this-char last-input-event)))
 
-(defadvice electric-c-sharp-sign (after emacspeak pre act )
-  "Speak what was typed. "
-  (when (ems-interactive-p )
-    (emacspeak-speak-this-char last-input-event)))
+  (defadvice c-electric-brace (after emacspeak pre act )
+    "Speak the character you inserted"
+    (when (ems-interactive-p )
+      (emacspeak-speak-this-char last-input-event)))
 
-(defadvice electric-c-brace (after emacspeak pre act )
-  "Speak what was typed. "
-  (when (ems-interactive-p )
-    (emacspeak-speak-this-char last-input-event)))
+  (defadvice electric-c-semi (after emacspeak pre act )
+    "Speak what was typed. "
+    (when (ems-interactive-p )
+      (emacspeak-speak-this-char last-input-event)))
+
+  (defadvice electric-c-sharp-sign (after emacspeak pre act )
+    "Speak what was typed. "
+    (when (ems-interactive-p )
+      (emacspeak-speak-this-char last-input-event)))
+
+  (defadvice electric-c-brace (after emacspeak pre act )
+    "Speak what was typed. "
+    (when (ems-interactive-p )
+      (emacspeak-speak-this-char last-input-event))))
 
 (defadvice c-electric-delete (before emacspeak pre act )
   "Speak char before deleting it."

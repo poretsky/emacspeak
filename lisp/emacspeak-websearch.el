@@ -1,5 +1,5 @@
 ;;; emacspeak-websearch.el --- search utilities
-;;; $Id: emacspeak-websearch.el 9120 2014-04-30 19:03:32Z tv.raman.tv $
+;;; $Id: emacspeak-websearch.el 9540 2014-11-11 22:09:50Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak extension to make Web searching convenient
 ;;; Keywords: Emacspeak, WWW interaction
@@ -775,27 +775,31 @@ Optional second arg as-html processes the results as HTML rather than data."
   (setq emacspeak-google-query ad-return-value))
 
 ;;;###autoload
-(defun emacspeak-websearch-google (query &optional lucky)
+(defun emacspeak-websearch-google (query &optional flag)
   "Perform a Google search.
-Optional interactive prefix arg `lucky' is equivalent to hitting the
-I'm Feeling Lucky button on Google.
-Uses  customizable option `emacspeak-websearch-google-results-only' to determine if we show just results."
+First optional interactive prefix arg `flag' prompts for
+additional search options. Second interactive prefix arg is
+equivalent to hitting the I'm Feeling Lucky button on
+Google. Uses customizable option
+`emacspeak-websearch-google-results-only' to determine if we show
+just results."
   (interactive
    (list
     (gweb-google-autocomplete)
     current-prefix-arg))
   (declare (special emacspeak-google-query emacspeak-google-toolbelt
                     emacspeak-websearch-google-results-only
-                    emacspeak-websearch-google-options
-                    emacspeak-websearch-google-number-of-results))
-  (let ((toolbelt (emacspeak-google-toolbelt)))
+                    emacspeak-websearch-google-options emacspeak-websearch-google-number-of-results))
+  (setq emacspeak-google-toolbelt nil)
+  (let ((toolbelt (emacspeak-google-toolbelt))
+        (add-toolbelt (and flag  (listp flag) (= 4 (car flag))))
+        (lucky (and flag  (listp flag) (= 16 (car flag)))))
     (emacspeak-webutils-cache-google-query query)
     (emacspeak-webutils-cache-google-toolbelt toolbelt)
     (if lucky
         (emacspeak-webutils-autospeak)
       (emacspeak-webutils-post-process "Results" 'emacspeak-speak-line))
-    (let ((emacspeak-w3-tidy-html t)
-          (search-url
+    (let ((search-url
            (concat
             (emacspeak-websearch-google-uri)
             query
@@ -807,15 +811,17 @@ Uses  customizable option `emacspeak-websearch-google-results-only' to determine
                "&btnI="
                (emacspeak-url-encode "I'm Feeling Lucky"))))))
       (cond
+       (add-toolbelt (emacspeak-google-toolbelt-change))
        (lucky (browse-url search-url))
        (emacspeak-websearch-google-results-only
         (emacspeak-we-extract-by-id-list
-         (list "kno-result" "subform_ctrl" "res" "nav")
+         '( "rhs" "center_col" "nav")
          search-url 'speak))
        (t (emacspeak-webutils-with-xsl-environment
            (expand-file-name "default.xsl" emacspeak-xslt-directory)
            nil emacspeak-xslt-options
            (browse-url search-url)))))))
+
 ;;{{{ IMFA
 
 (emacspeak-websearch-set-searcher 'agoogle
@@ -825,24 +831,29 @@ Uses  customizable option `emacspeak-websearch-google-results-only' to determine
 ;;}}}
 
 (defvar emacspeak-websearch-accessible-google-url
-  "http://www.google.com/cse?cx=000183394137052953072%3Azc1orsc6mbq&nojs=1&ie=UTF-8&sa=Search&q="
-  "Google Accessible Search -- see http://labs.google.com/accessible")
+  "https://www.google.com/search?esrch=SearchLite::OptIn&site=&q=%s&num=25&gbv=1&sei=L8kNVI_kKJWpyATPv4Aw"
+  "Using experimental Google Lite.")
 
 ;;;###autoload
-(defun emacspeak-websearch-accessible-google(query)
-  "Google Accessible Search -- see http://labs.google.com/accessible"
+(defun emacspeak-websearch-accessible-google(query &optional options)
+  "Use Google Lite (Experimental).
+Optional prefix arg prompts for toolbelt options."
   (interactive
    (list
-    (gweb-google-autocomplete "AGoogle: ")))
-  (declare (special emacspeak-websearch-accessible-google-url))
-  (let ((emacspeak-w3-tidy-html nil))
+    (gweb-google-autocomplete "AGoogle: ")
+    current-prefix-arg))
+  (declare (special emacspeak-websearch-accessible-google-url emacspeak-google-toolbelt))
+  (setq emacspeak-google-toolbelt nil)
+  (let ((emacspeak-eww-masquerade nil)
+        (toolbelt (emacspeak-google-toolbelt)))
     (emacspeak-webutils-cache-google-query query)
-    (emacspeak-webutils-post-process "results" 'emacspeak-speak-line)
-    (emacspeak-webutils-with-xsl-environment
-     (expand-file-name "default.xsl" emacspeak-xslt-directory)
-     nil emacspeak-xslt-options
-     (browse-url
-      (concat emacspeak-websearch-accessible-google-url query)))))
+    (emacspeak-webutils-cache-google-toolbelt toolbelt)
+    (cond
+     (options (emacspeak-google-toolbelt-change))
+     (t (emacspeak-we-extract-by-id
+         "center_col"
+         (format emacspeak-websearch-accessible-google-url query)
+         'speak)))))
 
 (emacspeak-websearch-set-searcher 'google-lucky
                                   'emacspeak-websearch-google-feeling-lucky)
@@ -855,7 +866,7 @@ Uses  customizable option `emacspeak-websearch-google-results-only' to determine
   (interactive
    (list
     (gweb-google-autocomplete "Google Lucky Search: ")))
-  (emacspeak-websearch-google query 'lucky))
+  (emacspeak-websearch-google query '(16)))
 
 (emacspeak-websearch-set-searcher 'google-specialize
                                   'emacspeak-websearch-google-specialize)

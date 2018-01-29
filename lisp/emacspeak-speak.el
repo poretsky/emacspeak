@@ -1,5 +1,5 @@
 ;;; emacspeak-speak.el --- Implements Emacspeak's core speech services
-;;; $Id: emacspeak-speak.el 9113 2014-04-30 15:44:07Z tv.raman.tv $
+;;; $Id: emacspeak-speak.el 9561 2014-11-14 22:25:31Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Contains the functions for speaking various chunks of text
 ;;; Keywords: Emacspeak,  Spoken Output
@@ -92,11 +92,16 @@
 ;;}}}
 ;;{{{ same-line-p
 
-(defsubst ems-same-line-p (orig current)
-  "Check if current is in the same line as orig."
-  (save-excursion
-    (goto-char orig)
-    (< current (line-end-position))))
+(defsubst ems-same-line-p (start end)
+  "Check if start and end are in the same line."
+  (= (count-lines start end) 1))
+
+;;}}}
+;;{{{ Helper: voicify string 
+(defsubst ems-voiceify-string (string personality)
+  "Apply personality personality to string."
+  (put-text-property 0 (length string)
+                     'personality personality string))
 
 ;;}}}
 ;;{{{ Per-Mode Punctuations:
@@ -489,6 +494,22 @@ current local  value to the result.")
      ((= 0 percent) " top ")
      ((= 100 percent) " bottom ")
      (t (format " %d%% " percent)))))
+
+(defun emacspeak-goto-percent (percent)
+  "Move to end  PERCENT of buffer like in View mode.
+Display is centered at point.
+Also set the mark at the position where point was."
+  (interactive "nPercent:")
+  (push-mark)
+  (goto-char
+   (if percent
+       (+ (point-min)
+          (floor (* (- (point-max) (point-min)) 0.01
+                    (max 0 (min 100 (prefix-numeric-value percent))))))
+     (point-max)))
+  (recenter)
+  (emacspeak-auditory-icon 'large-movement)
+  (emacspeak-speak-line))
 
 ;;}}}
 ;;{{{  indentation:
@@ -1281,11 +1302,7 @@ Useful to listen to a buffer without switching  contexts."
 With prefix arg, speaks the rest of the buffer from point.
 Negative prefix arg speaks from start of buffer to point."
   (interactive "P")
-  (declare (special help-buffer-list))
-  (let ((help-buffer
-         (if (boundp 'help-buffer-list)
-             (car help-buffer-list)
-           (get-buffer "*Help*"))))
+  (let ((help-buffer (get-buffer "*Help*")))
     (cond
      (help-buffer
       (save-current-buffer
@@ -1637,7 +1654,7 @@ This should eventually be initialized based on the OS we are
 running under.")
 
 (defsubst ems-get-buffer-coding-system ()
-  "Return buffer coding system info if releant.
+  "Return buffer coding system info if relevant.
 If emacspeak-speak-default-os-coding-system is set and matches the
 current coding system, then we return an empty string."
   (declare (special buffer-file-coding-system voice-lighten
@@ -1863,6 +1880,36 @@ Second interactive prefix sets clock to new timezone."
                              (format-time-string
                               emacspeak-speak-time-format-string)
                              'personality voice-punctuations-some))))))
+
+;;;###autoload
+(defun emacspeak-speak-seconds-since-epoch (seconds)
+  "Speaks time value specified as seconds  since epoch, e.g. as from float-time."
+  (interactive
+   (list
+    (read-minibuffer "Seconds: "
+                     (word-at-point))))
+  (declare (special emacspeak-speak-time-format-string))
+  (message
+   (format-time-string
+    emacspeak-speak-time-format-string (seconds-to-time seconds))))
+
+;;;###autoload
+(defun emacspeak-speak-microseconds-since-epoch (ms)
+  "Speaks time value specified as microseconds  since epoch, e.g. as from float-time."
+  (interactive
+   (list
+    (read-minibuffer "MicroSeconds: " (word-at-point))))
+  (let ((seconds (/ ms 1000000)))
+    (emacspeak-speak-seconds-since-epoch seconds)))
+
+;;;###autoload
+(defun emacspeak-speak-milliseconds-since-epoch (ms)
+  "Speaks time value specified as milliseconds  since epoch, e.g. as from float-time."
+  (interactive
+   (list
+    (read-minibuffer "MilliSeconds: " (word-at-point))))
+  (let ((seconds (/ ms 1000)))
+    (emacspeak-speak-seconds-since-epoch seconds)))
 
 ;;;###autoload
 (defun emacspeak-speak-version ()
@@ -2211,34 +2258,6 @@ Interactive prefix arg `browse'  repeatedly browses  through
 
 (defvar emacspeak-read-line-by-line-quotient 10
   "Determines behavior of emacspeak-read-line-by-line.")
-
-(defvar emacspeak-read-by-line-by-line-tick 1.0
-  "Granularity of time for reading line-by-line.")
-
-                                        ;(defun emacspeak-read-line-by-line ()
-                                        ;  "Read line by line until interrupted"
-                                        ;  (interactive)
-                                        ;  (let ((count 0)
-                                        ;        (line-length 0)
-                                        ;        (continue t))
-                                        ;    (while
-                                        ;        (and continue
-                                        ;             (not (eobp)))
-                                        ;      (setq dtk-last-output "")
-                                        ;      (call-interactively 'next-line)
-                                        ;      (setq line-length (length  (thing-at-point 'line)))
-                                        ;      (setq count 0)
-                                        ;      (when (> line-length 0)
-                                        ;        (while(and (< count
-                                        ;                      (1+ (/ line-length emacspeak-read-line-by-line-quotient)))
-                                        ;                   (setq continue
-                                        ;                         (sit-for
-                                        ;                          emacspeak-read-by-line-by-line-tick 0 nil ))
-                                        ;                   (not (string-match  "done" dtk-last-output))
-                                        ;                   (incf count))))))
-                                        ;  (emacspeak-auditory-icon 'task-done)
-                                        ;  (message "done moving "))
-
 ;;}}}
 ;;{{{  skimming
 
@@ -2345,19 +2364,8 @@ set the current local value to the result.")
   (emacspeak-pronounce-refresh-pronunciations))
 
 (add-hook 'comint-mode-hook 'emacspeak-comint-speech-setup)
-(defvar emacspeak-speak-comint-output nil
-  "Temporarily set to T by command
-emacspeak-speak-comint-send-input.")
 
 ;;;###autoload
-(defun emacspeak-speak-comint-send-input ()
-  "Causes output to be spoken i.e., as if comint autospeak were turned
-on."
-  (interactive)
-  (declare (special emacspeak-speak-comint-output))
-  (setq emacspeak-speak-comint-output t)
-  (call-interactively 'comint-send-input)
-  (emacspeak-auditory-icon 'select-object))
 
 ;;}}}
 ;;{{{   quiten messages
@@ -3108,7 +3116,7 @@ char, or dont move. "
 
 ;;;###autoload
 
-(defalias 'emacspeak-mark-forward-mark 'pop-to-mark-command)
+
 ;;;###autoload
 (defun emacspeak-mark-backward-mark ()
   "Cycle backward through the mark ring."

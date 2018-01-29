@@ -1,5 +1,5 @@
 ;;; emacspeak-alsaplayer.el --- Control alsaplayer from Emacs
-;;; $Id: emacspeak-alsaplayer.el 8539 2013-11-13 17:05:25Z tv.raman.tv $
+;;; $Id: emacspeak-alsaplayer.el 9258 2014-06-26 15:26:44Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description: Controlling alsaplayer from emacs 
 ;;; Keywords: Emacspeak, alsaplayer
@@ -183,7 +183,12 @@ Optional second arg watch-pattern specifies line of output to
   (interactive
    (list
     (let ((completion-ignore-case t)
-          (read-file-name-completion-ignore-case t))
+          (read-file-name-completion-ignore-case t)
+          (ido-work-directory-list
+           (remove-if-not 
+            #'(lambda (d)
+                (string-match  emacspeak-media-directory-regexp  d))
+            ido-work-directory-list)))
       (expand-file-name
        (read-file-name
           "Media Resource: "

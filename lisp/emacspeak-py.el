@@ -1,5 +1,5 @@
 ;;; emacspeak-python.el --- Speech enable Python development environment
-;;; $Id: emacspeak-py.el 8327 2013-05-06 16:02:13Z tv.raman.tv $
+;;; $Id: emacspeak-py.el 9473 2014-10-06 16:20:32Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $ 
 ;;; Description: Auditory interface to python mode
 ;;; Keywords: Emacspeak, Speak, Spoken Output, python
@@ -148,7 +148,7 @@
 
 (defadvice py-newline-and-indent(after emacspeak pre act comp)
   "Speak line so we know current indentation"
-  (when (ems-interactive-p )
+  (when t;(ems-interactive-p )
     (dtk-speak-using-voice voice-annotate
                            (format
                             "indent %s"

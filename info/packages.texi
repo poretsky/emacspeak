@@ -1,4 +1,4 @@
-@c $Id: packages.texi 8259 2013-03-27 15:51:56Z tv.raman.tv $
+@c $Id: packages.texi 9583 2014-11-22 18:22:02Z tv.raman.tv $
 @node Emacs Packages
 @chapter Emacs Packages.
 
@@ -27,7 +27,6 @@ packages that have been speech-enabled.
 
 @include documents.texi
 @include structure.texi
-
 @node Browsing Structure
 @section Browsing Structured Information
 

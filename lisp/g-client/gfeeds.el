@@ -1,5 +1,5 @@
 ;;; gfeeds.el --- Google Access To Feeds
-;;;$Id: gfeeds.el 8918 2014-03-26 15:24:16Z tv.raman.tv $
+;;;$Id: gfeeds.el 9486 2014-10-10 21:44:04Z tv.raman.tv $
 ;;; $Author: raman $
 ;;; Description:  AJAX Feeds -> Lisp
 ;;; Keywords: Google   AJAX Feeds API
@@ -221,12 +221,12 @@ Interactive prefix arg causes the feed url to be looked up given a Web site."
   (let* ((feed-url (if lookup (gfeeds-lookup url) url))
          (html (when feed-url (gfeeds-html feed-url))))
     (cond
-     ((null html)
-      (message "No feed found."))
+     ((null html) (message "No feed found."))
      (t 
       (g-using-scratch
        (insert html)
-       (browse-url-of-buffer))))))
+       (browse-url-of-buffer))
+      (message "%s" feed-url)))))
 
 
 
@@ -241,7 +241,7 @@ Interactive prefix arg causes the feed url to be looked up given a Web site."
 
 ;;}}}
 ;;; gfeeds.el --- Google Feeds
-;;;$Id: gfeeds.el 8918 2014-03-26 15:24:16Z tv.raman.tv $
+;;;$Id: gfeeds.el 9486 2014-10-10 21:44:04Z tv.raman.tv $
 ;;; $Author: raman $
 ;;; Description:  AJAX Feeds -> Lisp
 ;;; Keywords: Google   AJAX API

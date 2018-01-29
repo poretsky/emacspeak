@@ -1,5 +1,5 @@
 ;;; emacspeak-advice.el --- Advice all core Emacs functionality to speak
-;;; $Id: emacspeak-advice.el 9029 2014-04-09 22:51:45Z tv.raman.tv $
+;;; $Id: emacspeak-advice.el 9509 2014-10-28 19:18:11Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description: Core advice forms that make emacspeak work
 ;;; Keywords: Emacspeak, Speech, Advice, Spoken output
@@ -98,7 +98,8 @@
  (eval
   `(defadvice ,f (after emacspeak pre act comp)
      "Speak line that you just moved to."
-     (when (ems-interactive-p ) (emacspeak-speak-line )))))
+     (when (ems-interactive-p )
+       (emacspeak-speak-line )))))
 
 (loop
  for f in
@@ -189,6 +190,7 @@
   `(defadvice ,f (after emacspeak pre act comp)
      "Speak sentence after moving."
      (when (ems-interactive-p ) (emacspeak-speak-sentence )))))
+
 (loop
  for f in
  '(forward-sexp backward-sexp)
@@ -196,14 +198,14 @@
  (eval
   `(defadvice ,f (around emacspeak pre act comp)
      "Speak sexp after moving."
-     (if (ems-interactive-p )
-         (let ((start (point)))
+     (if (ems-interactive-p)
+         (let ((start (point))
+               (end (line-end-position)))
            ad-do-it
            (emacspeak-auditory-icon 'large-movement)
-           (skip-syntax-forward " ")
            (cond
-            ((ems-same-line-p start (point))
-             (emacspeak-speak-sexp))
+            ((>= end (point))
+             (emacspeak-speak-region start (point)))
             (t (emacspeak-speak-line))))
        ad-do-it)
      ad-return-value)))
@@ -629,7 +631,7 @@ icon."
   (let ((emacspeak-speak-messages nil))
     ad-do-it
     (when eldoc-last-message
-      (dtk-speak eldoc-last-message))
+      (dtk-speak-and-echo eldoc-last-message))
     ad-return-value))
 
 (defvar emacspeak-ange-ftp-last-percent nil
@@ -727,7 +729,7 @@ Produce an auditory icon if possible."
 
 (loop
  for f in
- '(read-key-sequence read-char read-char-exclusive)
+ '(read-key read-key-sequence read-char read-char-exclusive)
  do
  (eval
   `(defadvice ,f (before emacspeak pre act comp)
@@ -1090,7 +1092,7 @@ Produce an auditory icon if possible."
           'rear-sticky nil)))
       (when (and
              comint-last-output-start
-             (or emacspeak-comint-autospeak emacspeak-speak-comint-output)
+             emacspeak-comint-autospeak 
              (or monitor (eq (window-buffer) buffer)))
         (emacspeak-speak-region comint-last-output-start (point )))
       ad-return-value)))
@@ -1235,7 +1237,40 @@ Produce an auditory icon if possible."
   "Provide auditory feedback."
   (when (ems-interactive-p )
     (emacspeak-speak-completions-if-available)))
+;;; Directory tracking for shell buffers on  systems that have  /proc
+;;; Adapted from Emacs Wiki:
+(defun emacspeak-shell-dirtrack-procfs  (str)
+  "Directory tracking using /proc.
+/proc/pid/cwd is a symlink to working directory."
+  (prog1 str
+    (when (string-match comint-prompt-regexp str)
+      (condition-case nil
+          (cd
+           (file-symlink-p
+            (format "/proc/%s/cwd"
+                    (process-id (get-buffer-process (current-buffer))))))
+        (error)))))
+(define-minor-mode dirtrack-procfs-mode
+  "Toggle procfs-based directory tracking (Dirtrack-Procfs mode).
+With a prefix argument ARG, enable Dirtrack-Procfs mode if ARG is
+positive, and disable it otherwise. If called from Lisp, enable
+the mode if ARG is omitted or nil.
 
+This is an alternative to `shell-dirtrack-mode' which works by
+examining the shell process's current directory with procfs. It
+only works on systems that have a /proc filesystem that looks
+like Linux's; specifically, /proc/PID/cwd should be a symlink to
+process PID's current working directory.
+
+Turning on Ditrack-Procfs mode automatically turns off
+Shell-Dirtrack mode; turning it off does not re-enable it."
+  nil "DirTrack" nil 
+  (if (not dirtrack-procfs-mode)
+      (remove-hook 'comint-preoutput-filter-functions #'emacspeak-shell-dirtrack-procfs t)
+    (add-hook 'comint-preoutput-filter-functions #'emacspeak-shell-dirtrack-procfs nil t)
+    (shell-dirtrack-mode 0)))
+(when (file-exists-p "/proc")
+  (add-hook 'shell-mode-hook 'dirtrack-procfs-mode))
 ;;}}}
 ;;{{{ Advice centering and filling commands:
 
@@ -1574,6 +1609,12 @@ Indicate change of selection with an auditory icon
   (when (ems-interactive-p )
     (emacspeak-speak-line)
     (emacspeak-auditory-icon 'button)))
+
+;;; Silence help for help 
+(defadvice help-window-display-message (around emacspeak pre act comp)
+  (let ((emacspeak-speak-messages  nil))
+    ad-do-it))
+
 (loop
  for f in
  '(describe-function describe-variable describe-key)
@@ -1581,7 +1622,7 @@ Indicate change of selection with an auditory icon
  (eval
   `(defadvice ,f (after emacspeak pre act comp)
      "Speak the help."
-     (when (ems-interactive-p )
+     (when t ;(ems-interactive-p )
        (emacspeak-auditory-icon 'help)
        (emacspeak-speak-help )))))
 
@@ -1687,7 +1728,7 @@ the newly created blank line."
  (eval
   `(defadvice ,f (after emacspeak pre act comp)
      "Also speaks the result of evaluation."
-     (when (ems-interactive-p)
+     (when t ;(ems-interactive-p)
        (let ((dtk-chunk-separator-syntax " .<>()$\"\'"))
          (tts-with-punctuations 'all
                                 (dtk-speak
@@ -1982,9 +2023,9 @@ Produce an auditory icon if possible."
  do
  (eval
   `(defadvice ,f (before emacspeak pre act comp)
-     "Stop speech first."
+     "Speak line."
      (when (ems-interactive-p )
-       (dtk-stop )
+       (emacspeak-speak-line)
        (emacspeak-auditory-icon 'select-object)))))
 
 ;;}}}
@@ -2343,25 +2384,29 @@ Produce auditory icons if possible."
 
 (defadvice describe-key-briefly (after  emacspeak pre act comp)
   "Speak what you displayed"
-  
   (when (ems-interactive-p )
     (dtk-speak (ems-canonicalize-key-description ad-return-value))))
 
 (defadvice where-is (after emacspeak pre act comp)
   "Provide spoken feedback"
-  (when (ems-interactive-p ) (emacspeak-speak-message-again)))
+  (when t ;(ems-interactive-p )
+    (emacspeak-speak-message-again)))
 
 ;;}}}
 ;;{{{ apropos and friends
-
-(defadvice apropos-command (after emacspeak pre act comp)
-  "Provide an auditory icon."
-  (when (ems-interactive-p )
-    (emacspeak-auditory-icon 'help)))
+(loop
+ for f in
+ '(apropos-command apropos-documentation)
+ do
+ (eval
+  `(defadvice ,f (after emacspeak pre act comp)
+     "Provide an auditory icon."
+     (when t ;(ems-interactive-p )
+       (emacspeak-auditory-icon 'help)))))
 
 (defadvice apropos-follow (after emacspeak pre act comp)
   "Speak the help you displayed."
-  (when (ems-interactive-p )
+  (when t ;(ems-interactive-p )
     (emacspeak-auditory-icon 'select-object)
     (emacspeak-speak-help)))
 
@@ -2415,7 +2460,8 @@ Produce auditory icons if possible."
     (emacspeak-speak-mode-line)))
 (defadvice customize-save-variable (around emacspeak pre act comp)
   "Silence chatter."
-  (let ((emacspeak-speak-messages nil))
+  (let ((emacspeak-speak-messages nil)
+        (dtk-quiet t))
     ad-do-it))
 
 ;;}}}
@@ -2619,6 +2665,12 @@ Produce auditory icons if possible."
   (when (ems-interactive-p )
     (emacspeak-auditory-icon 'task-done)))
 
+;;}}}
+;;{{{ Managing packages:
+(defadvice package-menu-execute(around emacspeak pre act comp)
+  "Silence messages while installing packages. "
+  (let ((emacspeak-speak-messages nil))
+    ad-do-it))
 ;;}}}
 (provide 'emacspeak-advice)
 ;;{{{ end of file

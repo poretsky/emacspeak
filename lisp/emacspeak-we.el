@@ -1,5 +1,5 @@
 ;;; emacspeak-we.el --- Transform Web Pages Using XSLT
-;;; $Id: emacspeak-we.el 9072 2014-04-16 15:27:01Z tv.raman.tv $
+;;; $Id: emacspeak-we.el 9590 2014-11-25 00:09:14Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Edit/Transform Web Pages using XSLT
 ;;; Keywords: Emacspeak,  Audio Desktop Web, XSLT
@@ -968,8 +968,7 @@ used as well."
              'emacspeak-we-xpath-filter-history
              emacspeak-we-recent-xpath-filter))
       (pushnew emacspeak-we-xpath-filter emacspeak-we-xpath-filter-history)
-      (setq emacspeak-we-recent-xpath-filter
-            emacspeak-we-xpath-filter))
+      (setq emacspeak-we-recent-xpath-filter emacspeak-we-xpath-filter))
     (emacspeak-we-xslt-filter emacspeak-we-xpath-filter
                               (or redirect url)
                               'speak)))

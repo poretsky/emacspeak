@@ -1,5 +1,5 @@
 ;;; emacspeak-webspace.el --- Webspaces In Emacspeak
-;;; $Id: emacspeak-webspace.el 9101 2014-04-25 15:53:50Z tv.raman.tv $
+;;; $Id: emacspeak-webspace.el 9336 2014-08-18 01:26:04Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description: WebSpace provides smart updates from the Web.
 ;;; Keywords: Emacspeak, Audio Desktop webspace
@@ -530,7 +530,7 @@ Optional interactive prefix arg forces a refresh."
       (setq buffer-undo-list t)
       (format (buffer-name buffer))
       (center-line)
-      ; Nuke initial '/' in id 
+                                        ; Nuke initial '/' in id 
       (loop
        for r in results
        and i from 1

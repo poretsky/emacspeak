@@ -1,5 +1,5 @@
 ;;; emacspeak-gridtext.el --- Overlay Grids To filter columnar text
-;;; $Id: emacspeak-gridtext.el 8759 2014-01-02 23:41:02Z tv.raman.tv $
+;;; $Id: emacspeak-gridtext.el 9227 2014-06-01 20:12:06Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak module for laying grids on text
 ;;; Keywords: Emacspeak, gridtext
@@ -214,7 +214,7 @@ end   as specified by grid."
 ;;{{{  keymaps 
 (defvar emacspeak-gridtext-keymap nil
   "Prefix keymap used by gridtext.")
-
+;;;###autoload
 (define-prefix-command  'emacspeak-gridtext 'emacspeak-gridtext-keymap)
 (define-key emacspeak-gridtext-keymap "a" 'emacspeak-gridtext-apply)
 (define-key emacspeak-gridtext-keymap "l"

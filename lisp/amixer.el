@@ -1,5 +1,5 @@
 ;;; amixer.el --- Control AMixer from Emacs
-;;;$Id: amixer.el 8529 2013-11-11 20:23:38Z tv.raman.tv $
+;;;$Id: amixer.el 9336 2014-08-18 01:26:04Z tv.raman.tv $
 ;;;Emacs front-end to AMixer
 ;;{{{  Copyright:
 
@@ -42,6 +42,11 @@
 
 ;;}}}
 ;;{{{ Definitions
+;;;###autoload 
+(defcustom amixer-card "0"
+  "Card number to control."
+  :type 'string
+  :group 'amixer)
 
 (defvar amixer-db nil
   "Holds cached values.")
@@ -62,6 +67,7 @@
 
 (defun amixer-populate-settings (control)
   "Populate control with its settings information."
+  (declare (special amixer-card))
   (let ((scratch (get-buffer-create " *amixer*"))
         (fields nil)
         (slots nil)
@@ -71,7 +77,8 @@
       (setq buffer-undo-list t)
       (erase-buffer)
       (shell-command
-       (format "amixer cget numid=%s"
+       (format "amixer -c %s cget numid=%s"
+               amixer-card
                (amixer-control-numid (cdr control)))
        (current-buffer))
       (goto-char (point-min))
@@ -109,7 +116,7 @@
 
 (defun amixer-build-db ()
   "Create a database of amixer controls and their settings."
-  (declare (special amixer-db))
+  (declare (special amixer-db amixer-card))
   (unless (executable-find "amixer")
     (error "You dont have a standard amixer."))
   (let ((scratch (get-buffer-create " *amixer*"))
@@ -120,8 +127,11 @@
       (set-buffer scratch)
       (setq buffer-undo-list t)
       (erase-buffer)
-      (shell-command "amixer controls | sed -e s/\\'//g"
-                     (current-buffer))
+      (shell-command
+       (format
+        "amixer -c %s controls | sed -e s/\\'//g"
+        amixer-card)
+       (current-buffer))
       (goto-char (point-min))
       (while (not (eobp))
         (setq fields
@@ -157,6 +167,7 @@
 
 (defun amixer-get-enumerated-values(control)
   "Return list of enumerated values."
+  (declare (special amixer-card))
   (let ((buffer (get-buffer-create " *amixer*"))
         (values nil))
     (save-current-buffer
@@ -165,7 +176,8 @@
       (erase-buffer)
       (shell-command
        (format
-        "amixer cget numid=%s | grep Item | sed -e s/\\'//g"
+        "amixer -c %s   cget numid=%s | grep Item | sed -e s/\\'//g"
+        amixer-card
         (amixer-control-numid control))
        (current-buffer))
       (goto-char (point-min))
@@ -224,9 +236,11 @@ Interactive prefix arg refreshes cache."
         (amixer-control-setting control))
        update)
       (shell-command
-       (format "amixer cset numid=%s %s"
-               (amixer-control-numid control)
-               update))
+       (format
+        "amixer -c %s cset numid=%s %s"
+        amixer-card
+        (amixer-control-numid control)
+        update))
       (message
        "updated %s to %s"
        (amixer-control-name control)
