@@ -1,5 +1,5 @@
 ;;; emacspeak-advice.el --- Advice all core Emacs functionality to speak intelligently
-;;; $Id: emacspeak-advice.el 6390 2009-11-10 17:02:32Z tv.raman.tv $
+;;; $Id: emacspeak-advice.el 6480 2010-04-25 03:35:25Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Core advice forms that make emacspeak work
 ;;; Keywords: Emacspeak, Speech, Advice, Spoken  output
@@ -253,6 +253,17 @@ If you moved more than a line,
     (dtk-speak (emacspeak-get-window-contents))))
 
 (defadvice scroll-down (after emacspeak pre act comp)
+  "Speak the screenful."
+  (when (interactive-p)
+    (emacspeak-auditory-icon 'scroll)
+    (dtk-speak (emacspeak-get-window-contents))))e
+(defadvice scroll-up-command (after emacspeak pre act comp)
+  "Speak the next screenful."
+  (when (interactive-p)
+    (emacspeak-auditory-icon 'scroll)
+    (dtk-speak (emacspeak-get-window-contents))))
+
+(defadvice scroll-down-command (after emacspeak pre act comp)
   "Speak the screenful."
   (when (interactive-p)
     (emacspeak-auditory-icon 'scroll)

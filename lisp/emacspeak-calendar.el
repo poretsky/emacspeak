@@ -1,5 +1,5 @@
 ;;; emacspeak-calendar.el --- Speech enable Emacs Calendar -- maintain a diary and appointments
-;;; $Id: emacspeak-calendar.el 6342 2009-10-20 19:12:40Z tv.raman.tv $
+;;; $Id: emacspeak-calendar.el 6455 2010-03-10 01:17:18Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak extensions to speech enable the calendar.
 ;;; Keywords: Emacspeak, Calendar, Spoken Output
@@ -374,7 +374,8 @@
     (define-key calendar-mode-map "v" 'view-diary-entries)
     (define-key calendar-mode-map  "\C-e." 'emacspeak-calendar-speak-date)
     (define-key calendar-mode-map  "\C-ee"
-      'calendar-end-of-week))
+      'calendar-end-of-week)
+    )
   (add-hook 'initial-calendar-window-hook
             (function (lambda ()
                         ))))
@@ -438,6 +439,39 @@
           (message (ad-get-arg 1 )))
       (message "Set alarm %s at %s"
                message time ))))
+
+;;}}}
+;;{{{ Use GWeb if available for configuring sunrise/sunset coords
+;;;###autoload
+(defun emacspeak-calendar-setup-sunrise-sunset ()
+  "Set up geo-coordinates using Google Maps reverse geocoding.
+To use, configure variable gweb-my-address via M-x customize-variable."
+  (interactive)
+  (declare (special gweb-my-location gweb-my-address
+                    calendar-latitude calendar-longitude))
+  (cond
+   ((null gweb-my-location)
+    (message "First configure gweb-my-address."))
+   (t
+    (setq calendar-latitude
+          (g-json-get 'lat gweb-my-location)
+          calendar-longitude (g-json-get 'lng gweb-my-location))
+    (message "Setup for %s"
+             gweb-my-address))))
+
+
+(defadvice calendar-sunrise-sunset (around emacspeak pre act comp)
+  "Like calendar's sunrise-sunset, but speaks location intelligently."
+  (declare (special gweb-my-address))
+  (cond
+   ((and (boundp 'gweb-my-address)
+         gweb-my-address
+         (interactive-p))
+    (let ((date (calendar-cursor-to-date t)))
+      (message "%s at %s"
+               (solar-sunrise-sunset-string date 'nolocation)
+               gweb-my-address)))
+   (t ad-do-it)))
 
 ;;}}}
 

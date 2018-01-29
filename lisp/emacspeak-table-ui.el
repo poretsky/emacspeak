@@ -1,5 +1,5 @@
 ;;; emacspeak-table-ui.el --- Emacspeak's current notion of an ideal table UI
-;;; $Id: emacspeak-table-ui.el 6342 2009-10-20 19:12:40Z tv.raman.tv $
+;;; $Id: emacspeak-table-ui.el 6476 2010-04-23 01:02:11Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description: Emacspeak table handling module
 ;;; Keywords:emacspeak, audio interface to emacs tables are structured
@@ -108,7 +108,7 @@
         ("k" emacspeak-table-copy-to-clipboard)
         ("T" emacspeak-table-goto-top)
         ("B" emacspeak-table-goto-bottom)
-        ("L" emacspeak-table-goto-left)
+        ("A" emacspeak-table-goto-left)
         ("E" emacspeak-table-goto-right))
       do
       (emacspeak-keymap-update emacspeak-table-keymap binding))
@@ -577,7 +577,8 @@ the documentation on the table browser."
 The processed  data and presented using emacspeak table navigation. "
   (interactive "FFind CSV file: ")
   (let  ((buffer (find-file-noselect filename)))
-    (emacspeak-table-view-csv-buffer buffer)))
+    (emacspeak-table-view-csv-buffer buffer)
+    (kill-buffer buffer)))
 
 ;;;###autoload
 (defun emacspeak-table-view-csv-buffer (&optional buffer-name)

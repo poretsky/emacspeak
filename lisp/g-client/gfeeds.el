@@ -1,5 +1,5 @@
 ;;; gfeeds.el --- Google Access To Feeds
-;;;$Id: gfeeds.el 5898 2008-09-05 00:53:57Z tv.raman.tv $
+;;;$Id: gfeeds.el 6402 2009-11-25 16:13:26Z tv.raman.tv $
 ;;; $Author: raman $
 ;;; Description:  AJAX Feeds -> Lisp
 ;;; Keywords: Google   AJAX Feeds API
@@ -156,7 +156,7 @@
   "Internal cached value of freshness as a time value.")
 
 ;;;###autoload
-(defcustom gfeeds-freshness "4 hours"
+(defcustom gfeeds-freshness "1 hour"
   "Freshness used to decide if we return titles."
   :type  'string
   :set  #'(lambda (sym val)
@@ -235,7 +235,7 @@ Interactive prefix arg causes the feed url to be looked up given a Web site."
 
 ;;}}}
 ;;; gfeeds.el --- Google Feeds
-;;;$Id: gfeeds.el 5898 2008-09-05 00:53:57Z tv.raman.tv $
+;;;$Id: gfeeds.el 6402 2009-11-25 16:13:26Z tv.raman.tv $
 ;;; $Author: raman $
 ;;; Description:  AJAX Feeds -> Lisp
 ;;; Keywords: Google   AJAX API

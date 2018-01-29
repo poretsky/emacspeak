@@ -47,12 +47,12 @@ g-app.elc \
 g-utils.elc \
 g.elc \
 gblogger.elc \
+org2blogger.elc \
 gcal.elc \
 gcontacts.elc \
 gdocs.elc \
 gfinance.elc \
 gfeeds.elc \
-#ghealth.elc \
 gnotebook.elc \
 greader.elc \
 gphoto.elc \
@@ -61,7 +61,7 @@ gtube.elc \
 gsheet.elc
 
 
-all: g-loaddefs.el g-cus-load.el ${OBJECTS}
+all:g-loaddefs.el g-cus-load.el  ${OBJECTS}
 
 
 # How to compile
@@ -99,7 +99,8 @@ gcal.elc: gcal.el g-app.elc
 gcontacts.elc: gcontacts.el
 gdocs.elc: gdocs.el g-app.elc
 gnotebook.elc: gnotebook.el g-app.elc
-gblogger.elc: gblogger.el g-app.elc
+gblogger.elc: gblogger.el g-app.elc 
+org2blogger.elc: org2blogger.el gblogger.elc
 
 # }}}
 # {{{dist

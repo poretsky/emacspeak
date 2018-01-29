@@ -1,41 +1,32 @@
 Emacspeak News --History Of User-Visible Changes
-$Id: NEWS 6054 2008-11-13 01:36:59Z tv.raman.tv $
+$Id: NEWS 6485 2010-05-11 00:26:49Z tv.raman.tv $
 Author: T. V. Raman <raman@users.sf.net>
 
-* Emacspeak 29.0 Additions And Changes:
+* Emacspeak 30 -- Emacspeak 32 User Visible Changes 
 
-Emacspeak 29.0 provides the following user level enhancements:
+** BBC iPlayer 
 
-** Speech-enables proced:
+Adds support to BBC  iPlayer
 
-Module emacspeak-proced speech-enables emacs 23's new Task
-manager proced.
-This replaces view-process-mode which no longer works in emacs
-23.
+** emacspeka-url-templates:
 
-** Integrates Unicode Support
+Many new URL  templates
 
-Thanks to Lukas' work, Emacspeak now works with the unicode
-support in Emacs 22 and Emacs 23.
+** emacspeak-google.el:
 
-** emacspeak-webspace
-
-Module Webspace provides a suite of  efficient Web content access
-tools.
-
-** G-Client:
-
-G-Client now includes support for many more Google Web APIs,
-including WebSearch and BlogSearch.
-
-** Initial Support For Google Docs:
-
-There is now preliminary support for uploading and viewing
-document lists from Google Docs in G-Client.
+Adds support for Google power-search tools
 
 
+** Emacspeak-ebooks.el:
 
-
-Local variables:
-mode: org
-end:
+Adds epub support
+
+** Emacs 24 Support:
+
+Adds support for Emacs 24
+
+** Twitter:
+
+Supports Twittering via tiwt.el
+
+

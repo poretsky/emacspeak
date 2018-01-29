@@ -5,8 +5,8 @@
 # LCD Archive Entry:
 # emacspeak| T. V. Raman |raman@cs.cornell.edu
 # A speech interface to Emacs |
-# $Date: 2009-08-28 18:04:41 -0700 (Fri, 28 Aug 2009) $ |
-#  $Revision: 6220 $ | 
+# $Date: 2010-02-01 15:40:43 -0800 (Mon, 01 Feb 2010) $ |
+#  $Revision: 6435 $ | 
 # Location undetermined
 #
 
@@ -475,8 +475,6 @@ set tclTTS $servers/linux-outloud
 if {![info exists env(ECIINI)] || ![file exists $env(ECIINI)] } {
     set env(ECIINI) $tclTTS/eci.ini
 }
-#conditionally use alsa if available
-
 load $tclTTS/atcleci.so
 set tts(play) /usr/bin/aplay
 synth {`v1 Via Voice using Alsa.}

@@ -1,5 +1,5 @@
 ;;; emacspeak-piglets.el.el --- Result of large pigs connecting over a socket
-;;; $Id: emacspeak-piglets.el 6342 2009-10-20 19:12:40Z tv.raman.tv $
+;;; $Id: emacspeak-piglets.el 6420 2009-12-09 17:45:07Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Result of connecting Emacs and Firefox
 ;;; Keywords: Emacspeak,  Audio Desktop Firefox, Piglets 
@@ -93,6 +93,13 @@
    dtk-program
    "2222"
    (format "%d" emacspeak-piglets-tts-rate)))
+
+
+;;;###autoload
+(defun emacspeak-piglets-tts-stop ()
+  "Kill TTS  process."
+  (interactive)
+  (kill-buffer "* HTTP TTS *"))
 (define-derived-mode emacspeak-piglets-mode inferior-moz-mode
   "Piglets Interaction"
   "Major mode for Piglets interaction.

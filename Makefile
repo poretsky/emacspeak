@@ -1,4 +1,4 @@
-# $Id: Makefile 6217 2009-08-28 21:13:56Z tv.raman.tv $
+# $Id: Makefile 6478 2010-04-23 17:41:42Z tv.raman.tv $
 # $Author: tv.raman.tv $
 # Description:  Makefile for Emacspeak
 # Keywords: Emacspeak,  TTS,Makefile
@@ -167,7 +167,9 @@ ${ECI}/Makefile
 
 NEWS = etc/NEWS*  etc/COPYRIGHT \
 etc/remote.txt etc/FAQ etc/HELP etc/applications.html   etc/tips.html
-SOUNDS=sounds/default-8k sounds/emacspeak.mp3
+SOUNDS=sounds/default-8k sounds/emacspeak.mp3 \
+sounds/cartoon-22k-mono sounds/chimes-11k-stereo \
+sounds/chimes-mono sounds/chimes-stereo 
 
 TCL_PROGRAMS = servers/.servers \
 servers/dtk-exp  servers/ssh-dtk-exp\

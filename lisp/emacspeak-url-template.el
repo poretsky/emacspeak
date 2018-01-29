@@ -1,5 +1,5 @@
 ;;; emacspeak-url-template.el --- Create library of URI templates
-;;; $Id: emacspeak-url-template.el 6350 2009-10-27 20:43:46Z tv.raman.tv $
+;;; $Id: emacspeak-url-template.el 6488 2010-05-12 22:19:33Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:   Implement library of URI templates
 ;;; Keywords: Emacspeak, Audio Desktop
@@ -290,15 +290,20 @@ dont-url-encode if true then url arguments are not url-encoded "
 
 (emacspeak-url-template-define
  "BookShare"
- "https://www.bookshare.org/web/MembersLogin.html?email=%s&password=%s&operation=submit"
+ "https://www.bookshare.org/whiteListRedirect?j_userName=%s"
  (list
   #'(lambda nil
       (read-from-minibuffer "Bookshare UserId: "
-                            emacspeak-bookshare-user-id))
-  #'(lambda nil
-      (read-passwd  "Password: ")))
+                            emacspeak-bookshare-user-id)))
  nil
  "Bookshare Login")
+
+(emacspeak-url-template-define
+ "BookShare Search"
+ "http://www.bookshare.org/quickSearch?keyword=%s&search=Search"
+ (list "BookShare Query: ")
+ nil
+ "BookShare Search")
 
 (defun emacspeak-url-template-calendar-to-seconds ()
   "Convert date under cursor to seconds since epoch."
@@ -394,6 +399,44 @@ dont-url-encode if true then url arguments are not url-encoded "
  'emacspeak-webutils-rss-display)
 
 ;;}}}
+;;{{{ BBC iPlayer 
+;;; convertor is here:
+;;; http://www.iplayerconverter.co.uk/convert.aspx
+
+(defvar emacspeak-url-template-iplayer-convertor
+  "http://www.iplayerconverter.co.uk/pid/%s/r/stream.aspx"
+  "Template for generating persistent realplayer URL for iplayer content.")
+
+(defun emacspeak-url-template-iplayer-player (cid)
+  "Take a cid particle, and invokes mplayer."
+  (declare (special emacspeak-url-template-iplayer-convertor))
+  (let ((handle (format emacspeak-url-template-iplayer-convertor (substring  cid 4))))
+    (emacspeak-m-player handle 'playlist)
+    (message handle)))
+
+(emacspeak-url-template-define
+ "BBC  iPlayer"
+ "http://www.bbc.co.uk/%s/programmes/schedules/%s%s.xml"
+ (list
+  "Station: "
+  #'(lambda ()
+      (let ((outlet (read-from-minibuffer "Outlet: ")))
+        (cond
+         ((= 0 (length outlet)) outlet)
+         (t (concat outlet "/")))))
+  'emacspeak-url-template-date-year/month/date)
+ #'(lambda ()
+     (declare (special emacspeak-we-url-executor))
+     (setq emacspeak-we-url-executor
+           'emacspeak-url-template-iplayer-player))
+ "BBC iPlayer"
+ #'(lambda (url)
+     (emacspeak-webutils-with-xsl-environment
+     (expand-file-name "bbc-iplayer.xsl" emacspeak-xslt-directory)
+     nil emacspeak-xslt-options
+     (browse-url url))))
+
+;;}}}
 ;;{{{ bbc
 (emacspeak-url-template-define
  "Mobile BBC"
@@ -421,158 +464,6 @@ dont-url-encode if true then url arguments are not url-encoded "
  nil
  "Play BBC  Radio4 show for a given day/time."
  'emacspeak-m-player)
-
-(emacspeak-url-template-define
- "Radio4 Program"
- "rtsp://rmv8.bbc.net.uk/radio4/%s_%s.ra"
- (list
-  "Time: HHMM"
-  "Weekday: ")
- nil
- "Play BBC  Radio4 show for a given day/time."
- 'emacspeak-m-player)
-
-(emacspeak-url-template-define
- "BBC 7 Schedule"
- "http://www.bbc.co.uk/bbc7/listings/index.shtml?%s"
- (list
-  #'(lambda ()
-      (read-from-minibuffer
-       "BBC 7 Schedule: "
-       (when (eq major-mode 'calendar-mode)
-         (calendar-day-name (calendar-cursor-to-date))))))
- nil
- "Retrieve BBC7 schedule for specified day."
- #'(lambda (url)
-     (emacspeak-we-extract-table-by-match
-      "Morning"
-      url 'speak)))
-
-(emacspeak-url-template-define
- "BBC Radio4 On Demand"
- "rtsp://rmv8.bbc.net.uk/radio4/%s.ra"
- (list "WeekdayTime: ")
- nil
- "Specify a week day (three letters -- lower case -- and a time spec
--- e.g. 1230 --
-to play a BBC Radio4 program on demand."
- #'(lambda (url)
-     (funcall emacspeak-media-player  url 'play-list)))
-
-(emacspeak-url-template-define
- "BBC Radio7 On Demand"
- "rtsp://rmv8.bbc.net.uk/bbc7/%s_%s.ra"
- (list "hhmm" "day")
- nil
- "Specify a week day (three letters -- lower case -- and a time spec
--- e.g. 1230 --
-to play a BBC Radio7 program on demand."
- #'(lambda (url)
-     (funcall emacspeak-media-player  url 'play-list)))
-
-(emacspeak-url-template-define
- "BBC Listen Again"
- "http://www.bbc.co.uk/radio4/progs/listenagain.shtml"
- nil
- #'(lambda ()
-     (search-forward "ABCDEFGHIJKLMNOPQRSTUVWXYZ" nil t)
-     (forward-line 2)
-     (search-forward "A" nil t)
-     (emacspeak-speak-line))
- "BBC Listen Again Listings"
- #'(lambda (url)
-     (emacspeak-xslt-view-xml
-      (expand-file-name "linearize-tables.xsl"
-                        emacspeak-xslt-directory)
-      url)))
-;;{{{ bbc channel
-
-(defvar  emacspeak-url-template-bbc-channels-content
-  "http://www.bbc.co.uk/radio/aod/shows/rpms/"
-  "Location of BBC audio content.")
-
-(defun emacspeak-url-template-bbc-channel-player (url)
-  "Extract program name, construct realplayer URL and play that
-content."
-  (declare (special  emacspeak-url-template-bbc-channels-content))
-  (let ((content (second
-                  (split-string url "?")))
-        (uri nil))
-    (cond
-     ((null content)
-      (error "Cannot locate content particle in %s" url))
-     (t
-      (setq uri
-            (concat emacspeak-url-template-bbc-channels-content
-                    content
-                    ".rpm"))
-      (kill-new uri)
-      (funcall emacspeak-media-player  uri 'play-list)
-      (message "Playing content under point.")))))
-
-(emacspeak-url-template-define
- "BBC Channel On Demand"
- "http://www.bbc.co.uk/radio/aod/networks/%s/audiolist.shtml"
- (list "BBC Channel: ")
- #'(lambda ()
-     (declare (special emacspeak-we-url-executor))
-     (setq emacspeak-we-url-executor
-           'emacspeak-url-template-bbc-channel-player))
- "Display BBC Channel on demand.")
-
-;;}}}
-;;{{{ bbc Genres
-
-(emacspeak-url-template-define
- "BBC Genres On Demand"
- "http://www.bbc.co.uk/radio/aod/genres/%s/audiolist.shtml"
- (list "BBC Genre: ")
- #'(lambda ()
-     (declare (special emacspeak-we-url-executor))
-     (setq emacspeak-we-url-executor
-           'emacspeak-url-template-bbc-channel-player))
- "Display BBC Channel on demand."
- )
-
-;;}}}
-
-(emacspeak-url-template-define
- "BBC Programs On Demand"
- "http://www.bbc.co.uk/radio/aod/shows/rpms/%s.rpm"
- (list "BBC Program: ")
- nil
- "Play BBC programs on demand."
- #'(lambda (url)
-     (funcall emacspeak-media-player url 'play-list)))
-
-(emacspeak-url-template-define
- "BBC News"
- "http://news.bbc.co.uk/2/low.html"
- nil
- #'(lambda nil
-     (search-forward
-      (format-time-string
-       "%A, %e %B, %Y"
-       (current-time)
-       'universal))
-     (emacspeak-auditory-icon 'open-object)
-     (beginning-of-line)
-     (emacspeak-speak-rest-of-buffer))
- "BBC News text version.")
-
-(emacspeak-url-template-define
- "BBC Sports"
- "http://news.bbc.co.uk/sport2/low/default.stm"
- nil
- #'(lambda nil
-     (search-forward
-      (format-time-string "%A, %d %B, %Y"
-                          (current-time)))
-     (emacspeak-auditory-icon 'open-object)
-     (beginning-of-line)
-     (emacspeak-speak-rest-of-buffer))
- "BBC News text version."
- )
 
 ;;}}}
 ;;{{{  answers.com
@@ -784,6 +675,16 @@ Make sure to sign in before invoking this template."
 Make sure to sign in before invoking this template."
  #'(lambda (url)
      (emacspeak-we-xslt-filter "//form" url 'speak)))
+
+(emacspeak-url-template-define
+ "GMail Contacts"
+ (concat emacspeak-url-template-gmail-search-url
+         "?v=cl&pnl=a")
+ nil
+ nil
+ "Open GMail Inbox"
+ #'(lambda (url)
+     (emacspeak-we-extract-by-class "th" url )))
 
 (emacspeak-url-template-define
  "GMail Inbox"
@@ -1135,7 +1036,7 @@ from English to German")
  "http://translate.google.com/translate_c?hl=en&langpair=%s&u=%s"
  (list
   "Translate from|To:"
-  "URI")
+  "URI: ")
  nil
  "Translate a Web page using google. Source and target languages
 are specified as two-letter language codes, e.g. en|de translates
@@ -1192,18 +1093,6 @@ from English to German.")
  "Google Glossary lookup.")
 
 (emacspeak-url-template-define
- "GCaffeine Search"
- "http://www2.sandbox.google.com/search?hl=en&q=%s&btnG=Google+Search"
- (list 'gweb-google-autocomplete
-       #'(lambda nil
-           (declare (special  emacspeak-websearch-google-number-of-results))
-           emacspeak-websearch-google-number-of-results))
- #'(lambda nil
-     (search-forward "Search Results" nil)
-     (emacspeak-speak-rest-of-buffer))
- "Google Sandbox Results")
-
-(emacspeak-url-template-define
  "1Box Google"
  "http://www.google.com/search?q=%s"
  (list 'gweb-google-autocomplete)
@@ -1211,7 +1100,7 @@ from English to German.")
  "Show 1box result from Google."
  #'(lambda (url)
      (emacspeak-we-extract-by-class-list
-      (list "rbt" "e")
+      (list "rbt" "e" "std")
       url 'speak)))
 
 (emacspeak-url-template-define
@@ -1632,7 +1521,7 @@ name of the list.")
  nil
  "Filter down to CNN  content area."
  #'(lambda (url)
-     (emacspeak-we-extract-by-id "cnn_maincntnr" url 'speak)))
+     (emacspeak-we-extract-by-id "cnn_maincntnr"url 'speak)))
 
 ;;{{{ cnnfn content
 (emacspeak-url-template-define
@@ -1716,7 +1605,7 @@ name of the list.")
  "CNN Content"
  #'(lambda (url)
      (emacspeak-we-extract-by-id
-      "cnnContentContainer"
+      "cnn_maincntnr"
       url
       'speak)))
 
@@ -2356,6 +2245,17 @@ Meerkat realy needs an xml-rpc method for getting this.")
  "Play Prairie Home Companion"
  #'(lambda (url)
      (funcall emacspeak-media-player  url 'play-list))) 
+
+(emacspeak-url-template-define
+ "Earthquakes"
+ "http://earthquake.usgs.gov/earthquakes/recenteqsus/Quakes/quakes_all.php"
+ nil
+ nil
+ "Show table of recent quakes."
+ #'(lambda (url)
+     (emacspeak-we-xslt-filter "//tr[position() < 10]"
+			       url
+			       'speak)))
 
 ;;}}}
 

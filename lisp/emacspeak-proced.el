@@ -1,5 +1,5 @@
 ;;; emacspeak-proced.el --- Speech-enable PROCED Task Manager
-;;; $Id: emacspeak-proced.el 6342 2009-10-20 19:12:40Z tv.raman.tv $
+;;; $Id: emacspeak-proced.el 6434 2010-02-01 23:40:33Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Speech-enable PROCED A Task manager for Emacs
 ;;; Keywords: Emacspeak,  Audio Desktop proced Task Manager
@@ -110,7 +110,7 @@
 (defsubst emacspeak-proced-field-to-position (field)
   "Return column position of this field."
   (declare (special emacspeak-proced-fields))
-  (cdr (assoc field emacspeak-proced-fields)))
+  (cdr (assoc-ignore-case field emacspeak-proced-fields)))
 
 (defun emacspeak-proced-position-to-field (position)
   "Return field  for this position."
@@ -166,8 +166,8 @@
     (?S (emacspeak-proced-speak-field "STAT"))
     (?s (emacspeak-proced-speak-field "START"))
     (?t (emacspeak-proced-speak-field "TIME"))
-    (?\ (emacspeak-proced-speak-field "ARGS"))
-    (?a (emacspeak-proced-speak-field "ARGS"))
+    (?\ (emacspeak-proced-speak-field "Args"))
+    (?a (emacspeak-proced-speak-field "Args"))
     (otherwise (message "Pick field using mnemonic chars"))
     (sit-for 1)))
 
@@ -218,7 +218,7 @@
        (mapcar 'emacspeak-proced-field-name emacspeak-proced-fields)
        nil t nil))))
   (declare (special emacspeak-proced-fields))
-  (let ((field (assoc field-name emacspeak-proced-fields)))
+  (let ((field (assoc-ignore-case field-name emacspeak-proced-fields)))
     (emacspeak-proced-speak-this-field
      (emacspeak-proced-field-start field))))
 
@@ -230,6 +230,7 @@
   (define-key proced-mode-map "j" 'emacspeak-proced-jump-to-process)
   (define-key proced-mode-map "\t" 'emacspeak-proced-next-field)
   (define-key proced-mode-map [S-tab] 'emacspeak-proced-previous-field)
+  (define-key proced-mode-map [backtab] 'emacspeak-proced-previous-field)
   (define-key proced-mode-map "." 'emacspeak-proced-speak-field)
   (define-key proced-mode-map "<" 'beginning-of-buffer)
   (define-key proced-mode-map ">" 'end-of-buffer))
@@ -246,7 +247,7 @@
       (goto-char (point-min))
       (while (not (eobp))
         (goto-char (+ (line-beginning-position)
-                      (car (emacspeak-proced-field-to-position "ARGS"))))
+                      (car (emacspeak-proced-field-to-position "Args"))))
         (push
          (buffer-substring-no-properties (point)
                                          (line-end-position))
@@ -328,7 +329,7 @@
           (let ((emacspeak-speak-messages nil))
             ad-do-it
             (when (interactive-p)
-              (let ((target (cdr (assoc "ARGS" emacspeak-proced-fields))))
+              (let ((target (cdr (assoc-ignore-case "ARGS" emacspeak-proced-fields))))
                 (emacspeak-auditory-icon 'task-done)
                 (dtk-speak
                  (format "%d of %d: %s"
