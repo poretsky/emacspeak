@@ -1,5 +1,5 @@
 ;;; emacspeak-websearch.el --- search utilities
-;;; $Id: emacspeak-websearch.el 6421 2009-12-11 01:20:49Z tv.raman.tv $
+;;; $Id: emacspeak-websearch.el 6545 2010-07-04 00:46:24Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak extension to make Web searching convenient
 ;;; Keywords: Emacspeak, WWW interaction
@@ -462,12 +462,6 @@ See http://www.gummy-stuff.org/Yahoo-data.htm and Perl module Finance::Yahoo")
   "&d=v1"
   "*Additional default options to pass to Yahoo.")
 
-(defcustom emacspeak-websearch-personal-portfolio ""
-  "Set this to the stock tickers you want to check by
-default."
-  :type 'string
-  :group 'emacspeak-websearch)
-
 (defvar emacspeak-websearch-curl-program "curl"
   "Name of curl executable")
 
@@ -475,7 +469,7 @@ default."
 (defun emacspeak-websearch-quotes-yahoo-search (query &optional prefix)
   "Perform a Quotes Yahoo .
 Default tickers to look up is taken from variable
-emacspeak-websearch-personal-portfolio.
+emacspeak-wizards-personal-portfolio.
 Default is to present the data in emacspeak's table browsing
 mode --optional interactive prefix arg
 causes data to be displayed as  a Web page.
@@ -484,13 +478,13 @@ emacspeak-websearch-quotes-yahoo-options to an appropriate string."
   (interactive
    (list
     (emacspeak-websearch-read-query "Lookup quotes: "
-                                    emacspeak-websearch-personal-portfolio
-                                    emacspeak-websearch-personal-portfolio)
+                                    emacspeak-wizards-personal-portfolio
+                                    emacspeak-wizards-personal-portfolio)
     current-prefix-arg))
   (declare (special emacspeak-websearch-quotes-yahoo-uri
                     emacspeak-websearch-quotes-yahoo-options
                     emacspeak-websearch-curl-program
-                    emacspeak-websearch-personal-portfolio
+                    emacspeak-wizards-personal-portfolio
                     emacspeak-websearch-quotes-csv-yahoo-uri))
   (cond
    ((null prefix)
@@ -971,7 +965,7 @@ Optional second arg as-html processes the results as HTML rather than data."
   :group 'emacspeak-websearch)
 
 (defvar emacspeak-websearch-google-uri
-  "http://www.google.com/search?q="
+  "https://www.google.com/search?q="
   "*URI for Google search")
 
 (defcustom emacspeak-websearch-google-options nil
@@ -1006,8 +1000,7 @@ I'm Feeling Lucky button on Google."
       (emacspeak-webutils-autospeak)
     (emacspeak-webutils-post-process
      "results"
-     'emacspeak-speak-line)
-    )
+     'emacspeak-speak-line))
   (let ((emacspeak-w3-tidy-html t))
     (emacspeak-webutils-with-xsl-environment
      (expand-file-name "default.xsl" emacspeak-xslt-directory)
@@ -1070,7 +1063,7 @@ I'm Feeling Lucky button on Google."
 (defun emacspeak-websearch-google-specialize (specialize query)
   "Perform a specialized Google search. See the Google site for
   what is possible here:
-http://www.google.com/options/specialsearches.html "
+https://www.google.com/options/specialsearches.html "
   (interactive
    (list
     (emacspeak-websearch-read-query
@@ -1078,7 +1071,7 @@ http://www.google.com/options/specialsearches.html "
     (emacspeak-websearch-read-query
      "Google for:")))
   (let ((emacspeak-websearch-google-uri
-         (format "http://www.google.com/%s?q="
+         (format "https://www.google.com/%s?q="
                  specialize)))
     (emacspeak-websearch-google query )))
 
@@ -1111,7 +1104,7 @@ http://www.google.com/options/specialsearches.html "
 (emacspeak-websearch-set-key 6 'froogle)
 
 (defvar emacspeak-websearch-froogle-uri
-  "http://www.google.com/products?output=html&q=%s"
+  "https://www.google.com/products?output=html&q=%s"
   "*URI for Froogle search")
 
 ;;;###autoload
@@ -1273,7 +1266,7 @@ Optional interactive  prefix arg local-flag prompts for local
 (emacspeak-websearch-set-key ?\; 'google-mobile)
 
 (defvar emacspeak-websearch-google-mobile-uri
-  "http://www.google.com/xhtml?q="
+  "https://www.google.com/xhtml?q="
   "Google mobile search.")
 
 ;;;###autoload
@@ -1742,22 +1735,15 @@ Optional prefix arg no-rss scrapes information from HTML."
 
 (emacspeak-websearch-set-key 23 'wikipedia)
 
-(defvar emacspeak-websearch-wikipedia-search-uri
-  "http://www.wikiseek.com/results.php?q=%s"
-  "URI for searching Wikipedia")
-
 ;;;###autoload
 (defun emacspeak-websearch-wikipedia-search (query)
-  "Search Wikipedia"
+  "Search Wikipedia using Google."
   (interactive
    (list (emacspeak-websearch-read-query "Search Wikipedia: ")))
-  (declare (special emacspeak-websearch-wikipedia-search-uri))
-  (browse-url
-   (format emacspeak-websearch-wikipedia-search-uri
-           (emacspeak-url-encode query)))
-  (emacspeak-webutils-post-process
-   query
-   'emacspeak-speak-rest-of-buffer))
+  
+   
+  (emacspeak-websearch-google
+   (emacspeak-url-encode (format "site:wikipedia.org %s"query))))
 
 ;;}}}
 ;;{{{ People from yahoo

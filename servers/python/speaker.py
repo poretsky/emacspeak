@@ -19,10 +19,10 @@ emacspeak modules:
 
 """
 
-__id__ = "$Id: speaker.py 5585 2008-05-20 00:56:07Z tv.raman.tv $"
+__id__ = "$Id: speaker.py 6537 2010-06-29 01:07:02Z tv.raman.tv $"
 __author__ = "$Author: tv.raman.tv $"
-__version__ = "$Revision: 5585 $"
-__date__ = "$Date: 2008-05-19 17:56:07 -0700 (Mon, 19 May 2008) $"
+__version__ = "$Revision: 6537 $"
+__date__ = "$Date: 2010-06-28 18:07:02 -0700 (Mon, 28 Jun 2010) $"
 __copyright__ = "Copyright (c) 2005 T. V. Raman"
 __license__ = "LGPL"
 __all__=['Speaker']
@@ -70,7 +70,7 @@ class Speaker:
     listEngines = staticmethod(listEngines)
         
     def __init__ (self,
-                  engine='outloud',
+                  engine='32-outloud',
                   host='localhost',
                   initial=config):
         """Launches speech engine."""
@@ -215,6 +215,7 @@ _codeTable = {
     'dtk-mv' : 'dectalk',
     'dtk-soft' : 'dectalk',
     'outloud' : 'outloud',
+    '32-outloud' : 'outloud',
     }
 
 def _test():

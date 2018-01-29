@@ -1,5 +1,5 @@
 ;;; g-utils.el --- Google Client Utilities
-;;;$Id: g-utils.el 6102 2009-02-05 23:14:04Z tv.raman.tv $
+;;;$Id: g-utils.el 6513 2010-06-02 15:33:54Z tv.raman.tv $
 ;;; $Author: raman $
 ;;; Description:  Google Client utilities
 ;;; Keywords: Google   Atom API, Google Services
@@ -139,11 +139,6 @@ Customize this to live on your local disk."
   :type 'boolean
   :group 'g)
 
-(defcustom g-xslt-debug nil
-  "Set to T to see xsltproc  stderr output."
-  :type 'boolean
-  :group 'g)
-
 ;;}}}
 ;;{{{  buffer bytes rather than buffer size
 
@@ -164,13 +159,6 @@ Customize this to live on your local disk."
   (if g-curl-debug
       ""
     " 2>/dev/null"))
-
-(defsubst g-xslt-debug ()
-  "Determines if we show stderr output."
-  (declare (special g-xslt-debug))
-  (if g-xslt-debug
-      " 2>/dev/null"
-    ""))
 
 ;;}}}
 ;;{{{ url encode:
@@ -197,9 +185,8 @@ Customize this to live on your local disk."
    start end
    g-xslt-program
    t t nil 
-            xsl
-            "-"
-            (g-xslt-debug)))
+   xsl
+   "-"))
 
 ;;}}}
 ;;{{{ html unescape

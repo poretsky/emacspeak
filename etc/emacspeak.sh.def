@@ -1,6 +1,9 @@
 #!/bin/sh
 # emacspeak - execute emacs with speech enhancements
-#$Id: emacspeak.sh.def 4333 2007-01-19 02:33:36Z tv.raman.tv $
+# this file needs a maintainer, I, (tv.raman.tv@gmail.com) am not presently maintaining it.
+# AKA  Use at your own risk, and if it breaks, you get to keep both pieces. 
+# Patches that are fully tested always welcome.
+#$Id: emacspeak.sh.def 6570 2010-08-26 22:59:44Z tv.raman.tv $
     if [ -f /etc/emacspeak.conf ]
     then
     . /etc/emacspeak.conf

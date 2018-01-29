@@ -1,5 +1,5 @@
 ;;; emacspeak-remote.el --- Enables running remote Emacspeak sessions
-;;; $Id: emacspeak-remote.el 6342 2009-10-20 19:12:40Z tv.raman.tv $
+;;; $Id: emacspeak-remote.el 6567 2010-08-19 19:19:36Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description: Auditory interface to remote speech server
 ;;; Keywords: Emacspeak, Speak, Spoken Output, remote server
@@ -195,6 +195,28 @@ Uses value returned by `emacspeak-remote-get-current-remote-hostname'."
    (format "%s -p %s -l %s"
            host port login)
    "remote-ssh"))
+
+;;;###autoload
+(defcustom emacspeak-remote-default-ssh-server
+  nil
+  "Default ssh server to use for remote speech server."
+  :type '(choice
+          (const  :tag "Ignore" nil)
+          (string  :tag "SSH Server"))
+  :group 'emacspeak-remote)
+
+  
+;;;###autoload
+(defun emacspeak-remote-quick-connect-via-ssh ()
+  "Connect via ssh to remote Emacspeak server.
+Server is specified via custom option `emacspeak-remote-default-ssh-server'."
+  (interactive)
+  (declare (special emacspeak-remote-default-ssh-server))
+  (when emacspeak-remote-default-ssh-server
+    (setq dtk-program emacspeak-remote-default-ssh-server)
+  (dtk-select-server emacspeak-remote-default-ssh-server)
+  (dtk-initialize)))
+
 
 ;;;###autoload
 (defun  emacspeak-remote-connect-to-server (host port)

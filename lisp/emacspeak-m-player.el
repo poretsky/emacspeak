@@ -1,5 +1,5 @@
 ;;; emacspeak-m-player.el --- Control mplayer from Emacs
-;;; $Id: emacspeak-m-player.el 6489 2010-05-12 22:20:50Z tv.raman.tv $
+;;; $Id: emacspeak-m-player.el 6623 2010-10-24 16:42:29Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description: Controlling mplayer from emacs 
 ;;; Keywords: Emacspeak, m-player streaming media 
@@ -81,6 +81,62 @@ specifies the actual location of the media stream
 
 (defvar emacspeak-m-player-process nil
   "Process handle to m-player." )
+(defsubst emacspeak-m-player-dispatch (command)
+  "Dispatch command to m-player."
+  (declare (special emacspeak-m-player-process))
+  (save-excursion
+    (set-buffer (process-buffer emacspeak-m-player-process))
+    (erase-buffer)
+  (process-send-string
+   emacspeak-m-player-process
+   (format "pausing_keep %s\n" command))
+  (accept-process-output emacspeak-m-player-process 0.1)
+  (unless (zerop (buffer-size))
+  (buffer-substring-no-properties (point-min) (1-  (point-max))))))
+
+(defvar emacspeak-m-player-info-cache nil
+  "Cache currently playing info.")
+
+(defun emacspeak-m-player-current-info ()
+  "Return filename and position of current track as a list."
+  (declare (special emacspeak-m-player-info-cache))
+  (let ((file
+	 (second
+         (split-string
+          (emacspeak-m-player-dispatch
+           "get_file_name\n")
+          "=")))
+	(pos
+	 (second
+         (split-string
+          (emacspeak-m-player-dispatch "get_percent_pos\n")
+          "="))))
+    (setq emacspeak-m-player-info-cache (list file pos))))
+
+
+(defun emacspeak-m-player-speak-current-info ()
+  "Speak cached  info about currently playing file."
+  (interactive)
+  (declare (special emacspeak-m-player-info-cache))
+  (message
+    "%s%% in %s"
+           (second emacspeak-m-player-info-cache)
+	   (first emacspeak-m-player-info-cache)))
+
+(defsubst emacspeak-m-player-mode-line ()
+  "Meaningful mode-line."
+  (let ((info (emacspeak-m-player-current-info)))
+    (format "%s: %s%%"
+                                    (first info)
+                                    (second info))))
+
+(defun emacspeak-m-player-speak-mode-line ()
+  "Speak mode line"
+  (interactive)
+  (tts-with-punctuations
+   'all
+   (dtk-speak (emacspeak-m-player-mode-line))))
+
 
 (define-derived-mode emacspeak-m-player-mode comint-mode 
   "M-Player Interaction"
@@ -175,6 +231,7 @@ on a specific director."
    (regexp-opt
     (list ".wma"
           ".wmv"
+	  ".flv"
           ".m4a"
           ".m4b"
           ".flac"
@@ -269,20 +326,45 @@ The player is placed in a buffer in emacspeak-m-player-mode."
             (apply 'start-process "M PLayer" buffer
                    emacspeak-m-player-program options))
       (set-buffer buffer)
-      (emacspeak-m-player-mode))))
+      (emacspeak-m-player-mode)
+      ;(setq mode-line-format '((:eval  (emacspeak-m-player-mode-line))))
+      )))
+
+;;}}}
+;;{{{ Table of slave commands:
+
+(defvar emacspeak-m-player-command-list nil
+  "Cache of MPlayer slave commands.")
+
+(defun emacspeak-m-player-command-list ()
+  "Return MPlayer slave command table, populating it if
+necessary."
+  (declare (special emacspeak-m-player-command-list))
+  (cond
+   (emacspeak-m-player-command-list emacspeak-m-player-command-list)
+   (t
+    (let ((commands
+           (split-string 
+           (shell-command-to-string
+            (format "%s -input cmdlist"
+  emacspeak-m-player-program))
+           "\n" 'omit-nulls)))
+      (setq emacspeak-m-player-command-list
+      (loop  for c in commands
+             collect
+             (split-string c " " 'omit-nulls)))))))
 
 ;;}}}
 ;;{{{ commands 
 
-(defsubst emacspeak-m-player-dispatch (command)
-  "Dispatch command to m-player."
-  (declare (special emacspeak-m-player-process))
-  (save-excursion
-    (set-buffer (process-buffer emacspeak-m-player-process))
-    (erase-buffer))
-  (process-send-string
-   emacspeak-m-player-process
-   (format "%s\n" command)))
+
+
+(defsubst emacspeak-m-player-current-filename ()
+  "Return filename of currently playing track."
+  (second
+   (split-string
+    (emacspeak-m-player-dispatch "get_file_name\n")
+    "=")))
 
 (defun emacspeak-m-player-scale-speed (factor)
   "Scale speed by specified factor."
@@ -407,8 +489,8 @@ The player is placed in a buffer in emacspeak-m-player-mode."
 (defun emacspeak-m-player-pause ()
   "Pause or unpause media player."
   (interactive)
-  (emacspeak-m-player-dispatch
-   "pause"))
+  (emacspeak-m-player-current-info)
+  (emacspeak-m-player-dispatch "pause"))
 
 (defun emacspeak-m-player-quit ()
   "Quit media player."
@@ -416,6 +498,7 @@ The player is placed in a buffer in emacspeak-m-player-mode."
   (let ((kill-buffer-query-functions nil))
   (when (eq (process-status emacspeak-m-player-process) 'run)
     (let ((buffer (process-buffer emacspeak-m-player-process)))
+      (emacspeak-m-player-current-info) ; cache for future 
       (emacspeak-m-player-dispatch "quit")
       (and (buffer-live-p buffer)
            (kill-buffer buffer))))
@@ -434,15 +517,39 @@ The player is placed in a buffer in emacspeak-m-player-mode."
   "Decrease volume."
   (interactive)
   (emacspeak-m-player-dispatch "volume -1"))
-;;;###autload
+;;;###autoload
 (defun emacspeak-m-player-volume-change (offset)
   "Change volume.
 A value of <number> changes volume by specified offset.
 A string of the form `<number> 1' sets volume as an absolute."
   (interactive"sChange Volume By:")
   (emacspeak-m-player-dispatch
-   (format "volume %s"
-           offset)))
+   (format "volume %s" offset)))
+
+
+;;;###autoload
+(defun emacspeak-m-player-balance ()
+  "Set left/right balance."
+  (interactive)
+  (emacspeak-m-player-dispatch
+   (format "balance %s"
+           (read-from-minibuffer "Balance: "))))
+
+;;;###autoload
+(defun emacspeak-m-player-slave-command ()
+  "Dispatch slave command read from minibuffer."
+  (interactive)
+  (let* ((command
+          (completing-read "Slave Command: " (emacspeak-m-player-command-list)))
+         (args
+	  (when (cdr (assoc command emacspeak-m-player-command-list))
+          (read-from-minibuffer
+           (mapconcat #'identity
+		      (cdr (assoc command emacspeak-m-player-command-list))
+                      " ")))))
+    (message 
+     (emacspeak-m-player-dispatch (format "%s %s" command args)))))
+
 
 ;;;###autoload
 (defun emacspeak-m-player-get-length ()
@@ -454,7 +561,7 @@ A string of the form `<number> 1' sets volume as an absolute."
   "Display current position in track and its length."
   (interactive)
   (emacspeak-m-player-dispatch
-   "get_time_pos\nget_percent_pos\nget_time_length\n")
+   "get_time_pos\nget_percent_pos\nget_time_length\nget_file_name\n")
   (when (interactive-p)
     (emacspeak-auditory-icon 'select-object)))
 
@@ -577,11 +684,14 @@ The Mplayer equalizer provides 10 bands, G0 -- G9, see the
         ("o" emacspeak-m-player-customize-options)
         ("O" emacspeak-m-player-reset-options)
         ("f" emacspeak-m-player-add-filter)
-        ("b" bury-buffer)
+        ("b" emacspeak-m-player-balance)
         ("l" emacspeak-m-player-get-length)
         ("L" emacspeak-m-player-load-file)
         ("\M-l" emacspeak-m-player-load-playlist)
         ("?" emacspeak-m-player-display-position)
+        ("w" emacspeak-m-player-speak-current-info)
+        ("m" emacspeak-m-player-speak-mode-line)
+        ("\C-em" emacspeak-m-player-speak-mode-line)
         ("t" emacspeak-m-player-play-tracks-jump)
         ("p" emacspeak-m-player-previous-track)
         ("n" emacspeak-m-player-next-track)
@@ -606,11 +716,13 @@ The Mplayer equalizer provides 10 bands, G0 -- G9, see the
         ("r" emacspeak-m-player-seek-relative)
         ("g" emacspeak-m-player-seek-absolute)
         (" " emacspeak-m-player-pause)
-        ("q" emacspeak-m-player-quit)
+        ("q" bury-buffer)
         ("v" emacspeak-m-player-volume-change)
+        ("c" emacspeak-m-player-slave-command)
         ("-" emacspeak-m-player-volume-down)
         ("=" emacspeak-m-player-volume-up)
         ("+" emacspeak-m-player-volume-up)
+        ("Q" emacspeak-m-player-quit)
         )
       do
       (emacspeak-keymap-update  emacspeak-m-player-mode-map k))

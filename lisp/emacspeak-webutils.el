@@ -1,5 +1,5 @@
 ;;; emacspeak-webutils.el --- Common Web Utilities For Emacspeak
-;;; $Id: emacspeak-webutils.el 6316 2009-10-14 22:08:19Z tv.raman.tv $
+;;; $Id: emacspeak-webutils.el 6529 2010-06-24 16:07:57Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak Webutils
 ;;; Keywords: Emacspeak, web
@@ -530,9 +530,19 @@ unescape HTML tags."
     (or (interactive-p)
         current-prefix-arg)))
   (emacspeak-webutils-feed-display
-   (emacspeak-xslt-get "opml.xsl")
    opml-url
+   (emacspeak-xslt-get "opml.xsl")
    speak))
+
+;;;###autoload
+
+  
+(defun emacspeak-webutils-open-subscribed-feeds ()
+  "Feed list specified by OPML file customized via emacspeak-my-subscribed-feeds"
+  (interactive)
+  (declare (special emacspeak-my-subscribed-feeds))
+  (emacspeak-opml-display emacspeak-my-subscribed-feeds))
+
 
 ;;;###autoload
 (defun emacspeak-rss-browse (feed)
@@ -622,6 +632,7 @@ Stack is a list of the form ((element-name (attribute-alist)))."
     (nreverse (delq nil props))))
 
 ;;}}}
+   
 
 (provide 'emacspeak-webutils)
 ;;{{{ end of file

@@ -1,5 +1,5 @@
 ;;; emacspeak-webspace.el --- Webspaces In Emacspeak
-;;; $Id: emacspeak-webspace.el 6400 2009-11-24 23:33:29Z tv.raman.tv $
+;;; $Id: emacspeak-webspace.el 6617 2010-10-07 15:33:52Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description: WebSpace provides smart updates from the Web.
 ;;; Keywords: Emacspeak, Audio Desktop webspace
@@ -382,42 +382,54 @@ Updated weather is found in `emacspeak-webspace-current-weather'."
 ;;}}}
 ;;{{{ Google Reader In Webspace:
 
+(defvar emacspeak-webspace-reader-buffer "Reader"
+  "Name of Reader buffer.")
+
+(defun emacspeak-webspace-reader-create ()
+  "Prepare Reader buffer."
+  (declare (special emacspeak-webspace-reader-buffer))
+  (let ((subscriptions (greader-subscriptions))
+          (buffer (get-buffer-create emacspeak-webspace-reader-buffer))
+          (inhibit-read-only t)
+          (start nil))
+      (save-excursion
+        (set-buffer buffer)
+        (erase-buffer)
+        (setq buffer-undo-list t)
+        (goto-char (point-min))
+        (insert
+         (format "Google Reader %d\n"
+                 (length subscriptions)))
+        (setq start (point))
+        (loop for feed across subscriptions
+              and i from 1
+              do
+              (insert
+               (format "%d. %s\n"
+                       i
+                       (cdr (assoc 'title feed))))
+              (put-text-property start (point)
+                                 'link (greader-id-to-url (cdr
+                                                           (assoc
+                                                            'id
+                                                            feed))))
+              (setq start (point)))
+        (setq buffer-read-only t)
+	(emacspeak-webspace-mode)
+      (local-set-key "u" 'emacspeak-webspace-reader-unsubscribe))
+      buffer))
+
+;;;###autoload 
 (defun emacspeak-webspace-reader ()
   "Display Google Reader Feed list in a WebSpace buffer."
   (interactive)
-  (let ((subscriptions (greader-subscriptions))
-        (buffer (get-buffer-create "Reader"))
-        (inhibit-read-only t)
-        (start nil))
-    (save-excursion
-      (set-buffer buffer)
-      (erase-buffer)
-      (setq buffer-undo-list t)
-      (goto-char (point-min))
-      (insert
-       (format "Google Reader %d\n"
-               (length subscriptions)))
-      (setq start (point))
-      (loop for feed across subscriptions
-            and i from 1
-            do
-            (insert
-             (format "%d. %s\n"
-                     i
-                     (cdr (assoc 'title feed))))
-            (put-text-property start (point)
-                               'link (greader-id-to-url (cdr
-                                                         (assoc
-                                                          'id
-                                                          feed))))
-            (setq start (point)))
-      (setq buffer-read-only t))
-    (switch-to-buffer buffer)
-    (emacspeak-webspace-mode)
-    (local-set-key "u" 'emacspeak-webspace-reader-unsubscribe)
-    (emacspeak-auditory-icon 'open-object)
-    (goto-char (point-min))
-    (emacspeak-speak-line)))
+  (declare (special emacspeak-webspace-reader-buffer))
+  (unless (buffer-live-p  (get-buffer emacspeak-webspace-reader-buffer))
+    (emacspeak-webspace-reader-create))
+  (switch-to-buffer emacspeak-webspace-reader-buffer)
+  (goto-char (point-min))
+  (emacspeak-speak-mode-line)
+  (emacspeak-auditory-icon 'open-object))
 
 ;;;###autoload
 (defun emacspeak-webspace-reader-unsubscribe ()

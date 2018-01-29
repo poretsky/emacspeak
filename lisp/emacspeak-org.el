@@ -1,5 +1,5 @@
 ;;; emacspeak-org.el --- Speech-enable org
-;;; $Id: emacspeak-org.el 6179 2009-06-29 14:14:16Z tv.raman.tv $
+;;; $Id: emacspeak-org.el 6569 2010-08-26 22:53:31Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak front-end for ORG
 ;;; Keywords: Emacspeak, org
@@ -238,11 +238,12 @@
 ;;}}}
 ;;{{{ Agenda:
 
-;;; agenda navigation
+;;; AGENDA NAVIGATION
 
 (loop for f in
       '(
         org-agenda-next-date-line org-agenda-previous-date-line
+        org-agenda-next-line org-agenda-previous-line
         org-agenda-goto-today
         )
       do

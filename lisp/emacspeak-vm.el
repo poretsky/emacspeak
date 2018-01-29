@@ -1,5 +1,5 @@
 ;;; emacspeak-vm.el --- Speech enable VM -- A powerful mail agent (and the one I use)
-;;; $Id: emacspeak-vm.el 6342 2009-10-20 19:12:40Z tv.raman.tv $
+;;; $Id: emacspeak-vm.el 6616 2010-10-06 23:58:16Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak extension to speech enhance vm
 ;;; Keywords: Emacspeak, VM, Email, Spoken Output, Voice annotations
@@ -157,7 +157,6 @@ Note that some badly formed mime messages  cause trouble."
   (condition-case nil
       (emacspeak-hide-all-blocks-in-buffer)
     (error nil))
-  (emacspeak-auditory-icon 'large-movement)
   (emacspeak-speak-rest-of-buffer))
 
 (defun emacspeak-vm-summarize-message ()
@@ -177,7 +176,10 @@ Note that some badly formed mime messages  cause trouble."
                    (vm-su-to message )))
             (self-p (or
                      (string-match emacspeak-vm-user-full-name to)
-                     (string-match  (user-login-name) to)))
+                     (string-match  (user-login-name) to)
+                     (string-match
+                      (format "%s@%s" (user-login-name) smtpmail-local-domain)
+                      to)))
             (lines (vm-su-line-count message))
             (summary nil))
       (dtk-speak
@@ -189,13 +191,15 @@ Note that some badly formed mime messages  cause trouble."
                 (if (and to (< (length to) 80))
                     (format "to %s" to) "")
                 (if lines (format "%s lines" lines) ""))))
+      (goto-char (point-min))
+      (search-forward  (format "%c%c" 10 10) nil)
       (cond
        ((and self-p
              (= 0 self-p)                    ) ;mail to me and others
         (emacspeak-auditory-icon 'item))
-       (self-p                          ;mail to others including me
+       (self-p                       ;mail to others including me
         (emacspeak-auditory-icon 'mark-object))
-       (t                            ;got it because of a mailing list
+       (t                       ;got it because of a mailing list
         (emacspeak-auditory-icon 'select-object ))))))
 
 (defun emacspeak-vm-speak-labels ()

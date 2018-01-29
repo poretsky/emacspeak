@@ -1,5 +1,5 @@
 ;;; emacspeak-keymap.el --- Setup all keymaps and keybindings provided by Emacspeak
-;;; $Id: emacspeak-keymap.el 6342 2009-10-20 19:12:40Z tv.raman.tv $
+;;; $Id: emacspeak-keymap.el 6560 2010-07-16 21:43:35Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Module for setting up emacspeak keybindings
 ;;; Keywords: Emacspeak
@@ -473,6 +473,15 @@ field in the customization buffer.  You can use the notation
 (global-set-key '[left] 'emacspeak-backward-char)
 (global-set-key '[right] 'emacspeak-forward-char)
 (define-key esc-map "\M-:" 'emacspeak-wizards-show-eval-result)
+;;}}}
+;;{{{ emacspeak under X windows
+
+;;; Get hyper, alt and super like on the console:
+(global-set-key [67108908] 'emacspeak-alt-keymap)
+(global-set-key  [67108903] 'emacspeak-super-keymap)
+(global-set-key [67108923] 'emacspeak-hyper-keymap)
+
+
 ;;}}}
 ;;{{{ Interactively switching the emacspeak-prefix
 ;;;###autoload

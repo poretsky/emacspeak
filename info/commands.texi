@@ -1,11 +1,11 @@
-@c $Id: commands.texi 6429 2010-01-15 04:34:40Z tv.raman.tv $
+@c $Id: commands.texi 6604 2010-09-25 18:45:52Z tv.raman.tv $
 @node Emacspeak Commands
 @chapter Emacspeak Commands
 
 This chapter is generated automatically from the source-level documentation.
 Any errors or corrections should be made to the source-level
 documentation.
-This chapter documents a total of 887 commands.
+This chapter documents a total of 890 commands.
 
 @menu
 * cd-tool::                     
@@ -24,7 +24,7 @@ This chapter documents a total of 887 commands.
 * emacspeak-custom::            
 * emacspeak-daisy::             
 * emacspeak-dired::             
-* emacspeak-dismal::            
+* emacspeak-ebook::             
 * emacspeak-ecb::               
 * emacspeak-ediff::             
 * emacspeak-emms::              
@@ -71,7 +71,9 @@ This chapter documents a total of 887 commands.
 * emacspeak-tnt::               
 * emacspeak-url-template::      
 * emacspeak-view::              
+* emacspeak-vm::                
 * emacspeak-w3::                
+* emacspeak-w3m::               
 * emacspeak-we::                
 * emacspeak-webmarks::          
 * emacspeak-websearch::         
@@ -85,13 +87,11 @@ This chapter documents a total of 887 commands.
 * emacspeak::                   
 * voice-setup::                 
 * emacspeak-w3search::          
-* emacspeak-ebook::             
 * emacspeak-firevox::           
 * emacspeak-jawbreaker::        
 * emacspeak-moz::               
 * emacspeak-org::               
 * emacspeak-piglets::           
-* emacspeak-w3m::               
 * URL Templates ::              
 @end menu
 
@@ -892,6 +892,13 @@ for commands defined in module  emacspeak-calendar.
 Speaks the most recently displayed appointment message if any.
 @end deffn
 
+@deffn {Interactive Command} emacspeak-calendar-setup-sunrise-sunset nil
+@kbd{Not bound to any key.}
+
+Set up geo-coordinates using Google Maps reverse geocoding.
+To use, configure variable gweb-my-address via M-x customize-variable.
+@end deffn
+
 @deffn {Interactive Command} emacspeak-calendar-speak-date nil
 @kbd{Not bound to any key.}
 
@@ -1117,105 +1124,40 @@ Speak the header line of the dired buffer.
 Speaks the target of the symlink on the current line.
 @end deffn
 
-@node emacspeak-dismal
-@section emacspeak-dismal
+@node emacspeak-ebook
+@section emacspeak-ebook
 
-No Commentary
+Commentary:
+In celebration of a million books and more to read from
+Google Books
+The EPubs format is slightly simpler than full Daisy ---
+emacspeak-daisy.el
+Since it only needs one level of indirection (no audio,
+therefore no smil). This module is consequently simpler than
+emacspeak-daisy.el.
+This module will also implement the Google Books GData API
+--- probably by invoking the yet-to-be-written gbooks.el in emacs-g-client
 
 Automatically generated documentation
-for commands defined in module  emacspeak-dismal.
+for commands defined in module  emacspeak-ebook.
 
-@deffn {Interactive Command} emacspeak-dismal-backward-col-and-summarize nil
-@kbd{Not bound to any key.}
+@deffn {Interactive Command} emacspeak-ebook-google nil
+@kbd{ control e g g }
 
-Move backward by arg columns
- (the previous column by default)and summarize it.
+Search for EBooks from Gooble Books.
 @end deffn
 
-@deffn {Interactive Command} emacspeak-dismal-backward-row-and-summarize nil
+@deffn {Interactive Command} emacspeak-ebook-mode nil
 @kbd{Not bound to any key.}
 
-Move backward by arg rows
- (the previous row by default)and summarize it.
+EBooks minor mode.
 @end deffn
 
-@deffn {Interactive Command} emacspeak-dismal-col-summarize nil
-@kbd{Not bound to any key.}
+@deffn {Interactive Command} emacspeak-ebook-open nil
+@kbd{ control e g o }
 
-Summarizes a col using the specification in list
-emacspeak-dismal-col-summarizer-list
-@end deffn
-
-@deffn {Interactive Command} emacspeak-dismal-display-cell-expression nil
-@kbd{Not bound to any key.}
-
-Display the expression in the message area
-@end deffn
-
-@deffn {Interactive Command} emacspeak-dismal-display-cell-value nil
-@kbd{Not bound to any key.}
-
-Display the cell value in the message area
-@end deffn
-
-@deffn {Interactive Command} emacspeak-dismal-display-cell-with-col-header nil
-@kbd{Not bound to any key.}
-
-Display current cell along with its column header.
-The `column header' is the entry in row 0.
-@end deffn
-
-@deffn {Interactive Command} emacspeak-dismal-display-cell-with-row-header nil
-@kbd{Not bound to any key.}
-
-Displays current cell along with its row header.
-The `row header' is the entry in column 0.
-@end deffn
-
-@deffn {Interactive Command} emacspeak-dismal-forward-col-and-summarize nil
-@kbd{Not bound to any key.}
-
-Move forward by arg columns
- (the next column by default)and summarize it.
-@end deffn
-
-@deffn {Interactive Command} emacspeak-dismal-forward-row-and-summarize nil
-@kbd{Not bound to any key.}
-
-Move forward by arg rows
- (the next row by default)and summarize it.
-@end deffn
-
-@deffn {Interactive Command} emacspeak-dismal-row-summarize nil
-@kbd{Not bound to any key.}
-
-Summarizes a row using the specification in list
-emacspeak-dismal-row-summarizer-list
-@end deffn
-
-@deffn {Interactive Command} emacspeak-dismal-set-col-summarizer-list nil
-@kbd{Not bound to any key.}
-
-Specify or reset col summarizer list.
-@end deffn
-
-@deffn {Interactive Command} emacspeak-dismal-set-row-summarizer-list nil
-@kbd{Not bound to any key.}
-
-Specify or reset row summarizer list.
-@end deffn
-
-@deffn {Interactive Command} emacspeak-dismal-set-sheet-summarizer-list nil
-@kbd{Not bound to any key.}
-
-Specify or reset sheet summarizer list.
-@end deffn
-
-@deffn {Interactive Command} emacspeak-dismal-sheet-summarize nil
-@kbd{Not bound to any key.}
-
-Summarizes a sheet using the specification in list
-emacspeak-dismal-sheet-summarizer-list
+Open specified EBook.
+`toc' is the pathname to an EPubs table of contents.
 @end deffn
 
 @node emacspeak-ecb
@@ -2686,15 +2628,6 @@ http://www.mplayerhq.hu/DOCS/
 Automatically generated documentation
 for commands defined in module  emacspeak-m-player.
 
-@deffn {Interactive Command} emacspeak-m-player nil
-@kbd{Not bound to any key.}
-
-Play specified resource using m-player.
-Optional prefix argument play-list interprets resource as a play-list.
-Resource is a media resource or playlist containing media resources.
-The player is placed in a buffer in emacspeak-m-player-mode.
-@end deffn
-
 @deffn {Interactive Command} emacspeak-m-player-add-equalizer nil
 @kbd{Not bound to any key.}
 
@@ -2736,6 +2669,12 @@ Move back by 10 seconds.
 @kbd{Not bound to any key.}
 
 Move back by 1 minute.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-m-player-balance nil
+@kbd{Not bound to any key.}
+
+Set left/right balance.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-m-player-beginning-of-track nil
@@ -2842,6 +2781,7 @@ Major mode for m-player interaction.
 key             binding
 ---             -------
 
+C-e		Prefix Command
 RET		emacspeak-m-player
 ESC		Prefix Command
 SPC		emacspeak-m-player-pause
@@ -2855,21 +2795,25 @@ SPC		emacspeak-m-player-pause
 ?		emacspeak-m-player-display-position
 L		emacspeak-m-player-load-file
 O		emacspeak-m-player-reset-options
+Q		emacspeak-m-player-quit
 [		emacspeak-m-player-slower
 ]		emacspeak-m-player-faster
-b		bury-buffer
+b		emacspeak-m-player-balance
+c		emacspeak-m-player-slave-command
 e		emacspeak-m-player-add-equalizer
 f		emacspeak-m-player-add-filter
 g		emacspeak-m-player-seek-absolute
 l		emacspeak-m-player-get-length
+m		emacspeak-m-player-speak-mode-line
 n		emacspeak-m-player-next-track
 o		emacspeak-m-player-customize-options
 p		emacspeak-m-player-previous-track
-q		emacspeak-m-player-quit
+q		bury-buffer
 r		emacspeak-m-player-seek-relative
 s		emacspeak-m-player-scale-speed
 t		emacspeak-m-player-play-tracks-jump
 v		emacspeak-m-player-volume-change
+w		emacspeak-m-player-speak-current-info
 @{		emacspeak-m-player-half-speed
 @}		emacspeak-m-player-double-speed
 DEL		emacspeak-m-player-reset-speed
@@ -2881,6 +2825,8 @@ DEL		emacspeak-m-player-reset-speed
 <prior>		emacspeak-m-player-backward-10min
 <right>		emacspeak-m-player-forward-10s
 <up>		emacspeak-m-player-backward-1min
+
+C-e m		emacspeak-m-player-speak-mode-line
 
 M-l		emacspeak-m-player-load-playlist
 
@@ -2955,10 +2901,28 @@ Seek  to absolute specified position.
 Seek  by offset into stream from current position.
 @end deffn
 
+@deffn {Interactive Command} emacspeak-m-player-slave-command nil
+@kbd{Not bound to any key.}
+
+Dispatch slave command read from minibuffer.
+@end deffn
+
 @deffn {Interactive Command} emacspeak-m-player-slower nil
 @kbd{Not bound to any key.}
 
 Slow down playback.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-m-player-speak-current-info nil
+@kbd{Not bound to any key.}
+
+Speak cached  info about currently playing file.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-m-player-speak-mode-line nil
+@kbd{Not bound to any key.}
+
+Speak mode line
 @end deffn
 
 @deffn {Interactive Command} emacspeak-m-player-volume-change nil
@@ -3609,6 +3573,13 @@ Connect to remote server.
 Does not prompt for host or port, but quietly uses the
 guesses that appear as defaults when prompting.
 Use this once you are sure the guesses are usually correct.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-remote-quick-connect-via-ssh nil
+@kbd{Not bound to any key.}
+
+Connect via ssh to remote Emacspeak server.
+Server is specified via custom option `emacspeak-remote-default-ssh-server'.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-remote-ssh-to-server nil
@@ -5189,6 +5160,65 @@ for commands defined in module  emacspeak-view.
 Moves current line to top of window
 @end deffn
 
+@node emacspeak-vm
+@section emacspeak-vm
+
+No Commentary
+
+Automatically generated documentation
+for commands defined in module  emacspeak-vm.
+
+@deffn {Interactive Command} emacspeak-vm-browse-message nil
+@kbd{Not bound to any key.}
+
+Browse an email message --read it paragraph at a time. 
+@end deffn
+
+@deffn {Interactive Command} emacspeak-vm-catch-up-all-messages nil
+@kbd{Not bound to any key.}
+
+Mark all messages in folder to be deleted. Use with caution.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-vm-locate-subject-line nil
+@kbd{Not bound to any key.}
+
+Locates the subject line in a message being read.
+Useful when you're reading a message
+that has been forwarded multiple times.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-vm-mode-line nil
+@kbd{Not bound to any key.}
+
+VM mode line information. 
+@end deffn
+
+@deffn {Interactive Command} emacspeak-vm-next-button nil
+@kbd{Not bound to any key.}
+
+Move point to N buttons forward.
+If N is negative, move backward instead.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-vm-speak-labels nil
+@kbd{Not bound to any key.}
+
+Speak a message's labels
+@end deffn
+
+@deffn {Interactive Command} emacspeak-vm-speak-message nil
+@kbd{Not bound to any key.}
+
+Move point to the message body.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-vm-yank-header nil
+@kbd{Not bound to any key.}
+
+Yank specified header into kill ring.
+@end deffn
+
 @node emacspeak-w3
 @section emacspeak-w3
 
@@ -5333,6 +5363,31 @@ Speak document element under point.
 @kbd{Not bound to any key.}
 
 Toggle drawing of W3 table borders
+@end deffn
+
+@node emacspeak-w3m
+@section emacspeak-w3m
+
+Commentary:
+
+
+
+Automatically generated documentation
+for commands defined in module  emacspeak-w3m.
+
+@deffn {Interactive Command} emacspeak-m-player nil
+@kbd{Not bound to any key.}
+
+Play specified resource using m-player.
+Optional prefix argument play-list interprets resource as a play-list.
+Resource is a media resource or playlist containing media resources.
+The player is placed in a buffer in emacspeak-m-player-mode.
+@end deffn
+
+@deffn {Interactive Command} emacspeak-w3m-preview-this-buffer nil
+@kbd{Not bound to any key.}
+
+Preview this buffer in w3m.
 @end deffn
 
 @node emacspeak-we
@@ -5869,7 +5924,7 @@ Use this from inside the calendar to do Google date-range searches.
 
 Perform a specialized Google search. See the Google site for
   what is possible here:
-http://www.google.com/options/specialsearches.html 
+https://www.google.com/options/specialsearches.html 
 @end deffn
 
 @deffn {Interactive Command} emacspeak-websearch-google-usenet-advanced nil
@@ -5951,7 +6006,7 @@ Podzinger RSS Generator.
 
 Perform a Quotes Yahoo .
 Default tickers to look up is taken from variable
-emacspeak-websearch-personal-portfolio.
+emacspeak-wizards-personal-portfolio.
 Default is to present the data in emacspeak's table browsing
 mode --optional interactive prefix arg
 causes data to be displayed as  a Web page.
@@ -6035,7 +6090,7 @@ Get weather forecast for specified zip code.
 @deffn {Interactive Command} emacspeak-websearch-wikipedia-search nil
 @kbd{Not bound to any key.}
 
-Search Wikipedia
+Search Wikipedia using Google.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-websearch-yahoo nil
@@ -6097,7 +6152,7 @@ Display Google Search in a WebSpace buffer.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-webspace-headlines nil
-@kbd{ hyper  SPACE h }
+@kbd{ control ; SPACE h   hyper  SPACE h }
 
 Speak current news headline.
 @end deffn
@@ -6196,7 +6251,7 @@ Updated weather is found in `emacspeak-webspace-current-weather'.
 @end deffn
 
 @deffn {Interactive Command} emacspeak-webspace-weather nil
-@kbd{ hyper  SPACE w }
+@kbd{ control ; SPACE w   hyper  SPACE w }
 
 Speak current weather.
 @end deffn
@@ -6288,6 +6343,12 @@ instances.
 
 Opens link in alternate browser.
  If using default browser is w3, uses w3m and vice-versa
+@end deffn
+
+@deffn {Interactive Command} emacspeak-webutils-open-subscribed-feeds nil
+@kbd{Not bound to any key.}
+
+Feed list specified by OPML file customized via emacspeak-my-subscribed-feeds
 @end deffn
 
 @deffn {Interactive Command} emacspeak-webutils-play-media-at-point nil
@@ -6966,6 +7027,12 @@ Filter Google results after performing search to show just the
 hits.
 @end deffn
 
+@deffn {Interactive Command} emacspeak-wizards-google-squared nil
+@kbd{Not bound to any key.}
+
+Invoke Google Squared search.
+@end deffn
+
 @deffn {Interactive Command} emacspeak-wizards-google-transcode nil
 @kbd{Not bound to any key.}
 
@@ -7609,48 +7676,6 @@ for commands defined in module  emacspeak-w3search.
 Search IBM using trevi
 @end deffn
 
-@node emacspeak-ebook
-@section emacspeak-ebook
-
-Commentary:
-In celebration of a million books and more to read from
-Google Books
-The EPubs format is slightly simpler than full Daisy ---
-emacspeak-daisy.el
-Since it only needs one level of indirection (no audio,
-therefore no smil). This module is consequently simpler than
-emacspeak-daisy.el.
-This module will also implement the Google Books GData API
---- probably by invoking the yet-to-be-written gbooks.el in emacs-g-client
-
-Automatically generated documentation
-for commands defined in module  emacspeak-ebook.
-
-@deffn {Interactive Command} emacspeak-ebook-google nil
-@kbd{Not bound to any key.}
-
-Search for EBooks from Gooble Books.
-
-(fn QUERY)
-@end deffn
-
-@deffn {Interactive Command} emacspeak-ebook-mode nil
-@kbd{Not bound to any key.}
-
-EBooks minor mode.
-
-(fn &optional ARG)
-@end deffn
-
-@deffn {Interactive Command} emacspeak-ebook-open nil
-@kbd{Not bound to any key.}
-
-Open specified EBook.
-`toc' is the pathname to an EPubs table of contents.
-
-(fn TOC)
-@end deffn
-
 @node emacspeak-firevox
 @section emacspeak-firevox
 
@@ -8011,20 +8036,10 @@ Start TTS  engine for Piglets.
 (fn)
 @end deffn
 
-@node emacspeak-w3m
-@section emacspeak-w3m
-
-Commentary:
-
-
-
-Automatically generated documentation
-for commands defined in module  emacspeak-w3m.
-
-@deffn {Interactive Command} emacspeak-w3m-preview-this-buffer nil
+@deffn {Interactive Command} emacspeak-piglets-tts-stop nil
 @kbd{Not bound to any key.}
 
-Preview this buffer in w3m.
+Kill TTS  process.
 
 (fn)
 @end deffn
@@ -8035,7 +8050,7 @@ Preview this buffer in w3m.
 This section is generated automatically from the source-level documentation.
 Any errors or corrections should be made to the source-level
 documentation.
-This section documents a total of 158 URL Templates.
+This section documents a total of 150 URL Templates.
 
 All of these URL templates can be invoked via command
   @kbd{M-x emacspeak-url-template-fetch} normally bound to
@@ -8086,6 +8101,10 @@ Play This American Life  shows on demand.
 
 Logout from Google to do an anonymous search.
 
+@kbd{Answers from Google Squared}
+
+Answers from Google Squared snippets.
+
 @kbd{Answers.com}
 
 Search answers.com
@@ -8106,45 +8125,9 @@ Walking directions from Ask.com
 
 Play BBC  Radio7 show for a given day/time.
 
-@kbd{BBC 7 Schedule}
+@kbd{BBC  iPlayer}
 
-Retrieve BBC7 schedule for specified day.
-
-@kbd{BBC Channel On Demand}
-
-Display BBC Channel on demand.
-
-@kbd{BBC Genres On Demand}
-
-Display BBC Channel on demand.
-
-@kbd{BBC Listen Again}
-
-BBC Listen Again Listings
-
-@kbd{BBC News}
-
-BBC News text version.
-
-@kbd{BBC Programs On Demand}
-
-Play BBC programs on demand.
-
-@kbd{BBC Radio4 On Demand}
-
-Specify a week day (three letters -- lower case -- and a time spec
--- e.g. 1230 --
-to play a BBC Radio4 program on demand.
-
-@kbd{BBC Radio7 On Demand}
-
-Specify a week day (three letters -- lower case -- and a time spec
--- e.g. 1230 --
-to play a BBC Radio7 program on demand.
-
-@kbd{BBC Sports}
-
-BBC News text version.
+BBC iPlayer
 
 @kbd{Baseball Game Index}
 
@@ -8170,15 +8153,15 @@ Google Blog Search
 
 Bookshare Login
 
+@kbd{BookShare Search}
+
+BookShare Search
+
 @kbd{CNN Content }
 
 CNN Content
 
 @kbd{CNN Market Data }
-
-CNN Money
-
-@kbd{CNN Market News }
 
 CNN Money
 
@@ -8193,10 +8176,6 @@ Retrieve and speak headline news from CNN.
 @kbd{CNNContent}
 
 Filter down to CNN  content area.
-
-@kbd{CNNFn Content}
-
-Extract content links from Money.
 
 @kbd{CNNPodCasts}
 
@@ -8274,6 +8253,10 @@ Display flight arrival and departure information.
 @kbd{GCalendar Mobile}
 
 Google Calendar XHTML version.
+
+@kbd{GMail Contacts}
+
+Open GMail Inbox
 
 @kbd{GMail Inbox}
 
@@ -8529,10 +8512,6 @@ Public transit directions from Google.
 @kbd{Pulpit --- I Cringely}
 
 Read pulpit from PBS. Published on the Thursday of the week.
-
-@kbd{Radio4 Program}
-
-Play BBC  Radio4 show for a given day/time.
 
 @kbd{Radio4 radioBridge}
 

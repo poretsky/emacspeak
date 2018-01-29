@@ -1,5 +1,5 @@
 ;;; emacspeak-speak.el --- Implements Emacspeak's core speech services
-;;; $Id: emacspeak-speak.el 6344 2009-10-22 15:45:13Z tv.raman.tv $
+;;; $Id: emacspeak-speak.el 6594 2010-09-08 17:27:26Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Contains the functions for speaking various chunks of text
 ;;; Keywords: Emacspeak,  Spoken Output
@@ -751,7 +751,12 @@ with a long string of gibberish."
 (make-variable-buffer-local 'emacspeak-speak-maximum-line-length)
 
 (defcustom emacspeak-speak-space-regexp
-  "^[ \t\r]+$"
+  (format "^[%c%c%c%c]+$"
+          ?\240                         ; non-break space
+          ?\                            ; Ascii 32
+          ?\t                           ; tab
+          ?\r                           ; CR
+          )
   "Pattern that matches white space."
   :type 'string
   :group 'emacspeak)
@@ -1063,7 +1068,7 @@ Pronounces character phonetically unless  called with a PREFIX arg."
 (defun emacspeak-speak-char-name (char)
   "tell me what this is"
   (interactive)
-  (dtk-speak (car (rassq char (ucs-names)))))
+  (dtk-speak (cadar (describe-char-unicode-data char))))
 
 (defun emacspeak-speak-this-char (char)
   "Speak this CHAR."
@@ -2414,9 +2419,10 @@ message area.  You can use command
 
 ;;}}}
 ;;{{{  Moving across fields:
+;;; Fields are defined by property 'field
 
-;;; For the present, we define a field
-;;; as a contiguous series of non-blank characters
+
+
 ;;; helper function: speak a field
 (defsubst  emacspeak-speak-field (start end )
   "Speaks field delimited by arguments START and END."

@@ -1,5 +1,5 @@
 ;;; emacspeak-url-template.el --- Create library of URI templates
-;;; $Id: emacspeak-url-template.el 6488 2010-05-12 22:19:33Z tv.raman.tv $
+;;; $Id: emacspeak-url-template.el 6620 2010-10-19 21:00:44Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:   Implement library of URI templates
 ;;; Keywords: Emacspeak, Audio Desktop
@@ -489,7 +489,7 @@ dont-url-encode if true then url arguments are not url-encoded "
 
 (emacspeak-url-template-define
  "Google Product Search"
- "http://www.google.com/products?q=%s&output=html"
+ "https://www.google.com/products?q=%s&output=html"
  (list "Product: ")
  #'(lambda ()
      (search-forward "Please" nil t)
@@ -500,6 +500,19 @@ dont-url-encode if true then url arguments are not url-encoded "
      (emacspeak-we-xslt-filter
       "id(\"res0\")/.."
       url )))
+
+
+;;; Google Realtime standalone:
+
+(emacspeak-url-template-define
+ "Google Realtime Search"
+ "http://www.google.com/search?tbs=mbl:1&hl=en&source=hp&ie=ISO-8859-1&q=%s&btnG=Search"
+ (list "Realtime Search: ")
+ #'(lambda ()
+     (re-search-forward "^ *New Results" nil t)
+     (emacspeak-speak-rest-of-buffer))
+ "Perform Google Realtime Search"
+ )
 
 ;;}}}
 ;;{{{ market summary from google finance
@@ -596,11 +609,12 @@ dont-url-encode if true then url arguments are not url-encoded "
 
 (emacspeak-url-template-define
  "Google TimeLine View"
- "http://www.google.com/views?q=%s+view:timeline&num=25"
+ "http://www.google.com/search?hl=en&tbo=1&tbs=tl:1&q=%s"
  (list
   'gweb-google-autocomplete)
  #'(lambda nil
-     (re-search-forward " Timeline View" nil t)
+     (goto-char (point-min))
+     (re-search-forward " ^About" nil t)
      (forward-line 1)
      (emacspeak-speak-rest-of-buffer))
  "Do a Google search and get a timeline view of results.")
@@ -889,7 +903,8 @@ http://www.google.com/calendar/a/<my-corp>/m?output=xhtml"
          (when (get-buffer "Portfolio From Google Finance")
            (kill-buffer "Portfolio From Google Finance"))
          (rename-buffer "Portfolio From Google Finance")
-         (setq emacspeak-table-speak-row-filter
+         (setq tab-width 12
+               emacspeak-table-speak-row-filter
                emacspeak-google-finance-row-filter)
          (emacspeak-table-next-row)))))
 
@@ -1094,13 +1109,25 @@ from English to German.")
 
 (emacspeak-url-template-define
  "1Box Google"
- "http://www.google.com/search?q=%s"
+ "https://www.google.com/search?q=%s"
  (list 'gweb-google-autocomplete)
  nil
  "Show 1box result from Google."
  #'(lambda (url)
      (emacspeak-we-extract-by-class-list
-      (list "rbt" "e" "std")
+      (list "rbt" "e" "std" "med")
+      url 'speak)))
+
+
+(emacspeak-url-template-define
+ "Answers from Google Squared"
+ "https://www.google.com/search?q=%s"
+ (list 'gweb-google-autocomplete)
+ nil
+ "Answers from Google Squared snippets."
+ #'(lambda (url)
+     (emacspeak-we-extract-by-id
+      "ires"
       url 'speak)))
 
 (emacspeak-url-template-define
@@ -1523,18 +1550,6 @@ name of the list.")
  #'(lambda (url)
      (emacspeak-we-extract-by-id "cnn_maincntnr"url 'speak)))
 
-;;{{{ cnnfn content
-(emacspeak-url-template-define
- "CNNFn Content"
- "http://money.cnn.com"
- nil
- nil
- "Extract content links from Money."
- #'(lambda (url)
-     (emacspeak-we-extract-by-id "mainContent" url 'speak)))
-
-;;}}}
-
 (emacspeak-url-template-define
  "CNN headlines "
  "http://www.cnn.com"
@@ -1577,25 +1592,15 @@ name of the list.")
       url 'speak)))
 
 (emacspeak-url-template-define
- "CNN Market News "
- "http://money.cnn.com/markets/news/"
- nil
- nil
- "CNN Money"
- #'(lambda (url)
-     (emacspeak-we-extract-tables-by-position-list
-      '(10 12 15 18 20 21)
-      url 'speak)))
-
-(emacspeak-url-template-define
  "CNN Market Data "
  "http://money.cnn.com/markets/data/"
  nil
  nil
  "CNN Money"
  #'(lambda (url)
-     (emacspeak-we-extract-tables-by-position-list
-      '(14 15 20 21) url 'speak)))
+     (emacspeak-we-extract-by-id
+      "wsod_marketsOverview" 
+       url 'speak)))
 
 (emacspeak-url-template-define
  "CNN Content "
@@ -1617,7 +1622,7 @@ name of the list.")
  "CNN Content"
  #'(lambda (url)
      (emacspeak-we-extract-by-id
-      "content"
+      "cnnMoneyBody"
       url
       'speak)))
 
@@ -2327,6 +2332,7 @@ Optional interactive prefix arg displays documentation for specified resource."
                            emacspeak-url-template-table
                            nil
                            'must-match))
+    (pop minibuffer-history)
     (cond
      (documentation (emacspeak-url-template-help-internal name))
      (t

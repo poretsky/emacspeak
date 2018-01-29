@@ -1,5 +1,5 @@
 /*
- * $Id: atcleci.cpp 6212 2009-08-27 03:16:30Z tv.raman.tv $
+ * $Id: atcleci.cpp 6501 2010-05-27 00:32:28Z tv.raman.tv $
  */
 // <copyright info
 
@@ -520,6 +520,8 @@ Atcleci_Init(Tcl_Interp * interp)
   if (eciLib == NULL) {
     Tcl_AppendResult(interp, "Could not load ",
                      ECILIBRARYNAME,
+                     "\n",
+                     dlerror(),
                      "\nPlease install the IBM ViaVoice Outloud RTK",
                      NULL);
     return TCL_ERROR;

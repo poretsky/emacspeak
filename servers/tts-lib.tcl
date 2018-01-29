@@ -1,11 +1,11 @@
-#$Id: tts-lib.tcl 6267 2009-10-01 15:30:36Z tv.raman.tv $
+#$Id: tts-lib.tcl 6540 2010-06-29 22:41:23Z tv.raman.tv $
 # {{{ LCD Entry: 
 #x
 # LCD Archive Entry:
 # emacspeak| T. V. Raman |raman@cs.cornell.edu
 # A speech interface to Emacs |
-# $Date: 2009-10-01 08:30:36 -0700 (Thu, 01 Oct 2009) $ |
-#  $Revision: 6267 $ | 
+# $Date: 2010-06-29 15:41:23 -0700 (Tue, 29 Jun 2010) $ |
+#  $Revision: 6540 $ | 
 # Location undetermined
 #
 
@@ -183,7 +183,7 @@ proc queue_restore {} {
 #play a sound over the server
 proc p {sound} {
     global tts
-    catch "exec $tts(play) -N $sound 1>&- 2>&- & " errcode
+    catch "exec $tts(play) -q $sound &" errcode
     speech_task
 }
 

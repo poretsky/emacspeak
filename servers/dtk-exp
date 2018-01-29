@@ -1,5 +1,5 @@
 #!/usr/bin/tclsh
-# $Id: dtk-exp 6244 2009-09-15 23:06:01Z tv.raman.tv $
+# $Id: dtk-exp 6573 2010-08-31 18:19:33Z tv.raman.tv $
 # Description:  Interfacing to a Dectalk via TCL.
 # Keywords: Emacspeak, Dectalk, TCL
 # {{{ LCD Entry:
@@ -7,8 +7,8 @@
 # LCD Archive Entry:
 # emacspeak| T. V. Raman |raman@cs.cornell.edu
 # A speech interface to Emacs |
-# $Date: 2009-09-15 16:06:01 -0700 (Tue, 15 Sep 2009) $ |
-#  $Revision: 6244 $ |
+# $Date: 2010-08-31 11:19:33 -0700 (Tue, 31 Aug 2010) $ |
+#  $Revision: 6573 $ |
 # Location undetermined
 #
 
@@ -275,7 +275,7 @@ proc speech_task {} {
             }
             a {
                 set sound [lindex $event 1]
-                catch "exec $tts(play) $sound  1>&- 2>&- & " errcode
+                catch "exec $tts(play) -q $sound &"   errcode
             }
         }
         if {$tts(talking?) == 0} {break;}
@@ -294,6 +294,8 @@ proc clean {element} {
     global queue tts
     #remove any ctrl-s chars
     regsub -all \023 $element {} element
+    # Remove non-breaking space
+    regsub -all \240  $element { } element
     if {[string match all $tts(punctuations)] } {
         regsub -all {\#} $element \
             { pound } element
