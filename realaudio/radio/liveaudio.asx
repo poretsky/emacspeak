@@ -1,9 +1,0 @@
-<ASX Version="3.0">
-<REPEAT>
-<Entry>
-        <Ref Href="mms://wmscnnlive.stream.aol.com/live/cnn/cnn_radio"/>
-<!--    <Ref Href="mms://wmscnn.stream.aol.com/live/cnn/cnn_radio"/> -->
-<!--	<Ref Href="mms://live.stream.aol.com/cnn_webcast4_high"/> -->
-</Entry>
-</REPEAT>
-</ASX>
