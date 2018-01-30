@@ -1,4 +1,4 @@
-;;; emacspeak-feeds.el --- Feeds Support (Atom, RSS) For Emacspeak
+;;; emacspeak-feeds.el --- Feeds Support (Atom, RSS) For Emacspeak  -*- lexical-binding: t; -*-
 ;;; $Id: emacspeak-webutils.el 8904 2014-03-21 20:28:21Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak Feeds Support 
@@ -160,19 +160,18 @@
 Archiving is useful when synchronizing feeds across multiple machines."
   (interactive)
   (declare (special emacspeak-feeds-archive-file
-                    emacspeak-speak-messages emacspeak-feeds))
+                    emacspeak-feeds))
   (let ((buffer (find-file-noselect emacspeak-feeds-archive-file))
-        (emacspeak-speak-messages nil)
         (print-level nil)
         (print-length nil))
     (with-current-buffer buffer
       (erase-buffer)
-      (cl-prettyprint emacspeak-feeds)
+      (ems-with-messages-silenced (cl-prettyprint emacspeak-feeds))
       (save-buffer)
-      (emacspeak-auditory-icon 'save-object)))
-  (message "Archived emacspeak-feeds containing %d feeds in %s"
-           (length emacspeak-feeds)
-           emacspeak-feeds-archive-file))
+      (emacspeak-auditory-icon 'save-object)
+      (message "Archived emacspeak-feeds containing %d feeds in %s"
+               (length emacspeak-feeds)
+               emacspeak-feeds-archive-file))))
 
 ;;;###autoload
 (defun emacspeak-feeds-restore-feeds ()
@@ -184,8 +183,7 @@ Archiving is useful when synchronizing feeds across multiple machines."
   (unless (file-exists-p emacspeak-feeds-archive-file)
     (error "No archived feeds to restore. "))
   (let ((buffer (find-file-noselect emacspeak-feeds-archive-file))
-        (feeds  nil)
-        (emacspeak-speak-messages nil))
+        (feeds  nil))
     (with-current-buffer buffer
       (goto-char (point-min))
       (setq feeds (read buffer)))
@@ -340,7 +338,7 @@ Argument `feed' is a feed structure (label url type)."
         (link (button-get button 'link)))
     (cond
      ((zerop (length url)) ; missing feed url 
-      (browse-url (button-get button 'link)))
+      (browse-url link))
      ((string-match "atom" url)
       (emacspeak-feeds-atom-display url))
      ((string-match "blogspot" url)

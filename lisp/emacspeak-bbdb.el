@@ -1,4 +1,4 @@
-;;; emacspeak-bbdb.el --- Speech enable BBDB -- a powerful address manager
+;;; emacspeak-bbdb.el --- Speech enable BBDB -- a powerful address manager  -*- lexical-binding: t; -*-
 
 ;;; $Id$
 ;;; $Author: tv.raman.tv $ 
@@ -147,7 +147,6 @@
     (let ((prior (point))
           (completion-ignore-case t)
           (completions nil)
-          (window (selected-window))
           (buffer (current-buffer)))
       ad-do-it
       (cond
@@ -186,8 +185,8 @@
 
 (defadvice bbdb-update-records (around emacspeak pre act comp)
   "Silence messages."
-  (let ((emacspeak-speak-messages nil))
-    ad-do-it))
+  (ems-with-messages-silenced
+   ad-do-it))
 
 ;;}}}
 (provide  'emacspeak-bbdb)

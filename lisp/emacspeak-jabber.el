@@ -1,4 +1,4 @@
-;;; emacspeak-jabber.el --- Speech-Enable jabber
+;;; emacspeak-jabber.el --- Speech-Enable jabber  -*- lexical-binding: t; -*-
 ;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description: speech-enable jabber
@@ -159,8 +159,9 @@
   "Allow emacspeak to control if the message is spoken."
   (cond
    (emacspeak-jabber-speak-presence-alerts ad-do-it)
-   (t (let ((emacspeak-speak-messages nil))
-        ad-do-i)))
+   (t
+    (ems-with-messages-silenced
+     ad-do-i)))
   ad-return-value)
 
 ;;;this is what I use as my jabber alert function:
@@ -182,14 +183,15 @@
 (defun emacspeak-jabber-popup-roster ()
   "Pop to Jabber roster."
   (interactive)
-  (declare (special jabber-roster-buffer *jabber-connected*))
-  (unless *jabber-connected* (call-interactively 'jabber-connect))
+  (declare (special jabber-roster-buffer jabber-connections))
+  (unless jabber-connections  (call-interactively 'jabber-connect))
   (unless (buffer-live-p jabber-roster-buffer) (call-interactively 'jabber-display-roster))
   (pop-to-buffer jabber-roster-buffer)
   (goto-char (point-min))
   (forward-line 4)
   (emacspeak-auditory-icon 'select-object)
   (emacspeak-speak-line))
+
 (defadvice jabber-connect-all (after emacspeak pre act comp)
   "switch to roster so we give it a chance to update."
   (when (ems-interactive-p)

@@ -1,4 +1,4 @@
-;;; emacspeak-compile.el --- Speech enable  navigation of  compile errors, grep matches
+;;; emacspeak-compile.el --- Speech enable  navigation of  compile errors, grep matches  -*- lexical-binding: t; -*-
 ;;; $Author: tv.raman.tv $ 
 ;;; Description:  Emacspeak extensions to  the compile package 
 ;;; Keywords: Emacspeak compile
@@ -106,7 +106,7 @@
   "provide auditory confirmation"
   (when (ems-interactive-p)
     (message "Launched compilation")
-    (emacspeak-auditory-icon 'select-object)))
+    (emacspeak-auditory-icon 'task-done)))
 
 (defadvice  compilation-sentinel (after emacspeak pre act)
   "Provide auditory feedback"

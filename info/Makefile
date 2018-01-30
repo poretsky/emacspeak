@@ -3,27 +3,31 @@
 SF_HOME= raman,emacspeak@web.sourceforge.net:/home/groups/e/em/emacspeak/htdocs/info
 #https://tvraman.github.io/emacspeak/manual
 GH_PAGES=../../gh-pages-emacspeak/manual
+FILES=*.texi
 
 TEXINDEX=texindex
-FILES=*.texi
 MAKEINFO = makeinfo 
-CSS=-css-ref="http://www.w3.org/StyleSheets/Core/Modernist"
+CSS=--css-ref="http://www.w3.org/StyleSheets/Core/Modernist"
 TEX=tex
 PDFTEX=pdftex
 infodir =/usr/share/info#normally supplied by caller
 INSTALL = install
 EMACS=emacs
 
-all: info  introducing-emacspeak.info turning-twenty.info
+all: info  introducing-emacspeak.info turning-twenty.info emacspeak.pdf
 
-info: emacspeak.texi introducing-emacspeak.texi turning-twenty.texi docs.texi
+info: emacspeak.info
+
+emacspeak.info: *.texi
 	$(MAKEINFO) emacspeak.texi
-	$(MAKEINFO) introducing-emacspeak.texi
+
+introducing-emacspeak.info: introducing-emacspeak.texi
+	$(MAKEINFO) introducing-emacspeak.texi	
+
+turning-twenty.info: turning-twenty.texi
 	$(MAKEINFO) turning-twenty.texi
 
-.PHONY: docs.texi 
-
-docs.texi: 
+docs.texi: ../lisp/*.el
 	$(EMACS) -batch -q -l ../utils/self-document.el -f self-document-all-modules
 
 install: emacspeak.info turning-twenty.info
@@ -39,12 +43,6 @@ uninstall:
 		install-info --delete $(infodir)/turning-20.info * ${infodir}/dir \;
 	fi
 	rm -f $(infodir)/emacspeak.info*
-emacspeak.info: 
-	makeinfo --force -o emacspeak.info emacspeak.texi
-
-introducing-emacspeak.info: introducing-emacspeak.texi
-	makeinfo --force $<
-
 emacspeak.dvi:		emacspeak.texi
 	$(TEX) emacspeak.texi
 	$(TEX) emacspeak.texi
@@ -55,7 +53,7 @@ emacspeak.dvi:		emacspeak.texi
 		emacspeak.log emacspeak.toc emacspeak.aux
 pdf: emacspeak.pdf
 
-emacspeak.pdf:		emacspeak.texi
+emacspeak.pdf:		emacspeak.texi docs.texi
 	$(PDFTEX) emacspeak.texi
 	$(PDFTEX) emacspeak.texi	
 	$(TEXINDEX) emacspeak.cp  emacspeak.fn  emacspeak.ky emacspeak.pg  emacspeak.tp  emacspeak.vr
@@ -71,7 +69,7 @@ print: emacspeak.dvi
 man: emacspeak.texi 
 	makeinfo -o ${GH_PAGES}  --html  ${CSS} emacspeak.texi
 	tidy -q -utf8 -mic -asxml  ${GH_PAGES}/*.html 2>&1 > /dev/null  || echo tidy
-	echo "Commit and push updated HTML files from gh-pages!"
+	@echo "Commit and push updated HTML files from gh-pages!"
 
 publish:
 	cd ../../gh-pages-emacspeak && make
@@ -98,3 +96,6 @@ spell:
 	@cat ${FILES} | aspell --ignore-case -t --list --add-filter texinfo   \
  | sort | uniq > .spell.words
 	@diff .spell.tex .spell.words
+
+tags:
+	etags *.texi

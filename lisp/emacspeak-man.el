@@ -1,4 +1,4 @@
-;;; emacspeak-man.el --- Speech enable Man mode -- Use this for UNIX Man pages
+;;; emacspeak-man.el --- Speech enable Man mode -- Use this for UNIX Man pages  -*- lexical-binding: t; -*-
 ;;; $Id$
 ;;; $Author: tv.raman.tv $ 
 ;;; DescriptionEmacspeak extensions for man-mode
@@ -80,7 +80,7 @@ Also provide an auditory icon"
 (defadvice   Man-goto-section  (after emacspeak pre act)
   "Speak the line"
   (when (ems-interactive-p)
-    (emacspeak-auditory-icon 'large-movement)
+    (emacspeak-auditory-icon 'section)
     (emacspeak-speak-line)))
 
 (defadvice   Man-goto-page  (after emacspeak pre act)
@@ -102,13 +102,13 @@ Also provide an auditory icon"
 (defadvice Man-next-section (after emacspeak pre act)
   "Speak the line"
   (when (ems-interactive-p)
-    (emacspeak-auditory-icon 'large-movement)
+    (emacspeak-auditory-icon 'section)
     (emacspeak-speak-line)))
 
 (defadvice Man-previous-section (after emacspeak pre act)
   "Speak the line"
   (when (ems-interactive-p)
-    (emacspeak-auditory-icon 'large-movement)
+    (emacspeak-auditory-icon 'section)
     (emacspeak-speak-line)))
 
 (defadvice Man-goto-see-also-section (after emacspeak pre act)
@@ -148,7 +148,7 @@ Also provide an auditory icon"
             (Man-next-section 1)
             (setq end (point)))
         (error (setq end (point-max))))
-      (emacspeak-auditory-icon 'select-object)
+      (emacspeak-auditory-icon 'section)
       (emacspeak-speak-region start end))))
 
 (defun emacspeak-man-browse-man-page ()

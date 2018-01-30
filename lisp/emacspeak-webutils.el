@@ -1,4 +1,4 @@
-;;; emacspeak-webutils.el --- Common Web Utilities For Emacspeak
+;;; emacspeak-webutils.el --- Common Web Utilities For Emacspeak  -*- lexical-binding: t; -*-
 ;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak Webutils
@@ -61,7 +61,7 @@
 (defsubst emacspeak-webutils-html-string (html-string)
   "Return formatted string."
   (or (require 'shr) (error "Need  emacs 24.4"))
-  (with-temp-buffer 
+  (with-temp-buffer
     (insert html-string)
     (shr-render-region  (point-min) (point-max))
     (buffer-string)))
@@ -98,7 +98,7 @@
 (defvar emacspeak-web-pre-process-hook nil
   "Pre-process hook -- to be used for XSL preprocessing etc.")
 
-(defsubst emacspeak-webutils-run-pre-process-hook (&rest ignore)
+(defsubst emacspeak-webutils-run-pre-process-hook (&rest _ignore)
   "Run web pre process hook."
   (declare (special emacspeak-web-pre-process-hook))
   (when     emacspeak-web-pre-process-hook
@@ -117,7 +117,7 @@
   "Set locally to a  site specific post processor.
 Note that the Web browser should reset this hook after using it.")
 
-(defsubst emacspeak-webutils-run-post-process-hook (&rest ignore)
+(defsubst emacspeak-webutils-run-post-process-hook (&rest _ignore)
   "Use web post process hook."
   (declare (special emacspeak-web-post-process-hook
                     emacspeak-web-pre-process-hook))
@@ -132,7 +132,7 @@ Note that the Web browser should reset this hook after using it.")
 
 ;;}}}
 ;;{{{ Helpers:
-;;;###autoload 
+;;;###autoload
 (defun emacspeak-webutils-make-xsl-transformer  (xsl &optional params)
   "Return a function that can be attached to emacspeak-web-pre-process-hook to apply required xslt transform."
   (cond
@@ -421,7 +421,7 @@ With a prefix argument, extracts url under point."
       (let* ((args (substring url (length prefix)))
              (arg-alist (url-parse-args (subst-char-in-string ?& ?\; args))))
         (url-unhex-string (cdr (assoc "u" arg-alist)))))))
-;;;###autoload 
+;;;###autoload
 (defsubst emacspeak-webutils-transcode-this-url-via-google (url)
   "Transcode specified url via Google."
   (declare (special emacspeak-webutils-google-transcoder-url))
@@ -497,6 +497,23 @@ Optional interactive prefix arg `playlist-p' says to treat the link as a playlis
            (browse-url-url-at-point))))
     (message "Playing media  URL under point")
     (funcall  emacspeak-media-player  url  playlist-p)))
+
+(defun emacspeak-webutils-curl-play-media-at-point ()
+  "Use Curl to pull a URL, then pass
+the first line to MPlayer as a playlist.
+Useful in handling double-redirect from TuneIn."
+  (interactive)
+  (let ((url
+         (if emacspeak-webutils-url-at-point
+             (funcall emacspeak-webutils-url-at-point)
+           (browse-url-url-at-point))))
+    (setq url
+          (first
+           (split-string
+            (shell-command-to-string (format "curl --silent '%s'" url))
+            "\n")))
+    (message "Playing redirected media  URL under point: %s" url)
+    (funcall  emacspeak-media-player  url t)))
 
 ;;;###autoload
 (defun emacspeak-webutils-open-in-other-browser ()

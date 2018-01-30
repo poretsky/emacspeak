@@ -1,4 +1,4 @@
-;;; emacspeak-aumix.el --- Configure audio device settings
+;;; emacspeak-aumix.el --- Configure audio device settings  -*- lexical-binding: t; -*-
 ;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak extension to conveniently set audio display
@@ -153,7 +153,7 @@ after saving the settings to have them take effect."
      (expand-file-name "forms/aumix-rc.el" emacspeak-etc-directory))
     (emacspeak-auditory-icon 'open-object)
     (emacspeak-forms-speak-field)))
-
+;;;###autoload 
 (defun emacspeak-aumix ()
   "Setup output parameters of the auditory display.
  Launch this tool while you have auditory output on

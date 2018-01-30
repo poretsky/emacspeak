@@ -1,4 +1,4 @@
-;;; emacspeak-sounds.el --- Defines Emacspeak auditory icons
+;;; emacspeak-sounds.el --- Defines Emacspeak auditory icons  -*- lexical-binding: t; -*-
 ;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Module for adding sound cues to emacspeak
@@ -88,8 +88,8 @@ use `emacspeak-toggle-auditory-icons' bound to
   (interactive "P")
   (cond
    ((executable-find "amixer")
-    (call-interactively 'amixer))
-   (t (call-interactively 'emacspeak-aumix)))
+    (funcall-interactively #'amixer prefix))
+   (t (funcall-interactively #'emacspeak-aumix)))
   (emacspeak-auditory-icon 'close-object))
 
 ;;}}}
@@ -195,9 +195,11 @@ Do not set this by hand;
                   sound-name
                   (emacspeak-sounds-theme-get-extension emacspeak-sounds-current-theme))
           emacspeak-sounds-current-theme)))
-    (if  (file-exists-p f)
-        f
-      emacspeak-default-sound)))
+    (cond
+     ((file-exists-p f) f)
+     (t
+      (message "Icon %s not defined." sound-name)
+      emacspeak-default-sound))))
 
 ;;}}}
 ;;{{{  queue an auditory icon
@@ -343,11 +345,11 @@ Recommended choices:
 emacspeak-serve-auditory-icon for  the wave device.
 emacspeak-queue-auditory-icon when using software TTS."
   (interactive
-   (list
-    (emacspeak-select-auditory-icon-player)))
+   (list (emacspeak-select-auditory-icon-player)))
   (declare (special emacspeak-auditory-icon-function))
-  (setq emacspeak-auditory-icon-function player))  (when (ems-interactive-p)
-                                                     (emacspeak-auditory-icon 'select-object))
+  (setq emacspeak-auditory-icon-function player)
+  (when (ems-interactive-p)
+    (emacspeak-auditory-icon 'select-object)))
 
 ;;}}}
 ;;{{{ reset local player

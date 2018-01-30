@@ -1,4 +1,4 @@
-;;; emacspeak-wizards.el --- Implements Emacspeak  convenience wizards
+;;; emacspeak-wizards.el --- Implements Emacspeak  convenience wizards  -*- lexical-binding: t; -*-
 ;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Contains convenience wizards
@@ -706,12 +706,12 @@ Optional argument PROMPT  specifies whether we prompt for the name of a clipboar
            emacspeak-clipboard-file))
         (clipboard nil))
     (setq clipboard (find-file-noselect  clipboard-file))
-    (let ((emacspeak-speak-messages nil))
-      (save-current-buffer
-        (set-buffer clipboard)
-        (erase-buffer)
-        (insert clip)
-        (save-buffer)))
+    (ems-with-messages-silenced
+     (save-current-buffer
+       (set-buffer clipboard)
+       (erase-buffer)
+       (insert clip)
+       (save-buffer)))
     (message "Copied %s lines to Emacspeak clipboard %s"
              (count-lines start end)
              clipboard-file)))
@@ -843,8 +843,7 @@ personal customizations."
     (read-file-name "Customization file: "
                     nil
                     custom-file)))
-  (declare (special custom-file))
-  (let* ((buffer (find-file-noselect custom-file))
+  (let* ((buffer (find-file-noselect file))
          (settings
           (save-current-buffer
             (set-buffer buffer)
@@ -1070,11 +1069,8 @@ Signals beginning  of buffer."
 ;;;###autoload
 (defun emacspeak-curl (url)
   "Grab URL using Curl, and preview it with a browser ."
-  (interactive
-   (list
-    (read-from-minibuffer "URL: ")))
-  (declare (special emacspeak-wizards-curl-program
-                    emacspeak-curl-cookie-store))
+  (interactive "sURL: ")
+  (declare (special emacspeak-wizards-curl-program emacspeak-curl-cookie-store))
   (let ((results (get-buffer-create " *curl-download* ")))
     (erase-buffer)
     (kill-all-local-variables)
@@ -1254,8 +1250,7 @@ annotation is inserted into the working buffer when complete."
   (let ((dir default-directory))
     (shell)
     (unless (string-equal (expand-file-name dir)
-                          (expand-file-name
-                           default-directory))
+                          (expand-file-name default-directory))
       (goto-char (point-max))
       (insert (format "pushd %s" dir))
       (comint-send-input)
@@ -1602,7 +1597,7 @@ visiting the DVI file."
       (widget-create 'push-button
                      :tag "Find Matching Files"
                      :notify
-                     #'(lambda (&rest ignore)
+                     #'(lambda (&rest _ignore)
                          (call-interactively
                           'emacspeak-wizards-finder-find)))
       (widget-create 'info-link
@@ -1749,17 +1744,13 @@ With interactive prefix arg, prompts for and remembers the file local pattern."
       (how-many pattern start end 'interactive)))))
 
 ;;;###autoload
-(defun emacspeak-wizards-occur-header-lines (start end &optional prefix)
+(defun emacspeak-wizards-occur-header-lines (&optional prefix)
   "If you define a file local variable called
 `emacspeak-occur-pattern' that holds a regular expression that
 matches header lines, you can use this command to conveniently
 run `occur' to find matching header lines. With prefix arg,
 prompts for and sets value of the file local pattern."
-  (interactive
-   (list
-    (point)
-    (mark)
-    current-prefix-arg))
+  (interactive "P")
   (declare (special emacspeak-occur-pattern))
   (cond
    ((and (not prefix)
@@ -1776,15 +1767,6 @@ prompts for and sets value of the file local pattern."
 ;;}}}
 ;;{{{   Switching buffers, killing buffers etc
 
-;;;###autoload
-(defun emacspeak-switch-to-previous-buffer  ()
-  "Switch to most recently used interesting buffer.
-Obsoleted by `previous-buffer' in Emacs 22"
-  (interactive)
-  (switch-to-buffer (other-buffer
-                     (current-buffer) 'visible-ok))
-  (emacspeak-speak-mode-line)
-  (emacspeak-auditory-icon 'select-object))
 ;;;###autoload
 (defun emacspeak-kill-buffer-quietly   ()
   "Kill current buffer without asking for confirmation."
@@ -1901,27 +1883,27 @@ On Ubuntu and Debian this is group `tty'."
   (declare (special emacspeak-wizards-vc-viewer-command
                     emacspeak-wizards-vc-console
                     temporary-file-directory))
-  (let ((emacspeak-speak-messages nil)
-        (command
-         (format emacspeak-wizards-vc-viewer-command
-                 console
-                 (expand-file-name
-                  (format "vc-%s.dump" console)
-                  temporary-file-directory)))
-        (buffer (get-buffer-create
-                 (format "*vc-%s*" console))))
-    (shell-command command buffer)
-    (switch-to-buffer buffer)
-    (kill-all-local-variables)
-    (insert-file-contents
-     (expand-file-name
-      (format "vc-%s.dump" console)
-      temporary-file-directory))
-    (set-buffer-modified-p nil)
-    (emacspeak-wizards-vc-viewer-mode)
-    (setq emacspeak-wizards-vc-console console)
-    (goto-char (point-min))
-    (when (ems-interactive-p) (emacspeak-speak-line))))
+  (ems-with-messages-silenced
+   (let ((command
+          (format emacspeak-wizards-vc-viewer-command
+                  console
+                  (expand-file-name
+                   (format "vc-%s.dump" console)
+                   temporary-file-directory)))
+         (buffer (get-buffer-create
+                  (format "*vc-%s*" console))))
+     (shell-command command buffer)
+     (switch-to-buffer buffer)
+     (kill-all-local-variables)
+     (insert-file-contents
+      (expand-file-name
+       (format "vc-%s.dump" console)
+       temporary-file-directory))
+     (set-buffer-modified-p nil)
+     (emacspeak-wizards-vc-viewer-mode)
+     (setq emacspeak-wizards-vc-console console)
+     (goto-char (point-min))
+     (when (ems-interactive-p) (emacspeak-speak-line)))))
 
 ;;;###autoload
 (defun emacspeak-wizards-vc-viewer-refresh ()
@@ -2126,9 +2108,9 @@ for the current voice family."
     (save-current-buffer
       (set-buffer buffer)
       (erase-buffer)
-      (loop for  s from 0 to 9 by step do
+      (loop for a from 0 to 9 by step do
             (loop for p from 0 to 9 by step do
-                  (loop for a from 0 to 9 by step do
+                  (loop for  s from 0 to 9 by step do
                         (loop for r from 0 to 9 by step do
                               (setq voice (voice-setup-personality-from-style
                                            (list nil a p s r)))
@@ -2184,10 +2166,10 @@ Location is specified by name."
    (list
     (read-from-minibuffer "ISO DateTime:"
                           (word-at-point))))
-  (let ((emacspeak-speak-messages nil)
-        (time (emacspeak-speak-decode-iso-datetime iso)))
-    (tts-with-punctuations 'some (dtk-speak time))
-    (message time)))
+  (ems-with-messages-silenced
+   (let ((time (emacspeak-speak-decode-iso-datetime iso)))
+     (tts-with-punctuations 'some (dtk-speak time))
+     (message time))))
 
 ;;}}}
 ;;{{{ date pronouncer wizard
@@ -2274,16 +2256,16 @@ RIVO is implemented by rivo.pl ---
   (interactive
    (list
     (read-from-minibuffer "At Time: hh:mm Month Day")
-    (let ((completion-ignore-case t)
-          (emacspeak-speak-messages nil)
-          (minibuffer-history emacspeak-media-history))
-      (emacspeak-pronounce-define-local-pronunciation
-       emacspeak-media-shortcuts-directory " shortcuts/ ")
-      (read-file-name "RealAudio resource: "
-                      emacspeak-media-shortcuts-directory
-                      (if (eq major-mode 'dired-mode)
-                          (dired-get-filename)
-                        emacspeak-media-last-url)))
+    (ems-with-messages-silenced
+     (let ((completion-ignore-case t)
+           (minibuffer-history emacspeak-media-history))
+       (emacspeak-pronounce-define-local-pronunciation
+        emacspeak-media-shortcuts-directory " shortcuts/ ")
+       (read-file-name "RealAudio resource: "
+                       emacspeak-media-shortcuts-directory
+                       (if (eq major-mode 'dired-mode)
+                           (dired-get-filename)
+                         emacspeak-media-last-url))))
     (read-minibuffer "Length:" "00:30:00")
     (read-minibuffer "Output Name:")
     (read-directory-name "Output Directory:")))
@@ -2796,11 +2778,10 @@ Lang is obtained from property `lang' on string, or  via an interactive prompt."
   (interactive "SMode: ")
   (switch-to-buffer
    (emacspeak-wizards-view-buffers-filtered-by-predicate
-
     #'(lambda (buffer)
         (with-current-buffer buffer
           (eq  major-mode mode)))))
-  (rename-buffer (format "Buffers Filtered By Major Mode %s" mode))
+  (rename-buffer (format "Buffers Filtered By Major Mode %s" mode) 'unique)
   (emacspeak-auditory-icon 'open-object)
   (emacspeak-speak-mode-line))
 
@@ -2834,11 +2815,12 @@ Lang is obtained from property `lang' on string, or  via an interactive prompt."
 ;;{{{ TuneIn:
 
 ;;;###autoload
-(defun emacspeak-wizards-tune-in-radio-browse  ()
-  "Browse Tune-In Radio."
-  (interactive)
+(defun emacspeak-wizards-tune-in-radio-browse  (&optional category)
+  "Browse Tune-In Radio.
+Optional interactive prefix arg `category' prompts for a category."
+  (interactive "P")
   (require 'emacspeak-url-template)
-  (let ((name   "RadioTime Browser"))
+  (let ((name (if category "RadioTime Categories" "RadioTime Browser")))
     (emacspeak-url-template-open (emacspeak-url-template-get name))))
 
 ;;;###autoload
@@ -2970,7 +2952,9 @@ order with duplicates removed  when saving."
            Volume
            YearRange
            StockExchange
-           PercentChange)
+           PercentChange
+           DividendShare ExDividendDate 
+           DividendPayDate DividendYield)
   "List of headers we care about.")
 
 (defun emacspeak-wizards-yq-filter (r)
@@ -3041,7 +3025,7 @@ Returns a list of lists, one list per ticker."
                   (integer :tag "Column Number:")
                   (string :tag "Text: ")))
   :group 'emacspeak-wizards)
-;;;###autload
+;;;###autoload
 (defun emacspeak-wizards-yql-lookup (symbols)
   "Lookup quotes for specified stock symbols.
 Symbols are separated by whitespace."
@@ -3262,6 +3246,30 @@ Optional interactive prefix arg shows  unprocessed results."
   (pop-to-buffer (get-buffer-create " *piped*"))
   (emacspeak-auditory-icon 'open-object)
   (emacspeak-speak-mode-line))
+
+;;}}}
+;;{{{ Market Data On Demand 
+
+(defvar emacspeak-wizards-market-data-endpoint
+  "http://dev.markitondemand.com/MODApis/Api/v2/Quote/json?symbol=%s"
+  "Rest end-point for retrieving stock quote data from Market Data On Demand.")
+
+;;}}}
+;;{{{ Google Finance Rest API
+;;; 
+(defvar emacspeak-wizards-google-finance-quotes-uri 
+  "http://finance.google.com/finance/info?client=ig&q=%s"
+  "Rest end-point for stock quote data from Google finance.")
+
+;;}}}
+;;{{{ Smart Yank:
+;;;###autoload
+(defun emacspeak-wizards-ido-yank ()
+  "Pick what to yank using ido completion."
+  (interactive)
+  (require 'ido)
+  (insert
+   (ido-completing-read "Yank what? " (mapcar 'substring-no-properties kill-ring))))
 
 ;;}}}
 (provide 'emacspeak-wizards)

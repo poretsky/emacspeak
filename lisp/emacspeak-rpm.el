@@ -1,4 +1,4 @@
-;;; emacspeak-rpm.el --- speech-enable RPM
+;;; emacspeak-rpm.el --- speech-enable RPM  -*- lexical-binding: t; -*-
 ;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak extension to speech-enable RPM
@@ -89,7 +89,7 @@
   "Provide speech feedback."
   (when (ems-interactive-p)
     (message "Rebuilt index")
-    (emacspeak-auditory-icon 'rask-done)))
+    (emacspeak-auditory-icon 'task-done)))
 
 ;;}}}
 ;;{{{ fix interactive commands 

@@ -1,4 +1,4 @@
-;;; emacspeak-make-mode.el --- Speech enable make-mode
+;;; emacspeak-make-mode.el --- Speech enable make-mode  -*- lexical-binding: t; -*-
 ;;; $Id$
 ;;; $Author: tv.raman.tv $ 
 ;;; Description:  Emacspeak extension to speech enable make-mode
@@ -126,8 +126,7 @@
       ad-do-it
       (setq state
             (makefile-browser-get-state-for-line this-line))
-      (emacspeak-auditory-icon
-       (if state 'on 'off))
+      (emacspeak-auditory-icon (if state 'on 'off))
       (emacspeak-speak-line)))
    (t ad-do-it))
   ad-return-value)

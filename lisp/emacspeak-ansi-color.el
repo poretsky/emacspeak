@@ -1,4 +1,4 @@
-;;; emacspeak-ansi-color.el --- Speech-enable ansi-color terminal
+;;; emacspeak-ansi-color.el --- Speech-enable ansi-color terminal  -*- lexical-binding: t; -*-
 ;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak module for ansi-color
@@ -61,21 +61,14 @@
   (declare (special ansi-color-names-vector ansi-color-faces-vector))
   (condition-case nil
       (let* ((voice-name nil)
-             (style (cadr face-spec))
-             (style-index (position style ansi-color-faces-vector))
              (color (cdr (assq 'foreground-color  face-spec)))
              (color-index
               (when color
                 (position  color ansi-color-names-vector
                            :test #'string-equal)))
              (style nil)
-             (color-parameter nil)
-             (style-parameter nil))
+             (color-parameter nil))
         (setq style (make-acss))
-        (setq style-parameter
-              (if style-index
-                  (+ 1 style-index)
-                1))
         (setq color-parameter
               (if color-index
                   (+ 1 color-index)

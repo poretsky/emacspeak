@@ -1,4 +1,4 @@
-;;; emacspeak-tabulate.el --- Interpret tabulated information as a table
+;;; emacspeak-tabulate.el --- Interpret tabulated information as a table  -*- lexical-binding: t; -*-
 ;;; $Id$
 ;;; $Author: tv.raman.tv $ 
 ;;; Description:  Utility to help emacspeak identify tabulated information
@@ -139,7 +139,7 @@ Fields are assumed to be delimited by whitespace. "
                 new-guesses nil))
         guesses))))
 
-(defsubst ems-tabulate-process-column (tl tr br bl mark-headers start)
+(defun ems-tabulate-process-column (tl tr br _bl mark-headers start)
   (let ((header (buffer-substring  tl tr))
         (personality-table (emacspeak-possible-voices)))
     (emacspeak-voiceify-rectangle

@@ -1,4 +1,4 @@
-;;; emacspeak-imenu.el --- Speech enable Imenu -- produce buffer-specific table of contents
+;;; emacspeak-imenu.el --- Speech enable Imenu -- produce buffer-specific table of contents  -*- lexical-binding: t; -*-
 ;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description: Auditory interface buffer indices
@@ -92,11 +92,16 @@
 
 ;;}}}
 ;;{{{ advice
-
-(defadvice imenu (after emacspeak pre act comp)
-  "Provide auditory feedback"
-  (when (ems-interactive-p)
-    (emacspeak-speak-line)))
+(loop
+ for f in
+ '(imenu imenu-anywhere ido-imenu-anywhere)
+ do
+ (eval
+  `(defadvice ,f (after emacspeak pre act comp)
+     "Provide auditory feedback"
+     (when (ems-interactive-p)
+       (emacspeak-auditory-icon 'large-movement)
+       (emacspeak-speak-line)))))
 
 ;;}}}
 ;;{{{  Navigation

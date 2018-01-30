@@ -1,4 +1,4 @@
-;;; emacspeak-pronounce.el --- Implements Emacspeak pronunciation dictionaries
+;;; emacspeak-pronounce.el --- Implements Emacspeak pronunciation dictionaries  -*- lexical-binding: t; -*-
 ;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description: Emacspeak pronunciation dictionaries
@@ -370,7 +370,7 @@ Optional argument FILENAME specifies the dictionary file."
     (insert string)
     (dtk-speak string)))
 
-(defsubst emacspeak-pronounce-read-pattern (key)
+(defsubst emacspeak-pronounce-read-pattern (&ignore _key)
   (declare (special emacspeak-pronounce-yank-word-point
                     emacspeak-pronounce-current-buffer))
   (eval (read-minibuffer "Pattern")))
@@ -611,6 +611,8 @@ See http://www.charm.net/~kmarsh/smiley.html. "
     ("http://schemas.xmlsoap.org/wsdl/" . " WSDL ")
     ("http://www.w3.org/2001/06/soap-envelope" . " SOAP ENV ")
     ("http://schemas.xmlsoap.org/wsdl/soap/" . " SOAP ")
+    ("http://purl.org/dc/elements/1.1/" . "Dublin Core")
+    ("http://search.yahoo.com/mrss/" . "media")
     )
   "Pronunciations for well known namespace URIs."
   :type '(repeat
@@ -669,7 +671,7 @@ pronunciation dictionary for the specified key."
       (widget-create 'push-button
                      :tag "Save Dictionary"
                      :notify
-                     #'(lambda (&rest ignore)
+                     #'(lambda (&rest _ignore)
                          (call-interactively 'emacspeak-pronounce-save-dictionaries)))
       (widget-insert "\n\n")
       (use-local-map widget-keymap)

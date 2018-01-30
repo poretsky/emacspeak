@@ -1,4 +1,4 @@
-;;; emacspeak-advice.el --- Advice all core Emacs functionality to speak
+;;; emacspeak-advice.el --- Advice all core Emacs functionality to speak  -*- lexical-binding: t; -*-
 ;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description: Core advice forms that make emacspeak work
@@ -93,8 +93,41 @@
 
 (loop
  for f in
- '(next-line previous-line goto-line
-             delete-indentation back-to-indentation lisp-indent-line)
+ '(next-line previous-line)
+ do
+ (eval
+  `(defadvice ,f (after emacspeak pre act comp)
+     "Speak line that you just moved to.
+Speak on-screen (visual) line when `visual-line-mode' is turned on.
+When `visual-line-mode' is on, position of point is indicated via an aural highlight.
+Landing on the beginning or end of  a physical line produces an appropriate auditory icon."
+     (when (ems-interactive-p)
+       (cond
+        ((or line-move-visual visual-line-mode) (emacspeak-speak-visual-line))
+        (t (emacspeak-speak-line)))))))
+
+(defadvice kill-visual-line (before emacspeak pre act comp)
+  "Speak line we're about to delete."
+  (when (ems-interactive-p)
+    (emacspeak-auditory-icon 'delete-object)
+    (emacspeak-speak-visual-line)))
+
+(loop
+ for f in
+ '(beginning-of-visual-line end-of-visual-line)
+ do
+ (eval
+  `(defadvice ,f (after emacspeak pre act comp)
+     "Speak visual line with show-point enabled."
+     (when (ems-interactive-p)
+       (let ((emacspeak-show-point t))
+         (emacspeak-speak-visual-line))))))
+(loop
+ for f in
+ '(
+   next-logical-line previous-logical-line
+                     delete-indentation back-to-indentation
+                     lisp-indent-line goto-line)
  do
  (eval
   `(defadvice ,f (after emacspeak pre act comp)
@@ -162,8 +195,7 @@
 (loop
  for f in
  '(
-   beginning-of-buffer end-of-buffer
-                       beginning-of-defun end-of-defun)
+   beginning-of-buffer end-of-buffer)
  do
  (eval
   `(defadvice ,f (after emacspeak pre act comp)
@@ -196,7 +228,8 @@
 
 (loop
  for f in
- '(forward-sexp backward-sexp)
+ '(forward-sexp backward-sexp
+                beginning-of-defun end-of-defun)
  do
  (eval
   `(defadvice ,f (around emacspeak pre act comp)
@@ -205,7 +238,7 @@
          (let ((start (point))
                (end (line-end-position)))
            ad-do-it
-           (emacspeak-auditory-icon 'large-movement)
+           (emacspeak-auditory-icon 'paragraph)
            (cond
             ((>= end (point))
              (emacspeak-speak-region start (point)))
@@ -220,7 +253,9 @@
  (eval
   `(defadvice ,f (after emacspeak pre act comp)
      "Speak the paragraph."
-     (when(ems-interactive-p) (emacspeak-speak-paragraph)))))
+     (when(ems-interactive-p)
+       (emacspeak-auditory-icon 'paragraph)
+       (emacspeak-speak-paragraph)))))
 
 ;;; list navigation:
 
@@ -233,7 +268,7 @@
   `(defadvice ,f (after emacspeak pre act comp)
      "Speak line."
      (when (ems-interactive-p)
-       (emacspeak-auditory-icon 'large-movement)
+       (emacspeak-auditory-icon 'section)
        (let ((emacspeak-show-point t))
          (emacspeak-speak-line))))))
 
@@ -496,8 +531,8 @@ see option emacspeak-untabify-fixes-non-breaking-space."
     (emacspeak-auditory-icon 'complete)))
 
 (defadvice pcomplete-show-completions (around emacspeak pre act comp)
-  (let ((emacspeak-speak-messages nil))
-    ad-do-it))
+  (ems-with-messages-silenced
+   ad-do-it))
 
 (defadvice pcomplete (around emacspeak pre act comp)
   "Say what you completed."
@@ -581,17 +616,17 @@ see option emacspeak-untabify-fixes-non-breaking-space."
 
 (defadvice momentary-string-display (around emacspeak pre act comp)
   "Provide spoken feedback."
-  (lexical-let ((emacspeak-speak-messages nil)
-                (msg (ad-get-arg 0))
-                (exit (ad-get-arg 2)))
-    (dtk-speak
-     (format "%s %s"
-             msg
-             (format "Press %s to exit "
-                     (if exit
-                         (format "%c" exit)
-                       "space"))))
-    ad-do-it))
+  (ems-with-messages-silenced
+   (let ((msg (ad-get-arg 0))
+         (exit (ad-get-arg 2)))
+     (dtk-speak
+      (format "%s %s"
+              msg
+              (format "Press %s to exit "
+                      (if exit
+                          (format "%c" exit)
+                        "space"))))
+     ad-do-it)))
 
 (defcustom emacspeak-advice-progress-reporter t
   "Set to true if progress reporter should produce an auditory
@@ -601,10 +636,10 @@ icon."
 
 (defadvice progress-reporter-do-update (around emacspeak pre act comp)
   "Silence progress reporters for now."
-  (lexical-let ((emacspeak-speak-messages nil))
-    (when emacspeak-advice-progress-reporter
-      (emacspeak-auditory-icon 'progress))
-    ad-do-it))
+  (ems-with-messages-silenced ad-do-it)
+  (when emacspeak-advice-progress-reporter
+    (emacspeak-auditory-icon 'progress)))
+
 ;;; forward decl:
 
 (unless (boundp 'inhibit-message)(defvar inhibit-message nil)
@@ -625,11 +660,13 @@ icon."
              (setq emacspeak-lazy-message-time (nth 1 (current-time)))))
       (setq emacspeak-last-message (ansi-color-apply (current-message)))
       ;; so we really need to speak it
-      (let ((dtk-speaker-process (dtk-notify-process)))
-        (tts-with-punctuations 'all
-                               (dtk-notify-using-voice voice-annotate  emacspeak-last-message))))
+      (tts-with-punctuations 'all
+                             (dtk-notify-speak  emacspeak-last-message)))
     ad-return-value))
-(defcustom emacspeak-eldoc-speak-explicitly nil
+(declare-function  emacspeak-tts-use-notify-stream-p "emacspeak-setup.el" nil)
+
+(defcustom emacspeak-eldoc-speak-explicitly
+  (not (emacspeak-tts-use-notify-stream-p))
   "Set to T if not using a separate TTS notification stream."
   :type 'boolean
   :group 'emacspeak-eldoc)
@@ -637,16 +674,15 @@ icon."
 (defadvice eldoc-message (around emacspeak pre act comp)
   "Speech enable ELDoc."
  ;;; eldoc flashes message temporarily, we speak from cache."
-  (cond
-   (emacspeak-eldoc-speak-explicitly
-    (lexical-let ((emacspeak-speak-messages nil)
-                  (cached-message eldoc-last-message))
-      ad-do-it
-      (when (and eldoc-last-message
-                 (not (string-equal cached-message eldoc-last-message)))
-        (dtk-speak-and-echo eldoc-last-message))))
-   (t ad-do-it))
-  ad-return-value)
+  (ems-with-messages-silenced
+   (let ((cached-message eldoc-last-message))
+     ad-do-it
+     (when
+         (and eldoc-last-message
+              emacspeak-eldoc-speak-explicitly
+              (not (string-equal cached-message eldoc-last-message)))
+       (dtk-speak-and-echo eldoc-last-message))
+     ad-return-value)))
 
 (defun emacspeak-eldoc-speak-doc ()
   "Speak Eldoc documentation if available."
@@ -654,8 +690,10 @@ icon."
   (declare (special eldoc-documentation-function))
   (cond
    (eldoc-documentation-function
-    (message (or (funcall eldoc-documentation-function) "No ElDoc here ")))
+    (tts-with-punctuations 'all
+                           (dtk-speak-and-echo (or (funcall eldoc-documentation-function) "No ElDoc here "))))
    (t (message "No ElDoc here. "))))
+
 (defvar emacspeak-ange-ftp-last-percent nil
   "Cache the last percentage that emacspeak spoke.")
 
@@ -663,16 +701,16 @@ icon."
   "Jibber intelligently."
   (declare (special emacspeak-ange-ftp-last-percent
                     ange-ftp-last-percent))
-  (lexical-let ((emacspeak-speak-messages nil))
-    ad-do-it
-    (when (or
-           (null emacspeak-ange-ftp-last-percent)
-           (>= (abs (- ange-ftp-last-percent emacspeak-ange-ftp-last-percent))
-               5))
-      (setq emacspeak-ange-ftp-last-percent ange-ftp-last-percent)
-      (emacspeak-auditory-icon 'progress)
-      (dtk-speak
-       (format " %s percent" ange-ftp-last-percent)))))
+  (ems-with-messages-silenced
+   ad-do-it
+   (when (or
+          (null emacspeak-ange-ftp-last-percent)
+          (>= (abs (- ange-ftp-last-percent emacspeak-ange-ftp-last-percent))
+              5))
+     (setq emacspeak-ange-ftp-last-percent ange-ftp-last-percent)
+     (emacspeak-auditory-icon 'progress)
+     (dtk-speak
+      (format " %s percent" ange-ftp-last-percent)))))
 
 ;;{{{ advising signal
 
@@ -690,7 +728,7 @@ icon."
 (when (boundp 'command-error-function)
   (setq command-error-function 'emacspeak-error-handler))
 
-(defun emacspeak-error-handler (data context calling-function)
+(defun emacspeak-error-handler (data context _calling-function)
   "Emacspeak custom error handling function."
   (emacspeak-auditory-icon 'warn-user)
   (message "%s %s"
@@ -726,25 +764,10 @@ icon."
 ;;; Silence messages from async handlers:
 (defadvice timer-event-handler (around emacspeak pre act comp)
   "Silence messages generated by timer event handlers."
-  (lexical-let ((emacspeak-speak-messages nil))
-    ad-do-it))
+  (ems-with-messages-silenced
+   ad-do-it))
 
 ;;}}}
-
-(defadvice y-or-n-p (around emacspeak pre act comp)
-  "Use speech when prompting.
-Produce an auditory icon if possible."
-  (emacspeak-auditory-icon 'ask-short-question)
-  (tts-with-punctuations 'all
-                         (dtk-speak (format "%s y or n" (ad-get-arg 0))))
-  ad-do-it
-  (cond
-   (ad-return-value
-    (emacspeak-auditory-icon 'y-answer)
-    (dtk-say "y"))
-   (t (emacspeak-auditory-icon 'n-answer)
-      (dtk-say "n")))
-  ad-return-value)
 
 ;;}}}
 ;;{{{ Advice completion-at-point:
@@ -813,16 +836,16 @@ Produce an auditory icon if possible."
      "Say what you completed."
      (cond
       ((ems-interactive-p)
-       (let ((prior (point))
-             (emacspeak-speak-messages nil))
-         (emacspeak-kill-buffer-carefully "*Completions*")
-         ad-do-it
-         (if (> (point) prior)
-             (tts-with-punctuations
-              'all
-              (dtk-speak
-               (buffer-substring (point) prior)))
-           (emacspeak-speak-completions-if-available))))
+       (ems-with-messages-silenced
+        (let ((prior (point)))
+          (emacspeak-kill-buffer-carefully "*Completions*")
+          ad-do-it
+          (if (> (point) prior)
+              (tts-with-punctuations
+               'all
+               (dtk-speak
+                (buffer-substring (point) prior)))
+            (emacspeak-speak-completions-if-available)))))
       (t ad-do-it))
      ad-return-value)))
 
@@ -833,16 +856,17 @@ Produce an auditory icon if possible."
  (eval
   `(defadvice ,f (around emacspeak pre act comp)
      "Say what you completed."
-     (let ((prior (point))
-           (emacspeak-speak-messages nil))
-       ad-do-it
-       (if (> (point) prior)
-           (tts-with-punctuations
-            'all
-            (dtk-speak
-             (buffer-substring prior (point))))
-         (emacspeak-speak-completions-if-available))
-       ad-return-value))))
+     (ems-with-messages-silenced
+      (let ((prior (point)))
+        ad-do-it
+        (if (> (point) prior)
+            (tts-with-punctuations
+             'all
+             (dtk-speak
+              (buffer-substring prior (point))))
+          (emacspeak-speak-completions-if-available))
+        ad-return-value)))))
+
 (define-key minibuffer-local-completion-map "\C-o" 'switch-to-completions)
 (defadvice switch-to-completions(after emacspeak pre act comp)
   "Provide spoken feedback."
@@ -855,29 +879,15 @@ Produce an auditory icon if possible."
  (eval
   `(defadvice ,f  (around emacspeak pre act comp)
      "Say what you completed."
-     (lexical-let ((emacspeak-speak-messages nil)
-                   (emacspeak-last-message nil))
-       ad-do-it
-       (when (ems-interactive-p)
-         (dtk-speak
-          (format "%s %s"
-                  (save-excursion (backward-char 1)
-                                  (sexp-at-point))
-                  (or emacspeak-last-message "")))
-         ad-return-value)))))
-
-(defadvice minibuffer-complete-shell-command (around emacspeak pre act comp)
-  "Say what you completed."
-  (let ((emacspeak-speak-messages nil)
-        (emacspeak-last-message nil))
-    ad-do-it
-    (when (ems-interactive-p)
-      (dtk-speak
-       (format "%s %s"
-               (save-excursion (backward-char 1)
-                               (sexp-at-point))
-               (or emacspeak-last-message "")))
-      ad-return-value)))
+     (ems-with-messages-silenced
+      ad-do-it
+      (when (ems-interactive-p)
+        (dtk-speak
+         (format "%s %s"
+                 (save-excursion (backward-char 1)
+                                 (sexp-at-point))
+                 (or emacspeak-last-message "")))
+        ad-return-value)))))
 
 (defadvice next-completion (after emacspeak pre act comp)
   "Provide auditory feedback."
@@ -897,7 +907,7 @@ Produce an auditory icon if possible."
 (defadvice choose-completion (before emacspeak pre act comp)
   "Provide auditory feedback."
   (when (ems-interactive-p)
-    (emacspeak-auditory-icon 'select-object)))
+    (emacspeak-auditory-icon 'button)))
 
 (defadvice minibuffer-message (around emacspeak pre act comp)
   "Speak the message if appropriate."
@@ -950,19 +960,21 @@ Produce an auditory icon if possible."
   "Speak word or completion."
   (cond
    ((ems-interactive-p)
-    (let ((orig (point))
-          (emacspeak-speak-messages nil)
-          (count (ad-get-arg 0)))
-      (setq count (or count 1))
-      ad-do-it
-      (cond
-       ((= (point) (+ count orig))
-        (save-excursion
-          (forward-word -1)
-          (emacspeak-speak-word)))
-       (t (emacspeak-auditory-icon 'select-object)
-          (emacspeak-speak-region
-           (comint-line-beginning-position) (point))))))
+    (ems-with-messages-silenced
+     (let ((orig (point))
+           (count (ad-get-arg 0)))
+       (setq count (or count 1))
+       ad-do-it
+       m
+       (cond
+        ((= (point) (+ count orig))
+         (save-excursion
+           (forward-word -1)
+           (emacspeak-speak-word)))
+        (t
+         (emacspeak-auditory-icon 'complete)
+         (emacspeak-speak-region
+          (comint-line-beginning-position) (point)))))))
    (t ad-do-it))
   ad-return-value)
 
@@ -974,7 +986,7 @@ Produce an auditory icon if possible."
     (let ((orig (point)))
       ad-do-it
       (emacspeak-speak-region orig (point))
-      (emacspeak-auditory-icon 'select-object)))
+      (emacspeak-auditory-icon 'yank-object)))
    (t ad-do-it))
   ad-return-value)
 
@@ -1077,7 +1089,7 @@ Produce an auditory icon if possible."
   (when (ems-interactive-p)
     (let ((emacspeak-show-point t))
       (emacspeak-speak-line)
-      (emacspeak-auditory-icon 'select-object))))
+      (emacspeak-auditory-icon 'item))))
 
 (defadvice shell-backward-command (after emacspeak pre act
                                          comp)
@@ -1085,10 +1097,9 @@ Produce an auditory icon if possible."
   (when (ems-interactive-p)
     (let ((emacspeak-show-point t))
       (emacspeak-speak-line)
-      (emacspeak-auditory-icon 'select-object))))
+      (emacspeak-auditory-icon 'item))))
 
-(defadvice comint-show-output (after emacspeak pre act
-                                     comp)
+(defadvice comint-show-output (after emacspeak pre act comp)
   "Speak the line showing where point is."
   (when (ems-interactive-p)
     (let ((emacspeak-show-point t)
@@ -1103,7 +1114,7 @@ Produce an auditory icon if possible."
     (let ((emacspeak-show-point t)
           )
       (emacspeak-speak-line)
-      (emacspeak-auditory-icon 'select-object))))
+      (emacspeak-auditory-icon 'scroll))))
 
 (defadvice comint-bol-or-process-mark (after emacspeak pre act
                                              comp)
@@ -1161,15 +1172,15 @@ Produce an auditory icon if possible."
   "Say what you completed."
   (cond
    ((ems-interactive-p)
-    (let ((prior (point))
-          (emacspeak-speak-messages nil))
-      ad-do-it
-      (if (> (point) prior)
-          (tts-with-punctuations
-           'all
-           (emacspeak-auditory-icon 'complete)
-           (dtk-speak (buffer-substring prior (point))))
-        (emacspeak-speak-completions-if-available))))
+    (ems-with-messages-silenced
+     (let ((prior (point)))
+       ad-do-it
+       (if (> (point) prior)
+           (tts-with-punctuations
+            'all
+            (emacspeak-auditory-icon 'complete)
+            (dtk-speak (buffer-substring prior (point))))
+         (emacspeak-speak-completions-if-available)))))
    (t ad-do-it))
   ad-return-value)
 
@@ -1178,21 +1189,21 @@ Produce an auditory icon if possible."
   (when (ems-interactive-p)
     (tts-with-punctuations 'all
                            (emacspeak-speak-line))
-    (emacspeak-auditory-icon 'select-object)))
+    (emacspeak-auditory-icon 'item)))
 
 (defadvice comint-next-matching-input (after emacspeak pre act comp)
   "Speak the line."
   (when (ems-interactive-p)
     (tts-with-punctuations 'all
                            (emacspeak-speak-line))
-    (emacspeak-auditory-icon 'select-object)))
+    (emacspeak-auditory-icon 'item)))
 
 (defadvice comint-previous-input (after emacspeak pre act comp)
   "Speak the line."
   (when (ems-interactive-p)
     (tts-with-punctuations 'all
                            (emacspeak-speak-line))
-    (emacspeak-auditory-icon 'select-object)))
+    (emacspeak-auditory-icon 'item)))
 
 (defadvice comint-previous-matching-input (after emacspeak pre act comp)
   "Speak the line."
@@ -1200,7 +1211,7 @@ Produce an auditory icon if possible."
     (comint-skip-prompt)
     (tts-with-punctuations 'all
                            (emacspeak-speak-line))
-    (emacspeak-auditory-icon 'select-object)))
+    (emacspeak-auditory-icon 'item)))
 
 (defadvice comint-send-input (after emacspeak pre act comp)
   "Flush any ongoing speech."
@@ -1210,7 +1221,7 @@ Produce an auditory icon if possible."
 (defadvice comint-previous-prompt (after emacspeak pre act comp)
   "Provide spoken feedback."
   (when (ems-interactive-p)
-    (emacspeak-auditory-icon 'large-movement)
+    (emacspeak-auditory-icon 'item)
     (if (eolp)
         (emacspeak-speak-line)
       (emacspeak-speak-line 1))))
@@ -1218,7 +1229,7 @@ Produce an auditory icon if possible."
 (defadvice comint-next-prompt (after emacspeak pre act comp)
   "Provide spoken feedback."
   (when (ems-interactive-p)
-    (emacspeak-auditory-icon 'large-movement)
+    (emacspeak-auditory-icon 'item)
     (if (eolp)
         (emacspeak-speak-line)
       (emacspeak-speak-line 1))))
@@ -1331,20 +1342,20 @@ Shell-Dirtrack mode; turning it off does not re-enable it."
 (defadvice center-line (after emacspeak pre act comp)
   "Provide auditory feedback."
   (when (ems-interactive-p)
-    (emacspeak-auditory-icon 'select-object)
+    (emacspeak-auditory-icon 'center)
     (message"Centered current line")))
 
 (defadvice center-region (after emacspeak pre act comp)
   "Provide auditory feedback."
   (when (ems-interactive-p)
-    (emacspeak-auditory-icon 'select-object)
+    (emacspeak-auditory-icon 'center)
     (message"Centered current region containing %s lines"
             (count-lines (region-beginning) (region-end)))))
 
 (defadvice center-paragraph (after emacspeak pre act comp)
   "Provide auditory feedback."
   (when (ems-interactive-p)
-    (emacspeak-auditory-icon 'select-object)
+    (emacspeak-auditory-icon 'center)
     (message"Centered current paragraph")))
 
 (loop
@@ -1547,6 +1558,15 @@ Shell-Dirtrack mode; turning it off does not re-enable it."
         (emacspeak-auditory-icon 'modified-object)
       (emacspeak-auditory-icon 'unmodified-object))))
 
+(defadvice comment-dwim (after emacspeak pre act comp)
+  "Provide auditory feedback."
+  (when (ems-interactive-p)
+    (cond
+     ((use-region-p)
+      (emacspeak-speak-region (region-beginning) (region-end)))
+     (t (emacspeak-speak-line)))
+    (emacspeak-auditory-icon 'task-done)))
+
 (defadvice comment-region (after emacspeak pre act comp)
   "Provide spoken feedback."
   (when (ems-interactive-p)
@@ -1689,6 +1709,7 @@ Indicate change of selection with an auditory icon
  '(
    describe-function describe-variable
                      describe-face describe-font
+                     describe-text-properties describe-syntax
                      describe-package describe-key)
  do
  (eval
@@ -1702,11 +1723,10 @@ Indicate change of selection with an auditory icon
   "Provide auditory feedback."
   (when (ems-interactive-p)
     (emacspeak-auditory-icon 'open-object)
-    (let ((extent nil))
-      (save-excursion
-        (goto-char (point-min))
-        (forward-line (window-height))
-        (emacspeak-speak-region (point-min) (point))))))
+    (save-excursion
+      (goto-char (point-min))
+      (forward-line (window-height))
+      (emacspeak-speak-region (point-min) (point)))))
 (defsubst ems-canonicalize-key-description (desc)
   "Change key description to a speech-friendly form."
   (let ((shift-regexp "S-\\(.\\)")
@@ -1800,7 +1820,7 @@ the newly created blank line."
   "Announce switching to shell mode.
 Provide an auditory icon if possible."
   (when (ems-interactive-p)
-    (emacspeak-auditory-icon 'select-object)
+    (emacspeak-auditory-icon 'open-object)
     (emacspeak-speak-mode-line)))
 
 (loop
@@ -1818,10 +1838,10 @@ Provide an auditory icon if possible."
   "Provide spoken feedback."
   (cond
    ((ems-interactive-p)
-    (lexical-let ((dtk-quiet t)
-                  (emacspeak-speak-messages nil)
-                  (emacspeak-use-auditory-icons nil))
-      ad-do-it)
+    (ems-with-messages-silenced
+     (let ((dtk-quiet t)
+           (emacspeak-use-auditory-icons nil))
+       ad-do-it))
     (message "Executed macro. ")
     (emacspeak-auditory-icon 'task-done))
    (t ad-do-it))
@@ -1875,7 +1895,7 @@ Provide an auditory icon if possible."
   `(defadvice ,f (after emacspeak pre act comp)
      "Announce yourself."
      (when (ems-interactive-p)
-       (emacspeak-auditory-icon 'select-object)
+       (emacspeak-auditory-icon 'mark-object)
        (message "Narrowed editing region to %s lines"
                 (count-lines (region-beginning)
                              (region-end)))))))
@@ -1884,7 +1904,7 @@ Provide an auditory icon if possible."
   "Announce yourself."
   (when (ems-interactive-p)
     (require 'which-func)
-    (emacspeak-auditory-icon 'select-object)
+    (emacspeak-auditory-icon 'mark-object)
     (message "Narrowed to function %s"
              (which-function))))
 
@@ -2079,11 +2099,11 @@ Provide an auditory icon if possible."
 Produce an auditory icon if possible."
   (cond
    ((ems-interactive-p)
-    (lexical-let ((emacspeak-speak-messages nil))
-      (dtk-speak "Byte compiling ")
-      ad-do-it
-      (emacspeak-auditory-icon 'task-done)
-      (dtk-speak "Done byte compiling ")))
+    (ems-with-messages-silenced
+     (dtk-speak "Byte compiling ")
+     ad-do-it
+     (emacspeak-auditory-icon 'task-done)
+     (dtk-speak "Done byte compiling ")))
    (t ad-do-it))
   ad-return-value)
 
@@ -2131,7 +2151,7 @@ Produce an auditory icon if possible."
      "Speak line we land on."
      (when (ems-interactive-p)
        (emacspeak-speak-line)
-       (emacspeak-auditory-icon 'select-object)))))
+       (emacspeak-auditory-icon 'search-hit)))))
 
 ;;}}}
 ;;{{{ customize isearch:
@@ -2211,7 +2231,7 @@ Produce auditory icons if possible."
      "Provide auditory feedback."
      (when (ems-interactive-p)
        (emacspeak-speak-string isearch-string voice-bolden)
-       (emacspeak-auditory-icon 'select-object)))))
+       (emacspeak-auditory-icon 'item)))))
 
 ;;; Note the advice on the next two toggle commands
 ;;; checks the variable being toggled.
@@ -2220,16 +2240,14 @@ Produce auditory icons if possible."
 
 (defadvice isearch-toggle-case-fold (after emacspeak pre act comp)
   "Provide auditory confirmation"
-  (emacspeak-auditory-icon
-   (if isearch-case-fold-search 'off 'on))
+  (emacspeak-auditory-icon (if isearch-case-fold-search 'off 'on))
   (dtk-speak
    (format " Case is %s significant in search"
            (if isearch-case-fold-search " not" " "))))
 
 (defadvice isearch-toggle-regexp (after emacspeak pre act comp)
   "Provide auditory confirmation"
-  (emacspeak-auditory-icon
-   (if isearch-regexp 'on 'off))
+  (emacspeak-auditory-icon (if isearch-regexp 'on 'off))
   (dtk-speak
    (if isearch-regexp "Regexp search" "text search")))
 
@@ -2399,10 +2417,12 @@ Produce auditory icons if possible."
 
 (defun emacspeak-minibuffer-setup-hook ()
   "Actions to take when entering the minibuffer with emacspeak running."
-  (declare (special emacspeak-minibuffer-enter-auditory-icon))
+  (declare (special emacspeak-minibuffer-enter-auditory-icon
+                    minibuffer-default))
   (let ((inhibit-field-text-motion t))
     (when emacspeak-minibuffer-enter-auditory-icon
       (emacspeak-auditory-icon 'open-object))
+    (when minibuffer-default (emacspeak-auditory-icon 'help))
     (tts-with-punctuations 'all (emacspeak-speak-buffer))))
 
 (add-hook 'minibuffer-setup-hook 'emacspeak-minibuffer-setup-hook)
@@ -2484,7 +2504,7 @@ Produce auditory icons if possible."
   "Speak modeline when done."
   (when (ems-interactive-p)
     (emacspeak-speak-mode-line)
-    (emacspeak-auditory-icon 'select-object)))
+    (emacspeak-auditory-icon 'task-done)))
 
 ;;}}}
 ;;{{{ toggling debug state
@@ -2527,9 +2547,9 @@ Produce auditory icons if possible."
     (emacspeak-speak-mode-line)))
 (defadvice customize-save-variable (around emacspeak pre act comp)
   "Silence chatter."
-  (let ((emacspeak-speak-messages nil)
-        (dtk-quiet t))
-    ad-do-it))
+  (ems-with-messages-silenced
+   (let ((dtk-quiet t))
+     ad-do-it)))
 
 ;;}}}
 ;;{{{ transient mark mode
@@ -2556,8 +2576,11 @@ Produce auditory icons if possible."
 
 (defadvice expand-mail-aliases (after emacspeak pre act comp)
   "Provide auditory feedback."
-  (when (ems-interactive-p)
-    (emacspeak-auditory-icon 'select-object)))
+  (when(ems-interactive-p)
+    (let ((end (point))
+          (start (re-search-backward  " " nil t)))
+      (message (buffer-substring start end))
+      (emacspeak-auditory-icon 'select-object))))
 
 ;;}}}
 ;;{{{ elint
@@ -2592,7 +2615,7 @@ Produce auditory icons if possible."
            (end (ad-get-arg 1)))
        (with-silent-modifications
          (condition-case nil
-             (progn 
+             (progn
                (put-text-property start end  'auditory-icon 'button)
                (when emacspeak-personality-voiceify-faces
                  (put-text-property start end 'personality voice-bolden)))
@@ -2601,7 +2624,7 @@ Produce auditory icons if possible."
 (defadvice push-button (after emacspeak pre act comp)
   "Produce auditory icon."
   (when  (ems-interactive-p)
-    (emacspeak-auditory-icon 'push-button)
+    (emacspeak-auditory-icon 'button)
     (emacspeak-speak-line)))
 
 ;;}}}
@@ -2614,9 +2637,9 @@ Produce auditory icons if possible."
  (eval
   `(defadvice ,f (around emacspeak pre act comp)
      "Silence messages."
-     (let ((emacspeak-speak-messages nil))
-       ad-do-it
-       ad-return-value))))
+     (ems-with-messages-silenced
+      ad-do-it
+      ad-return-value))))
 
 ;;}}}
 ;;{{{ advice Finder:
@@ -2663,8 +2686,7 @@ Produce auditory icons if possible."
 (defadvice toggle-input-method (after emacspeak pre act comp)
   "Provide auditory feedback."
   (when (ems-interactive-p)
-    (emacspeak-auditory-icon
-     (if current-input-method 'on 'off))
+    (emacspeak-auditory-icon (if current-input-method 'on 'off))
     (dtk-speak
      (format "Current input method is %s"
              (or current-input-method "none")))))
@@ -2750,7 +2772,7 @@ Produce auditory icons if possible."
    (t (emacspeak-auditory-icon 'n-answer))))
 
 ;;}}}
-;;{{{ Advice process-menu 
+;;{{{ Advice process-menu
 
 (defadvice process-menu-delete-process (after emacspeak pre act comp)
   "Provide auditory feedback."

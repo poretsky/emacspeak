@@ -1,4 +1,4 @@
-;;; emacspeak-tapestry.el --- Speak information about current layout of windows
+;;; emacspeak-tapestry.el --- Speak information about current layout of windows  -*- lexical-binding: t; -*-
 ;;; $Id$
 ;;; $Author: tv.raman.tv $ 
 ;;; Description: Emacspeak module to speak window tapestries
@@ -105,6 +105,7 @@ displayed buffers."
                                                windows
                                                " "))))))
 
+(defalias 'emacspeak-speak-window-layout 'emacspeak-tapestry-describe-tapestry)
 ;;;###autoload
 (defun emacspeak-tapestry-select-window-by-name (buffer-name)
   "Select window by the name of the buffer it displays.

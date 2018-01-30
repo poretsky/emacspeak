@@ -1,5 +1,4 @@
 @c $Id$
-
 @node Top
 @top Emacspeak
 
@@ -25,6 +24,7 @@ The manual is divided into the following chapters.
 * Emacs Packages:  Emacs Packages.
 * Running Terminal Based Applications: Running Terminal Based Applications.
 * Emacspeak Commands And Options:  Emacspeak Commands And Options.
+* Emacspeak Keyboard Commands: Emacspeak Keyboard Commands.
 * TTS Servers:  TTS Servers.
 * Acknowledgments: Acknowledgments.
 

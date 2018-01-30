@@ -1,4 +1,4 @@
-;;; emacspeak-company.el --- Speech-enable COMPANY-mode
+;;; emacspeak-company.el --- Speech-enable COMPANY-mode  -*- lexical-binding: t; -*-
 ;;; $Id: emacspeak-company.el 4797 2007-07-16 23:31:22Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Speech-enable COMPANY An Emacs Interface to company
@@ -61,21 +61,21 @@
 
 (defun emacspeak-company-speak-this ()
   "Formatting rule for speaking company selection."
-  (let ((emacspeak-speak-messages nil)
-        (metadata (funcall 'company-fetch-metadata)))
-    (when metadata (ems-voiceify-string metadata 'voice-annotate))
-    (dtk-speak-and-echo
-     (concat (ems-company-current) " " metadata))))
+  (ems-with-messages-silenced
+   (let ((metadata (funcall 'company-fetch-metadata)))
+     (when metadata (ems-voiceify-string metadata 'voice-annotate))
+     (dtk-speak-and-echo
+      (concat (ems-company-current) " " metadata)))))
 
 ;;}}}
 ;;{{{ Emacspeak Front-End For Company:
 (defun emacspeak-company-frontend (command)
   "Emacspeak front-end for Company."
-  (let ((emacspeak-speak-messages nil))
-    (case command
-      (pre-command (emacspeak-company-speak-this))
-      (post-command (emacspeak-company-speak-this))
-      (hide nil))))
+  (ems-with-messages-silenced
+   (case command
+     (pre-command (emacspeak-company-speak-this))
+     (post-command (emacspeak-company-speak-this))
+     (hide nil))))
 
 ;;}}}
 ;;{{{ Advice Interactive Commands:
@@ -88,8 +88,7 @@
 (defadvice company-complete-number (after emacspeak pre act com)
   "Speak what we completed."
   (when (ems-interactive-p)
-    (let ((n (ad-get-arg 0)))
-      (emacspeak-speak-line))))
+    (emacspeak-speak-line)))
 
 (defadvice company-show-doc-buffer (before emacspeak pre act comp)
   "Provide spoken feedback."
@@ -108,10 +107,10 @@
   (setq company-frontends '(emacspeak-company-frontend))
   (add-hook
    'company-completion-started-hook
-   #'(lambda (&rest ignore) (emacspeak-auditory-icon 'help)))
+   #'(lambda (&rest _ignore) (emacspeak-auditory-icon 'help)))
   (add-hook
    'company-completion-finished-hook
-   #'(lambda (&rest ignore) (emacspeak-auditory-icon 'close-object))))
+   #'(lambda (&rest _ignore) (emacspeak-auditory-icon 'close-object))))
 
 ;;}}}
 ;;{{{ Silence YCMD Chatter:

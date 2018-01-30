@@ -1,4 +1,4 @@
-;;; emacspeak-org.el --- Speech-enable org
+;;; emacspeak-org.el --- Speech-enable org  -*- lexical-binding: t; -*-
 ;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak front-end for ORG
@@ -52,6 +52,9 @@
 ;;{{{ required modules
 
 (require 'emacspeak-preamble)
+(require 'eww)
+(require 'emacspeak-eww)
+(require 'emacspeak-feeds)
 (require 'org "org" 'no-error)
 (require 'org-table "org-table" 'no-error)
 ;;}}}
@@ -156,12 +159,12 @@
      "Provide spoken feedback."
      (when (ems-interactive-p)
        (emacspeak-speak-line)
-       (emacspeak-auditory-icon 'large-movement)))))
+       (emacspeak-auditory-icon 'paragraph)))))
 
 (defadvice org-cycle-list-bullet (after emacspeak pre act comp)
   "Provide spoken feedback."
   (when (ems-interactive-p)
-    (emacspeak-auditory-icon 'select-object)
+    (emacspeak-auditory-icon 'item)
     (emacspeak-speak-line)))
 
 (loop
@@ -207,11 +210,11 @@
  '(
    org-delete-indentation
    org-insert-heading org-insert-todo-heading
-                      org-promote-subtree org-demote-subtree
-                      org-do-promote org-do-demote
-                      org-move-subtree-up org-move-subtree-down
-                      org-convert-to-odd-levels org-convert-to-oddeven-levels
-                      )
+   org-promote-subtree org-demote-subtree
+   org-do-promote org-do-demote
+   org-move-subtree-up org-move-subtree-down
+   org-convert-to-odd-levels org-convert-to-oddeven-levels
+   )
  do
  (eval
   `(defadvice ,f(after emacspeak pre act comp)
@@ -276,15 +279,16 @@
 ;;}}}
 ;;{{{ timestamps and calendar:
 
-(loop for f in
-      '(org-timestamp-down-day org-timestamp-up-day)
-      do
-      (eval
-       `(defadvice ,f (after emacspeak pre act comp)
-          "Provide auditory feedback."
-          (when (ems-interactive-p)
-            (emacspeak-auditory-icon 'select-object)
-            (emacspeak-speak-line)))))
+(loop
+ for f in
+ '(org-timestamp-down-day org-timestamp-up-day)
+ do
+ (eval
+  `(defadvice ,f (after emacspeak pre act comp)
+     "Provide auditory feedback."
+     (when (ems-interactive-p)
+       (emacspeak-auditory-icon 'select-object)
+       (emacspeak-speak-line)))))
 
 (loop for f in
       '(org-timestamp-down org-timestamp-up)
@@ -359,8 +363,7 @@
   "Provide auditory feedback."
   (declare (special orgtbl-mode))
   (when (ems-interactive-p)
-    (emacspeak-auditory-icon
-     (if orgtbl-mode 'on 'off))
+    (emacspeak-auditory-icon (if orgtbl-mode 'on 'off))
     (message "Turned %s org table mode."
              (if orgtbl-mode 'on 'off))))
 

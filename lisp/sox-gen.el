@@ -1,4 +1,4 @@
-;;; $Id: sox-gen.el 4797 2007-07-16 23:31:22Z tv.raman.tv $
+;;; sox-gen.el: -*- lexical-binding: t; -*-
 ;;; $Author: tv.raman.tv $
 ;;; Description:  collection of SoX  sound generators
 ;;; Keywords: Emacspeak,  Audio Desktop sox
@@ -42,7 +42,7 @@
 ;;; Commentary:
 ;;; Contains a collection of functions that generate sound using SoX.
 ;;; These functions are primarily for use from other Emacs/Emacspeak modules.
-;;; This module can be used independent of Emacspeak. 
+;;; This module can be used independent of Emacspeak.
 
 ;;; Code:
 
@@ -58,13 +58,14 @@
 
 (defun sox-gen-cmd (cmd)
   "Play specified command."
-  (start-process "Shell" "*sox*" shell-file-name shell-command-switch cmd))
+  (declare (special sox-play))
+  (apply #'start-process "SoX" nil sox-play  (split-string cmd)))
 
 ;;}}}
 ;;{{{ synth:
 
 (defconst sox-synth-cmd
-  "play -q -n synth %s "
+  "-q -n synth %s "
   "Invoke synth generation.")
 
 (defun sox-synth (length  &rest args)
@@ -79,8 +80,8 @@
 ;;{{{ Sin:
 
 (defconst sox-sin-cmd
-  "play -q -n synth  %s sin %s "
-  "Command-line that produces a simple sine wave..")
+  "-q -n synth %s sin %s "
+  "Command-line that produces a simple sine wave.")
 
 (defun sox-sin (length freq &rest args)
   "Play sine wave specified by length and freq.
@@ -93,10 +94,262 @@ Remaining args specify additional commandline args."
     (mapconcat #'identity args " "))))
 
 ;;}}}
+;;{{{ Binaural Audio:
+
+(defconst sox-binaural-cmd
+  "-q -n synth %s sin %s sin %s gain %s channels 2 "
+  "Command-line that produces a binaural beat.")
+
+;;;###autoload
+(defun sox-tone-binaural (length freq beat gain)
+  "Play binaural audio with carrier frequency `freq', beat `beat',  and gain `gain'."
+  (interactive
+   (list
+    (timer-duration(read-from-minibuffer "Duration in seconds: "))
+    (read-number "Carrier Frequency [50 -- 800]: " 100)
+    (read-number "Beat Frequency [0.5 -- 40]: " 4.5)
+    (read-number "Gain [Use negative values]: " -18)))
+  (declare (special sox-binaural-cmd))
+  (sox-gen-cmd (format sox-binaural-cmd length freq (+ freq beat) gain)))
+
+(defconst sox-beats-binaural-cmd
+  "-q -n synth %s %s gain %s channels 2 "
+  "Command-line that produces multiple  binaural beats.")
+
+(defsubst sox-read-binaural-beats ()
+  "Read and return a list of binaural beat-spec tupples."
+  (let ((specs nil)
+        (this-freq 0)
+        (this-beat nil))
+    (while  this-freq
+      (setq this-freq  (read-number "Carrier Frequency [50-800]: " 0))
+      (when (zerop this-freq) (setq this-freq nil))
+      (when this-freq
+        (setq this-beat (read-number "Beat Frequency [0.5 -- 40]: " 4.5))
+        (push (list this-freq this-beat) specs)))
+    (nreverse specs)))
+
+;;;###autoload
+(defun sox-beats-binaural (length beat-spec-list  gain)
+  "Play binaural audio with beat-spec specifying the various tones.
+Param `beat-spec' is a list of `(carrier beat) tupples."
+  (interactive
+   (list
+    (timer-duration(read-from-minibuffer "Duration: "))
+    (sox-read-binaural-beats)
+    (read-number "Gain [Use negative values]: " -18)))
+  (declare (special sox-beats-binaural-cmd))
+  (unless beat-spec-list (error "No beats specified. "))
+  (sox-gen-cmd
+   (format sox-beats-binaural-cmd
+           length
+           (mapconcat
+            #'(lambda (spec)
+                (format "sin %s sin %s"
+                        (first spec)
+                        (+ (first spec) (second spec))))
+            beat-spec-list " ")
+           gain)))
+
+(defstruct sox--binaural
+  beats ; list of beat-specs
+  gain ; overall gain
+  )
+
+;;; Helper:
+
+(defun sox--binaural-play  (length binaural)
+  "Plays an instance of sox-binaural."
+  (sox-beats-binaural  length
+                       (sox--binaural-beats  binaural)
+                       (sox--binaural-gain binaural)))
+
+(defvar sox-binaural-effects-table (make-hash-table :test #'equal)
+  "Hash table mapping binaural effect names to effect structures.")
+
+(defun sox-define-binaural-effect   (name effect)
+  "Setup mapping  from name to binaural effect."
+  (declare (special sox-binaural-effects-table))
+  (puthash name effect sox-binaural-effects-table))
+
+;;;###autoload
+(defun sox-binaural (name duration)
+  "Play specified binaural effect."
+  (interactive
+   (list
+    (completing-read "Binaural Effect: " sox-binaural-effects-table nil 'must-match)
+    (timer-duration (read-from-minibuffer "Duration: "))))
+  (declare (special sox-binaural-effects-table))
+  (sox--binaural-play duration
+                      (gethash name sox-binaural-effects-table))
+  (emacspeak-play-auditory-icon 'time)
+  (dtk-notify-say    name))
+
+;;{{{  Define Effects:
+
+;;; delta, theta, alpha, beta, gamma
+;;; sleep, dream, think, act, focus
+
+(sox-define-binaural-effect
+ "sleep" ; delta
+ (make-sox--binaural
+  :beats '((75 0.5) (150 1.0) (225 2.0) (300 4.0))
+  :gain -14))
+
+(sox-define-binaural-effect
+ "dream" ; theta
+ (make-sox--binaural
+  :beats '((75 4.5) (150 6.5)  (300 7.34))
+  :gain -18))
+
+(sox-define-binaural-effect
+ "think" ;alpha
+ (make-sox--binaural
+  :beats '((75 8.5) (150 9.0) (225 10.0) (300 12.0))
+  :gain -14))
+
+(sox-define-binaural-effect
+ "act" ; beta
+ (make-sox--binaural
+  :beats '((75 13.5) (150 18.0) (225 23.0) (300 40.0))
+  :gain -14))
+
+(sox-define-binaural-effect
+ "focus" ; beta
+ (make-sox--binaural
+  :beats '((75 40) (150 40) (225 40) (300 40.0))
+  :gain -14))
+
+;;; Chakras: Set 1:Carrier frequencies taken from  the Web.
+;;; https://sourceforge.net/p/sbagen/mailman/message/3047882/
+
+;;; root:         256 Hz
+;;; navel:        288 Hz
+;;; solar plexus: 320 Hz
+;;; heart:        341.3 Hz
+;;; throat:       384 Hz
+;;; 3rd eye:      426.7 Hz
+;;; crown:        480 Hz
+
+(defconst sox--chakra-settings-0
+  '(
+    ("root-0" 256 4.5)
+    ("navel-0" 288 4.5)
+    ("solar-plexus-0" 320 4.5)
+    ("heart-0" 341.3 4.5)
+    ("throat-0" 384 4.5)
+    ("3rd-eye-0" 426.7 4.5)
+    ("crown-0" 480 4.5)
+    )
+  "Frequency settings.")
+
+(cl-loop
+ for s in sox--chakra-settings-0 do
+ (sox-define-binaural-effect
+  (first s)
+  (make-sox--binaural
+   :beats `(,(cdr s))
+   :gain -20)))
+
+;;; Second Theme For Chakras:
+;;; From: https://www.youtube.com/watch?v=ARoih8HTPGw
+
+(defconst sox--chakra-settings-1
+  '(
+    ("root-1" 228 8.0)
+    ("navel-1" 303 9.0)
+    ("solar-plexus-1" 182 10.0)
+    ("heart-1" 128.3 10.5)
+    ("throat-1" 192 12.0)
+    ("3rd-eye-1" 144 13)
+    ("crown-1" 216 15)
+    )
+  "Frequency settings.")
+
+(cl-loop
+ for s in sox--chakra-settings-1 do
+ (sox-define-binaural-effect
+  (first s)
+  (make-sox--binaural
+   :beats `(,(cdr s))
+   :gain -20)))
+
+;;;###autoload
+(defun sox-chakras (theme duration)
+  "Play each chakra for specified duration.
+Parameter `theme' specifies variant."
+  (interactive
+   (list
+    (intern
+     (completing-read  "Chakra Theme Variant: "
+                       '("sox--chakra-settings-0" "sox--chakra-settings-1")
+                       nil 'must-match))
+    (timer-duration (read-from-minibuffer "Duration: "))))
+  (let ((names  (mapcar #'car (symbol-value theme)))
+        (start 0))
+    (cl-loop
+     for name in names do
+     (run-with-timer start nil #'(lambda (n) (sox-binaural n  duration)) name)
+     (setq start (+ start duration)))))
+
+(defconst sox-rev-up-beats
+  '(("dream" 1) ("think"  4) ("act" 2) ("focus" 1))
+  "List of  beats to use for rev-up in the morning.")
+
+(defconst sox-wind-down-beats
+  '(("think"3)("dream" 4) ("sleep" 1))
+  "List of  beats to use for wind-down in the evening.")
+
+(defconst sox-relax-beats
+  '(("dream" 4) ("sleep" 4))
+  "List of  beats to use for relaxing.")
+
+;;; Theme Helper:
+
+(defun sox--theme-play (theme duration-scale)
+  "Play  set of  binaural beats specified in theme."
+  (setq duration-scale (timer-duration duration-scale))
+  (let ((start 0))
+    (cl-loop
+     for beat in theme do
+     (let ((end (* duration-scale  (second beat)))
+           (b (first beat)))
+       (run-with-timer                  ; start now
+        start nil                       ; no repeat
+        #'(lambda () (sox-binaural b  end)))
+       (setq start (+ start end))))))
+
+;;;###autoload
+(defun sox-rev-up (duration-scale)
+  "Play rev-up set of  binaural beats.
+Each segment is scaled by `duration-scale'."
+  (interactive "sDuration: ")
+  (declare (special sox-rev-up-beats))
+  (sox--theme-play sox-rev-up-beats duration-scale))
+
+;;;###autoload
+(defun sox-wind-down (duration-scale)
+  "Play wind-down set of  binaural beats.
+Each segment is scaled by `duration-scale'."
+  (interactive "sDuration: ")
+  (declare (special sox-wind-down-beats))
+  (sox--theme-play sox-wind-down-beats duration-scale))
+
+;;;###autoload
+(defun sox-relax (duration-scale)
+  "Play relax set of  binaural beats.
+Each segment is scaled by `duration-scale'."
+  (interactive "sDuration: ")
+  (declare (special sox-relax-beats))
+  (sox--theme-play sox-relax-beats duration-scale))
+
+;;}}}
+
+;;}}}
 ;;{{{ Pluck:
 
 (defconst sox-pluck-cmd
-  "play -q -n synth  %s pluck %s "
+  "-q -n synth %s pluck %s channels 2 "
   "Command-line that produces a simple plucke.")
 
 (defun sox-pluck (length freq &rest args)
@@ -104,7 +357,7 @@ Remaining args specify additional commandline args."
 Freq can be specified as a frequency, note (%nn) or frequency range."
   (declare (special sox-pluck-cmd))
   (sox-gen-cmd
-   (concat 
+   (concat
     (format sox-pluck-cmd length freq)
     (mapconcat #'identity args " "))))
 
@@ -112,16 +365,17 @@ Freq can be specified as a frequency, note (%nn) or frequency range."
 ;;{{{ Chime:
 
 (defconst sox-chime-cmd
-  "play -q -n synth -j 3 sin %3 sin %-2 sin %-5 sin %-9 \
+  "-q -n synth -j 3 sin %3 sin %-2 sin %-5 sin %-9 \
                    sin %-14 sin %-21 fade h .01 2 1.5 delay \
-                   1.3 1 .76 .54 .27 remix - fade h 0 2.7 2.5 norm -1"
+                   1.3 1 .76 .54 .27 remix - fade h 0 2.7 2.5 norm -1 channels 2"
   "Command-line that produces a simple chime.")
 
+;;;###autoload
 (defun sox-chime (&optional tempo speed)
   "Play chime --- optional args tempo and speed default to 1."
   (declare (special sox-chime-cmd))
   (sox-gen-cmd
-   (concat 
+   (concat
     sox-chime-cmd
     (when tempo (format " tempo %s" tempo))
     (when speed (format " speed %s" speed)))))
@@ -130,8 +384,8 @@ Freq can be specified as a frequency, note (%nn) or frequency range."
 ;;{{{ Guitar Chord:
 
 (defconst sox-guitar-chord-cmd
-  "play -q -n synth pl G2 pl B2 pl D3 pl G3 pl D4 pl G4 \
-                   delay 0 .05 .1 .15 .2 .25 remix - fade 0 4 .1 norm -1"
+  "-q -n synth pl G2 pl B2 pl D3 pl G3 pl D4 pl G4 \
+                   delay 0 .05 .1 .15 .2 .25 remix - fade 0 4 .1 norm -1 channels 2"
   "Play a guitar chord.")
 
 (defun sox-guitar-chord (&optional tempo speed)

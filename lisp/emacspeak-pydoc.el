@@ -1,4 +1,4 @@
-;;; emacspeak-pydoc.el --- Speech-enable PYDOC
+;;; emacspeak-pydoc.el --- Speech-enable PYDOC  -*- lexical-binding: t; -*-
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Speech-enable PYDOC An Emacs Interface to pydoc
 ;;; Keywords: Emacspeak,  Audio Desktop pydoc
@@ -76,7 +76,7 @@
 (defadvice pydoc (after emacspeak pre act comp)
   "Provide auditory feedback."
   (when (ems-interactive-p)
-    (emacspeak-auditory-icon 'help-object)
+    (emacspeak-auditory-icon 'help)
     (emacspeak-speak-buffer)))
 
 ;;}}}

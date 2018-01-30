@@ -1,4 +1,4 @@
-;;; emacspeak-desktop.el ---  Speech-enable desktop
+;;; emacspeak-desktop.el ---  Speech-enable desktop  -*- lexical-binding: t; -*-
 ;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description:  desktop transformation routines
@@ -61,8 +61,7 @@
 (defadvice desktop-lazy-create-buffer (around emacspeak pre act
                                               comp)
   "Silence messages."
-  (let ((emacspeak-speak-messages nil))
-    ad-do-it))
+  (ems-with-messages-silenced ad-do-it))
 
 ;;}}}
 (provide 'emacspeak-desktop)

@@ -1,4 +1,4 @@
-;;; emacspeak-eterm.el --- Speech enable eterm -- Emacs' terminal emulator  term.el
+;;; emacspeak-eterm.el --- Speech enable eterm -- Emacs' terminal emulator  term.el  -*- lexical-binding: t; -*-
 ;;; $Id$
 ;;; $Author: tv.raman.tv $ 
 ;;; Description:  Emacspeak extension to speech enable eterm. 
@@ -384,7 +384,7 @@ Argument COUNT specifies number of columns by which to move."
     (set-marker emacspeak-eterm-pointer (point))
     (when (ems-interactive-p) 
       (dtk-stop)
-      (emacspeak-auditory-icon 'large-movement)
+      (emacspeak-auditory-icon 'right)
       (emacspeak-speak-char t))))
 
 (defun emacspeak-eterm-pointer-to-left-edge ()
@@ -397,7 +397,7 @@ Argument COUNT specifies number of columns by which to move."
     (set-marker emacspeak-eterm-pointer (point))
     (when (ems-interactive-p)
       (dtk-stop)
-      (emacspeak-auditory-icon 'large-movement)
+      (emacspeak-auditory-icon 'left)
       (emacspeak-speak-char t))))
 
 (defun emacspeak-eterm-pointer-backward-word (count)
@@ -563,8 +563,7 @@ without sending input to the terminal itself."
         (use-local-map emacspeak-eterm-keymap)))
     (message
      "Terminal review should be used when eterm is in character mode "))
-  (emacspeak-auditory-icon
-   (if emacspeak-eterm-review-p 'on 'off)))
+  (emacspeak-auditory-icon (if emacspeak-eterm-review-p 'on 'off)))
 
 ;;}}}
 ;;{{{  Cut and paste while reviewing:
@@ -979,9 +978,8 @@ activity within the filter window."
       (setq emacspeak-eterm-focus-window nil)
     (setq emacspeak-eterm-focus-window 1))
   (dtk-stop)
-  (emacspeak-auditory-icon
-   (if emacspeak-eterm-focus-window
-       'on 'off)))
+  (emacspeak-auditory-icon (if emacspeak-eterm-focus-window
+                               'on 'off)))
 
 (defun emacspeak-eterm-toggle-filter-window ()
   "Toggle active state of filter window."
@@ -991,9 +989,8 @@ activity within the filter window."
       (setq emacspeak-eterm-filter-window nil)
     (setq emacspeak-eterm-filter-window 1))
   (dtk-stop)
-  (emacspeak-auditory-icon
-   (if emacspeak-eterm-filter-window
-       'on 'off)))
+  (emacspeak-auditory-icon (if emacspeak-eterm-filter-window
+                               'on 'off)))
 
 (defun emacspeak-eterm-speak-predefined-window ()
   "Speak a predefined eterm window between 1 and 10."
@@ -1103,17 +1100,14 @@ emacspeak-toggle-eterm-autospeak bound to
   (let ((emacspeak-eterm-window (get-buffer-window (process-buffer (ad-get-arg 0))))
         (emacspeak-eterm-row (term-current-row))
         (emacspeak-eterm-column (term-current-column))
-        (end (point-max))
         (current-char (preceding-char))
-        (new-end nil)
         (new-row nil)
         (new-column nil)
         (old-point (point))
         (dtk-stop-immediately (not eterm-line-mode)))
     ad-do-it
     (setq new-row (term-current-row)
-          new-column (term-current-column)
-          new-end (point-max))
+          new-column (term-current-column))
     (when                        ; do something if in active area
         (and  emacspeak-eterm-autospeak
               (window-live-p emacspeak-eterm-window)
@@ -1239,7 +1233,7 @@ there is terminal activity.")
 (defadvice term-previous-prompt (after emacspeak pre act)
   "Provide spoken feedback"
   (when (ems-interactive-p)
-    (emacspeak-auditory-icon 'large-movement)
+    (emacspeak-auditory-icon 'item)
     (if (eolp)
         (emacspeak-speak-line)
       (emacspeak-speak-line 1))))
@@ -1247,7 +1241,7 @@ there is terminal activity.")
 (defadvice term-next-prompt (after emacspeak pre act)
   "Provide spoken feedback"
   (when (ems-interactive-p)
-    (emacspeak-auditory-icon 'large-movement)
+    (emacspeak-auditory-icon 'item)
     (if (eolp)
         (emacspeak-speak-line)
       (emacspeak-speak-line 1))))

@@ -1,4 +1,4 @@
-;;; emacspeak-url-template.el --- Create library of URI templates
+;;; emacspeak-url-template.el --- Create library of URI templates  -*- lexical-binding: t; -*-
 ;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description: Implement library of URI templates
@@ -311,6 +311,7 @@ dont-url-encode if true then url arguments are not url-encoded "
 (emacspeak-url-template-define
  "BBC Podcast Directory"
  "http://www.bbc.co.uk/podcasts.opml"
+                                        ;"http://www.bbc.co.uk/radio/opml/bbc_podcast_opml.xml"
  nil nil
  "BBC PodCast Directory"
  #'emacspeak-feeds-opml-display)
@@ -326,8 +327,36 @@ dont-url-encode if true then url arguments are not url-encoded "
  "Show HTML5 IRC log.")
 
 ;;}}}
-;;{{{ market summary from google finance
+;;{{{ Google Trends:
 
+(emacspeak-url-template-define
+ "Google Trends"
+ "http://www.google.com/trends/hottrends/atom/feed?pn=p1"
+ nil nil
+ "Google Trends"
+ #'emacspeak-feeds-rss-display)
+
+(emacspeak-url-template-define
+ "Google Trends Compared"
+ "http://www.google.com/trends/fetchComponent?hl=en-US&q=%s&geo=US&cid=RISING_QUERIES_0_0"
+ (list "Comma Separated Keywords: ")
+ nil
+ "Display comparative trends."
+ nil 'dont-escape)
+
+(emacspeak-url-template-define
+ "Google Related Trends"
+ "http://www.google.com/trends/fetchComponent?hl=en-US&q=%s&geo=US&cid=RISING_QUERIES_0_0"
+ (list "Comma Separated Keywords: ")
+ nil
+ "Display Related Query Trends."
+ nil 'dont-escape)
+
+;;}}}
+;;{{{ market summary from google finance
+;;; Forward Declaration:
+
+(defvar w3-auto-image-alt)
 (emacspeak-url-template-define
  "Market summary from Google"
  "http://finance.google.com/finance"
@@ -548,7 +577,6 @@ from English to German")
 
 (defun emacspeak-url-template-google-atom-news-display (feed-url)
   "View Google Atom news feed pulled using Curl."
-  (interactive)
   (declare (special g-atom-view-xsl
                     g-curl-program g-curl-common-options))
   (emacspeak-webutils-autospeak)
@@ -564,6 +592,46 @@ from English to German")
  (list "Google News: ")
  nil
  "Search Google news."
+ #'emacspeak-url-template-google-atom-news-display)
+
+(defvar emacspeak-url-template--google-news-categories
+  '(
+    ("World".  "w")
+    ("U.S.".  "n")
+    ("Elections".  "el")
+    ("Business".  "b")
+    ("Technology".  "tc")
+    ("Entertainment".  "e")
+    ("Sports".  "s")
+    ("Science" .  "snc")
+    ("Health".  "m")
+    ("Spotlight"  . "ir"))
+  "Completion table for reading news category.")
+(emacspeak-url-template-define
+ "Google Category News"
+ "http://news.google.com/news?hl=en&topic=%s&output=atom"
+ (list
+  #'(lambda ()
+      (let* ((completion-ignore-case t)
+             (topic
+              (completing-read
+               "Category: "
+               emacspeak-url-template--google-news-categories
+               nil 'must-match)))
+        (cdr (assoc topic emacspeak-url-template--google-news-categories)))))
+ nil
+ "Google News By Category."
+ #'emacspeak-url-template-google-atom-news-display)
+
+(emacspeak-url-template-define
+ "Google Regional News"
+ "https://news.google.com/news?hl=en&pz=1&geo=%s&output=atom"
+ (list
+  #'(lambda ()
+      (read-from-minibuffer "City/Zip: "
+                            (bound-and-true-p gweb-my-postal-code))))
+ nil
+ "Google News By Region."
  #'emacspeak-url-template-google-atom-news-display)
 
 (defvar emacspeak-url-template-google-transcoder-url
@@ -588,6 +656,16 @@ from English to German")
  nil
  "Display specified news feed."
  #'emacspeak-feeds-atom-display)
+
+;;}}}
+;;{{{ Google Structured Data Parser:
+
+(emacspeak-url-template-define
+ "Structured Data Extractor"
+ "https://search.google.com/structured-data/testing-tool/u/0/?url=%s"
+ (list "URL: ")
+ nil 
+ "Extract/Validate Structured Data.")
 
 ;;}}}
 ;;{{{ Google Archive Search
@@ -807,11 +885,11 @@ name of the list.")
 
 (emacspeak-url-template-define
  "MLB standings"
- "http://www.mlb.com/NASApp/mlb/mlb/standings/index.jsp"
+ "http://www.mlb.com/NASApp/mlb/mlb/standings/index.jsp" ;;; dummy 
  nil
  nil
  "Display MLB standings."
- #'(lambda (url)
+ #'(lambda (_url)
      (emacspeak-wizards-mlb-standings)))
 
 (emacspeak-url-template-define
@@ -969,11 +1047,11 @@ JSON is retrieved from `url'."
 
 (emacspeak-url-template-define
  "NBA  standings"
- "http://www.nba.com/NASApp/nba/nba/standings/index.jsp"
+ "http://www.nba.com/NASApp/nba/nba/standings/index.jsp" ;;; dummy 
  nil
  nil
  "Display NBA standings."
- #'(lambda (url)
+ #'(lambda (_url)
      (emacspeak-wizards-nba-standings)))
 
 ;;}}}
@@ -1013,7 +1091,7 @@ Set up URL rewrite rule to get print page."
 ;;{{{ weather underground
 ;;;###autoload
 (defcustom emacspeak-url-template-weather-city-state
-  "95123"
+  (bound-and-true-p  gweb-my-postal-code)
   "Default city/state for weather forecasts"
   :type 'string
   :group 'emacspeak-url-template)
@@ -1150,7 +1228,7 @@ See http://www.cbsradio.com/streaming/index.html for a list of CBS stations that
                                         ; "http://stream.radiotime.com/listen.stream?streamIds=4299203"wget -O t
 (emacspeak-url-template-define
  "TuneIn Radio"
- "http://stream.radiotime.com/listen.stream?streamIds=%s"
+ "http://opml.radiotime.com/Tune.ashx?id=%s"
  (list "StreamId: ")
  nil
  "Translate StreamId to playable stream."
@@ -1163,9 +1241,7 @@ See http://www.cbsradio.com/streaming/index.html for a list of CBS stations that
  "RadioTime Browser"
  "http://opml.radiotime.com/"
  nil
- #'(lambda ()
-     (declare (special emacspeak-we-url-executor))
-     (setq emacspeak-we-url-executor 'emacspeak-feeds-opml-display))
+ nil
  "RadioTime Entry point."
  #'emacspeak-feeds-opml-display)
 
@@ -1173,10 +1249,24 @@ See http://www.cbsradio.com/streaming/index.html for a list of CBS stations that
  "RadioTime Search"
  "http://opml.radiotime.com/Search.ashx?query=%s"
  (list "Search: ")
- #'(lambda ()
-     (declare (special emacspeak-we-url-executor))
-     (setq emacspeak-we-url-executor 'emacspeak-feeds-opml-display))
+ nil
  "RadioTime Search."
+ #'emacspeak-feeds-opml-display)
+
+(defvar emacspeak-url-template--radiotime-categories
+  '("world" "music" "sports" "podcasts"
+    "local" "talk" "sports" "lang"
+    "podcast""popular" "best")
+  "Categories from Radio Time.")
+
+(emacspeak-url-template-define
+ "RadioTime Categories"
+ "http://opml.radiotime.com/browse.ashx?c=%s"
+ (list
+  #'(lambda ()
+      (completing-read "Category: " emacspeak-url-template--radiotime-categories)))
+ nil
+ "RadioTime Categories ."
  #'emacspeak-feeds-opml-display)
 
 ;;}}}
@@ -1235,8 +1325,7 @@ See http://www.cbsradio.com/streaming/index.html for a list of CBS stations that
   (declare (special emacspeak-web-post-process-hook))
   (let ((fetcher (or (emacspeak-url-template-fetcher ut) 'browse-url))
         (url (emacspeak-url-template-url ut))
-        (action (emacspeak-url-template-post-action ut))
-        (name (emacspeak-url-template-name ut)))
+        (action (emacspeak-url-template-post-action ut)))
     (when action (add-hook 'emacspeak-web-post-process-hook action))
     (kill-new url)
     (funcall fetcher url)))
@@ -1274,7 +1363,6 @@ before completing the request.
 Optional interactive prefix arg displays documentation for specified resource."
   (interactive "P")
   (let ((completion-ignore-case t)
-        (emacspeak-speak-messages nil)
         (name nil))
     (setq name
           (completing-read "Resource: "
@@ -1308,16 +1396,17 @@ resources."
 (defun emacspeak-url-template-generate-texinfo-documentation (buffer)
   "Generates texinfo section documenting all defined URL templates."
   (declare (special emacspeak-url-template-table))
-  (insert
-   "@node URL Templates \n@section URL Templates\n\n")
-  (insert
-   (format
-    "
+  (with-current-buffer buffer 
+    (insert
+     "@node URL Templates \n@section URL Templates\n\n")
+    (insert
+     (format
+      "
 This section documents a total of %d URL Templates.\n\n"
-    (hash-table-count emacspeak-url-template-table)))
-  (insert
-   (format
-    "All of these URL templates can be invoked via command
+      (hash-table-count emacspeak-url-template-table)))
+    (insert
+     (format
+      "All of these URL templates can be invoked via command
  @kbd{M-x emacspeak-url-template-fetch} normally bound to
  @kbd{%s}.
 This command prompts for the name of the template, and completion
@@ -1332,23 +1421,23 @@ Each URL template carries out the following steps:
 
 As an example, the URL template for weather forecasts
 prompts for a location and speaks the forecast. \n\n"
-    (mapconcat #'key-description
-               (where-is-internal
-                'emacspeak-url-template-fetch)
-               " ")))
-  (let
-      ((keys
-        (sort
-         (loop for k being the hash-keys of emacspeak-url-template-table collect k)
-         'string-lessp)))
-    (loop
-     for key in keys do
-     (insert
-      (format "@b{%s}\n\n" key))
-     (insert
-      (emacspeak-url-template-documentation
-       (emacspeak-url-template-get key)))
-     (insert "\n\n"))))
+      (mapconcat #'key-description
+                 (where-is-internal
+                  'emacspeak-url-template-fetch)
+                 " ")))
+    (let
+        ((keys
+          (sort
+           (loop for k being the hash-keys of emacspeak-url-template-table collect k)
+           'string-lessp)))
+      (loop
+       for key in keys do
+       (insert
+        (format "@b{%s}\n\n" key))
+       (insert
+        (emacspeak-url-template-documentation
+         (emacspeak-url-template-get key)))
+       (insert "\n\n")))))
 
 ;;}}}
 ;;{{{ wikiData:
@@ -1364,6 +1453,25 @@ prompts for a location and speaks the forecast. \n\n"
  "Search WikiData.")
 
 ;;}}}
+;;{{{ Search NLS Bard:
+(emacspeak-url-template-define
+ "NLS Bard Search"
+ "https://nlsbard.loc.gov:443/nlsbardprod/search_collection/collection/page/1/sort/s/srch/%s/local/0"
+ (list "Search For: ")
+ #'emacspeak-speak-mode-line
+ "Search NLS Bard Catalog. Login once before using this template.")
+
+;;}}}
+;;{{{ Bloomberg:
+(emacspeak-url-template-define
+ "Bloomberg Stock  Lookup"
+ "http://www.bloomberg.com/quote/%s"
+ (list "Lookup Ticker:Country")
+ nil
+ "Lookup Stock Quote information on Bloomberg. Ticker is of the form goog:us")
+
+;;}}}
+
 (provide 'emacspeak-url-template)
 ;;{{{ end of file
 

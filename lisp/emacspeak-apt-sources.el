@@ -1,4 +1,4 @@
-;;; emacspeak-apt-sources.el --- speech-enable APT's sources.list file editor
+;;; emacspeak-apt-sources.el --- speech-enable APT's sources.list file editor  -*- lexical-binding: t; -*-
 ;;; Description:  Emacspeak extension to speech-enable editing of sources.list
 ;;; Keywords: Emacspeak, apt, sources.list
 ;;{{{  LCD Archive entry:
@@ -91,10 +91,9 @@
 (defadvice apt-sources-around-lines (after emacspeak pre act comp)
   "Provide auditory feedback."
   (when (ems-interactive-p)
-    (emacspeak-auditory-icon
-     (if apt-sources-around-lines
-         'on
-       'off))))
+    (emacspeak-auditory-icon (if apt-sources-around-lines
+                                 'on
+                               'off))))
 
 ;;}}}
 (provide 'emacspeak-apt-sources)

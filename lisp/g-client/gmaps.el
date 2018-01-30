@@ -1,4 +1,4 @@
-;;; gmaps.el --- Google Maps
+;;; gmaps.el --- Google Maps  -*- lexical-binding: t; -*-
 ;;;$Id: gmaps.el 8157 2013-02-19 01:31:05Z tv.raman.tv $
 ;;; $Author: raman $
 ;;; Description:  Google Maps -> Lisp
@@ -118,11 +118,26 @@ Optional argument `raw-p' returns raw JSON  object."
      (raw-p (g-json-get 'results result))
      (t (g-json-path-lookup "results.[0].formatted_address" result)))))
 
+(defun gmaps-postal-code-from-location (location)
+  "Reverse geocode location and return postal coe."
+  (g-json-get
+   'short_name 
+   (find-if 
+    #'(lambda (v) (find "postal_code" (g-json-get 'types v) :test #'string=)) 
+    (g-json-get
+     'address_components
+     (aref (gmaps-reverse-geocode location 'raw) 0)))))
+
 ;;; Example of use:
 ;;;###autoload
 (defvar gweb-my-location
   nil
   "Geo coordinates --- automatically set by reverse geocoding gweb-my-address")
+
+
+(defvar gweb-my-postal-code
+  nil
+  "Postal Code --- automatically set by reverse geocoding gweb-my-address")
 
 ;;;###autoload
 (defcustom gweb-my-address
@@ -135,6 +150,10 @@ Optional argument `raw-p' returns raw JSON  object."
             (declare (special gweb-my-location))
             (when val 
               (setq gweb-my-location (gmaps-geocode val))
+              (when gweb-my-location
+                (setq gweb-my-postal-code
+                      (gmaps-postal-code-from-location gweb-my-location)))
+              
               (when (featurep 'emacspeak)
                 (emacspeak-calendar-setup-sunrise-sunset)))
             (set-default sym val))
@@ -826,8 +845,7 @@ Insert reviews if already displaying details."
    ((get-text-property (point) 'place-details)
     (gmaps-place-reviews))
    (t
-    (let* ((start nil)
-           (inhibit-read-only t)
+    (let* ((inhibit-read-only t)
            (place-ref
             (g-json-get 'reference (get-text-property (point)'maps-data )))
            (result

@@ -1,4 +1,4 @@
-;;; emacspeak-package.el --- Speech-enable PACKAGE
+;;; emacspeak-package.el --- Speech-enable PACKAGE  -*- lexical-binding: t; -*-
 ;;; $Id: emacspeak-package.el 4797 2007-07-16 23:31:22Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Speech-enable PACKAGE An Emacs Interface to package
@@ -93,7 +93,7 @@
      ((string= state "obsolete")
       (emacspeak-auditory-icon 'deselect-object))
      ((string= state "incompat")
-      (emacspeak-auditory-icon 'warn-user))
+      (emacspeak-auditory-icon 'alert-user))
      (t (emacspeak-auditory-icon 'item)))
     (put-text-property 0 (length name)
                        'personality voice-bolden-medium name)
@@ -133,7 +133,8 @@
 
 (defadvice package-menu-execute(around emacspeak pre act comp)
   "Silence messages while installing packages. "
-  (ems-with-messages-silenced ad-do-it))
+  (ems-with-messages-silenced ad-do-it)
+  (emacspeak-speak-message-again))
 
 (loop
  for f in

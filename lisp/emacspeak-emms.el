@@ -1,4 +1,4 @@
-;;; emacspeak-emms.el --- Speech-enable EMMS Multimedia UI
+;;; emacspeak-emms.el --- Speech-enable EMMS Multimedia UI  -*- lexical-binding: t; -*-
 ;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak extension to speech-enable EMMS
@@ -160,8 +160,8 @@
                                                      pre act
                                                      comp)
   "Silence messages."
-  (let ((emacspeak-speak-messages nil))
-    ad-do-it))
+  (ems-with-messages-silenced
+   ad-do-it))
 
 ;;}}}
 ;;{{{ pause/resume if needed

@@ -1,4 +1,4 @@
-;;; emacspeak-widget.el --- Speech enable Emacs' native GUI widget library
+;;; emacspeak-widget.el --- Speech enable Emacs' native GUI widget library  -*- lexical-binding: t; -*-
 ;;; $Id$
 ;;; $Author: tv.raman.tv $ 
 ;;; Description: Emacspeak extensions to widgets
@@ -149,13 +149,13 @@ Returns a string with appropriate personality."
 ;;;###autoload
 (defun emacspeak-widget-summarize(widget)
   "Summarize specified widget."
-  (let ((emacspeak-help (widget-get widget :emacspeak-help))
-        (emacspeak-speak-messages nil))
-    (cond
-     ((and emacspeak-help
-           (fboundp emacspeak-help))
-      (dtk-speak  (funcall emacspeak-help widget)))
-     (t (dtk-speak (current-message))))))
+  (ems-with-messages-silenced
+   (let ((emacspeak-help (widget-get widget :emacspeak-help)))
+     (cond
+      ((and emacspeak-help
+            (fboundp emacspeak-help))
+       (dtk-speak  (funcall emacspeak-help widget)))
+      (t (dtk-speak (current-message)))))))
 
 ;;}}}
 ;;{{{ advice activators 
@@ -362,8 +362,7 @@ Returns a string with appropriate personality."
 
 (defun emacspeak-widget-help-menu-choice  (widget)
   "Summarize a pull down list"
-  (let* ((help-echo (emacspeak-widget-help-echo widget))(label (emacspeak-widget-label widget))
-         (value (format " %s " (widget-get widget :value)))
+  (let* ((label (emacspeak-widget-label widget)) (value (format " %s " (widget-get widget :value)))
          (child (car (widget-get widget :children))))
     (concat label
             " is "
@@ -516,9 +515,9 @@ Returns a string with appropriate personality."
 
 ;;; avoid redundant message speech output
 (defadvice widget-echo-help (around emacspeak pre act comp)
-  (let ((emacspeak-speak-messages nil))
-    ad-do-it
-    ad-return-value))
+  (ems-with-messages-silenced
+   ad-do-it
+   ad-return-value))
 (defadvice widget-beginning-of-line (after emacspeak pre act comp)
   "Provide auditory feedback"
   (cond
@@ -550,13 +549,13 @@ Returns a string with appropriate personality."
 (defadvice widget-forward (after emacspeak pre act comp)
   "Provide auditory feedback"
   (when (ems-interactive-p)
-    (emacspeak-auditory-icon 'large-movement)
+    (emacspeak-auditory-icon 'item)
     (emacspeak-widget-summarize (widget-at  (point)))))
 
 (defadvice widget-backward (after emacspeak pre act comp)
   "Provide auditory feedback"
   (when (ems-interactive-p)
-    (emacspeak-auditory-icon 'large-movement)
+    (emacspeak-auditory-icon 'item)
     (emacspeak-widget-summarize (widget-at (point)))))
 
 (defadvice widget-kill-line (after emacspeak pre act comp)
@@ -679,10 +678,10 @@ widget before summarizing."
 ;;}}}
 ;;{{{ augment widgets 
 
-(defun emacspeak-widget-update-from-minibuffer (point)
-  "Sets widget at point by invoking its prompter."
+(defun emacspeak-widget-update-from-minibuffer (pos)
+  "Sets widget at `pos' by invoking its prompter."
   (interactive "d")
-  (let ((w (widget-at (point))))
+  (let ((w (widget-at pos)))
     (widget-value-set w
                       (widget-apply w
                                     :prompt-value
@@ -703,12 +702,11 @@ widget before summarizing."
 ;;{{{ voice widgets 
 
 (define-widget 'voice  'menu-choice
-  "Widget for selecting a voice."
-  :help-echo "Voice selector"
-  )
+  "Widget for selecting a voice.")
 
 (define-widget 'personality 'item
   "Individual voice in a voice selector.")
+
 ;;; We rely on dectalk-voice-table as our default voice table.
 ;;; Names defined in this --- and other voice tables --- are
 ;;; generic --and  not device specific.

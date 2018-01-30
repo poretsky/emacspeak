@@ -1,4 +1,4 @@
-;;; emacspeak-helm.el --- Speech-enable HELM
+;;; emacspeak-helm.el --- Speech-enable HELM  -*- lexical-binding: t; -*-
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Speech-enable HELM An Emacs Interface to helm
 ;;; Keywords: Emacspeak,  Audio Desktop helm
@@ -52,6 +52,7 @@
 
 (require 'cl)
 (declaim  (optimize  (safety 0) (speed 3)))
+(require 'emacspeak-google)
 (require 'emacspeak-preamble)
 
 ;;}}}
@@ -85,8 +86,7 @@
   (when (sit-for 0.5)
     (let ((inhibit-read-only t)
           (line (buffer-substring (line-beginning-position) (line-end-position)))
-          (count-msg nil)
-          (count (-  (count-lines (point-min) (point-max)) 2)))
+          (count-msg nil))
       (setq count-msg
             (concat
              (propertize
@@ -94,7 +94,6 @@
                       (- (line-number-at-pos) 2)
                       (- (count-lines(point-min) (point-max))2))
               'personality voice-bolden)))
-                                        ;(emacspeak-auditory-icon 'progress)
       (condition-case nil ; needed for some calls
           (dtk-speak (concat line count-msg))
         (error nil)))))

@@ -1,4 +1,4 @@
-;;; emacspeak-keymap.el --- Setup  keymaps and keybindings provided by Emacspeak
+;;; emacspeak-keymap.el --- Setup  keymaps and keybindings provided by Emacspeak  -*- lexical-binding: t; -*-
 ;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Module for setting up emacspeak keybindings
@@ -41,6 +41,7 @@
 ;;; Commentary:
 
 ;;; This module defines the emacspeak keybindings.
+;;; Note that the <fn> key found on laptops is denoted <XF86WakeUp>
 
 ;;; Code:
 
@@ -116,6 +117,9 @@
 (define-prefix-command  'emacspeak-table-submap-command 'emacspeak-table-submap)
 
 (global-set-key emacspeak-prefix 'emacspeak-prefix-command)
+;;; One-finger use on laptop:
+(global-set-key (kbd "<XF86WakeUp>")  'emacspeak-prefix-command)
+(define-key emacspeak-keymap  (kbd "<XF86WakeUp>") 'dtk-stop)
 (define-key emacspeak-keymap "d"  'emacspeak-dtk-submap-command)
 (define-key emacspeak-keymap (kbd "C-t")  'emacspeak-table-submap-command)
 
@@ -146,7 +150,9 @@
         ("C-r" info-display-manual)
         ("SPC" customize-group)
         ("TAB" emacspeak-info-wizard)
+        ("'" describe-text-properties)
         ("," emacspeak-wizards-color-at-point)
+        ("\;" describe-font)
         ("p" list-packages)
         )
       do
@@ -231,7 +237,6 @@
    ("M-u" emacspeak-feeds-add-feed)
    ("M-P" emacspeak-show-property-at-point)
    ("M-v" emacspeak-show-personality-at-point)
-   ("M-w" emacspeak-toggle-which-function)
    ("N" emacspeak-view-emacspeak-news)
    ("P" emacspeak-speak-paragraph-interactively)
    ("R" emacspeak-speak-rectangle)
@@ -287,7 +292,7 @@
    ("R" dtk-reset-state)
    ("S" dtk-set-language)
    ("SPC" dtk-toggle-splitting-on-white-space)
-   ("V" tts-speak-version)
+   ("V" global-voice-lock-mode)
    ("\C-c" dtk-cloud)
    ("\C-d" dectalk)
    ("\C-e" espeak)
@@ -308,8 +313,7 @@
    ("q" dtk-toggle-quiet)
    ("r" dtk-set-rate)
    ("s" dtk-toggle-split-caps)
-   ("t" emacspeak-dial-dtk)
-   ("v" voice-lock-mode)
+   ("v" voice-lock-toggle)
    ("w" emacspeak-toggle-word-echo)
    ("z" emacspeak-zap-tts)
    ("C-n" dtk-notify-initialize)
@@ -510,7 +514,9 @@ interactive command that the key sequence executes."
 (defcustom emacspeak-super-keys 
   '(
     ("." auto-correct-update)
-    ("c" emacspeak-wizards-color-at-point)
+    ("i" ciel-ci)
+    ("j" ido-imenu-anywhere)
+    ("o" ciel-co)
     ("r" soundscape-restart)
     ("s" soundscape)
     ("t" soundscape-toggle)
@@ -522,7 +528,6 @@ interactive command that the key sequence executes."
     ("h" emacspeak-webspace-headlines-browse)
     ("l" emacspeak-m-player-locate-media)
     ("m" emacspeak-wizards-view-buffers-filtered-by-this-mode)
-    ("n" gweb-news-view)
     ("p" proced)
     ("R" emacspeak-webspace-feed-reader))
   "*Specifies super key bindings for the audio desktop. You can
@@ -574,6 +579,7 @@ interactive command that the key sequence executes."
   '(
     ("," emacspeak-eldoc-speak-doc)
     ("a" emacspeak-feeds-atom-display)
+    ("b" sox-binaural)
     ("c" emacspeak-wizards-view-buffers-filtered-by-this-mode)
     ("e" eww)
     ("f" emacspeak-feeds-find-feeds)
@@ -585,7 +591,8 @@ interactive command that the key sequence executes."
     ("r" emacspeak-feeds-rss-display)
     ("s" emacspeak-wizards-tune-in-radio-search)
     ("t" emacspeak-wizards-tune-in-radio-browse)
-    ("u" emacspeak-m-player-url)) 
+    ("u" emacspeak-m-player-url)
+    ("v" visual-line-mode)) 
   "*Specifies alt key bindings for the audio desktop.
 You can turn the `Pause' key  on your Linux PC keyboard into a `alt' key
 on Linux by having it emit the sequence `C-x@a'.
@@ -635,31 +642,34 @@ interactive command that the key sequence executes."
 
 (defcustom emacspeak-hyper-keys 
   '(
-    ("d" magit-dispatch-popup)
     (":" emacspeak-wizards-view-buffers-filtered-by-m-player-mode)
-    (":" emacspeak-m-player-using-openal)
+    (";" emacspeak-m-player-using-openal)
     ("B" eww-list-bookmarks)
     ("C" apu-chars)
     ("N" emacspeak-npr-listing)
     ("a" emacspeak-wizards-term)
     ("b" eww-list-buffers)
-    ("c" browse-url-chromium)
+    ("c" browse-url-chrome)
+    ("d" magit-dispatch-popup)
     ("e" gmaps)
     ("f" emacspeak-webspace-freebase-search)
-    ("k" emacspeak-webspace-knowledge-search)
     ("g" gnus)
     ("h" emacspeak-org-capture-link)
     ("i" ido-everywhere)
+    ("j" emacspeak-wizards-shell-toggle)
+    ("k" emacspeak-webspace-knowledge-search)
     ("l" emacspeak-librivox)
     ("m" vm)
     ("n" emacspeak-npr-play-program)
+    ("o" other-frame)
     ("p" emacspeak-wizards-pdf-open)
     ("q" emacspeak-remote-quick-connect-to-server)
     ("r" org-capture)
     ("s" emacspeak-wizards-shell)
     ("t" twit)
     ("u" browse-url)
-    ("v" emacspeak-muggles-view/body))
+    ("v" emacspeak-muggles-view/body)
+    )
   "*Specifies hyper key bindings for the audio desktop. Emacs can
 use the `hyper' key as a modifier key. You can turn the `windows'
 keys on your Linux PC keyboard into a `hyper' key on Linux by
@@ -696,6 +706,10 @@ interactive command that the key sequence executes."
 (global-set-key "\C-x@h"
                 'emacspeak-hyper-keymap)
 (define-key emacspeak-hyper-keymap " " 'emacspeak-webspace)
+;;}}}
+;;{{{ Wizard bindings:
+(global-set-key (kbd "M-C-y") 'emacspeak-wizards-ido-yank)
+
 ;;}}}
 ;;{{{ Keymaps <-> Org (text) Files :
 

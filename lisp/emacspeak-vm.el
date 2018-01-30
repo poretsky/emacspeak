@@ -1,4 +1,4 @@
-;;; emacspeak-vm.el --- Speech enable VM -- A powerful mail agent
+;;; emacspeak-vm.el --- Speech enable VM -- A powerful mail agent  -*- lexical-binding: t; -*-
 ;;;(and the one I use)
 ;;; $Id$
 ;;; $Author: tv.raman.tv $
@@ -162,7 +162,7 @@ s(defun emacspeak-vm-yank-header ()
 (defun emacspeak-vm-summarize-message ()
   "Summarize the current vm message. "
   (declare (special vm-message-pointer smtpmail-local-domain
-                    emacspeak-vm-headers-strip-octals))
+                    vm-presentation-buffer  emacspeak-vm-headers-strip-octals))
   (when vm-message-pointer
     (let*  ((message (car vm-message-pointer))
             (number (emacspeak-vm-number-of  message))
@@ -174,22 +174,23 @@ s(defun emacspeak-vm-yank-header ()
                  (string-match (user-full-name) to)
                  (string-match  (user-login-name) to)))
             (lines (vm-su-line-count message)))
-      (dtk-speak
-       (vm-decode-mime-encoded-words-in-string
-        (concat
-         number
-         (if from
-             (propertize from   'personality voice-brighten)
-           "")
-         (if subject
-             (propertize subject 'personality voice-lighten)
-           " ")
-         (if (and to (< (length to) 80))
-             (concat
-              (propertize " to " 'personality voice-smoothen)
-              (propertize  to 'personality voice-annotate))
-           "")
-         (if lines (format "%s lines" lines) ""))))
+      (with-current-buffer vm-presentation-buffer
+        (dtk-speak
+         (vm-decode-mime-encoded-words-in-string
+          (concat
+           number
+           (if from
+               (propertize from   'personality voice-brighten)
+             "")
+           (if subject
+               (propertize subject 'personality voice-lighten)
+             " ")
+           (if (and to (< (length to) 80))
+               (concat
+                (propertize " to " 'personality voice-smoothen)
+                (propertize  to 'personality voice-annotate))
+             "")
+           (if lines (format "%s lines" lines) "")))))
       (goto-char (point-min))
       (search-forward  (format "%c%c" 10 10) nil)
       (cond
@@ -364,7 +365,8 @@ Then speak the screenful. "
   "Provide an auditory icon if requested"
   (when (ems-interactive-p)
     (emacspeak-auditory-icon 'close-object)
-    (emacspeak-speak-mode-line)))
+    (with-current-buffer (window-buffer (selected-window))
+      (emacspeak-speak-mode-line))))
 
 ;;}}}
 ;;{{{ catching up on folders
@@ -437,12 +439,12 @@ Then speak the screenful. "
 ;;{{{  silence mime parsing in vm 6.0 and above
 
 (defadvice vm-mime-parse-entity (around emacspeak pre act comp)
-  (let ((emacspeak-speak-messages nil))
-    ad-do-it))
+  (ems-with-messages-silenced
+   ad-do-it))
 
 (defadvice vm-decode-mime-message (around emacspeak pre act comp)
-  (let ((emacspeak-speak-messages nil))
-    ad-do-it))
+  (ems-with-messages-silenced
+   ad-do-it))
 
 (defadvice vm-mime-run-display-function-at-point (around emacspeak pre act comp)
   "Provide auditory feedback.
@@ -461,8 +463,8 @@ Leave point at front of decoded attachment."
 
 (defadvice vm-emit-eom-blurb (around emacspeak pre act comp)
   "Stop chattering"
-  (let ((emacspeak-speak-messages nil))
-    ad-do-it))
+  (ems-with-messages-silenced
+   ad-do-it))
 
 ;;}}}
 ;;{{{ advice password prompt
@@ -501,16 +503,16 @@ Leave point at front of decoded attachment."
   mode
   emacspeak-speak-embedded-url-pattern
   (cons
-   're-search-forward
-   #'(lambda (url) " Link ")))
+   #'re-search-forward
+   #'(lambda (_url) " Link ")))
  (emacspeak-pronounce-add-dictionary-entry
   mode
   emacspeak-speak-rfc-3339-datetime-pattern
-  (cons 're-search-forward 'emacspeak-speak-decode-rfc-3339-datetime))
+  (cons #'re-search-forward #'emacspeak-speak-decode-rfc-3339-datetime))
  (emacspeak-pronounce-add-dictionary-entry
   mode
   emacspeak-speak-iso-datetime-pattern
-  (cons 're-search-forward 'emacspeak-speak-decode-iso-datetime)))
+  (cons #'re-search-forward #'emacspeak-speak-decode-iso-datetime)))
 
 ;;}}}
 ;;{{{ advice button motion
@@ -537,6 +539,7 @@ If N is negative, move backward instead."
   (let ((function (if (< n 0) 'previous-single-property-change
                     'next-single-property-change))
         (inhibit-point-motion-hooks t)
+        (inhibit-modification-hooks t)
         (backward (< n 0))
         (limit (if (< n 0) (point-min) (point-max))))
     (setq n (abs n))
@@ -600,29 +603,40 @@ If N is negative, move backward instead."
   "Should VM  use the customizations used by the author of Emacspeak."
   :type 'boolean
   :group 'emacspeak-vm)
+(defvar emacspeak-vm-demote-html-attachments
+  '(favorite-internal  "text/plain" "text/enriched" "text/html" "application/xml+xhtml")
+  "Setting that prefers text/plain alternatives over html/xhtml.")
+
+(defvar emacspeak-vm-promote-html-attachments
+  '(favorite-internal   "text/html" "application/xml+xhtml" "text/plain" "text/enriched")
+  "Setting that prefers  alternatives  html/xhtml over text/plain.")
 
 (defun emacspeak-vm-use-raman-settings ()
   "Customization settings for VM used by the author of
 Emacspeak."
-  (declare (special
-            vm-mime-charset-converter-alist
-            vm-mime-default-face-charsets
-            vm-frame-per-folder
-            vm-frame-per-composition
-            vm-frame-per-edit
-            vm-frame-per-help
-            vm-frame-per-summary
-            vm-index-file-suffix
-            vm-primary-inbox
-            vm-folder-directory
-            vm-forwarding-subject-format
-            vm-startup-with-summary
-            vm-inhibit-startup-message
-            vm-visible-headers
-            vm-delete-after-saving
-            vm-url-browser
-            vm-confirm-new-folders
-            vm-move-after-deleting))
+  (declare (special emacspeak-vm-demote-html-attachments
+                    emacspeak-vm-promote-html-attachments
+                    vm-mime-charset-converter-alist
+                    vm-mime-default-face-charsets
+                    vm-frame-per-folder
+                    vm-frame-per-composition
+                    vm-frame-per-edit
+                    vm-frame-per-help
+                    vm-frame-per-summary
+                    vm-index-file-suffix
+                    vm-primary-inbox
+                    vm-folder-directory
+                    vm-forwarding-subject-format
+                    vm-startup-with-summary
+                    vm-inhibit-startup-message
+                    vm-visible-headers
+                    vm-delete-after-saving
+                    vm-url-browser
+                    vm-confirm-new-folders
+                    vm-mime-alternative-select-method
+                    vm-move-after-deleting))
+  (setq vm-mime-alternative-select-method
+        emacspeak-vm-demote-html-attachments)
   (setq vm-mime-charset-converter-alist
         '(
           ("utf-8" "iso-8859-1" "iconv -f utf-8 -t iso-8859-1")
@@ -647,6 +661,22 @@ Emacspeak."
         vm-confirm-new-folders t
         vm-move-after-deleting nil)
   t)
+
+(defun emacspeak-vm-toggle-html-mime-demotion ()
+  "Toggle state of HTML Mime Demotion."
+  (interactive)
+  (declare (special emacspeak-vm-demote-html-attachments
+                    emacspeak-vm-promote-html-attachments
+                    vm-mime-alternative-select-method))
+  (cond
+   ((eq vm-mime-alternative-select-method emacspeak-vm-demote-html-attachments)
+    (setq vm-mime-alternative-select-method emacspeak-vm-promote-html-attachments)
+    (message "Prefering HTML Mime alternative."))
+   ((eq vm-mime-alternative-select-method emacspeak-vm-promote-html-attachments)
+    (setq vm-mime-alternative-select-method emacspeak-vm-demote-html-attachments)
+    (message "Prefering Text/Plain Mime alternative."))
+   (t (message "Resetting state to HTML Mime demotion.")
+      (setq vm-mime-alternative-select-method emacspeak-vm-demote-html-attachments))))
 
 (when emacspeak-vm-use-raman-settings
   (emacspeak-vm-use-raman-settings))

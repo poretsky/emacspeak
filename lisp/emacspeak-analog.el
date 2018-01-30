@@ -1,4 +1,4 @@
-;;; emacspeak-analog.el --- Speech-enable analog -- a log viewer
+;;; emacspeak-analog.el --- Speech-enable analog -- a log viewer  -*- lexical-binding: t; -*-
 ;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak front-end for ANALOG log analyzer
@@ -188,7 +188,7 @@ Speak field or char moved to."
      ((> end col)
       (beginning-of-line)
       (forward-char end))
-     (t (emacspeak-auditory-icon 'error)))))
+     (t (emacspeak-auditory-icon 'warn-user)))))
 
 (defun emacspeak-analog-previous-field (fields)
   "Move to previous field."

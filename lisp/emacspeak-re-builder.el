@@ -1,4 +1,4 @@
-;;; emacspeak-re-builder.el --- speech-enable re-builder
+;;; emacspeak-re-builder.el --- speech-enable re-builder  -*- lexical-binding: t; -*-
 ;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description:   extension to speech enable re-builder
@@ -96,18 +96,18 @@
   (when (ems-interactive-p)
     (save-excursion
       (set-buffer reb-target-buffer)
-      (emacspeak-auditory-icon
-       (if case-fold-search 'on 'off)))))
+      (emacspeak-auditory-icon (if case-fold-search 'on 'off)))))
 
 (defadvice reb-copy (after emacspeak pre act comp)
   "Provide auditory feedback."
   (when (ems-interactive-p)
     (emacspeak-auditory-icon 'yank-object)))
 
-(defun reb-enter-subexp-mode (after emacspeak pre act comp)
+(defadvice reb-enter-subexp-mode (after emacspeak pre act comp)
   "Provide auditory feedback."
   (when (ems-interactive-p)
     (emacspeak-auditory-icon 'open-object)))
+
 (defadvice reb-quit-subexp-mode (after emacspeak pre act comp)
   "Provide auditory feedback."
   (when (ems-interactive-p)

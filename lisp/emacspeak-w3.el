@@ -1,4 +1,4 @@
-;;; emacspeak-w3.el --- Speech enable W3 WWW browser -- includes ACSS Support
+;;; emacspeak-w3.el --- Speech enable W3 WWW browser -- includes ACSS Support  -*- lexical-binding: t; -*-
 ;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak enhancements for W3
@@ -223,7 +223,7 @@
   :type 'file
   :group 'emacspeak-w3)
 
-(defun emacspeak-w3-lynx-done-alert (process state)
+(defun emacspeak-w3-lynx-done-alert (process _state)
   "Alert user when lynx is done dumping the document"
   (declare (special view-exit-action))
   (when (y-or-n-p
@@ -537,8 +537,8 @@ element. "
 (defadvice w3-fetch-callback
     (around emacspeak pre act comp)
   "silence spoken messages."
-  (let ((emacspeak-speak-messages nil))
-    ad-do-it))
+  (ems-with-messages-silenced
+   ad-do-it))
 ;;}}}
 ;;{{{ backward compatibility
 
@@ -751,7 +751,7 @@ HTML."
       (pushnew
        (list mm
              'mm-inline-text-html-render-with-w3
-             #'(lambda (&rest args) mm-text-html-renderer))
+             #'(lambda (&rest _args) mm-text-html-renderer))
        mm-inline-media-tests))
 
 ;;}}}

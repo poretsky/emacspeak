@@ -1,4 +1,4 @@
-;;; emacspeak-outline.el --- Speech enable Outline --   Browsing  Structured Documents
+;;; emacspeak-outline.el --- Speech enable Outline --   Browsing  Structured Documents  -*- lexical-binding: t; -*-
 ;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; DescriptionEmacspeak extensions for outline-mode
@@ -56,19 +56,19 @@
 (defadvice outline-next-heading (after emacspeak pre act comp)
   "Speak the line."
   (when (ems-interactive-p)
-    (emacspeak-auditory-icon 'large-movement)
+    (emacspeak-auditory-icon 'section)
     (emacspeak-speak-line)))
 
 (defadvice outline-back-to-heading (after emacspeak pre act comp)
   "Speak the line."
   (when (ems-interactive-p)
-    (emacspeak-auditory-icon 'large-movement)
+    (emacspeak-auditory-icon 'section)
     (emacspeak-speak-line)))
 
 (defadvice outline-next-visible-heading (after emacspeak pre act comp)
   "Speak the line."
   (when (ems-interactive-p)
-    (emacspeak-auditory-icon 'large-movement)
+    (emacspeak-auditory-icon 'section)
     (and (looking-at "^$")
          (skip-syntax-backward " "))
     (emacspeak-speak-line)))
@@ -76,7 +76,7 @@
 (defadvice outline-previous-visible-heading (after emacspeak pre act comp)
   "Speak the line."
   (when (ems-interactive-p)
-    (emacspeak-auditory-icon 'large-movement)
+    (emacspeak-auditory-icon 'section)
     (emacspeak-speak-line)))
 
 (defadvice outline-up-heading (after emacspeak pre act comp)
@@ -88,13 +88,13 @@
 (defadvice outline-forward-same-level (after emacspeak pre act comp)
   "Provide auditory feedback."
   (when (ems-interactive-p)
-    (emacspeak-auditory-icon 'large-movement)
+    (emacspeak-auditory-icon 'section)
     (emacspeak-speak-line)))
 
 (defadvice outline-backward-same-level (after emacspeak pre act comp)
   "Provide auditory feedback."
   (when (ems-interactive-p)
-    (emacspeak-auditory-icon 'large-movement)
+    (emacspeak-auditory-icon 'section)
     (emacspeak-speak-line)))
 
 ;;}}}
@@ -202,28 +202,28 @@ commands. "
   "Analogous to outline-next-visible-heading,
 except that the outline section is  spoken"
   (interactive)
-  (emacspeak-auditory-icon 'large-movement)
+  (emacspeak-auditory-icon 'section)
   (emacspeak-outline-speak-heading 'outline-next-visible-heading 1))
 
 (defun emacspeak-outline-speak-previous-heading ()
   "Analogous to outline-previous-visible-heading,
 except that the outline section is  spoken"
   (interactive)
-  (emacspeak-auditory-icon 'large-movement)
+  (emacspeak-auditory-icon 'section)
   (emacspeak-outline-speak-heading 'outline-next-visible-heading -1))
 
 (defun emacspeak-outline-speak-forward-heading ()
   "Analogous to outline-forward-same-level,
 except that the outline section is  spoken"
   (interactive)
-  (emacspeak-auditory-icon 'large-movement)
+  (emacspeak-auditory-icon 'section)
   (emacspeak-outline-speak-heading 'outline-forward-same-level 1))
 
 (defun emacspeak-outline-speak-backward-heading ()
   "Analogous to outline-backward-same-level
 except that the outline section is  spoken"
   (interactive)
-  (emacspeak-auditory-icon 'large-movement)
+  (emacspeak-auditory-icon 'section)
   (forward-line -1)
   (emacspeak-outline-speak-heading 'outline-forward-same-level -1))
 (defun emacspeak-outline-speak-this-heading ()

@@ -1,4 +1,4 @@
-;;; emacspeak-librivox.el --- Speech-enabled  LIBRIVOX API client
+;;; emacspeak-librivox.el --- Speech-enabled  LIBRIVOX API client  -*- lexical-binding: t; -*-
 ;;; $Id: emacspeak-librivox.el 4797 2007-07-16 23:31:22Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Speech-enable LIBRIVOX An Emacs Interface to Free Audio Books
@@ -84,11 +84,17 @@
 ;; * extended - =1 will return the full set of data about the project
 ;; * limit (default is 50)
 ;;   * offset
+(defvar emacspeak-librivox-results-limit 100
+  "Number of results to retrieve at a time.")
 
-(defsubst emacspeak-librivox-audiobooks-uri (pattern)
+(defsubst emacspeak-librivox-audiobooks-uri (pattern  offset)
   "Search URI for audiobooks."
   (declare (special emacspeak-librivox-api-base))
-  (concat emacspeak-librivox-api-base "audiobooks?format=json&" pattern))
+  (concat
+   emacspeak-librivox-api-base
+   (format "audiobooks?offset=%s&limit=%s&format=json&"
+           offset emacspeak-librivox-results-limit)
+   pattern))
 
 ;;; Audio Tracks API:
 ;;; Params:
@@ -144,7 +150,7 @@
         (desc (g-json-get 'description book)))
     (insert  (format "<h2>%s. %s</h2>\n\n" position title))
     (insert "<table><tr>\n")
-    (when rss (insert (format "<td><a href='%s'>Listen (RSS)</a></td>\n" rss)))
+    (when rss (insert (format "<td><a   href='%s'>Listen </a></td>\n" rss)))
     (when zip (insert (format "<td><a href='%s'>Download</a></td>\n" zip)))
     (when text (insert (format "<td><a href='%s'>Full Text</a></td>\n" text)))
     (when time (insert (format "<td>Time: %s</td>\n" time)))
@@ -152,17 +158,20 @@
     (emacspeak-librivox-display-authors (g-json-get 'authors book))
     (when desc (insert "<p>" desc "</p>\n\n"))))
 
-(defun emacspeak-librivox-search (pattern &optional page-title)
+(defun emacspeak-librivox-search (pattern &optional  offset)
   "Search for books.
 Argument `pattern' is of the form:
 `author=pattern' Search by author.
 `title=pattern' Search by title.
 ^all Browse books.
-Optional arg `page-title' specifies page title."
-  (or page-title (setq page-title pattern))
-  (let* ((url
-          (emacspeak-librivox-audiobooks-uri
-           pattern))
+Optional arg `offset' (default 0) is used for getting more results."
+  (declare (special  emacspeak-librivox-results-limit))
+  (or offset (setq offset 0))
+  (let* ((title
+          (format
+           "Search: %s Offset: %s"
+           (emacspeak-wizards-unhex-uri pattern) offset))
+         (url (emacspeak-librivox-audiobooks-uri pattern offset))
          (result (g-json-get-result
                   (format
                    "%s  %s '%s'"
@@ -171,49 +180,114 @@ Optional arg `page-title' specifies page title."
     (unless books (message "No results."))
     (emacspeak-auditory-icon 'task-done)
     (when books
+      (emacspeak-webutils-autospeak)
+      (add-hook
+       'emacspeak-web-post-process-hook
+       #'(lambda ()
+           (declare (special emacspeak-we-url-executor))
+           (setq emacspeak-we-url-executor 'emacspeak-librivox-play)))
       (with-temp-buffer
-        (insert "<title>" page-title "</title>\n")
-        (insert "<h1>" page-title "</h1>\n")
+        (insert "<title>" title "</title>\n")
+        (insert "<h1>" title "</h1>\n")
+        (insert "<p> Press <code>e e </code> on a <em>listen</em> link to play the book.</p>")
         (loop
          for b across books
-         and i from 1
+         and i from (1+ offset)
          do
          (emacspeak-librivox-display-book b i))
-        (add-hook
-         'emacspeak-web-post-process-hook
-         #'(lambda ()
-             (setq emacspeak-we-url-executor 'emacspeak-librivox-play)))
-        
+        (when (= emacspeak-librivox-results-limit (length books))
+          (insert
+           (format "Re-execute this command with an interactive prefix argument and specify offset  %s to get more results."
+                   (+ offset emacspeak-librivox-results-limit))))
         (browse-url-of-buffer)))))
+
+(defvar emacspeak-librivox-genre-list
+  '(
+    "*Non-fiction" "Action & Adventure" "Action & Adventure Fiction"
+    "Ancient" "Animals" "Animals & Nature"
+    "Anthologies" "Antiquity" "Art, Design & Architecture"
+    "Arts" "Astronomy, Physics & Mechanics" "Ballads"
+    "Bibles" "Biography & Autobiography" "Business & Economics"
+    "Chemistry" "Children's Fiction" "Children's Non-fiction"
+    "Christian Fiction" "Christianity - Biographies" "Christianity - Commentary"
+    "Christianity - Other" "Classics (Antiquity)" "Comedy"
+    "Contemporary" "Cooking" "Crafts & Hobbies"
+    "Crime & Mystery Fiction" "Culture & Heritage" "Detective Fiction"
+    "Douay-Rheims Version" "Drama" "Dramatic Readings"
+    "Early Modern" "Earth Sciences" "Education"
+    "Elegies & Odes" "Epics" "Epistolary Fiction"
+    "Erotica" "Essays" "Essays & Short Works"
+    "Exploration" "Family" "Family & Relationships"
+    "Family Life" "Fantastic Fiction" "Fantasy Fiction"
+    "Fictional Biographies & Memoirs" "Free Verse" "Games"
+    "Gardening" "General" "General Fiction"
+    "Gothic Fiction" "Health & Fitness" "Historical"
+    "Historical Fiction" "History " "Horror & Supernatural Fiction"
+    "House & Home" "Humor" "Humorous Fiction"
+    "King James Version" "Language learning" "Law"
+    "Letters" "Life Sciences" "Literary Collections"
+    "Literary Criticism" "Literary Fiction" "Lyric"
+    "Mathematics" "Medical" "Medieval"
+    "Memoirs" "Middle Ages/Middle History" "Modern"
+    "Modern (19th C)" "Modern (20th C)" "Multi-version (Weekly and Fortnightly poetry)"
+    "Music" "Myths, Legends & Fairy Tales" "Narratives"
+    "Nature" "Nature & Animal Fiction" "Nautical & Marine Fiction"
+    "Other religions" "Performing Arts" "Philosophy"
+    "Plays" "Poetry" "Political Science"
+    "Psychology" "Published 1800 -1900" "Published 1900 onward"
+    "Published before 1800" "Reference" "Religion"
+    "Religious Fiction" "Romance" "Sagas"
+    "Satire" "School" "Science"
+    "Science Fiction" "Self-Help" "Short Stories"
+    "Short non-fiction" "Short works" "Single Author Collections"
+    "Single author" "Social Science" "Sonnets"
+    "Sports & Recreation" "Sports Fiction" "Suspense, Espionage, Political & Thrillers"
+    "Technology & Engineering" "Tragedy" "Travel & Geography"
+    "Travel Fiction" "True Crime" "War & Military"
+    "War & Military Fiction" "Westerns" "Weymouth New Testament"
+    "Writing & Linguistics" "Young's Literal Translation"
+    )
+  "List of genres.")
+
 ;;;###autoload
-(defun emacspeak-librivox-search-by-genre (genre)
+(defun emacspeak-librivox-search-by-genre (genre &optional offset)
   "Search by genre.
-Both exact and partial matches for `genre'."
-  (interactive "sGenre: ")
+Optional prefix arg `offset' prompts for offset."
+  (interactive
+   (list
+    (let ((completion-ignore-case t))
+      (completing-read "Genre: " emacspeak-librivox-genre-list))
+    current-prefix-arg))
+  (declare (special emacspeak-librivox-genre-list))
+  (when offset (setq offset (read-number "Offset: ")))
   (emacspeak-librivox-search
    (format "genre=%s"
            (emacspeak-url-encode genre))
-   (format "Search For Genre: %s" genre)))
+   offset))
 
 ;;;###autoload
-(defun emacspeak-librivox-search-by-author (author)
+(defun emacspeak-librivox-search-by-author (author &optional offset)
   "Search by author.
-Both exact and partial matches for `author'."
-  (interactive "sAuthor: ")
+Both exact and partial matches for `author'.
+Optional interactive prefix arg `offset' prompts for offset --- use this for retrieving next set of results."
+  (interactive "sAuthor: \nP")
+  (when offset
+    (setq offset (read-number "Offset: ")))
   (emacspeak-librivox-search
    (format "author=%s"
            (emacspeak-url-encode author))
-   (format "Search For Author: %s" author)))
+   offset))
 
 ;;;###autoload
-(defun emacspeak-librivox-search-by-title (title)
+(defun emacspeak-librivox-search-by-title (title &optional offset)
   "Search by title.
-Both exact and partial matches for `title'."
-  (interactive "sTitle: ")
+Both exact and partial matches for `title'.
+Optional prefix arg `offset' prompts for offset --- use this for retrieving more results."
+  (interactive "sTitle: \nP")
   (emacspeak-librivox-search
    (format "title=%s"
            (emacspeak-url-encode title))
-   (format "Search For Title: %s" title)))
+   offset))
 
 ;;}}}
 ;;{{{ Top-Level Dispatch:

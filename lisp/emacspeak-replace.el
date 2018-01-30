@@ -1,4 +1,4 @@
-;;; emacspeak-replace.el --- Speech enable interactive search and replace
+;;; emacspeak-replace.el --- Speech enable interactive search and replace  -*- lexical-binding: t; -*-
 ;;; $Id$
 ;;; $Author: tv.raman.tv $ 
 ;;; Description:  Emacspeak extension for replace.el
@@ -70,49 +70,22 @@ that is being replaced."
 (defvar emacspeak-replace-start nil)
 (defvar emacspeak-replace-end nil)
 
-(defadvice query-replace-regexp (around emacspeak pre act compile)
-  "Stop message from chattering.
- Turn on voice lock temporarily. "
-  (declare (special voice-lock-mode))
-  (let ((saved-voice-lock voice-lock-mode)
-        (emacspeak-speak-messages nil))
-    (dtk-stop)
-    (unwind-protect
-        (progn
-          (setq voice-lock-mode 1)
-          (setq emacspeak-replace-start nil 
-                emacspeak-replace-end nil 
-                emacspeak-replace-highlight-on nil)
-          (save-match-data ad-do-it))
-      (emacspeak-auditory-icon 'task-done)
-      (setq voice-lock-mode saved-voice-lock
-            emacspeak-speak-messages t))))
+(cl-loop
+ for f in
+ '(query-replace query-replace-regexp)
+ do
+ (eval
+  `(defadvice ,f (after emacspeak pre act comp)
+     "Provide auditory feedback."
+     (when (ems-interactive-p) (emacspeak-auditory-icon 'task-done)))))
 
-(defadvice query-replace (around emacspeak pre act compile)
-  "Stop message from chattering."
-  (declare (special voice-lock-mode))
-  (let ((saved-voice-lock voice-lock-mode)
-        (emacspeak-speak-messages nil))
-    (dtk-stop)
-    (unwind-protect
-        (progn
-          (setq voice-lock-mode 1)
-          (setq emacspeak-replace-start nil 
-                emacspeak-replace-end nil 
-                emacspeak-replace-highlight-on nil)
-          (save-match-data ad-do-it))
-      (emacspeak-auditory-icon 'task-done)
-      (setq voice-lock-mode saved-voice-lock
-            emacspeak-speak-messages t))))
 (defadvice perform-replace (around emacspeak pre act  comp)
   "Silence help message."
-  (let ((emacspeak-speak-messages nil))
-    ad-do-it))
+  (ems-with-messages-silenced
+   ad-do-it))
+
 (defadvice replace-highlight (before  emacspeak pre act)
   "Voicify and speak the line containing the replacement. "
-  (declare (special emacspeak-replace-highlight-on
-                    emacspeak-replace-saved-personality
-                    emacspeak-replace-start emacspeak-replace-end))
   (save-match-data
     (let ((from (ad-get-arg 0))
           (to (ad-get-arg 1)))

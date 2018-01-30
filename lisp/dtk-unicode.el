@@ -1,4 +1,4 @@
-;;; dtk-unicode.el --- Pronounce more characters correctly
+;;; dtk-unicode.el --- Pronounce more characters correctly  -*- lexical-binding: t; -*-
 ;;{{{ Header: Lukas
 
 ;; Copyright 2007, 2011 Lukas Loehrer
@@ -85,6 +85,7 @@
     (?‐ . "-")                      ; hyphen
     (?– . "--")                     ; n-dash
     (?— . "---")                    ; m-dash
+    (?  . " ") ; hair space 
     (?― . "----")                   ; horizontal bar 
     (?‖ . "||")                     ; vertical bar
     (?… . "...")                    ; ellipses
@@ -151,8 +152,7 @@ A handler returns a non-nil value if the   replacement was successful, nil other
    ((eq charset 'eight-bit-graphic)
     (list 160 255))
    (t
-    (let* ((dim (charset-dimension charset))
-           (chars (charset-chars charset))
+    (let* ((chars (charset-chars charset))
            min max)
       (if (eq chars 96)
           (setq min 32 max 127)
@@ -214,11 +214,14 @@ charsets returned by operations such as `find-charset-region'."
 (defsubst dtk-unicode-name-for-char (char)
   "Return unicode name for character CHAR.
 nil if CHAR is not in Unicode."
-  (downcase
-   (or (get-char-code-property char 'name)
-       (car (rassq char (ucs-names)))
-       "")))
-
+  (cond
+   ((= char 128) "")
+   (t
+    (downcase
+     (or
+      (get-char-code-property char 'name)
+      (get-char-code-property char 'old-name)
+      (format "%c" char))))))
 (defsubst dtk-unicode-char-properties (char)
   "Return unicode properties for CHAR."
   (let ((unicode (encode-char char 'ucs)))

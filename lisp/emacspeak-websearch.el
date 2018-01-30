@@ -1,4 +1,4 @@
-;;; emacspeak-websearch.el --- search utilities
+;;; emacspeak-websearch.el --- search utilities  -*- lexical-binding: t; -*-
 ;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak extension to make Web searching convenient
@@ -42,6 +42,8 @@
 
 (require 'emacspeak-preamble)
 (require 'emacspeak-webutils)
+(require 'eww)
+(require 'emacspeak-eww)
 (require 'emacspeak-google)
 (require 'gweb)
 (require  'emacspeak-we)
@@ -138,10 +140,10 @@
 
 (emacspeak-websearch-set-key ?? 'help)
 ;;;###autoload
-(defun emacspeak-websearch-dispatch  (&optional prefix)
+(defun emacspeak-websearch-dispatch  ()
   " Press `?' to list available search engines.
 When using supported browsers,  this interface attempts to speak the most relevant information on the result page."
-  (interactive "P")
+  (interactive)
   (let ((engine nil)
         (searcher nil))
     (while (null engine)
@@ -546,10 +548,6 @@ Optional second arg as-html processes the results as HTML rather than data."
   :type 'boolean
   :group 'emacspeak-websearch)
 
-(emacspeak-websearch-set-searcher 'realtime-google
-                                  'emacspeak-google-realtime-search)
-(emacspeak-websearch-set-key ?R 'realtime-google)
-
 (emacspeak-websearch-set-searcher 'google
                                   'emacspeak-websearch-google)
 (emacspeak-websearch-set-key ?g 'google)
@@ -575,7 +573,7 @@ Optional second arg as-html processes the results as HTML rather than data."
        "https://"
      "http://")
    emacspeak-websearch-google-uri-template))
-
+;;;###autoload
 (defcustom emacspeak-websearch-google-options nil
   "Additional options to pass to Google e.g. &xx=yy..."
   :type '(choice
@@ -597,10 +595,10 @@ prefix arg is equivalent to hitting the I'm Feeling Lucky button on Google. "
   (declare (special emacspeak-google-query emacspeak-google-toolbelt
                     emacspeak-websearch-google-options emacspeak-websearch-google-number-of-results))
   (setq emacspeak-google-toolbelt nil)
-  (lexical-let ((toolbelt (emacspeak-google-toolbelt))
-                (search-url nil)
-                (add-toolbelt (and flag  (consp flag) (= 4 (car flag))))
-                (lucky (and flag  (consp flag) (= 16 (car flag)))))
+  (let ((toolbelt (emacspeak-google-toolbelt))
+        (search-url nil)
+        (add-toolbelt (and flag  (consp flag) (= 4 (car flag))))
+        (lucky (and flag  (consp flag) (= 16 (car flag)))))
     (emacspeak-webutils-cache-google-query query)
     (emacspeak-webutils-cache-google-toolbelt toolbelt)
     (if lucky
@@ -646,7 +644,8 @@ Optional prefix arg prompts for toolbelt options."
    (list
     (gweb-google-autocomplete "AGoogle: ")
     current-prefix-arg))
-  (declare (special emacspeak-websearch-accessible-google-url emacspeak-google-toolbelt))
+  (declare (special emacspeak-eww-masquerade
+                    emacspeak-websearch-accessible-google-url emacspeak-google-toolbelt))
   (setq emacspeak-google-toolbelt nil)
   (let ((emacspeak-eww-masquerade t)
         (toolbelt (emacspeak-google-toolbelt)))
@@ -735,6 +734,38 @@ https://www.google.com/options/specialsearches.html "
   (let ((name "Google News Search"))
     (emacspeak-url-template-open
      (emacspeak-url-template-get name))))
+
+;;}}}
+;;{{{ Google Category news:
+
+(emacspeak-websearch-set-searcher
+ 'google-category-news
+ 'emacspeak-websearch-google-category-news)
+(emacspeak-websearch-set-key ?u 'google-category-news)
+(emacspeak-websearch-set-key 14 'google-category-news)
+
+;;;###autoload
+(defun emacspeak-websearch-google-category-news ()
+  "Browse Google News by category."
+  (interactive)
+  (let ((name   "Google Category News"))
+    (emacspeak-url-template-open (emacspeak-url-template-get name))))
+
+;;}}}
+;;{{{ Google Regional News:
+
+(emacspeak-websearch-set-searcher
+ 'google-regional-news
+ 'emacspeak-websearch-google-regional-news)
+
+(emacspeak-websearch-set-key ?r 'google-regional-news)
+
+;;;###autoload
+(defun emacspeak-websearch-google-regional-news ()
+  "Browse Google News by region."
+  (interactive)
+  (let ((name   "Google Regional News"))
+    (emacspeak-url-template-open (emacspeak-url-template-get name))))
 
 ;;}}}
 ;;{{{  Ask Jeeves
@@ -899,7 +930,7 @@ Optional prefix arg  avoids scraping  information from HTML."
 
 (emacspeak-websearch-set-searcher 'yahoo
                                   'emacspeak-websearch-yahoo)
-(emacspeak-websearch-set-key ?y 'yahoo)
+(emacspeak-websearch-set-key ?Y 'yahoo)
 
 (defvar emacspeak-websearch-yahoo-uri
   "http://search.yahoo.com/bin/search?p="

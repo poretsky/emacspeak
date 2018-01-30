@@ -1,4 +1,4 @@
-;;; outloud-voices.el --- Define various device independent voices in terms of OutLoud tags
+;;; outloud-voices.el --- Define various device independent voices in terms of OutLoud tags  -*- lexical-binding: t; -*-
 ;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Module to set up Eloquent voices and personalities
@@ -180,33 +180,33 @@ and TABLE gives the values along that dimension."
 
 ;;; Average pitch for standard male voice is 65 --this is mapped to
 ;;; a setting of 5.
+;;; head-size for default male is 50.
 ;;; Average pitch varies inversely with speaker head size --a child
 ;;; has a small head and a higher pitched voice.
 ;;; We change parameter head-size in conjunction with average pitch to
 ;;; produce a more natural change on the TTS engine.
 
 ;;{{{  paul average pitch
-
+;;; median: pitch: 65  head-size 50 
 (let ((table (make-vector 10 "")))
   (mapcar
-   (function
-    (lambda (setting)
-      (aset table
-            (first setting)
-            (format " `vb%s `vh%s "
-                    (second setting)
-                    (third setting)))))
+   #'(lambda (setting)
+       (aset table
+             (first setting)
+             (format
+              " `vb%s `vh%s "
+              (second setting) (third setting))))
    '(
-     (0 44 52)
-     (1 50 58)
-     (2 56 56)
-     (3 58 54)
-     (4 62 52)
+     (0 40 75) ; pitch, head-size
+     (1 45 70)
+     (2 50 65)
+     (3 55 60)
+     (4 60 55)
      (5 65 50)
-     (6 69 48)
-     (7 73 46)
-     (8 77 44)
-     (9 82 40)))
+     (6 70 45)
+     (7 75 40)
+     (8 80 35)
+     (9 85 30)))
   (outloud-css-set-code-table 'paul 'average-pitch table))
 
 ;;}}}
@@ -284,12 +284,11 @@ and TABLE gives the values along that dimension."
 
 (let ((table (make-vector 10 "")))
   (mapcar
-   (function
-    (lambda (setting)
-      (aset table
-            (first setting)
-            (format " `vf%s  "
-                    (second setting)))))
+   #'(lambda (setting)
+       (aset table
+             (first setting)
+             (format
+              " `vf%s  " (second setting))))
    '(
      (0 0)
      (1 5)
@@ -364,7 +363,7 @@ and TABLE gives the values along that dimension."
 ;;{{{  stress
 
 ;;; On the outloud we map stress to roughness
-;;; we also use stress markers `00 .. `4 
+;;; we also use stress markers `00 .. `4  (disabled after experimentation)
 ;;{{{  paul stress
 
 (let ((table (make-vector 10 "")))
@@ -404,14 +403,13 @@ and TABLE gives the values along that dimension."
 
 (let ((table (make-vector 10 "")))
   (mapcar
-   (function
-    (lambda (setting)
-      (aset table
-            (first setting)
-            (format " `vy%s  `vv%s "
-                    (second setting)
-                    (third setting)))))
-   '(
+   #'(lambda (setting)
+       (aset table
+             (first setting)
+             (format
+              " `vy%s  `vv%s "
+              (second setting) (third setting))))
+   '(; whisper, volume 
      (0 0 60)
      (1 4 78)
      (2 8 80)
@@ -438,7 +436,7 @@ and TABLE gives the values along that dimension."
 ;;}}}
 ;;{{{  punctuations
 
-(defsubst outloud-get-punctuations-code (value)
+(defsubst outloud-get-punctuations-code (_value)
   "Return string needed to set specified punctuations mode."
   "")
 

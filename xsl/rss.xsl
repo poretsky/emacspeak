@@ -4,104 +4,70 @@ Author: T. V. Raman <raman@cs.cornell.edu>
 Copyright: (C) T. V. Raman, 2001 - 2002,   All Rights Reserved.
 License: GPL
 View an RSS feed as clean HTML
+Only supports RSS 1.0
 -->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd" 
-                xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-                xmlns:smh="http://www.google.com/searchhistory"
                 xmlns:dc="http://purl.org/dc/elements/1.1/"
+                xmlns:media="http://search.yahoo.com/mrss/" 
                 xmlns:rss="http://purl.org/rss/1.0/"
-                xmlns:nsrss="http://my.netscape.com/rdf/simple/0.9/"
+                xmlns:content="http://purl.org/rss/1.0/modules/content/" 
                 xmlns:str="http://exslt.org/strings"
                 version="1.0">
   <xsl:param name="base"/>
   <xsl:output encoding="UTF-8" method="xml" indent="yes"/>
   <!-- {rss 1.0 -->
-  <xsl:template match="img">
-    <xsl:if test="@alt">
-      <xsl:value-of select="@alt"/>
-    </xsl:if>
-  </xsl:template>
-  <xsl:template match="rdf:RDF">
+  <!-- Nuke all itunes elements -->
+  <xsl:template match="itunes:*"/>
+  
+  <xsl:template match="rss">
     <html>
       <head>
         <title>
-          <xsl:apply-templates select="rss:channel/rss:title|nsrss:channel/nsrss:title"/>
+          <xsl:apply-templates select="rss:channel/rss:title|channel/title"/>
         </title>
       </head>
       <body>
         <ol>
-          <xsl:apply-templates select="rss:item|nsrss:item"/>
+          <xsl:apply-templates select="//item|//rss:item"/>
         </ol>
         <p>
-          <xsl:apply-templates select="rss:description| nsrss:description"/>
-          <xsl:element name="a">
+          <xsl:apply-templates select="channel/description|rss:channel/rss:description"/>
+        </p>
+        <p>
+          <xsl:apply-templates select="description|rss:description"/>
+          <a>
             <xsl:attribute name="href"> <xsl:value-of select="$base"/> </xsl:attribute>
             RSS 
-          </xsl:element>
+          </a>
         </p>
       </body>
     </html>
   </xsl:template>
-  <xsl:template match="rss:item|nsrss:item">
+  <xsl:template match="rss:item|item">
     <li>
-      <h2><xsl:element name="a">
-        <xsl:attribute name="href">
-          <xsl:value-of select="rss:link|nsrss:link"/>
-        </xsl:attribute>
-        <xsl:apply-templates select="rss:title|nsrss:title"/>
-      </xsl:element>
+      <h2>
+        <xsl:element name="a">
+          <xsl:attribute name="href">
+            <xsl:value-of select="rss:link|link"/>
+          </xsl:attribute>
+          <xsl:apply-templates select="title|rss:title"/>
+        </xsl:element>
       </h2>
       <xsl:apply-templates
-          select="rss:description|nsrss:description"/>
-      <!--<em><xsl:value-of select="rss:pubDate"/></em>-->
+          select="description|rss:description"/>
+      <!--
+<br/><em><xsl:value-of select="pubDate|rss:pubDate"/></em><br/>
+-->
+      <xsl:apply-templates
+          select="enclosure|rss:enclosure"/>
     </li>
   </xsl:template>
-  <xsl:template match="rss:title|rss:description|nsrss:title|nsrss:description">
+  <xsl:template match="rss:title|rss:description|title|description">
     <xsl:value-of select="." disable-output-escaping="yes"/>
   </xsl:template>
-  <!-- } -->
-  <!-- {rss 0.9 -naked namespaces -->
-
-  <xsl:template match="channel">
-    <html>
-      <head>
-        <title>
-          <xsl:apply-templates select="title"/>
-        </title>
-      </head>
-      <body>
-        <ol>
-          <xsl:apply-templates select="item"/>
-        </ol>
-        <p>
-          <xsl:apply-templates select="description"/>
-          <xsl:element name="a">
-            <xsl:attribute name="href">
-              <xsl:value-of select="$base"/>
-            </xsl:attribute>
-            RSS 
-          </xsl:element>
-        </p>
-      </body>
-    </html>
-  </xsl:template>
-  <xsl:template match="item">
-    <li>
-      <h2><xsl:element name="a">
-        <xsl:attribute name="href">
-          <xsl:value-of select="link"/>
-        </xsl:attribute>
-        <xsl:apply-templates select="title"/>
-      </xsl:element>
-      </h2>
-      <xsl:apply-templates select="description"/>
-	  <!--<em><xsl:value-of select="pubDate"/></em><br/>-->
-<p><xsl:value-of select="smh:bkmk_annotation"/></p>
-      <xsl:apply-templates select="enclosure"/>
-    </li>
-  </xsl:template>
-  <xsl:template match="enclosure">
+  
+  <xsl:template match="enclosure|rss:enclosure">
     <xsl:element name="a">
       <xsl:choose>
         <xsl:when test="string-length(@url) != 0">
@@ -112,18 +78,16 @@ View an RSS feed as clean HTML
         <xsl:when test="string-length(@href) != 0">
           <xsl:attribute name="href">
             <xsl:value-of
-          select="str:decode-uri(@href)"/>
+                select="str:decode-uri(@href)"/>
           </xsl:attribute>
         </xsl:when>
         <xsl:otherwise>Boom</xsl:otherwise>
       </xsl:choose>
-      Enclosure: <!--Type <xsl:value-of select="@type"/>-->
-       <xsl:value-of select="@length"/>
+      Enclosure:
+      <xsl:value-of select="@length"/>
     </xsl:element>
   </xsl:template>
-  <xsl:template match="title|description">
-    <xsl:value-of select="." disable-output-escaping="yes"/>
-  </xsl:template>
+  
   <!-- } -->
   <!-- {identity default  -->
   <xsl:template match="*|@*">

@@ -1,4 +1,4 @@
-;;; emacspeak.el --- Emacspeak -- The Complete Audio Desktop
+;;; emacspeak.el --- Emacspeak -- The Complete Audio Desktop  -*- lexical-binding: t; -*-
 ;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak: A speech interface to Emacs
@@ -137,8 +137,9 @@ that implements the speech-enabling extensions."
          ,(format "%s" package))))))
 
 ;;; DocView
+(declare-function doc-view-open-text "doc-view")
 (eval-after-load 'doc-view
-  `(add-hook 'doc-view-mode-hook 'doc-view-open-text))
+  `(add-hook 'doc-view-mode-hook #'doc-view-open-text))
 
 ;;}}}
 ;;{{{ Setup package extensions
@@ -164,6 +165,7 @@ that implements the speech-enabling extensions."
 (emacspeak-do-package-setup "semantic" 'emacspeak-cedet)
 (emacspeak-do-package-setup "checkdoc" 'emacspeak-checkdoc)
 (emacspeak-do-package-setup "cmuscheme" 'emacspeak-cmuscheme)
+(emacspeak-do-package-setup "ciel" 'emacspeak-ciel)
 (emacspeak-do-package-setup "company" 'emacspeak-company)
 (emacspeak-do-package-setup "compile" 'emacspeak-compile)
 (emacspeak-do-package-setup "cperl-mode" 'emacspeak-cperl)
@@ -184,8 +186,11 @@ that implements the speech-enabling extensions."
 (emacspeak-do-package-setup "ediary" 'emacspeak-ediary)
 (emacspeak-do-package-setup "ediff" 'emacspeak-ediff)
 (emacspeak-do-package-setup "ediff-mult" 'emacspeak-ediff)
+(emacspeak-do-package-setup "elisp-refs" 'emacspeak-elisp-refs)
+(emacspeak-do-package-setup "elscreen" 'emacspeak-elscreen)
 (emacspeak-do-package-setup "emacs-xkcd" 'emacspeak-xkcd)
 (emacspeak-do-package-setup "emms" 'emacspeak-emms)
+(emacspeak-do-package-setup "epa" 'emacspeak-epa)
 (emacspeak-do-package-setup "eperiodic" 'emacspeak-eperiodic)
 (emacspeak-do-package-setup "erc" 'emacspeak-erc)
 (emacspeak-do-package-setup "eshell" 'emacspeak-eshell)
@@ -222,6 +227,7 @@ that implements the speech-enabling extensions."
 (emacspeak-do-package-setup "jabber" 'emacspeak-jabber)
 (emacspeak-do-package-setup "jde" 'emacspeak-jde)
 (emacspeak-do-package-setup "js2" 'emacspeak-js2)
+(emacspeak-do-package-setup "jade" 'emacspeak-jade)
 (emacspeak-do-package-setup "js2-mode" 'emacspeak-js2)
 (emacspeak-do-package-setup "jss" 'emacspeak-jss)
 (emacspeak-do-package-setup "kite" 'emacspeak-kite)
@@ -256,6 +262,8 @@ that implements the speech-enabling extensions."
 (emacspeak-do-package-setup "python-mode" 'emacspeak-py)
 (emacspeak-do-package-setup "re-builder" 'emacspeak-re-builder)
 (emacspeak-do-package-setup "reftex" 'emacspeak-reftex)
+(emacspeak-do-package-setup "rst" 'emacspeak-rst)
+(emacspeak-do-package-setup "related" 'emacspeak-related)
 (emacspeak-do-package-setup "rmail" 'emacspeak-rmail)
 (emacspeak-do-package-setup "rpm-spec-mode" 'emacspeak-rpm-spec)
 (emacspeak-do-package-setup "ruby-mode" 'emacspeak-ruby)
@@ -279,6 +287,8 @@ that implements the speech-enabling extensions."
 (emacspeak-do-package-setup "term" 'emacspeak-eterm)
 (emacspeak-do-package-setup "eudc" 'emacspeak-eudc)
 (emacspeak-do-package-setup "tetris" 'emacspeak-tetris)
+(emacspeak-do-package-setup "threes" 'emacspeak-threes)
+(emacspeak-do-package-setup "tide" 'emacspeak-tide)
 (emacspeak-do-package-setup "2048-game" 'emacspeak-2048)
 (emacspeak-do-package-setup "tex-site" 'emacspeak-auctex)
 (emacspeak-do-package-setup "texinfo" 'emacspeak-texinfo)
@@ -441,13 +451,26 @@ term package that comes with emacs-19.29 and later.
 
 \\{emacspeak-keymap}
 
+Emacspeak provides a set of additional keymaps to give easy access to its extensive facilities.
+
+Press C-; to access keybindings in emacspeak-hyper-keymap:
+\\{emacspeak-hyper-keymap}.
+
+Press C-' or C-. to access keybindings in emacspeak-super-keymap:
+\\{emacspeak-super-keymap}.
+
+Press C-, to access keybindings in emacspeak-alt-keymap:
+\\{emacspeak-alt-keymap}.
+
 See the online documentation for individual commands and
 functions for details.   "
   (interactive)
   (declare (special emacspeak-pronounce-load-pronunciations-on-startup
+                    use-dialog-box
                     emacspeak-pronounce-dictionaries-file
                     emacspeak-play-program emacspeak-sounds-directory))
   (emacspeak-export-environment)
+  (setq use-dialog-box nil)
   (require 'emacspeak-personality)
   (dtk-initialize)
   (tts-configure-synthesis-setup)

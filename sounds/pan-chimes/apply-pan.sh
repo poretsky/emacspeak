@@ -2,9 +2,23 @@
 #This script is used to generate panned chimes.
 #The only variation among icons is the frequency of the autopan effect.
 #Usage pan filename frequency 
+# For generating one full sweep,
+# use pan frequency of 1/duration-of-icon.
 
+
+function bs2b () {
+mplayer -af bs2b -ao pcm:file=tmp.wav $1
+/bin/mv tmp.wav $1
+}
 function pan () {
     mplayer -af ladspa=tap_autopan:tap_autopan:$2:100:0  -ao pcm:file=tmp.wav ../chimes/$1
+    sox tmp.wav -b 16 -r 44100  $1
+    \rm  tmp.wav
+}
+
+
+function pan_depth () {
+    mplayer -af ladspa=tap_autopan:tap_autopan:$2:$3:0  -ao pcm:file=tmp.wav ../chimes/$1
     sox tmp.wav -b 16 -r 44100  $1
     \rm  tmp.wav
 }
@@ -17,20 +31,20 @@ function swapchan () {
 }
 
 # pan alarm.wav 3
-# pan alert-user.wav 1
+#pan_depth alert-user.wav 1 30 
 # pan ask-question.wav 2
 # pan ask-short-question.wav 1
-# pan button.wav 5
+#pan_depth button.wav 5 60 
 # pan center.wav 1
-# pan close-object.wav 2
-# pan complete.wav 5
+# pan_depth close-object.wav 2 50 
+# pan complete.wav 8.333333333333334 # then increase gain
 # pan delete-object.wav 1 
 # pan deselect-object.wav 2 
-# pan ellipses.wav 2 
+# pan ellipses.wav 3.3333333333333335; bs2b
 # pan fill-object.wav 1 
 # pan help.wav 2 
-# pan item.wav 1 
-# pan large-movement.wav 3 
+# pan_depth item.wav 1  60
+# pan large-movement.wav 0.6802721088435374
 # pan left.wav 1 
 # pan mark-object.wav 1
 # pan modified-object.wav 1
@@ -42,21 +56,21 @@ function swapchan () {
 # pan no-answer.wav 1
 # pan off.wav 1
 # pan on.wav 1
-# pan open-object.wav 2
+# pan open-object.wav 1.9607843137254901 
 # pan paragraph.wav 1
-# pan progress.wav 1
+# pan_depth progress.wav 1 50
 # pan right.wav 1
-# pan save-object.wav 1
+# pan save-object.wav 2
 # pan scroll.wav 1
 # pan search-hit.wav 1
 # pan search-miss.wav 1
-# pan section.wav 2
+# pan section.wav 0 
 # pan select-object.wav 1
 # pan shutdown.wav 1
 # pan task-done.wav 1
 # pan unmodified-object.wav 2
 # pan voice-mail.wav 1
-# pan warn-user.wav 3
+# pan warn-user.wav 8
 # pan window-resize.wav 1
 # pan working.wav 1
 # pan yank-object.wav 5
@@ -75,5 +89,4 @@ function swapchan () {
 # swapchan n-answer.wav
 # swapchan no-answer.wav
 # swapchan mark-object.wav
-# wapchan large-movement.wav
 # swapchan scroll.wav

@@ -1,4 +1,4 @@
-;;; soundscape.el -- Soundscapes for The Emacspeak Desktop
+;;; soundscape.el -- Soundscapes for The Emacspeak Desktop  -*- lexical-binding: t; -*-
 ;;; Description:  Soundscapes Using Boodler
 ;;; Keywords: Emacspeak,  Audio Desktop Soundscapes
 ;;{{{  LCD Archive entry:
@@ -223,7 +223,6 @@ Default is to return NullAgent if name not found."
 
 (defsubst soundscape-running-p (scape)
   "Predicate to check if soundscape is running."
-  (declare (special soundscape-processes))
   (process-live-p (gethash  scape soundscape-processes)))
 
 (defun soundscape-current ()
@@ -239,7 +238,6 @@ Default is to return NullAgent if name not found."
 
 (defsubst  soundscape-for-mode (mode)
   "Return associated soundscape for this mode if any."
-  (declare (special soundscape-mode-table))
   (let ((result nil))
     (while mode
       (cl-pushnew (gethash mode soundscape-mode-table) result)
@@ -248,7 +246,6 @@ Default is to return NullAgent if name not found."
 
 (defsubst  soundscape-map-mode (mode scape)
   "Associate soundscape for this mode."
-  (declare (special soundscape-mode-table))
   (when mode
     (puthash mode scape soundscape-mode-table)))
 
@@ -291,24 +288,26 @@ See  \\{soundscape-default-theme} for details."
 (defvar soundscape-default-theme
   `(
     ("()" nil)
-    ("BirdChorus" nil)
     ("BirdCalls" nil)
+    ("BirdChorus" nil)
     ("BirdSongs" (shell-mode term-mode))
-    ("BuddhaLoop" (special-mode))
+    ("BlopEchoes"  (elfeed-search-mode))
+    ("Bonfire" (calendar-mode diary-mode))
+    ("BuddhaLoop" (comint-mode))
     ("Cavern" (prog-mode))
-    ("ChangingLoops" (emacspeak-m-player-mode))
+    ("ChangingLoops" (special-mode))
+    ("ChangingLoopsPitches" (lisp-interaction-mode))
     ("Drip" ,soundscape-communication-modes)
-    ("LightWind" (comint-mode elfeed-search-mode))
-    ("LoopStew" nil)
+    ("LoopStew" (emacspeak-m-player-mode))
     ("ManyMockingBirds" nil)
+    ("ManyNightingales" nil)
     ("MockingBirds" nil)
     ("MockingCuckoos" nil)
     ("Nightscape" nil)
     ("NoStormYet"  (fundamental-mode))
     ("RainForever" ,soundscape-help-modes)
     ("RainSounds" ,soundscape-vc-modes)
-    ("Bonfire" (calendar-mode diary-mode))
-    ("Still" (text-mode))
+    ("Still" (text-mode view-mode))
     ("SurfWaves"  ,soundscape-web-modes)
     ("TonkSpace" (tabulated-list-mode))
     ("WaterFlow"  (dired-mode))
@@ -321,17 +320,24 @@ this list) must be the NullAgent written as (). ")
 
 (soundscape-load-theme soundscape-default-theme)
 
-(defun soundscape-update-mood ()
-  "Update mood/scape mapping for current major mode.
-This updated mapping is not persisted."
-  (interactive)
+(defsubst soundscape--read-mode-name ()
+  "Helper to read major-mode name with completion."
+  (let ((completion-regexp-list '("-mode$")))
+    (intern (completing-read "Major mode: " obarray #'functionp 'must-match))))
+
+(defun soundscape-update-mood (&optional prompt-mode)
+  "Update mood/scape mapping for current  mode.
+The  updated mapping is not persisted.
+Optional interactive prefix arg `prompt-mode' prompts for the mode."
+  (interactive "P")
   (let* ((completion-ignore-case t)
+         (mode (if prompt-mode (soundscape--read-mode-name) major-mode))
          (scape
           (soundscape-lookup-name
            (completing-read "Scape:" (mapcar 'car soundscape-default-theme)))))
-    (soundscape-map-mode major-mode scape)
+    (soundscape-map-mode mode scape)
     (soundscape-sync major-mode)
-    (message "Now using %s for %s" scape major-mode)))
+    (message "Now using %s for %s" scape mode)))
 
 ;;}}}
 ;;{{{ Soundscape Remote Control
@@ -340,7 +346,7 @@ This updated mapping is not persisted."
   (make-temp-name "/tmp/soundscape")
   "Name of Unix Domain socket used to control Soundscape.")
 
-(defun soundscape-sentinel (proc state)
+(defun soundscape-sentinel (proc _state)
   "Delete remote control end point on exit."
   (declare (special soundscape--remote))
   (unless (process-live-p  proc)
@@ -480,7 +486,7 @@ Optional interactive prefix arg `force' skips optimization checks."
 
 ;;; Advice on select-window, force-mode-line-update etc fire too often.
 ;;; Ditto with buffer-list-update-hook
-;;; Running on an idle timer can 
+;;; Running on an idle timer can
 ;;;  soundscape-delay (default is 0.1)
 ;;;   triggers fewer spurious changes than running on advice.
 
@@ -488,7 +494,6 @@ Optional interactive prefix arg `force' skips optimization checks."
 ;;{{{ SoundScape Toggle:
 (defsubst soundscape-quiet ()
   "Activate NullAgent."
-  (declare (special soundscape-remote-control))
   (when (process-live-p soundscape-remote-control)
     (process-send-string soundscape-remote-control "soundscape 0\n")))
 
@@ -522,24 +527,29 @@ Run command \\[soundscape-theme] to see the default mode->mood mapping."
     (when (called-interactively-p 'interactive)
       (message "Automatic Soundscapes are now %s"
                (if soundscape--auto "on" "off"))))))
+(defvar soundscape--cached-device nil
+  "Cache    last used audio device.")
 
 (defun soundscape-restart (&optional device)
   "Restart Soundscape  environment.
-With prefix arg `device', prompt for a alsa/ladspa device."
+With prefix arg `device', prompt for a alsa/ladspa device.
+Caches most recently used device, which then becomes the default for future invocations."
   (interactive "P")
   (declare (special soundscape--last-mode  soundscape--scapes
+                    soundscape--cached-device
                     soundscape--auto soundscape-manager-options))
   (setq soundscape--scapes nil soundscape--last-mode nil)
-  (let ((soundscape-manager-options 
+  (when device
+    (setq soundscape--cached-device
+          (completing-read
+           "Filter: " '("crossfeed" "reverb_crossfeed" "default"))))
+  (let ((soundscape-manager-options
          (append
           (copy-sequence soundscape-manager-options) ; clone default options
-          (when device
-            `("--device"
-              ,(completing-read
-                "Filter Device: "
-                '("crossfeed" "reverb_crossfeed")))))))
-    (when soundscape--auto (soundscape-toggle)
-          (soundscape-listener-shutdown))
+          (when soundscape--cached-device `("--device" ,soundscape--cached-device)))))
+    (when soundscape--auto
+      (soundscape-toggle)
+      (soundscape-listener-shutdown))
     (soundscape-toggle)
     (sit-for 0.1)
     (soundscape-sync major-mode 'force)))

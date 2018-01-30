@@ -1,4 +1,4 @@
-;;; emacspeak-hide.el --- Provides user commands for hiding and exposing blocks of text
+;;; emacspeak-hide.el --- Provides user commands for hiding and exposing blocks of text  -*- lexical-binding: t; -*-
 ;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Hide and expose blocks of text
@@ -134,7 +134,6 @@ SYM is a token symbol as found in emacspeak-hide-prefix-token-table.
 COL is the column at which the token ended.
 STRING is the token's text."
   (let ((token-list nil)
-        (done nil)
         (case-fold-search nil)
         token-table not-token-table)
     (save-excursion
@@ -145,8 +144,7 @@ STRING is the token's text."
           (if (looking-at (car not-token-table))
               (throw 'done nil))
           (setq not-token-table (cdr not-token-table)))
-        (setq token-table emacspeak-hide-prefix-token-table
-              done nil)
+        (setq token-table emacspeak-hide-prefix-token-table)
         (while  token-table
           (cond
            ((null (looking-at (car (car token-table))))
@@ -158,8 +156,7 @@ STRING is the token's text."
                         (current-column)
                         (buffer-substring-no-properties
                          (match-beginning 0)
-                         (match-end 0)))
-                  done t)
+                         (match-end 0))))
             (throw 'done token-list))))
         token-list))))
 
@@ -265,43 +262,41 @@ Returns t if a block was found and hidden."
 ;;;###autoload
 (defun emacspeak-hide-all-blocks-in-buffer ()
   "Hide all blocks in current buffer."
-  (declare (special emacspeak-speak-messages))
-  (let ((count 0)
-        (emacspeak-speak-messages nil)
-        (prefix nil))
-    (save-excursion
-      (goto-char (point-min))
-      (while (not (eobp))
-        (setq prefix (emacspeak-hide-parse-prefix))
-        (cond
-         ((and prefix
-               (emacspeak-hide-current-block prefix))
-          (incf count)
-          (goto-char
-           (next-single-property-change (point)
-                                        'emacspeak-hidden-block
-                                        (current-buffer)
-                                        (point-max))))
-         (t (forward-line 1)))))
-    (dtk-speak
-     (format "Hid %s blocks" count))))
+  (ems-with-messages-silenced
+   (let ((count 0)
+         (prefix nil))
+     (save-excursion
+       (goto-char (point-min))
+       (while (not (eobp))
+         (setq prefix (emacspeak-hide-parse-prefix))
+         (cond
+          ((and prefix
+                (emacspeak-hide-current-block prefix))
+           (incf count)
+           (goto-char
+            (next-single-property-change (point)
+                                         'emacspeak-hidden-block
+                                         (current-buffer)
+                                         (point-max))))
+          (t (forward-line 1)))))
+     (dtk-speak
+      (format "Hid %s blocks" count)))))
 
 (defun emacspeak-hide-expose-hidden-blocks-in-buffer ()
   "Expose any hidden blocks in current buffer."
-  (declare (special emacspeak-speak-messages))
-  (let ((count 0)
-        (emacspeak-speak-messages nil)
-        (block-end nil))
-    (save-excursion
-      (goto-char (point-min))
-      (while (not (eobp))
-        (setq block-end (emacspeak-hide-expose-block))
-        (cond
-         (block-end
-          (goto-char block-end)
-          (incf count))
-         (t (forward-line 1)))))
-    (dtk-speak (format "Exposed %s blocks" count))))
+  (ems-with-messages-silenced
+   (let ((count 0)
+         (block-end nil))
+     (save-excursion
+       (goto-char (point-min))
+       (while (not (eobp))
+         (setq block-end (emacspeak-hide-expose-block))
+         (cond
+          (block-end
+           (goto-char block-end)
+           (incf count))
+          (t (forward-line 1)))))
+     (dtk-speak (format "Exposed %s blocks" count)))))
 
 ;;}}}
 ;;{{{ User interface

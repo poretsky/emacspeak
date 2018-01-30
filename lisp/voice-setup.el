@@ -1,4 +1,4 @@
-;;; voice-setup.el --- Setup voices for voice-lock
+;;; voice-setup.el --- Setup voices for voice-lock  -*- lexical-binding: t; -*-
 ;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Voice lock mode for Emacspeak
@@ -103,6 +103,26 @@
 (defgroup voice-fonts nil
   "Customization group for setting voices."
   :group 'emacspeak)
+
+(declare-function tts-list-voices "dectalk-voices")
+
+(defcustom voice-lock-global-modes t
+  "Modes for which Voice Lock mode is automagically turned on.
+Global Voice Lock mode is controlled by the command `global-voice-lock-mode'.
+If nil, means no modes have Voice Lock mode automatically turned on.
+If t, all modes that support Voice Lock mode have it automatically turned on.
+If a list, it should be a list of `major-mode' symbol names for which Voice Lock
+mode should be automatically turned on.  The sense of the list is negated if it
+begins with `not'.  For example:
+ (c-mode c++-mode)
+means that Voice Lock mode is turned on for buffers in C and C++ modes only."
+  :type '(choice (const :tag "none" nil)
+                 (const :tag "all" t)
+                 (set :menu-tag "mode specific" :tag "modes"
+                      :value (not)
+                      (const :tag "Except" not)
+                      (repeat :inline t (symbol :tag "mode"))))
+  :group 'voice-lock)
 
 ;;}}}
 ;;{{{  helper for voice custom items:
@@ -318,29 +338,32 @@ command \\[customize-variable] on <personality>-settings.. "
 (defvoice  voice-monotone (list nil nil 0 0 nil 'all)
   "Turns current voice into a monotone and speaks all punctuations.")
 
-(defvoice  voice-monotone-medium (list nil nil 2 2  nil 'all)
+(defvoice  voice-monotone-light (list nil nil 2 2  nil 'all)
+  "Turns current voice into a light monotone.")
+
+(defvoice  voice-monotone-medium (list nil nil 1  1  nil 'all)
   "Turns current voice into a medium monotone.")
 
-(defvoice voice-animate (list nil 7 7 6)
+(defvoice voice-animate (list nil 7 7 4)
   "Animates current voice.")
 
 (defvoice voice-animate-medium (list nil 6 6  5)
   "Adds medium animation  current voice.")
 
-(defvoice voice-animate-extra (list nil 8 8 7)
+(defvoice voice-animate-extra (list nil 8 8 6)
   "Adds extra animation  to current voice.")
 
 (defvoice voice-smoothen (list nil nil nil 3 4)
   "Smoothen current voice.")
 
-(defvoice voice-smoothen-extra (list nil nil nil 3 2)
+(defvoice voice-smoothen-extra (list nil nil nil 2 2)
   "Extra smoothen current voice.")
 
 (defvoice voice-smoothen-medium (list nil nil nil 3 3)
   "Add medium smoothen current voice.")
 
 (defvoice voice-brighten-medium (list nil nil nil 5 6)
-  "Brighten current voice.")
+  "Brighten  (medium) current voice.")
 
 (defvoice voice-brighten (list nil nil nil 6 7)
   "Brighten current voice.")
@@ -348,25 +371,25 @@ command \\[customize-variable] on <personality>-settings.. "
 (defvoice voice-brighten-extra (list nil nil nil 7 8)
   "Extra brighten current voice.")
 
-(defvoice voice-bolden (list nil 1 6 6  nil)
+(defvoice voice-bolden (list nil 3 6 6  nil)
   "Bolden current voice.")
 
-(defvoice voice-bolden-extra (list nil 0 6 7 8)
-  "Extra bolden current voice.")
-
-(defvoice voice-bolden-medium (list nil 3 6 6  nil)
+(defvoice voice-bolden-medium (list nil 2 6 7  nil)
   "Add medium bolden current voice.")
 
-(defvoice voice-lighten (list nil 7 7  1  nil)
+(defvoice voice-bolden-extra (list nil 1 6 7 8)
+  "Extra bolden current voice.")
+
+(defvoice voice-lighten (list nil 6 6 2   nil)
   "Lighten current voice.")
 
-(defvoice voice-lighten-medium (list nil 6 6 3  nil)
-  "Add medium lighten current voice.")
+(defvoice voice-lighten-medium (list nil 7 7 3  nil)
+  "Add medium lightness to  current voice.")
 
-(defvoice voice-lighten-extra (list nil 9 8 7   9)
-  "Add extra lighten current voice.")
+(defvoice voice-lighten-extra (list nil 9 8 7   nil)
+  "Add extra lightness to  current voice.")
 
-(defvoice voice-bolden-and-animate (list nil 8 8 8 8)
+(defvoice voice-bolden-and-animate (list nil 3 8 8 8)
   "Bolden and animate  current voice.")
 
 (defvoice voice-womanize-1 (list 'betty 5 nil nil nil nil)
@@ -475,7 +498,9 @@ command \\[customize-variable] on <personality>-settings.. "
   (if voice-lock-mode
       (turn-off-voice-lock)
     (turn-on-voice-lock))
-  (when (ems-interactive-p)
+  (when (called-interactively-p 'interactive)
+    (message "Turned %s voice lock mode in buffer. " 
+             (if voice-lock-mode " on " " off "))
     (emacspeak-auditory-icon (if voice-lock-mode 'on 'off))))
 
 ;;;###autoload

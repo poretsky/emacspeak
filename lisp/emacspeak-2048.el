@@ -1,4 +1,4 @@
-;;; emacspeak-2048.el --- Speech-enable 2048
+;;; emacspeak-2048.el --- Speech-enable 2048  -*- lexical-binding: t; -*-
 ;;; $Id: emacspeak-2048.el 4797 2007-07-16 23:31:22Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Speech-enable 2048 An Emacs Interface to 2048
@@ -116,7 +116,6 @@
   (emacspeak-auditory-icon 'delete-object))
 
 ;;}}}
-
 ;;{{{ Export And Import Games:
 
 (defvar emacspeak-2048-game-file
@@ -150,7 +149,7 @@ Optional interactive prefix arg prompts for a filename."
   (interactive "P")
   (let ((file
          (if prompt
-             (read-file-name "File to save game to: ")
+             (read-file-name "File to import game from: ")
            emacspeak-2048-game-file)))
     (load-file file)
     (loop
@@ -244,7 +243,8 @@ Optional interactive prefix arg prompts for a filename."
      "Provide spoken feedback"
      (when (ems-interactive-p)
        (cond
-        ((some #'identity *2048-combines-this-move*) (emacspeak-auditory-icon 'item))
+        ((some #'identity *2048-combines-this-move*)
+         (emacspeak-auditory-icon 'item))
         (t (emacspeak-auditory-icon 'close-object)))
        (emacspeak-2048-speak-board)
        (cond
@@ -267,6 +267,7 @@ Optional interactive prefix arg prompts for a filename."
   "Emacspeak setup for 2048."
   (declaim (special  2048-mode-map))
   (voice-lock-mode -1)
+  (define-key 2048-mode-map "#" 'emacspeak-2048-prune-stack)
   (define-key 2048-mode-map "D" 'emacspeak-2048-drop-row)
   (define-key 2048-mode-map "P" 'emacspeak-2048-prune-stack)
   (define-key 2048-mode-map "R" 'emacspeak-2048-add-row)

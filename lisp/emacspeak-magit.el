@@ -1,4 +1,4 @@
-;;; emacspeak-magit.el --- Speech-enable MAGIT: Git Client
+;;; emacspeak-magit.el --- Speech-enable MAGIT: Git Client  -*- lexical-binding: t; -*-
 ;;; $Id: emacspeak-magit.el 4797 2007-07-16 23:31:22Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Speech-enable MAGIT An Emacs Interface to magit
@@ -51,7 +51,7 @@
 (declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 
-(require 'magit "magit" 'no-error)
+(eval-when-compile (require 'magit "magit" 'no-error))
 
 ;;}}}
 ;;{{{ Map voices to faces:

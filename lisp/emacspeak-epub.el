@@ -1,4 +1,4 @@
-;;; emacspeak-epub.el --- epubs Front-end for emacspeak desktop
+;;; emacspeak-epub.el --- epubs Front-end for emacspeak desktop  -*- lexical-binding: t; -*-
 ;;; $Id: emacspeak-epub.el 5798 2008-08-22 17:35:01Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak front-end for EPUBS Talking Books
@@ -691,7 +691,7 @@ Suitable for text searches."
   (goto-char (next-single-property-change (point) 'epub))
   (beginning-of-line)
   (emacspeak-speak-line)
-  (emacspeak-auditory-icon 'select-obect))
+  (emacspeak-auditory-icon 'select-object))
 
 (defun emacspeak-epub-previous ()
   "Move to previous book."
@@ -700,7 +700,7 @@ Suitable for text searches."
   (goto-char (previous-single-property-change (point) 'epub))
   (beginning-of-line)
   (emacspeak-speak-line)
-  (emacspeak-auditory-icon 'select-obect))
+  (emacspeak-auditory-icon 'select-object))
 
 (defun emacspeak-epub-delete ()
   "Delete EPub under point."

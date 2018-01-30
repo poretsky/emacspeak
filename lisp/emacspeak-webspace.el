@@ -1,4 +1,4 @@
-;;; emacspeak-webspace.el --- Webspaces In Emacspeak
+;;; emacspeak-webspace.el --- Webspaces In Emacspeak  -*- lexical-binding: t; -*-
 ;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description: WebSpace provides smart updates from the Web.
@@ -186,22 +186,23 @@ Newly found headlines are inserted into the ring within our feedstore.
 We use module gfeeds to efficiently fetch feed contents using the
   Google AJAX API."
   (declare (special emacspeak-webspace-headlines-period))
-  (let* ((emacspeak-speak-messages nil)
+  (let* (
          (last-update (get-text-property 0 'last-update feed))
          (gfeeds-freshness-internal
           (if last-update
               emacspeak-webspace-headlines-period
             gfeeds-freshness-internal))
          (titles (emacspeak-webspace-fs-titles emacspeak-webspace-headlines)))
-    (when                ; check if we need to add from this feed
-        (or (null last-update)        ;  at most every half hour
+    (when                     ; check if we need to add from this feed
+        (or (null last-update)          ;  at most every half hour
             (time-less-p emacspeak-webspace-headlines-period  (time-since last-update)))
       (put-text-property 0 1 'last-update (current-time) feed)
-      (mapc
-       #'(lambda (h)
-           (unless (ring-member titles h)
-             (ring-insert titles h)))
-       (gfeeds-titles feed)))))
+      (ems-with-messages-silenced
+       (mapc
+        #'(lambda (h)
+            (unless (ring-member titles h)
+              (ring-insert titles h)))
+        (gfeeds-titles feed))))))
 
 (defsubst emacspeak-webspace-fs-next (fs)
   "Return next feed and increment index for fs."
@@ -216,7 +217,7 @@ We use module gfeeds to efficiently fetch feed contents using the
 (defun emacspeak-webspace-headlines-populate ()
   "populate fs with headlines from all feeds."
   (declare (special emacspeak-webspace-headlines))
-  (dotimes (i (length (emacspeak-webspace-fs-feeds emacspeak-webspace-headlines)))
+  (dotimes (_i (length (emacspeak-webspace-fs-feeds emacspeak-webspace-headlines)))
     (emacspeak-webspace-headlines-fetch (emacspeak-webspace-fs-next emacspeak-webspace-headlines))))
 
 (defsubst emacspeak-webspace-headlines-refresh ()
@@ -225,7 +226,7 @@ We use module gfeeds to efficiently fetch feed contents using the
   (with-local-quit
     (emacspeak-webspace-headlines-fetch
      (emacspeak-webspace-fs-next emacspeak-webspace-headlines)))
-  (emacspeak-auditory-icon 'working)
+  (emacspeak-auditory-icon 'progress)
   t)
 
 (defun emacspeak-webspace-headlines-update ()
@@ -302,8 +303,10 @@ Updated headlines found in emacspeak-webspace-headlines."
        and position  from 1
        do
        (insert (format "%d\t" position))
-       (emacspeak-webspace-headlines-insert-button h)
-       (emacspeak-webspace-mode))))
+       (emacspeak-webspace-headlines-insert-button h))
+      (goto-char (point-min))
+      (flush-lines "^ *$")
+      (emacspeak-webspace-mode)))
   (switch-to-buffer emacspeak-webspace-headlines-buffer)
   (goto-char (point-min))
   (emacspeak-auditory-icon 'open-object)
@@ -526,7 +529,6 @@ Optional interactive prefix arg forces a refresh."
    (list
     (read-from-minibuffer "Freebase Query: ")))
   (let ((buffer (get-buffer-create (format "Feedbase: %s" query)))
-        (start nil)
         (results (gf-search-results (emacspeak-url-encode query)))
         (inhibit-read-only t)
         (title nil)
@@ -633,8 +635,6 @@ Optional interactive prefix arg `limit' prompts for number of results, default i
       (insert "</body></html>\n")
       (emacspeak-webutils-autospeak)
       (browse-url-of-buffer))))
-
-
 
 ;;}}}
 (provide 'emacspeak-webspace)

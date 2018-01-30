@@ -1,4 +1,4 @@
-;;; emacspeak-amark.el --- BookMarks For Audio Content
+;;; emacspeak-amark.el --- BookMarks For Audio Content  -*- lexical-binding: t; -*-
 ;;; $Id: acss-structure.el 5798 2008-08-22 17:35:01Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description: Bookmarks for audio content like mp3
@@ -48,7 +48,7 @@
 ;;; Position: time offset from start 
 
 ;;;; This library will be used from emacspeak-m-player,
-;;emacspeak-alsaplayer and friends to set and jump to bookmarks.
+;;emacspeak-mplayer and friends to set and jump to bookmarks.
 ;;; Code:
 ;;}}}
 ;;{{{  Required modules

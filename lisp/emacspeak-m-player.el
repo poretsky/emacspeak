@@ -1,4 +1,4 @@
-;;; emacspeak-m-player.el --- Control mplayer from Emacs
+;;; emacspeak-m-player.el --- Control mplayer from Emacs  -*- lexical-binding: t; -*-
 ;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description: Controlling mplayer from emacs
@@ -57,6 +57,7 @@
 (require 'cl-lib)
 (require 'emacspeak-preamble)
 (require 'ladspa)
+(require 'ido)
 (require 'emacspeak-amark)
 (require 'emacspeak-webutils)
 (require 'dired)
@@ -278,12 +279,11 @@ etc to be ignored when guessing directory.")
 
 ;;;###autoload
 (defun emacspeak-m-player-accelerator (directory)
-  "Launch MPlayer on specified directory and switch to it."
+  "Launch MPlayer on specified directory."
   (let ((ido-case-fold t)
         (emacspeak-m-player-accelerator-p t)
         (emacspeak-media-shortcuts-directory (expand-file-name directory)))
     (call-interactively 'emacspeak-multimedia)
-    (switch-to-buffer (process-buffer emacspeak-m-player-process))
     (emacspeak-auditory-icon 'select-object)
     (emacspeak-speak-mode-line)))
 
@@ -305,8 +305,8 @@ etc to be ignored when guessing directory.")
 (defun emacspeak-m-player-url (url &optional playlist-p)
   "Call emacspeak-m-player with specified URL."
   (interactive (list (car (browse-url-interactive-arg "Media URL: "))))
-  (let ((emacspeak-speak-messages nil))
-    (emacspeak-m-player url playlist-p)))
+  (ems-with-messages-silenced
+   (emacspeak-m-player url playlist-p)))
 
 ;;;###autoload
 
@@ -330,7 +330,6 @@ Searches recursively if `directory-files-recursively' is available (Emacs 25)."
          (if (eq major-mode 'locate-mode)
              #'read-file-name-default
            #'ido-read-file-name))
-        (emacspeak-speak-messages nil)
         (read-file-name-completion-ignore-case t)
         (default
           (when (or (eq major-mode 'dired-mode) (eq major-mode 'locate-mode))
@@ -366,8 +365,8 @@ Searches recursively if `directory-files-recursively' is available (Emacs 25)."
 (defun emacspeak-m-player-process-filter (process output)
   "Filter function that captures metadata."
   (declare (special emacspeak-m-player-cue-info))
-  (when emacspeak-m-player-process
-    (with-current-buffer (process-buffer emacspeak-m-player-process)
+  (when (process-live-p process)
+    (with-current-buffer (process-buffer process)
       (when (and emacspeak-m-player-metadata
                  (emacspeak-m-player-metadata-p emacspeak-m-player-metadata)
                  (string-match "ICY Info:" output))
@@ -480,18 +479,18 @@ feature."
 Interactive prefix arg appends the new resource to what is playing."
   (interactive
    (list
-    (let ((completion-ignore-case t)
-          (emacspeak-speak-messages nil)
-          (read-file-name-completion-ignore-case t))
-      (read-file-name
-       "MP3 Resource: "
-       (if
-           (string-match "\\(mp3\\)\\|\\(audio\\)"
-                         (expand-file-name default-directory))
-           default-directory
-         emacspeak-media-shortcuts-directory)
-       (when (eq major-mode 'dired-mode)
-         (dired-get-filename))))
+    (ems-with-messages-silenced
+     (let ((completion-ignore-case t)
+           (read-file-name-completion-ignore-case t))
+       (read-file-name
+        "MP3 Resource: "
+        (if
+            (string-match "\\(mp3\\)\\|\\(audio\\)"
+                          (expand-file-name default-directory))
+            default-directory
+          emacspeak-media-shortcuts-directory)
+        (when (eq major-mode 'dired-mode)
+          (dired-get-filename)))))
     current-prefix-arg))
   (declare (special emacspeak-media-extensions
                     emacspeak-media-shortcuts-directory))
@@ -557,15 +556,17 @@ necessary."
   "Scale speed by specified factor."
   (interactive "nFactor:")
   (emacspeak-m-player-dispatch
-   (format "speed_mult %f" factor)))
+   (format "af_add scaletempo=scale=%f:speed=pitch" factor)))
 
 (defun emacspeak-m-player-slower ()
-  "Slow down playback."
+  "Slow down playback.
+This affects pitch."
   (interactive)
   (emacspeak-m-player-scale-speed 0.9091))
 
 (defun emacspeak-m-player-faster ()
-  "Speed up  playback."
+  "Speed up  playback.
+This affects pitch."
   (interactive)
   (emacspeak-m-player-scale-speed 1.1))
 
@@ -706,7 +707,8 @@ necessary."
     (unless (eq (process-status emacspeak-m-player-process) 'exit)
       (delete-process  emacspeak-m-player-process))
     (setq emacspeak-m-player-process nil)
-    (emacspeak-speak-mode-line)))
+    (with-current-buffer  (window-buffer (selected-window))
+      (emacspeak-speak-mode-line))))
 
 ;;;###autoload
 (defun emacspeak-m-player-volume-up ()
@@ -787,15 +789,21 @@ necessary."
   "Speak and display metadata if available.
 Interactive prefix arg toggles automatic cueing of ICY info updates."
   (interactive "P")
-  (declare (special emacspeak-m-player-metadata
-                    emacspeak-m-player-cue-info))
+  (declare (special emacspeak-m-player-metadata emacspeak-m-player-cue-info))
   (with-current-buffer (process-buffer emacspeak-m-player-process)
     (unless   emacspeak-m-player-metadata  (error "No metadata"))
     (let* ((m (emacspeak-m-player-metadata-info  emacspeak-m-player-metadata))
            (info (and m (cl-second (split-string m "=")))))
       (when toggle-cue
         (setq emacspeak-m-player-cue-info (not emacspeak-m-player-cue-info)))
-      (message (format "%s" (or info  "No Stream Info"))))))
+      (if toggle-cue
+          (progn
+            (emacspeak-auditory-icon
+             (if emacspeak-m-player-cue-info 'on 'off))
+            (message "ICY messages  turned %s."
+                     (if emacspeak-m-player-cue-info "on" "off")))
+        
+        (message (format "%s" (or info  "No Stream Info")))))))
 
 ;;;###autoload
 (defun emacspeak-m-player-get-length ()
@@ -857,7 +865,8 @@ Interactive prefix arg toggles automatic cueing of ICY info updates."
     "channels=1:2"
     "ladspa=bs2b:bs2b:700:4.5"
     "ladspa=tap_pinknoise.so:tap_pinknoise:0.5:-2:-12"
-    "ladspa=tap_autopan:tap_autopan:.0016:100:1, ladspa=tap_autopan:tap_autopan:.06:33:1"
+    "ladspa=amp:amp_stereo:2"
+    "ladspa=tap_autopan:tap_autopan:.0016:100:1.5, ladspa=tap_autopan:tap_autopan:.06:33:2"
     "bs2b=cmoy" "bs2b=jmeier" "bs2b")
   "Table of useful MPlayer filters.")
 
@@ -1101,14 +1110,12 @@ arg `reset' starts with all filters set to 0."
   (declare (special emacspeak-m-player-youtube-dl))
   (unless (file-executable-p emacspeak-m-player-youtube-dl)
     (error "Please install youtube-dl first."))
-  (emacspeak-m-player
-   (substring
-    (shell-command-to-string
-     (format "%s -g '%s'"
-             emacspeak-m-player-youtube-dl
-             url))
-    0
-    -1)))
+  (let ((u
+         (shell-command-to-string
+          (format "%s -g '%s' 2> /dev/null" emacspeak-m-player-youtube-dl url))))
+    (when (= 0 (length  u)) (error "Error retrieving Media URL "))
+    (setq u (substring u 0 -1))
+    (emacspeak-m-player u)))
 
 ;;}}}
 ;;{{{ pause/resume

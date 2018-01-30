@@ -1,4 +1,4 @@
-;;; emacspeak-setup.el --- Setup Emacspeak environment --loaded to start Emacspeak
+;;; emacspeak-setup.el --- Setup Emacspeak environment --loaded to start Emacspeak  -*- lexical-binding: t; -*-
 ;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description:  File for setting up and starting Emacspeak
@@ -111,8 +111,8 @@ such as pronunciation dictionaries are stored. ")
 (defvar emacspeak-media-extensions
   (let
       ((ext
-        '("wma" "wmv" "flv" "m4a" "m4b"  "flac" ".aiff"
-          "ogg" "mp3"  "mp4" "webm" "wav")))
+        '("wma" "wmv" "flv" "m4a" "m4b"  "flac" "aiff" "aac"
+          "ogv" "oga""ogg" "mp3"  "mp4" "webm" "wav")))
     (concat
      "\\."
      (regexp-opt
@@ -123,7 +123,7 @@ such as pronunciation dictionaries are stored. ")
 
 ;;;###autoload
 (defvar emacspeak-codename
-  "SteadyDog"
+  "IdealDog"
   "Code name of present release.")
 
 ;;;###autoload
@@ -145,7 +145,7 @@ such as pronunciation dictionaries are stored. ")
 ;;;###autoload
 (defvar emacspeak-version
   (format
-   "44.0 %s:  %s"
+   "45.0 %s:  %s"
    emacspeak-codename
    (emacspeak-setup-get-revision))
   "Version number for Emacspeak.")
@@ -197,7 +197,9 @@ such as pronunciation dictionaries are stored. ")
 ;;;###autoload
 (defun emacspeak-tts-multistream-p (tts-engine)
   "Checks if this tts-engine can support multiple streams."
-  (member tts-engine '("outloud" "32-outloud" "cloud-outloud")))
+  (and
+   (member tts-engine '("outloud" "32-outloud" "cloud-outloud"))
+   (not (string= (dtk-get-notify-alsa-device) "default"))))
 
 (defcustom emacspeak-tts-use-notify-stream
   (when (emacspeak-tts-multistream-p dtk-program) t)
@@ -205,13 +207,19 @@ such as pronunciation dictionaries are stored. ")
   :type 'boolean
   :group 'emacspeak)
 
+(defun emacspeak-tts-use-notify-stream-p ()
+  "Predicate to check if we use a separate notify stream."
+  (declare (special emacspeak-tts-use-notify-stream))
+  emacspeak-tts-use-notify-stream)
+
 (defun emacspeak-tts-notify-hook ()
   "Starts up a notification stream if current synth supports  multiple invocations.
-Should be safe to use with any software TTS engine."
-  (declare (special dtk-program dtk-notify-process))
-  (unless (emacspeak-tts-multistream-p dtk-program)
-    (and (process-live-p dtk-notify-process) (delete-process dtk-notify-process)))
-  (when  (emacspeak-tts-multistream-p dtk-program) (dtk-notify-initialize)))
+TTS engine should use ALSA for this to be usable."
+  (declare (special dtk-program dtk-notify-process
+                    emacspeak-tts-use-notify-stream))
+  (when (process-live-p dtk-notify-process) (delete-process dtk-notify-process))
+  (when (and emacspeak-tts-use-notify-stream (emacspeak-tts-multistream-p dtk-program))
+    (dtk-notify-initialize)))
 
 (when emacspeak-tts-use-notify-stream
   (add-hook 'dtk-startup-hook 'emacspeak-tts-notify-hook 'at-end))

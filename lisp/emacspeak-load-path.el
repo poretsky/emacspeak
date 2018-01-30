@@ -1,4 +1,4 @@
-;;; emacspeak-load-path.el -- Setup Emacs load-path for compiling Emacspeak
+;;; emacspeak-load-path.el -- Setup Emacs load-path for compiling Emacspeak  -*- lexical-binding: t; -*-
 ;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Sets up load-path for emacspeak compilation and installation
@@ -58,7 +58,7 @@
 ;;{{{ Interactive Check Implementation:
 
 ;;; Notes:
-;;; This implementation below appears to work for 99% of emacspeak.
+;;; This implementation below appears to work for  emacspeak.
 ;;; Updating  the advice on call-interactively to remember the state of our flag
 ;;; catches cases where the minibuffer is called recursively.
 

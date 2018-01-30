@@ -1,4 +1,4 @@
-;;; dtk-speak.el --- Provides Emacs Lisp interface to speech server
+;;; dtk-speak.el --- Provides Emacs Lisp interface to speech server  -*- lexical-binding: t; -*-
 ;;;$Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacs interface to TTS
@@ -63,7 +63,10 @@
 (declare-function emacspeak-queue-auditory-icon "emacspeak-sounds.el" (icon))
 ;;;###autoload
 (defvar dtk-program
-  (or  (getenv "DTK_PROGRAM") "dtk-exp")
+  (cond
+   ((getenv "DTK_PROGRAM")(getenv "DTK_PROGRAM"))
+   ((eq system-type 'darwin) "mac")
+   (t "espeak"))
   "The program to use to talk to the speech engine.
 Possible choices at present:
 dtk-exp     For the Dectalk Express.
@@ -71,7 +74,7 @@ dtk-mv      for the Multivoice and older Dectalks.
 outloud     For IBM ViaVoice Outloud
 espeak      For eSpeak
 mac for MAC TTS
-The default is dtk-exp.")
+The default is espeak.")
 
 (defvar dtk-program-args
   (when (getenv "DTK_PROGRAM_ARGS")
@@ -204,8 +207,7 @@ Modifies text and point in buffer."
      for w in words do
      (when w
        (let ((pronunciation (gethash  w pronunciation-table))
-             (pp nil)
-             (personality nil))
+             (pp nil))
          (goto-char (point-min))
          (cond
           ((stringp pronunciation)
@@ -633,6 +635,9 @@ Argument COMPLEMENT  is the complement of separator."
 ;;; note that property auditory-icon at the start  of a clause
 ;;; causes the sound
 ;;; to be queued.
+;;;
+;;; Similarly, property pause at the start of a clause specifies
+;;; amount of pause to insert.
 
 (defsubst tts-get-overlay-auditory-icon (position)
   "Return auditory icon  at the front of the overlay list at position."
@@ -703,6 +708,8 @@ Arguments START and END specify region to speak."
              (get-text-property start 'auditory-icon))
     (emacspeak-queue-auditory-icon (get-text-property start 'auditory-icon)))
   (dtk-interp-queue-code (tts-voice-reset-code))
+  (when (get-text-property start 'pause)
+    (dtk-interp-silence  (get-text-property start 'pause) nil))
   (cond
    ((not voice-lock-mode) (dtk-interp-queue (buffer-substring start end)))
    (t                                   ; voiceify as we go
@@ -717,7 +724,9 @@ Arguments START and END specify region to speak."
           (dtk-interp-queue (buffer-substring  start last)))
         (setq
          start  last
-         personality (dtk-get-style last)))))))
+         personality (dtk-get-style last))
+        (when (get-text-property start 'pause)
+          (dtk-interp-silence (get-text-property start 'pause) nil)))))))
 
 ;;;Force the speech.
 (defalias 'dtk-force 'dtk-interp-speak)
@@ -740,7 +749,7 @@ Arguments START and END specify region to speak."
   "Stop speech now.
 Interactive call   silences notification stream as well."
   (interactive)
-  (dtk-interp-stop)
+  (when (process-live-p dtk-speaker-process) (dtk-interp-stop))
   (when  (called-interactively-p 'interactive)    (dtk-notify-stop)))
 
 (defsubst dtk-reset-default-voice()
@@ -1561,7 +1570,8 @@ ALSA_DEFAULT to specified device before starting the server."
   (interactive)
   (declare (special dtk-cloud-server))
   (dtk-select-server dtk-cloud-server)
-  (dtk-initialize))
+  (dtk-initialize)
+  (when (emacspeak-tts-multistream-p dtk-cloud-server) (dtk-notify-initialize)))
 
 (defcustom tts-device-list (list "default")
   "List of ALSA sound devices  we can use."
@@ -1590,7 +1600,7 @@ Optional interactive prefix arg restarts current TTS server."
              tts-device-list))
       (setenv "ALSA_DEFAULT" tts-device)
       (message "ALSA_DEFAULT: %s" tts-device)
-      (when current-prefix-arg (tts-restart))))))
+      (when restart (tts-restart))))))
 
 ;;;###autoload
 (defvar dtk-local-server-process nil
@@ -1632,16 +1642,12 @@ program. Port defaults to dtk-local-server-port"
     current-prefix-arg))
   (declare (special    dtk-servers-alist dtk-local-server-port
                        dtk-local-server-process emacspeak-servers-directory))
-  (when (and
-         dtk-local-server-process
-         (eq 'run (process-status dtk-local-server-process)))
-    (kill-process dtk-local-server-process))
   (setq dtk-local-server-process
         (start-process
          "LocalTTS"
          "*localTTS*"
          (expand-file-name  dtk-speech-server-program emacspeak-servers-directory)
-         (if current-prefix-arg
+         (if prompt-port
              (read-from-minibuffer "Port:" "3333")
            dtk-local-server-port)
          (expand-file-name program  emacspeak-servers-directory))))
@@ -1735,7 +1741,7 @@ Argument S specifies the syntax class."
 ;;}}}
 ;;{{{ speak text
 
-(defun dtk-speak (text &optional ignore-skim)
+(defun dtk-speak (text)
   "Speak the TEXT string on the  tts.
 This is achieved by sending the text to the speech server.
 No-op if variable `dtk-quiet' is set to t.
@@ -1743,6 +1749,7 @@ If option `outline-minor-mode' is on and selective display is in effect,
 only speak upto the first ctrl-m."
   (declare (special dtk-speaker-process dtk-stop-immediately
                     tts-strip-octals inhibit-point-motion-hooks
+                    inhibit-modification-hooks
                     dtk-speak-server-initialized emacspeak-use-auditory-icons
                     dtk-speech-rate dtk-speak-nonprinting-chars
                     dtk-speak-treat-embedded-punctuations-specially
@@ -1754,9 +1761,7 @@ only speak upto the first ctrl-m."
 ;;; ensure text is a  string
   (unless (stringp text) (setq text (format "%s" text)))
 ;;; ensure  the process  is live
-  (unless (or (eq 'run (process-status dtk-speaker-process))
-              (eq 'open (process-status dtk-speaker-process)))
-    (dtk-initialize))
+  (unless (process-live-p dtk-speaker-process) (dtk-initialize))
 ;;; If you dont want me to talk,or my server is not running,
 ;;; I will remain silent.
 ;;; I also do nothing if text is nil or ""
@@ -1771,6 +1776,7 @@ only speak upto the first ctrl-m."
              (emacspeak-auditory-icon 'ellipses))))
     (let ((inhibit-point-motion-hooks t) ;snapshot relevant state
           (inhibit-read-only t)
+          (inhibit-modification-hooks t)
           (deactivate-mark nil)
           (invisibility-spec buffer-invisibility-spec)
           (syntax-table (syntax-table))
@@ -1815,7 +1821,9 @@ only speak upto the first ctrl-m."
         (dtk-handle-repeating-patterns mode)
         (dtk-quote mode)
         (goto-char (point-min))
-        (skip-syntax-forward inherit-chunk-separator-syntax)
+                                        ;(skip-syntax-forward inherit-chunk-separator-syntax)
+        (skip-syntax-forward " ");skip leading whitespace
+        (setq start (point))
         (while (and (not (eobp))
                     (dtk-move-across-a-chunk
                      inherit-chunk-separator-syntax complement-separator))
@@ -1823,19 +1831,32 @@ only speak upto the first ctrl-m."
               (and (char-after  (point))
                    (= (char-syntax (preceding-char)) ?.)
                    (not (= 32 (char-syntax (following-char)))))
+            (skip-syntax-forward " ");skip  whitespace
             (setq end (point))
             (dtk-format-text-and-speak  start end)
             (setq start  end)))         ; end while
                                         ; process trailing text
-        (or  (= start (point-max))
-             (dtk-format-text-and-speak start (point-max)))))
+        (unless  (= start (point-max))
+          (skip-syntax-forward " ");skip leading whitespace
+          (setq start (point))
+          (dtk-format-text-and-speak start (point-max)))))
     (dtk-force)))
+
+;;; forward Declaration:
+(defvar emacspeak-speak-messages)
+
+(defmacro ems-with-messages-silenced  (&rest body)
+  "Evaluate body  after temporarily silencing auditory error feedback."
+  `(let ((emacspeak-speak-messages nil)
+         (inhibit-message t)
+         (emacspeak-use-auditory-icons nil))
+     ,@body))
 
 (defsubst dtk-speak-and-echo (message)
   "Speak message and echo it to the message area."
-  (let ((emacspeak-speak-messages nil))
-    (dtk-speak message)
-    (message "%s" message)))
+  (ems-with-messages-silenced
+   (dtk-speak message)
+   (message "%s" message)))
 
 (defun dtk-speak-list (text &optional group-count)
   "Speak a  list of strings.
@@ -1896,86 +1917,99 @@ Optional argument group-count specifies grouping for intonation."
 ;;{{{ Notify:
 
 (defun dtk-notify-process ()
-  "Return valid TTS handle for notifications."
+  "Return valid TTS handle for notifications.
+Returns nil if the result would not be a valid process handle."
   (declare (special dtk-notify-process dtk-speaker-process
-                    dtk-program))
-  (cond
-   ((emacspeak-tts-multistream-p dtk-program)
-    (let ((state  (when dtk-notify-process (process-status dtk-notify-process))))
-      (cond
-       ((null dtk-notify-process) dtk-speaker-process)
-       ((memq state '(open run)) dtk-notify-process)
-       (t (or (dtk-notify-initialize)
-              dtk-speaker-process)))))
-   (t dtk-speaker-process)))
+                    emacspeak-tts-use-notify-stream dtk-program))
+  (let ((result
+         (cond
+          ((null emacspeak-tts-use-notify-stream) dtk-speaker-process) ;custom overrides.
+          ((null (emacspeak-tts-multistream-p dtk-program)) dtk-speaker-process)
+          ((null dtk-notify-process) dtk-speaker-process)
+          ((and  (processp dtk-notify-process)
+                 (memq (process-status dtk-notify-process) '(open run)))
+           dtk-notify-process)
+          (t dtk-speaker-process))))
+    (when (process-live-p result) result)))
 
 ;;;###autoload
 (defun dtk-notify-stop ()
   "Stop  speech on notification stream."
   (interactive)
   (let ((dtk-speaker-process (dtk-notify-process)))
-    (dtk-stop)))
+    (when dtk-speaker-process (dtk-stop))))
+
+(defun dtk-notify-apply (func text)
+  "Internal helper to handle notifications.
+Applies func to text with dtk-speaker-process bound to the  notification stream."
+  (let ((dtk-speaker-process  (dtk-notify-process)))
+    (funcall func text)))
 
 ;;;###autoload
+
 (defun dtk-notify-speak (text)
-  "Speak text on notification stream. "
-  (let ((dtk-speaker-process (dtk-notify-process)))
-    (dtk-speak text)))
+  "Speak text on notification stream.
+Fall back to dtk-speak if notification stream not available."
+  (declare (special dtk-speaker-process))
+  (cond
+   ((dtk-notify-process)                ; we have a live notifier
+    (dtk-notify-apply #'dtk-speak  text))
+   (t (dtk-speak text))))
 
 ;;;###autoload
 (defun dtk-notify-say (text)
   "Say text on notification stream. "
-  (let ((dtk-speaker-process (dtk-notify-process)))
-    (dtk-say text)))
+  (declare (special dtk-speaker-process))
+  (cond
+   ((dtk-notify-process)                ; we have a live notifier
+    (dtk-notify-apply #'dtk-say  text))
+   (t (dtk-say text))))
 
 ;;;###autoload
 (defun dtk-notify-letter (letter)
   "Speak letter on notification stream. "
-  (let ((dtk-speaker-process (dtk-notify-process)))
-    (dtk-letter letter)))
+  (cond
+   ((dtk-notify-process)                ; we have a live notifier
+    (dtk-notify-apply #'dtk-letter letter))
+   (t (dtk-letter letter))))
 
-(defun dtk-get-notify-alsa-device ()
-  "Returns name of Alsa device if available."
-  (when
-      (string-match "tts_mono_right"
-                    (shell-command-to-string  "aplay -L | grep tts_mono_right"))
-    "tts_mono_right"))
+(defsubst dtk-get-notify-alsa-device ()
+  "Returns name of Alsa device for use as the notification stream."
+  (cond
+   ((string-match "tts_mono_right"
+                  (shell-command-to-string  "aplay -L | grep tts_mono_right"))
+    "tts_mono_right")
+   (t (getenv "ALSA_DEFAULT"))))
 
 ;;;###autoload
 (defun  dtk-notify-initialize ()
   "Initialize notification TTS stream."
   (interactive)
-  (declare (special dtk-notify-process process-environment))
-  (let* ((save-device (getenv "ALSA_DEFAULT"))
-         (device (setenv "ALSA_DEFAULT"
-                         (cond
-                          ((dtk-get-notify-alsa-device) "tts_mono_right")
-                          (t save-device))))
-         (dtk-program
-          (if
-              (string-match "cloud" dtk-program)
-              "cloud-notify"
-            dtk-program))
-         (new-process (dtk-make-process "Notify"))
-         (state (process-status new-process))
-         (success(memq state '(run open))))
-    (cond
-     (success ;; nuke old server
+  (declare (special dtk-notify-process))
+  (let ((save-device (getenv "ALSA_DEFAULT"))
+        (device  (dtk-get-notify-alsa-device))
+        (dtk-program
+         (if
+             (string-match "cloud" dtk-program)
+             "cloud-notify"
+           dtk-program))
+        (new-process nil))
+    (setenv "ALSA_DEFAULT" device)
+    (setq new-process (dtk-make-process "Notify"))
+    (when
+        (memq (process-status new-process) '(run open))
       (when (and dtk-notify-process (process-live-p dtk-notify-process))
         (delete-process dtk-notify-process))
-      (when save-device (setenv "ALSA_DEFAULT" save-device))
-      (setq dtk-notify-process new-process)))))
+      (setenv "ALSA_DEFAULT" save-device)
+      (setq dtk-notify-process new-process))))
 
 ;;;###autoload
 (defun dtk-notify-using-voice (voice text)
   "Use voice VOICE to speak text TEXT on notification stream."
-  (declare (special  dtk-quiet))
-  (unless dtk-quiet
-    (let ((dtk-speaker-process (dtk-notify-process)))
-      (dtk-interp-queue-code (tts-voice-reset-code))
-      (dtk-interp-queue-code (tts-get-voice-command voice))
-      (dtk-interp-queue text)
-      (dtk-interp-speak))))
+  (let ((dtk-speaker-process (dtk-notify-process)))
+    (when (process-live-p dtk-speaker-process)
+      (dtk-speak-using-voice voice text)
+      (dtk-force))))
 
 ;;;###autoload
 (defun dtk-notify-shutdown ()

@@ -279,7 +279,7 @@ install:
 	$(INSTALL) -m 0755  etc/emacspeak.sh $(bindir)/emacspeak
 	$(INSTALL) -d $(infodir)
 	cd info; \
-	$(MAKE) install  infodir="$(infodir)"
+  cp *info* $(infodir)
 
 uninstall:
 	rm -rf $(infodir)/emacspeak.info* $(bindir)/emacspeak $(libdir)
@@ -295,15 +295,13 @@ all: emacspeak
 q:
 	make clean
 	make config 
-	make -j
+	make 
 
 # }}}
 # {{{  user level target-- clean
 
 clean:
 	cd lisp; $(MAKE) clean
-		cd info; $(MAKE) clean
-
 # }}}
 # {{{ labeling releases
 
@@ -311,7 +309,7 @@ clean:
 LABEL=#version number
 MSG="Releasing ${LABEL}"
 release: #supply LABEL=NN.NN
-	git tag -a  ${LABEL} -m "Tagging release with ${LABEL}"
+	git tag -a -s ${LABEL} -m "Tagging release with ${LABEL}"
 	git push --tags
 	$(MAKE) dist
 	mkdir emacspeak-${LABEL}; \

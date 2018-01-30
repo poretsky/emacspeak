@@ -211,13 +211,12 @@ proc beep_initialize {} {
 }
 
 proc beep {{freq 523} {length 100}} {
-    global tts
-    if {[info exists tts(beep)]
-        && $tts(beep) == 1}  {
-        set l  [expr $length / 1000.0]
-        exec play -q -n synth $l sin $freq fade p 0.01 0 &
-    }
+    set l  [expr $length / 1000.0]
+    set f  [expr $freq + 2]
+        # equal 10ms fade at start and end:
+        exec play -q -n synth $l sin $freq sin $f fade  0.01    0 channels 2 > /dev/null &
 }
+
 
 # }}}
 # {{{self test 

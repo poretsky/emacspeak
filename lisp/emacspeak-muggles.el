@@ -1,4 +1,4 @@
-;;; emacspeak-muggles.el --- Convenience Hydras For The Emacspeak Desktop
+;;; emacspeak-muggles.el --- Convenience Hydras For The Emacspeak Desktop  -*- lexical-binding: t; -*-
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Speech-enable MUGGLES An Emacs Interface to muggles
 ;;; Keywords: Emacspeak,  Audio Desktop muggles
@@ -61,6 +61,7 @@
 ;;;@item  org-mode structure nav: <C-c SPC> Structure navigation  for org-mode.
 ;;;@item  org-mode tables: <C-c t> Table UI for org-mode tables.
 ;;;@item m-player: <s-m> Emacspeak-M-Player Commands
+;;;@item pianobar: <s-'> Emacspeak-M-pianobar Commands
 ;;; @item hideshow: C-c h Provide HideShow bindings.
 ;;; @item toggle-option:  <C-c o> Single binding for toggling options.
 ;;; @item outliner: <C-c .> Bindings from outline-minor-mode.
@@ -81,9 +82,12 @@
 (require 'cl)
 (declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
-(when (locate-library "package")
-  (unless (locate-library "hydra") (package-install 'hydra)))
-(require 'hydra)
+(require 'hideshow)
+(require 'outline)
+(cl-eval-when '(load)
+  (when (locate-library "package")
+    (unless (locate-library "hydra") (package-install 'hydra))))
+(require 'hydra "hydra" 'no-error)
 (require 'xbacklight)
 (require 'view)
 (require 'org)
@@ -124,6 +128,12 @@ Argument `k-map' is a symbol  that names a keymap."
 (global-set-key
  (kbd "s-m")
  (emacspeak-muggles-generate 'emacspeak-m-player-mode-map))
+
+;; Create one for pianobar
+(when (featurep 'pianobar)
+  (global-set-key
+   (kbd "s-'")
+   (emacspeak-muggles-generate 'pianobar-key-map)))
 
 ;;}}}
 ;;{{{ Map Hydra Colors To Voices:
@@ -235,9 +245,9 @@ Also turn on emacspeak-muggles-talkative-p if it was turned off."
    ("E"end-of-defun)
    ("J" (emacspeak-hide-or-expose-block 'all))
    ("SPC" View-scroll-page-forward)
-   ("[" previous-page)
+   ("[" backward-page)
    ("\\" View-search-regexp-backward)
-   ("]" next-page)
+   ("]" forward-page)
    ("a" move-beginning-of-line)
    ("b" backward-word)
    ("c" emacspeak-speak-char)
@@ -439,18 +449,18 @@ _d_: subtree
 
 "
    ;; Hide
-   ("q" hide-sublevels)    ; Hide everything but the top-level headings
-   ("t" hide-body)         ; Hide everything but headings (all body lines)
-   ("o" hide-other)        ; Hide other branches
-   ("c" hide-entry)        ; Hide this entry's body
-   ("l" hide-leaves)       ; Hide body lines in this entry and sub-entries
-   ("d" hide-subtree)      ; Hide everything in this entry and sub-entries
+   ("q" outline-hide-sublevels)    ; Hide everything but the top-level headings
+   ("t" outline-hide-body)         ; Hide everything but headings (all body lines)
+   ("o" outline-hide-other)        ; Hide other branches
+   ("c" outline-hide-entry)        ; Hide this entry's body
+   ("l" outline-hide-leaves)       ; Hide body lines in this entry and sub-entries
+   ("d" outline-hide-subtree)      ; Hide everything in this entry and sub-entries
    ;; Show
-   ("a" show-all)          ; Show (expand) everything
-   ("e" show-entry)        ; Show this heading's body
-   ("i" show-children)     ; Show this heading's immediate child sub-headings
-   ("k" show-branches)     ; Show all sub-headings under this heading
-   ("s" show-subtree)      ; Show (expand) everything in this heading & below
+   ("a" outline-show-all)          ; Show (expand) everything
+   ("e" outline-show-entry)        ; Show this heading's body
+   ("i" outline-show-children)     ; Show this heading's immediate child sub-headings
+   ("k" outline-show-branches)     ; Show all sub-headings under this heading
+   ("s" outline-show-subtree)      ; Show (expand) everything in this heading & below
    ;; Move
    ("u" outline-up-heading)                ; Up
    ("n" outline-next-visible-heading)      ; Next

@@ -1,4 +1,4 @@
-;;; emacspeak-ispell.el --- Speech enable Ispell -- Emacs' interactive spell checker
+;;; emacspeak-ispell.el --- Speech enable Ispell -- Emacs' interactive spell checker  -*- lexical-binding: t; -*-
 ;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak extension to speech enable ispell
@@ -80,9 +80,9 @@ many available corrections."
   (let ((scratch-buffer (get-buffer-create " *dtk-scratch-buffer* "))
         (choices  (ad-get-arg 0))
         (line nil)
+        (pos "")
         (start (ad-get-arg 3))
-        (end (ad-get-arg 4))
-        (position 0))
+        (end (ad-get-arg 4)))
     (setq line
           (ems-set-personality-temporarily
            start end voice-bolden (thing-at-point 'line)))
@@ -94,10 +94,13 @@ many available corrections."
       (insert line)
       (cond
        ((< (length choices) emacspeak-ispell-max-choices)
-        (loop for choice in choices
-              do
-              (insert (format "%s %s\n" position choice))
-              (incf position)))
+        (loop
+         for choice in choices
+         and position from 0 do
+         (setq pos
+               (propertize (format "%d" position) 'personality voice-smoothen))
+         (insert pos)
+         (insert (format " %s\n" choice))))
        (t
         (insert (format "%s corrections available." (length choices)))))
       (modify-syntax-entry 10 ">")
@@ -107,9 +110,8 @@ many available corrections."
   "Stop chatter by turning off messages"
   (cond
    ((ems-interactive-p)
-    (let ((dtk-stop-immediately t)
-          (emacspeak-speak-messages nil))
-      ad-do-it
+    (let ((dtk-stop-immediately t))
+      (ems-with-messages-silenced ad-do-it)
       (emacspeak-auditory-icon 'task-done)))
    (t ad-do-it)))
 
@@ -125,9 +127,8 @@ many available corrections."
   "Produce auditory icons for ispell."
   (cond
    ((ems-interactive-p)
-    (let ((dtk-stop-immediately t)
-          (emacspeak-speak-messages nil))
-      ad-do-it
+    (let ((dtk-stop-immediately t))
+      (ems-with-messages-silenced ad-do-it)
       (emacspeak-auditory-icon 'task-done)))
    (t ad-do-it))
   ad-return-value)
@@ -136,9 +137,8 @@ many available corrections."
   "Produce auditory icons for ispell."
   (cond
    ((ems-interactive-p)
-    (let ((dtk-stop-immediately t)
-          (emacspeak-speak-messages nil))
-      ad-do-it
+    (let ((dtk-stop-immediately t))
+      (ems-with-messages-silenced ad-do-it)
       (emacspeak-auditory-icon 'task-done)))
    (t ad-do-it))
   ad-return-value)
@@ -148,12 +148,10 @@ many available corrections."
   (declare (special emacspeak-last-message))
   (cond
    ((ems-interactive-p)
-    (let ((dtk-stop-immediately t)
-          (emacspeak-speak-messages nil))
+    (let ((dtk-stop-immediately t))
       (setq emacspeak-last-message nil)
-      ad-do-it
-      (when (ems-interactive-p)
-        (emacspeak-speak-message-again))
+      (ems-with-messages-silenced ad-do-it)
+      (emacspeak-speak-message-again)
       (emacspeak-auditory-icon 'task-done)))
    (t ad-do-it))
   ad-return-value)

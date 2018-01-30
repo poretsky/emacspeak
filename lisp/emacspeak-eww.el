@@ -1,4 +1,4 @@
-;;; emacspeak-eww.el --- Speech-enable EWW
+;;; emacspeak-eww.el --- Speech-enable EWW  -*- lexical-binding: t; -*-
 ;;; $Id: emacspeak-eww.el 4797 2007-07-16 23:31:22Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description: Speech-enable EWW An Emacs Interface to eww
@@ -43,7 +43,9 @@
 ;;; Commentary:
 ;;; EWW == Emacs Web Browser
 ;;; EWW is a light-weight Web browser built into Emacs 24.4.
-;;; This module speech-enables EWW
+;;; This module speech-enables EWW.
+;;; It implements additional interactive commands for navigating the DOM.
+;;; It also provides a set of filters for interactively filtering the DOM by various attributes such as id, class and role.
 
 ;;; Code:
 ;;}}}
@@ -60,7 +62,7 @@
 (require 'emacspeak-we)
 (require 'emacspeak-webutils)
 (require 'emacspeak-google)
-                                        ;(require 'xml)
+
 ;;}}}
 ;;{{{ Declare generated functions:
 
@@ -86,7 +88,8 @@
  '(title url source dom)
  do
  (cond
-  ((boundp 'eww-data)
+  ((or  (= emacs-major-version 25)
+        (boundp 'eww-data))
    (eval
     `(defsubst
        ,(intern (format "emacspeak-eww-current-%s" name)) ()
@@ -205,14 +208,13 @@ are available are cued by an auditory icon on the header line."
   (setq emacspeak-eww-masquerade (not emacspeak-eww-masquerade))
   (message "Turned %s masquerade"
            (if emacspeak-eww-masquerade "on" "off"))
-  (emacspeak-auditory-icon
-   (if emacspeak-eww-masquerade 'on 'off)))
+  (emacspeak-auditory-icon (if emacspeak-eww-masquerade 'on 'off)))
 
 (defcustom  emacspeak-eww-masquerade-as
   (format "User-Agent: %s %s %s\r\n"
           "Mozilla/5.0 (X11; Linux i686 (x86_64)) "
           "AppleWebKit/537.36 (KHTML, like Gecko) "
-          "Chrome/45.0.2454.101 Safari/537.36")
+          "Chrome/53.0.2785.8-1 Safari/537.36")
   "User Agent string that is  sent when masquerading is on."
   :type 'string
   :group 'emacspeak-eww)
@@ -254,6 +256,7 @@ are available are cued by an auditory icon on the header line."
      (delete (assoc  c eww-link-keymap) eww-link-keymap)))
   (define-key eww-link-keymap  "k" 'shr-copy-url)
   (define-key eww-link-keymap ";" 'emacspeak-webutils-play-media-at-point)
+  (define-key eww-link-keymap "U" 'emacspeak-webutils-curl-play-media-at-point)
   (define-key eww-link-keymap "\C-o" 'emacspeak-feeds-opml-display)
   (define-key eww-link-keymap "\C-r" 'emacspeak-feeds-rss-display)
   (define-key eww-link-keymap "\C-a" 'emacspeak-feeds-atom-display)
@@ -316,13 +319,8 @@ are available are cued by an auditory icon on the header line."
    do
    (emacspeak-keymap-update eww-mode-map binding)))
 
-(when (boundp 'eww-mode-map) (emacspeak-eww-setup))
-;;; Use browse-url-new-window-flag
-(defadvice eww-browse-url (before emacspeak pre act comp)
-  "Respect `browse-url-new-window-flag'."
-  (interactive
-   (list url
-         (or new-window browse-url-new-window-flag))))
+(emacspeak-eww-setup)
+
 ;;}}}
 ;;{{{ Map Faces To Voices:
 
@@ -373,43 +371,42 @@ are available are cued by an auditory icon on the header line."
 If buffer was result of displaying a feed, reload feed.
 If we came from a url-template, reload that template.
 Retain previously set punctuations  mode."
-  (let ((soundscape-auto nil))
-    (add-hook 'emacspeak-web-post-process-hook 'emacspeak-eww-post-render-actions)
-    (cond
-     ((and (emacspeak-eww-current-url)
-           emacspeak-eww-feed
-           emacspeak-eww-style)
+  (let () (add-hook 'emacspeak-web-post-process-hook 'emacspeak-eww-post-render-actions)
+       (cond
+        ((and (emacspeak-eww-current-url)
+              emacspeak-eww-feed
+              emacspeak-eww-style)
                                         ; this is a displayed feed
-      (lexical-let
-          ((p dtk-punctuation-mode)
-           (r dtk-speech-rate)
-           (u (emacspeak-eww-current-url))
-           (s emacspeak-eww-style))
-        (kill-buffer)
-        (add-hook
-         'emacspeak-web-post-process-hook
-         #'(lambda ()
-             (dtk-set-punctuations p)
-             (dtk-set-rate r)
-             (emacspeak-dtk-sync))
-         'at-end)
-        (emacspeak-feeds-feed-display u s 'speak)))
-     ((and (emacspeak-eww-current-url) emacspeak-eww-url-template)
+         (lexical-let
+             ((p dtk-punctuation-mode)
+              (r dtk-speech-rate)
+              (u (emacspeak-eww-current-url))
+              (s emacspeak-eww-style))
+           (kill-buffer)
+           (add-hook
+            'emacspeak-web-post-process-hook
+            #'(lambda ()
+                (dtk-set-punctuations p)
+                (dtk-set-rate r)
+                (emacspeak-dtk-sync))
+            'at-end)
+           (emacspeak-feeds-feed-display u s 'speak)))
+        ((and (emacspeak-eww-current-url) emacspeak-eww-url-template)
                                         ; this is a url template
-      (lexical-let
-          ((n emacspeak-eww-url-template)
-           (p dtk-punctuation-mode)
-           (r dtk-speech-rate))
-        (add-hook
-         'emacspeak-web-post-process-hook
-         #'(lambda nil
-             (dtk-set-punctuations p)
-             (dtk-set-rate r)
-             (emacspeak-dtk-sync))
-         'at-end)
-        (kill-buffer)
-        (emacspeak-url-template-open (emacspeak-url-template-get  n))))
-     (t ad-do-it))))
+         (lexical-let
+             ((n emacspeak-eww-url-template)
+              (p dtk-punctuation-mode)
+              (r dtk-speech-rate))
+           (add-hook
+            'emacspeak-web-post-process-hook
+            #'(lambda nil
+                (dtk-set-punctuations p)
+                (dtk-set-rate r)
+                (emacspeak-dtk-sync))
+            'at-end)
+           (kill-buffer)
+           (emacspeak-url-template-open (emacspeak-url-template-get  n))))
+        (t ad-do-it))))
 
 (loop
  for f in
@@ -438,7 +435,8 @@ Retain previously set punctuations  mode."
      (t (emacspeak-speak-mode-line)))))
 
 (cond
- ((boundp  'eww-after-render-hook)      ; emacs 25
+ ((or (= emacs-major-version 25)
+      (boundp  'eww-after-render-hook))      ; emacs 25
   (add-hook 'eww-after-render-hook 'emacspeak-eww-after-render-hook))
  (t
   (defadvice eww-render (after emacspeak pre act comp)
@@ -451,7 +449,8 @@ Retain previously set punctuations  mode."
 
 (defadvice eww-beginning-of-text (after emacspeak pre act comp)
   "Provide auditory feedback."
-  (when (ems-interactive-p) (emacspeak-auditory-icon 'large-movement)))
+  (when (ems-interactive-p)
+    (emacspeak-auditory-icon 'large-movement)))
 
 (defadvice eww-end-of-text(after emacspeak pre act comp)
   "Provide auditory feedback."
@@ -510,29 +509,28 @@ Retain previously set punctuations  mode."
  (eval
   `(defadvice ,f (around emacspeak pre act comp)
      "Provide auditory feedback."
-     (let ((emacspeak-speak-messages nil))
-       ad-do-it
-       (when (ems-interactive-p)
-         (emacspeak-auditory-icon 'large-movement)
-         (emacspeak-speak-region
-          (point)
-          (next-single-property-change (point) 'help-echo
-                                       nil (point-max))))))))
+     (ems-with-messages-silenced ad-do-it)
+     (when (ems-interactive-p)
+       (emacspeak-auditory-icon 'button)
+       (emacspeak-speak-region
+        (point)
+        (next-single-property-change (point) 'help-echo
+                                     nil (point-max)))))))
 
 ;;; Handle emacspeak-we-url-executor
 
 (defadvice eww-follow-link (around emacspeak pre act comp)
   "Respect emacspeak-we-url-executor if set."
-  (let ((soundscape-auto nil))
-    (emacspeak-auditory-icon 'button)
-    (cond
-     ((and (ems-interactive-p)
-           (boundp 'emacspeak-we-url-executor)
-           (fboundp emacspeak-we-url-executor))
-      (let ((url (get-text-property (point) 'shr-url)))
-        (unless url (error "No URL  under point"))
-        (funcall emacspeak-we-url-executor url)))
-     (t ad-do-it))))
+  (emacspeak-auditory-icon 'button)
+  (cond
+   ((and (ems-interactive-p)
+         (boundp 'emacspeak-we-url-executor)
+         (fboundp emacspeak-we-url-executor)
+         (y-or-n-p "Use custom executor? "))
+    (let ((url (get-text-property (point) 'shr-url)))
+      (unless url (error "No URL  under point"))
+      (funcall emacspeak-we-url-executor url)))
+   (t ad-do-it)))
 
 ;;}}}
 ;;{{{ xslt transform on request:
@@ -565,11 +563,16 @@ Retain previously set punctuations  mode."
  (eval
   `
   (defadvice ,(intern (format "shr-tag-%s" tag)) (around emacspeak pre act comp)
-    (let ((start (point)))
+    (let ((orig (point)))
       ad-do-it
-      (let ((start (if (char-equal (following-char) ?\n)
-                       (min (point-max) (1+ start))start))
-            (end (if (> (point) start) (1- (point)) (point))))
+      (let ((start
+             (if (char-equal (following-char) ?\n)
+                 (min (point-max) (1+ orig))
+               orig))
+            (end
+             (if (> (point) orig)
+                 (1- (point))
+               (point))))
         (put-text-property start end
                            (quote ,tag) 'eww-tag)
         (when (memq (quote ,tag) '(h1 h2 h3 h4 h5 h6))
@@ -1132,6 +1135,13 @@ Optional interactive prefix arg `multi' prompts for multiple elements."
 
 (defvar emacspeak-eww-element-navigation-history nil
   "History for element navigation.")
+(defsubst emacspeak-eww-icon-for-element (el)
+  "Return auditory icon for element `el'."
+  (cond
+   ((memq el '(li dt)) 'item)
+   ((memq el '(h h1 h2 h3 h4 h5 h6)) 'section)
+   ((memq el '(p ul ol dd dl)) 'paragraph)
+   (t 'large-movement)))
 
 (defun emacspeak-eww-next-element (el)
   "Move forward to the next specified element."
@@ -1157,7 +1167,7 @@ Optional interactive prefix arg `multi' prompts for multiple elements."
       (setq emacspeak-eww-element-navigation-history
             (delq el emacspeak-eww-element-navigation-history))
       (push  el emacspeak-eww-element-navigation-history)
-      (emacspeak-auditory-icon 'large-movement)
+      (emacspeak-auditory-icon (emacspeak-eww-icon-for-element el))
       (emacspeak-speak-region next (next-single-property-change next el)))
      (t (message "No next %s" el)))))
 
@@ -1184,7 +1194,7 @@ Optional interactive prefix arg `multi' prompts for multiple elements."
       (setq emacspeak-eww-element-navigation-history
             (delq el emacspeak-eww-element-navigation-history))
       (push  el emacspeak-eww-element-navigation-history)
-      (emacspeak-auditory-icon 'large-movement)
+      (emacspeak-auditory-icon (emacspeak-eww-icon-for-element el))
       (emacspeak-speak-region (point) previous))
      (t (message "No previous  %s" el)))))
 
@@ -1461,6 +1471,19 @@ Warning, this is fragile, and depends on a stable id for the
     (insert
      (format "<base href='%s'/>" url))
     (browse-url-of-buffer)))
+
+;;}}}
+;;{{{ Handling Media (audio/video)
+
+;;; This should ideally be handled through mailcap.
+;;; At present, EWW sets  eww-use-external-browser-for-content-type
+;;; to match audio/video (only) and hands those off to eww-browse-with-external-browser.
+;;; Below, we advice eww-browse-with-external-browser to use emacspeak-m-player instead.
+(defadvice eww-browse-with-external-browser(around emacspeak pre act comp)
+  "Use our m-player integration."
+  (let ((url (ad-get-arg 0))
+        (media-p (string-match emacspeak-media-extensions url)))
+    (emacspeak-m-player url (not media-p))))
 
 ;;}}}
 (provide 'emacspeak-eww)

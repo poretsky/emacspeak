@@ -14,16 +14,18 @@ View OPML feeds as XHTML
     </html>
   </xsl:template>
   <xsl:template match="head">
-    <h1>
-    <xsl:value-of select="title"/> </h1>
-    <xsl:if test="dateModified">
-      <h2>Date Modified: <xsl:copy-of
-      select="dateModified"/></h2>
-    </xsl:if>
+    <head>
+      <xsl:copy-of select="title"/>
+    </head>
   </xsl:template>
   <xsl:template match="body">
     <body>
-      
+      <h1>
+      <xsl:value-of select="/opml/head/title"/> </h1>
+      <xsl:if test="/opml/head/dateModified">
+        <h2>Date Modified: <xsl:copy-of
+        select="/opml/head/dateModified"/></h2>
+      </xsl:if>
       <ol>
         <xsl:apply-templates select=".//outline"/>
       </ol>
@@ -32,22 +34,25 @@ View OPML feeds as XHTML
   <xsl:template match="outline">
 
     <xsl:if test="@xmlUrl|@xmlurl|@URL">
-      <li><xsl:element name="a">
+      <li><a>
         <xsl:attribute name="href">
           <xsl:value-of select="@xmlUrl|@xmlurl|@URL"/>
         </xsl:attribute>
         <xsl:value-of select="@title|@text"/>
-        <xsl:if test="@type">
-(<xsl:value-of select="@type"/>)
-        </xsl:if>
-      </xsl:element>
+        <xsl:choose>
+          <xsl:when test="@type='link'"> (Link: C-o to open) </xsl:when>
+          <xsl:when test="@type='atom'"> (Atom: C-a to open) </xsl:when>
+          <xsl:when test="@type='rss'"> (RSS: C-r to open) </xsl:when>
+          <xsl:when test="@type='audio'"> (Audio: C-u ; or U  to play) </xsl:when>
+          <xsl:otherwise>(<xsl:value-of select="@type"/>)</xsl:otherwise>
+        </xsl:choose>
+      </a>
       <xsl:value-of select="@description|@subtext"/>
       </li>
     </xsl:if>
 
-
   </xsl:template>
-  
+
 </xsl:stylesheet>
 <!--
 

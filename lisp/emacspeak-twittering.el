@@ -1,4 +1,4 @@
-;;; emacspeak-twittering.el --- Speech-enable Twittering-mode
+;;; emacspeak-twittering.el --- Speech-enable Twittering-mode  -*- lexical-binding: t; -*-
 ;;; $Id: emacspeak-twit.el 6133 2009-03-17 02:36:43Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Speech-enable twit.el and twitter.el --- Twitter from Emacs
@@ -70,16 +70,14 @@
 (defadvice twittering-toggle-activate-buffer (after emacspeak pre act comp)
   "Provide auditory feedback."
   (when (ems-interactive-p)
-    (emacspeak-auditory-icon
-     (if twittering-active-mode 'on 'off))
+    (emacspeak-auditory-icon (if twittering-active-mode 'on 'off))
     (message "Turned %s twittering-active-mode"
              (if twittering-active-mode 'on 'off))))
 
 (defadvice twittering-scroll-mode (after emacspeak pre act comp)
   "Provide auditory feedback."
   (when (ems-interactive-p)
-    (emacspeak-auditory-icon
-     (if twittering-scroll-mode 'on 'off))
+    (emacspeak-auditory-icon (if twittering-scroll-mode 'on 'off))
     (message "Turned %s twittering-scroll-mode"
              (if twittering-scroll-mode 'on 'off))))
 (defadvice twit (after emacspeak pre act comp)
@@ -115,8 +113,7 @@
         twittering-goto-previous-status
         twittering-goto-next-status-of-user
         twittering-goto-previous-status-of-user
-        twittering-goto-previous-status-of-user
-        twittering-goto-previous-status-of-user)
+        )
       do
       (eval
        `(defadvice ,command (after emacspeak pre act comp)
@@ -154,7 +151,7 @@
        `(defadvice ,command (after emacspeak pre act comp)
           "Provide spoken and auditory feedback."
           (when (ems-interactive-p)
-            (emacspeak-auditory-icon 'task-done)
+            (emacspeak-auditory-icon 'news)
             (emacspeak-speak-mode-line)))))
 (defadvice twittering-kill-buffer (after emacspeak pre act comp)
   "Provide auditory feedback."
@@ -188,13 +185,17 @@
 
 ;;}}}
 ;;{{{ additional interactive comand
+(defvar emacspeak-twittering-protocol-identifier
+  (regexp-opt '("http://" "https://"))
+  "Match http or https")
 
 (defun emacspeak-twittering-jump-to-following-url ()
   "Move to and open closest URI  following point."
   (interactive)
+  (declare (special emacspeak-twittering-protocol-identifier))
   (let ((moved t))
     (while (and moved
-                (not (looking-at "http://")))
+                (not (looking-at emacspeak-twittering-protocol-identifier)))
       (setq moved (goto-char (next-single-property-change (point) 'uri))))
     (browse-url-at-point)))
 
