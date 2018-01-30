@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2015, T. V. Raman
+;;;Copyright (C) 1995 -- 2017, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -68,7 +68,7 @@
 
 (defun emacspeak-keymap-bindings-update (keymap bindings)
   "Update keymap with specified list of bindings."
-  (loop
+  (cl-loop
    for binding in bindings
    do
    (define-key keymap (kbd (first binding)) (second binding)))) 
@@ -132,11 +132,13 @@
 
 ;;; help map additions:
 
-(loop for binding in
+(cl-loop for binding in
       '(
+        (":" describe-help-keys)
         ("B" customize-browse)
         ("G" customize-group)
         ("M" emacspeak-speak-popup-messages)
+        ("T" emacspeak-view-notifications)
         ("M-F" find-function-at-point)
         ("M-V" find-variable-at-point)
         ("M-f" find-function)
@@ -144,6 +146,7 @@
         ("M-v" find-variable)
         ("V" customize-variable)
         ("C-e"   emacspeak-describe-emacspeak)
+        ("C-j" finder-commentary)
         ("C-l" emacspeak-learn-emacs-mode)
         ("C-m" man)
         ("C-s" customize-saved)
@@ -159,7 +162,7 @@
       (emacspeak-keymap-update help-map binding))
 
 ;;; emacspeak-keymap bindings:
-(loop
+(cl-loop
  for binding in
  '(
    ("C-a" emacspeak-toggle-auditory-icons)
@@ -200,7 +203,8 @@
    ("C-b" emacspeak-bookshare)
    ("C-c" emacspeak-clipboard-copy)
    ("C-d" emacspeak-toggle-show-point)
-   ("C-i" emacspeak-table-display-table-in-region)
+   ("M-i" emacspeak-table-display-table-in-region)
+   ("C-i" emacspeak-open-info)
    ("C-j" emacspeak-hide-speak-block-sans-prefix)
    ("C-l" emacspeak-speak-line-number)
    ("C-m"  emacspeak-speak-continuously)
@@ -212,6 +216,7 @@
    ("C-u" emacspeak-feeds-browse)
    ("C-v" view-mode)
    ("C-w" emacspeak-speak-window-information)
+   ("M-w" emacspeak-speak-which-function)
    ("C-y" emacspeak-clipboard-paste)
    ("DEL" cd-tool)
    ("I"  emacspeak-speak-show-active-network-interfaces)
@@ -281,7 +286,7 @@
   (define-key emacspeak-keymap   (format "%s" i)
     'emacspeak-speak-predefined-window))
 
-(loop
+(cl-loop
  for binding in
  '(
    ("," dtk-toggle-punctuation-mode)
@@ -298,7 +303,6 @@
    ("\C-e" espeak)
    ("\C-m" dtk-set-chunk-separator-syntax)
    ("\C-o" outloud)
-   ("\C-v" outloud-32)
    ("a" dtk-add-cleanup-pattern)
    ("c" dtk-toggle-capitalization)
    ("d" dtk-select-server)
@@ -326,7 +330,7 @@
   (define-key emacspeak-dtk-submap
     (format "%s" i)   'dtk-set-predefined-speech-rate))
 
-(loop
+(cl-loop
  for binding in
  '(
    ("f" emacspeak-table-find-file)
@@ -336,8 +340,8 @@
  (emacspeak-keymap-update emacspeak-table-submap binding))
 
 ;;; Put these in the global map:
-(global-set-key [(shift left)] 'previous-buffer)
-(global-set-key [(shift right)] 'next-buffer)
+(global-set-key [(shift left)] 'switch-to-prev-buffer)
+(global-set-key [(shift right)] 'switch-to-next-buffer)
 (global-set-key [(control left)] 'emacspeak-previous-frame-or-buffer)
 (global-set-key [(control right)] 'emacspeak-next-frame-or-buffer)
 (global-set-key [(control down)] 'pop-to-mark-command)
@@ -349,7 +353,7 @@
 (global-set-key  [27 prior]  'emacspeak-owindow-scroll-down)
 (global-set-key  [27 next]  'emacspeak-owindow-scroll-up)
 (global-set-key  [27 select]  'emacspeak-owindow-speak-line)
-:(define-key esc-map "\M-:" 'emacspeak-wizards-show-eval-result)
+(define-key esc-map "\M-:" 'emacspeak-wizards-show-eval-result)
 
 ;;}}}
 ;;{{{ emacspeak under X windows
@@ -391,7 +395,7 @@ relief."
 (defun emacspeak-keymap-remove-emacspeak-edit-commands
     (keymap)
   "We define keys that invoke editing commands to be undefined"
-  (loop for k in
+  (cl-loop for k in
         (where-is-internal 'emacspeak-self-insert-command
                            (list keymap))
         do
@@ -413,14 +417,28 @@ relief."
 
 (defcustom emacspeak-personal-keys 
   '(
+    ("0" emacspeak-wizards-shell-by-key ) 
+    ("1" emacspeak-wizards-shell-by-key ) 
+    ("2" emacspeak-wizards-shell-by-key ) 
+    ("3" emacspeak-wizards-shell-by-key ) 
+    ("4" emacspeak-wizards-shell-by-key ) 
+    ("5" emacspeak-wizards-shell-by-key ) 
+    ("6" emacspeak-wizards-shell-by-key ) 
+    ("7" emacspeak-wizards-shell-by-key ) 
+    ("8" emacspeak-wizards-shell-by-key ) 
+    ("9" emacspeak-wizards-shell-by-key ) 
+
+
     ("=" emacspeak-wizards-find-longest-line-in-region)
     ("3" emacspeak-wizards-cycle-browser)
     ("b" battery)
     ("e" emacspeak-we-xsl-map)
     ("h" emacspeak-wizards-how-many-matches)
+    ("i" ibuffer)
     ("j" emacspeak-jabber-popup-roster)
     ("m" mspools-show)
     ("o" emacspeak-wizards-occur-header-lines)
+    ("p" paradox-list-packages)
     ("Q" emacspeak-wizards-yql-lookup)
     ("q" emacspeak-wizards-yql-quotes)
     ("r" jabber-activity-switch-to)
@@ -513,8 +531,9 @@ interactive command that the key sequence executes."
 
 (defcustom emacspeak-super-keys 
   '(
+    ("SPC"  emacspeak-wizards-scratch)
     ("." auto-correct-update)
-    ("i" ciel-ci)
+    ("f" flyspell-mode)
     ("j" ido-imenu-anywhere)
     ("o" ciel-co)
     ("r" soundscape-restart)
@@ -524,12 +543,12 @@ interactive command that the key sequence executes."
     ("S" soundscape-stop)
     ("b" emacspeak-bbc)
     ("e" elfeed)
-    ("f" emacspeak-feeds-lookup-and-view)
-    ("h" emacspeak-webspace-headlines-browse)
+    ;("h" emacspeak-webspace-headlines-browse)
     ("l" emacspeak-m-player-locate-media)
     ("m" emacspeak-wizards-view-buffers-filtered-by-this-mode)
     ("p" proced)
-    ("R" emacspeak-webspace-feed-reader))
+    ("R" emacspeak-webspace-feed-reader)
+    ("v" emacspeak-muggles-view/body))
   "*Specifies super key bindings for the audio desktop. You can
 turn the right `windows menu' keys on your Linux PC keyboard into
 a `super' key on Linux by having it emit the sequence `C-x@s'.
@@ -546,7 +565,6 @@ bound to a key.
 The value of this variable is an association list. The car of
 each element specifies a key sequence. The cdr specifies an
 interactive command that the key sequence executes."
-
   :group 'emacspeak
   :type '(repeat
           :tag "Emacspeak Super Keymap"
@@ -583,6 +601,7 @@ interactive command that the key sequence executes."
     ("c" emacspeak-wizards-view-buffers-filtered-by-this-mode)
     ("e" eww)
     ("f" emacspeak-feeds-find-feeds)
+    ("i" emacspeak-wizards-iheart)
     ("l" eww-open-file)
     ("m" magit-status)
     ("n" emacspeak-wizards-cycle-to-next-buffer)
@@ -593,25 +612,24 @@ interactive command that the key sequence executes."
     ("t" emacspeak-wizards-tune-in-radio-browse)
     ("u" emacspeak-m-player-url)
     ("v" visual-line-mode)) 
-  "*Specifies alt key bindings for the audio desktop.
-You can turn the `Pause' key  on your Linux PC keyboard into a `alt' key
-on Linux by having it emit the sequence `C-x@a'.
+  "*Specifies alt key bindings for the audio desktop. You can turn the
+`Pause' key on your Linux PC keyboard into a `alt' key on Linux by
+having it emit the sequence `C-x@a'.
 
-Bindings specified here are available on prefix key `alt'
-(not to be confused with alt==meta)
-for example, if you bind
-`s' to command emacspeak-emergency-tts-restart
-then that command will be available on key `ALT  s'
+Bindings specified here are available on prefix key `alt' (not to be
+ confused with alt==meta) for example, if you bind `s' to command
+ emacspeak-emergency-tts-restart then that command will be available
+ on key `ALT s'
 
 KEYS should be a string constant in the format used for saving
 keyboard macros (see `edmacro-mode').
 
 Command is an interactive command or a prefix-command that can be
-bound to a key. 
+bound to a key.
 
-The value of this variable is an association list. The car of
-each element specifies a key sequence. The cdr specifies an
-interactive command that the key sequence executes."
+The value of this variable is an association list. The car of each
+element specifies a key sequence. The cdr specifies an interactive
+command that the key sequence executes."
   :group 'emacspeak
   :type '(repeat
           :tag "Emacspeak Alt Keymap"
@@ -642,8 +660,12 @@ interactive command that the key sequence executes."
 
 (defcustom emacspeak-hyper-keys 
   '(
+    ("TAB" hippie-expand)
+    ("C-r" flx-isearch-backward)
+    ("C-s" flx-isearch-forward)
     (":" emacspeak-wizards-view-buffers-filtered-by-m-player-mode)
     (";" emacspeak-m-player-using-openal)
+    ("'" emacspeak-m-player-using-hrtf)
     ("B" eww-list-bookmarks)
     ("C" apu-chars)
     ("N" emacspeak-npr-listing)
@@ -652,24 +674,23 @@ interactive command that the key sequence executes."
     ("c" browse-url-chrome)
     ("d" magit-dispatch-popup)
     ("e" gmaps)
-    ("f" emacspeak-webspace-freebase-search)
+    ("f" rg)
     ("g" gnus)
     ("h" emacspeak-org-capture-link)
-    ("i" ido-everywhere)
+    ("i" yas-insert-snippet)
     ("j" emacspeak-wizards-shell-toggle)
     ("k" emacspeak-webspace-knowledge-search)
     ("l" emacspeak-librivox)
     ("m" vm)
     ("n" emacspeak-npr-play-program)
-    ("o" other-frame)
+    ("o" helm-mini)
     ("p" emacspeak-wizards-pdf-open)
     ("q" emacspeak-remote-quick-connect-to-server)
     ("r" org-capture)
     ("s" emacspeak-wizards-shell)
     ("t" twit)
     ("u" browse-url)
-    ("v" emacspeak-muggles-view/body)
-    )
+    ("v" emacspeak-evil-toggle-evil))
   "*Specifies hyper key bindings for the audio desktop. Emacs can
 use the `hyper' key as a modifier key. You can turn the `windows'
 keys on your Linux PC keyboard into a `hyper' key on Linux by
@@ -708,8 +729,6 @@ interactive command that the key sequence executes."
 (define-key emacspeak-hyper-keymap " " 'emacspeak-webspace)
 ;;}}}
 ;;{{{ Wizard bindings:
-(global-set-key (kbd "M-C-y") 'emacspeak-wizards-ido-yank)
-
 ;;}}}
 ;;{{{ Keymaps <-> Org (text) Files :
 
@@ -746,7 +765,7 @@ interactive command that the key sequence executes."
     (with-current-buffer
         buffer
       (goto-char (point-max))
-      (loop
+      (cl-loop
        for binding  in (symbol-value variable) do
        (insert (format "%s %s\n" (first binding) (second binding))))
       (save-buffer buffer))

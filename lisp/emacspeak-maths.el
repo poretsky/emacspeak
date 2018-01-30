@@ -1,4 +1,4 @@
-;;; emacspeak-maths.el --- Speak Mathematics -*-lexical-binding: t
+;;; emacspeak-maths.el --- Audio-Formatted Mathematics  -*- lexical-binding: t; -*-
 ;;; $Author: tv.raman.tv, zorkov  $
 ;;; Description:  Speak MathML and LaTeX math expressions
 ;;; Keywords: Emacspeak,  Audio Desktop maths
@@ -40,22 +40,29 @@
 ;;{{{  introduction
 
 ;;; Commentary:
-
+;;; @subsection Setup 
+;;; Do not try what follows until you have read  js/node/README.org
+;;; and successfully set up nvm (Node Version Manager) as described there.
+;;; @subsection Technical Overview 
 ;;; Spoken mathematics on the emacspeak audio desktop. Use a NodeJS
 ;;; based speech-rule-engine for Mathematics as the backend for
 ;;; processing mathematical markup. The result of this processing is
 ;;; an annotated S-expression that is rendered via Emacspeak's speech
 ;;; facilities. Annotations follow Aural CSS as implemented in
 ;;; Emacspeak, This allows us to map these expressions to aural
-;;; properties supported by specific TTS engines. Basic Usage: Startup
-;;; up the server/client: M-x emacspeak-maths-start. Once the server
+;;; properties supported by specific TTS engines. 
+;;; @subsection Basic Usage: 
+;;;
+;;; Start  the server/client: M-x emacspeak-maths-start. Once the server
 ;;; and client are started, you can browse any number of math
 ;;; expressions using the emacspeak-maths-navigator described below.
-;;;
-;;; Invoke the Navigator using s-spc --- this is the <windows> key on
+;;; Note: In general, once everything is configured correctly, using
+;;; the maths navigator automatically starts the server and
+;;; client. Invoke the Navigator using s-spc --- this is the <windows>
+;;; key on
 ;;; Linux. Now you can use these keys:
 ;;; @itemize
-;;; @item  Show Output <o> Switch to output buffer and quit hydra
+;;; @item  Show Output <o> Switch to output buffer and quit Maths Navigator
 ;;; @item Enter: <SPC>
 ;;; Enter a LaTeX expression.
 ;;; @item Smart-Enter: <enter> Enter the guessed expression with no prompting.
@@ -126,12 +133,12 @@
 
 (defvar emacspeak-maths-handler-table (make-hash-table :test #'eq)
   "Map of handlers for parsing Maths Server output.")
-(defsubst emacspeak-maths-handler-set (name handler)
+(defun emacspeak-maths-handler-set (name handler)
   "Set up handler for name `name'."
   (declare (special emacspeak-maths-handler-table))
   (puthash name handler emacspeak-maths-handler-table))
 
-(defsubst emacspeak-maths-handler-get (name)
+(defun emacspeak-maths-handler-get (name)
   "Return handler  for name `name'.
 Throw error if no handler defined."
   (declare (special emacspeak-maths-handler-table))
@@ -306,16 +313,15 @@ left for next run."
 ;;{{{ Setup:
 
 (defvar emacspeak-maths-server-program
-  (expand-file-name "math-server.js"
-                    (file-name-directory (or load-file-name default-directory)))
+  (expand-file-name "../js/node/math-server.js" emacspeak-lisp-directory)
   "NodeJS implementation of math-server.")
 ;;;###autoload
-
 (defun emacspeak-maths-start ()
   "Start Maths server bridge."
   (interactive)
   (declare (special emacspeak-maths-inferior-program
                     emacspeak-maths emacspeak-maths-server-program))
+  (cl-assert emacspeak-maths-inferior-program nil "No node executable found.")
   (let ((server
          (make-comint
           "Server-Maths" emacspeak-maths-inferior-program nil
@@ -435,37 +441,45 @@ Set calc-language to tex to use this feature."
         ((and (memq major-mode '(tex-mode plain-tex-mode latex-mode ams-tex-mode))
               (featurep 'texmathp))
          (emacspeak-maths-guess-tex))
-        ((and (eq major-mode 'eww-mode)
-              (not
-               (string-equal
-                (get-text-property (point) 'shr-alt)
-                "No image under point")))
-         (get-text-property (point) 'shr-alt))
-        (mark-active
-         (buffer-substring (region-beginning)(region-end))))))
+        ((and
+          (eq major-mode 'eww-mode)
+          (not
+           (string-equal
+            (get-text-property (point) 'shr-alt)
+            "No image under point")))
+         (get-text-property (point) 'shr-alt)))))
 
+;;;###autoload
 (defun emacspeak-maths-enter-guess ()
   "Send the guessed  LaTeX expression to Maths server.
 Guess is based on context."
   (interactive)
-  (emacspeak-maths-guess-input)         ;guess based on context
   (declare (special emacspeak-maths))
+  (emacspeak-maths-guess-input)         ;guess based on context
   (emacspeak-maths-ensure-server)
   (process-send-string
    (emacspeak-maths-client-process emacspeak-maths)
    (format "enter: %s"
-           (emacspeak-maths-input emacspeak-maths))))
+           (or
+            (emacspeak-maths-input emacspeak-maths)
+            (read-from-minibuffer
+             "Maths: "
+             nil nil nil nil
+             (when mark-active
+               (buffer-substring (region-beginning)(region-end))))))))
 
+;;;###autoload
 (defun emacspeak-maths-enter (latex)
   "Send a LaTeX expression to Maths server.
 Tries to guess default based on context.
 Uses guessed default if user enters an empty string."
   (interactive
    (list
-    (progn (emacspeak-maths-guess-input) ;guess based on context
-           (read-from-minibuffer "LaTeX: "
-                                 nil nil nil nil
-                                 (emacspeak-maths-input emacspeak-maths)))))
+    (progn
+      (emacspeak-maths-guess-input)     ;guess based on context
+      (read-from-minibuffer "LaTeX: "
+                            nil nil nil nil
+                            (emacspeak-maths-input emacspeak-maths)))))
   (declare (special emacspeak-maths))
   (emacspeak-maths-ensure-server)
   (when (string= "" latex)
@@ -489,12 +503,6 @@ Uses guessed default if user enters an empty string."
       ,(format "%s:\n" move)))))
 
 ;;}}}
-;;{{{ Speaking Output:
-
-;;}}}
-;;{{{ Displaying Output:
-
-;;}}}
 ;;{{{ Output: spoken-math mode:
 
 (define-derived-mode emacspeak-maths-spoken-mode special-mode
@@ -511,6 +519,19 @@ Emacs online help facility to look up help on these commands.
   (goto-char (point-min))
   (setq header-line-format "Spoken Math")
   (modify-syntax-entry 10 ">"))
+(declaim (special emacspeak-maths-spoken-mode-map))
+(cl-loop
+ for b in
+ '(
+   ("[" backward-page)
+   ("]" forward-page)
+   ("j" emacspeak-maths-down)
+   ("k" emacspeak-maths-up)
+   ("h" emacspeak-maths-left)
+   ("l" emacspeak-maths-right)
+   )
+ do
+ (emacspeak-keymap-update emacspeak-maths-spoken-mode-map b))
 
 (defun emacspeak-maths-setup-output ()
   "Set up output buffer for displaying spoken math."
@@ -523,7 +544,8 @@ Emacs online help facility to look up help on these commands.
   "Switch to output buffer."
   (interactive)
   (declare (special emacspeak-maths))
-  (funcall-interactively #'switch-to-buffer (emacspeak-maths-output emacspeak-maths)))
+  (funcall-interactively #'pop-to-buffer (emacspeak-maths-output emacspeak-maths)))
+
 ;;}}}
 ;;{{{ Helpers:
 
@@ -539,12 +561,16 @@ For use on Wikipedia pages  for example."
 ;;}}}
 ;;{{{ Muggle: Speak And Browse Math
 (when (featurep 'hydra)
+  (require 'emacspeak-muggles)
   (global-set-key
    (kbd "s-SPC")
    (defhydra emacspeak-maths-navigator
-     (:body-pre (emacspeak-muggles-body-pre "Spoken Math")
-                :pre emacspeak-muggles-pre
-                :post emacspeak-muggles-post)
+     (:body-pre
+      (progn
+        (when hydra-is-helpful (emacspeak-muggles-toggle-talkative))
+        (emacspeak-muggles-body-pre "Spoken Math"))
+      :pre emacspeak-muggles-pre
+      :post emacspeak-muggles-post)
      "Spoken Math"
      ("o" emacspeak-maths-switch-to-output :color blue)
      ("RET" emacspeak-maths-enter-guess)

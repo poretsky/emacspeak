@@ -81,13 +81,13 @@
 (defvar tts-env-table (make-hash-table :test #'eq)
   "TTS environment table keyed by engine name.")
 
-(defsubst tts-env-get (engine-name)
+(defun tts-env-get (engine-name)
   "Return tts-env structure for specified engine."
   (declare (special tts-env-table))
   (or (gethash  engine-name tts-env-table)
       (gethash  :plain tts-env-table)))
 
-(defsubst tts-env-set (engine-name env)
+(defun tts-env-set (engine-name env)
   "Set up engine-name->env mapping."
   (puthash engine-name  env tts-env-table))
 
@@ -98,21 +98,21 @@
   (make-hash-table :test #'eq)
   "Maps speaker processes to their associated tts-env.")
 
-(defsubst tts-env-set-process-env  (speaker env)
+(defun tts-env-set-process-env  (speaker env)
   "Setup speaker->env association."
   (declare (special tts-env-process-table))
   (puthash speaker env tts-env-process-table))
 
-(cl-defsubst tts-env (&optional (speaker dtk-speaker-process))
+(cl-defun tts-env (&optional (speaker dtk-speaker-process))
   "Return tts-env for this speaker."
   (declare (special tts-env-process-table dtk-speaker-process))
   (or (gethash speaker tts-env-process-table)
       (plain-make-tts-env)))
 
-(defsubst tts-env-gc-process-env ()
+(defun tts-env-gc-process-env ()
   "Garbage collect tts-env for killed processes."
   (declare (special tts-env-process-table))
-  (loop
+  (cl-loop
    for key being the hash-keys of tts-env-process-table
    unless (process-live-p key) do
    (remhash key tts-env-process-table)))
@@ -169,7 +169,7 @@ appropriately initialized for engine used in this speaker process."
 ;;}}}
 ;;{{{ tts-env: High-level API
 
-(loop
+(cl-loop
  for field in
  '(name default-voice
         default-speech-rate speech-rate-step speech-rate-base)
@@ -183,7 +183,7 @@ appropriately initialized for engine used in this speaker process."
   "List voices for speaker."
   (funcall (tts-env-list-voices (tts-env))))
 
-(loop
+(cl-loop
  for field in
  '(acss-voice-defined-p get-acss-voice-command define-voice-from-acss)
  do
@@ -195,7 +195,7 @@ appropriately initialized for engine used in this speaker process."
 ;;}}}
 ;;{{{ tts-state: High level API
 
-(loop
+(cl-loop
  for field in
  '(rate punctuations   quiet
         capitalize split-caps allcaps
@@ -210,7 +210,7 @@ appropriately initialized for engine used in this speaker process."
 ;;}}}
 ;;{{{ Interactive tts state Mutators:
 
-(loop
+(cl-loop
  for switch in
  '(quiet capitalize split-caps allcaps
          speak-nonprinting-chars  strip-octals use-auditory-icons)

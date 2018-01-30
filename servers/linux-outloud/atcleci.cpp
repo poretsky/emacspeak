@@ -61,9 +61,9 @@
 //>
 //<includes
 
-#include <sys/time.h>
-#include <dlfcn.h>
 #include <alloca.h>
+#include <dlfcn.h>
+#include <sys/time.h>
 #define ALSA_PCM_NEW_HW_PARAMS_API
 #define ALSA_PCM_NEW_SW_PARAMS_API
 #include <alsa/asoundlib.h>
@@ -142,7 +142,7 @@ static int (*_eciSetOutputBuffer)(void *, int, short *);
 static int (*_eciSetOutputDevice)(void *, int);
 static void (*_eciRegisterCallback)(void *, int (*)(void *, int, long, void *),
                                     void *);
-static int alsa_init();
+static size_t alsa_init();
 static void alsa_reset();  // drop handle and reset
 static size_t alsa_configure(void);
 
@@ -168,7 +168,7 @@ int eciCallback(void *, int, long, void *);
 static size_t alsa_configure(void) {
   //<init:
   size_t chunk_bytes, bits_per_sample, bits_per_frame = 0;
-  snd_pcm_uframes_t chunk_size, buffer_size = 0;
+  snd_pcm_uframes_t period_size, buffer_size = 0;
   snd_pcm_hw_params_t *params;
   unsigned int rate = DEFAULT_SPEED;
   int err;
@@ -199,8 +199,9 @@ static size_t alsa_configure(void) {
   }
   //>
   //<Rate:
-
-  err = snd_pcm_hw_params_set_rate_near(AHandle, params, &rate, 0);
+  err = snd_pcm_hw_params_set_rate_resample(AHandle, params, 1);
+  assert(err >= 0);
+  err = snd_pcm_hw_params_set_rate(AHandle, params, rate, 0);
   assert(err >= 0);
 
   //>
@@ -212,8 +213,6 @@ static size_t alsa_configure(void) {
     exit(EXIT_FAILURE);
   }
   //>
-  //< Set things explicitly if DEBUG
-  //>
   //<Commit hw params:
   err = snd_pcm_hw_params(AHandle, params);
   if (err < 0) {
@@ -221,21 +220,19 @@ static size_t alsa_configure(void) {
     exit(EXIT_FAILURE);
   }
   //>
-  //<finalize chunk_size and buffer_size:
+  //<finalize period_size and buffer_size:
 
-  snd_pcm_hw_params_get_period_size(params, &chunk_size, 0);
+  snd_pcm_hw_params_get_period_size(params, &period_size, 0);
   snd_pcm_hw_params_get_buffer_size(params, &buffer_size);
-  if (chunk_size == buffer_size) {
+  if (period_size == buffer_size) {
     fprintf(stderr, "Can't use period equal to buffer size (%lu == %lu)",
-            chunk_size, buffer_size);
+            period_size, buffer_size);
     exit(EXIT_FAILURE);
   }
   //>
-  //< If DEBUG: SW Params Configure transfer:
-  //>
   bits_per_sample = snd_pcm_format_physical_width(DEFAULT_FORMAT);
   bits_per_frame = bits_per_sample * 1;  // mono
-  chunk_bytes = chunk_size * bits_per_frame / 8;
+  chunk_bytes = period_size * bits_per_frame / 8;
   return chunk_bytes;
 }
 
@@ -342,14 +339,15 @@ void alsa_reset() {
 //>
 //<alsa_init
 
-int alsa_init() {
+static size_t alsa_init() {
   int err;
   const char *device = getenv("ALSA_DEFAULT");
   if (device == NULL) {
     device = "default";
   }
   size_t chunk_bytes = 0;
-  if ((err = snd_pcm_open(&AHandle, device, SND_PCM_STREAM_PLAYBACK, 0 /* blocking */)) < 0) {
+  if ((err = snd_pcm_open(&AHandle, device, SND_PCM_STREAM_PLAYBACK,
+                          0 /* blocking */)) < 0) {
     fprintf(stderr, "Playback open error: %s\n", snd_strerror(err));
     exit(1);
   }
@@ -534,7 +532,8 @@ int Atcleci_Init(Tcl_Interp *interp) {
   chunk_bytes = alsa_init();
   //<Finally, allocate waveBuffer
 
-  fprintf(stderr, "allocating %d samples\n", (int)chunk_bytes);
+  fprintf(stderr, "allocating %d 16 bit samples, %f seconds of audio.\n",
+          (int)chunk_bytes, (chunk_bytes / (float)DEFAULT_SPEED));
   waveBuffer = (short *)malloc(chunk_bytes * sizeof(short));
   if (waveBuffer == NULL) {
     fprintf(stderr, "not enough memory");
@@ -803,6 +802,10 @@ int showAlsaState(ClientData eciHandle, Tcl_Interp *interp, int objc,
     Tcl_AppendResult(interp, "Usage: alsaState   ", TCL_STATIC);
     return TCL_ERROR;
   }
+  fprintf(stderr, "PCM name: '%s'\n", snd_pcm_name(AHandle));
+  fprintf(stderr, "PCM state: %s\n",
+          snd_pcm_state_name(snd_pcm_state(AHandle)));
+
   snd_pcm_dump(AHandle, Log);
   return TCL_OK;
 }

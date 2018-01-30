@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2015, T. V. Raman 
+;;;Copyright (C) 1995 -- 2017, T. V. Raman 
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved. 
 ;;;
@@ -51,10 +51,10 @@
 ;;{{{  helper functions:
 
 ;;; An interval is a cons of start and end 
-(defsubst ems-make-interval (start end) (cons start end))
-(defsubst ems-interval-start (interval) (car interval))
-(defsubst ems-interval-end (interval) (cdr interval))
-(defsubst ems-intersect-intervals (i1 i2)
+(defun ems-make-interval (start end) (cons start end))
+(defun ems-interval-start (interval) (car interval))
+(defun ems-interval-end (interval) (cdr interval))
+(defun ems-intersect-intervals (i1 i2)
   (let  ((i (cons (max (ems-interval-start i1)
                        (ems-interval-start i2))
                   (min (ems-interval-end i1)
@@ -232,7 +232,7 @@ in the white-space."
     (setq table (make-vector row-count nil))
     (save-excursion
       (goto-char start)
-      (loop for
+      (cl-loop for
             i from 0 to (1- row-count)
             do
             (setq row-vector (make-vector column-count nil))

@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2015, T. V. Raman
+;;;Copyright (C) 1995 -- 2017, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -53,9 +53,6 @@
 (require 'emacspeak-preamble)
 
 ;;}}}
-;;{{{ Customizations
-
-;;}}}
 ;;{{{ Variables
 
 (defvar emacspeak-proced-minibuffer-history nil
@@ -71,8 +68,7 @@
 
 (defun emacspeak-proced-update-fields ()
   "Updates cache of field-name .column-positions alist."
-  (declare (special proced-header-line
-                    emacspeak-proced-fields))
+  (declare (special proced-header-line emacspeak-proced-fields))
   (let ((positions nil)
         (next nil)
         (header proced-header-line)
@@ -95,19 +91,19 @@
           (nreverse positions))))
 
 ;;; Destructuring: (field-name . (start . end))
-(defsubst emacspeak-proced-field-name (entry)
+(defun emacspeak-proced-field-name (entry)
   "Return field name."
   (car entry))
 
-(defsubst emacspeak-proced-field-start (entry)
+(defun emacspeak-proced-field-start (entry)
   "Return start column."
   (cadr entry))
 
-(defsubst emacspeak-proced-field-end (entry)
+(defun emacspeak-proced-field-end (entry)
   "Return end column."
   (cddr entry))
 
-(defsubst emacspeak-proced-field-to-position (field)
+(defun emacspeak-proced-field-to-position (field)
   "Return column position of this field."
   (declare (special emacspeak-proced-fields))
   (cdr (assoc-string field emacspeak-proced-fields)))
@@ -133,10 +129,10 @@
 (defun emacspeak-proced-speak-this-field (&optional position)
   "Speak field at specified column --- defaults to current column."
   (interactive)
-  (setq position
-        (or position (current-column)))
+  (setq position (or position (current-column)))
   (let ((field (emacspeak-proced-position-to-field position))
-        (start nil))
+        (start nil)
+        (end nil))
     (save-excursion
       (goto-char
        (+ (line-beginning-position)
@@ -147,29 +143,35 @@
         (setq start (point)))
       (skip-syntax-forward " ")
       (skip-syntax-forward "^ ")
+      (setq end (point))
+      (when (equal field (car (last emacspeak-proced-fields)))
+        (setq end (line-end-position)))
       (message
        "%s: %s"
        (emacspeak-proced-field-name field)
-       (buffer-substring start (point))))))
+       (buffer-substring start end)))))
 
 (defun emacspeak-proced-speak-that-field ()
   "Speak desired field via single keystroke."
   (interactive)
   (case (read-char "?")
-    (?u (emacspeak-proced-speak-field "USER"))
-    (?p (emacspeak-proced-speak-field "PID"))
-    (?c (emacspeak-proced-speak-field "%CPU"))
-    (?m (emacspeak-proced-speak-field "%MEM"))
-    (?v (emacspeak-proced-speak-field "VSZ"))
-    (?r (emacspeak-proced-speak-field "RSS"))
-    (?T (emacspeak-proced-speak-field "TTY"))
-    (?S (emacspeak-proced-speak-field "STAT"))
-    (?s (emacspeak-proced-speak-field "START"))
-    (?t (emacspeak-proced-speak-field "TIME"))
-    (?\ (emacspeak-proced-speak-field "Args"))
-    (?a (emacspeak-proced-speak-field "Args"))
+    (?u (emacspeak-proced-speak-field 'user))
+    (?p (emacspeak-proced-speak-field 'pid))
+    (?c (emacspeak-proced-speak-field 'pcpu))
+    (?m (emacspeak-proced-speak-field 'pmem))
+    (?v (emacspeak-proced-speak-field 'vsz))
+    (?r (emacspeak-proced-speak-field 'rss))
+    (?T (emacspeak-proced-speak-field 'tty))
+    (?S (emacspeak-proced-speak-field 'stat))
+    (?s (emacspeak-proced-speak-field 'start))
+    (?t (emacspeak-proced-speak-field 'time))
+    (?a (emacspeak-proced-speak-field 'args))
     (otherwise (message "Pick field using mnemonic chars"))
     (sit-for 1)))
+(defun emacspeak-proced-speak-args ()
+  "Speak command  invocation  for this process."
+  (interactive)
+  (emacspeak-proced-speak-field 'args))
 
 (defun emacspeak-proced-next-field ()
   "Navigate to next field."
@@ -185,8 +187,9 @@
       (goto-char
        (+ (line-beginning-position)
           (emacspeak-proced-field-start (car tabs))))
-      (emacspeak-auditory-icon 'large-movement)
-      (emacspeak-proced-speak-this-field)))))
+      (when (ems-interactive-p)
+        (emacspeak-auditory-icon 'large-movement)
+        (emacspeak-proced-speak-this-field))))))
 
 (defun emacspeak-proced-previous-field ()
   "Navigate to previous field."
@@ -205,26 +208,32 @@
       (goto-char
        (+ (line-beginning-position)
           (emacspeak-proced-field-start target)))
-      (emacspeak-auditory-icon 'large-movement)
-      (emacspeak-proced-speak-this-field)))))
+      (when (ems-interactive-p)
+        (emacspeak-auditory-icon 'large-movement)
+        (emacspeak-proced-speak-this-field))))))
 
 (defun emacspeak-proced-speak-field (field-name)
   "Speak value of specified field in current line."
   (interactive
    (list
     (let ((completion-ignore-case t))
-      (completing-read
-       "Field: "
-       (mapcar 'emacspeak-proced-field-name emacspeak-proced-fields)
-       nil t nil))))
-  (declare (special emacspeak-proced-fields))
-  (let ((field (assoc-string field-name emacspeak-proced-fields)))
-    (emacspeak-proced-speak-this-field
-     (emacspeak-proced-field-start field))))
+      (intern
+       (completing-read
+        "Field: "
+        (mapcar
+         #'car
+         (cdr (assoc (get-text-property (point) 'proced-pid) proced-process-alist)))       nil t nil)))))
+  (declare (special proced-process-alist))
+  (let ((value
+         (cdr
+          (assoc field-name
+                 (assoc (get-text-property (point) 'proced-pid) proced-process-alist)))))
+    (message "%s: %s" field-name value)))
 
 (defun emacspeak-proced-add-keys ()
   "Add additional keybindings for emacspeak."
   (declare (special proced-mode-map))
+  (define-key proced-mode-map "a" 'emacspeak-proced-speak-args)
   (define-key proced-mode-map "n" 'emacspeak-proced-next-line)
   (define-key proced-mode-map "p" 'emacspeak-proced-previous-line)
   (define-key proced-mode-map "j" 'emacspeak-proced-jump-to-process)
@@ -237,8 +246,7 @@
   (define-key proced-mode-map "\;" 'emacspeak-proced-speak-that-field)
   (define-key proced-mode-map "," 'emacspeak-proced-speak-this-field))
 
-(add-hook 'proced-mode-hook
-          'emacspeak-proced-add-keys)
+(add-hook 'proced-mode-hook #'emacspeak-proced-add-keys)
 
 (defun emacspeak-proced-update-process-cache ()
   "Update cache of processes we are displaying."
@@ -267,7 +275,7 @@
   (let ((pos (position name  emacspeak-proced-process-cache
                        :test #'string-equal)))
     (cond
-     (pos 
+     (pos
       (goto-line (1+ pos))
       (emacspeak-proced-speak-this-field))
      (t (error "Cant find %s" name)))))
@@ -299,36 +307,32 @@
     (message "Removed all marks. ")
     (emacspeak-auditory-icon 'deselect-object)))
 
-(defadvice proced(before emacspeak pre act comp)
-  "Provide auditory feedback."
-  (when (ems-interactive-p)
-    (emacspeak-auditory-icon 'open-object)))
+(cl-loop for f in
+         '(proced proced-update)
+         do
+         (eval
+          `(defadvice ,f (around emacspeak pre act comp)
+             "Update cache of field positions."
+             (let ((emacspeak-speak-messages nil))
+               ad-do-it
+               (emacspeak-proced-update-fields)
+               (emacspeak-proced-update-process-cache)
+               (when (ems-interactive-p)
+                 (emacspeak-auditory-icon 'open-object)
+                 (funcall-interactively #'emacspeak-speak-mode-line))))))
 
-(loop for f in
-      '(proced proced-update)
-      do
-      (eval
-       `(defadvice ,f (around emacspeak pre act comp)
-          "Update cache of field positions."
-          (let ((emacspeak-speak-messages nil))
-            ad-do-it
-            (emacspeak-proced-update-fields)
-            (emacspeak-proced-update-process-cache)
-            (when (ems-interactive-p)
-              (let ((header-line-format nil))
-                (emacspeak-speak-mode-line)))))))
-
-(loop for f  in
-      '(proced-sort-pcpu proced-sort-start
-                         proced-sort-time proced-sort-interactive
-                         proced-sort-user  proced-sort-pmem
-                         proced-sort-pid)
-      do
-      (eval
-       `(defadvice ,f (after emacspeak pre act comp)
-          "Provide auditory feedbak."
-          (when (ems-interactive-p)
-            (emacspeak-auditory-icon 'task-done)))))
+(cl-loop for f  in
+         '(proced-sort-pcpu proced-sort-start
+                            proced-sort-time proced-sort-interactive
+                            proced-sort-user  proced-sort-pmem
+                            proced-sort-pid)
+         do
+         (eval
+          `(defadvice ,f (after emacspeak pre act comp)
+             "Provide auditory feedbak."
+             (when (ems-interactive-p)
+               (emacspeak-proced-speak-this-field)
+               (emacspeak-auditory-icon 'task-done)))))
 
 ;;}}}
 ;;{{{ additional commands:
@@ -336,14 +340,23 @@
 (defun emacspeak-proced-next-line ()
   "Move to next line and speak a summary."
   (interactive)
-  (forward-line 1)
-  (emacspeak-proced-speak-field "ARGS"))
+  (goto-char (line-end-position))
+  (cond
+   ((eobp) (error "On last line."))
+   (t (forward-line 1)
+      (skip-syntax-forward " ")
+      (emacspeak-proced-speak-field 'args))))
 
 (defun emacspeak-proced-previous-line ()
   "Move to next line and speak a summary."
   (interactive)
-  (forward-line -1)
-  (emacspeak-proced-speak-field "ARGS"))
+  (goto-char (line-beginning-position))
+  (cond
+   ((bobp) (error "On first line"))
+   (t (forward-line -1)
+      (beginning-of-line)
+      (skip-syntax-forward " ")
+      (emacspeak-proced-speak-field 'args))))
 
 ;;}}}
 (provide 'emacspeak-proced)

@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (C) 1995 -- 2015, T. V. Raman
+;;; Copyright (C) 1995 -- 2017, T. V. Raman
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -64,7 +64,7 @@
                               ediary-time-later     ediary-time-block-later)
   "Commands that should speak the entry when done.")
 
-(loop for f in emacspeak-ediary-commands-that-speak-entry
+(cl-loop for f in emacspeak-ediary-commands-that-speak-entry
       do
       (eval
        `(defadvice ,f (after emacspeak pre act comp)

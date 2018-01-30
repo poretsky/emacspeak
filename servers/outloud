@@ -12,7 +12,7 @@
 
 # }}}
 # {{{ Copyright:  
-#Copyright (C) 1995 -- 2001, T. V. Raman 
+#Copyright (C) 1995 -- 2017, T. V. Raman 
 #All Rights Reserved
 #
 # This file is not part of GNU Emacs, but the same permissions apply.
@@ -37,7 +37,6 @@
 package require Tclx
 set wd [file dirname $argv0]
 lappend auto_path $wd
-#source tts-lib.tcl
 source $wd/tts-lib.tcl
 
 # }}}
@@ -87,7 +86,7 @@ proc tts_say {text} {
 }
 
 #formerly called tts_letter
-
+# outloud: dont use say_rate for speaking letters (sounds bad )
 proc l {text} {
     global tts
     set r $tts(speech_rate)
@@ -339,7 +338,7 @@ proc service {} {
     global tts
     set talking [speakingP]
     while {$talking == 1} {
-        set status   [lsearch [select [list  stdin]  {} {} 0.001] stdin]
+        set status   [lsearch [select [list  stdin]  {} {} 0.0001] stdin]
         if { $status >= 0} {
             set tts(talking?) 0
             set talking 0
@@ -425,12 +424,12 @@ proc clean {element} {
     }
     regsub -all {\240} $element " " element
     if {$tts(capitalize) } {
-        regsub -all {[A-Z]} $element { `ar `p10   & } element
+        regsub -all {[A-Z]} $element { `ah `p2 `3 &`p1 } element
     }
     if {$tts(split_caps) } {
         if  {$tts(allcaps_beep)} {
-            set tone ""
-            set abbrev_tone ""
+            set tone "`ar `p20 `4 "
+            set abbrev_tone "`ar `p30   `4 "
         } else {
             set tone ""
             set abbrev_tone ""
@@ -498,7 +497,7 @@ commandloop
 # {{{ Emacs local variables  
 
 ### Local variables:
-### major-mode: tcl-mode 
+### mode: tcl
 ### voice-lock-mode: t
 ### folded-file: t
 ### End:

@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2015, T. V. Raman
+;;;Copyright (C) 1995 -- 2017, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -57,7 +57,7 @@
 ;;{{{ Advice interactive functions:
 
 ;;; Jumpers: Move to tags by various means
-(loop for f in
+(cl-loop for f in
       '(
         gtags-find-with-grep
         gtags-find-with-idutils

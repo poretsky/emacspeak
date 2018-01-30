@@ -1,4 +1,4 @@
-;;; dtk-unicode.el --- Pronounce more characters correctly  -*- lexical-binding: t; -*-
+;;; dtk-unicode.el --- Pronounce Unicode characters correctly  -*- lexical-binding: t; -*-
 ;;{{{ Header: Lukas
 
 ;; Copyright 2007, 2011 Lukas Loehrer
@@ -22,7 +22,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2015, T. V. Raman
+;;;Copyright (C) 1995 -- 2017, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -162,7 +162,7 @@ A handler returns a non-nil value if the   replacement was successful, nil other
 (defun dtk-unicode-build-skip-regexp (charsets)
   "Construct regexp to match all but the characters in dtk-unicode-untouched-charsets."
   (format "[^%s]"
-          (loop for charset in charsets
+          (cl-loop for charset in charsets
                 when (charsetp charset)
                 concat (apply 'format "%c-%c" (dtk-unicode-charset-limits charset)))))
 
@@ -194,7 +194,7 @@ charsets returned by operations such as `find-charset-region'."
                            (memq (char-charset char) charsets)))
   )
 
-(defsubst dtk-unicode-char-untouched-p (char)
+(defun dtk-unicode-char-untouched-p (char)
   "Return t if char is a member of one of the charsets in dtk-unicode-untouched-charsets."
   (dtk-unicode-char-in-charsets-p char dtk-unicode-untouched-charsets))
 
@@ -211,7 +211,7 @@ charsets returned by operations such as `find-charset-region'."
           (puthash char ad-return-value dtk-unicode-cache))
       (setq ad-return-value result))))
 
-(defsubst dtk-unicode-name-for-char (char)
+(defun dtk-unicode-name-for-char (char)
   "Return unicode name for character CHAR.
 nil if CHAR is not in Unicode."
   (cond
@@ -222,23 +222,23 @@ nil if CHAR is not in Unicode."
       (get-char-code-property char 'name)
       (get-char-code-property char 'old-name)
       (format "%c" char))))))
-(defsubst dtk-unicode-char-properties (char)
+(defun dtk-unicode-char-properties (char)
   "Return unicode properties for CHAR."
   (let ((unicode (encode-char char 'ucs)))
     (when unicode (describe-char-unicode-data unicode))))
 
-(defsubst dtk-unicode-char-property (char prop-name)
+(defun dtk-unicode-char-property (char prop-name)
   "Get character property by name."
   (second (assoc prop-name (dtk-unicode-char-properties char))))
 
-(defsubst dtk-unicode-char-punctuation-p (char)
+(defun dtk-unicode-char-punctuation-p (char)
   "Use unicode properties to determine whether CHAR is a ppunctuation character."
   (let ((category (dtk-unicode-char-property char "Category"))
         (case-fold-search t))
     (when (stringp category)
       (string-match "punctuation" category))))
 
-(defsubst dtk-unicode-apply-name-transformation-rules (name)
+(defun dtk-unicode-apply-name-transformation-rules (name)
   "Apply transformation rules in dtk-unicode-name-transformation-rules-alist to NAME."
   (funcall
    (or (assoc-default name dtk-unicode-name-transformation-rules-alist 'string-match)
@@ -251,7 +251,7 @@ nil if CHAR is not in Unicode."
 When called interactively, CHAR defaults to the character after point."
   (interactive (list (following-char)))
   (setq dtk-unicode-character-replacement-alist
-        (loop for elem in dtk-unicode-character-replacement-alist
+        (cl-loop for elem in dtk-unicode-character-replacement-alist
               unless (eq (car elem) char) collect elem)))
 
 (defun dtk-unicode-customize-char (char replacement)
@@ -268,11 +268,11 @@ When called interactively, CHAR defaults to the character after point."
 ;;}}}
 ;;{{{ Character replacement handlers
 
-(defsubst dtk-unicode-user-table-handler (char)
+(defun dtk-unicode-user-table-handler (char)
   "Return user defined replacement character if it exists."
   (cdr (assq char dtk-unicode-character-replacement-alist)))
 
-(defsubst dtk-unicode-full-table-handler (char)
+(defun dtk-unicode-full-table-handler (char)
   "Uses the unicode data file to find the name of CHAR."
   (let ((char-desc (dtk-unicode-name-for-char char)))
     (when char-desc

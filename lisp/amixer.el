@@ -3,7 +3,7 @@
 ;;;Emacs front-end to AMixer
 ;;{{{  Copyright:
 
-;;; Copyright (C) 1995 -- 2015, T. V. Raman<raman@cs.cornell.edu>
+;;; Copyright (C) 1995 -- 2017, T. V. Raman<raman@cs.cornell.edu>
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -35,7 +35,7 @@
 ;;{{{ required packages
 
 (require 'cl-lib)
-(declaim  (optimize  (safety 0) (speed 3)))
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 
 ;;}}}
 ;;{{{ Customizations:
@@ -43,10 +43,16 @@
 ;;}}}
 ;;{{{ Definitions
 
-(defcustom amixer-card "0"
-  "Card number to control."
+(defcustom amixer-device "default"
+  "ALSA Control Device."
   :type 'string
   :group 'amixer)
+
+(defvar amixer-program  (executable-find "amixer")
+  "Amixer program")
+
+(defvar alsactl-program  (executable-find "alsactl")
+  "AlsaCtl program")
 
 (defvar amixer-db nil
   "Holds cached values.")
@@ -67,18 +73,14 @@
 
 (defun amixer-populate-settings (control)
   "Populate control with its settings information."
-  (declare (special amixer-card))
-  (let ((scratch (get-buffer-create " *amixer*"))
-        (fields nil)
+  (declare (special amixer-card amixer-device))
+  (let ((fields nil)
         (slots nil)
         (current nil))
-    (save-current-buffer
-      (set-buffer scratch)
-      (setq buffer-undo-list t)
-      (erase-buffer)
+    (with-temp-buffer
       (shell-command
-       (format "amixer -c %s cget numid=%s"
-               amixer-card
+       (format "amixer --device %s cget numid=%s"
+               amixer-device
                (amixer-control-numid (cdr control)))
        (current-buffer))
       (goto-char (point-min))
@@ -116,21 +118,16 @@
 
 (defun amixer-build-db ()
   "Create a database of amixer controls and their settings."
-  (declare (special amixer-db amixer-card))
-  (unless (executable-find "amixer")
-    (error "You dont have a standard amixer."))
-  (let ((scratch (get-buffer-create " *amixer*"))
-        (controls nil)
+  (declare (special amixer-db amixer-device amixer-program))
+  (unless amixer-program (error "You dont have a standard amixer."))m
+  (let ((controls nil)
         (fields nil)
         (slots nil))
-    (save-current-buffer
-      (set-buffer scratch)
-      (setq buffer-undo-list t)
-      (erase-buffer)
+    (with-temp-buffer
       (shell-command
        (format
-        "amixer -c %s controls | sed -e s/\\'//g"
-        amixer-card)
+        "amixer --device %s controls | sed -e s/\\'//g"
+        amixer-device)
        (current-buffer))
       (goto-char (point-min))
       (while (not (eobp))
@@ -142,7 +139,7 @@
                ","))
 ;;; only need 3 fields:
         (setq fields
-              (list 
+              (list
                (nth 0 fields)
                (nth 1 fields)
                (mapconcat #'identity (nthcdr 2 fields) " ")))
@@ -167,17 +164,13 @@
 
 (defun amixer-get-enumerated-values(control)
   "Return list of enumerated values."
-  (declare (special amixer-card))
-  (let ((buffer (get-buffer-create " *amixer*"))
-        (values nil))
-    (save-current-buffer
-      (set-buffer buffer)
-      (setq buffer-undo-list t)
-      (erase-buffer)
+  (declare (special amixer-device))
+  (let ((values nil))
+    (with-temp-buffer
       (shell-command
        (format
-        "amixer -c %s   cget numid=%s | grep Item | sed -e s/\\'//g"
-        amixer-card
+        "amixer -devicec %s   cget numid=%s | grep Item | sed -e s/\\'//g"
+        amixer-device
         (amixer-control-numid control))
        (current-buffer))
       (goto-char (point-min))
@@ -194,8 +187,10 @@
       (nreverse values))))
 (defvar amixer-alsactl-config-file
   nil
-  "Personal sound card settings.
-Copied from /var/lib/alsa/asound.state to your ~/.emacs.d to avoid needing to run alsactl as root on first use.")
+  "Personal sound card settings. Copied from /var/lib/alsa/asound.state
+to your ~/.emacs.d to avoid needing to run alsactl as root on first
+use."
+  )
 
 (defun amixer-alsactl-setup ()
   "Set up alsactl sound state."
@@ -209,15 +204,29 @@ Copied from /var/lib/alsa/asound.state to your ~/.emacs.d to avoid needing to ru
      f)))
 
 ;;;###autoload
+(defun amixer-restore (&optional conf-file)
+  "Restore alsa settings."
+  (declare (special alsactl-program))
+  (if conf-file
+      (start-process
+       "AlsaCtl" nil alsactl-program
+       "-f" conf-file
+       "restore")
+    (start-process
+     "AlsaCtl" nil alsactl-program
+     "restore"))
+  (dtk-stop)
+  (message "Resetting  sound to default")
+  (amixer-build-db))
+
+;;;###autoload
 (defun amixer (&optional refresh)
   "Interactively manipulate ALSA settings.
 Interactive prefix arg refreshes cache."
   (interactive "P")
-  (declare (special amixer-db
-                    amixer-alsactl-config-file))
+  (declare (special amixer-db amixer-alsactl-config-file amixer-program))
   (unless amixer-alsactl-config-file (amixer-alsactl-setup))
-  (when (or refresh
-            (null amixer-db))
+  (when (or refresh (null amixer-db))
     (amixer-build-db))
   (let ((control
          (cdr
@@ -231,13 +240,8 @@ Interactive prefix arg refreshes cache."
         (choices nil))
     (cond
      ((null control)
-      (shell-command
-       (format "alsactl %s  restore"
-               (if amixer-alsactl-config-file
-                   (format "-f %s" amixer-alsactl-config-file)
-                 ""))
-       (message "Resetting  sound to default"))
-      (amixer-build-db))
+      (amixer-restore  amixer-alsactl-config-file)
+      (amixer-reset-equalizer))
      (t
       (when (string=
              "ENUMERATED"
@@ -245,7 +249,7 @@ Interactive prefix arg refreshes cache."
         (setq choices
               (amixer-get-enumerated-values control)))
       (setq update
-            (read-from-minibuffer 
+            (read-from-minibuffer
              (format
               "Change %s from %s %s:"
               (amixer-control-name control)
@@ -256,19 +260,56 @@ Interactive prefix arg refreshes cache."
        (amixer-control-setting-current
         (amixer-control-setting control))
        update)
-      (shell-command
-       (format
-        "amixer -c %s cset numid=%s %s"
-        amixer-card
-        (amixer-control-numid control)
-        update))
+      (start-process
+       "AMixer" "*Debug*"  amixer-program
+       "--device" amixer-device
+       "cset"
+       (format "numid=%s" (amixer-control-numid control))
+       update)
       (message
        "updated %s to %s"
        (amixer-control-name control)
        update)))))
 
+;;;###autoload
+(defun amixer-equalize()
+  "Set equalizer. Only affects device `equal'."
+  (interactive)
+  (declare (special amixer-device))
+  (let ((amixer-device "equal"))
+    (amixer 'refresh)
+    ;;; mark db dirty.
+    (setq amixer-db nil)))
+
+(defun amixer-reset-equalizer ()
+  "Reset equalizer to default values -- 66% for all 10 bands."
+  (interactive)
+  (declare (special amixer-program))
+  (cl-loop
+   for  i from 1 to 10 do
+   (start-process
+    "AMixer" nil amixer-program
+    "-Dequal"
+    "cset"
+    (format "numid=%s" i)
+    "66,66" ))
+  (message "Reset equalizer"))
+
+;;;###autoload
+(defun amixer-store()
+  "Persist current amixer settings."
+  (interactive)
+  (declare (special  amixer-alsactl-config-file alsactl-program))
+  (unless amixer-alsactl-config-file (amixer-alsactl-setup))
+  (when amixer-alsactl-config-file
+    (start-process
+     "AlsaCtl" nil alsactl-program
+     "-f"amixer-alsactl-config-file
+     "store" )
+    (emacspeak-auditory-icon 'task-done)
+    (message "Persisted amixer state.")))
 ;;}}}
-(provide 'amixer)      
+(provide 'amixer)
 ;;{{{ end of file
 
 ;;; local variables:
@@ -276,4 +317,4 @@ Interactive prefix arg refreshes cache."
 ;;; byte-compile-dynamic: nil
 ;;; end:
 
-;;}}}      
+;;}}}

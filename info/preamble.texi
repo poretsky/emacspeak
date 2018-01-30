@@ -4,8 +4,8 @@
 
 
 
-This manual documents @b{Emacspeak, The Complete Audio Desktop}.
-This document was last updated on @today{}.
+This manual documents @strong{Emacspeak, The Complete Audio Desktop}
+and  was last updated on @today{}.
 
 @ifinfo 
 The manual is divided into the following chapters. 
@@ -26,6 +26,7 @@ The manual is divided into the following chapters.
 * Emacspeak Commands And Options:  Emacspeak Commands And Options.
 * Emacspeak Keyboard Commands: Emacspeak Keyboard Commands.
 * TTS Servers:  TTS Servers.
+*  Emacspeak At Twenty: Emacspeak At Twenty.
 * Acknowledgments: Acknowledgments.
 
 Indices:

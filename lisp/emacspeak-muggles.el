@@ -61,11 +61,13 @@
 ;;;@item  org-mode structure nav: <C-c SPC> Structure navigation  for org-mode.
 ;;;@item  org-mode tables: <C-c t> Table UI for org-mode tables.
 ;;;@item m-player: <s-m> Emacspeak-M-Player Commands
+;;;@item m-player: <s-;> Emacspeak-M-Player muggle
 ;;;@item pianobar: <s-'> Emacspeak-M-pianobar Commands
 ;;; @item hideshow: C-c h Provide HideShow bindings.
 ;;; @item toggle-option:  <C-c o> Single binding for toggling options.
 ;;; @item outliner: <C-c .> Bindings from outline-minor-mode.
 ;;;@item Info-Summary: <?> in Info Info Summary Muggle
+;;; @item Repeatable-Yank: <C-y> Smart yank
 ;;;@end itemize
 
 ;;; Emacspeak automatically speaks Hydra hints when displayed.
@@ -149,15 +151,12 @@ Argument `k-map' is a symbol  that names a keymap."
 ;;}}}
 ;;{{{ Toggle Talkative:
 
-(defvar emacspeak-muggles-talkative-p t
-  "Set to nil when silencing speaking of hydra hints.")
-
 (defun emacspeak-muggles-toggle-talkative ()
-  "Toggle state of emacspeak-muggles-talkative-p."
+  "Toggle state of hydra-is-helpful"
   (interactive)
-  (declare (special emacspeak-muggles-talkative-p))
-  (setq emacspeak-muggles-talkative-p (not emacspeak-muggles-talkative-p))
-  (emacspeak-auditory-icon (if emacspeak-muggles-talkative-p 'on 'off)))
+  (declare (special hydra-is-helpful))
+  (setq hydra-is-helpful (not hydra-is-helpful))
+  (emacspeak-auditory-icon (if hydra-is-helpful 'on 'off)))
 
 ;;}}}
 ;;{{{ Emacspeak Helpers:
@@ -173,28 +172,22 @@ Argument `k-map' is a symbol  that names a keymap."
 
 (defun emacspeak-muggles-post ()
   "Provide auditory icon.
-Also turn on emacspeak-muggles-talkative-p if it was turned off."
-  (setq emacspeak-muggles-talkative-p t)
-  (emacspeak-auditory-icon 'close-object))
+Also turn on hydra-is-helpful if it was turned off."
+  (setq hydra-is-helpful t)
+  (call-interactively #'dtk-stop)
+  (when emacspeak-use-auditory-icons(emacspeak-play-auditory-icon 'close-object)))
 
 ;;}}}
-;;{{{ Advice LV:
+;;{{{ Setup Help And Hint 
 
-(setq hydra-head-format "%s ")
+;;; We use plain messages:
 
-(defadvice lv-message (after emacspeak pre act comp)
-  "provide spoken feedback if idle, and emacspeak-muggles-talkative-p is T."
-  (when emacspeak-muggles-talkative-p
-    (let ((buffer (get-buffer "*LV*"))
-          (dtk-stop-immediately  nil))
-      (when (and buffer  (buffer-live-p buffer))
-        (with-current-buffer buffer
-          (dtk-speak-list
-           (split-string
-            (propertize
-             (buffer-substring (point-min) (1- (point-max)))
-             :personality 'voice-smoothen)
-            ",")))))))
+(setq hydra-head-format "%s "
+      hydra-lv nil)
+
+(defun emacspeak-muggles-self-help (name)
+  "Speak hint for specified Hydra."
+  (message (eval (symbol-value (intern (format "%s/hint" name))))))
 
 ;;}}}
 ;;{{{ Brightness:
@@ -203,9 +196,11 @@ Also turn on emacspeak-muggles-talkative-p if it was turned off."
  (kbd "<print>")
  (defhydra emacspeak-muggles-brightness
    (:body-pre (emacspeak-muggles-body-pre "Brightness")
+              :timeout 0.3
               :pre emacspeak-muggles-pre
               :post emacspeak-muggles-post)
-   "Brightness"
+   "Brightness "
+   ("?" (emacspeak-muggles-self-help "emacspeak-muggles-brightness") "Help")
    ("s" xbacklight-set "set")
    ("g" xbacklight-get "Get")
    ("<print>" xbacklight-black "black")
@@ -228,6 +223,7 @@ Also turn on emacspeak-muggles-talkative-p if it was turned off."
     :hint nil
     :pre emacspeak-muggles-pre :post emacspeak-muggles-post)
    "View Mode"
+   ("?" (emacspeak-muggles-self-help "emacspeak-muggles-view"))
    ("$" set-selective-display)
    ("%"  View-goto-percent)
    ("'" register-to-point)
@@ -278,7 +274,7 @@ Also turn on emacspeak-muggles-talkative-p if it was turned off."
 ;;}}}
 ;;{{{ Org Mode Structure Navigation:
 
-(define-key org-mode-map 
+(define-key org-mode-map
   (kbd "C-c SPC")
   (defhydra emacspeak-muggles-org-nav
     (:body-pre
@@ -288,7 +284,8 @@ Also turn on emacspeak-muggles-talkative-p if it was turned off."
      :hint nil
      :pre emacspeak-muggles-pre :post emacspeak-muggles-post
      :color red :columns 3)
-    "Org Mode Movements"
+    "Org Mode Navigate "
+    ("?" (emacspeak-muggles-self-help "emacspeak-muggles-org-nav"))
     ("SPC" emacspeak-outline-speak-this-heading  "Speak this section")
     ("n" outline-next-visible-heading "next heading")
     ("p" outline-previous-visible-heading "prev heading")
@@ -306,6 +303,7 @@ Also turn on emacspeak-muggles-talkative-p if it was turned off."
     (:body-pre (emacspeak-muggles-body-pre "Org Table UI")
                :pre emacspeak-muggles-pre :post emacspeak-muggles-post)
     "Org Table UI"
+    ("?"(emacspeak-muggles-self-help "emacspeak-muggles-org-table"))
     ("j" org-table-next-row)
     ("k" org-table-previous-row)
     ("h" org-table-previous-field)
@@ -319,65 +317,67 @@ Also turn on emacspeak-muggles-talkative-p if it was turned off."
 ;;}}}
 ;;{{{ Media Player:
 
-(defhydra emacspeak-muggles-m-player
-  (:body-pre (emacspeak-muggles-body-pre "Media Player")
-             :hint nil
-             :pre emacspeak-muggles-pre :post emacspeak-muggles-post)
-  (";" emacspeak-m-player)
-  ("+" emacspeak-m-player-volume-up)
-  ("," emacspeak-m-player-backward-10s)
-  ("%" emacspeak-m-player-display-percent)
-  ("-" emacspeak-m-player-volume-down)
-  ("." emacspeak-m-player-forward-10s)
-  ("<" emacspeak-m-player-backward-1min)
-  ("<down>" emacspeak-m-player-forward-1min)
-  ("<end>" emacspeak-m-player-end-of-track)
-  ("<home>" emacspeak-m-player-beginning-of-track)
-  ("<left>" emacspeak-m-player-backward-10s)
-  ("<next>" emacspeak-m-player-forward-10min)
-  ("<prior>" emacspeak-m-player-backward-10min)
-  ("<right>" emacspeak-m-player-forward-10s)
-  ("<up>" emacspeak-m-player-backward-1min)
-  ("=" emacspeak-m-player-volume-up)
-  (">" emacspeak-m-player-forward-1min)
-  ("?" emacspeak-m-player-display-position)
-  ("C" emacspeak-m-player-clear-filters)
-  ("C-m" emacspeak-m-player-load)
-  ("DEL" emacspeak-m-player-reset-speed)
-  ("L" emacspeak-m-player-load-file)
-  ("M-l" emacspeak-m-player-load-playlist)
-  ("O" emacspeak-m-player-reset-options)
-  ("P" emacspeak-m-player-apply-reverb-preset)
-  ("Q" emacspeak-m-player-quit "quit")
-  ("R" emacspeak-m-player-edit-reverb)
-  ("S" emacspeak-amark-save)
-  ("SPC" emacspeak-m-player-pause)
-  ("[" emacspeak-m-player-slower)
-  ("]" emacspeak-m-player-faster)
-  ("a" emacspeak-m-player-amark-add)
-  ("b" emacspeak-m-player-balance)
-  ("c" emacspeak-m-player-slave-command)
-  ("d" emacspeak-m-player-delete-filter)
-  ("e" emacspeak-m-player-add-equalizer)
-  ("f" emacspeak-m-player-add-filter)
-  ("g" emacspeak-m-player-seek-absolute)
-  ("j" emacspeak-m-player-amark-jump)
-  ("l" emacspeak-m-player-get-length)
-  ("m" emacspeak-m-player-speak-mode-line)
-  ("n" emacspeak-m-player-next-track)
-  ("o" emacspeak-m-player-customize-options)
-  ("p" emacspeak-m-player-previous-track)
-  ("q" bury-buffer)
-  ("r" emacspeak-m-player-seek-relative)
-  ("s" emacspeak-m-player-scale-speed)
-  ("t" emacspeak-m-player-play-tracks-jump)
-  ("u" emacspeak-m-player-url)
-  ("v" emacspeak-m-player-volume-change)
-  ("(" emacspeak-m-player-left-channel)
-  (")" emacspeak-m-player-right-channel)
-  ("{" emacspeak-m-player-half-speed)
-  ("}" emacspeak-m-player-double-speed)
-  )
+(global-set-key
+ (kbd "s-;")
+ (defhydra emacspeak-muggles-m-player
+   (:body-pre (emacspeak-muggles-body-pre "Media Player")
+              :timeout 0.5
+              :pre emacspeak-muggles-pre :post emacspeak-muggles-post)
+   (";" emacspeak-m-player)
+   ("+" emacspeak-m-player-volume-up)
+   ("," emacspeak-m-player-backward-10s)
+   ("%" emacspeak-m-player-display-percent)
+   ("-" emacspeak-m-player-volume-down)
+   ("." emacspeak-m-player-forward-10s)
+   ("<" emacspeak-m-player-backward-1min)
+   ("<down>" emacspeak-m-player-forward-1min)
+   ("<end>" emacspeak-m-player-end-of-track)
+   ("<home>" emacspeak-m-player-beginning-of-track)
+   ("<left>" emacspeak-m-player-backward-10s)
+   ("<next>" emacspeak-m-player-forward-10min)
+   ("<prior>" emacspeak-m-player-backward-10min)
+   ("<right>" emacspeak-m-player-forward-10s)
+   ("<up>" emacspeak-m-player-backward-1min)
+   ("=" emacspeak-m-player-volume-up)
+   (">" emacspeak-m-player-forward-1min)
+   ("?" emacspeak-m-player-display-position)
+   ("C" emacspeak-m-player-clear-filters)
+   ("C-m" emacspeak-m-player-load)
+   ("DEL" emacspeak-m-player-reset-speed)
+   ("L" emacspeak-m-player-load-file)
+   ("M-l" emacspeak-m-player-load-playlist)
+   ("O" emacspeak-m-player-reset-options)
+   ("P" emacspeak-m-player-apply-reverb-preset)
+   ("Q" emacspeak-m-player-quit "quit")
+   ("R" emacspeak-m-player-edit-reverb)
+   ("S" emacspeak-amark-save)
+   ("SPC" emacspeak-m-player-pause)
+   ("[" emacspeak-m-player-slower)
+   ("]" emacspeak-m-player-faster)
+   ("a" emacspeak-m-player-amark-add)
+   ("b" emacspeak-m-player-balance)
+   ("c" emacspeak-m-player-slave-command)
+   ("d" emacspeak-m-player-delete-filter)
+   ("e" emacspeak-m-player-add-equalizer)
+   ("f" emacspeak-m-player-add-filter)
+   ("g" emacspeak-m-player-seek-absolute)
+   ("j" emacspeak-m-player-amark-jump)
+   ("l" emacspeak-m-player-get-length)
+   ("m" emacspeak-m-player-speak-mode-line)
+   ("n" emacspeak-m-player-next-track)
+   ("o" emacspeak-m-player-customize-options)
+   ("p" emacspeak-m-player-previous-track)
+   ("q" bury-buffer)
+   ("r" emacspeak-m-player-seek-relative)
+   ("s" emacspeak-m-player-scale-speed)
+   ("t" emacspeak-m-player-play-tracks-jump)
+   ("u" emacspeak-m-player-url)
+   ("v" emacspeak-m-player-volume-change)
+   ("(" emacspeak-m-player-left-channel)
+   (")" emacspeak-m-player-right-channel)
+   ("{" emacspeak-m-player-half-speed)
+   ("}" emacspeak-m-player-double-speed)
+   ))
 
 ;;}}}
 ;;{{{ HideShow:
@@ -389,6 +389,7 @@ Also turn on emacspeak-muggles-talkative-p if it was turned off."
     :body-pre (emacspeak-muggles-body-pre  "Hide Show")
               :pre emacspeak-muggles-pre :post emacspeak-muggles-post :color blue)
    "Hideshow"
+   ("?" (emacspeak-muggles-self-help "emacspeak-muggles-hideshow"))
    ("h" hs-hide-block)
    ("s" hs-show-block)
    ("H" hs-hide-all)
@@ -404,24 +405,33 @@ Also turn on emacspeak-muggles-talkative-p if it was turned off."
  (kbd "C-c o")
  (defhydra emacspeak-muggles-toggle-option
    (:color blue :body-pre (emacspeak-muggles-body-pre "Toggle Option ")
-           :pre emacspeak-muggles-pre :post emacspeak-muggles-post
-           )
+           :pre (progn
+                  (emacspeak-muggles-pre)
+                  (unless hydra-is-helpful (emacspeak-muggles-toggle-talkative)))
+           :post emacspeak-muggles-post)
    "
+_F_ flyspell-mode:       %`flyspell-mode
 _a_ abbrev-mode:       %`abbrev-mode
 _d_ debug-on-error:    %`debug-on-error
 _f_ auto-fill-mode:    %`auto-fill-function
 _g_ debug-on-quit:    %`debug-on-quit
 _h_ hydra-is-helpful    %`hydra-is-helpful
+_i_ ido-everywhere    %`ido-everywhere
 _t_ truncate-lines:    %`truncate-lines
+_u_ ido-ubiquitous-mode:       %`ido-ubiquitous-mode
 _w_ whitespace-mode:   %`whitespace-mode
 
 "
+   ("?" (emacspeak-muggles-self-help "emacspeak-muggles-toggle-option"))
+   ("F" flyspell-mode)
    ("a" abbrev-mode)
    ("d" toggle-debug-on-error)
    ("f" auto-fill-mode)
    ("g"  toggle-debug-on-quit)
    ("h" (setq hydra-is-helpful (not hydra-is-helpful)))
+   ("i" ido-everywhere)
    ("t" toggle-truncate-lines)
+   ("u" ido-ubiquitous-mode "Ubiquitous IDo")
    ("w" whitespace-mode)
    ("q" nil "quit")))
 
@@ -448,25 +458,26 @@ _l_: leaves        _s_: subtree     _b_: backward same level
 _d_: subtree
 
 "
+   ("?" (emacspeak-muggles-self-help "emacspeak-muggles-outliner"))
    ;; Hide
-   ("q" outline-hide-sublevels)    ; Hide everything but the top-level headings
-   ("t" outline-hide-body)         ; Hide everything but headings (all body lines)
-   ("o" outline-hide-other)        ; Hide other branches
-   ("c" outline-hide-entry)        ; Hide this entry's body
-   ("l" outline-hide-leaves)       ; Hide body lines in this entry and sub-entries
-   ("d" outline-hide-subtree)      ; Hide everything in this entry and sub-entries
+   ("q" outline-hide-sublevels) ; Hide everything but the top-level headings
+   ("t" outline-hide-body) ; Hide everything but headings (all body lines)
+   ("o" outline-hide-other)             ; Hide other branches
+   ("c" outline-hide-entry)             ; Hide this entry's body
+   ("l" outline-hide-leaves) ; Hide body lines in this entry and sub-entries
+   ("d" outline-hide-subtree) ; Hide everything in this entry and sub-entries
    ;; Show
-   ("a" outline-show-all)          ; Show (expand) everything
-   ("e" outline-show-entry)        ; Show this heading's body
-   ("i" outline-show-children)     ; Show this heading's immediate child sub-headings
-   ("k" outline-show-branches)     ; Show all sub-headings under this heading
-   ("s" outline-show-subtree)      ; Show (expand) everything in this heading & below
+   ("a" outline-show-all)               ; Show (expand) everything
+   ("e" outline-show-entry)             ; Show this heading's body
+   ("i" outline-show-children) ; Show this heading's immediate child sub-headings
+   ("k" outline-show-branches) ; Show all sub-headings under this heading
+   ("s" outline-show-subtree) ; Show (expand) everything in this heading & below
    ;; Move
-   ("u" outline-up-heading)                ; Up
-   ("n" outline-next-visible-heading)      ; Next
-   ("p" outline-previous-visible-heading)  ; Previous
-   ("f" outline-forward-same-level)        ; Forward - same level
-   ("b" outline-backward-same-level)       ; Backward - same level
+   ("u" outline-up-heading)               ; Up
+   ("n" outline-next-visible-heading)     ; Next
+   ("p" outline-previous-visible-heading) ; Previous
+   ("f" outline-forward-same-level)       ; Forward - same level
+   ("b" outline-backward-same-level)      ; Backward - same level
    ("z" nil "leave")))
 
 ;;}}}
@@ -486,9 +497,10 @@ _d_: subtree
     :hint nil
     :pre emacspeak-muggles-pre :post emacspeak-muggles-post)
    "move"
-   ("s" emacspeak-muggles-toggle-talkative)
-   ("n" next-line)
-   ("p" previous-line)
+   ("?" (emacspeak-muggles-self-help "emacspeak-muggles-navigate"))
+   ("s" emacspeak-muggles-toggle-talkative "quiet")
+   ("n" next-line "next ")
+   ("p" previous-line "previous ")
    ("f" forward-char)
    ("b" backward-char)
    ("a" beginning-of-line)
@@ -569,6 +581,54 @@ Info-mode:
     ("h"   Info-help "Info help")
     ("q"   Info-exit "Info exit")
     ("C-g" nil "cancel" :color blue)))
+
+;;}}}
+;;{{{ Repeatable Yank
+
+;;;Repeatable yank(-pop) command, with an option to switch to a list view using
+;;; browse-kill-ring.
+
+;;;Helper: IDo Search for kill ring
+
+;;;###autoload
+(defun emacspeak-muggles-ido-yank ()
+  "Pick what to yank using ido completion."
+  (interactive)
+  (require 'ido)
+  (when (eq last-command 'yank)
+    (delete-region (region-beginning) (region-end)))
+  (let ((orig (point)))
+    (insert
+     (ido-completing-read "Yank what? " (mapcar 'substring-no-properties kill-ring)))
+    (when (ems-interactive-p)
+      (emacspeak-auditory-icon 'yank-object)
+      (emacspeak-speak-region orig (point)))))
+
+(global-set-key (kbd "M-C-y") 'emacspeak-muggles-ido-yank)
+
+(defhydra emacspeak-muggles-yank-pop
+  (:body-pre (emacspeak-muggles-body-pre "Yank")
+             :pre
+             (progn
+               (when hydra-is-helpful (emacspeak-muggles-toggle-talkative))
+               (emacspeak-muggles-pre))
+             :post emacspeak-muggles-post)
+  "Yank"
+  ("?" (emacspeak-muggles-self-help "emacspeak-muggles-yank-pop"))
+  ("C-y" yank nil)
+  ("M-y" yank-pop nil)
+  ("y" (funcall-interactively #'yank-pop 1) "next")
+  ("Y" (funcall-interactively #'yank-pop -1) "prev")
+  ("i" emacspeak-muggles-ido-yank "IDo Yank" :color blue)
+  ("s" emacspeak-muggles-ido-yank "IDo Yank" :color blue)
+  ("l" browse-kill-ring "list" :color blue))
+
+(global-set-key (kbd "M-y") #'emacspeak-muggles-yank-pop/yank-pop)
+(global-set-key (kbd "C-y") #'emacspeak-muggles-yank-pop/yank)
+
+;;}}}
+;;{{{ hydra-ox:
+(when (locate-library "hydra-ox")(require 'hydra-ox))
 
 ;;}}}
 (provide 'emacspeak-muggles)

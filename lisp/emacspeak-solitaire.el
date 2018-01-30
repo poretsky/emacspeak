@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (c) 1995 -- 2015, T. V. Raman
+;;; Copyright (c) 1995 -- 2017, T. V. Raman
 ;;; All Rights Reserved. 
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -50,14 +50,14 @@
 ;;}}}
 ;;{{{  Communicate state
 
-(defsubst emacspeak-solitaire-current-row ()
+(defun emacspeak-solitaire-current-row ()
   (declare (special solitaire-start-y))
   (+ 1 (/ 
         (- (solitaire-current-line)
            solitaire-start-y)
         2)))
 
-(defsubst emacspeak-solitaire-current-column()
+(defun emacspeak-solitaire-current-column()
   (declare (special solitaire-start-x))
   (let ((c (current-column)))
     (+ 1
@@ -75,9 +75,9 @@
            (emacspeak-solitaire-current-row)
            (emacspeak-solitaire-current-column))))
 
-(defsubst emacspeak-solitaire-stone  () (dtk-tone 400 50))
+(defun emacspeak-solitaire-stone  () (dtk-tone 400 150))
 
-(defsubst emacspeak-solitaire-hole () (dtk-tone 800 50))
+(defun emacspeak-solitaire-hole () (dtk-tone 800 100))
 
 (defun emacspeak-solitaire-show-row ()
   "Audio format current row."
@@ -106,7 +106,7 @@
   (save-excursion
     (let ((row (emacspeak-solitaire-current-row))
           (column (emacspeak-solitaire-current-column)))
-      (loop for i  from 1 to(- row 1)
+      (cl-loop for i  from 1 to(- row 1)
             do
             (solitaire-up))
       (case (char-after (point))
@@ -115,7 +115,7 @@
       (cond
        ((and (>= column 3)
              (<= column 5))
-        (loop for count from 2 to 7 
+        (cl-loop for count from 2 to 7 
               do
               (when  (= count 3) (dtk-silence 10))
               (when (= count 6) (dtk-silence 10))
@@ -123,7 +123,7 @@
               (case (char-after (point))
                 (?o (emacspeak-solitaire-stone))
                 (?. (emacspeak-solitaire-hole)))))
-       (t (loop for count from 2 to 3
+       (t (cl-loop for count from 2 to 3
                 do
                 (solitaire-down)
                 (case (char-after (point))

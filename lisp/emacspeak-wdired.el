@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;;Copyright (C) 1995 -- 2015, T. V. Raman
+;;;Copyright (C) 1995 -- 2017, T. V. Raman
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -52,7 +52,7 @@
 ;;}}}
 ;;{{{ Advice interactive commands.
 
-(loop for c in
+(cl-loop for c in
       '(wdired-next-line wdired-previous-line)
       do
       (eval

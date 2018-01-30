@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2015, T. V. Raman 
+;;;Copyright (C) 1995 -- 2017, T. V. Raman 
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved. 
 ;;;
@@ -52,7 +52,7 @@
 ;;}}}
 ;;{{{ Advice navigation:
 
-(loop for command   in
+(cl-loop for command   in
       '(
         ruby-mark-defun
         ruby-beginning-of-defun 
@@ -105,11 +105,11 @@ Cue electric insertion with a tone.")
   (when (ems-interactive-p)
     (let ((emacspeak-speak-messages nil))
       (emacspeak-speak-this-char last-input-event)
-      (dtk-tone 800 50 t))))
+      (dtk-tone 800 100 t))))
 
 ;;}}}
 ;;{{{ Advice inferior ruby:
-(loop for command in
+(cl-loop for command in
       '(
         ruby-run
         switch-to-ruby

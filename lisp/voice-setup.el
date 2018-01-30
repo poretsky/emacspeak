@@ -14,7 +14,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;;Copyright (C) 1995 -- 2015, T. V. Raman
+;;;Copyright (C) 1995 -- 2017, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -137,7 +137,7 @@ means that Voice Lock mode is turned on for buffers in C and C++ modes only."
        #'(lambda (voice)(list 'const voice))
        (tts-list-voices))))
 
-(defsubst voice-setup-read-personality (&optional prompt)
+(defun voice-setup-read-personality (&optional prompt)
   "Read name of a pre-defined personality using completion."
   (read (completing-read (or prompt "Personality: ")
                          (tts-list-voices))))
@@ -148,12 +148,12 @@ means that Voice Lock mode is turned on for buffers in C and C++ modes only."
 (defvar voice-setup-face-voice-table (make-hash-table)
   "Hash table holding face to voice mapping.")
 
-(defsubst voice-setup-set-voice-for-face (face voice)
+(defun voice-setup-set-voice-for-face (face voice)
   "Map face --a symbol-- to relevant voice."
   (declare (special  voice-setup-face-voice-table))
   (setf (gethash face voice-setup-face-voice-table) voice))
 
-(defsubst voice-setup-get-voice-for-face (face)
+(defun voice-setup-get-voice-for-face (face)
   "Map face --a symbol-- to relevant voice."
   (declare (special  voice-setup-face-voice-table))
   (gethash face voice-setup-face-voice-table))
@@ -161,7 +161,7 @@ means that Voice Lock mode is turned on for buffers in C and C++ modes only."
 (defun voice-setup-show-rogue-faces ()
   "Return list of voices that map to non-existent faces."
   (declare (special voice-setup-face-voice-table))
-  (loop for f being the hash-keys of voice-setup-face-voice-table
+  (cl-loop for f being the hash-keys of voice-setup-face-voice-table
         unless (facep f) collect f))
 
 ;;}}}
@@ -202,7 +202,7 @@ means that Voice Lock mode is turned on for buffers in C and C++ modes only."
        (when (symbolp ',voice)
          (put  ',voice ',personality t)))))
 
-(defsubst voice-setup-name-personality (face-name)
+(defun voice-setup-name-personality (face-name)
   "Compute personality name to use."
   (let ((name nil))
     (setq name
@@ -227,7 +227,7 @@ means that Voice Lock mode is turned on for buffers in C and C++ modes only."
 
 (defun voice-setup-add-map (fv-alist)
   "Sets up face to voice mapping given in fv-alist."
-  (loop
+  (cl-loop
    for fv in fv-alist
    do
    (voice-setup-map-face (first fv) (second fv))))
@@ -239,7 +239,7 @@ means that Voice Lock mode is turned on for buffers in C and C++ modes only."
   "Maps personality names to ACSS  settings.
 Keys are personality names.")
 
-(defsubst voice-setup-personality-from-style (style-list)
+(defun voice-setup-personality-from-style (style-list)
   "Define a personality given a list of speech style settings."
   (declare (special voice-setup-personality-table))
   (let ((voice
@@ -254,20 +254,20 @@ Keys are personality names.")
     (puthash  voice style-list voice-setup-personality-table)
     voice))
 
-(defsubst voice-setup-observing-personalities  (voice-name)
+(defun voice-setup-observing-personalities  (voice-name)
   "Return a list of personalities that are `observing' VOICE-NAME.
 Observing personalities are automatically updated when settings for
 VOICE-NAME are  changed."
   (let* ((plist (symbol-plist voice-name))
          (l (1- (length plist))))
-    (loop for i from 0 to l by 2
+    (cl-loop for i from 0 to l by 2
           collect (nth i plist))))
 
 (defun voice-setup-update-personalities (personality)
   "Update  personalities  that use this voice to  new setting."
   (let ((value (symbol-value personality))
         (observers (voice-setup-observing-personalities personality)))
-    (loop for o in observers
+    (cl-loop for o in observers
           do                            ;o is already quoted
           (set o value))))
 
@@ -474,7 +474,7 @@ command \\[customize-variable] on <personality>-settings.. "
 (define-minor-mode voice-lock-mode
   "Toggle voice lock mode."
   t nil nil
-  (when (ems-interactive-p)
+  (when (called-interactively-p 'interactive)
     (let ((state (if voice-lock-mode 'on 'off)))
       (when (ems-interactive-p)
         (emacspeak-auditory-icon state)))))

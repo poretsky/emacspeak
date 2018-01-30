@@ -48,10 +48,6 @@ tips.html: tips.xml tips.xsl
 # }}}
 # {{{ User level target--  config 
 config:
-	@rm -f    emacspeak.sh
-	@sed "s@<emacspeak-dir>@$(SRC)/lisp@g" \
-		emacspeak.sh.def > emacspeak.sh
-	@chmod 755   emacspeak.sh
 	@chmod 755   *.pl
 
 # }}}
@@ -63,7 +59,7 @@ pub: tips.html applications.html
 # {{{ end of file 
 
 #local variables: 
-#major-mode: makefile-mode
+#mode: makefile
 #eval:  (fold-set-marks "# {{{" "# }}}")
 #fill-column: 90
 #folded-file: t

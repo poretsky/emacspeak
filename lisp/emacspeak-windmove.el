@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (C) 1995 -- 2015, T. V. Raman
+;;; Copyright (C) 1995 -- 2017, T. V. Raman
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -56,18 +56,17 @@
 ;;}}}
 ;;{{{ advice window navigation
 
-(loop for f in
-      (list 'windmove-left
-            'windmove-right
-            'windmove-up
-            'windmove-down)
-      do
-      (eval
-       `(defadvice  ,f (after emacspeak pre act comp)
-          "Provide auditory feedback."
-          (when (ems-interactive-p)
-            (emacspeak-auditory-icon 'select-object)
-            (emacspeak-speak-mode-line)))))
+(cl-loop
+ for f in
+ '(windmove-left windmove-right
+   windmove-up windmove-down)
+ do
+ (eval
+  `(defadvice  ,f (after emacspeak pre act comp)
+     "Provide auditory feedback."
+     (when (ems-interactive-p)
+       (emacspeak-auditory-icon select-object)
+       (emacspeak-speak-mode-line)))))
 
 ;;}}}
 

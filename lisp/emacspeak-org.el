@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (C) 1995 -- 2015, T. V. Raman
+;;; Copyright (C) 1995 -- 2017, T. V. Raman
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -50,7 +50,7 @@
 
 ;;}}}
 ;;{{{ required modules
-
+(require 'cl-lib)
 (require 'emacspeak-preamble)
 (require 'eww)
 (require 'emacspeak-eww)
@@ -133,7 +133,7 @@
 ;;}}}
 ;;{{{ Structure Navigation:
 
-(loop
+(cl-loop
  for f in
  '(
    org-mark-ring-goto org-mark-ring-push
@@ -167,7 +167,7 @@
     (emacspeak-auditory-icon 'item)
     (emacspeak-speak-line)))
 
-(loop
+(cl-loop
  for f in
  '(org-cycle org-shifttab)
  do
@@ -205,7 +205,7 @@
 ;;}}}
 ;;{{{ Header insertion and relocation
 
-(loop
+(cl-loop
  for f in
  '(
    org-delete-indentation
@@ -226,27 +226,25 @@
 ;;}}}
 ;;{{{ cut and paste:
 
-(loop for f in
-      '(
-        org-cut-subtree org-copy-subtree
-                        org-paste-subtree org-archive-subtree
-                        org-narrow-to-subtree)
-      do
-      (eval
-       `(defadvice ,f(after emacspeak pre act comp)
-          "Provide spoken feedback."
-          (when (ems-interactive-p)
-            (emacspeak-speak-line)
-            (emacspeak-auditory-icon 'yank-object)))))
+(cl-loop for f in
+         '(
+           org-cut-subtree org-copy-subtree
+                           org-paste-subtree org-archive-subtree
+                           org-narrow-to-subtree)
+         do
+         (eval
+          `(defadvice ,f(after emacspeak pre act comp)
+             "Provide spoken feedback."
+             (when (ems-interactive-p)
+               (emacspeak-speak-line)
+               (emacspeak-auditory-icon 'yank-object)))))
 
 ;;}}}
 ;;{{{ completion:
 
 (defadvice org-complete (around emacspeak pre act)
   "Say what you completed."
-  (let ((prior (save-excursion
-                 (backward-word 1)
-                 (point)))
+  (let ((prior (save-excursion (skip-syntax-backward "^ >") (point)))
         (dtk-stop-immediately t))
     ad-do-it
     (if (> (point) prior)
@@ -261,7 +259,7 @@
 ;;}}}
 ;;{{{ toggles:
 
-(loop
+(cl-loop
  for f in
  '(
    org-toggle-archive-tag org-toggle-comment)
@@ -279,7 +277,7 @@
 ;;}}}
 ;;{{{ timestamps and calendar:
 
-(loop
+(cl-loop
  for f in
  '(org-timestamp-down-day org-timestamp-up-day)
  do
@@ -290,15 +288,15 @@
        (emacspeak-auditory-icon 'select-object)
        (emacspeak-speak-line)))))
 
-(loop for f in
-      '(org-timestamp-down org-timestamp-up)
-      do
-      (eval
-       `(defadvice ,f (after emacspeak pre act comp)
-          "Provide auditory feedback."
-          (when (ems-interactive-p)
-            (emacspeak-auditory-icon 'select-object)
-            (dtk-speak org-last-changed-timestamp)))))
+(cl-loop for f in
+         '(org-timestamp-down org-timestamp-up)
+         do
+         (eval
+          `(defadvice ,f (after emacspeak pre act comp)
+             "Provide auditory feedback."
+             (when (ems-interactive-p)
+               (emacspeak-auditory-icon 'select-object)
+               (dtk-speak org-last-changed-timestamp)))))
 
 (defadvice org-eval-in-calendar (after emacspeak pre act comp)
   "Speak what is returned."
@@ -310,7 +308,7 @@
 
 ;;; AGENDA NAVIGATION
 
-(loop
+(cl-loop
  for f in
  '(
    org-agenda-next-date-line org-agenda-previous-date-line
@@ -325,7 +323,7 @@
        (emacspeak-auditory-icon 'select-object)
        (emacspeak-speak-line)))))
 
-(loop
+(cl-loop
  for f in
  '(org-agenda-quit org-agenda-exit)
  do
@@ -336,7 +334,7 @@
        (emacspeak-auditory-icon 'close-object)
        (emacspeak-speak-mode-line)))))
 
-(loop
+(cl-loop
  for f in
  '(org-agenda-goto org-agenda-show org-agenda-switch-to)
  do
@@ -373,30 +371,30 @@
 (defun emacspeak-org-update-keys ()
   "Update keys in org mode."
   (declare (special  org-mode-map))
-  (loop for k in
-        '(
-          ("C-e" emacspeak-prefix-command)
-          ("C-j" org-insert-heading)
-          ("M-<down>" org-metadown)
-          ("M-<left>"  org-metaleft)
-          ("M-<right>" org-metaright)
-          ("M-<up>" org-metaup)
-          ("M-RET" org-meta-return)
-          ("M-S-<down>" org-shiftmetadown)
-          ("M-S-<left>" org-shiftmetaleft)
-          ("M-S-<right>" org-shiftmetaright)
-          ("M-S-<up>" org-shiftmetaup)
-          ("M-S-RET" org-insert-todo-heading)
-          ("S-RET" org-table-previous-row)
-          ("M-n" org-next-item)
-          ("M-p" org-previous-item)
-          ("S-<down>" org-shiftdown)
-          ("S-<left>" org-shiftleft)
-          ("S-<right>" org-shiftright)
-          ("S-<up>" org-shiftup)
-          ("S-TAB" org-shifttab))
-        do
-        (emacspeak-keymap-update  org-mode-map k)))
+  (cl-loop for k in
+           '(
+             ("C-e" emacspeak-prefix-command)
+             ("C-j" org-insert-heading)
+             ("M-<down>" org-metadown)
+             ("M-<left>"  org-metaleft)
+             ("M-<right>" org-metaright)
+             ("M-<up>" org-metaup)
+             ("M-RET" org-meta-return)
+             ("M-S-<down>" org-shiftmetadown)
+             ("M-S-<left>" org-shiftmetaleft)
+             ("M-S-<right>" org-shiftmetaright)
+             ("M-S-<up>" org-shiftmetaup)
+             ("M-S-RET" org-insert-todo-heading)
+             ("S-RET" org-table-previous-row)
+             ("M-n" org-next-item)
+             ("M-p" org-previous-item)
+             ("S-<down>" org-shiftdown)
+             ("S-<left>" org-shiftleft)
+             ("S-<right>" org-shiftright)
+             ("S-<up>" org-shiftup)
+             ("S-TAB" org-shifttab))
+           do
+           (emacspeak-keymap-update  org-mode-map k)))
 
 (add-hook 'org-mode-hook 'emacspeak-org-update-keys)
 
@@ -407,7 +405,7 @@
   "Speak character you're deleting."
   (cond
    ((ems-interactive-p)
-    (dtk-tone 500 30 'force)
+    (dtk-tone-deletion)
     (emacspeak-speak-this-char (preceding-char))
     ad-do-it)
    (t ad-do-it))
@@ -417,7 +415,7 @@
   "Speak character you're deleting."
   (cond
    ((ems-interactive-p)
-    (dtk-tone 500 30 'force)
+    (dtk-tone-deletion)
     (emacspeak-speak-char t)
     ad-do-it)
    (t ad-do-it))
@@ -462,7 +460,7 @@
 ;;}}}
 ;;{{{ fix misc commands:
 
-(loop
+(cl-loop
  for f in
  '(
    org-occur
@@ -580,7 +578,7 @@
     " "
     (org-table-get-field))))
 
-(loop
+(cl-loop
  for f in
  '(org-table-next-field org-table-previous-field
                         org-table-next-row org-table-previous-row)
@@ -625,7 +623,6 @@ and assign  letter `h' to a template that creates the hyperlink on capture."
   (interactive)
   (org-store-link nil)
   (org-capture nil "h"))
-
 (defun org-eww-store-link ()
   "Store a link to a EWW buffer."
   (when (eq major-mode 'eww-mode)
@@ -634,10 +631,41 @@ and assign  letter `h' to a template that creates the hyperlink on capture."
      :link   (emacspeak-eww-current-url)
      :url (eww-current-url)
      :description (emacspeak-eww-current-title))))
-(add-hook
- 'org-load-hook
- #'(lambda nil
-     (push #'org-eww-store-link org-store-link-functions)))
+
+(unless (functionp 'org-store-link-functions)
+  ;;; org-mode 8.x and earlier:
+  (add-hook
+   'org-load-hook
+   #'(lambda nil
+       (push #'org-eww-store-link org-store-link-functions))))
+
+;;}}}
+;;{{{ Speech-enable export prompt:
+(defadvice org-export--dispatch-action (before emacspeak pre act comp)
+  "Speak prompt intelligently."
+  (let ((prompt (ad-get-arg 0))
+        (entries (ad-get-arg 2))
+        (first-key (ad-get-arg 4)) 
+        (choices nil))
+    (setq choices
+          (cond
+           ((null first-key) entries)
+           (t                           ;third  is cl-caddr
+            (cl-caddr (assoc first-key entries)))))
+    (dtk-notify-speak 
+     (mapconcat 
+      #'(lambda (e)
+          (format "%c: %s\n" (cl-first e) (cl-second e)))
+      choices "\n"))
+    (sit-for 5)))
+    
+
+;;}}}
+;;{{{ Preview HTML With EWW:
+
+(defun emacspeak-org-eww-file (file _link)
+  "Preview HTML files with EWW from exporter."
+  (funcall-interactively #'eww-open-file file))
 
 ;;}}}
 (provide 'emacspeak-org)

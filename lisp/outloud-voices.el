@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;;Copyright (C) 1995 -- 2015, T. V. Raman 
+;;;Copyright (C) 1995 -- 2017, T. V. Raman 
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -55,6 +55,19 @@
 (require 'tts)
 
 ;;}}}
+;;{{{ Customizations:
+;;;###autoload
+(defcustom outloud-default-speech-rate 50
+  "Default speech rate for outloud."
+  :group 'tts
+  :type 'integer
+  :set #'(lambda(sym val)
+           (set-default sym val)
+           (when (and (getenv "DTK_PROGRAM")
+                      (string-match "outloud" (getenv "DTK_PROGRAM")))
+           (setq-default dtk-speech-rate val))))
+
+;;}}}
 ;;{{{ Forward declarations:
 
 ;;; From dtkk-speak.el:
@@ -62,15 +75,14 @@
 (defvar tts-default-speech-rate)
 (defvar dtk-speech-rate-step)
 (defvar dtk-speech-rate-base)
-(defvar outloud-default-speech-rate)
 ;;}}}
 ;;{{{ Top level TTS  switcher
 
 ;;;### autoload
-(defun outloud ()
+(defun outloud (&optional device)
   "Select Outloud server."
-  (interactive)
-  (dtk-select-server "outloud")
+  (interactive "P")
+  (funcall-interactively #'dtk-select-server "outloud" device)
   (dtk-initialize))
 
 (defun outloud-32()
@@ -89,14 +101,14 @@
   "Association between symbols and strings to set Outloud  voices.
 The string can set any voice parameter.")
 
-(defsubst outloud-define-voice (name command-string)
+(defun outloud-define-voice (name command-string)
   "Define a Outloud  voice named NAME.
 This voice will be set   by sending the string
 COMMAND-STRING to the TTS engine."
   (declare (special outloud-voice-table))
   (puthash name command-string outloud-voice-table))
 
-(defsubst outloud-get-voice-command-internal  (name)
+(defun outloud-get-voice-command-internal  (name)
   "Retrieve command string for  voice NAME."
   (declare (special outloud-voice-table))
   (cond
@@ -105,14 +117,14 @@ COMMAND-STRING to the TTS engine."
    (t (or  (gethash name outloud-voice-table)
            outloud-default-voice-string))))
 
-(defsubst outloud-get-voice-command (name)
+(defun outloud-get-voice-command (name)
   "Retrieve command string for  voice NAME."
   (declare (special dtk-speech-rate))
   (concat 
    (outloud-get-voice-command-internal name)
    (format "`vs%s" dtk-speech-rate)))
 
-(defsubst outloud-voice-defined-p (name)
+(defun outloud-voice-defined-p (name)
   "Check if there is a voice named NAME defined."
   (declare (special outloud-voice-table))
   (gethash name outloud-voice-table))
@@ -143,7 +155,7 @@ COMMAND-STRING to the TTS engine."
 
 ;;{{{ voice family codes
 
-(defsubst outloud-get-family-code (name)
+(defun outloud-get-family-code (name)
   "Get control code for voice family NAME."
   (outloud-get-voice-command-internal name))
 
@@ -155,7 +167,7 @@ COMMAND-STRING to the TTS engine."
 Keys are symbols of the form <FamilyName-Dimension>.
 Values are vectors holding the control codes for the 10 settings.")
 
-(defsubst outloud-css-set-code-table (family dimension table)
+(defun outloud-css-set-code-table (family dimension table)
   "Set up voice FAMILY.
 Argument DIMENSION is the dimension being set,
 and TABLE gives the values along that dimension."
@@ -163,7 +175,7 @@ and TABLE gives the values along that dimension."
   (let ((key (intern (format "%s-%s" family dimension))))
     (puthash key table outloud-css-code-tables)))
 
-(defsubst outloud-css-get-code-table (family dimension)
+(defun outloud-css-get-code-table (family dimension)
   "Retrieve table of values for specified FAMILY and DIMENSION."
   (declare (special outloud-css-code-tables))
   (let ((key (intern (format "%s-%s" family dimension))))
@@ -264,7 +276,7 @@ and TABLE gives the values along that dimension."
 
 ;;}}}
 
-(defsubst outloud-get-average-pitch-code (value family)
+(defun outloud-get-average-pitch-code (value family)
   "Get  AVERAGE-PITCH for specified VALUE and  FAMILY."
   (or family (setq family 'paul))
   (if value 
@@ -351,7 +363,7 @@ and TABLE gives the values along that dimension."
   (outloud-css-set-code-table 'betty 'pitch-range table))
 
 ;;}}}
-(defsubst outloud-get-pitch-range-code (value family)
+(defun outloud-get-pitch-range-code (value family)
   "Get pitch-range code for specified VALUE and FAMILY."
   (or family (setq family 'paul))
   (if value 
@@ -389,7 +401,7 @@ and TABLE gives the values along that dimension."
   (outloud-css-set-code-table 'betty  'stress table))
 
 ;;}}}
-(defsubst outloud-get-stress-code (value family)
+(defun outloud-get-stress-code (value family)
   (or family (setq family 'paul))
   (if value 
       (aref (outloud-css-get-code-table family 'stress)
@@ -426,7 +438,7 @@ and TABLE gives the values along that dimension."
 
 ;;}}}
 
-(defsubst outloud-get-richness-code (value family)
+(defun outloud-get-richness-code (value family)
   (or family (setq family 'paul))
   (if value 
       (aref (outloud-css-get-code-table family 'richness)
@@ -436,7 +448,7 @@ and TABLE gives the values along that dimension."
 ;;}}}
 ;;{{{  punctuations
 
-(defsubst outloud-get-punctuations-code (_value)
+(defun outloud-get-punctuations-code (_value)
   "Return string needed to set specified punctuations mode."
   "")
 
@@ -463,7 +475,7 @@ and TABLE gives the values along that dimension."
 (defun outloud-list-voices ()
   "List defined voices."
   (declare (special outloud-voice-table))
-  (loop for k being the hash-keys of outloud-voice-table collect   k))
+  (cl-loop for k being the hash-keys of outloud-voice-table collect   k))
 
 ;;}}}
 ;;{{{ Configurater 

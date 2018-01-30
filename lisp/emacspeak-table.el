@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2015, T. V. Raman 
+;;;Copyright (C) 1995 -- 2017, T. V. Raman 
 ;;; Copyright (c) 1995 by T. V. Raman  
 ;;; All Rights Reserved. 
 ;;;
@@ -75,7 +75,7 @@
         (row-h (make-vector (length  elements) nil))
         (index 0))
     (setf (emacspeak-table-column-header table) (aref elements 0)) ;first row
-    (loop
+    (cl-loop
      for element across  elements do 
      (assert (vectorp element) t "Row %s is not a vector" index)
      (aset row-h index (aref element 0)) ; build column 0
@@ -88,39 +88,39 @@
 ;;}}}
 ;;{{{ Accessors
 
-(defsubst emacspeak-table-this-element (table row column)
+(defun emacspeak-table-this-element (table row column)
   (let ((elements (emacspeak-table-elements  table)))
     (aref (aref elements row) column)))
 
-(defsubst emacspeak-table-current-element (table)
+(defun emacspeak-table-current-element (table)
   (emacspeak-table-this-element table 
                                 (emacspeak-table-current-row table)
                                 (emacspeak-table-current-column table)))
 
-(defsubst emacspeak-table-this-row (table index)
+(defun emacspeak-table-this-row (table index)
   (aref  (emacspeak-table-elements table) index))
 
-(defsubst emacspeak-table-this-column (table column)
+(defun emacspeak-table-this-column (table column)
   (let*
       ((elements (emacspeak-table-elements table))
        (result (make-vector (length elements) nil))
        (index 0))
-    (loop
+    (cl-loop
      for row across elements do
      (aset result index (aref row column))
      (incf index))
     result))
 
-(defsubst emacspeak-table-num-rows (table)
+(defun emacspeak-table-num-rows (table)
   (length (emacspeak-table-row-header table)))
 
-(defsubst emacspeak-table-num-columns (table)
+(defun emacspeak-table-num-columns (table)
   (length (emacspeak-table-column-header table)))
 
-(defsubst emacspeak-table-column-header-element (table column)
+(defun emacspeak-table-column-header-element (table column)
   (aref (emacspeak-table-column-header table) column))
 
-(defsubst emacspeak-table-row-header-element (table row)
+(defun emacspeak-table-row-header-element (table row)
   (aref (emacspeak-table-row-header table) row))
 
 ;;}}}
@@ -129,7 +129,7 @@
 (defun emacspeak-table-enumerate-rows (table callback &rest callback-args)
   "Enumerates the rows of a table.
 Calls callback once per row."
-  (loop
+  (cl-loop
    for row across (emacspeak-table-elements table)
    collect
    (apply callback row callback-args)))
@@ -138,7 +138,7 @@ Calls callback once per row."
   "Enumerate columns of a table.
 Calls callback once per column."
   (let ((elements (emacspeak-table-elements table)))
-    (loop
+    (cl-loop
      for column   from 0 to (1- (length   elements))
      collect
      (apply callback
@@ -157,7 +157,7 @@ Calls callback once per column."
                  (emacspeak-table-num-columns  table)))
         (count   (emacspeak-table-num-columns table))
         (found nil))
-    (loop
+    (cl-loop
      for   i from 0   to count
      and column = next then (% (incf column) count)
      if
@@ -177,7 +177,7 @@ Calls callback once per column."
                  (emacspeak-table-num-rows table)))
         (count   (emacspeak-table-num-rows table))
         (found nil))
-    (loop for   i from 0   to count
+    (cl-loop for   i from 0   to count
           and row = next then (% (incf row) count)
           if  (funcall predicate  pattern
                        (emacspeak-table-this-element table  row index))

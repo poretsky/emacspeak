@@ -1,4 +1,4 @@
-;;; emacspeak-dbus.el --- DBus Tools For Emacspeak Desktop  -*- lexical-binding: t; -*-
+;;; emacspeak-dbus.el --- DBus On Emacspeak Desktop -*- lexical-binding: t; -*-
 ;;; $Id: emacspeak-dbus.el 4797 2007-07-16 23:31:22Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  DBus Tools For The Emacspeak Desktop
@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2015, T. V. Raman
+;;;Copyright (C) 1995 -- 2017, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -42,38 +42,86 @@
 
 ;;; Commentary:
 ;;; Set up Emacspeak to respond to DBus notifications
-
+;;; @subsection Overview
+;;;
+;;; This module provides integration via DBus  for the following:
+;;; @itemize @bullet
+;;; @item Respond to network coming up or going down.
+;;; @item Respond to screen getting locked/unlocked by gnome-screen-saver
+;;; @item Respond to laptop  going to sleep or waking up.
+;;; @end itemize
+;;; See relevant hooks for customizing behavior.
+;;; Note that each of the  sleep/wake-up and network/up-down
+;;; can be separately enabled/disabled, and the actions customized
+;;; via appropriately named hook functions.
+;;;
 ;;}}}
 ;;{{{  Required modules
 
 (require 'cl)
 (declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
+(require 'amixer)
+(require 'sox-gen)
+(require 'derived)
 (require 'dbus)
-(require 'nm)
+(require 'nm "nm" 'no-error)
+;;}}}
+;;{{{ Forward Declarations:
+
+(declare-function soundscape-restart "soundscape" (&optional device))
+(declare-function jabber-connect-all "jabber-core" (&optional arg))
+(declare-function jabber-disconnect "jabber-core" (&optional arg))
+(declare-function twittering-start "twittering-mode" nil)
+(declare-function twittering-stop "twittering-mode" nil)
 
 ;;}}}
-;;{{{ Customize:
+;;{{{ ScreenSaver Mode:
 
-(defgroup emacspeak-dbus nil
-  "DBus  bindings and hooks for Emacspeak desktop."
-  :group 'emacspeak)
+(define-derived-mode emacspeak-screen-saver-mode special-mode
+  "Screen Saver Mode"
+  "A light-weight mode for the `*Emacspeak Screen Saver *' buffer.
+This is a hidden buffer that is made current so we automatically
+switch to a screen-saver soundscape."
+  t)
+(defvar emacspeak-screen-saver-saved-configuration  nil
+  "Record window configuration when screen-saver was launched.")
+
+(defun emacspeak-screen-saver ()
+
+  (declare (special emacspeak-screen-saver-saved-configuration))
+  (setq emacspeak-screen-saver-saved-configuration (current-window-configuration))"Initialize screen-saver buffer  if needed, and switch to  it."
+  (let ((buffer (get-buffer-create "*Emacspeak Screen Saver*")))
+    (with-current-buffer buffer (emacspeak-screen-saver-mode))
+    (funcall-interactively #'switch-to-buffer buffer)
+    (delete-other-windows)))
 
 ;;}}}
 ;;{{{ NM Handlers
 
 (defun emacspeak-dbus-nm-connected ()
-  "Announce  network manager connection."
+  "Announce  network manager connection.
+Startup  apps that need the network."
   (declare (special emacspeak-speak-network-interfaces-list))
-  (setq emacspeak-speak-network-interfaces-list (mapcar #'car (network-interface-list)))
-  (emacspeak-auditory-icon 'network-up)
-  (message
+  (setq emacspeak-speak-network-interfaces-list
+        (mapcar #'car (network-interface-list)))
+  (run-at-time
+   30 nil
+   #'(lambda ()
+       (when (featurep 'jabber) (jabber-connect-all))
+       (when (featurep 'twittering-mode) (twittering-start))))
+       (emacspeak-auditory-icon 'network-up)
+       (message
    (mapconcat #'identity emacspeak-speak-network-interfaces-list "")))
 
 (defun emacspeak-dbus-nm-disconnected ()
-  "Announce  network manager disconnection."
+  "Announce  network manager disconnection.
+Stop apps that use the network."
   (declare (special emacspeak-speak-network-interfaces-list))
-  (setq emacspeak-speak-network-interfaces-list (mapcar #'car (network-interface-list)))
+  (when (featurep 'jabber) (jabber-disconnect))
+  (when (featurep 'twittering-mode) (twittering-stop))
+  (setq emacspeak-speak-network-interfaces-list
+        (mapcar #'car (network-interface-list)))
   (emacspeak-auditory-icon 'network-down)
   (message (mapconcat #'identity emacspeak-speak-network-interfaces-list "")))
 
@@ -81,7 +129,127 @@
 (add-hook 'nm-disconnected-hook 'emacspeak-dbus-nm-disconnected)
 
 ;;}}}
+;;{{{ Sleep/Resume:
 
+(defun emacspeak-dbus-login1-sleep-p ()
+  "Test if login1 service  sleep signal is available."
+  (member
+   "PrepareForSleep"
+   (dbus-introspect-get-signal-names
+    :system
+    "org.freedesktop.login1" "/org/freedesktop/login1"
+    "org.freedesktop.login1.Manager")))
+
+(defvar emacspeak-dbus-sleep-hook nil
+  "Functions called when machine is about to sleep (suspend or hibernate). ")
+
+(defvar emacspeak-dbus-resume-hook nil
+  "Functions called when machine is resumed (from suspend or hibernate).")
+
+(defun emacspeak-dbus-sleep-signal-handler()
+  (message "Sleeping")
+  (run-hooks 'emacspeak-dbus-sleep-hook))
+
+(defun emacspeak-dbus-resume-signal-handler()
+  (message "Waking Up")
+  (run-hooks 'emacspeak-dbus-resume-hook))
+
+(defvar emacspeak-dbus-sleep-registration nil
+  "List holding sleep registration.")
+
+(defun emacspeak-dbus-sleep-register()
+  "Register signal handlers for sleep/resume. Return list of
+signal registration objects."
+  (cond
+   ((emacspeak-dbus-login1-sleep-p)
+    (list
+     (dbus-register-signal
+      :system "org.freedesktop.login1" "/org/freedesktop/login1"
+      "org.freedesktop.login1.Manager" "PrepareForSleep"
+      #'(lambda(sleep)
+          (if sleep
+              (emacspeak-dbus-sleep-signal-handler)
+            (emacspeak-dbus-resume-signal-handler))))))
+   (t (error "org.freedesktop.login1 has no PrepareForSleep signal."))))
+
+;;; Enable integration
+(defun emacspeak-dbus-sleep-enable()
+  "Enable integration with Login1. Does nothing if already enabled."
+  (interactive)
+  (declare (special emacspeak-dbus-sleep-registration))
+  (when (not emacspeak-dbus-sleep-registration)
+    (setq emacspeak-dbus-sleep-registration (emacspeak-dbus-sleep-register))
+    (message "Enabled integration with login1 daemon.")))
+
+;;; Disable integration
+(defun emacspeak-dbus-sleep-disable()
+  "Disable integration with login1 daemon. Does nothing if
+already disabled."
+  (interactive)
+  (declare (special emacspeak-dbus-sleep-registration))
+  (while emacspeak-dbus-sleep-registration
+    (dbus-unregister-object (car emacspeak-dbus-sleep-registration))
+    (setq emacspeak-dbus-sleep-registration
+          (cdr emacspeak-dbus-sleep-registration)))
+  (message "Disabled integration with Login1 daemon."))
+
+(defun emacspeak-dbus-sleep ()
+  "Emacspeak  hook for -sleep signal from Login1."
+  (save-some-buffers t))
+
+(add-hook  'emacspeak-dbus-sleep-hook#'emacspeak-dbus-sleep)
+
+(defun emacspeak-dbus-resume ()
+  "Emacspeak hook for Login1-resume."
+  (declare (special amixer-alsactl-config-file))
+  (amixer-restore  amixer-alsactl-config-file)
+  (when (featurep 'soundscape) (soundscape-restart))
+  (when (featurep 'xbacklight) (xbacklight-black))
+  (when
+      (dbus-call-method
+       :session
+       "org.gnome.ScreenSaver" "/org/gnome/ScreenSaver"
+       "org.gnome.ScreenSaver" "GetActive")
+    (dtk-say "Enter password to unlock screen. ")
+    (emacspeak-auditory-icon 'help)))
+
+(add-hook 'emacspeak-dbus-resume-hook #'emacspeak-dbus-resume)
+
+;;}}}
+;;{{{ Watch Screensaver:
+(defvar emacspeak-dbus-screen-lock-handle nil
+  "Handle to DBus signal registration for watching screenlock.")
+
+(defun emacspeak-dbus-watch-screen-lock ()
+  "Register a handler to watch screen lock/unlock."
+  (declare (special emacspeak-dbus-screen-lock-handle
+                    emacspeak-screen-saver-saved-configuration))
+  (setq emacspeak-dbus-screen-lock-handle
+  (dbus-register-signal
+   :session
+   "org.gnome.ScreenSaver" "/org/gnome/ScreenSaver"
+   "org.gnome.ScreenSaver" "ActiveChanged"
+   #'(lambda(lock)
+       (if lock
+           (progn
+             (sox-tones 1.5 1.5)
+             (emacspeak-screen-saver))
+         (progn
+           (when (eq major-mode 'emacspeak-screen-saver-mode)(quit-window))
+           (sox-tones)
+           (when (window-configuration-p emacspeak-screen-saver-saved-configuration)
+           (set-window-configuration emacspeak-screen-saver-saved-configuration))
+           (dtk-notify-say "Unlocking screen")
+           (emacspeak-speak-mode-line)))))))
+
+(defun emacspeak-dbus-unwatch-screen-lock ()
+  "De-Register a handler to watch screen lock/unlock."
+  (declare (special emacspeak-dbus-screen-lock-handle))
+  (dbus-unregister-object emacspeak-dbus-screen-lock-handle)
+  (setq emacspeak-dbus-screen-lock-handle nil)
+  (message "Unregistered screen-lock signal handler"))
+
+;;}}}
 (provide 'emacspeak-dbus)
 ;;{{{ end of file
 

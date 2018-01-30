@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2015, T. V. Raman
+;;;Copyright (C) 1995 -- 2017, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -56,7 +56,7 @@
 ;;}}}
 ;;{{{  Advice Interactive Commands:
 
-(loop
+(cl-loop
  for   f in 
  '(
    xref-find-definitions xref-pop-marker-stack
@@ -71,7 +71,7 @@
        (emacspeak-speak-line)
        (emacspeak-auditory-icon 'large-movement)))))
 
-(loop
+(cl-loop
  for f in 
  '(
    xref-find-definitions-other-frame  xref-find-definitions-other-window
@@ -81,8 +81,9 @@
   `(defadvice ,f (after emacspeak pre  act comp)
      "Provide auditory feedback."
      (when (ems-interactive-p)
-       (message "Displayed cross-reference."
-                (emacspeak-auditory-icon 'select-object))))))
+       (message "Displayed cross-reference.")
+       (emacspeak-auditory-icon 'select-object)))))
+
 (defadvice xref-find-references (after emacspeak pre act comp)
   "Provide auditory feedback."
   (when (ems-interactive-p)

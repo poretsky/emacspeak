@@ -15,7 +15,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (C) 1995 -- 2015, T. V. Raman
+;;; Copyright (C) 1995 -- 2017, T. V. Raman
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -62,6 +62,14 @@
   "Provide auditory feedback."
   (when (ems-interactive-p)
     (emacspeak-auditory-icon 'yank-object)))
+
+(defadvice browse-kill-ring-insert-and-quit (after
+                                             emacspeak pre act comp)
+  "Provide auditory feedback."
+  (when (ems-interactive-p)
+    (emacspeak-auditory-icon 'yank-object)
+    (emacspeak-speak-line)
+    (emacspeak-auditory-icon 'close-object)))
 
 (defadvice browse-kill-ring-delete (after
                                     emacspeak pre act comp)

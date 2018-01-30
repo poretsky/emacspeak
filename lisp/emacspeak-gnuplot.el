@@ -17,7 +17,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (C) 1995 -- 2015, T. V. Raman<raman@cs.cornell.edu>
+;;; Copyright (C) 1995 -- 2017, T. V. Raman<raman@cs.cornell.edu>
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -105,7 +105,7 @@
     (cond
      ((= (point) (point-max))
       (message "Sending EOF to comint process"))
-     (t (dtk-tone 500 30 'force)
+     (t (dtk-tone 500 100 'force)
         (emacspeak-speak-char t)))
     ad-do-it)
    (t ad-do-it))
@@ -127,7 +127,7 @@
 
 (defadvice gnuplot-complete-keyword (around emacspeak pre act)
   "Say what you completed."
-  (let ((prior (point))
+  (let ((prior (save-excursion (skip-syntax-backward "^ >") (point)))
         (dtk-stop-immediately dtk-stop-immediately))
     (when dtk-stop-immediately (dtk-stop))
     ad-do-it

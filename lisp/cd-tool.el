@@ -3,7 +3,7 @@
 ;;;Emacs front-end to CDTool
 ;;{{{  Copyright:
 
-;;; Copyright (C) 1995 -- 2015, T. V. Raman<raman@cs.cornell.edu>
+;;; Copyright (C) 1995 -- 2017, T. V. Raman<raman@cs.cornell.edu>
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -39,8 +39,8 @@
 ;;}}}
 ;;{{{ required packages
 
-(require 'cl)
-(declaim  (optimize  (safety 0) (speed 3)))
+(require 'cl-lib)
+(cl-declaim (optimize  (safety 0) (speed 3)))
 
 ;;}}}
 ;;{{{ top level

@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;;Copyright (C) 1995 -- 2015, T. V. Raman
+;;;Copyright (C) 1995 -- 2017, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -47,16 +47,16 @@
 ;;; This module implements an Emacspeak Npr client.
 ;;; Users will need to get their own API key.
 ;;;
-;;; Entry Points:
-
-;;; Command: emacspeak-npr-play-program
+;;; @subsection Usage
+;;;
+;;; Command: @code{emacspeak-npr-play-program} @kbd{C-; n}
 ;;; --- Play current or past program with completion for program name.
 ;;;
-;;; emacspeak-npr-listing
+;;; @code{emacspeak-npr-listing} @kbd{C-; N}
 ;;; --- List NPR programs, blogs, etc with completion.
 ;;; Streams can be played from within the displayed listing.
 ;;;
-;;; In all cases, streams are played using module emacspeak-m-player.
+;;; In all cases, streams are played using module @code{emacspeak-m-player}.
 
 ;;; Code:
 
@@ -99,7 +99,7 @@
 ;;{{{ Helpers:
 
 ;;; beware: when using curl, npr.org wants apiKey first (WHY?)
-(defsubst emacspeak-npr-rest-endpoint (operation operand)
+(defun emacspeak-npr-rest-endpoint (operation operand)
   "Return  URL  end point for specified operation."
   (declare (special emacspeak-npr-api-base
                     emacspeak-npr-api-key))
@@ -109,7 +109,7 @@
 (defvar emacspeak-npr-scratch-buffer " *Npr Scratch* "
   "Scratch buffer for Npr operations.")
 
-(defsubst emacspeak-npr-get-xml (command)
+(defun emacspeak-npr-get-xml (command)
   "Run command and return its output."
   (declare (special shell-file-name shell-command-switch))
   (g-using-scratch
@@ -151,7 +151,7 @@
   "Association table of listing keys.
 Generated from http://www.npr.org/api/inputReference.php")
 
-(defsubst emacspeak-npr-get-listing-key ()
+(defun emacspeak-npr-get-listing-key ()
   "Prompt for and return listing key."
   (let* ((completion-ignore-case t)
          (label (completing-read "List: " emacspeak-npr-listing-table nil t)))
@@ -209,12 +209,12 @@ Interactive prefix arg prompts for search."
   :type 'directory
   :group 'emacspeak-npr)
 
-(defsubst emacspeak-npr-ensure-cache ()
+(defun emacspeak-npr-ensure-cache ()
   "Create NPR cache directory if needed."
   (declare (special emacspeak-npr-local-cache))
   (unless (file-exists-p emacspeak-npr-local-cache)
     (make-directory  emacspeak-npr-local-cache 'parents)))
-(defsubst emacspeak-npr-pid-to-program (pid)
+(defun emacspeak-npr-pid-to-program (pid)
   "Return program name for pid."
   (declare (special emacspeak-npr-program-table))
   (first
@@ -252,7 +252,7 @@ Interactive prefix arg prompts for search."
                         (g-json-get-result
                          (format  "%s %s '%s'"
                                   g-curl-program g-curl-common-options url)))))
-      (loop
+      (cl-loop
        for p  across json do
        (push
         (list
@@ -260,7 +260,7 @@ Interactive prefix arg prompts for search."
          (g-json-get 'id p))
         emacspeak-npr-program-table)))))
 
-(defsubst emacspeak-npr-read-program-id ()
+(defun emacspeak-npr-read-program-id ()
   "Interactively read program id with completion."
   (declare (special emacspeak-npr-program-table))
   (or emacspeak-npr-program-table (emacspeak-npr-refresh-program-table))
@@ -303,7 +303,7 @@ Optional interactive prefix arg prompts for a date."
               (g-json-get-result
                (format "%s %s  '%s'"
                        g-curl-program  g-curl-common-options url)))
-        (loop
+        (cl-loop
          for s across  (g-json-lookup "list.story" listing) do
          (insert (format "%s\n"
                          (or (g-json-path-lookup mp4 s)

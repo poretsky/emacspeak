@@ -1,4 +1,4 @@
-;;; emacspeak-personality.el ---Emacspeak's new personality interface  -*- lexical-binding: t; -*-
+;;; emacspeak-personality.el --- Emacspeak's personality interface  -*- lexical-binding: t; -*-
 ;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Voice lock implementation
@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2015, T. V. Raman
+;;;Copyright (C) 1995 -- 2017, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -105,7 +105,7 @@
 ;;{{{ cumulative personalities
 
 ;;;###autoload
-(defsubst emacspeak-personality-put (start end personality &optional object)
+(defun emacspeak-personality-put (start end personality &optional object)
   "Apply personality to specified region, over-writing any current personality settings."
   (when
       (and personality
@@ -231,12 +231,12 @@ Preserve other existing personality properties on the text range."
 ;;}}}
 ;;{{{ helper: face-p
 
-(defsubst emacspeak-personality-plist-face-p (plist)
+(defun emacspeak-personality-plist-face-p (plist)
   "Check if plist contains a face setting."
   (or (memq 'face plist)
       (memq 'font-lock-face plist)))
 
-(defsubst ems-plain-cons-p (value)
+(defun ems-plain-cons-p (value)
   "Help identify (a . b)."
   (and (consp value)
        (equal value (last value))

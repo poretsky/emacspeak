@@ -1,4 +1,4 @@
-;;; emacspeak-cedet.el --- Speech enable CEDET  -*- lexical-binding: t; -*-
+;;; emacspeak-cedet.el --- Speech enable CEDET Development Environment -*- lexical-binding: t; -*-
 ;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description: Auditory interface to CEDET
@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (c) 1995 -- 2015, T. V. Raman
+;;; Copyright (c) 1995 -- 2017, T. V. Raman
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -53,7 +53,7 @@
 ;;}}}
 ;;{{{ advice semantic completion
 
-(loop for f in
+(cl-loop for f in
       '(semantic-complete-symbol)
       do
       (eval

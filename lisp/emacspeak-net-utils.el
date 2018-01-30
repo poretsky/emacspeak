@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2015, T. V. Raman 
+;;;Copyright (C) 1995 -- 2017, T. V. Raman 
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved. 
 ;;;
@@ -62,7 +62,7 @@
     nslookup-host)
   "Commands to speech enable")
 
-(loop for f in emacspeak-net-utils-commands
+(cl-loop for f in emacspeak-net-utils-commands
       do
       (eval
        `(defadvice ,f  (after emacspeak pre act comp)

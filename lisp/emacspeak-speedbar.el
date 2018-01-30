@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (c) 1995 -- 2015, T. V. Raman
+;;; Copyright (c) 1995 -- 2017, T. V. Raman
 ;;; All Rights Reserved. 
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -97,8 +97,7 @@
       (setq indent 
             (if (zerop indent) "" indent))
       (dtk-speak 
-       (concat indent 
-               (thing-at-point 'line))))))
+       (concat indent (ems-this-line))))))
 
 ;;}}}
 ;;{{{ Advice interactive commands:

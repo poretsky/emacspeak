@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2015, T. V. Raman
+;;;Copyright (C) 1995 -- 2017, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -44,11 +44,15 @@
 ;;; Implementation note: This is hard because of how  ispell.el is written
 ;;; Namely, all of the work is done by one huge hairy function.
 ;;; This makes advising it hard.
+;;; The ispell commands work well with Emacspeak as long as the list of correction choices are few.
+;;; For interactively moving through corrections, install package flyspell-correct from MELPA
+;;; (package-install "flyspell-correct")
+;;; Then use M-x flyspell-mode.
+;;; Package flyspell is speech-enabled by Emacspeak module emacspeak-flyspell
+;;; And that module sets up flyspell-correct to use IDO-style completion,
+;;; i.e. you can move through corrections with C-r and C-s.
 
-;;; Original version of this extension was written under emacs-19.28
-;;; for ispell.el version 2.30
-;;; Now updating it for ispell.el version 2.37.
-;;; Support for 2.30 will wither away
+
 ;;; Code:
 ;;}}}
 ;;{{{ requires
@@ -58,7 +62,7 @@
 (require 'emacspeak-preamble)
 
 ;;}}}
-;;{{{  ispell command loop:
+;;{{{  ispell command cl-loop:
 
 ;;; defun ispell-command-loop (miss guess word start end)
 ;;; Advice speaks the line containing the error with the erroneous
@@ -77,24 +81,23 @@ many available corrections."
 (defadvice ispell-command-loop (before emacspeak pre act)
   "Speak the line containing the incorrect word.
  Then speak the possible corrections. "
-  (let ((scratch-buffer (get-buffer-create " *dtk-scratch-buffer* "))
-        (choices  (ad-get-arg 0))
+  (let ((choices  (ad-get-arg 0))
         (line nil)
         (pos "")
         (start (ad-get-arg 3))
         (end (ad-get-arg 4)))
     (setq line
           (ems-set-personality-temporarily
-           start end voice-bolden (thing-at-point 'line)))
-    (with-current-buffer scratch-buffer
+           start end voice-bolden
+           (buffer-substring (line-beginning-position) (line-end-position))))
+    (with-temp-buffer
       (setq voice-lock-mode t)
       (setq buffer-undo-list t)
       (dtk-set-punctuations 'all)
-      (erase-buffer)
       (insert line)
       (cond
        ((< (length choices) emacspeak-ispell-max-choices)
-        (loop
+        (cl-loop
          for choice in choices
          and position from 0 do
          (setq pos
@@ -123,7 +126,12 @@ many available corrections."
 ;;}}}
 ;;{{{  Advice top-level ispell commands:
 
-(defadvice ispell-buffer (around emacspeak pre act comp)
+(cl-loop
+ for f in
+ '(ispell-buffer ispell-region)
+ do
+ (eval
+  `(defadvice ,f (around emacspeak pre act comp)
   "Produce auditory icons for ispell."
   (cond
    ((ems-interactive-p)
@@ -131,17 +139,9 @@ many available corrections."
       (ems-with-messages-silenced ad-do-it)
       (emacspeak-auditory-icon 'task-done)))
    (t ad-do-it))
-  ad-return-value)
+  ad-return-value)))
 
-(defadvice ispell-region (around emacspeak pre act comp)
-  "Produce auditory icons for ispell."
-  (cond
-   ((ems-interactive-p)
-    (let ((dtk-stop-immediately t))
-      (ems-with-messages-silenced ad-do-it)
-      (emacspeak-auditory-icon 'task-done)))
-   (t ad-do-it))
-  ad-return-value)
+
 
 (defadvice ispell-word (around emacspeak pre act comp)
   "Produce auditory icons for ispell."

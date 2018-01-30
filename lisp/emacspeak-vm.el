@@ -1,4 +1,4 @@
-;;; emacspeak-vm.el --- Speech enable VM -- A powerful mail agent  -*- lexical-binding: t; -*-
+;;; emacspeak-vm.el --- Speech enable VMMail    -*- lexical-binding: t; -*-
 ;;;(and the one I use)
 ;;; $Id$
 ;;; $Author: tv.raman.tv $
@@ -17,7 +17,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;;Copyright (C) 1995 -- 2015, T. V. Raman
+;;;Copyright (C) 1995 -- 2017, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -71,20 +71,19 @@ Note that some badly formed mime messages  cause trouble."
   (declare (special  dtk-punctuation-mode dtk-allcaps-beep))
   (setq dtk-punctuation-mode 'all)
   (when dtk-allcaps-beep
-    (dtk-toggle-allcaps-beep))
-  (emacspeak-dtk-sync))
+    (dtk-toggle-allcaps-beep)))
 
 ;;}}}
 ;;{{{ inline helpers
 
-(defsubst emacspeak-vm-number-of (message) (aref (aref message 1) 0))
+(defun emacspeak-vm-number-of (message) (aref (aref message 1) 0))
 
 ;;}}}
 ;;{{{ Advice completions
 
 (defadvice vm-minibuffer-complete-word (around emacspeak pre act)
   "Say what you completed."
-  (let ((prior (point))
+  (let ((prior (save-excursion (skip-syntax-backward "^ >") (point)))
         (dtk-stop-immediately t))
     (emacspeak-kill-buffer-carefully "*Completions*")
     ad-do-it
@@ -99,7 +98,7 @@ Note that some badly formed mime messages  cause trouble."
 
 (defadvice vm-minibuffer-complete-word-and-exit (around emacspeak pre act)
   "Say what you completed."
-  (let ((prior (point))
+  (let ((prior (save-excursion (skip-syntax-backward "^ >") (point)))
         (dtk-stop-immediately t))
     (emacspeak-kill-buffer-carefully "*Completions*")
     ad-do-it
@@ -215,11 +214,10 @@ s(defun emacspeak-vm-yank-header ()
   (interactive)
   (declare (special vm-ml-message-attributes-alist
                     vm-ml-message-read vm-ml-message-unread
-                    vm-virtual-folder-definition
-                    vm-ml-message-new
+                    vm-virtual-folder-definition vm-ml-message-new
                     vm-ml-message-number vm-ml-highest-message-number))
   (when (buffer-modified-p)
-    (dtk-tone 700 70))
+    (emacspeak-auditory-icon 'modified-object))
   (cond
    (vm-virtual-folder-definition
     (dtk-speak
@@ -233,15 +231,15 @@ s(defun emacspeak-vm-yank-header ()
                (if vm-ml-message-unread "unread" "")
                (if vm-ml-message-read "read" "")
                (mapconcat
-                (function (lambda(item)
-                            (let ((var (car item))
-                                  (value (cadr item)))
-                              (cond
-                               ((and (boundp var) (eval var))
-                                (if (symbolp value)
-                                    (eval value)
-                                  value))
-                               (t "")))))
+                #'(lambda(item)
+                    (let ((var (car item))
+                          (value (cadr item)))
+                      (cond
+                       ((and (boundp var) (eval var))
+                        (if (symbolp value)
+                            (eval value)
+                          value))
+                       (t ""))))
                 (cdr vm-ml-message-attributes-alist)   " "))))))
 
 ;;}}}
@@ -486,13 +484,13 @@ Leave point at front of decoded attachment."
               (emacspeak-pronounce-refresh-pronunciations)))
 
 (declaim (special emacspeak-pronounce-internet-smileys-pronunciations))
-(loop
+(cl-loop
  for hook in
  '(mail-mode-hook vm-presentation-mode-hook)
  do
  (add-hook hook 'emacspeak-pronounce-refresh-pronunciations 'append))
 
-(loop
+(cl-loop
  for mode in
  '(vm-presentation-mode mail-mode)
  do
@@ -604,11 +602,15 @@ If N is negative, move backward instead."
   :type 'boolean
   :group 'emacspeak-vm)
 (defvar emacspeak-vm-demote-html-attachments
-  '(favorite-internal  "text/plain" "text/enriched" "text/html" "application/xml+xhtml")
+  '(
+        favorite-internal  "text/plain" "text/enriched"
+        "text/html" "application/xml+xhtml")
   "Setting that prefers text/plain alternatives over html/xhtml.")
 
 (defvar emacspeak-vm-promote-html-attachments
-  '(favorite-internal   "text/html" "application/xml+xhtml" "text/plain" "text/enriched")
+  '(
+        favorite-internal   "text/html" "application/xml+xhtml"
+        "text/plain" "text/enriched")
   "Setting that prefers  alternatives  html/xhtml over text/plain.")
 
 (defun emacspeak-vm-use-raman-settings ()
@@ -670,13 +672,16 @@ Emacspeak."
                     vm-mime-alternative-select-method))
   (cond
    ((eq vm-mime-alternative-select-method emacspeak-vm-demote-html-attachments)
-    (setq vm-mime-alternative-select-method emacspeak-vm-promote-html-attachments)
+    (setq vm-mime-alternative-select-method
+          emacspeak-vm-promote-html-attachments)
     (message "Prefering HTML Mime alternative."))
    ((eq vm-mime-alternative-select-method emacspeak-vm-promote-html-attachments)
-    (setq vm-mime-alternative-select-method emacspeak-vm-demote-html-attachments)
+    (setq vm-mime-alternative-select-method
+          emacspeak-vm-demote-html-attachments)
     (message "Prefering Text/Plain Mime alternative."))
    (t (message "Resetting state to HTML Mime demotion.")
-      (setq vm-mime-alternative-select-method emacspeak-vm-demote-html-attachments))))
+      (setq vm-mime-alternative-select-method
+            emacspeak-vm-demote-html-attachments))))
 
 (when emacspeak-vm-use-raman-settings
   (emacspeak-vm-use-raman-settings))

@@ -1,4 +1,4 @@
-;;; emacspeak-elfeed.el --- Speech-enable ELFEED  -*- lexical-binding: t; -*-
+;;; emacspeak-elfeed.el --- Speech-enable ELFEED, A Feed Reader -*- lexical-binding: t; -*-
 ;;; $Id: emacspeak-elfeed.el 4797 2007-07-16 23:31:22Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Speech-enable ELFEED A Feed Reader For Emacs
@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2015, T. V. Raman
+;;;Copyright (C) 1995 -- 2017, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -66,7 +66,7 @@
 ;;}}}
 ;;{{{ Advice interactive commands:
 
-(loop
+(cl-loop
  for f in
  '(
    elfeed-apply-hooks-now elfeed-search-browse-url elfeed-show-entry elfeed-show-visit
@@ -84,7 +84,7 @@
        (emacspeak-auditory-icon 'task-done)
        (emacspeak-speak-line)))))
 
-(loop
+(cl-loop
  for f in
  '(elfeed-show-tag elfeed-show-untag)
  do
@@ -114,7 +114,7 @@
 ;;}}}
 ;;{{{ Helpers:
 
-(defsubst emacspeak-elfeed-entry-at-point ()
+(defun emacspeak-elfeed-entry-at-point ()
   "Return entry at point."
   (declare (special  elfeed-search--offset elfeed-search-entries))
   (let ((index  (- (line-number-at-pos (point)) elfeed-search--offset)))
@@ -200,7 +200,7 @@ Work-around for async fetch bug in EWW."
 
 ;;}}}
 ;;{{{ Silence warnings/errors
-(loop
+(cl-loop
  for f in
  '(elfeed-update-feed elfeed-handle-parse-error  elfeed-handle-http-error
                       elfeed-unjam elfeed-update)

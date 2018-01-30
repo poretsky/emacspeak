@@ -16,7 +16,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2015, T. V. Raman 
+;;;Copyright (C) 1995 -- 2017, T. V. Raman 
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved. 
 ;;;
@@ -60,8 +60,7 @@
   (or dtk-split-caps
       (dtk-toggle-split-caps))
   (or emacspeak-audio-indentation
-      (emacspeak-toggle-audio-indentation))
-  (emacspeak-dtk-sync))
+      (emacspeak-toggle-audio-indentation)))
 
 (add-hook 'texinfo-mode-hook 'emacspeak-texinfo-mode-hook)
 

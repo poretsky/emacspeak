@@ -17,7 +17,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (C) 1995 -- 2015, T. V. Raman
+;;; Copyright (C) 1995 -- 2017, T. V. Raman
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -72,7 +72,7 @@
     (emacspeak-auditory-icon 'help)
     (emacspeak-speak-mode-line)))
 
-(loop
+(cl-loop
  for f in 
  '(
    ecb-nav-goto-next
@@ -176,7 +176,7 @@ available."
   (when (ems-interactive-p)
     (emacspeak-auditory-icon 'select-object)
     (emacspeak-speak-line)))
-(defsubst tree-node-is-expanded (node)
+(defun tree-node-is-expanded (node)
   "Check if node is expanded."
   (or (not (tree-node->expandable node))
       (tree-node->expanded node)))

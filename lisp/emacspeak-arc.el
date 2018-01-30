@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (c) 1995 -- 2015, T. V. Raman
+;;; Copyright (c) 1995 -- 2017, T. V. Raman
 ;;; All Rights Reserved. 
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -122,7 +122,7 @@
 (defvar emacspeak-arc-header-list-format nil
   "Field names in the header line")
 
-(defsubst emacspeak-arc-get-header-line-format ()
+(defun emacspeak-arc-get-header-line-format ()
   "Return  header line format vector, after
 first initializing it if necessary."
   (declare (special emacspeak-arc-header-list-format))
@@ -131,9 +131,9 @@ first initializing it if necessary."
           (fields nil))
       (save-excursion
         (goto-char (point-min))
-        (setq line (thing-at-point 'line)))
+        (setq line (ems-this-line)))
       (setq fields (split-string line))
-      (loop for f in fields 
+      (cl-loop for f in fields 
             and i from 0
             do
             (setq emacspeak-arc-header-list-format
@@ -141,7 +141,7 @@ first initializing it if necessary."
                    (list f i)
                    emacspeak-arc-header-list-format)))))
   emacspeak-arc-header-list-format)
-(defsubst emacspeak-arc-get-field-index (field)
+(defun emacspeak-arc-get-field-index (field)
   (let ((marked-p (save-excursion
                     (beginning-of-line)
                     (= ?\  (following-char))))
@@ -163,7 +163,7 @@ first initializing it if necessary."
      (t
       (message "File: %s"
                (nth  (emacspeak-arc-get-field-index "File")
-                     (split-string (thing-at-point 'line))))))))
+                     (split-string (ems-this-line))))))))
 
 (defun emacspeak-arc-speak-file-size ()
   "Speak the size of the file on current line"
@@ -177,7 +177,7 @@ first initializing it if necessary."
      (t
       (message "Size: %s"
                (nth  (emacspeak-arc-get-field-index "Length")
-                     (split-string (thing-at-point 'line))))))))
+                     (split-string (ems-this-line))))))))
 
 (defun emacspeak-arc-speak-file-modification-time ()
   "Speak modification time of the file on current line"
@@ -189,7 +189,7 @@ first initializing it if necessary."
      ((null entry)
       (message "No file on this line"))
      (t
-      (let* ((fields (split-string (thing-at-point 'line)))
+      (let* ((fields (split-string (ems-this-line)))
              (date (nth  (emacspeak-arc-get-field-index "Date")
                          fields))
              (time (nth  (emacspeak-arc-get-field-index "Time")

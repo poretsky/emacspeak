@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (C) 1995 -- 2015, T. V. Raman<raman@cs.cornell.edu>
+;;; Copyright (C) 1995 -- 2017, T. V. Raman<raman@cs.cornell.edu>
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -56,7 +56,7 @@
 ;;{{{ helpers 
 ;;; Forward declaration
 (defvar mpg123-mode-map nil)
-(defsubst emacspeak-mpg123-current-track ()
+(defun emacspeak-mpg123-current-track ()
   "Return current rtrack number if on a valid line."
   (when (mpg123:in-music-list-p)
     (let ((start nil))
@@ -68,14 +68,14 @@
         (string-to-number (buffer-substring-no-properties
                            start (point)))))))
 
-(defsubst emacspeak-mpg123-get-music-info (n attr)
+(defun emacspeak-mpg123-get-music-info (n attr)
   "Return attribute from music alist.
 mpg123 defines this as a macro which causes compile trouble."
   (declare (special mpg123*music-alist))
   (cdr (assq attr
              (assoc n mpg123*music-alist))))
 
-(defsubst emacspeak-mpg123-speak-line ()
+(defun emacspeak-mpg123-speak-line ()
   "Speak just the title"
   (emacspeak-mpg123-speak-title))
 ;;}}}

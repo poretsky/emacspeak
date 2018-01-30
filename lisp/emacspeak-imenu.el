@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (c) 1995 -- 2015, T. V. Raman
+;;; Copyright (c) 1995 -- 2017, T. V. Raman
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -92,7 +92,7 @@
 
 ;;}}}
 ;;{{{ advice
-(loop
+(cl-loop
  for f in
  '(imenu imenu-anywhere ido-imenu-anywhere)
  do
@@ -124,7 +124,7 @@
       (setq emacspeak-imenu-flattened-index-alist
             (emacspeak-imenu-flatten-index-alist
              imenu--index-alist t)))
-    (loop for item  in emacspeak-imenu-flattened-index-alist
+    (cl-loop for item  in emacspeak-imenu-flattened-index-alist
           do
           (setq guess
                 (cond
@@ -160,7 +160,7 @@
       (setq emacspeak-imenu-flattened-index-alist
             (emacspeak-imenu-flatten-index-alist
              imenu--index-alist t)))
-    (loop for item  in emacspeak-imenu-flattened-index-alist
+    (cl-loop for item  in emacspeak-imenu-flattened-index-alist
           do
           (setq guess
                 (cond

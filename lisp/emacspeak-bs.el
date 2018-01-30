@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (C) 1995 -- 2015, T. V. Raman<raman@cs.cornell.edu>
+;;; Copyright (C) 1995 -- 2017, T. V. Raman<raman@cs.cornell.edu>
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -94,8 +94,8 @@
                        list-buffers-directory)
                   (setq this-buffer-directory list-buffers-directory))))
                                         ;format and speak the line
-        (when this-buffer-modified-p (dtk-tone 700 70))
-        (when this-buffer-read-only (dtk-tone 250 50))
+        (when this-buffer-modified-p (dtk-tone 700 100))
+        (when this-buffer-read-only (dtk-tone 250 100))
         (put-text-property 0 (length this-buffer-mode-name)
                            'personality voice-smoothen
                            this-buffer-mode-name)

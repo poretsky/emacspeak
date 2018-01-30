@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (C) 1995 -- 2015, T. V. Raman
+;;; Copyright (C) 1995 -- 2017, T. V. Raman
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -143,7 +143,7 @@ spoken.")
   :type 'string
   :group 'emacspeak-erc)
 
-(defsubst emacspeak-erc-read-person (action)
+(defun emacspeak-erc-read-person (action)
   "Helper to prompt for and read person in ERC."
   (read-from-minibuffer
    (format "%s person" action)

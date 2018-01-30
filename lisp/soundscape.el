@@ -13,7 +13,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2015, T. V. Raman
+;;;Copyright (C) 1995 -- 2017, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -164,14 +164,14 @@ Defaults specify alsa as the output and set master volume to 0.5"
         (forward-line 1)))
     soundscape--catalog)))
 
-(defsubst soundscape-lookup-name (name)
+(defun soundscape-lookup-name (name)
   "Return package/agent for this name.
 Default is to return NullAgent if name not found."
   (or
    (cdr (assoc name (soundscape-catalog)))
    "()"))
 
-(defsubst soundscape-lookup-scape (scape)
+(defun soundscape-lookup-scape (scape)
   "Return name for this package/agent."
   (car (rassoc scape (soundscape-catalog))))
 
@@ -221,7 +221,7 @@ Default is to return NullAgent if name not found."
   (mapc  #'soundscape-stop (hash-table-keys soundscape-processes))
   (message "Stopped all soundscapes."))
 
-(defsubst soundscape-running-p (scape)
+(defun soundscape-running-p (scape)
   "Predicate to check if soundscape is running."
   (process-live-p (gethash  scape soundscape-processes)))
 
@@ -236,7 +236,7 @@ Default is to return NullAgent if name not found."
 (defvar soundscape-mode-table (make-hash-table :test #'eq)
   "Maps mode-names to associated Soundscapes.")
 
-(defsubst  soundscape-for-mode (mode)
+(defun  soundscape-for-mode (mode)
   "Return associated soundscape for this mode if any."
   (let ((result nil))
     (while mode
@@ -244,7 +244,7 @@ Default is to return NullAgent if name not found."
       (setq mode (get mode 'derived-mode-parent)))
     (delq nil result)))
 
-(defsubst  soundscape-map-mode (mode scape)
+(defun  soundscape-map-mode (mode scape)
   "Associate soundscape for this mode."
   (when mode
     (puthash mode scape soundscape-mode-table)))
@@ -289,8 +289,8 @@ See  \\{soundscape-default-theme} for details."
   `(
     ("()" nil)
     ("BirdCalls" nil)
-    ("BirdChorus" nil)
-    ("BirdSongs" (shell-mode term-mode))
+    ("BirdSongs" nil)
+    ("BirdChorus" (shell-mode term-mode))
     ("BlopEchoes"  (elfeed-search-mode))
     ("Bonfire" (calendar-mode diary-mode))
     ("BuddhaLoop" (comint-mode))
@@ -298,12 +298,13 @@ See  \\{soundscape-default-theme} for details."
     ("ChangingLoops" (special-mode))
     ("ChangingLoopsPitches" (lisp-interaction-mode))
     ("Drip" ,soundscape-communication-modes)
+    ("GardenBackground" nil)
     ("LoopStew" (emacspeak-m-player-mode))
     ("ManyMockingBirds" nil)
     ("ManyNightingales" nil)
     ("MockingBirds" nil)
     ("MockingCuckoos" nil)
-    ("Nightscape" nil)
+    ("Nightscape" (emacspeak-screen-saver-mode))
     ("NoStormYet"  (fundamental-mode))
     ("RainForever" ,soundscape-help-modes)
     ("RainSounds" ,soundscape-vc-modes)
@@ -320,7 +321,7 @@ this list) must be the NullAgent written as (). ")
 
 (soundscape-load-theme soundscape-default-theme)
 
-(defsubst soundscape--read-mode-name ()
+(defun soundscape--read-mode-name ()
   "Helper to read major-mode name with completion."
   (let ((completion-regexp-list '("-mode$")))
     (intern (completing-read "Major mode: " obarray #'functionp 'must-match))))
@@ -336,7 +337,7 @@ Optional interactive prefix arg `prompt-mode' prompts for the mode."
           (soundscape-lookup-name
            (completing-read "Scape:" (mapcar 'car soundscape-default-theme)))))
     (soundscape-map-mode mode scape)
-    (soundscape-sync major-mode)
+    <    (soundscape-sync major-mode)
     (message "Now using %s for %s" scape mode)))
 
 ;;}}}
@@ -492,7 +493,8 @@ Optional interactive prefix arg `force' skips optimization checks."
 
 ;;}}}
 ;;{{{ SoundScape Toggle:
-(defsubst soundscape-quiet ()
+(defun
+ soundscape-quiet ()
   "Activate NullAgent."
   (when (process-live-p soundscape-remote-control)
     (process-send-string soundscape-remote-control "soundscape 0\n")))
@@ -523,10 +525,10 @@ Run command \\[soundscape-theme] to see the default mode->mood mapping."
     (soundscape-init)
     (setq soundscape--auto
           (run-with-idle-timer   soundscape-idle-delay t #'soundscape-update))
-    (soundscape-sync major-mode)
-    (when (called-interactively-p 'interactive)
-      (message "Automatic Soundscapes are now %s"
-               (if soundscape--auto "on" "off"))))))
+    (soundscape-sync major-mode)))
+  (when (called-interactively-p 'interactive)
+    (message "Automatic Soundscapes are now %s"
+             (if soundscape--auto "on" "off"))))
 (defvar soundscape--cached-device nil
   "Cache    last used audio device.")
 
@@ -542,7 +544,7 @@ Caches most recently used device, which then becomes the default for future invo
   (when device
     (setq soundscape--cached-device
           (completing-read
-           "Filter: " '("crossfeed" "reverb_crossfeed" "default"))))
+           "Filter: " '("crossfeed" "reverb_crossfeed" "default" "tap_reverb"))))
   (let ((soundscape-manager-options
          (append
           (copy-sequence soundscape-manager-options) ; clone default options
@@ -583,7 +585,7 @@ Caches most recently used device, which then becomes the default for future invo
       (special-mode)
       (setq default-directory
             (expand-file-name soundscape-data)))
-    (funcall-interactively #'switch-to-buffer buffer)))
+    (funcall-interactively #'pop-to-buffer buffer)))
 
 ;;}}}
 (provide 'soundscape)

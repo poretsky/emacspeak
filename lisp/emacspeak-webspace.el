@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{ Copyright:
-;;;Copyright (C) 1995 -- 2015, T. V. Raman
+;;;Copyright (C) 1995 -- 2017, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -52,9 +52,7 @@
 (require 'emacspeak-preamble)
 (require 'ring)
 (require 'derived)
-(require 'gfeeds)
 (require 'gweb)
-(require 'gf)
 (require 'emacspeak-webutils)
 (require 'emacspeak-feeds)
 
@@ -70,24 +68,24 @@
 
 (declaim (special emacspeak-webspace-mode-map))
 (set-keymap-parent emacspeak-webspace-mode-map button-buffer-map)
-(loop for k in
-      '(
-        ("q" bury-buffer)
-        ("." emacspeak-webspace-filter)
-        ("'" emacspeak-speak-rest-of-buffer)
-        ("<" beginning-of-buffer)
-        (">" end-of-buffer)
-        ("/" search-forward)
-        ("?" search-backward)
-        ("y" emacspeak-webspace-yank-link)
-        ("n" forward-button)
-        ("p" backward-button)
-        ("f" forward-button)
-        ("b" backward-button))
-      do
-      (emacspeak-keymap-update emacspeak-webspace-mode-map k))
+(cl-loop for k in
+         '(
+           ("q" bury-buffer)
+           ("." emacspeak-webspace-filter)
+           ("'" emacspeak-speak-rest-of-buffer)
+           ("<" beginning-of-buffer)
+           (">" end-of-buffer)
+           ("/" search-forward)
+           ("?" search-backward)
+           ("y" emacspeak-webspace-yank-link)
+           ("n" forward-button)
+           ("p" backward-button)
+           ("f" forward-button)
+           ("b" backward-button))
+         do
+         (emacspeak-keymap-update emacspeak-webspace-mode-map k))
 
-(defsubst emacspeak-webspace-act-on-link (action &rest args)
+(defun emacspeak-webspace-act-on-link (action &rest args)
   "Apply action to link under point."
   (let ((link (get-text-property (point) 'link)))
     (if link
@@ -114,13 +112,6 @@
                            (button-get button 'url)))))
      (t (error "No link under point")))))
 
-(defadvice gfeeds-view (around emacspeak pre act comp)
-  "Automatically speak display."
-  (when (ems-interactive-p)
-    (emacspeak-webutils-autospeak))
-  ad-do-it
-  ad-return-value)
-
 ;;;###autoload
 (defun emacspeak-webspace-open ()
   "Open headline at point by following its link property."
@@ -141,7 +132,7 @@
 ;;}}}
 ;;{{{ WebSpace Display:
 
-(defsubst emacspeak-webspace-display (infolet)
+(defun emacspeak-webspace-display (infolet)
   "Displays specified infolet.
 Infolets use the same structure as mode-line-format and header-line-format.
 Generates auditory and visual display."
@@ -154,61 +145,52 @@ Generates auditory and visual display."
 
 (declaim (special emacspeak-webspace-keymap))
 
-(loop for k in
-      '(
-        ("w" emacspeak-webspace-weather)
-        ("h" emacspeak-webspace-headlines)
-        (" " emacspeak-webspace-headlines-browse)
-        )
-      do
-      (define-key emacspeak-webspace-keymap (first k) (second k)))
-                                        ;(global-set-key [C-return] 'emacspeak-webspace-headlines-browse)
+(cl-loop for k in
+         '(
+           ("h" emacspeak-webspace-headlines)
+           (" " emacspeak-webspace-headlines-browse)
+           )
+         do
+         (define-key emacspeak-webspace-keymap (first k) (second k)))
 
 ;;}}}
 ;;{{{ Headlines:
 
-;;; Encapsulate collection feeds, headlines, timer, and recently updated feed.-index
-
 (defstruct emacspeak-webspace-fs
   feeds
-  titles
+  titles ; (title url)
   timer slow-timer
   index)
 
 (defvar emacspeak-webspace-headlines nil
   "Feedstore structure to use a continuously updating ticker.")
+
 (defvar emacspeak-webspace-headlines-period '(0 1800 0)
   "How often we fetch from a feed.")
 
-(defsubst emacspeak-webspace-headlines-fetch (feed)
+(defun emacspeak-webspace-headlines-fetch (feed)
   "Add headlines from specified feed to our cache.
-Newly found headlines are inserted into the ring within our feedstore.
-We use module gfeeds to efficiently fetch feed contents using the
-  Google AJAX API."
-  (declare (special emacspeak-webspace-headlines-period))
-  (let* (
-         (last-update (get-text-property 0 'last-update feed))
-         (gfeeds-freshness-internal
-          (if last-update
-              emacspeak-webspace-headlines-period
-            gfeeds-freshness-internal))
+Newly found headlines are inserted into the ring within our feedstore."
+  (declare (special emacspeak-webspace-headlines
+                    emacspeak-webspace-headlines-period))
+  (let* ((last-update (get-text-property 0 'last-update feed))
          (titles (emacspeak-webspace-fs-titles emacspeak-webspace-headlines)))
     (when                     ; check if we need to add from this feed
         (or (null last-update)          ;  at most every half hour
             (time-less-p emacspeak-webspace-headlines-period  (time-since last-update)))
       (put-text-property 0 1 'last-update (current-time) feed)
-      (ems-with-messages-silenced
-       (mapc
-        #'(lambda (h)
-            (unless (ring-member titles h)
-              (ring-insert titles h)))
-        (gfeeds-titles feed))))))
+      (mapc
+       #'(lambda (h)
+           (unless (ring-member titles h)
+             (ring-insert titles h)))
+       (emacspeak-webutils-feed-titles feed)))))
 
-(defsubst emacspeak-webspace-fs-next (fs)
+(defun emacspeak-webspace-fs-next (fs)
   "Return next feed and increment index for fs."
-  (let ((feed-url (aref
-                   (emacspeak-webspace-fs-feeds fs)
-                   (emacspeak-webspace-fs-index fs))))
+  (let ((feed-url
+         (aref
+          (emacspeak-webspace-fs-feeds fs)
+          (emacspeak-webspace-fs-index fs))))
     (setf (emacspeak-webspace-fs-index fs)
           (% (1+ (emacspeak-webspace-fs-index fs))
              (length (emacspeak-webspace-fs-feeds fs))))
@@ -220,7 +202,7 @@ We use module gfeeds to efficiently fetch feed contents using the
   (dotimes (_i (length (emacspeak-webspace-fs-feeds emacspeak-webspace-headlines)))
     (emacspeak-webspace-headlines-fetch (emacspeak-webspace-fs-next emacspeak-webspace-headlines))))
 
-(defsubst emacspeak-webspace-headlines-refresh ()
+(defun emacspeak-webspace-headlines-refresh ()
   "Update headlines."
   (declare (special emacspeak-webspace-headlines))
   (with-local-quit
@@ -256,11 +238,11 @@ Updated headlines found in emacspeak-webspace-headlines."
       "No News Is Good News")
      (t (let ((h (ring-remove titles 0)))
           (ring-insert-at-beginning titles h)
-          h)))))
+          (first h))))))
 
 ;;;###autoload
 (defun emacspeak-webspace-headlines ()
-  "Startup Headlines ticker."
+  "Startup Headlines ticker using RSS/Atom  feeds."
   (interactive)
   (declare (special emacspeak-webspace-headlines emacspeak-feeds))
   (unless emacspeak-webspace-headlines
@@ -297,12 +279,12 @@ Updated headlines found in emacspeak-webspace-headlines."
       (goto-char (point-min))
       (insert "Press enter to open stories.\n\n")
       (put-text-property (point-min) (point) 'face font-lock-doc-face)
-      (loop
+      (cl-loop
        for h in
        (delq nil (ring-elements (emacspeak-webspace-fs-titles emacspeak-webspace-headlines)))
        and position  from 1
        do
-       (insert (format "%d\t" position))
+       (insert (format "\n%d\t" position))
        (emacspeak-webspace-headlines-insert-button h))
       (goto-char (point-min))
       (flush-lines "^ *$")
@@ -325,67 +307,14 @@ Updated headlines found in emacspeak-webspace-headlines."
 (defun emacspeak-webspace-headlines-insert-button (headline)
   "Insert a button for this headline at point."
   (insert-text-button
-   headline
+   (car headline)
    'type 'emacspeak-webspace-headline
-   'link (get-text-property 0 'link headline)))
-
-;;}}}
-;;{{{ Weather:
-
-(defvar emacspeak-webspace-weather-url-template
-  "http://www.wunderground.com/auto/rss_full/%s.xml"
-  "URL template for weather feed.")
-
-(defun emacspeak-webspace-weather-conditions ()
-  "Return weather conditions for `emacspeak-url-template-weather-city-state'."
-  (declare (special emacspeak-url-template-weather-city-state
-                    emacspeak-webspace-weather-url-template))
-  (when (and emacspeak-webspace-weather-url-template
-             emacspeak-url-template-weather-city-state)
-    (with-local-quit
-      (format "%s at %s"
-              (first
-               (gfeeds-titles
-                (format emacspeak-webspace-weather-url-template
-                        emacspeak-url-template-weather-city-state)))
-              emacspeak-url-template-weather-city-state))))
-
-(defvar emacspeak-webspace-current-weather nil
-  "Holds cached value of current weather conditions.")
-
-(defvar emacspeak-webspace-weather-timer nil
-  "Timer holding our weather update timer.")
-(defun emacspeak-webspace-weather-get ()
-  "Get weather."
-  (declare (special emacspeak-webspace-current-weather))
-  (setq emacspeak-webspace-current-weather
-        (emacspeak-webspace-weather-conditions)))
-
-(defun emacspeak-webspace-weather-update ()
-  "Setup periodic weather updates.
-Updated weather is found in `emacspeak-webspace-current-weather'."
-  (interactive)
-  (declare (special emacspeak-webspace-weather-timer))
-  (unless emacspeak-url-template-weather-city-state
-    (error
-     "First set option emacspeak-url-template-weather-city-state to your city/state."))
-  (emacspeak-webspace-weather-get)
-  (setq emacspeak-webspace-weather-timer
-        (run-with-idle-timer 600 'repeat
-                             'emacspeak-webspace-weather-get)))
-
-;;;###autoload
-(defun emacspeak-webspace-weather ()
-  "Speak current weather."
-  (interactive)
-  (declare (special emacspeak-webspace-current-weather
-                    emacspeak-webspace-weather-timer))
-  (unless emacspeak-webspace-weather-timer
-    (call-interactively 'emacspeak-webspace-weather-update))
-  (emacspeak-webspace-display 'emacspeak-webspace-current-weather))
+   'link (cadr headline)))
 
 ;;}}}
 ;;{{{ Feed Reader:
+
+;;; In memory of Google Reader:
 
 (defvar emacspeak-webspace-reader-buffer "Reader"
   "Name of Reader buffer.")
@@ -431,132 +360,18 @@ Optional interactive prefix arg forces a refresh."
       (goto-char (point-min))
       (insert "Press enter to open feeds.\n\n")
       (put-text-property (point-min) (point) 'face font-lock-doc-face)
-      (loop for f in emacspeak-feeds
-            and position  from 1
-            do
-            (insert (format "%d\t" position))
-            (emacspeak-webspace-feed-reader-insert-button f)
-            (insert "\n"))
+      (cl-loop for f in emacspeak-feeds
+               and position  from 1
+               do
+               (insert (format "%d\t" position))
+               (emacspeak-webspace-feed-reader-insert-button f)
+               (insert "\n"))
       (switch-to-buffer emacspeak-webspace-reader-buffer)
       (emacspeak-webspace-mode))))
 
-;;;###autoload
-
 ;;}}}
-;;{{{ Google Search in WebSpace:
+;;{{{ Google Knowledge Graph:
 
-(defun emacspeak-webspace-google-save-results(results)
-  "Save results in a WebSpace mode buffer for later use."
-  (declare (special gweb-history))
-  (let ((buffer
-         (get-buffer-create (format "Search %s" (first gweb-history))))
-        (inhibit-read-only t)
-        (headline nil))
-    (with-current-buffer buffer
-      (erase-buffer)
-      (setq buffer-undo-list t)
-      (insert (format "Search Results For %s\n\n" (first gweb-history)))
-      (center-line)
-      (loop
-       for r across results
-       and i from 1
-       do
-       (insert (format "%d.\t" i))
-       (setq headline
-             (or
-              (g-html-string (g-json-get 'title r))
-              (g-json-get 'titleNoFormatting r)))
-       (when headline
-         (put-text-property 0 (length headline)
-                            'link   (g-json-get 'url r)  headline)
-         (emacspeak-webspace-headlines-insert-button headline))
-       (insert (format "\n%s\n"
-                       (g-html-string (g-json-get 'content r)))))
-      (emacspeak-webspace-mode)
-      (setq buffer-read-only t)
-      (goto-char (point-min)))
-    (display-buffer buffer)
-    (emacspeak-auditory-icon 'open-object)))
-
-;;;###autoload
-(defun emacspeak-webspace-google ()
-  "Display Google Search in a WebSpace buffer."
-  (interactive)
-  (let ((gweb-search-results-handler 'emacspeak-webspace-google-save-results))
-    (call-interactively 'gweb-google-at-point)))
-
-;;}}}
-;;{{{ Freebase:
-
-(define-button-type 'emacspeak-webspace-freebase-topic
-  'id nil
-  'help-echo ""
-  'action #'emacspeak-webspace-freebase-topic-expand)
-
-(defun emacspeak-webspace-freebase-topic-expand (button)
-  "Expand topic at point."
-  (let* ((inhibit-read-only t)
-         (start nil)
-         (end nil)
-         (id (button-get button 'id))
-         (desc (gf-topic-description id)))
-    (goto-char (button-end button))
-    (insert "\n")
-    (put-text-property 0 (length id)
-                       'link (get-text-property 0 'link desc) id)
-    (emacspeak-webspace-headlines-insert-button id)
-    (insert "\n")
-    (setq start (point))
-    (insert desc)
-    (setq end (point))
-    (fill-region  start end)
-    (emacspeak-speak-region start end)
-    (insert "\n")
-    (goto-char start)
-    (emacspeak-auditory-icon 'open-object)))
-
-(defun emacspeak-webspace-freebase-topic-insert (id)
-  "Insert a button for this topic at point."
-  (insert-text-button
-   id
-   'type 'emacspeak-webspace-freebase-topic
-   'link (get-text-property 0 'id id)))
-
-;;;###autoload
-(defun emacspeak-webspace-freebase-search (query)
-  "Perform a Freebase search and display results."
-  (interactive
-   (list
-    (read-from-minibuffer "Freebase Query: ")))
-  (let ((buffer (get-buffer-create (format "Feedbase: %s" query)))
-        (results (gf-search-results (emacspeak-url-encode query)))
-        (inhibit-read-only t)
-        (title nil)
-        (id nil))
-    (with-current-buffer buffer
-      (erase-buffer)
-      (setq buffer-undo-list t)
-      (format (buffer-name buffer))
-      (center-line)
-                                        ; Nuke initial '/' in id
-      (loop
-       for r in results
-       and i from 1
-       do
-       (insert (format "%d.\t" i))
-       (setq title (first r))
-       (setq id (substring (second r) 1))
-       (put-text-property 0 (length title)
-                          'id id title)
-       (emacspeak-webspace-freebase-topic-insert title)
-       (insert "\n"))
-      (emacspeak-webspace-mode)
-      (setq buffer-read-only t)
-      (goto-char (point-min)))
-    (switch-to-buffer buffer)
-    (emacspeak-speak-mode-line)
-    (emacspeak-auditory-icon 'open-object)))
-;;; Will transition to Knowledge Graph:
 ;;; Google Knowledge Graph Search API  |  Knowledge G https://developers.google.com/knowledge-graph/
 
 (defcustom emacspeak-webspace-kg-key  nil
@@ -568,25 +383,37 @@ Optional interactive prefix arg forces a refresh."
   :group 'emacspeak-webspace)
 
 (defvar emacspeak-webspace-kg-rest-end-point
-  "https://kgsearch.googleapis.com/v1/entities:search?query=%s&key=%s&limit=%s"
+  "https://kgsearch.googleapis.com/v1/entities:search?%s=%s&key=%s&indent=1&limit=%s"
   "Rest end-point for KG Search.")
 
-(defsubst emacspeak-webspace-kg-uri (query &optional limit)
-  "Return URL for KG Search."
-  (or limit (setq limit 1))
+(defun emacspeak-webspace-kg-id-uri (id)
+  "Return URL for KG Search by id."
+  (declare (special emacspeak-webspace-kg-rest-end-point))
   (format
    emacspeak-webspace-kg-rest-end-point
+   "ids"
+   (emacspeak-url-encode (substring id 3))
+   emacspeak-webspace-kg-key
+   1))
+
+(defun emacspeak-webspace-kg-query-uri (query &optional limit)
+  "Return URL for KG Search."
+  (declare (special emacspeak-webspace-kg-rest-end-point))
+  (or limit (setq limit 5))
+  (format
+   emacspeak-webspace-kg-rest-end-point
+   "query"
    (emacspeak-url-encode query)
    emacspeak-webspace-kg-key
    limit))
 
-(defsubst emacspeak-webspace-kg-json-ld (query &optional limit)
+(defun emacspeak-webspace-kg-json-ld (query &optional limit)
   "Return JSON-LD structure."
-  (or limit (setq limit 1))
+  (or limit (setq limit 5))
   (g-json-from-url
-   (emacspeak-webspace-kg-uri query limit)))
+   (emacspeak-webspace-kg-query-uri query limit)))
 
-(defsubst emacspeak-webspace-kg-results (query &optional limit)
+(defun emacspeak-webspace-kg-results (query &optional limit)
   "Return list of results."
   (or limit (setq limit 5))
   (map  'list
@@ -594,19 +421,20 @@ Optional interactive prefix arg forces a refresh."
         (g-json-get 'itemListElement
                     (emacspeak-webspace-kg-json-ld query limit))))
 
-(defsubst emacspeak-webspace-kg-format-result (result)
+(defun emacspeak-webspace-kg-format-result (result)
   "Format result as HTML."
   (let-alist result
     (format
      "<p><a href='%s'>%s</a> is a <code>[%s]</code>.
 <strong>%s</strong></p>
 <p>%s</p>
-<p><em>Id:</em> %s
+<p><a href='%s'>Id: %s</a>
 <img src='%s'/></p>\n"
      (g-json-get 'url .detailedDescription) .name
      (mapconcat #'identity .@type ", ")
      .description
      (or (g-json-get 'articleBody .detailedDescription) "")
+     (emacspeak-webspace-kg-id-uri .@id)
      .@id
      (g-json-get 'contentUrl .image))))
 
@@ -617,7 +445,7 @@ Optional interactive prefix arg `limit' prompts for number of results, default i
   (setq limit
         (cond
          (limit  (read-number "Number of results: "))
-         (t  1)))
+         (t  5)))
   (let ((results (emacspeak-webspace-kg-results query limit)))
     (unless results (error "No results"))
     (with-temp-buffer
@@ -625,7 +453,7 @@ Optional interactive prefix arg `limit' prompts for number of results, default i
       (cond
        ((> limit 1)
         (insert "<ol>\n")
-        (loop
+        (cl-loop
          for r in results do
          (insert "<li>")
          (insert (emacspeak-webspace-kg-format-result r))

@@ -17,7 +17,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2015, T. V. Raman
+;;;Copyright (C) 1995 -- 2017, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -91,7 +91,7 @@ Speech flushes as you type."
        (null (car buffer-undo-list))
        (pop buffer-undo-list))
   (self-insert-command  arg)
-  (when (ems-interactive-p)
+  (when (called-interactively-p 'interactive)
     (let ((display (get-char-property (1- (point)) 'display)))
       (dtk-stop)
       (cond
@@ -114,7 +114,7 @@ Speech flushes as you type."
   "Speaks the character if emacspeak-character-echo is true.
 See  command emacspeak-toggle-word-echo bound to
 \\[emacspeak-toggle-word-echo].
-eech flushes as you type."
+Speech flushes as you type."
   (declare (special last-command-event 
                     emacspeak-character-echo emacspeak-word-echo))
   (when buffer-read-only (dtk-speak "Buffer is read-only. "))
@@ -154,7 +154,7 @@ eech flushes as you type."
   (cond
    ((<= (+ arg (point)) (point-max))
     (forward-char arg)
-    (when (ems-interactive-p)
+    (when (called-interactively-p 'interactive)
       (and dtk-stop-immediately (dtk-stop))
       (emacspeak-speak-char t)))
    (t(ding)
@@ -168,7 +168,7 @@ eech flushes as you type."
   (cond
    ((>= (- (point) arg) (point-min))
     (backward-char arg)
-    (when (ems-interactive-p)
+    (when (called-interactively-p 'interactive)
       (and dtk-stop-immediately (dtk-stop))
       (emacspeak-speak-char t)))
    (t (ding)

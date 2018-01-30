@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2015, T. V. Raman 
+;;;Copyright (C) 1995 -- 2017, T. V. Raman 
 ;;; Copyright (c) 1995 by T. V. Raman  
 ;;; All Rights Reserved. 
 ;;;
@@ -97,7 +97,7 @@ Useful in voiceifying rich text."
             end))
           (when (listp face)
             (setq face 
-                  (loop for f in emacspeak-enriched-font-faces-to-voiceify
+                  (cl-loop for f in emacspeak-enriched-font-faces-to-voiceify
                         thereis (find f face))))
           (when face 
             (put-text-property start  (point)

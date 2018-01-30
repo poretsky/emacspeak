@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2015, T. V. Raman 
+;;;Copyright (C) 1995 -- 2017, T. V. Raman 
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved. 
 ;;;
@@ -57,11 +57,11 @@
   "Set up emacspeak for table.el"
   (declare (special table-cell-map))
   (when  table-cell-map
-    (loop for k in
+    (cl-loop for k in
           (where-is-internal 'emacspeak-self-insert-command (list table-cell-map))
           do
           (define-key table-cell-map k '*table--cell-self-insert-command))
-    (loop for k in
+    (cl-loop for k in
           '(
             ("S-TAB" table-backward-cell)
             ("\C-e." emacspeak-etable-speak-cell))
@@ -75,7 +75,7 @@
   "Speak character you're deleting."
   (cond
    ((ems-interactive-p)
-    (dtk-tone 500 30 'force)
+    (dtk-tone 500 100 'force)
     (emacspeak-speak-char t)
     ad-do-it)
    (t ad-do-it))
@@ -85,7 +85,7 @@
   "Speak character you're deleting."
   (cond
    ((ems-interactive-p)
-    (dtk-tone 500 30 'force)
+    (dtk-tone 500 100 'force)
     (emacspeak-speak-this-char (preceding-char))
     ad-do-it)
    (t ad-do-it))
@@ -168,7 +168,7 @@ Otherwise cue user to the line just created."
        (cdr cell)))
      (t (error "Cant identify cell.")))))
 
-(loop for f in
+(cl-loop for f in
       '(table-forward-cell table-backward-cell)
       do
       (eval

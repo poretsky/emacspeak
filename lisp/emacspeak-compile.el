@@ -14,7 +14,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2015, T. V. Raman 
+;;;Copyright (C) 1995 -- 2017, T. V. Raman 
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved. 
 ;;;
@@ -72,7 +72,7 @@
 
 ;;}}}
 ;;{{{  advice  interactive commands
-(loop for f in 
+(cl-loop for f in 
       '(
         next-error previous-error
                    compilation-next-file compilation-previous-file
@@ -86,7 +86,7 @@
             (dtk-stop)
             (emacspeak-compilation-speak-error)))))
 
-(loop for f in 
+(cl-loop for f in 
       '(
         compilation-next-error
         compilation-previous-error

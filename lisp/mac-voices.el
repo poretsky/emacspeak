@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;;Copyright (C) 1995 -- 2015, T. V. Raman 
+;;;Copyright (C) 1995 -- 2017, T. V. Raman 
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -55,6 +55,19 @@
 (require 'tts)
 
 ;;}}}
+;;{{{ Customizations:
+;;;###autoload
+(defcustom mac-default-speech-rate 225
+  "Default speech rate for mac."
+  :group 'tts
+  :type 'integer
+  :set #'(lambda(sym val)
+           (set-default sym val)
+           (when (and (getenv "DTK_PROGRAM")
+                      (string-match "mac$" (getenv "DTK_PROGRAM")))
+             (setq-default dtk-speech-rate val))))
+
+;;}}}
 ;;{{{  voice table
 
 (defvar mac-default-voice-string "[{voice alex}]"
@@ -64,14 +77,14 @@
   "Association between symbols and strings to set Mac  voices.
 The string can set any voice parameter.")
 
-(defsubst mac-define-voice (name command-string)
+(defun mac-define-voice (name command-string)
   "Define a Mac  voice named NAME.
 This voice will be set   by sending the string
 COMMAND-STRING to the TTS engine."
   (declare (special mac-voice-table))
   (puthash name command-string mac-voice-table))
 
-(defsubst mac-get-voice-command-internal  (name)
+(defun mac-get-voice-command-internal  (name)
   "Retrieve command string for  voice NAME."
   (declare (special mac-voice-table))
   (cond
@@ -80,11 +93,11 @@ COMMAND-STRING to the TTS engine."
    (t (or  (gethash name mac-voice-table)
            mac-default-voice-string))))
 
-(defsubst mac-get-voice-command (name)
+(defun mac-get-voice-command (name)
   "Retrieve command string for  voice NAME."
   (mac-get-voice-command-internal name))
 
-(defsubst mac-voice-defined-p (name)
+(defun mac-voice-defined-p (name)
   "Check if there is a voice named NAME defined."
   (declare (special mac-voice-table))
   (gethash name mac-voice-table))
@@ -116,7 +129,7 @@ COMMAND-STRING to the TTS engine."
 
 ;;{{{ voice family codes
 
-(defsubst mac-get-family-code (name)
+(defun mac-get-family-code (name)
   "Get control code for voice family NAME."
   (mac-get-voice-command-internal name))
 
@@ -128,7 +141,7 @@ COMMAND-STRING to the TTS engine."
 Keys are symbols of the form <FamilyName-Dimension>.
 Values are vectors holding the control codes for the 10 settings.")
 
-(defsubst mac-css-set-code-table (family dimension table)
+(defun mac-css-set-code-table (family dimension table)
   "Set up voice FAMILY.
 Argument DIMENSION is the dimension being set,
 and TABLE gives the values along that dimension."
@@ -136,7 +149,7 @@ and TABLE gives the values along that dimension."
   (let ((key (intern (format "%s-%s" family dimension))))
     (puthash key table mac-css-code-tables)))
 
-(defsubst mac-css-get-code-table (family dimension)
+(defun mac-css-get-code-table (family dimension)
   "Retrieve table of values for specified FAMILY and DIMENSION."
   (declare (special mac-css-code-tables))
   (let ((key (intern (format "%s-%s" family dimension))))
@@ -233,7 +246,7 @@ and TABLE gives the values along that dimension."
 
 ;;}}}
 
-(defsubst mac-get-average-pitch-code (value family)
+(defun mac-get-average-pitch-code (value family)
   "Get  AVERAGE-PITCH for specified VALUE and  FAMILY."
   (or family (setq family 'paul))
   (if value 
@@ -277,7 +290,7 @@ and TABLE gives the values along that dimension."
   (mac-css-set-code-table 'betty 'pitch-range table))
 
 ;;}}}
-(defsubst mac-get-pitch-range-code (value family)
+(defun mac-get-pitch-range-code (value family)
   "Get pitch-range code for specified VALUE and FAMILY."
   (or family (setq family 'paul))
   (if value 
@@ -320,7 +333,7 @@ and TABLE gives the values along that dimension."
   (mac-css-set-code-table 'betty 'stress table))
 
 ;;}}}
-(defsubst mac-get-stress-code (value family)
+(defun mac-get-stress-code (value family)
   (or family (setq family 'paul))
   (if value 
       (aref (mac-css-get-code-table family 'stress)
@@ -339,7 +352,7 @@ and TABLE gives the values along that dimension."
 
 ;;}}}
 
-(defsubst mac-get-richness-code (value family)
+(defun mac-get-richness-code (value family)
   (or family (setq family 'paul))
   (if value 
       (aref (mac-css-get-code-table family 'richness)
@@ -349,7 +362,7 @@ and TABLE gives the values along that dimension."
 ;;}}}
 ;;{{{  punctuations
 
-(defsubst mac-get-punctuations-code (_value)
+(defun mac-get-punctuations-code (_value)
   "Return string needed to set specified punctuations mode."
   "")
 
@@ -376,7 +389,7 @@ and TABLE gives the values along that dimension."
 (defun mac-list-voices ()
   "List defined voices."
   (declare (special mac-voice-table))
-  (loop for k being the hash-keys of mac-voice-table 
+  (cl-loop for k being the hash-keys of mac-voice-table 
         collect   k))
 
 ;;}}}

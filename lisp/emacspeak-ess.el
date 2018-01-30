@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2015, T. V. Raman
+;;;Copyright (C) 1995 -- 2017, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -77,12 +77,12 @@ Cue electric insertion with a tone."
     (when (ems-interactive-p)
       (let ((emacspeak-speak-messages nil))
         (emacspeak-speak-this-char last-input-event)
-        (dtk-tone 800 50 t)))))
+        (dtk-tone 800 100 t)))))
 
 ;;}}}
 ;;{{{ Structure commands 
 
-(loop for f in
+(cl-loop for f in
       '(ess-beginning-of-function ess-end-of-function)
       do
       (eval
@@ -108,7 +108,7 @@ Cue electric insertion with a tone."
 ;;}}}
 ;;{{{ Evaluators
 
-(loop for f in
+(cl-loop for f in
       '(
         ess-eval-function ess-eval-buffer
                           ess-eval-function-and-go ess-eval-buffer-and-go
@@ -134,7 +134,7 @@ Cue electric insertion with a tone."
   (when (ems-interactive-p)
     (emacspeak-auditory-icon 'help)
     (message "Displayed help in other window.")))
-(loop for f in
+(cl-loop for f in
       '(
         ess-switch-to-ess ess-switch-to-end-of-ESS)
       do

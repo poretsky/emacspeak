@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2015, T. V. Raman 
+;;;Copyright (C) 1995 -- 2017, T. V. Raman 
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -251,7 +251,7 @@ region of text to process."
     (save-excursion
       (set-buffer (process-buffer emacspeak-xml-shell-process))
       (goto-char (process-mark emacspeak-xml-shell-process))
-      (setq terminator (thing-at-point 'line))
+      (setq terminator (ems-this-line))
       (setq accumulator (emacspeak-xml-shell-create-accumulator
                          accumulate  terminator 
                          display-function))
@@ -268,7 +268,7 @@ region of text to process."
           (string :tag "Command"))
   :group 'emacspeak-xml-shell)
 
-(defsubst emacspeak-xml-shell-setup-html-base (base)
+(defun emacspeak-xml-shell-setup-html-base (base)
   "Locate HTML head in current buffer and add document base.  Creates
 HTML head if none found."
   (goto-char (point-min))

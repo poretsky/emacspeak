@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2015, T. V. Raman 
+;;;Copyright (C) 1995 -- 2017, T. V. Raman 
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved. 
 ;;;
@@ -58,16 +58,14 @@
     find-function-on-key)
   "Commands to speech enable")
 
-(loop for f in emacspeak-find-func-commands
+(cl-loop for f in emacspeak-find-func-commands
       do
       (eval
        `(defadvice ,f  (after emacspeak pre act comp)
           "Speak current line"
           (when  (ems-interactive-p)
             (emacspeak-auditory-icon 'open-object)
-            (emacspeak-dtk-sync)
-            (dtk-speak
-             (format "Found %s" (ad-get-arg 0)))))))
+            (dtk-speak (format "Found %s" (ad-get-arg 0)))))))
 
 ;;}}}
 

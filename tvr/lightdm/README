@@ -1,0 +1,3 @@
+Copy these files to /etc/lightdm to get auditory feedback as lightdm launches.
+If you use a ~/.asoundrc in your home directory,
+you'll need to copy that file to /root so that the super-user can play audio as lightdm starts up.

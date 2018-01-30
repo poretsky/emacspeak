@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;;Copyright (C) 1995 -- 2015, T. V. Raman
+;;;Copyright (C) 1995 -- 2017, T. V. Raman
 ;;; Copyright (c) 1995 by T. V. Raman
 ;;; All Rights Reserved.
 ;;;
@@ -57,7 +57,7 @@
   "Keymap for using in table browsing mode")
 ;;; emacspeak-table-submap makes these available globally.
 
-(loop
+(cl-loop
  for binding in
  '(
    ("M-l" emacspeak-table-ui-filter-load)
@@ -205,7 +205,7 @@ Full List Of Keybindings:
 ;;}}}
 ;;{{{  speaking current entry
 
-(defsubst emacspeak-table-synchronize-display ()
+(defun emacspeak-table-synchronize-display ()
   "Bring visual display in sync with internal representation"
   (declare (special emacspeak-table positions))
   (let ((row (emacspeak-table-current-row emacspeak-table))
@@ -222,7 +222,7 @@ Full List Of Keybindings:
                     (+ (/ width  2)
                        (window-hscroll))))))
 
-(defsubst  emacspeak-table-speak-coordinates ()
+(defun  emacspeak-table-speak-coordinates ()
   "Speak current table coordinates."
   (interactive)
   (declare (special emacspeak-table))
@@ -231,7 +231,7 @@ Full List Of Keybindings:
            (emacspeak-table-current-row emacspeak-table)
            (emacspeak-table-current-column emacspeak-table)))
 
-(defsubst  emacspeak-table-speak-dimensions ()
+(defun  emacspeak-table-speak-dimensions ()
   "Speak current table dimensions."
   (interactive)
   (declare (special emacspeak-table))
@@ -308,7 +308,7 @@ Full List Of Keybindings:
      (concat row-head " " col-head
              (format " %s" element)))))
 
-(defsubst emacspeak-table-get-entry-with-headers  (row column &optional row-head-p col-head-p)
+(defun emacspeak-table-get-entry-with-headers  (row column &optional row-head-p col-head-p)
   "Return table element. Optional args specify  if we return any headers."
   (declare (special emacspeak-table))
   (assert  (boundp 'emacspeak-table) nil "No table here")
@@ -477,13 +477,13 @@ Optional prefix arg prompts for a new filter."
 
 ;;{{{ csv helpers:
 
-(defsubst ems-csv-forward-field ()
+(defun ems-csv-forward-field ()
   "Skip forward over one field."
   (if (eq (following-char) ?\")
       (forward-sexp)
     (skip-chars-forward "^,\n")))
 
-(defsubst ems-csv-backward-field ()
+(defun ems-csv-backward-field ()
   "Skip backward over one field."
   (if (eq (preceding-char) ?\")
       (backward-sexp)
@@ -557,7 +557,7 @@ the documentation on the table browser."
     (kill-buffer data)
     (emacspeak-table-prepare-table-buffer table buffer filename)))
 
-(defsubst ems-csv-get-fields ()
+(defun ems-csv-get-fields ()
   "Return list of fields on this line."
   (let ((fields nil)
         (this-field nil)
@@ -614,7 +614,7 @@ The processed  data is  presented using emacspeak table navigation. "
       (setq elements
             (make-vector (count-lines (point-min) (point-max))
                          nil))
-      (loop for i from 0 to (1- (length elements))
+      (cl-loop for i from 0 to (1- (length elements))
             do
             (setq fields (ems-csv-get-fields))
             (aset elements i (apply 'vector fields))
@@ -673,9 +673,9 @@ the documentation on the table browser."
         (set (make-local-variable 'emacspeak-table) table)
         (set (make-local-variable 'positions) (make-hash-table))
         (setq count (1-  (emacspeak-table-num-columns table)))
-        (loop for row across (emacspeak-table-elements table)
+        (cl-loop for row across (emacspeak-table-elements table)
               do
-              (loop for _element across row
+              (cl-loop for _element across row
                     do
                     (setf
                      (gethash
@@ -995,11 +995,11 @@ match, makes the matching row or column current."
   "Hash table to hold mapping between major modes and mode specific
 table markup.")
 
-(defsubst emacspeak-table-markup-set-table (mode markup)
+(defun emacspeak-table-markup-set-table (mode markup)
   (declare (special emacspeak-table-markup-table))
   (setf  (gethash mode emacspeak-table-markup-table) markup))
 
-(defsubst emacspeak-table-markup-get-table (mode)
+(defun emacspeak-table-markup-get-table (mode)
   (declare (special emacspeak-table-markup-table))
   (or (gethash mode emacspeak-table-markup-table)
       (gethash 'fundamental-mode emacspeak-table-markup-table)))
@@ -1116,13 +1116,13 @@ markup to use."
             col-end (emacspeak-table-markup-col-end markup)
             col-separator (emacspeak-table-markup-col-separator markup))
       (insert (format "%s" table-start))
-      (loop for row across table
+      (cl-loop for row across table
             do
             (insert (format "%s" row-start))
             (let
                 ((current 0)
                  (final (length row)))
-              (loop
+              (cl-loop
                for column across row do
                (insert (format "%s %s %s"
                                col-start column col-end))
@@ -1175,7 +1175,7 @@ markup to use."
                (format "%s" (aref y column))))))))
     (push row-head sorted-row-list)
     (setq sorted-table (make-vector (length sorted-row-list) nil))
-    (loop
+    (cl-loop
      for i from 0 to (1- (length sorted-row-list)) do
      (aset sorted-table i (nth i sorted-row-list)))
     (emacspeak-table-prepare-table-buffer
@@ -1237,7 +1237,7 @@ future  use."
     (save-current-buffer
       (set-buffer buffer)
       (erase-buffer)
-      (loop for key being the hash-keys of
+      (cl-loop for key being the hash-keys of
             emacspeak-table-ui-filter-table
             do
             (insert

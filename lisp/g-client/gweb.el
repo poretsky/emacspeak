@@ -47,11 +47,13 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;{{{  introduction
+
 ;;; Commentary:
 ;;; Provide Google services --- such as search, search-based completion etc.
 ;;; For use from within Emacs tools.
 ;;; This is meant to be fast and efficient --- and uses WebAPIs as opposed to HTML  scraping.
 ;;; Code:
+
 ;;}}}
 ;;{{{  Required modules
 
@@ -69,18 +71,6 @@
 
 ;;}}}
 ;;{{{ Variables
-
-(defvar gweb-base-url
-  "http://ajax.googleapis.com/ajax/services/search/%s?v=1.0&q=%%s"
-  "Base URL template for Websearch command.")
-
-(defvar gweb-web-url
-  (format gweb-base-url "web")
-  "URL template for Websearch command.")
-
-(defvar gweb-news-url
-  (format gweb-base-url "news")
-  "URL template for News Search  command.")
 
 (defvar gweb-referer "http://emacspeak.sf.net"
   "Referer URL to send to the API.")
@@ -104,7 +94,7 @@
 ;;; corpus is ds=n for News
 ;;; ds=r for recipes
 
-(defsubst gweb-suggest (input &optional corpus)
+(defun gweb-suggest (input &optional corpus)
   "Get completion list from Google Suggest."
   (declare (special gweb-suggest-url))
   (unless (> (length input) 0) (setq input minibuffer-default))
@@ -119,7 +109,7 @@
      (goto-char (point-min))
      (setq js (json-read))
      (setq js  (aref js 1))
-     (loop for e across js
+     (cl-loop for e across js
            collect
            (replace-regexp-in-string
             "</?b>" ""
@@ -153,7 +143,7 @@
                             string predicate)))))
 
 ;;{{{  Generate suggest handlers for Google properties
-(loop for c in
+(cl-loop for c in
       '("news-cc" "products-cc" "youtube" "books" "img")
       do
       (eval
@@ -187,7 +177,7 @@
 ;;; Emacs 23 and beyond:
 ;;; i.e. if complete-with-action is defined
 
-(defsubst gweb-google-autocomplete (&optional prompt)
+(defun gweb-google-autocomplete (&optional prompt)
   "Read user input using Google Suggest for auto-completion."
   (let* ((minibuffer-completing-file-name t) ;; accept spaces
          (completion-ignore-case t)
@@ -205,7 +195,7 @@
 
 ;;;###autoload
 
-(defsubst gweb-google-autocomplete-with-corpus (corpus)
+(defun gweb-google-autocomplete-with-corpus (corpus)
   "Read user input using Google Suggest for auto-completion.
 Uses specified corpus for prompting and suggest selection."
   (let* (
@@ -226,7 +216,7 @@ Uses specified corpus for prompting and suggest selection."
     (g-url-encode query)))
 ;;; For news:
 
-(defsubst gweb-news-autocomplete (&optional prompt)
+(defun gweb-news-autocomplete (&optional prompt)
   "Read user input using Google News Suggest for auto-completion."
   (let* ((minibuffer-completing-file-name t) ;; accept spaces
          (completion-ignore-case t)
@@ -239,116 +229,6 @@ Uses specified corpus for prompting and suggest selection."
            nil nil
            word 'gweb-history))
     (g-url-encode query)))
-
-;;}}}
-;;{{{ Search Helpers
-
-(defsubst gweb-results (query url-end-point)
-  "Return results list obtained from url-end-point."
-  (declare (special  gweb-referer))
-  (let((response nil))
-    (g-using-scratch
-     (call-process g-curl-program nil t nil
-                   "-s"
-                   "-e" gweb-referer
-                   (format url-end-point  query))
-     (goto-char (point-min))
-     (setq response (json-read))
-     (when (= 200 (g-json-get 'responseStatus response))
-       (g-json-get
-        'results
-        (g-json-get 'responseData response))))))
-
-(defsubst gweb-web-results (query)
-  "Return Web Search results list."
-  (declare (special gweb-web-url ))
-  (gweb-results query gweb-web-url))
-
-;;}}}
-;;{{{ News Helpers:
-
-;;; Google News Search
-(defsubst gweb-news-results (query)
-  "Return News Search results."
-  (declare (special gweb-news-url))
-  (gweb-results (g-url-encode query) gweb-news-url))
-
-(defun gweb-news-html (query)
-  "Return simple HTML from News search."
-  (let ((results (gweb-news-results query )))
-    (when results
-      (concat
-       (format "<html><title>News Results For %s</title><ol>" query)
-       (mapconcat
-        #'(lambda (a)
-            (format "<li><a href='%s'>%s</a>\n%s
-<a href='%s'>Related Stories</a></li>"
-                    (cdr (assq 'unescapedUrl a))
-                    (cdr (assq 'title a))
-                    (cdr (assq 'content a))
-                    (cdr (assq 'clusterUrl a))))
-        results
-        "")
-       "</ol></html>"))))
-
-(defun gweb-news-view (query )
-  "Display News Search results  in a browser."
-  (interactive "sNews Search: ")
-  (let ((html (gweb-news-html query)))
-    (cond
-     ((null html) (message "No news found."))
-     (t
-      (g-using-scratch
-       (insert html)
-       (browse-url-of-buffer))))))
-;;}}}
-;;{{{ Interactive Commands:
-
-;;; Need to be smarter about guessing default term
-;;; thing-at-point can return an empty string,
-;;; and this is not a good thing for Google Suggest which will error out.
-(defvar gweb-search-results-handler nil
-  "Hook for saving away retrieved Google results.")
-
-;;;###autoload
-(defun gweb-google-at-point (search-term &optional refresh)
-  "Google for term at point, and display top result succinctly.
-Attach URL at point so we can follow it later --- subsequent invocations of this command simply follow that URL.
-Optional interactive prefix arg refresh forces this cached URL to be refreshed."
-  (interactive
-   (list
-    (unless(and (not current-prefix-arg)
-                (get-text-property (point) 'lucky-url))
-      (gweb-google-autocomplete))
-    current-prefix-arg))
-  (declare (special gweb-search-results-handler))
-  (cond
-   ((and (not refresh)
-         (get-text-property (point) 'lucky-url))
-    (browse-url (get-text-property (point) 'lucky-url)))
-   (t
-    (let* ((results (gweb-web-results  search-term))
-           (lucky (aref results 0))
-           (inhibit-read-only t)
-           (bounds (bounds-of-thing-at-point 'word))
-           (modified-p (buffer-modified-p))
-           (title (g-json-get 'titleNoFormatting lucky))
-           (url (g-json-get 'url lucky))
-           (content (shell-command-to-string
-                     (format
-                      "echo '%s' | lynx -dump -stdin 2>/dev/null"
-                      (g-json-get 'content lucky)))))
-      (when bounds
-        (add-text-properties   (car bounds) (cdr bounds)
-                               (list 'lucky-url url
-                                     'face 'highlight)))
-      (pushnew lucky minibuffer-history)
-      (set-buffer-modified-p modified-p)
-      (kill-new content)
-      (when (and gweb-search-results-handler
-                 (fboundp gweb-search-results-handler))
-        (funcall gweb-search-results-handler results))
-      (message "%s %s" title content)))))
 
 ;;}}}
 (provide 'gweb)

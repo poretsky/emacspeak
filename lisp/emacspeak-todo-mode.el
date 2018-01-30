@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (c) 1995 -- 2015, T. V. Raman
+;;; Copyright (c) 1995 -- 2017, T. V. Raman
 ;;; All Rights Reserved. 
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -60,7 +60,7 @@
     )
   "Todo mode navigation commands to speech enable.")
 
-(loop for f in emacspeak-todo-mode-navigation-commands
+(cl-loop for f in emacspeak-todo-mode-navigation-commands
       do
       (eval
        `(defadvice ,f (after emacspeak pre act comp)

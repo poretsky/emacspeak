@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (C) 1995 -- 2015, T. V. Raman
+;;; Copyright (C) 1995 -- 2017, T. V. Raman
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -76,7 +76,7 @@
     (emacspeak-auditory-icon 'select-object)
     (emacspeak-speak-mode-line)))
 
-(loop for command in
+(cl-loop for command in
       '(analog-next-group
         analog-previous-group
         analog-next-entry
@@ -105,7 +105,7 @@
 ;;; in analog-entries-list
 ;;; emacspeak will use this to navigate using the arrow keys.
 
-(defsubst emacspeak-analog-get-field-spec ()
+(defun emacspeak-analog-get-field-spec ()
   "Returns field specification if one defined for current entry.
 Nil means no field specified."
   (save-excursion
@@ -244,7 +244,7 @@ emacspeak-speak-and-skip-extent-upto-char "
   (declare (special analog-mode-map))
   (mapcar 
    #'(lambda (cmd)
-       (loop for k in
+       (cl-loop for k in
              (where-is-internal cmd)
              do
              (define-key analog-mode-map k

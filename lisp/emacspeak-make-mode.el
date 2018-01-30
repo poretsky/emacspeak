@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2015, T. V. Raman 
+;;;Copyright (C) 1995 -- 2017, T. V. Raman 
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved. 
 ;;;
@@ -86,7 +86,7 @@
   "Speak what we completed"
   (cond
    ((ems-interactive-p)
-    (let ((orig (point)))
+    (let ((orig (save-excursion (skip-syntax-backward "^ >") (point))))
       ad-do-it
       (emacspeak-speak-region orig (point))))
    (t ad-do-it))
@@ -153,16 +153,6 @@
 
 ;;}}}
 ;;{{{ setup mode hook:
-
-(add-hook 'makefile-mode-hook
-          (function (lambda ()
-                      (declare (special dtk-split-caps))
-                      (dtk-set-punctuations 'all)
-                      (or dtk-split-caps
-                          (dtk-toggle-split-caps))
-                      (or emacspeak-audio-indentation
-                          (emacspeak-toggle-audio-indentation))
-                      (emacspeak-dtk-sync))))
 
 ;;}}}
 (provide 'emacspeak-make-mode)

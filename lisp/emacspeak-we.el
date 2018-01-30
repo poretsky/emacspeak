@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2015, T. V. Raman
+;;;Copyright (C) 1995 -- 2017, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -59,7 +59,6 @@
 (require 'cl)
 (declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
-
 (require 'emacspeak-xslt)
 (require 'emacspeak-webutils)
 
@@ -150,7 +149,7 @@ a rewrite rule even if one is already defined."
   :type 'boolean
   :group 'emacspeak-we)
 
-;;;###autoload
+
 (defcustom emacspeak-we-xsl-transform
   (emacspeak-xslt-get "sort-tables.xsl")
   "Specifies transform to use before displaying a page.
@@ -191,7 +190,7 @@ Default is to apply sort-tables."
   (interactive (list (emacspeak-xslt-read)))
   (declare (special emacspeak-we-xsl-transform))
   (setq emacspeak-we-xsl-transform xsl)
-  (when (ems-interactive-p)
+  (when (called-interactively-p 'interactive)
     (emacspeak-auditory-icon 'select-object)
     (message "Will apply %s before displaying HTML pages."
              (file-name-sans-extension
@@ -203,7 +202,7 @@ Default is to apply sort-tables."
   (interactive)
   (declare (special emacspeak-we-xsl-p))
   (setq emacspeak-we-xsl-p (not emacspeak-we-xsl-p))
-  (when (ems-interactive-p)
+  (when (called-interactively-p 'interactive)
     (emacspeak-auditory-icon
      (if emacspeak-we-xsl-p 'on 'off))
     (message "Turned %s XSL"
@@ -246,7 +245,7 @@ Default is to apply sort-tables."
   (declare (special emacspeak-we-xsl-keep-result))
   (setq emacspeak-we-xsl-keep-result
         (not emacspeak-we-xsl-keep-result))
-  (when (ems-interactive-p)
+  (when (called-interactively-p 'interactive)
     (emacspeak-auditory-icon (if emacspeak-we-xsl-keep-result 'on 'off))
     (message "Turned %s xslt keep results."
              (if emacspeak-we-xsl-keep-result
@@ -282,7 +281,7 @@ from Web page -- default is the current page being viewed."
    (list
     (read-from-minibuffer "XPath: ")
     (emacspeak-webutils-read-url)
-    (ems-interactive-p)))
+    (called-interactively-p 'interactive)))
   (declare (special emacspeak-we-xsl-junk))
   (lexical-let ((params (emacspeak-xslt-params-from-xpath  path url)))
     (emacspeak-webutils-rename-buffer (format "Filtered %s" path))
@@ -321,7 +320,7 @@ operate on current web page when in a browser buffer; otherwise
   (interactive
    (list
     (emacspeak-webutils-read-url)
-    (ems-interactive-p)))
+    (called-interactively-p 'interactive)))
   (declare (special emacspeak-we-media-stream-suffixes))
   (let ((filter "//a[%s]")
         (predicate
@@ -344,7 +343,7 @@ operate on current web page when in a browser buffer; otherwise
   (interactive
    (list
     (emacspeak-webutils-read-url)
-    (ems-interactive-p)))
+    (called-interactively-p 'interactive)))
   (let ((filter "//a[contains(@href,\"print\")]"))
     (emacspeak-we-xslt-filter filter url speak)))
 
@@ -353,7 +352,7 @@ operate on current web page when in a browser buffer; otherwise
   "Follow URL, then extract role=main."
   (interactive
    (list
-    (ems-interactive-p)))
+    (called-interactively-p 'interactive)))
   (emacspeak-we-extract-by-role "main"
                                 (funcall emacspeak-webutils-url-at-point) speak))
 
@@ -373,7 +372,7 @@ operate on current web page when in a browser buffer; otherwise
    (list
     (read-from-minibuffer "Pattern: ")
     (emacspeak-webutils-read-url)
-    (ems-interactive-p)))
+    (called-interactively-p 'interactive)))
   (let ((filter
          (format
           "//a[contains(@href,\"%s\")]"
@@ -390,12 +389,12 @@ spoken automatically."
    (list
     (read-from-minibuffer "Table Index: ")
     (emacspeak-webutils-read-url)
-    (ems-interactive-p)))
+    (called-interactively-p 'interactive)))
   (emacspeak-we-xslt-filter
    (format "(//table//table)[%s]" index)
    url speak))
 
-(defsubst  emacspeak-we-get-table-list (&optional bound)
+(defun  emacspeak-we-get-table-list (&optional bound)
   "Collect a list of numbers less than bound
  by prompting repeatedly in the
 minibuffer.
@@ -415,7 +414,7 @@ Empty value finishes the list."
         (setq done t)))
     result))
 
-(defsubst  emacspeak-we-get-table-match-list ()
+(defun  emacspeak-we-get-table-match-list ()
   "Collect a list of matches by prompting repeatedly in the
 minibuffer.
 Empty value finishes the list."
@@ -437,7 +436,7 @@ Empty value finishes the list."
    (list
     (emacspeak-we-get-table-list)
     (emacspeak-webutils-read-url)
-    (ems-interactive-p)))
+    (called-interactively-p 'interactive)))
   (let ((filter
          (mapconcat
           #'(lambda  (i)
@@ -481,7 +480,7 @@ Tables are specified by their position in the list
     (emacspeak-we-xslt-filter
      filter
      url
-     (or (ems-interactive-p)
+     (or (called-interactively-p 'interactive)
          speak))))
 
 ;;;###autoload
@@ -497,7 +496,7 @@ Tables are specified by their position in the list
    (format "(/descendant::table[contains(., \"%s\")])[last()]"
            match)
    url
-   (or (ems-interactive-p)
+   (or (called-interactively-p 'interactive)
        speak)))
 
 ;;;###autoload
@@ -520,7 +519,7 @@ Tables are specified by containing  match pattern
     (emacspeak-we-xslt-filter
      filter
      url
-     (or (ems-interactive-p)
+     (or (called-interactively-p 'interactive)
          speak))))
 
 (defvar emacspeak-we-buffer-class-cache nil
@@ -528,7 +527,7 @@ Tables are specified by containing  match pattern
 
 (make-variable-buffer-local 'emacspeak-we-buffer-class-cache)
 
-(defsubst emacspeak-we-build-class-cache ()
+(defun emacspeak-we-build-class-cache ()
   "Build class cache and forward it to rendered page."
   (let ((values nil)
         (content (clone-buffer)))
@@ -556,7 +555,7 @@ Tables are specified by containing  match pattern
 
 (make-variable-buffer-local 'emacspeak-we-buffer-id-cache)
 
-(defsubst emacspeak-we-build-id-cache ()
+(defun emacspeak-we-build-id-cache ()
   "Build id cache and forward it to rendered page."
   (let ((values nil)
         (content (clone-buffer)))
@@ -581,7 +580,7 @@ Tables are specified by containing  match pattern
 
 (make-variable-buffer-local 'emacspeak-we-buffer-role-cache)
 
-(defsubst emacspeak-we-build-role-cache ()
+(defun emacspeak-we-build-role-cache ()
   "Build role cache and forward it to rendered page."
   (let ((values nil)
         (content (clone-buffer)))
@@ -615,7 +614,7 @@ buffer. Interactive use provides list of class values as completion."
   (let ((filter (format "//*[contains(@class,\"%s\")]" class)))
     (emacspeak-we-xslt-filter filter
                               url
-                              (or (ems-interactive-p)
+                              (or (called-interactively-p 'interactive)
                                   speak))))
 
 (defun emacspeak-we-extract-by-role (role    url &optional speak)
@@ -631,7 +630,7 @@ buffer. Interactive use provides list of role values as completion."
   (let ((filter (format "//*[contains(@role,\"%s\")]" role)))
     (emacspeak-we-xslt-filter filter
                               url
-                              (or (ems-interactive-p)
+                              (or (called-interactively-p 'interactive)
                                   speak))))
 
 ;;;###autoload
@@ -648,10 +647,10 @@ buffer. Interactive use provides list of class values as completion."
   (let ((filter (format "//*[contains(@class,\"%s\")]" class)))
     (emacspeak-we-xslt-junk filter
                             url
-                            (or (ems-interactive-p)
+                            (or (called-interactively-p 'interactive)
                                 speak))))
 
-(defsubst  emacspeak-we-get-id-list ()
+(defun  emacspeak-we-get-id-list ()
   "Collect a list of ids by prompting repeatedly in the
 minibuffer.
 Empty value finishes the list."
@@ -669,7 +668,7 @@ Empty value finishes the list."
         (setq done t)))
     result))
 
-(defsubst  emacspeak-we-css-get-class-list ()
+(defun  emacspeak-we-css-get-class-list ()
   "Collect a list of classes by prompting repeatedly in the
 minibuffer.
 Empty value finishes the list."
@@ -709,7 +708,7 @@ values as completion. "
     (emacspeak-we-xslt-filter
      (format "//*[%s]" filter)
      url
-     (or (ems-interactive-p) speak))))
+     (or (called-interactively-p 'interactive) speak))))
 ;;;###autoload
 (defun emacspeak-we-junk-by-class-list(classes   url &optional
                                                  speak)
@@ -732,7 +731,7 @@ values as completion. "
     (emacspeak-we-xslt-junk
      (format "//*[%s]" filter)
      url
-     (or (ems-interactive-p) speak))))
+     (or (called-interactively-p 'interactive) speak))))
 
 ;;;###autoload
 (defun emacspeak-we-extract-by-id (id   url &optional speak)
@@ -772,7 +771,7 @@ separate buffer. Interactive use provides list of id values as completion. "
     (emacspeak-we-xslt-filter
      (format "//*[%s]" filter)
      url
-     (or (ems-interactive-p)
+     (or (called-interactively-p 'interactive)
          speak))))
 
 ;;;###autoload
@@ -813,7 +812,7 @@ separate buffer. Interactive use provides list of id values as completion. "
     (emacspeak-we-xslt-filter
      (format "//*[%s]//text()" filter)
      url
-     (or (ems-interactive-p)
+     (or (called-interactively-p 'interactive)
          speak))))
 
 ;;;###autoload
@@ -906,7 +905,7 @@ specifies the page to extract contents  from."
   (emacspeak-we-xslt-filter
    (format "//*[contains(@style,  \"%s\")]" style)
    url
-   (or (ems-interactive-p) speak)))
+   (or (called-interactively-p 'interactive) speak)))
 
 ;;}}}
 ;;{{{ xpath  filter
@@ -1099,14 +1098,14 @@ and provide a completion list of applicable  property values. Filter document by
             (format "//*[@%s=\"%s\"]"
                     property v))))
     (emacspeak-we-xslt-filter filter url
-                              (or (ems-interactive-p) speak))))
+                              (or (called-interactively-p 'interactive) speak))))
 
 ;;}}}
 ;;{{{  xsl keymap
 
 (declaim (special emacspeak-we-xsl-map))
 
-(loop for binding in
+(cl-loop for binding in
       '(
         ("C" emacspeak-we-extract-by-class-list)
         ("C-c" emacspeak-we-junk-by-class-list)
@@ -1148,7 +1147,7 @@ and provide a completion list of applicable  property values. Filter document by
 ;;}}}
 ;;{{{  URL Advice: 
 
-(loop
+(cl-loop
  for f in
  '(
    url-write-global-history url-history-save-history

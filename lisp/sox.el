@@ -14,7 +14,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2015, T. V. Raman
+;;;Copyright (C) 1995 -- 2017, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -84,7 +84,7 @@
 ;;}}}
 ;;{{{ Define Special Mode
 
-(defsubst sox-effect-at-point (&optional pos)
+(defun sox-effect-at-point (&optional pos)
   "Return effect at  point."
   (get-text-property (or pos (point)) 'sox-effect))
 
@@ -101,7 +101,7 @@
       (insert
        (mapconcat #'ladspa-control-value (ladspa-plugin-controls (sox-effect-params effect)) " ")))
      (t
-      (loop
+      (cl-loop
        for p in params do
        (when (second p) (insert (propertize (first p) 'face 'italic))
              (insert "\t")
@@ -165,12 +165,12 @@
       (with-current-buffer buffer
         (sox-mode)
         (sox-setup-keys))))
-  (funcall-interactively #'switch-to-buffer sox-buffer))
+  (funcall-interactively #'pop-to-buffer sox-buffer))
 
 (defun sox-setup-keys ()
   "Set up sox keymap."
   (declare (special sox-mode-map))
-  (loop
+  (cl-loop
    for k in
    '(
      ("." sox-show-timestamp)
@@ -216,7 +216,7 @@
   (regexp-opt  '(".mp3" ".wav" ".au" ".aiff"))
   "Regexp matching sound files.")
 
-(defsubst sox-sound-p (snd-file)
+(defun sox-sound-p (snd-file)
   "Predicate to test if we can edit this file."
   (declare (special sox-sound-regexp))
   (let ((case-fold-search t))
@@ -241,7 +241,7 @@
   (let ((file (sox-context-file context))
         (effects (sox-context-effects context))
         (options nil))
-    (loop
+    (cl-loop
      for e in effects  do
      (cond
       ((eq 'ladspa (sox-effect-type e))
@@ -249,7 +249,7 @@
              (sox-ladspa-cmd (sox-effect-params e))))
       (t
        (push (sox-effect-name e) options)
-       (loop
+       (cl-loop
         for  p in (sox-effect-params e) do
         (when (second p)(push (second p)  options))))))
     (setq options (nreverse  options))
@@ -355,7 +355,7 @@
   (sox-redraw sox-context)
   (message "Set effect  %s" name))
 
-(defsubst sox-read-effect-params-per-desk (p)
+(defun sox-read-effect-params-per-desk (p)
   "Read sox effect param per spec."
   (let ((result (read-from-minibuffer (capitalize p))))
     (when (>  (length result) 0) (list p result))))
@@ -375,7 +375,8 @@
 (defvar sox-effects nil
   "Table of implemented effects.")
 
-(defsubst sox-register-effect (name)
+(defun
+ sox-register-effect (name)
   "Register effect."
   (pushnew name sox-effects :test #'string=))
 

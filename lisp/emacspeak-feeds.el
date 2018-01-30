@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (C) 1995 -- 2015, T. V. Raman
+;;; Copyright (C) 1995 -- 2017, T. V. Raman
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -53,7 +53,7 @@
 (require 'emacspeak-xslt)
 (require 'emacspeak-webutils)
 (require 'url)
-(require 'gfeeds)
+
 (require 'browse-url)
 
 ;;}}}
@@ -91,7 +91,7 @@
 (defun emacspeak-feeds-cache-feeds ()
   "Cache feeds in emacspeak-feeds in a hash table."
   (declare (special emacspeak-feeds))
-  (loop
+  (cl-loop
    for f in emacspeak-feeds
    do
    (set-text-properties 0 (length (second f)) nil (second f))
@@ -125,7 +125,7 @@
       (emacspeak-feeds-cache-feeds))
   :group 'emacspeak-feeds)
 
-(defsubst emacspeak-feeds-added-p (feed-url)
+(defun emacspeak-feeds-added-p (feed-url)
   "Check if this feed has been added before."
   (declare (special emacspeak-feeds-feeds-table))
   (gethash feed-url emacspeak-feeds-feeds-table))
@@ -188,7 +188,7 @@ Archiving is useful when synchronizing feeds across multiple machines."
       (goto-char (point-min))
       (setq feeds (read buffer)))
     (kill-buffer buffer)
-    (loop for f in feeds
+    (cl-loop for f in feeds
           do
           (apply #'emacspeak-feeds-add-feed f))
     (when
@@ -313,15 +313,6 @@ Argument `feed' is a feed structure (label url type)."
    (assoc feed emacspeak-feeds)
    'speak))
 
-;;;###autoload
-(defun emacspeak-feeds-lookup-and-view  (site)
-  "Lookup feed URL for a site and browse result."
-  (interactive
-   (list
-    (read-from-minibuffer "Site: " (browse-url-url-at-point))))
-  (emacspeak-webutils-autospeak)
-  (gfeeds-view site 'lookup))
-
 ;;}}}
 ;;{{{ Finding Feeds:
 
@@ -347,41 +338,7 @@ Argument `feed' is a feed structure (label url type)."
       (emacspeak-feeds-rss-display url))
      (t (emacspeak-feeds-rss-display url)))))
 
-;;;###autoload
-(defun emacspeak-feeds-find-feeds (query)
-  "Browse feeds matching specified query."
-  (interactive "sFind Feeds Matching: ")
-  (with-current-buffer (get-buffer-create "*Feeds*")
-    (setq buffer-undo-list t)
-    (let ((inhibit-read-only t)
-          (start (point-min))
-          (results (gfeeds-find query)))
-      (message "Found %s feeds" (length results))
-      (unless results (error "No feeds found matching %s" query))
-      (erase-buffer)
-      (goto-char start)
-      (insert (format "Feeds Matching %s\n\n" query))
-      (put-text-property start (point) 'face font-lock-doc-face)
-      (loop
-       for f across results
-       and position  from 1
-       do
-       (insert (format "%d\t" position))
-       (insert-text-button
-        (emacspeak-webutils-html-string (cdr (assoc 'title f)))
-        'link  (cdr (assoc 'link f))
-        'url  (cdr (assoc 'url f))
-        'type 'emacspeak-feeds-feed-button)
-       (insert "\n")
-       (setq start (point))
-       (insert (emacspeak-webutils-html-string (cdr (assoc 'contentSnippet f))))
-       (fill-region start (point))
-       (insert "\n")
-       (emacspeak-webspace-mode))))
-  (switch-to-buffer "*Feeds*")
-  (goto-char (point-min))
-  (emacspeak-auditory-icon 'open-object)
-  (emacspeak-speak-mode-line))
+
 
 ;;}}}
 (provide 'emacspeak-feeds)

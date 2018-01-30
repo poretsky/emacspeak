@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2015, T. V. Raman
+;;;Copyright (C) 1995 -- 2017, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -140,7 +140,7 @@
 
 ;;; Advice all actions to play a pre-auditory icon
 
-(loop for  f in
+(cl-loop for  f in
       '(pianobar-pause-song pianobar-love-current-song
                             pianobar-ban-current-song pianobar-bookmark-song
                             pianobar-create-station pianobar-delete-current-station

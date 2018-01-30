@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2015, T. V. Raman
+;;;Copyright (C) 1995 -- 2017, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -52,12 +52,15 @@
 (require 'emacspeak-webutils)
 ;;}}}
 ;;{{{  xslt Environment:
-
+;;;###autoload
+(defun emacspeak-xslt-get (style)
+  "Return fully qualified stylesheet path."
+  (expand-file-name style emacspeak-xslt-directory))
 (defgroup emacspeak-xslt nil
   "XSL transformation group."
   :group 'emacspeak)
 
-(defsubst emacspeak-xslt-params-from-xpath (path base)
+(defun emacspeak-xslt-params-from-xpath (path base)
   "Return params suitable for passing to  emacspeak-xslt-region"
   (list
    (cons "path"
@@ -70,9 +73,9 @@
          (format "\"'%s'\""
                  base))))
 
-(defsubst emacspeak-xslt-read ()
+(defun emacspeak-xslt-read ()
   "Read XSLT transformation name from minibuffer."
-  (declare (special emacspeak-xslt-directory))
+  (declare (special emacspeak-xslt-directory emacspeak-we-xsl-transform))
   (expand-file-name
    (read-file-name "XSL Transformation: "
                    emacspeak-xslt-directory
@@ -149,7 +152,7 @@ part of the libxslt package."
     (current-buffer)))
 
 ;;;###autoload
-(defsubst emacspeak-xslt-run (xsl &optional start end)
+(defun emacspeak-xslt-run (xsl &optional start end)
   "Run xslt on region, and return output filtered by sort -u.
 Region defaults to entire buffer."
   (declare (special emacspeak-xslt-program emacspeak-xslt-options))

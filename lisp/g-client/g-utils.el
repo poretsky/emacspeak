@@ -55,7 +55,6 @@
 ;;{{{  Required modules
 
 (require 'cl)
-(require 'backquote)
 (require 'json)
 (declaim  (optimize  (safety 0) (speed 3)))
 
@@ -139,7 +138,6 @@ Customize this to live on your local disk."
   "Return our cookie jar."
   (declare (special g-cookie-jar))
 
-
   (unless g-cookie-jar (setq g-cookie-jar (make-temp-file ".g-cookie-jar")))
   g-cookie-jar)
 
@@ -154,7 +152,7 @@ Customize this to live on your local disk."
   (unless g-cookie-options
     (setq g-cookie-options
           (format "--cookie %s --cookie-jar %s"
-                  (g-cookie-jar) ( g-cookie-jar))))
+                  (g-cookie-jar) (g-cookie-jar))))
   g-cookie-options)
 
 (defcustom g-curl-debug nil
@@ -167,7 +165,7 @@ Customize this to live on your local disk."
 
 ;;; buffer-size returns number of chars.
 ;;; this helper returns number of bytes.
-(defsubst g-buffer-bytes (&optional buffer)
+(defun g-buffer-bytes (&optional buffer)
   "Return number of bytes in a buffer."
   (save-excursion
     (and buffer (set-buffer buffer))
@@ -176,7 +174,7 @@ Customize this to live on your local disk."
 ;;}}}
 ;;{{{ debug helpers
 
-(defsubst g-curl-debug ()
+(defun g-curl-debug ()
   "Determines if we show stderr output."
   (declare (special g-curl-debug))
   (if g-curl-debug
@@ -186,7 +184,7 @@ Customize this to live on your local disk."
 ;;}}}
 ;;{{{ url encode:
 
-(defsubst g-url-encode (str)
+(defun g-url-encode (str)
   "URL encode  string."
   (mapconcat #'(lambda (c)
                  (cond ((= c 32) "+")
@@ -201,7 +199,7 @@ Customize this to live on your local disk."
 ;;}}}
 ;;{{{ transform region
 
-(defsubst g-xsl-transform-region (start end xsl)
+(defun g-xsl-transform-region (start end xsl)
   "Replace region by result of transforming via XSL."
   (declare (special g-xslt-program))
   (call-process-region
@@ -221,46 +219,46 @@ Customize this to live on your local disk."
     ("&apos;" . "'") ("&amp;" . "&"))
   "Alist of HTML character entities to unescape.")
 
-(defsubst g-html-unescape-region (start end)
+(defun g-html-unescape-region (start end)
   "Unescape HTML entities."
   (declare (special g-html-charent-alist))
   (save-excursion
-    (loop for entry in g-html-charent-alist
+    (cl-loop for entry in g-html-charent-alist
           do
           (let ((entity (car  entry))
-                (replacement (cdr entry )))
+                (replacement (cdr entry)))
             (goto-char start)
             (while (search-forward entity end t)
-              (replace-match replacement ))))))
+              (replace-match replacement))))))
 
-(defsubst g-html-escape-region (start end)
+(defun g-html-escape-region (start end)
   "Escape HTML entities."
   (declare (special g-html-charent-alist))
   (save-excursion
-    (loop for entry in g-html-charent-alist
+    (cl-loop for entry in g-html-charent-alist
           do
           (let ((entity (cdr  entry))
-                (replacement (car entry )))
+                (replacement (car entry)))
             (goto-char start)
             (while (search-forward entity end t)
-              (replace-match replacement ))))))
+              (replace-match replacement))))))
 
 ;;}}}
 ;;{{{ json conveniences:
 
-(defsubst g-json-get (key object)
+(defun g-json-get (key object)
   "Return object.key from json object or nil if not found.
 Key must be a symbol.
 For using string keys, use g-json-lookup."
   (cdr (assq key object)))
-(defsubst g-json-get-string (key object)
+(defun g-json-get-string (key object)
   "Return empty string instead of nil for false."
   (or (g-json-get key object) ""))
 
 ;;; Make sure to call json-read
 ;;; with json-key-type bound to 'string before using this:
 
-(defsubst g-json-lookup (key object)
+(defun g-json-lookup (key object)
   "Return object.key from json object or nil if not found.
 Key  is a string of  the form a.b.c"
   (let ((name  (mapcar #'intern (split-string key "\\." 'omit-null)))
@@ -272,7 +270,7 @@ Key  is a string of  the form a.b.c"
      ((null name) v)
      (t nil))))
 
-(defsubst g-json-path-lookup (path object)
+(defun g-json-path-lookup (path object)
   "Return objectat path from json object or nil if not
 found. Path is a string of the form a.b.[1].c. [n] denotes array
 references, poor-man's xpath."
@@ -314,7 +312,7 @@ references, poor-man's xpath."
        (erase-buffer)
        (progn ,@body))))
 
-(defsubst g-get-result (command)
+(defun g-get-result (command)
   "Run command and return its output."
   (declare (special shell-file-name shell-command-switch))
   (g-using-scratch
@@ -324,18 +322,18 @@ references, poor-man's xpath."
    (set-buffer-multibyte nil) ;return raw binary string
    (buffer-string)))
 
-(defsubst g-json-get-result(command)
+(defun g-json-get-result(command)
   "Get command results and return json object read from result
 string."
   (json-read-from-string
    (g-get-result command)))
 
-(defsubst g-json-from-url (url)
+(defun g-json-from-url (url)
   "Return JSON read from URL."
   (g-json-get-result
    (format "%s  %s '%s'" g-curl-program g-curl-common-options url)))
 
-(defsubst g-display-result (command style)
+(defun g-display-result (command style)
   "Display result retrieved by command using specified style.
 Typically, content is pulled using Curl , converted to HTML using style  and
   previewed via `g-html-handler'."
@@ -348,18 +346,18 @@ Typically, content is pulled using Curl , converted to HTML using style  and
      (g-xsl-transform-region (point-min) (point-max) style))
    (funcall g-html-handler (current-buffer))))
 
-(defsubst g-display-xml-string (string style)
+(defun g-display-xml-string (string style)
   "Display XML string  using specified style.
 XML string is transformed via style
   and previewed via `g-html-handler'."
   (declare (special g-xslt-program g-html-handler))
   (g-using-scratch
-   (insert string )
+   (insert string)
    (when style
      (g-xsl-transform-region (point-min) (point-max) style))
    (funcall g-html-handler (current-buffer))))
 
-(defsubst g-display-xml-buffer (buffer style)
+(defun g-display-xml-buffer (buffer style)
   "Display XML buffer  using specified style.
 XML  is transformed via style
   and previewed via `g-html-handler'."
@@ -393,11 +391,11 @@ XML  is transformed via style
   "HTTP headers are ended by a CRLF pair.
 Note that in the Curl output, we see lf rather than crlf.")
 
-(defsubst g-http-headers (start end)
+(defun g-http-headers (start end)
   "Parse HTTP headers in region and return an alist."
   (declare (special g-crlf-pair))
   (goto-char start)
-  (when (search-forward g-crlf-pair end 'no-error )
+  (when (search-forward g-crlf-pair end 'no-error)
     (setq end (point)))
   (save-restriction
     (narrow-to-region start end)
@@ -428,16 +426,16 @@ Note that in the Curl output, we see lf rather than crlf.")
             (forward-line 1))
           headers)))
 
-(defsubst g-http-body (start end)
+(defun g-http-body (start end)
   "Return body from HTTP response."
   (declare (special g-crlf-pair))
   (goto-char start)
   (cond
-   ((search-forward g-crlf-pair end 'no-error )
+   ((search-forward g-crlf-pair end 'no-error)
     (buffer-substring-no-properties (point) end))
    (t "")))
 
-(defsubst g-http-header (name header-alist)
+(defun g-http-header (name header-alist)
   "Return specified header from headers-alist."
   (when (assoc name header-alist) (cdr (assoc name header-alist))))
 
@@ -462,7 +460,7 @@ Note that in the Curl output, we see lf rather than crlf.")
 ;;}}}
 ;;{{{ convert html to text
 
-(defsubst g-html-string (html-string)
+(defun g-html-string (html-string)
   "Return formatted string."
   (or (require 'shr) (error "Need  emacs 24.4"))
   (with-temp-buffer

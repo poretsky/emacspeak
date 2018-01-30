@@ -45,13 +45,13 @@ OBJECTS= g-auth.elc \
 g-app.elc \
 g-utils.elc \
 g.elc \
-gfeeds.elc \
-gf.elc \
 gweb.elc \
 gmaps.elc \
 gm-nnir.elc \
 
 
+MODULES=\
+ g-auth.el g-app.el g-utils.el g.el gweb.el gmaps.el gm-nnir.el 
 
 # How to compile
 %.elc:  %.el
@@ -59,19 +59,20 @@ gm-nnir.elc \
 
 # }}}
 # {{{build time target: config, all
-all: g-loaddefs.el 
-	make config 
-	make $(OBJECTS)
-config: g-cus-load.el
 
-force:
+all: ${MODULES} g-loaddefs.el
+	@make config 
+	@make $(OBJECTS)
 
-g-cus-loads.el: force
-g-loaddefs.el: force
-	echo ";;;Auto generated" > g-loaddefs.el
+config: g-cus-load.el g-autogen.el
+
+
+
+g-loaddefs.el:${MODULES}
+	@echo ";;;Auto generated" > g-loaddefs.el
 	$(EMACS) $(BATCH) -l ./g-autogen.el -f g-autogen-generate-autoloads
 
-g-cus-load.el: force
+g-cus-load.el:${MODULES}
 	$(EMACS) $(BATCH) -l ./g-autogen.el -f g-autogen-custom-make-dependencies "."
 
 # }}}
@@ -81,9 +82,7 @@ g-utils.elc: g-utils.el
 g-auth.elc: g-auth.el g-utils.elc
 g-app.elc: g-auth.elc g-utils.elc g-app.el
 g.elc: g.el  g-auth.elc
-gfeeds.elc: g-utils.elc gfeeds.el
 gweb.elc: gweb.el g-utils.elc
-gf.elc: gf.el g-utils.elc
 gmaps.elc: gmaps.el g-utils.elc
 gm-nnir.elc: gm-nnir.el 
 # }}}
@@ -111,7 +110,7 @@ indent:
 # {{{ end of file
 
 #local variables:
-#major-mode: makefile-mode
+#mode: makefile
 #eval:  (fold-set-marks "# {{{" "# }}}")
 #fill-column: 90
 #folded-file: t

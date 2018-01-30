@@ -54,7 +54,6 @@
 ;;{{{  Required modules
 
 (require 'cl)
-(require 'backquote)
 (require 'g-utils)
 (require 'g-auth)
 (require 'nxml-mode)
@@ -63,7 +62,7 @@
 ;;}}}
 ;;{{{  APP Methods
 (define-derived-mode g-app-mode nxml-mode
-                     "Atom  Publishing Interaction"
+  "Atom  Publishing Interaction"
   "Major mode for APP interaction\n\n
 \\{g-app-mode-map"
   (auto-fill-mode 1))

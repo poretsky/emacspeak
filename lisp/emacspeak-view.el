@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2015, T. V. Raman 
+;;;Copyright (C) 1995 -- 2017, T. V. Raman 
 ;;; Copyright (c) 1996 by T. V. Raman 
 ;;; All Rights Reserved. 
 ;;;
@@ -85,12 +85,18 @@
                  (key-description
                   (where-is-internal 'View-exit view-mode-map 'firstonly)))
       (message "Exited view mode"))))
-
-(defadvice View-quit (after emacspeak pre act comp)
-  "Provide auditory feedback."
-  (when (ems-interactive-p)
-    (emacspeak-auditory-icon 'close-object)
-    (emacspeak-speak-mode-line)))
+(cl-loop
+ for f in
+ '(
+   View-exit-and-edit View-kill-and-leave
+                      View-quit-all View-quit)
+ do
+ (eval
+  `(defadvice ,f (after emacspeak pre act comp)
+     "Provide auditory feedback."
+     (when (ems-interactive-p)
+       (emacspeak-auditory-icon 'close-object)
+       (emacspeak-speak-mode-line)))))
 
 (defadvice View-exit (after emacspeak pre act comp)
   "Provide auditory feedback."
@@ -244,8 +250,7 @@
                          'personality voice-annotate line-number)
       (emacspeak-auditory-icon 'large-movement)
       (dtk-speak
-       (concat line-number
-               (thing-at-point 'line))))))
+       (concat line-number (ems-this-line))))))
 (defadvice View-scroll-to-buffer-end (after emacspeak pre act comp)
   "Provide auditory feedback"
   (when (ems-interactive-p)
@@ -298,15 +303,15 @@ keybindings for view mode")
                     view-mode-map emacspeak-keymap))
   (unless emacspeak-view-keys-optimized
     (setq emacspeak-view-keys-optimized t)
-    (loop for edit-command in emacspeak-view-edit-commands
+    (cl-loop for edit-command in emacspeak-view-edit-commands
           do
           (let ((edit-keys (where-is-internal edit-command (list view-mode-map))))
-            (loop for key in edit-keys 
+            (cl-loop for key in edit-keys 
                   do
                   (let ((command (lookup-key emacspeak-keymap key)))
                     (when command
                       (define-key view-mode-map key command))))))
-    (loop for k in
+    (cl-loop for k in
           '(
             ("[" backward-paragraph)
             ("]" forward-paragraph)
@@ -317,7 +322,7 @@ keybindings for view mode")
 (defun emacspeak-view-setup-keys()
   "Setup emacspeak convenience keys"
   (declare (special view-mode-map))
-  (loop for i from 0 to 9
+  (cl-loop for i from 0 to 9
         do
         (define-key view-mode-map
           (format "%s" i)

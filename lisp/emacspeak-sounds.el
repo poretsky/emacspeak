@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2015, T. V. Raman
+;;;Copyright (C) 1995 -- 2017, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -144,14 +144,14 @@ use `emacspeak-toggle-auditory-icons' bound to
 Do not set this by hand;
 --use command \\[emacspeak-sounds-select-theme].")
 
-(defsubst emacspeak-sounds-theme-get-extension (theme-name)
+(defun emacspeak-sounds-theme-get-extension (theme-name)
   "Retrieve filename extension for specified theme. "
   (declare (special emacspeak-sounds-themes-table))
   (gethash
    (intern theme-name)
    emacspeak-sounds-themes-table))
 
-(defsubst emacspeak-sounds-define-theme-if-necessary (theme-name)
+(defun emacspeak-sounds-define-theme-if-necessary (theme-name)
   "Define selected theme if necessary."
   (cond
    ((emacspeak-sounds-theme-get-extension theme-name)
@@ -185,7 +185,7 @@ Do not set this by hand;
   (emacspeak-sounds-define-theme-if-necessary theme)
   (emacspeak-auditory-icon 'select-object))
 
-(defsubst emacspeak-get-sound-filename (sound-name)
+(defun emacspeak-get-sound-filename (sound-name)
   "Retrieve name of sound file that produces  auditory icon SOUND-NAME."
   (declare (special emacspeak-sounds-themes-table
                     emacspeak-sounds-current-theme))
@@ -348,7 +348,7 @@ emacspeak-queue-auditory-icon when using software TTS."
    (list (emacspeak-select-auditory-icon-player)))
   (declare (special emacspeak-auditory-icon-function))
   (setq emacspeak-auditory-icon-function player)
-  (when (ems-interactive-p)
+  (when (called-interactively-p 'interactive)
     (emacspeak-auditory-icon 'select-object)))
 
 ;;}}}

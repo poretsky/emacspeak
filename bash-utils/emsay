@@ -1,0 +1,5 @@
+#!/bin/sh
+# Speak from outside Emacs
+#Usage emsay <text> 
+l="$@"
+emacsclient -n -e "(dtk-speak \"$l\")"  2>&1 > /dev/null

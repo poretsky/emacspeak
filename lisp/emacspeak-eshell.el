@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (C) 1995 -- 2015, T. V. Raman<raman@cs.cornell.edu>
+;;; Copyright (C) 1995 -- 2017, T. V. Raman<raman@cs.cornell.edu>
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -87,15 +87,17 @@
   "Announce switching to shell mode.
 Provide an auditory icon if possible."
   (when (ems-interactive-p)
-    (emacspeak-auditory-icon 'select-object)
-    (emacspeak-setup-programming-mode)
-    (emacspeak-dtk-sync)
+    (emacspeak-auditory-icon 'open-object)
+    (dtk-set-punctuations 'all)
+    (or dtk-split-caps
+        (dtk-toggle-split-caps))
+    (emacspeak-pronounce-refresh-pronunciations)
     (emacspeak-speak-line)))
 
 ;;}}}
 ;;{{{ advice em-hist
 
-(loop for f in
+(cl-loop for f in
       '(
         eshell-next-input eshell-previous-input
                           eshell-next-matching-input eshell-previous-matching-input
@@ -160,7 +162,7 @@ personalities."
 ;;}}}
 ;;{{{ Advice em-prompt
 
-(loop for f in
+(cl-loop for f in
       '(
         eshell-next-prompt eshell-previous-prompt
                            eshell-forward-matching-input  eshell-backward-matching-input)
@@ -176,7 +178,7 @@ personalities."
 ;;}}}
 ;;{{{  advice esh-arg
 
-(loop for f in
+(cl-loop for f in
       '(
         eshell-insert-buffer-name
         eshell-insert-process
@@ -206,7 +208,7 @@ personalities."
     (cond
      ((= (point) (point-max))
       (message "Sending EOF to comint process"))
-     (t (dtk-tone 500 30 'force)
+     (t (dtk-tone 500 100 'force)
         (emacspeak-speak-char t)))
     ad-do-it)
    (t ad-do-it))
@@ -216,7 +218,7 @@ personalities."
   "Speak character you're deleting."
   (cond
    ((ems-interactive-p)
-    (dtk-tone 500 30 'force)
+    (dtk-tone 500 100 'force)
     (emacspeak-speak-this-char (preceding-char))
     ad-do-it)
    (t ad-do-it))
@@ -263,6 +265,59 @@ personalities."
       (emacspeak-speak-line))
      (t (emacspeak-speak-mode-line)))
     (emacspeak-auditory-icon 'select-object)))
+
+;;}}}
+;;{{{Additional Commands To Enable: 
+
+(cl-loop
+ for f in
+ '(eshell-forward-argument eshell-backward-argument eshell-bol)
+ do
+ (eval
+  `(defadvice ,f (after emacspeak pre act comp)
+     "provide auditory feedback."
+     (when
+         (ems-interactive-p)
+       (let ((emacspeak-show-point t))
+         (emacspeak-speak-line)
+         (emacspeak-auditory-icon 'large-movement))))))
+
+(cl-loop
+ for f in
+ '(eshell-pcomplete eshell-complete-lisp-symbol)
+ do
+ (eval
+  `(defadvice ,f (around emacspeak pre act comp)
+     "Say what you completed."
+     (ems-with-messages-silenced
+      (let ((prior (save-excursion (skip-syntax-backward "^ >") (point))))
+        ad-do-it
+        (if (> (point) prior)
+            (tts-with-punctuations
+             'all
+             (dtk-speak
+              (buffer-substring prior (point))))
+          (emacspeak-speak-completions-if-available))
+        ad-return-value)))))
+
+(defadvice eshell-copy-old-input (after emacspeak pre act comp)
+  "Speak what was inserted."
+  (when (ems-interactive-p)
+    (let ((start
+           (save-excursion
+             (eshell-bol)
+             (point))))
+      (emacspeak-auditory-icon 'yank-object)
+      (emacspeak-speak-region start (point)))))
+(defadvice eshell-get-next-from-history (after emacspeak pre act comp)
+  "Speak what was inserted."
+  (when (ems-interactive-p)
+    (let ((start
+           (save-excursion
+             (eshell-bol)
+             (point))))
+      (emacspeak-auditory-icon 'yank-object)
+      (emacspeak-speak-region start (point)))))
 
 ;;}}}
 

@@ -15,7 +15,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;;Copyright (C) 1995 -- 2015, T. V. Raman
+;;;Copyright (C) 1995 -- 2017, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -111,7 +111,7 @@ such as pronunciation dictionaries are stored. ")
 (defvar emacspeak-media-extensions
   (let
       ((ext
-        '("wma" "wmv" "flv" "m4a" "m4b"  "flac" "aiff" "aac"
+        '("wma" "wmv" "flv" "m4a" "m4b"  "flac" "aiff" "aac" "opus"
           "ogv" "oga""ogg" "mp3"  "mp4" "webm" "wav")))
     (concat
      "\\."
@@ -121,61 +121,12 @@ such as pronunciation dictionaries are stored. ")
      "$"))
   "Extensions that match media files.")
 
-;;;###autoload
-(defvar emacspeak-codename
-  "IdealDog"
-  "Code name of present release.")
-
-;;;###autoload
-(defsubst emacspeak-setup-get-revision ()
-  "Get SHA checksum of current revision that is suitable for spoken output."
-  (let ((default-directory emacspeak-directory))
-    (if (and (executable-find "git")
-             (file-exists-p (expand-file-name ".git"  emacspeak-directory)))
-        (substring
-         (shell-command-to-string  "git show HEAD | head -1 | cut -b 8- ")
-         0 6)
-      "")))
-
-;;;###autoload
-(defsubst emacspeak-xslt-get (style)
-  "Return fully qualified stylesheet path."
-  (expand-file-name style emacspeak-xslt-directory))
-
-;;;###autoload
-(defvar emacspeak-version
-  (format
-   "45.0 %s:  %s"
-   emacspeak-codename
-   (emacspeak-setup-get-revision))
-  "Version number for Emacspeak.")
-
-;;}}}
-;;{{{ speech rate
-
-;;;###autoload
-(defcustom outloud-default-speech-rate 50
-  "Default speech rate for outloud."
-  :group 'tts
-  :type 'integer)
-
-;;;###autoload
-(defcustom mac-default-speech-rate 225
-  "Default speech rate for mac."
-  :group 'tts
-  :type 'integer)
-
-;;;###autoload
-(defcustom dectalk-default-speech-rate 225
-  "*Default speech rate at which TTS is started. "
-  :group 'tts
-  :type 'integer)
-
-;;;###autoload
-(defcustom espeak-default-speech-rate 175
-  "Default speech rate for eSpeak."
-  :group 'tts
-  :type 'integer)
+(defvar  emacspeak-m-player-playlist-pattern
+  (concat
+   (regexp-opt
+    (list ".m3u" ".asx" ".pls" ".rpm" ".ram"))
+   "$")
+  "Pattern for matching playlists.")
 
 ;;}}}
 ;;{{{ Hooks
@@ -215,14 +166,13 @@ such as pronunciation dictionaries are stored. ")
 (defun emacspeak-tts-notify-hook ()
   "Starts up a notification stream if current synth supports  multiple invocations.
 TTS engine should use ALSA for this to be usable."
-  (declare (special dtk-program dtk-notify-process
-                    emacspeak-tts-use-notify-stream))
-  (when (process-live-p dtk-notify-process) (delete-process dtk-notify-process))
-  (when (and emacspeak-tts-use-notify-stream (emacspeak-tts-multistream-p dtk-program))
-    (dtk-notify-initialize)))
+       (declare (special dtk-program dtk-notify-process
+                         emacspeak-tts-use-notify-stream))
+       (when (process-live-p dtk-notify-process) (delete-process dtk-notify-process))
+       (when (and emacspeak-tts-use-notify-stream (emacspeak-tts-multistream-p dtk-program))
+         (dtk-notify-initialize)))
 
-(when emacspeak-tts-use-notify-stream
-  (add-hook 'dtk-startup-hook 'emacspeak-tts-notify-hook 'at-end))
+(add-hook 'dtk-startup-hook 'emacspeak-tts-notify-hook 'at-end)
 
 (defvar emacspeak-startup-hook nil)
 (defun emacspeak-setup-header-line ()
@@ -232,13 +182,7 @@ TTS engine should use ALSA for this to be usable."
   (when emacspeak-use-header-line
     (setq header-line-format emacspeak-header-line-format)))
 
-(defun emacspeak-tvr-startup-hook ()
-  "Emacspeak startup hook that I use."
-  (load-library "emacspeak-webspace")
-  (load-library "emacspeak-dbus"))
-
 (add-hook 'emacspeak-startup-hook 'emacspeak-setup-header-line)
-(add-hook 'emacspeak-startup-hook 'emacspeak-tvr-startup-hook)
 
 (defvar emacspeak-info-already-loaded nil
   "Track info support load.")
@@ -257,7 +201,7 @@ TTS engine should use ALSA for this to be usable."
 ;;{{{  emacs local variables
 
 ;;; local variables:
-;;; major-mode: emacs-lisp-mode
+;;; mode: emacs-lisp
 ;;; folded-file: t
 ;;; end:
 

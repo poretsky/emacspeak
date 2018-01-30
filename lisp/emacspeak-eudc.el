@@ -1,4 +1,4 @@
-;;; emacspeak-eudc.el --- Speech enable  directory client  -*- lexical-binding: t; -*- 
+;;; emacspeak-eudc.el --- Speech enable  LDAP directory client  -*- lexical-binding: t; -*- 
 ;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description:   extension to speech enable universal directory client 
@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (C) 1995 -- 2015, T. V. Raman<raman@cs.cornell.edu>
+;;; Copyright (C) 1995 -- 2017, T. V. Raman<raman@cs.cornell.edu>
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -75,8 +75,7 @@
   "Provides emacspeak help for eudc widgets. "
   (cond
    ((eq (widget-type widget) 'editable-field)
-    (concat (thing-at-point 'line) 
-            "Edit "))
+    (concat (ems-this-line) "Edit "))
    ((eq (widget-type widget) 'push-button)
     (concat "Push button "
             (widget-value widget)))

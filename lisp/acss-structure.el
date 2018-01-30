@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;;Copyright (C) 1995 -- 2015, T. V. Raman 
+;;;Copyright (C) 1995 -- 2017, T. V. Raman 
 ;;; Copyright (c) 1996 by T. V. Raman
 ;;; All Rights Reserved.
 ;;;
@@ -79,7 +79,7 @@
 
 ;;; Code:
 (require 'cl-lib)
-(declaim  (optimize  (safety 0) (speed 3)))
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'tts)
 ;;}}}
 ;;{{{ Forward Declarations:

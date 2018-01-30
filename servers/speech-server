@@ -16,7 +16,7 @@
 
 # }}}
 # {{{ Copyright:  
-#Copyright (C) 1995 -- 2001, T. V. Raman 
+#Copyright (C) 1995 -- 2017, T. V. Raman 
 # Incorporated.
 #All Rights Reserved
 #
@@ -62,7 +62,7 @@ source [lindex $argv 1]
 # {{{ Emacs local variables  
 
 ### Local variables:
-### major-mode: tcl-mode 
+### mode: tcl
 ### voice-lock-mode: t
 ### folded-file: t
 ### End:

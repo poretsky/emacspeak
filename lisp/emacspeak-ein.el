@@ -1,4 +1,4 @@
-;;; emacspeak-ein.el --- Speech-enable EIN  -*- lexical-binding: t; -*-
+;;; emacspeak-ein.el --- Speech-enable EIN For IPython Notebooks   -*- lexical-binding: t; -*-
 ;;; $Id: emacspeak-ein.el 4797 2007-07-16 23:31:22Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Speech-enable EIN An Emacs Interface to ein
@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2015, T. V. Raman
+;;;Copyright (C) 1995 -- 2017, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -146,7 +146,7 @@
 ;;}}}
 ;;{{{ Worksheets:
 
-(loop for f in
+(cl-loop for f in
       '(
         ein:worksheet-clear-all-output
         ein:worksheet-delete-cell
@@ -163,7 +163,7 @@
 ;; ein:worksheet-copy-cell
 ;; ein:worksheet-dedent-cell-text
 
-(loop for f in
+(cl-loop for f in
       '(
         ein:worksheet-execute-all-cell
         ein:worksheet-execute-autoexec-cells
@@ -177,7 +177,7 @@
           (when (ems-interactive-p)
             (emacspeak-auditory-icon 'task-done)
             (emacspeak-speak-line)))))
-(loop for f in
+(cl-loop for f in
       '(
         ein:worksheet-goto-next-input
         ein:worksheet-goto-prev-input
@@ -192,7 +192,7 @@
             (emacspeak-auditory-icon 'large-movement)
             (emacspeak-ein-speak-current-cell)))))
 
-(loop for f in
+(cl-loop for f in
       '(
         ein:worksheet-yank-cell
         ein:worksheet-insert-cell-above
@@ -220,7 +220,7 @@
 ;;}}}
 ;;{{{ Bind additional interactive commands
 (when (boundp 'ein:notebook-mode-map)
-  (loop for k in
+  (cl-loop for k in
         '(
           ("\C-c." emacspeak-ein-speak-current-cell)
           )

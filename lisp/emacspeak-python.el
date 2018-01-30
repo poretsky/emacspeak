@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (c) 1995 -- 2015, T. V. Raman
+;;; Copyright (c) 1995 -- 2017, T. V. Raman
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -59,7 +59,7 @@
   "Provide auditory feedback."
   (when (ems-interactive-p)
     (emacspeak-auditory-icon 'task-done)))
-(loop
+(cl-loop
  for f in
  '(
    python-shell-send-region python-shell-send-defun
@@ -84,7 +84,8 @@
   "Speak character you're deleting."
   (cond
    ((ems-interactive-p)
-    (let ((ws (= 32 (char-syntax (preceding-char)))))      (dtk-tone 500 30 'force)
+    (let ((ws (= 32 (char-syntax (preceding-char)))))
+      (dtk-tone 500 100 'force)
          (unless ws (emacspeak-speak-this-char (preceding-char)))
          ad-do-it
          (when ws (dtk-notify-speak (format "Indent %s " (current-column))))))
@@ -123,7 +124,7 @@
 ;;}}}
 ;;{{{  buffer navigation
 
-(loop
+(cl-loop
  for f in
  '(
    python-nav-up-list python-nav-if-name-main python-nav-forward-statement

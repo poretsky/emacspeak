@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (C) 1995 -- 2015, T. V. Raman<raman@cs.cornell.edu>
+;;; Copyright (C) 1995 -- 2017, T. V. Raman<raman@cs.cornell.edu>
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -63,11 +63,11 @@
 (defvar emacspeak-aumix-channel-table (make-hash-table)
   "Hash table holding mapping from  channel options to descriptions.")
 
-(defsubst emacspeak-aumix-set-channel  (channel description)
+(defun emacspeak-aumix-set-channel  (channel description)
   (declare (special emacspeak-aumix-channel-table))
   (setf (gethash channel emacspeak-aumix-channel-table) description))
 
-(defsubst emacspeak-aumix-get-channel (channel)
+(defun emacspeak-aumix-get-channel (channel)
   (declare (special emacspeak-aumix-channel-table))
   (gethash channel emacspeak-aumix-channel-table))
 (emacspeak-aumix-set-channel ?r "reset")

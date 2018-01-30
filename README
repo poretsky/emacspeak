@@ -1,5 +1,4 @@
-Emacspeak  Revision 7707b291b9689b85232f19171ffe874cd8fe3a75
+Emacspeak  Revision aa268428b1086f5bcdfc9989cb957b9be290c46b
 Distribution created by raman on raman-glaptop2
 Unpack the  distribution And type make config 
 Then type make
-See the Makefile for details. 

@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2015, T. V. Raman
+;;;Copyright (C) 1995 -- 2017, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -74,7 +74,7 @@
 
 ;;}}}
 ;;{{{ Advice Interactive Commands:
-(loop
+(cl-loop
  for f in
  '(diff-next-complex-hunk
    diff-hunk-prev diff-hunk-next

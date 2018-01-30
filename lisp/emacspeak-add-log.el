@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2015, T. V. Raman
+;;;Copyright (C) 1995 -- 2017, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -62,10 +62,10 @@
  '(
    (change-log-acknowledgement voice-smoothen)
    (change-log-conditionals voice-animate)
-   (change-log-email voice-womanize-1)
+   (change-log-email voice-lighten)
    (change-log-function voice-bolden-extra)
    (change-log-file voice-bolden)
-   (change-log-email voice-womanize-1)
+   (change-log-email voice-lighten)
    (change-log-list voice-lighten)
    (change-log-name voice-lighten-extra)
    ))

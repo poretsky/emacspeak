@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2015, T. V. Raman 
+;;;Copyright (C) 1995 -- 2017, T. V. Raman 
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved. 
 ;;;
@@ -68,7 +68,7 @@
 (unless (and (boundp 'post-self-insert-hook)
              post-self-insert-hook
              (memq 'emacspeak-post-self-insert-hook post-self-insert-hook))
-  (loop for e in emacspeak-cperl-electric-insertion-commands-to-advice
+  (cl-loop for e in emacspeak-cperl-electric-insertion-commands-to-advice
         do
         (eval
          `(defadvice ,e (after emacspeak pre act comp)
@@ -77,13 +77,13 @@ Cue electric insertion with a tone."
             (when (ems-interactive-p)
               (let ((emacspeak-speak-messages nil))
                 (emacspeak-speak-this-char last-input-event)
-                (dtk-tone 800 50 t)))))))
+                (dtk-tone 800 100 t)))))))
 
 (defadvice cperl-electric-backspace (around emacspeak pre act)
   "Speak character you're deleting."
   (cond
    ((ems-interactive-p)
-    (dtk-tone 500 30 'force)
+    (dtk-tone 500 100 'force)
     (emacspeak-speak-this-char (preceding-char))
     ad-do-it)
    (t ad-do-it))
@@ -209,8 +209,7 @@ Otherwise cue user to the line just created. "
                       (or dtk-split-caps
                           (dtk-toggle-split-caps))
                       (or emacspeak-audio-indentation
-                          (emacspeak-toggle-audio-indentation))
-                      (emacspeak-dtk-sync))))
+                          (emacspeak-toggle-audio-indentation)))))
 
 ;;}}}
 (provide  'emacspeak-cperl)

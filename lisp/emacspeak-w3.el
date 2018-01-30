@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2015, T. V. Raman
+;;;Copyright (C) 1995 -- 2017, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -150,7 +150,7 @@
   (when (locate-library
          "w3-imenu")
     (require 'w3-imenu))
-  (loop
+  (cl-loop
    for binding in
    '(
      ("'" emacspeak-speak-rest-of-buffer)
@@ -303,26 +303,26 @@ document is displayed in a separate buffer. "
 
 ;;;This should eventually be done via a DOM API
 
-(defsubst emacspeak-w3-html-stack () (get-text-property (point)
+(defun emacspeak-w3-html-stack () (get-text-property (point)
                                                         'html-stack))
 
-(defsubst emacspeak-w3-get-onclick ()
+(defun emacspeak-w3-get-onclick ()
   "Return onclick handler if any at point."
   (cdr (assq 'onclick (cdar (emacspeak-w3-html-stack)))))
 
-(defsubst emacspeak-w3-get-class ()
+(defun emacspeak-w3-get-class ()
   "Return class if any at point."
   (cdr (assq 'class (cdar (emacspeak-w3-html-stack)))))
 
-(defsubst emacspeak-w3-get-onchange ()
+(defun emacspeak-w3-get-onchange ()
   "Return onchange handler if any at point."
   (cdr (assq 'onchange (cdar (emacspeak-w3-html-stack)))))
 
-(defsubst emacspeak-w3-get-style ()
+(defun emacspeak-w3-get-style ()
   "Return style if any at point."
   (cdr (assq 'style (cdar (emacspeak-w3-html-stack)))))
 
-(defsubst emacspeak-w3-html-stack-top-element (&optional stack)
+(defun emacspeak-w3-html-stack-top-element (&optional stack)
   (or stack (setq stack (emacspeak-w3-html-stack)))
   (first (first stack)))
 
@@ -743,7 +743,7 @@ HTML."
 ;;; fix mm-inline-types
 (require 'mm-decode)
 (declaim (special  mm-inline-media-tests))
-(loop for mm in
+(cl-loop for mm in
       '("application/xml"
         "application/xml+xhtml"
         "text/xml")
@@ -770,7 +770,7 @@ HTML."
 ;;; prefix: http://www.google.com/url?q=
 ;;; Suffix: &sa=...
 
-(defsubst emacspeak-w3-canonicalize-google-result-url (url)
+(defun emacspeak-w3-canonicalize-google-result-url (url)
   "Strip out the actual result URL from the redirect wrapper."
   (declare (special emacspeak-websearch-google-use-https))
   (url-unhex-string 
@@ -778,7 +778,7 @@ HTML."
               (if emacspeak-websearch-google-use-https 29 28)
               (string-match "&sa=" url))))
 
-(defsubst emacspeak-w3-google-result-url-prefix ()
+(defun emacspeak-w3-google-result-url-prefix ()
   "Return prefix of result urls."
   (declare (special emacspeak-websearch-google-use-https))
   (format "%s://www.google.com/url?q="
@@ -787,7 +787,7 @@ HTML."
 (defadvice w3-image-loadable-p (around dont pre act comp)
   "I dont want any images here."
   nil)
-(loop
+(cl-loop
  for f in 
  '(url-retrieve-internal w3-fetch url-truncate-url-for-viewing)
  do

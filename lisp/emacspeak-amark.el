@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;;Copyright (C) 1995 -- 2015, T. V. Raman 
+;;;Copyright (C) 1995 -- 2017, T. V. Raman 
 ;;; Copyright (c) 1996 by T. V. Raman
 ;;; All Rights Reserved.
 ;;;
@@ -75,12 +75,12 @@ Automatically becomes buffer-local when set.")
 
 ;;}}}
 ;;{{{ AMark Functions:
-(defsubst emacspeak-amark-names ()
+(defun emacspeak-amark-names ()
   "Return list of  amark names."
   (declare (special emacspeak-amark-list))
-  (loop for a in emacspeak-amark-list collect (emacspeak-amark-name a)))
+  (cl-loop for a in emacspeak-amark-list collect (emacspeak-amark-name a)))
 
-(defsubst emacspeak-amark-find (name)
+(defun emacspeak-amark-find (name)
   "Return matching AMark if found in buffer-local AMark list."
   (interactive (list (completing-read "Name: " (emacspeak-amark-names))))
   (declare (special emacspeak-amark-list))
@@ -133,7 +133,7 @@ given name, it is updated with path and position."
          (locate-dominating-file default-directory emacspeak-amark-file)))
     (cond
      ((null where)
-      (when (ems-interactive-p)
+      (when (called-interactively-p 'interactive)
         (message "No AMarks found.")))
      (t (setq buff
               (find-file-noselect (expand-file-name emacspeak-amark-file where)))
@@ -143,7 +143,7 @@ given name, it is updated with path and position."
           (setq l (read buff))
           (kill-buffer buff))
         (setq emacspeak-amark-list l)
-        (when (ems-interactive-p)
+        (when (called-interactively-p 'interactive)
           (emacspeak-auditory-icon 'open-object)
           (message "Loaded AMarks from %s" where))))))
 

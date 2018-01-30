@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2015, T. V. Raman 
+;;;Copyright (C) 1995 -- 2017, T. V. Raman 
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved. 
 ;;;
@@ -149,17 +149,15 @@ reading news."
 ;;}}}
 ;;{{{  helper functions
 
-(defsubst emacspeak-gnus-summary-speak-subject ()
-  (emacspeak-dtk-sync)
+(defun emacspeak-gnus-summary-speak-subject ()
   (dtk-speak (gnus-summary-article-subject)))
 
-(defsubst emacspeak-gnus-speak-article-body ()
+(defun emacspeak-gnus-speak-article-body ()
   (declare (special emacspeak-gnus-large-article
                     voice-lock-mode dtk-punctuation-mode
                     gnus-article-buffer))
   (with-current-buffer gnus-article-buffer
     (goto-char (point-min))
-    (emacspeak-dtk-sync)
     (cond
      ((< (count-lines (point-min) (point-max))
          emacspeak-gnus-large-article)
@@ -213,7 +211,7 @@ reading news."
 
 ;;}}}
 ;;{{{  Newsgroup selection
-(loop
+(cl-loop
  for f in
  '(gnus-group-select-group gnus-group-first-unread-group
                            gnus-group-read-group
@@ -593,7 +591,6 @@ indicating the article is being opened."
     (emacspeak-auditory-icon 'open-object)
     (with-current-buffer
         gnus-article-buffer
-      (emacspeak-dtk-sync)
       (let ((start  (point))
             (window (get-buffer-window (current-buffer))))
         (with-selected-window window
@@ -812,7 +809,7 @@ Helps to prevent words from being spelled instead of spoken."
 ;;}}}
 ;;{{{ refreshing the pronunciation  and punctuation mode
 
-(loop
+(cl-loop
  for hook  in 
  '(
    gnus-article-mode-hook gnus-group-mode-hook gnus-summary-mode-hook

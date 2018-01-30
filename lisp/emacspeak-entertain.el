@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (c) 1995 -- 2015, T. V. Raman
+;;; Copyright (c) 1995 -- 2017, T. V. Raman
 ;;; All Rights Reserved. 
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -65,11 +65,9 @@
 ;;{{{ mpuz
 (voice-setup-add-map
  '(
-   (mpuz-trivial-face voice-monotone)
-   (mpuz-unsolved-face voice-bolden)
-   (mpuz-unsolved-face voice-lighten)
-   (mpuz-solved-face voice-animate)
-   ))
+   (mpuz-trivial voice-monotone)
+   (mpuz-unsolved voice-bolden)
+   (mpuz-solved voice-animate)))
 ;;}}}
 ;;{{{ dunnet 
 
@@ -115,7 +113,7 @@
                     hm-current-word))
   (let ((string (make-string  (length hm-current-word)
                               ?\))))
-    (loop for i from 0 to (1- (length hm-current-word))
+    (cl-loop for i from 0 to (1- (length hm-current-word))
           do
           (aset  string  i
                  (aref hm-current-guess-string (* i 2))))

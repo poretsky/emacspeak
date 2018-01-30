@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;;Copyright (C) 1995 -- 2015, T. V. Raman 
+;;;Copyright (C) 1995 -- 2017, T. V. Raman 
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved. 
 ;;;
@@ -51,21 +51,7 @@
 (require 'emacspeak-keymap)
 (when (> emacs-major-version 24) (package-initialize))
 ;;}}}
-;;{{{ Utilities:
-(defsubst emacspeak-url-encode (str)
-  "URL encode string."
-  (mapconcat
-   #'(lambda (c)
-       (cond ((= c 32) "%20")
-             ((or (and (>= c ?a) (<= c ?z))
-                  (and (>= c ?A) (<= c ?Z))
-                  (and (>= c ?0) (<= c ?9)))
-              (char-to-string c))
-             (t (upcase (format "%%%02x" c)))))
-   str
-   ""))
 
-;;}}}
 (provide  'emacspeak-preamble)
 ;;{{{  emacs local variables 
 

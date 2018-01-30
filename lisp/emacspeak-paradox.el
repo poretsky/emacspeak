@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2015, T. V. Raman
+;;;Copyright (C) 1995 -- 2017, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -96,7 +96,9 @@
   (define-key paradox-menu-mode-map " " 'emacspeak-paradox-summarize-line)
   (emacspeak-pronounce-add-buffer-local-dictionary-entry
    emacspeak-pronounce-date-yyyymmdd-pattern
-   (cons 're-search-forward 'emacspeak-pronounce-yyyymmdd-date)))
+   (cons 're-search-forward 'emacspeak-pronounce-yyyymmdd-date))
+  (emacspeak-auditory-icon 'open-object)
+  (emacspeak-speak-mode-line))
 
 (add-hook 'paradox-menu-mode-hook 'emacspeak-paradox-mode-hook)
 
@@ -108,7 +110,7 @@
   (ems-with-messages-silenced ad-do-it)
   (emacspeak-speak-message-again))
 
-(loop
+(cl-loop
  for f in
  '(paradox-next-entry paradox-previous-entry)
  do

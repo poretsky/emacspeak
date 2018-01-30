@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;;Copyright (C) 1995 -- 2015, T. V. Raman
+;;;Copyright (C) 1995 -- 2017, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -326,7 +326,7 @@ Interactive prefix arg filters  content by genre."
       (erase-buffer)
       (insert title)
       (insert "\n\n")
-      (loop
+      (cl-loop
        for show across
        (if genres
            (g-json-get 'broadcasts json)

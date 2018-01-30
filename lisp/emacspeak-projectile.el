@@ -64,28 +64,19 @@
 ;;}}}
 ;;{{{ Speech-enable Interactive Commands:
 
-(loop
+(cl-loop
  for f in
- '(projectile-ag 
+ '(projectile-ag
    projectile-cleanup-known-projects
    projectile-clear-known-projects
    projectile-compile-project
-   projectile-regenerate-tags 
-   
-   
-   
-   
-   
-   
-   
-   
+   projectile-regenerate-tags
    projectile-run-async-shell-command-in-root
    projectile-run-command-in-root
    projectile-run-project
    projectile-run-shell-command-in-root
    projectile-test-project
-   
-   
+   projectile-ibuffer
    )
  do
  (eval
@@ -95,6 +86,22 @@
        (emacspeak-auditory-icon 'task-done)
        (emacspeak-speak-line)))))
 (add-hook 'projectile-find-file-hook 'emacspeak-projectile-file-action)
+(defadvice projectile-edit-dir-locals(after emacspeak pre act comp)
+  "Provide auditory feedback."
+  (when (ems-interactive-p)
+    (emacspeak-auditory-icon 'open-object)
+    (emacspeak-speak-line)))
+
+(cl-loop
+ for f in
+ '(projectile-run-shell projectile-run-eshell projectile-run-term)
+ do
+ (eval
+  `(defadvice ,f (after emacspeak pre act comp)
+     "Provide auditory feedback."
+     (when (ems-interactive-p)
+       (emacspeak-speak-mode-line)
+       (emacspeak-auditory-icon 'open-object)))))
 
 ;;}}}
 (provide 'emacspeak-projectile)

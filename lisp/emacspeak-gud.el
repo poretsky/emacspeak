@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2015, T. V. Raman
+;;;Copyright (C) 1995 -- 2017, T. V. Raman
 ;;; Copyright (c) 1995 by T. V. Raman
 ;;; All Rights Reserved.
 ;;;
@@ -61,7 +61,7 @@
            (goto-char (marker-position marker))
            (emacspeak-speak-line)))))
 
-(loop
+(cl-loop
  for f in
  '(
    gud-break

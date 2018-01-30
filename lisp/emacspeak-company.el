@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2015, T. V. Raman
+;;;Copyright (C) 1995 -- 2017, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -42,9 +42,16 @@
 
 ;;; Commentary:
 ;;; COMPANY -mode: Complete Anything Support for emacs.
-;;; This module provides an Emacspeak Company Front-end,
-;;; And advises the needed interactive commands in Company.
-
+;;;
+;;; This module provides an Emacspeak Company Front-end, And advises
+;;; the needed interactive commands in Company. It adds an
+;;; emacspeak-specific front-end @code{emacspeak-company-frontend} to
+;;; the value of company-frontends. Note that @var{company-frontends}
+;;; is a user-customizable option and ends up getting saved by emacs
+;;; along with other custom settings. Function
+;;; @code{emacspeak-company-frontend} handles providing spoken
+;;; feedback, and leaves it to other frontends on
+;;; @var{company-frontends}   to generate their own feedback.
 ;;}}}
 ;;{{{  Required modules
 
@@ -54,7 +61,7 @@
 (eval-when-compile (require 'company "company" 'no-error))
 ;;}}}
 ;;{{{ Helpers:
-(defsubst ems-company-current ()
+(defun ems-company-current ()
   "Helper: Return current selection in company."
   (declare (special  company-selection company-candidates))
   (nth company-selection company-candidates))
@@ -102,9 +109,10 @@
 ;;}}}
 ;;{{{ Company Setup For Emacspeak:
 (defun emacspeak-company-setup ()
-  "Set front-end to our sole front-end action."
+  "Set front-end to our  front-end action."
   (declare (special company-frontends))
-  (setq company-frontends '(emacspeak-company-frontend))
+  (when (boundp 'company-frontends)
+    (pushnew 'emacspeak-company-frontend company-frontends))
   (add-hook
    'company-completion-started-hook
    #'(lambda (&rest _ignore) (emacspeak-auditory-icon 'help)))
@@ -119,7 +127,7 @@
   (ems-with-messages-silenced ad-do-it))
 
 ;;}}}
-(emacspeak-company-setup)
+(eval-after-load "company" #'emacspeak-company-setup)
 (provide 'emacspeak-company)
 ;;{{{ end of file
 

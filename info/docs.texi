@@ -2,235 +2,237 @@
 
 @chapter Emacspeak Commands And Options 
 
-This chapter documents a total of 1143 commands and 1011 options.
+This chapter documents a total of 1170 commands and 1087 options.
 
 @menu
-* acss-structure::
-* amixer::
-* cd-tool::
-* congrats::
-* dectalk-voices::
-* dom::
-* dom-addons::
-* dtk-interp::
-* dtk-speak::
-* dtk-unicode::
-* emacspeak::
-* emacspeak-2048::
-* emacspeak-actions::
-* emacspeak-add-log::
-* emacspeak-advice::
-* emacspeak-amark::
-* emacspeak-analog::
-* emacspeak-ansi-color::
-* emacspeak-apt-sources::
-* emacspeak-apt-utils::
-* emacspeak-arc::
-* emacspeak-auctex::
-* emacspeak-aumix::
-* emacspeak-bbc::
-* emacspeak-bbdb::
-* emacspeak-bibtex::
-* emacspeak-bookmark::
-* emacspeak-bookshare::
-* emacspeak-browse-kill-ring::
-* emacspeak-bs::
-* emacspeak-buff-menu::
-* emacspeak-c::
-* emacspeak-calc::
-* emacspeak-calculator::
-* emacspeak-calendar::
-* emacspeak-cedet::
-* emacspeak-checkdoc::
-* emacspeak-ciel::
-* emacspeak-cmuscheme::
-* emacspeak-company::
-* emacspeak-compile::
-* emacspeak-cperl::
-* emacspeak-custom::
-* emacspeak-dbus::
-* emacspeak-desktop::
-* emacspeak-dictionary::
-* emacspeak-diff-mode::
-* emacspeak-dired::
-* emacspeak-dismal::
-* emacspeak-dmacro::
-* emacspeak-ecb::
-* emacspeak-eclim::
-* emacspeak-ediary::
-* emacspeak-ediff::
-* emacspeak-ein::
-* emacspeak-elfeed::
-* emacspeak-elisp-refs::
-* emacspeak-elpy::
-* emacspeak-elscreen::
-* emacspeak-emms::
-* emacspeak-enriched::
-* emacspeak-entertain::
-* emacspeak-epa::
-* emacspeak-eperiodic::
-* emacspeak-epub::
-* emacspeak-erc::
-* emacspeak-eshell::
-* emacspeak-espn::
-* emacspeak-ess::
-* emacspeak-etable::
-* emacspeak-eterm::
-* emacspeak-eudc::
-* emacspeak-eww::
-* emacspeak-facemenu::
-* emacspeak-feeds::
-* emacspeak-filtertext::
-* emacspeak-find-dired::
-* emacspeak-find-func::
-* emacspeak-fix-interactive::
-* emacspeak-flycheck::
-* emacspeak-flyspell::
-* emacspeak-folding::
-* emacspeak-forms::
-* emacspeak-ftf::
-* emacspeak-generic::
-* emacspeak-gnuplot::
-* emacspeak-gnus::
-* emacspeak-go-mode::
-* emacspeak-gomoku::
-* emacspeak-google::
-* emacspeak-gridtext::
-* emacspeak-gtags::
-* emacspeak-gud::
-* emacspeak-helm::
-* emacspeak-hide::
-* emacspeak-hideshow::
-* emacspeak-ibuffer::
-* emacspeak-ido::
-* emacspeak-imenu::
-* emacspeak-info::
-* emacspeak-ispell::
-* emacspeak-jabber::
-* emacspeak-jade::
-* emacspeak-jde::
-* emacspeak-js2::
-* emacspeak-jss::
-* emacspeak-keymap::
-* emacspeak-kite::
-* emacspeak-kmacro::
-* emacspeak-librivox::
-* emacspeak-lua::
-* emacspeak-m-player::
-* emacspeak-magit::
-* emacspeak-make-mode::
-* emacspeak-man::
-* emacspeak-markdown::
-* emacspeak-message::
-* emacspeak-metapost::
-* emacspeak-midge::
-* emacspeak-mpg123::
-* emacspeak-mspools::
-* emacspeak-muggles::
-* emacspeak-muse::
-* emacspeak-net-utils::
-* emacspeak-newsticker::
-* emacspeak-npr::
-* emacspeak-nxml::
-* emacspeak-ocr::
-* emacspeak-org::
-* emacspeak-outline::
-* emacspeak-package::
-* emacspeak-paradox::
-* emacspeak-perl::
-* emacspeak-personality::
-* emacspeak-php-mode::
-* emacspeak-pianobar::
-* emacspeak-proced::
-* emacspeak-projectile::
-* emacspeak-pronounce::
-* emacspeak-py::
-* emacspeak-pydoc::
-* emacspeak-python::
-* emacspeak-re-builder::
-* emacspeak-redefine::
-* emacspeak-reftex::
-* emacspeak-related::
-* emacspeak-remote::
-* emacspeak-replace::
-* emacspeak-rmail::
-* emacspeak-rpm::
-* emacspeak-rpm-spec::
-* emacspeak-rst::
-* emacspeak-ruby::
-* emacspeak-ses::
-* emacspeak-setup::
-* emacspeak-sgml-mode::
-* emacspeak-sh-script::
-* emacspeak-sigbegone::
-* emacspeak-slime::
-* emacspeak-solitaire::
-* emacspeak-sounds::
-* emacspeak-speak::
-* emacspeak-speedbar::
-* emacspeak-sql::
-* emacspeak-sudoku::
-* emacspeak-supercite::
-* emacspeak-table::
-* emacspeak-table-ui::
-* emacspeak-tabulate::
-* emacspeak-tapestry::
-* emacspeak-tar::
-* emacspeak-tcl::
-* emacspeak-tdtd::
-* emacspeak-tempo::
-* emacspeak-tetris::
-* emacspeak-texinfo::
-* emacspeak-threes::
-* emacspeak-tide::
-* emacspeak-todo-mode::
-* emacspeak-twittering::
-* emacspeak-url-template::
-* emacspeak-view::
-* emacspeak-vm::
-* emacspeak-w3::
-* emacspeak-w3m::
-* emacspeak-wdired::
-* emacspeak-we::
-* emacspeak-websearch::
-* emacspeak-webspace::
-* emacspeak-webutils::
-* emacspeak-widget::
-* emacspeak-windmove::
-* emacspeak-winring::
+* acss-structure::CSS -- Cascaded Speech Style structure.
+* amixer::Control AMixer from Emacs.
+* cd-tool::Play  CDs from Emacs.
+* congrats::Data Sonification, Graphics To Sound for emacspeak.
+* dectalk-voices::Define various device independent voices in terms of Dectalk codes.
+* dom-addons::dom.el addons.
+* dtk-interp::Language specific (e.g. TCL) interface to speech server.
+* dtk-speak::Provides Emacs Lisp interface to speech server.
+* dtk-unicode::Pronounce Unicode characters correctly.
+* emacspeak::The Complete Audio Desktop.
+* emacspeak-2048::Speech-enable 2048 Game.
+* emacspeak-actions::Emacspeak actions -- callbacks that can be associated with portions of a buffer.
+* emacspeak-add-log::Speech-enable add-log.
+* emacspeak-advice::Advice Emacs Core.
+* emacspeak-amark::BookMarks For Audio Content.
+* emacspeak-analog::Speech-enable analog -- a log viewer.
+* emacspeak-ansi-color::Speech-enable ansi-color terminal.
+* emacspeak-apt-sources::speech-enable APT's sources.list file editor.
+* emacspeak-arc::Speech enable archive-mode -- a  Emacs interface to zip and friends.
+* emacspeak-auctex::Speech enable AucTeX -- a powerful TeX/LaTeX authoring environment.
+* emacspeak-aumix::Configure audio device settings.
+* emacspeak-bbc::Speech-enabled  BBC client.
+* emacspeak-bbdb::Speech enable BBDB -- a powerful address manager.
+* emacspeak-bibtex::Speech enable bibtex -- Supports maintaining bibliographies in bibtex format.
+* emacspeak-bookmark::Speech enable Emacs' builtin bookmarks.
+* emacspeak-bookshare::Speech-enabled  BOOKSHARE client.
+* emacspeak-browse-kill-ring::browse-kill-ring  for emacspeak desktop.
+* emacspeak-bs::speech-enable bs buffer selection.
+* emacspeak-buff-menu::Speech enable Buffer Menu Mode -- used to manage buffers.
+* emacspeak-c::Speech enable CC-mode and friends -- supports C, C++, Java.
+* emacspeak-calc::Speech enable the Emacs Calculator -- a powerful symbolic algebra system.
+* emacspeak-calculator::Speech enable  desktop calculator.
+* emacspeak-calendar::Speech enable Emacs Calendar -- maintain a diary and appointments.
+* emacspeak-cedet::Speech enable CEDET Development Environment.
+* emacspeak-checkdoc::Speech-enable checkdoc.
+* emacspeak-cider::Speech-enable CIDER, A Clojure IDE.
+* emacspeak-ciel::Speech-enable CIEL.
+* emacspeak-clojure::Speech-enable CLOJURE Mode.
+* emacspeak-cmuscheme::Scheme support for emacspeak.
+* emacspeak-company::Speech-enable COMPANY-mode.
+* emacspeak-compile::Speech enable  navigation of  compile errors, grep matches.
+* emacspeak-cperl::Speech enable CPerl Mode.
+* emacspeak-custom::Speech enable interactive Emacs customization.
+* emacspeak-dbus::DBus On Emacspeak Desktop.
+* emacspeak-desktop::Speech-enable desktop.
+* emacspeak-dictionary::speech-enable dictionaries.
+* emacspeak-diff-mode::Speech-enable DIFF-MODE.
+* emacspeak-dired::Speech enable Dired Mode -- A powerful File Manager.
+* emacspeak-dismal::Speech enable Dismal -- An Emacs Spreadsheet program.
+* emacspeak-dmacro::Speech enable DMacro -- Dynamic  Macros.
+* emacspeak-ecb::speech-enable Emacs Class Browser.
+* emacspeak-eclim::Speech-enable ECLIM: emacs/eclipse integration.
+* emacspeak-ediary::Speech-enable ediary.
+* emacspeak-ediff::Speech enable Emacs interface to diff and merge.
+* emacspeak-ein::Speech-enable EIN For IPython Notebooks.
+* emacspeak-elfeed::Speech-enable ELFEED, A Feed Reader.
+* emacspeak-elisp-refs::Speech-enable ELISP-REFS.
+* emacspeak-elpy::Speech-enable ELPY, A Python IDE.
+* emacspeak-elscreen::Speech-enable ELSCREEN.
+* emacspeak-emms::Speech-enable EMMS Multimedia UI.
+* emacspeak-enriched::Audio Formatting for Emacs' WYSIWYG RichText  mode.
+* emacspeak-entertain::Speech enable misc games.
+* emacspeak-epa::Speech-enable EasyPG Assistant.
+* emacspeak-eperiodic::Speech-enable Periodic Table.
+* emacspeak-epub::epubs Front-end for emacspeak desktop.
+* emacspeak-erc::speech-enable erc irc client.
+* emacspeak-eshell::Speech-enable EShell - Emacs Shell.
+* emacspeak-ess::Speech-enable ESS: Emacs Speaks Statistics.
+* emacspeak-etable::Speech enable table.el.
+* emacspeak-eterm::Speech enable eterm -- Emacs' terminal emulator  term.el.
+* emacspeak-eudc::Speech enable  LDAP directory client.
+* emacspeak-evil::Speech-enable EVIL.
+* emacspeak-eww::Speech-enable EWW Browser.
+* emacspeak-facemenu::Map default Emacs faces like bold to appropriate speech personalities.
+* emacspeak-feeds::Feeds Support (Atom, RSS) For Emacspeak.
+* emacspeak-filtertext::Utilities to filter text.
+* emacspeak-find-dired::Speech enable  find-dired.
+* emacspeak-find-func::Speech enable emacs' code finder.
+* emacspeak-fix-interactive::Make  Emacs' builtin prompts   speak.
+* emacspeak-flycheck::Speech-enable FLYCHECK.
+* emacspeak-flyspell::Speech enable flyspell.
+* emacspeak-folding::Speech enable Folding Mode -- enables structured editing.
+* emacspeak-forms::Speech enable Emacs' forms mode  -- provides  a convenient database interface.
+* emacspeak-ftf::Speech-enable find-things-fast.
+* emacspeak-geiser::Speech-enable GEISER.
+* emacspeak-generic::Speech enable  generic modes.
+* emacspeak-gnuplot::speech-enable gnuplot mode.
+* emacspeak-gnus::Speech enable GNUS -- Fluent spoken access to usenet.
+* emacspeak-go-mode::Speech-enable GO-MODE.
+* emacspeak-gomoku::Speech enable the game of Gomoku.
+* emacspeak-google::Google Search Tools.
+* emacspeak-gridtext::Overlay Grids To filter columnar text.
+* emacspeak-gtags::Speech-enable GTAGS.
+* emacspeak-gud::Speech enable Emacs' debugger interface --covers GDB, JDB, and PerlDB.
+* emacspeak-helm::Speech-enable HELM.
+* emacspeak-hide::Provides user commands for hiding and exposing blocks of text.
+* emacspeak-hideshow::speech-enable hideshow.
+* emacspeak-ibuffer::speech-enable ibuffer buffer selection.
+* emacspeak-ido::speech-enable ido.
+* emacspeak-imenu::Speech enable Imenu -- produce buffer-specific table of contents.
+* emacspeak-indium::Speech-enable INDIUM, A Javascript IDE.
+* emacspeak-info::Speech enable Info -- Emacs' online documentation viewer.
+* emacspeak-ispell::Speech enable Ispell -- Emacs' interactive spell checker.
+* emacspeak-ivy::Speech-enable IVY.
+* emacspeak-jabber::Speech-Enable jabber.
+* emacspeak-jde::Speech enable JDE -- An integrated Java Development Environment.
+* emacspeak-js2::Speech-enable JS2.
+* emacspeak-jss::Speech-enable JSS.
+* emacspeak-keymap::Setup  keymaps and keybindings provided by Emacspeak.
+* emacspeak-kite::Speech-enable KITE.
+* emacspeak-kmacro::Speech-enable kbd macro interface.
+* emacspeak-librivox::LIBRIVOX API client.
+* emacspeak-lua::Speech-enable LUA.
+* emacspeak-m-player::Control mplayer from Emacs.
+* emacspeak-magit::Speech-enable MAGIT: Git Client.
+* emacspeak-make-mode::Speech enable make-mode.
+* emacspeak-man::Speech enable Man mode -- Use this for UNIX Man pages.
+* emacspeak-markdown::Speech-enable MARKDOWN-mode.el.
+* emacspeak-maths::Audio-Formatted Mathematics.
+* emacspeak-message::Speech enable Message -- Used to compose news postings and replies.
+* emacspeak-metapost::speech-enable metapost mode.
+* emacspeak-midge::Speech-enable MIDI editor.
+* emacspeak-mpg123::Speech enable MP3 Player.
+* emacspeak-mspools::Speech enable MSpools -- Monitor multiple mail drops.
+* emacspeak-muggles::Convenience Hydras For The Emacspeak Desktop.
+* emacspeak-muse::Speech-enable Muse.
+* emacspeak-net-utils::Speech enable net-utils.
+* emacspeak-newsticker::Speech-enable newsticker.
+* emacspeak-npr::Speech-enabled  NPR client.
+* emacspeak-nxml::Speech enable nxml mode.
+* emacspeak-ocr::ocr Front-end for emacspeak desktop.
+* emacspeak-org::Speech-enable org.
+* emacspeak-outline::Speech enable Outline --   Browsing  Structured Documents.
+* emacspeak-package::Speech-enable PACKAGE.
+* emacspeak-paradox::Speech-enable PARADOX.
+* emacspeak-perl::Speech enable Perl Mode.
+* emacspeak-personality::Emacspeak's personality interface.
+* emacspeak-php-mode::Speech-Enable php-mode.
+* emacspeak-pianobar::Pandora Radio: Speech-enable PIANOBAR.
+* emacspeak-popup::Speech-enable POPUP.
+* emacspeak-proced::Speech-enable PROCED Task Manager.
+* emacspeak-projectile::Speech-enable PROJECTILE.
+* emacspeak-pronounce::Implements Emacspeak pronunciation dictionaries.
+* emacspeak-py::Speech enable Python development environment.
+* emacspeak-pydoc::Speech-enable PYDOC.
+* emacspeak-python::Speech enable Python development environment.
+* emacspeak-racket::Speech-enable RACKET.
+* emacspeak-re-builder::speech-enable re-builder.
+* emacspeak-redefine::Redefines some key Emacs builtins to speak.
+* emacspeak-reftex::speech enable reftex, Cross-References In La)TeX.
+* emacspeak-related::Speech-enable RELATED buffer switching.
+* emacspeak-remote::Enables running remote Emacspeak sessions.
+* emacspeak-replace::Speech enable interactive search and replace.
+* emacspeak-rmail::Speech enable RMail -- Emacs' default mail agent.
+* emacspeak-rpm::speech-enable RPM.
+* emacspeak-rpm-spec::Speech enable rpm spec editor.
+* emacspeak-rst::Speech-enable RST.
+* emacspeak-ruby::Speech enable Ruby Mode.
+* emacspeak-ses::Speech-enable ses spread-sheet.
+* emacspeak-setup::Setup Emacspeak environment --loaded to start Emacspeak.
+* emacspeak-sgml-mode::Speech enable SGML mode.
+* emacspeak-sh-script::Speech enable  sh-script mode.
+* emacspeak-sigbegone::Speech-enable sigbegone.
+* emacspeak-slime::Speech-enable SLIME, A Lisp IDE.
+* emacspeak-smart-window::Speech-enable SMART-WINDOW.
+* emacspeak-solitaire::Speech enable Solitaire game.
+* emacspeak-sounds::Defines Emacspeak auditory icons.
+* emacspeak-speak::Implements Emacspeak's core speech services.
+* emacspeak-speedbar::Speech enable speedbar -- Tool for context-sensitive navigation.
+* emacspeak-sql::Speech enable sql-mode.
+* emacspeak-sudoku::Play SuDoku.
+* emacspeak-supercite::Speech enable supercite.
+* emacspeak-table::Implements data model for table browsing.
+* emacspeak-table-ui::Emacspeak's current notion of an ideal table UI.
+* emacspeak-tabulate::Interpret tabulated information as a table.
+* emacspeak-tapestry::Speak information about current layout of windows.
+* emacspeak-tar::Speech enable Tar Mode -- Manipulate tar archives from Emacs.
+* emacspeak-tcl::Speech enable TCL development environment.
+* emacspeak-tdtd::Speech enable  DTD authoring.
+* emacspeak-tempo::Speech enable tempo -- template library used for Java and HTML authoring.
+* emacspeak-tetris::Speech enable game of Tetris.
+* emacspeak-texinfo::Speech enable texinfo mode.
+* emacspeak-threes::Speech-enable THREES.
+* emacspeak-tide::Speech-enable TIDE.
+* emacspeak-todo-mode::speech-enable todo-mode.
+* emacspeak-twittering::Speech-enable Twittering-mode.
+* emacspeak-url-template::Create library of URI templates.
+* emacspeak-view::Speech enable View mode -- Efficient browsing of read-only content.
+* emacspeak-vm::Speech enable VMMail.
+* emacspeak-w3::Speech enable W3 WWW browser -- includes ACSS Support.
+* emacspeak-w3m::speech-enables w3m-el.
+* emacspeak-wdired::Speech-enable wdired.
+* emacspeak-we::Transform Web Pages Using XSLT.
+* emacspeak-websearch::search utilities.
+* emacspeak-webspace::Webspaces In Emacspeak.
+* emacspeak-webutils::Common Web Utilities For Emacspeak.
+* emacspeak-widget::Speech enable Emacs' native GUI widget library.
+* emacspeak-windmove::speech-enable windmove.
+* emacspeak-winring::Speech enable WinRing -- Manage multiple Emacs window configurations.
 * emacspeak-wizards::
-* emacspeak-woman::
-* emacspeak-xkcd::
-* emacspeak-xml-shell::
-* emacspeak-xref::
-* emacspeak-xslt::
-* emacspeak-yasnippet::
-* espeak-voices::
-* g::
-* g-app::
-* g-auth::
-* g-utils::
-* gf::
-* gfeeds::
+* emacspeak-woman::Speech-enable WOMAN.
+* emacspeak-xkcd::Speech-enable XKCD.
+* emacspeak-xml-shell::Implements a simple XML browser.
+* emacspeak-xref::Speech-enable XREF.
+* emacspeak-xslt::Implements Emacspeak  xslt transform engine.
+* emacspeak-yasnippet::Speech-enable YASNIPPET.
+* espeak-voices::Define various device independent voices in terms of Espeak tags.
+* g::Google Client.
+* g-app::Google Client APP methods.
+* g-auth::Google Authentication Module.
+* g-utils::Google Client Utilities.
 * gm-nnir::
-* gmaps::
-* gweb::
-* json-view::
-* ladspa::
-* mac-voices::
-* outloud-voices::
-* plain-voices::
-* soundscape::
-* sox::
-* sox-gen::
+* gmaps::Google Maps.
+* gweb::Google Search.
+* ladspa::Ladspa Tools For Emacs.
+* mac-voices::Define various device independent voices in terms of Mac tags.
+* outloud-voices::Define various device independent voices in terms of OutLoud tags.
+* plain-voices::Define various device independent voices in terms of Plain codes.
+* soundscape::Soundscapes for The Emacspeak Desktop.
+* sox::An Audio Work-Bench.
+* sox-gen::Binaural Beats And More Using SoX.
 * stack-f::
-* subr-x::
-* tetris::
+* tetris::implementation of Tetris for Emacs.
 * toy-braille::
-* tts::
-* tts-cmds::
-* voice-setup::
-* xbacklight::
+* tts::Engine-specific TTS Environment.
+* tts-cmds::Engine-specific TTS Commands.
+* voice-setup::Setup voices for voice-lock.
+* xbacklight::Control Display Brightness From Emacs.
 * URL Templates ::
 @end menu
 
@@ -290,10 +292,37 @@ Interactive prefix arg refreshes cache.
 @end format
 @end deffn
 
+@subsubsection amixer-equalize
+@deffn {Command} amixer-equalize   
+@findex amixer-equalize
+
+@format
+Set equalizer. Only affects device ‘equal’.
+@end format
+@end deffn
+
+@subsubsection amixer-reset-equalizer
+@deffn {Command} amixer-reset-equalizer   
+@findex amixer-reset-equalizer
+
+@format
+Reset equalizer to default values -- 66% for all 10 bands.
+@end format
+@end deffn
+
+@subsubsection amixer-store
+@deffn {Command} amixer-store   
+@findex amixer-store
+
+@format
+Persist current amixer settings.
+@end format
+@end deffn
+
 @subsection amixer Options
 
-@defvar {User Option} amixer-card
-Card number to control.
+@defvar {User Option} amixer-device
+ALSA Control Device.
 
 @end defvar
 
@@ -399,8 +428,12 @@ Select Dectalk TTS server.
 @end format
 @end deffn
 
-@node dom
-@section dom
+@subsection dectalk-voices Options
+
+@defvar {User Option} dectalk-default-speech-rate
+*Default speech rate at which TTS is started. 
+
+@end defvar
 
 @node dom-addons
 @section dom-addons
@@ -412,7 +445,7 @@ Useful additional functions for dom.el
 
 All requests to the speech server are factored out into
 this module.
-These calls are declared here as defsubst so they are
+These calls are declared here as defun so they are
 inlined by the byte compiler.
 This  keeps the code efficient,
 but gives us the flexibility to call out to different
@@ -1164,7 +1197,8 @@ themselves, e.g., when using an Asian language.
 Emacspeak extends Emacs to be a fully functional audio desktop.
 This is the main emacspeak module.
 It actually does very little:
-It sets up Emacs to load package-specific Emacspeak modules as each package is loaded.
+It sets up Emacs to load package-specific
+Emacspeak modules as each package is loaded.
 It implements function emacspeak which loads the rest of the system.
 
 @subsection emacspeak Commands
@@ -1174,28 +1208,27 @@ It implements function emacspeak which loads the rest of the system.
 @findex emacspeak
 
 @format
-Starts the Emacspeak  Audio Desktop.  Use emacs as you
-normally would, emacspeak will provide you spoken feedback
-as you work.  Emacspeak also provides commands for having
-parts of the current buffer, the mode-line etc to be spoken.
+Start the Emacspeak Audio Desktop.
+Use Emacs as you normally would,
+emacspeak will provide you spoken feedback as you work.  Emacspeak also
+provides commands for having parts of the current buffer, the
+mode-line etc to be spoken.
 
 If you are hearing this description as a result of pressing
-C-h C-e you may want to press
-C-e s to stop speech, and then use the arrow keys to
-move around in the Help buffer to read the rest of this
-description, which includes a summary of all emacspeak
-keybindings.
+C-h C-e you may want to press C-e s to
+stop speech, and then use the arrow keys to move around in the Help
+buffer to read the rest of this description, which includes a summary
+of all emacspeak keybindings.
 
-All emacspeak commands use C-e as a
-prefix key.  You can also set the state of the TTS engine  by
-using C-e d as a prefix.  Here is
-a summary of all emacspeak commands along with their
-bindings.  You need to precede the keystrokes listed below
-with C-e.
+All emacspeak commands use C-e as a prefix
+key.  You can also set the state of the TTS engine by using
+C-e d as a prefix.  Here is a summary of all
+emacspeak commands along with their bindings.  You need to precede the
+keystrokes listed below with C-e.
 
-Emacspeak also provides a fluent speech extension to the
-emacs terminal emulator (eterm).  Note: You need to use the
-term package that comes with emacs-19.29 and later.
+Emacspeak also provides a fluent speech extension to the Emacs
+terminal emulator (eterm).  Note: You need to use the term package that
+comes with emacs-19.29 and later.
 
 key             binding
 ---             -------
@@ -1206,7 +1239,7 @@ C-b		emacspeak-bookshare
 C-c		emacspeak-clipboard-copy
 C-d		emacspeak-toggle-show-point
 C-e		end-of-line
-TAB		emacspeak-table-display-table-in-region
+TAB		emacspeak-open-info
 C-j		emacspeak-hide-speak-block-sans-prefix
 C-l		emacspeak-speak-line-number
 RET		emacspeak-speak-continuously
@@ -1299,15 +1332,19 @@ C-SPC		emacspeak-speak-current-mark
 <right>		emacspeak-speak-this-buffer-next-display
 <up>		emacspeak-read-previous-line
 
+x 0 .. x 2	emacspeak-wizards-shell-by-key
 x 3		emacspeak-wizards-cycle-browser
+x 4 .. x 9	emacspeak-wizards-shell-by-key
 x =		emacspeak-wizards-find-longest-line-in-region
 x Q		emacspeak-wizards-yql-lookup
 x b		battery
 x e		emacspeak-we-xsl-map
 x h		emacspeak-wizards-how-many-matches
+x i		ibuffer
 x j		emacspeak-jabber-popup-roster
 x m		mspools-show
 x o		emacspeak-wizards-occur-header-lines
+x p		paradox-list-packages
 x q		emacspeak-wizards-yql-quotes
 x r		jabber-activity-switch-to
 x s		emacspeak-emergency-tts-restart
@@ -1333,6 +1370,7 @@ M-c		emacspeak-copy-current-file
 M-d		emacspeak-pronounce-dispatch
 M-f		emacspeak-frame-label-or-switch-to-labelled-frame
 M-h		emacspeak-speak-hostname
+M-i		emacspeak-table-display-table-in-region
 M-l		emacspeak-link-current-file
 M-m		emacspeak-toggle-mail-alert
 M-q		voice-setup-toggle-silence-personality
@@ -1341,6 +1379,7 @@ M-s		emacspeak-symlink-current-file
 M-t		emacspeak-tapestry-describe-tapestry
 M-u		emacspeak-feeds-add-feed
 M-v		emacspeak-show-personality-at-point
+M-w		emacspeak-speak-which-function
 C-M-SPC		emacspeak-speak-spaces-at-point
 
 C-t C-b		emacspeak-table-previous-column
@@ -1392,7 +1431,6 @@ d RET		dtk-set-chunk-separator-syntax
 d C-n		dtk-notify-initialize
 d C-o		outloud
 d C-s		dtk-notify-shutdown
-d C-v		outloud-32
 d SPC		dtk-toggle-splitting-on-white-space
 d ,		dtk-toggle-punctuation-mode
 d 0 .. d 9	dtk-set-predefined-speech-rate
@@ -1460,13 +1498,18 @@ C-t M->		emacspeak-table-goto-bottom
 C-t M-l		emacspeak-table-ui-filter-load
 C-t M-s		emacspeak-table-ui-filter-save
 
-Emacspeak provides a set of additional keymaps to give easy access to its extensive facilities.
+Emacspeak provides a set of additional keymaps to give easy access to
+its extensive facilities.
 
 Press C-; to access keybindings in emacspeak-hyper-keymap:
 key             binding
 ---             -------
 
+TAB		hippie-expand
+C-r		flx-isearch-backward
+C-s		flx-isearch-forward
 SPC		emacspeak-webspace
+'		emacspeak-m-player-using-hrtf
 :		emacspeak-wizards-view-buffers-filtered-by-m-player-mode
 ;		emacspeak-m-player-using-openal
 B		eww-list-bookmarks
@@ -1477,23 +1520,23 @@ b		eww-list-buffers
 c		browse-url-chrome
 d		magit-dispatch-popup
 e		gmaps
-f		emacspeak-webspace-freebase-search
+f		rg
 g		gnus
 h		emacspeak-org-capture-link
-i		ido-everywhere
+i		yas-insert-snippet
 j		emacspeak-wizards-shell-toggle
 k		emacspeak-webspace-knowledge-search
 l		emacspeak-librivox
 m		vm
 n		emacspeak-npr-play-program
-o		other-frame
+o		helm-mini
 p		emacspeak-wizards-pdf-open
 q		emacspeak-remote-quick-connect-to-server
 r		org-capture
 s		emacspeak-wizards-shell
 t		twit
 u		browse-url
-v		emacspeak-muggles-view/body
+v		emacspeak-evil-toggle-evil
 w		emacspeak-web-prefix
 
 w R		emacspeak-xslt-view-region
@@ -1503,22 +1546,20 @@ w r		browse-url-of-region
 
 SPC SPC		emacspeak-webspace-headlines-browse
 SPC h		emacspeak-webspace-headlines
-SPC w		emacspeak-webspace-weather
 
 .
 
-Press C-’ or C-. to access keybindings in emacspeak-super-keymap:
+Press C-’ or C-.  to access keybindings in emacspeak-super-keymap:
 key             binding
 ---             -------
 
+SPC		emacspeak-wizards-scratch
 .		auto-correct-update
 R		emacspeak-webspace-feed-reader
 S		soundscape-stop
 b		emacspeak-bbc
 e		elfeed
-f		emacspeak-feeds-lookup-and-view
-h		emacspeak-webspace-headlines-browse
-i		ciel-ci
+f		flyspell-mode
 j		ido-imenu-anywhere
 l		emacspeak-m-player-locate-media
 m		emacspeak-wizards-view-buffers-filtered-by-this-mode
@@ -1528,6 +1569,7 @@ r		soundscape-restart
 s		soundscape
 t		soundscape-toggle
 u		soundscape-update-mood
+v		emacspeak-muggles-view/body
 
 .
 
@@ -1541,6 +1583,7 @@ b		sox-binaural
 c		emacspeak-wizards-view-buffers-filtered-by-this-mode
 e		eww
 f		emacspeak-feeds-find-feeds
+i		emacspeak-wizards-iheart
 l		eww-open-file
 m		magit-status
 n		emacspeak-wizards-cycle-to-next-buffer
@@ -1554,8 +1597,8 @@ v		visual-line-mode
 
 .
 
-See the online documentation for individual commands and
-functions for details.   
+See the online documentation C-e TAB for individual
+commands and options for details.
 @end format
 @end deffn
 
@@ -1574,6 +1617,15 @@ functions for details.
 
 @format
 Give a brief overview of emacspeak.
+@end format
+@end deffn
+
+@subsubsection emacspeak-info
+@deffn {Command} emacspeak-info   
+@findex emacspeak-info
+
+@format
+Open Emacspeak Info Manual.
 @end format
 @end deffn
 
@@ -1609,7 +1661,19 @@ This personality uses  voice-lighten whose  effect can be changed globally by cu
 
 @defvar {User Option} emacspeak-Man-overstrike-voice
 Personality used for Man-overstrike
+This personality uses  voice-bolden-medium whose  effect can be changed globally by customizing voice-bolden-medium-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-Man-reverse-voice
+Personality used for Man-reverse
 This personality uses  voice-animate whose  effect can be changed globally by customizing voice-animate-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-Man-underline-voice
+Personality used for Man-underline
+This personality uses  voice-lighten whose  effect can be changed globally by customizing voice-lighten-settings.
 
 @end defvar
 
@@ -2081,6 +2145,54 @@ This personality uses  voice-bolden-medium whose  effect can be changed globally
 
 @end defvar
 
+@defvar {User Option} emacspeak-epa-field-body-voice
+Personality used for epa-field-body
+This personality uses  voice-animate whose  effect can be changed globally by customizing voice-animate-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-epa-field-name-voice
+Personality used for epa-field-name
+This personality uses  voice-smoothen whose  effect can be changed globally by customizing voice-smoothen-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-epa-mark-voice
+Personality used for epa-mark
+This personality uses  voice-bolden whose  effect can be changed globally by customizing voice-bolden-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-epa-string-voice
+Personality used for epa-string
+This personality uses  voice-lighten whose  effect can be changed globally by customizing voice-lighten-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-epa-validity-disabled-voice
+Personality used for epa-validity-disabled
+This personality uses  voice-monotone whose  effect can be changed globally by customizing voice-monotone-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-epa-validity-high-voice
+Personality used for epa-validity-high
+This personality uses  voice-animate whose  effect can be changed globally by customizing voice-animate-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-epa-validity-low-voice
+Personality used for epa-validity-low
+This personality uses  voice-smoothen-extra whose  effect can be changed globally by customizing voice-smoothen-extra-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-epa-validity-medium-voice
+Personality used for epa-validity-medium
+This personality uses  voice-smoothen whose  effect can be changed globally by customizing voice-smoothen-settings.
+
+@end defvar
+
 @defvar {User Option} emacspeak-erc-action-personality
 Personality used for erc-action-face
 This personality uses  voice-monotone whose  effect can be changed globally by customizing voice-monotone-settings.
@@ -2341,6 +2453,18 @@ This personality uses  voice-bolden whose  effect can be changed globally by cus
 
 @defvar {User Option} emacspeak-fixed-pitch-voice
 Personality used for fixed-pitch
+This personality uses  voice-monotone whose  effect can be changed globally by customizing voice-monotone-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-flx-highlight-personality
+Personality used for flx-highlight-face
+This personality uses  voice-bolden whose  effect can be changed globally by customizing voice-bolden-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-flyspell-duplicate-voice
+Personality used for flyspell-duplicate
 This personality uses  voice-monotone whose  effect can be changed globally by customizing voice-monotone-settings.
 
 @end defvar
@@ -2900,6 +3024,114 @@ This personality uses  voice-bolden whose  effect can be changed globally by cus
 @defvar {User Option} emacspeak-italic-voice
 Personality used for italic
 This personality uses  voice-animate whose  effect can be changed globally by customizing voice-animate-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-jabber-activity-personality
+Personality used for jabber-activity-face
+This personality uses  voice-animate whose  effect can be changed globally by customizing voice-animate-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-jabber-chat-error-voice
+Personality used for jabber-chat-error
+This personality uses  voice-bolden-and-animate whose  effect can be changed globally by customizing voice-bolden-and-animate-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-jabber-chat-prompt-foreign-voice
+Personality used for jabber-chat-prompt-foreign
+This personality uses  voice-brighten-medium whose  effect can be changed globally by customizing voice-brighten-medium-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-jabber-chat-prompt-local-voice
+Personality used for jabber-chat-prompt-local
+This personality uses  voice-smoothen-medium whose  effect can be changed globally by customizing voice-smoothen-medium-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-jabber-chat-prompt-system-voice
+Personality used for jabber-chat-prompt-system
+This personality uses  voice-brighten-extra whose  effect can be changed globally by customizing voice-brighten-extra-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-jabber-chat-text-foreign-voice
+Personality used for jabber-chat-text-foreign
+This personality uses  voice-brighten whose  effect can be changed globally by customizing voice-brighten-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-jabber-chat-text-local-voice
+Personality used for jabber-chat-text-local
+This personality uses  voice-smoothen whose  effect can be changed globally by customizing voice-smoothen-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-jabber-rare-time-personality
+Personality used for jabber-rare-time-face
+This personality uses  voice-animate-extra whose  effect can be changed globally by customizing voice-animate-extra-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-jabber-roster-user-away-voice
+Personality used for jabber-roster-user-away
+This personality uses  voice-smoothen-extra whose  effect can be changed globally by customizing voice-smoothen-extra-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-jabber-roster-user-chatty-voice
+Personality used for jabber-roster-user-chatty
+This personality uses  voice-brighten whose  effect can be changed globally by customizing voice-brighten-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-jabber-roster-user-dnd-voice
+Personality used for jabber-roster-user-dnd
+This personality uses  voice-lighten-medium whose  effect can be changed globally by customizing voice-lighten-medium-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-jabber-roster-user-error-voice
+Personality used for jabber-roster-user-error
+This personality uses  voice-bolden-and-animate whose  effect can be changed globally by customizing voice-bolden-and-animate-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-jabber-roster-user-offline-voice
+Personality used for jabber-roster-user-offline
+This personality uses  voice-smoothen-extra whose  effect can be changed globally by customizing voice-smoothen-extra-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-jabber-roster-user-online-voice
+Personality used for jabber-roster-user-online
+This personality uses  voice-bolden whose  effect can be changed globally by customizing voice-bolden-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-jabber-roster-user-xa-voice
+Personality used for jabber-roster-user-xa
+This personality uses  voice-lighten whose  effect can be changed globally by customizing voice-lighten-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-jabber-title-large-voice
+Personality used for jabber-title-large
+This personality uses  voice-bolden-extra whose  effect can be changed globally by customizing voice-bolden-extra-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-jabber-title-medium-voice
+Personality used for jabber-title-medium
+This personality uses  voice-bolden whose  effect can be changed globally by customizing voice-bolden-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-jabber-title-small-voice
+Personality used for jabber-title-small
+This personality uses  voice-lighten whose  effect can be changed globally by customizing voice-lighten-settings.
 
 @end defvar
 
@@ -3592,6 +3824,54 @@ If set to T, emacspeak plays its icon as it launches.
 
 @end defvar
 
+@defvar {User Option} emacspeak-popup-isearch-match-voice
+Personality used for popup-isearch-match
+This personality uses  voice-animate whose  effect can be changed globally by customizing voice-animate-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-popup-menu-mouse-personality
+Personality used for popup-menu-mouse-face
+This personality uses  voice-monotone whose  effect can be changed globally by customizing voice-monotone-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-popup-menu-personality
+Personality used for popup-menu-face
+This personality uses  voice-monotone whose  effect can be changed globally by customizing voice-monotone-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-popup-menu-selection-personality
+Personality used for popup-menu-selection-face
+This personality uses  voice-lighten whose  effect can be changed globally by customizing voice-lighten-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-popup-menu-summary-personality
+Personality used for popup-menu-summary-face
+This personality uses  voice-smoothen whose  effect can be changed globally by customizing voice-smoothen-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-popup-personality
+Personality used for popup-face
+This personality uses  voice-bolden whose  effect can be changed globally by customizing voice-bolden-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-popup-summary-personality
+Personality used for popup-summary-face
+This personality uses  voice-smoothen whose  effect can be changed globally by customizing voice-smoothen-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-popup-tip-personality
+Personality used for popup-tip-face
+This personality uses  voice-lighten whose  effect can be changed globally by customizing voice-lighten-settings.
+
+@end defvar
+
 @defvar {User Option} emacspeak-query-replace-voice
 Personality used for query-replace
 This personality uses  voice-bolden whose  effect can be changed globally by customizing voice-bolden-settings.
@@ -3925,6 +4205,35 @@ Optional interactive prefix arg prompts for a filename.
 @end format
 @end deffn
 
+@subsubsection emacspeak-2048-pop-state
+@deffn {Command} emacspeak-2048-pop-state   
+@findex emacspeak-2048-pop-state
+
+@format
+Reset state from stack.
+@end format
+@end deffn
+
+@subsubsection emacspeak-2048-prune-stack
+@deffn {Command} emacspeak-2048-prune-stack  (drop)
+@findex emacspeak-2048-prune-stack
+
+@format
+Prune game stack to specified length.
+
+(fn DROP)
+@end format
+@end deffn
+
+@subsubsection emacspeak-2048-push-state
+@deffn {Command} emacspeak-2048-push-state   
+@findex emacspeak-2048-push-state
+
+@format
+Push current game state on stack.
+@end format
+@end deffn
+
 @subsubsection emacspeak-2048-randomize-game
 @deffn {Command} emacspeak-2048-randomize-game  (&optional count)
 @findex emacspeak-2048-randomize-game
@@ -3991,7 +4300,7 @@ This personality uses  voice-animate whose  effect can be changed globally by cu
 
 @defvar {User Option} emacspeak-change-log-email-voice
 Personality used for change-log-email
-This personality uses  voice-womanize-1 whose  effect can be changed globally by customizing voice-womanize-1-settings.
+This personality uses  voice-lighten whose  effect can be changed globally by customizing voice-lighten-settings.
 
 @end defvar
 
@@ -4218,69 +4527,6 @@ This module speech-enables apt-sources.el
 that is included in the debian-el package
 and provides a major mode for editing
 APT's sources.list file.
-
-@node emacspeak-apt-utils
-@section emacspeak-apt-utils
-
-This module speech-enables apt-utils.el
-that is included in the debian-el package
-and provides a nice interface to searching and browsing
-Debian packages.
-
-@subsection emacspeak-apt-utils Commands
-
-@subsubsection emacspeak-apt-utils-grab-package-at-point
-@deffn {Command} emacspeak-apt-utils-grab-package-at-point   
-@findex emacspeak-apt-utils-grab-package-at-point
-
-@format
-Copy package under point to kill ring.
-@end format
-@end deffn
-
-@subsection emacspeak-apt-utils Options
-
-@defvar {User Option} emacspeak-apt-utils-broken-personality
-Personality used for apt-utils-broken-face
-This personality uses  voice-bolden-and-animate whose  effect can be changed globally by customizing voice-bolden-and-animate-settings.
-
-@end defvar
-
-@defvar {User Option} emacspeak-apt-utils-description-personality
-Personality used for apt-utils-description-face
-This personality uses  voice-smoothen-extra whose  effect can be changed globally by customizing voice-smoothen-extra-settings.
-
-@end defvar
-
-@defvar {User Option} emacspeak-apt-utils-field-contents-personality
-Personality used for apt-utils-field-contents-face
-This personality uses  voice-lighten-extra whose  effect can be changed globally by customizing voice-lighten-extra-settings.
-
-@end defvar
-
-@defvar {User Option} emacspeak-apt-utils-field-keyword-personality
-Personality used for apt-utils-field-keyword-face
-This personality uses  voice-animate-extra whose  effect can be changed globally by customizing voice-animate-extra-settings.
-
-@end defvar
-
-@defvar {User Option} emacspeak-apt-utils-normal-package-personality
-Personality used for apt-utils-normal-package-face
-This personality uses  voice-bolden whose  effect can be changed globally by customizing voice-bolden-settings.
-
-@end defvar
-
-@defvar {User Option} emacspeak-apt-utils-version-personality
-Personality used for apt-utils-version-face
-This personality uses  voice-lighten whose  effect can be changed globally by customizing voice-lighten-settings.
-
-@end defvar
-
-@defvar {User Option} emacspeak-apt-utils-virtual-package-personality
-Personality used for apt-utils-virtual-package-face
-This personality uses  voice-animate whose  effect can be changed globally by customizing voice-animate-settings.
-
-@end defvar
 
 @node emacspeak-arc
 @section emacspeak-arc
@@ -4854,7 +5100,7 @@ M-n		emacspeak-bookshare-next-result
 M-p		emacspeak-bookshare-previous-result
 
 In addition to any hooks its parent mode ‘special-mode’ might have run,
-this mode runs the hook ‘emacspeak-bookshare-mode-hook’, as the final step
+this mode runs the hook ‘emacspeak-bookshare-mode-hook’, as the final or penultimate step
 during initialization.
 @end format
 @end deffn
@@ -5220,12 +5466,231 @@ senator and friends
 
 Speech-enable checkdoc.el
 
+@node emacspeak-cider
+@section emacspeak-cider
+
+Speech-Enable CIDER --- Clojure IDE
+CIDER ==
+
+@subsection emacspeak-cider Options
+
+@defvar {User Option} emacspeak-cider-debug-code-overlay-personality
+Personality used for cider-debug-code-overlay-face
+This personality uses  voice-monotone whose  effect can be changed globally by customizing voice-monotone-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-cider-debug-prompt-personality
+Personality used for cider-debug-prompt-face
+This personality uses  voice-animate whose  effect can be changed globally by customizing voice-animate-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-cider-deprecated-personality
+Personality used for cider-deprecated-face
+This personality uses  voice-monotone whose  effect can be changed globally by customizing voice-monotone-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-cider-docview-emphasis-personality
+Personality used for cider-docview-emphasis-face
+This personality uses  voice-lighten whose  effect can be changed globally by customizing voice-lighten-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-cider-docview-literal-personality
+Personality used for cider-docview-literal-face
+This personality uses  voice-monotone-light whose  effect can be changed globally by customizing voice-monotone-light-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-cider-docview-strong-personality
+Personality used for cider-docview-strong-face
+This personality uses  voice-monotone-medium whose  effect can be changed globally by customizing voice-monotone-medium-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-cider-enlightened-local-personality
+Personality used for cider-enlightened-local-face
+This personality uses  voice-lighten-extra whose  effect can be changed globally by customizing voice-lighten-extra-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-cider-enlightened-personality
+Personality used for cider-enlightened-face
+This personality uses  voice-lighten whose  effect can be changed globally by customizing voice-lighten-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-cider-error-highlight-personality
+Personality used for cider-error-highlight-face
+This personality uses  voice-animate whose  effect can be changed globally by customizing voice-animate-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-cider-fragile-button-personality
+Personality used for cider-fragile-button-face
+This personality uses  voice-annotate whose  effect can be changed globally by customizing voice-annotate-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-cider-instrumented-personality
+Personality used for cider-instrumented-face
+This personality uses  voice-monotone-light whose  effect can be changed globally by customizing voice-monotone-light-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-cider-repl-input-personality
+Personality used for cider-repl-input-face
+This personality uses  voice-animate whose  effect can be changed globally by customizing voice-animate-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-cider-repl-prompt-personality
+Personality used for cider-repl-prompt-face
+This personality uses  voice-annotate whose  effect can be changed globally by customizing voice-annotate-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-cider-repl-result-personality
+Personality used for cider-repl-result-face
+This personality uses  voice-bolden whose  effect can be changed globally by customizing voice-bolden-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-cider-repl-stderr-facevoice-animate-voice
+Personality used for cider-repl-stderr-facevoice-animate
+This personality uses  nil whose  effect can be changed globally by customizing nil-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-cider-repl-stdout-personality
+Personality used for cider-repl-stdout-face
+This personality uses  voice-bolden-medium whose  effect can be changed globally by customizing voice-bolden-medium-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-cider-result-overlay-personality
+Personality used for cider-result-overlay-face
+This personality uses  voice-bolden whose  effect can be changed globally by customizing voice-bolden-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-cider-stacktrace-error-class-personality
+Personality used for cider-stacktrace-error-class-face
+This personality uses  voice-animate whose  effect can be changed globally by customizing voice-animate-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-cider-stacktrace-error-message-personality
+Personality used for cider-stacktrace-error-message-face
+This personality uses  voice-animate-extra whose  effect can be changed globally by customizing voice-animate-extra-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-cider-stacktrace-filter-hidden-personality
+Personality used for cider-stacktrace-filter-hidden-face
+This personality uses  voice-smoothen whose  effect can be changed globally by customizing voice-smoothen-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-cider-stacktrace-filter-shown-personality
+Personality used for cider-stacktrace-filter-shown-face
+This personality uses  voice-bolden-and-animate whose  effect can be changed globally by customizing voice-bolden-and-animate-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-cider-stacktrace-fn-personality
+Personality used for cider-stacktrace-fn-face
+This personality uses  voice-bolden whose  effect can be changed globally by customizing voice-bolden-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-cider-stacktrace-ns-personality
+Personality used for cider-stacktrace-ns-face
+This personality uses  voice-smoothen whose  effect can be changed globally by customizing voice-smoothen-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-cider-stacktrace-personality
+Personality used for cider-stacktrace-face
+This personality uses  voice-bolden whose  effect can be changed globally by customizing voice-bolden-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-cider-stacktrace-promoted-button-personality
+Personality used for cider-stacktrace-promoted-button-face
+This personality uses  voice-animate whose  effect can be changed globally by customizing voice-animate-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-cider-stacktrace-suppressed-button-personality
+Personality used for cider-stacktrace-suppressed-button-face
+This personality uses  voice-smoothen-extra whose  effect can be changed globally by customizing voice-smoothen-extra-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-cider-test-error-personality
+Personality used for cider-test-error-face
+This personality uses  voice-animate whose  effect can be changed globally by customizing voice-animate-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-cider-test-failure-personality
+Personality used for cider-test-failure-face
+This personality uses  voice-animate-extra whose  effect can be changed globally by customizing voice-animate-extra-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-cider-test-success-personality
+Personality used for cider-test-success-face
+This personality uses  voice-bolden-medium whose  effect can be changed globally by customizing voice-bolden-medium-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-cider-traced-personality
+Personality used for cider-traced-face
+This personality uses  voice-bolden whose  effect can be changed globally by customizing voice-bolden-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-cider-warning-highlight-personality
+Personality used for cider-warning-highlight-face
+This personality uses  voice-animate-extra whose  effect can be changed globally by customizing voice-animate-extra-settings.
+
+@end defvar
+
 @node emacspeak-ciel
 @section emacspeak-ciel
 
 Package ciel provides vim's "copy inside" and "clear inside" commands.
 Emacspeak binds these commands to <Super i> and <Super o>.
 This module speech-enables ciel.
+
+@node emacspeak-clojure
+@section emacspeak-clojure
+
+CLOJURE-mode: Specialized mode for Clojure programming.
+
+@subsection emacspeak-clojure Options
+
+@defvar {User Option} emacspeak-clojure-character-personality
+Personality used for clojure-character-face
+This personality uses  voice-bolden-medium whose  effect can be changed globally by customizing voice-bolden-medium-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-clojure-interop-method-personality
+Personality used for clojure-interop-method-face
+This personality uses  voice-lighten whose  effect can be changed globally by customizing voice-lighten-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-clojure-keyword-personality
+Personality used for clojure-keyword-face
+This personality uses  voice-animate whose  effect can be changed globally by customizing voice-animate-settings.
+
+@end defvar
 
 @node emacspeak-cmuscheme
 @section emacspeak-cmuscheme
@@ -5236,8 +5701,16 @@ speech-enable scheme support
 @section emacspeak-company
 
 COMPANY -mode: Complete Anything Support for emacs.
-This module provides an Emacspeak Company Front-end,
-And advises the needed interactive commands in Company.
+
+This module provides an Emacspeak Company Front-end, And advises
+the needed interactive commands in Company. It adds an
+emacspeak-specific front-end @code{emacspeak-company-frontend} to
+the value of company-frontends. Note that @var{company-frontends}
+is a user-customizable option and ends up getting saved by emacs
+along with other custom settings. Function
+@code{emacspeak-company-frontend} handles providing spoken
+feedback, and leaves it to other frontends on
+@var{company-frontends}   to generate their own feedback.
 
 @node emacspeak-compile
 @section emacspeak-compile
@@ -5324,6 +5797,58 @@ Jump to custom toolbar when in a customization buffer.
 @section emacspeak-dbus
 
 Set up Emacspeak to respond to DBus notifications
+@subsection Overview
+
+This module provides integration via DBus  for the following:
+@itemize @bullet
+@item Respond to network coming up or going down.
+@item Respond to screen getting locked/unlocked by gnome-screen-saver
+@item Respond to laptop  going to sleep or waking up.
+@end itemize
+See relevant hooks for customizing behavior.
+Note that each of the  sleep/wake-up and network/up-down
+can be separately enabled/disabled, and the actions customized
+via appropriately named hook functions.
+
+@subsection emacspeak-dbus Commands
+
+@subsubsection emacspeak-dbus-sleep-disable
+@deffn {Command} emacspeak-dbus-sleep-disable   
+@findex emacspeak-dbus-sleep-disable
+
+@format
+Disable integration with login1 daemon. Does nothing if
+already disabled.
+@end format
+@end deffn
+
+@subsubsection emacspeak-dbus-sleep-enable
+@deffn {Command} emacspeak-dbus-sleep-enable   
+@findex emacspeak-dbus-sleep-enable
+
+@format
+Enable integration with Login1. Does nothing if already enabled.
+@end format
+@end deffn
+
+@subsubsection emacspeak-screen-saver-mode
+@deffn {Command} emacspeak-screen-saver-mode   
+@findex emacspeak-screen-saver-mode
+
+@format
+A light-weight mode for the ‘*Emacspeak Screen Saver *’ buffer.
+This is a hidden buffer that is made current so we automatically
+switch to a screen-saver soundscape.
+
+In addition to any hooks its parent mode ‘special-mode’ might have run,
+this mode runs the hook ‘emacspeak-screen-saver-mode-hook’, as the final or penultimate step
+during initialization.
+
+key             binding
+---             -------
+
+@end format
+@end deffn
 
 @node emacspeak-desktop
 @section emacspeak-desktop
@@ -5994,20 +6519,20 @@ Speak statistics.
 
 @subsection emacspeak-entertain Options
 
-@defvar {User Option} emacspeak-mpuz-solved-personality
-Personality used for mpuz-solved-face
+@defvar {User Option} emacspeak-mpuz-solved-voice
+Personality used for mpuz-solved
 This personality uses  voice-animate whose  effect can be changed globally by customizing voice-animate-settings.
 
 @end defvar
 
-@defvar {User Option} emacspeak-mpuz-trivial-personality
-Personality used for mpuz-trivial-face
+@defvar {User Option} emacspeak-mpuz-trivial-voice
+Personality used for mpuz-trivial
 This personality uses  voice-monotone whose  effect can be changed globally by customizing voice-monotone-settings.
 
 @end defvar
 
-@defvar {User Option} emacspeak-mpuz-unsolved-personality
-Personality used for mpuz-unsolved-face
+@defvar {User Option} emacspeak-mpuz-unsolved-voice
+Personality used for mpuz-unsolved
 This personality uses  voice-bolden whose  effect can be changed globally by customizing voice-bolden-settings.
 
 @end defvar
@@ -6018,56 +6543,6 @@ This personality uses  voice-bolden whose  effect can be changed globally by cus
 EPA == EasyPG Assistant
 Integrate GPG functionality into Emacs.
 Speech-enable all interactive commands.
-
-@subsection emacspeak-epa Options
-
-@defvar {User Option} emacspeak-epa-field-body-voice
-Personality used for epa-field-body
-This personality uses  voice-animate whose  effect can be changed globally by customizing voice-animate-settings.
-
-@end defvar
-
-@defvar {User Option} emacspeak-epa-field-name-voice
-Personality used for epa-field-name
-This personality uses  voice-smoothen whose  effect can be changed globally by customizing voice-smoothen-settings.
-
-@end defvar
-
-@defvar {User Option} emacspeak-epa-mark-voice
-Personality used for epa-mark
-This personality uses  voice-bolden whose  effect can be changed globally by customizing voice-bolden-settings.
-
-@end defvar
-
-@defvar {User Option} emacspeak-epa-string-voice
-Personality used for epa-string
-This personality uses  voice-lighten whose  effect can be changed globally by customizing voice-lighten-settings.
-
-@end defvar
-
-@defvar {User Option} emacspeak-epa-validity-disabled-voice
-Personality used for epa-validity-disabled
-This personality uses  voice-monotone whose  effect can be changed globally by customizing voice-monotone-settings.
-
-@end defvar
-
-@defvar {User Option} emacspeak-epa-validity-high-voice
-Personality used for epa-validity-high
-This personality uses  voice-animate whose  effect can be changed globally by customizing voice-animate-settings.
-
-@end defvar
-
-@defvar {User Option} emacspeak-epa-validity-low-voice
-Personality used for epa-validity-low
-This personality uses  voice-smoothen-extra whose  effect can be changed globally by customizing voice-smoothen-extra-settings.
-
-@end defvar
-
-@defvar {User Option} emacspeak-epa-validity-medium-voice
-Personality used for epa-validity-medium
-This personality uses  voice-smoothen whose  effect can be changed globally by customizing voice-smoothen-settings.
-
-@end defvar
 
 @node emacspeak-eperiodic
 @section emacspeak-eperiodic
@@ -6238,7 +6713,7 @@ key             binding
 <Return>	emacspeak-epub-calibre-dired-at-point
 
 In addition to any hooks its parent mode ‘special-mode’ might have run,
-this mode runs the hook ‘emacspeak-calibre-mode-hook’, as the final step
+this mode runs the hook ‘emacspeak-calibre-mode-hook’, as the final or penultimate step
 during initialization.
 @end format
 @end deffn
@@ -6574,7 +7049,7 @@ C-x C-q		emacspeak-epub-bookshelf-refresh
 C-x C-s		emacspeak-epub-bookshelf-save
 
 In addition to any hooks its parent mode ‘special-mode’ might have run,
-this mode runs the hook ‘emacspeak-epub-mode-hook’, as the final step
+this mode runs the hook ‘emacspeak-epub-mode-hook’, as the final or penultimate step
 during initialization.
 @end format
 @end deffn
@@ -6766,20 +7241,6 @@ This module speech-enables EShell
 @defvar {User Option} emacspeak-eshell-ls-use-personalities
 Indicates if ls in eshell uses different voice
 personalities.
-
-@end defvar
-
-@node emacspeak-espn
-@section emacspeak-espn
-
-ESPN ==  ESPN Sport Network.
-API:   http://developer.espn.com/overview
-Get yourself an API key and set it via custom.
-
-@subsection emacspeak-espn Options
-
-@defvar {User Option} emacspeak-espn-api-key
-Web API  key for this application.
 
 @end defvar
 
@@ -7330,14 +7791,404 @@ Personality t use for voiceifying attribute values.
 
 @end defvar
 
+@node emacspeak-evil
+@section emacspeak-evil
+
+EVIL ==  VIM In Emacs
+This is work-in-progress and is not complete.
+
+@subsection emacspeak-evil Commands
+
+@subsubsection emacspeak-evil-toggle-evil
+@deffn {Command} emacspeak-evil-toggle-evil   
+@table @kbd
+@item C-; v
+@kindex C-; v
+@item C-x @@ h v
+@kindex C-x @@ h v
+@end table
+
+@findex emacspeak-evil-toggle-evil
+
+@format
+Interactively toggle evil-mode.
+@end format
+@end deffn
+
+@subsection emacspeak-evil Options
+
+@defvar {User Option} emacspeak-evil-ex-commands-voice
+Personality used for evil-ex-commands
+This personality uses  voice-bolden whose  effect can be changed globally by customizing voice-bolden-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-evil-ex-info-voice
+Personality used for evil-ex-info
+This personality uses  voice-monotone whose  effect can be changed globally by customizing voice-monotone-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-evil-ex-lazy-highlight-voice
+Personality used for evil-ex-lazy-highlight
+This personality uses  voice-animate whose  effect can be changed globally by customizing voice-animate-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-evil-ex-search-voice
+Personality used for evil-ex-search
+This personality uses  voice-bolden-and-animate whose  effect can be changed globally by customizing voice-bolden-and-animate-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-evil-ex-substitute-matches-voice
+Personality used for evil-ex-substitute-matches
+This personality uses  voice-lighten whose  effect can be changed globally by customizing voice-lighten-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-evil-ex-substitute-replacement-voice
+Personality used for evil-ex-substitute-replacement
+This personality uses  voice-smoothen whose  effect can be changed globally by customizing voice-smoothen-settings.
+
+@end defvar
+
 @node emacspeak-eww
 @section emacspeak-eww
 
 EWW == Emacs Web Browser
-EWW is a light-weight Web browser built into Emacs 24.4.
-This module speech-enables EWW.
-It implements additional interactive commands for navigating the DOM.
-It also provides a set of filters for interactively filtering the DOM by various attributes such as id, class and role.
+
+EWW is a light-weight Web browser built into Emacs starting with
+Emacs-24.4 . This module speech-enables EWW.
+
+It implements additional interactive commands for navigating the
+DOM. It also provides a set of filters for interactively filtering
+the DOM by various attributes such as id, class and role.
+Finally, this module updates EWW's built-in key-bindings with
+Emacspeak conveniences.
+
+@subsection Structured Navigation
+
+These commands move through section headers as defined in HTML.
+@table @kbd
+@item       1
+@command{emacspeak-eww-next-h1}
+Move to next @code{H1} heading.
+@item       2
+@command{emacspeak-eww-next-h2}
+Move to next @code{H2} heading.
+@item       3
+@command{emacspeak-eww-next-h3}
+Move to next @code{H3} heading.
+@item       4
+@command{emacspeak-eww-next-h4}
+Move to next @code{H4} heading.
+@item       .
+@command{emacspeak-eww-next-h}
+Move to next heading. (@code{H1}...@code{H4}).
+@item       M-1
+@command{emacspeak-eww-previous-h1}
+Move to previous @code{H1} heading.
+@item       M-2
+@command{emacspeak-eww-previous-h2}
+Move to previous @code{H2} heading.
+@item       M-3
+@command{emacspeak-eww-previous-h3}
+Move to previous @code{H3} heading.
+@item       M-4
+@command{emacspeak-eww-previous-h4}
+Move to previous @code{H4} heading.
+@item  ,
+@command{emacspeak-eww-previous-h}
+Move to previous heading (@code{H1}...@code{H4}).
+@end table
+
+This next set of DOM commands enable navigating by HTML elements.
+@table @kbd
+@item       M-SPC
+@command{emacspeak-eww-speak-this-element}
+Speak contents of current element.
+@item       J
+@command{emacspeak-eww-next-element-like-this}
+Jump to next element that is the same as the one under point.
+If there are multiple HTML elements under point,
+prompts for element-name using completion.
+@item       K
+@command{emacspeak-eww-previous-element-like-this}
+Jump to previous element that is the same as the one under point.
+If there are multiple HTML elements under point,
+prompts for element-name using completion.
+@item  N
+@command{emacspeak-eww-next-element-from-history}
+Jump to next element based on  previous J/K command history.
+@item       P
+@command{emacspeak-eww-previous-element-from-history}
+Jump to previous element based on  previous J/K history.
+@item       O
+@command{emacspeak-eww-previous-li}
+Jump to previous list item.
+@item       o
+@command{emacspeak-eww-next-li}
+Jump to next list item.
+@item       T
+@command{emacspeak-eww-previous-table}
+Jump to previous table in page.
+@item  t
+@command{emacspeak-eww-next-table}
+Jump to next table.
+@item       [
+            @command{emacspeak-eww-previous-p}
+            Jump to previous paragraph.
+            @item  ]
+@command{emacspeak-eww-next-p}
+Jump to next paragraph.
+@item       b
+@command{shr-previous-link}
+Jump to previous link.
+@item  f
+@command{shr-next-link}
+Jump to next link.
+@item  n
+@command{emacspeak-eww-next-element}
+Jump to next element.
+@item       p
+@command{emacspeak-eww-previous-element}
+Jump to previous element.
+@item       s
+@command{eww-readable}
+Use EWW's built-in readable tool.
+@item :
+@command{emacspeak-eww-tags-at-point}
+Display  currently active HTML tags at point.
+@end table
+
+@subsection Filtering Content Using The DOM
+These commands use EWW's HTML DOM to display different filtered
+views of the Web page.
+With an interactive prefix argument, these commands prompt for a
+list of filters.
+Command @command{emacspeak-eww-restore} bound to @kbd{DEL} can be used
+to restore the previous view.
+
+@table @kbd
+@item  A
+@command{eww-view-dom-having-attribute}
+Display DOM nodes having specified attribute. Valid attributes
+are available via completion.
+@item       C
+@command{eww-view-dom-having-class}
+Display DOM nodes having specified class. Valid classes
+are available via completion.
+@item  E
+@command{eww-view-dom-having-elements}
+Display specified elements from the Dom. Valid element names
+are available via completion.
+@item  I
+@command{eww-view-dom-having-id}
+Display DOM nodes having specified ID. Valid id values
+are available via completion.
+@item  R
+@command{eww-view-dom-having-role}
+Display DOM nodes having specified role. Valid roles
+are available via completion.
+@item       M-a
+@command{eww-view-dom-not-having-attribute}
+Filter out DOM nodes having specified attribute. Valid attribute values
+are available via completion.
+@item       M-c
+@command{eww-view-dom-not-having-class}
+Filter out DOM nodes having specified class. Valid class values
+are available via completion.
+@item       M-e
+@command{eww-view-dom-not-having-elements}
+Filter out  specified element DOM nodes. Valid element names
+are available via completion.
+@item       M-i
+@command{eww-view-dom-not-having-id}
+Dfilter out Display DOM nodes having specified ID. Valid id values
+are available via completion.
+@item       M-r
+@command{eww-view-dom-not-having-role}
+Filter out  DOM nodes having specified role. Valid role values
+are available via completion.
+@end table
+
+@subsection Updated  Commands For Following  Links
+
+These key-bindings are available when point is on a link. They
+enable context-specific actions for following links, e.g., to play
+media streams, or to open various feed-types such as @code{ATOM},
+@code{RSS}, or @code{OPML}.
+
+@table @kbd
+@item k
+@command{shr-copy-url}
+Copy URL under point to the kill-ring.
+@item ;
+@command{emacspeak-webutils-play-media-at-point}
+Play media URL under point using @code{emacs-m-player}.
+@item U
+@command{emacspeak-webutils-curl-play-media-at-point}
+Play media url under point by first downloading the URL using
+CURL. This is useful for sites that do multiple redirects before
+returning the actual media stream URL.
+@item C-o
+@command{emacspeak-feeds-opml-display}
+Display link under point as an @code{OPML} feed .
+@item C-r
+@command{emacspeak-feeds-rss-display}
+Display link under point as an @code{RSS} feed.
+@item C-a
+@command{emacspeak-feeds-atom-display}
+Display link under point as an @code{ATOM} feed.
+item y
+@command{emacspeak-m-player-youtube-player}
+Play link under point as a Youtube stream.
+@end table
+
+@subsection Miscellaneous Commands
+
+@table @kbd
+@item '
+@command{emacspeak-speak-rest-of-buffer}
+Speak rest of current Web page starting from point.
+@item *
+@command{eww-add-bookmark}
+Bookmark current Web page.
+@item = @command{dtk-toggle-punctuation-mode}
+Toggle punctuation mode.
+@item ?
+@command{emacspeak-webutils-google-similar-to-this-page}
+Google similarity search.
+@item C-t
+@command{emacspeak-eww-transcode}
+Transcode current page to something more readable.
+@item G @command{emacspeak-google-command}
+Prefix key to invoke Google-specific commands.
+@item L
+@command{emacspeak-eww-links-rel}
+Display any related links discovered via the document's @code{meta} tag.
+@item Q
+@command{emacspeak-kill-buffer-quietly}
+Delete this buffer.
+@item V
+@command{eww-view-source}
+Display Web page source.
+@item e
+@command{emacspeak-we-xsl-map}
+Prefix key for invoking XSLT-based filters.
+@item k
+@command{eww-copy-page-url}
+Copy page URL to kill-ring.
+@end table
+
+In addition, see commands in
+@xref{emacspeak-google},  for Google-Search specific commands, many of
+which are available via prefix-key @kbd{G}.
+
+@subsection Filtering Content Using XSLT And XPath
+
+@table @kbd
+@item C-c           
+@command{emacspeak-we-junk-by-class-list}
+Prompts for list of class-names with completion,
+and filters out matching elements.
+@item C-f           
+@command{emacspeak-we-count-matches}
+Prompts for XPath expression, and returns count of matching elements.
+@item C-p           
+@command{emacspeak-we-xpath-junk-and-follow}
+Follows link under point, and displays that page
+after filtering by a specified XPath expression.
+@item C-t           
+@command{emacspeak-we-count-tables}
+Display a count of tables in the page.
+@item C-x           
+@command{emacspeak-we-count-nested-tables}
+Counts nested tables.
+@item C             
+@command{emacspeak-we-extract-by-class-list}
+Prompts for a list of class-names, and displays matching elements.
+@item D             
+@command{emacspeak-we-junk-by-class-list}
+Filters out elements  having specified class attributes.
+@item I             
+@command{emacspeak-we-extract-by-id-list}
+Extracts elements by specified list of ID values.
+@item M             
+@command{emacspeak-we-extract-tables-by-match-list}
+Extracts tables that match specified selection pattern.
+@item P             
+@command{emacspeak-we-follow-and-extract-main}
+Follows link under point, and extracts readable content,
+by default, this is all paragraphs and headings.
+@item S             
+@command{emacspeak-we-style-filter}
+Filters content by style attribute.
+@item T             
+@command{emacspeak-we-extract-tables-by-position-list}
+Extracts tables by their position on the page.
+@item X             
+@command{emacspeak-we-extract-nested-table-list}
+Extracts nested tables.
+@item a             
+@command{emacspeak-we-xslt-apply}
+Prompt for and apply specified XSLT transform to current page.
+@item b             
+@command{emacspeak-we-follow-and-filter-by-id}
+Follow link under point, and filter by specified id value.
+@item c             
+@command{emacspeak-we-extract-by-class}
+Extracts elements by class.
+@item d             
+@command{emacspeak-we-junk-by-class}
+Filters out elements having specified class value.
+@item e             
+@command{emacspeak-we-url-expand-and-execute}
+Follow link under point, but pass the result to a custom executor.
+@item f             
+@command{emacspeak-we-xslt-filter}
+Apply a specified XSLT filter (XPath) to current page.
+@item i             
+@command{emacspeak-we-extract-by-id}
+Extract elements by id value.
+@item j             
+@command{emacspeak-we-xslt-junk}
+Filter out elements matching specified pattern.
+@item k             
+@command{emacspeak-we-toggle-xsl-keep-result}
+Debugging tool  --- retains the  HTML source after XSLT.
+@item m             
+@command{emacspeak-we-extract-table-by-match}
+Extract matching table.
+@item p             
+@command{emacspeak-we-xpath-filter-and-follow}
+Follow link under point, and filter results by a specified XPath filter.
+@item r             
+@command{emacspeak-we-extract-by-role}
+Extract elements by specified role value.
+@item s             
+@command{emacspeak-we-xslt-select}
+Select default XSLT transform that is applied before rendering the page.
+@item t             
+@command{emacspeak-we-extract-table-by-position}
+Extracts tables by their position on the page.
+@item u             
+@command{emacspeak-we-extract-matching-urls}
+Display matching links on the page.
+@item v             
+@command{emacspeak-we-class-filter-and-follow-link}
+Follow link under point, and filter by specified class value.
+@item w             
+@command{emacspeak-we-extract-by-property}
+Extract element using a combination of DOM attributes.
+@item x             
+@command{emacspeak-we-extract-nested-table}
+Extract a nested table using a match-list.
+@item y             
+@command{emacspeak-we-class-filter-and-follow}
+Follow link under point and filter by class values.
+@end table
 
 @subsection emacspeak-eww Commands
 
@@ -7726,6 +8577,17 @@ Apply appropriate transcoding rules to current DOM.
 @end format
 @end deffn
 
+@subsubsection emacspeak-eww-update-title
+@deffn {Command} emacspeak-eww-update-title  (title)
+@findex emacspeak-eww-update-title
+
+@format
+Interactively set title --- renames buffer, and sets header-line.
+
+(fn TITLE)
+@end format
+@end deffn
+
 @subsection emacspeak-eww Options
 
 @defvar {User Option} emacspeak-eww-masquerade-as
@@ -7821,42 +8683,6 @@ Browse specified  feed.
 @format
 Fast load list of feeds from archive.
 This directly  updates emacspeak-feeds from the archive, rather than adding those entries to the current set of subscribed feeds.
-@end format
-@end deffn
-
-@subsubsection emacspeak-feeds-find-feeds
-@deffn {Command} emacspeak-feeds-find-feeds  (query)
-@table @kbd
-@item C-, f
-@kindex C-, f
-@item C-x @@ a f
-@kindex C-x @@ a f
-@end table
-
-@findex emacspeak-feeds-find-feeds
-
-@format
-Browse feeds matching specified query.
-
-(fn QUERY)
-@end format
-@end deffn
-
-@subsubsection emacspeak-feeds-lookup-and-view
-@deffn {Command} emacspeak-feeds-lookup-and-view  (site)
-@table @kbd
-@item C-' f
-@kindex C-' f
-@item C-x @@ s f
-@kindex C-x @@ s f
-@end table
-
-@findex emacspeak-feeds-lookup-and-view
-
-@format
-Lookup feed URL for a site and browse result.
-
-(fn SITE)
 @end format
 @end deffn
 
@@ -7982,7 +8808,7 @@ key             binding
 r		emacspeak-filtertext-revert
 
 In addition to any hooks its parent mode ‘text-mode’ might have run,
-this mode runs the hook ‘emacspeak-filtertext-mode-hook’, as the final step
+this mode runs the hook ‘emacspeak-filtertext-mode-hook’, as the final or penultimate step
 during initialization.
 @end format
 @end deffn
@@ -8115,6 +8941,24 @@ This personality uses  voice-animate whose  effect can be changed globally by cu
 @section emacspeak-flyspell
 
 This module speech enables flyspell.
+it loads flyspell-correct if available,
+And when loading flyspell-correct sets up that module
+to use  one of   three supported correction styles:
+@itemize @bullet
+@item ido: IDO-like completion with C-s and C-r moving through choices.
+@item popup:Use  up and down arrows to move through  corrections.
+@item helm: A helm interface for picking amongst  corrections.
+@end itemize
+
+Use Customization emacspeak-flyspell-correct-interface to pick
+between ido, popup and helm.
+
+@subsection emacspeak-flyspell Options
+
+@defvar {User Option} emacspeak-flyspell-correct
+Correction style to use with flyspell.
+
+@end defvar
 
 @node emacspeak-folding
 @section emacspeak-folding
@@ -8206,6 +9050,83 @@ Personality for read-write fields.
 
 FTF ==  find-things-fast
 Package ftf --- find-things-fast -- is available from the marmalade emacs package archive
+
+@node emacspeak-geiser
+@section emacspeak-geiser
+
+geiser.el --- GNU Emacs and Scheme talk to each other
+This module speech-enables all interactive aspects of geiser,
+including the geiser->scheme REPL.
+This is used by racket-mode for racket interaction,
+And also for interacting with Guile.
+
+@subsection emacspeak-geiser Options
+
+@defvar {User Option} emacspeak-geiser-voice-lock-autodoc-current-arg
+Personality used for geiser-font-lock-autodoc-current-arg
+This personality uses  voice-bolden whose  effect can be changed globally by customizing voice-bolden-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-geiser-voice-lock-autodoc-identifier
+Personality used for geiser-font-lock-autodoc-identifier
+This personality uses  voice-animate whose  effect can be changed globally by customizing voice-animate-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-geiser-voice-lock-doc-button
+Personality used for geiser-font-lock-doc-button
+This personality uses  voice-bolden-extra whose  effect can be changed globally by customizing voice-bolden-extra-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-geiser-voice-lock-doc-link
+Personality used for geiser-font-lock-doc-link
+This personality uses  voice-bolden whose  effect can be changed globally by customizing voice-bolden-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-geiser-voice-lock-doc-title
+Personality used for geiser-font-lock-doc-title
+This personality uses  voice-smoothen whose  effect can be changed globally by customizing voice-smoothen-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-geiser-voice-lock-error-link
+Personality used for geiser-font-lock-error-link
+This personality uses  voice-annotate whose  effect can be changed globally by customizing voice-annotate-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-geiser-voice-lock-image-button
+Personality used for geiser-font-lock-image-button
+This personality uses  voice-bolden-medium whose  effect can be changed globally by customizing voice-bolden-medium-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-geiser-voice-lock-repl-input
+Personality used for geiser-font-lock-repl-input
+This personality uses  voice-lighten whose  effect can be changed globally by customizing voice-lighten-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-geiser-voice-lock-repl-prompt
+Personality used for geiser-font-lock-repl-prompt
+This personality uses  voice-lighten whose  effect can be changed globally by customizing voice-lighten-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-geiser-voice-lock-xref-header
+Personality used for geiser-font-lock-xref-header
+This personality uses  voice-smoothen whose  effect can be changed globally by customizing voice-smoothen-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-geiser-voice-lock-xref-link
+Personality used for geiser-font-lock-xref-link
+This personality uses  voice-bolden whose  effect can be changed globally by customizing voice-bolden-settings.
+
+@end defvar
 
 @node emacspeak-generic
 @section emacspeak-generic
@@ -8974,12 +9895,86 @@ Speak upto start of next index entry
 @end format
 @end deffn
 
+@node emacspeak-indium
+@section emacspeak-indium
+
+INDIUM ==  Javascript IDE 
+This module speech-enables Indium.
+
+@subsection emacspeak-indium Options
+
+@defvar {User Option} emacspeak-indium-button-personality
+Personality used for indium-button-face
+This personality uses  voice-bolden-medium whose  effect can be changed globally by customizing voice-bolden-medium-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-indium-header-personality
+Personality used for indium-header-face
+This personality uses  voice-smoothen whose  effect can be changed globally by customizing voice-smoothen-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-indium-highlight-personality
+Personality used for indium-highlight-face
+This personality uses  voice-animate whose  effect can be changed globally by customizing voice-animate-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-indium-keyword-personality
+Personality used for indium-keyword-face
+This personality uses  voice-animate whose  effect can be changed globally by customizing voice-animate-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-indium-link-personality
+Personality used for indium-link-face
+This personality uses  voice-bolden whose  effect can be changed globally by customizing voice-bolden-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-indium-repl-error-personality
+Personality used for indium-repl-error-face
+This personality uses  voice-animate-extra whose  effect can be changed globally by customizing voice-animate-extra-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-indium-repl-prompt-personality
+Personality used for indium-repl-prompt-face
+This personality uses  voice-annotate whose  effect can be changed globally by customizing voice-annotate-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-indium-repl-stdout-personality
+Personality used for indium-repl-stdout-face
+This personality uses  voice-monotone whose  effect can be changed globally by customizing voice-monotone-settings.
+
+@end defvar
+
 @node emacspeak-info
 @section emacspeak-info
 
 This module speech-enables the Emacs Info Reader.
 
 @subsection emacspeak-info Commands
+
+@subsubsection emacspeak-info-next-section
+@deffn {Command} emacspeak-info-next-section   
+@findex emacspeak-info-next-section
+
+@format
+Move forward to next section in this node.
+@end format
+@end deffn
+
+@subsubsection emacspeak-info-previous-section
+@deffn {Command} emacspeak-info-previous-section   
+@findex emacspeak-info-previous-section
+
+@format
+Move backward to previous section in this node.
+@end format
+@end deffn
 
 @subsubsection emacspeak-info-speak-header
 @deffn {Command} emacspeak-info-speak-header   
@@ -9030,17 +10025,106 @@ This module speech enables ispell.
 Implementation note: This is hard because of how  ispell.el is written
 Namely, all of the work is done by one huge hairy function.
 This makes advising it hard.
-
-Original version of this extension was written under emacs-19.28
-for ispell.el version 2.30
-Now updating it for ispell.el version 2.37.
-Support for 2.30 will wither away
+The ispell commands work well with Emacspeak as long as the list of correction choices are few.
+For interactively moving through corrections, install package flyspell-correct from MELPA
+(package-install "flyspell-correct")
+Then use M-x flyspell-mode.
+Package flyspell is speech-enabled by Emacspeak module emacspeak-flyspell
+And that module sets up flyspell-correct to use IDO-style completion,
+i.e. you can move through corrections with C-r and C-s.
 
 @subsection emacspeak-ispell Options
 
 @defvar {User Option} emacspeak-ispell-max-choices
 Emacspeak will not speak the choices if there are more than this
 many available corrections.
+
+@end defvar
+
+@node emacspeak-ivy
+@section emacspeak-ivy
+
+IVY ==  One More Smart Completion Technique 
+Speech-enable ivy-style completion.
+This is still experimental and preliminary.
+
+@subsection emacspeak-ivy Options
+
+@defvar {User Option} emacspeak-ivy-action-voice
+Personality used for ivy-action
+This personality uses  voice-animate whose  effect can be changed globally by customizing voice-animate-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-ivy-confirm-personality
+Personality used for ivy-confirm-face
+This personality uses  voice-bolden whose  effect can be changed globally by customizing voice-bolden-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-ivy-current-match-voice
+Personality used for ivy-current-match
+This personality uses  voice-lighten whose  effect can be changed globally by customizing voice-lighten-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-ivy-cursor-voice
+Personality used for ivy-cursor
+This personality uses  voice-smoothen whose  effect can be changed globally by customizing voice-smoothen-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-ivy-match-required-personality
+Personality used for ivy-match-required-face
+This personality uses  voice-bolden-extra whose  effect can be changed globally by customizing voice-bolden-extra-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-ivy-minibuffer-match-face-1-voice
+Personality used for ivy-minibuffer-match-face-1
+This personality uses  voice-monotone whose  effect can be changed globally by customizing voice-monotone-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-ivy-minibuffer-match-face-2-voice
+Personality used for ivy-minibuffer-match-face-2
+This personality uses  voice-monotone-medium whose  effect can be changed globally by customizing voice-monotone-medium-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-ivy-minibuffer-match-face-3-voice
+Personality used for ivy-minibuffer-match-face-3
+This personality uses  voice-monotone-light whose  effect can be changed globally by customizing voice-monotone-light-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-ivy-minibuffer-match-face-4-voice
+Personality used for ivy-minibuffer-match-face-4
+This personality uses  voice-monotone whose  effect can be changed globally by customizing voice-monotone-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-ivy-modified-buffer-voice
+Personality used for ivy-modified-buffer
+This personality uses  voice-bolden-and-animate whose  effect can be changed globally by customizing voice-bolden-and-animate-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-ivy-remote-voice
+Personality used for ivy-remote
+This personality uses  voice-lighten whose  effect can be changed globally by customizing voice-lighten-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-ivy-subdir-voice
+Personality used for ivy-subdir
+This personality uses  voice-smoothen whose  effect can be changed globally by customizing voice-smoothen-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-ivy-virtual-voice
+Personality used for ivy-virtual
+This personality uses  voice-animate whose  effect can be changed globally by customizing voice-animate-settings.
 
 @end defvar
 
@@ -9102,172 +10186,8 @@ Pop to Jabber roster.
 
 @subsection emacspeak-jabber Options
 
-@defvar {User Option} emacspeak-jabber-activity-personality
-Personality used for jabber-activity-face
-This personality uses  voice-animate whose  effect can be changed globally by customizing voice-animate-settings.
-
-@end defvar
-
-@defvar {User Option} emacspeak-jabber-chat-error-voice
-Personality used for jabber-chat-error
-This personality uses  voice-bolden-and-animate whose  effect can be changed globally by customizing voice-bolden-and-animate-settings.
-
-@end defvar
-
-@defvar {User Option} emacspeak-jabber-chat-prompt-foreign-voice
-Personality used for jabber-chat-prompt-foreign
-This personality uses  voice-brighten-medium whose  effect can be changed globally by customizing voice-brighten-medium-settings.
-
-@end defvar
-
-@defvar {User Option} emacspeak-jabber-chat-prompt-local-voice
-Personality used for jabber-chat-prompt-local
-This personality uses  voice-smoothen-medium whose  effect can be changed globally by customizing voice-smoothen-medium-settings.
-
-@end defvar
-
-@defvar {User Option} emacspeak-jabber-chat-prompt-system-voice
-Personality used for jabber-chat-prompt-system
-This personality uses  voice-brighten-extra whose  effect can be changed globally by customizing voice-brighten-extra-settings.
-
-@end defvar
-
-@defvar {User Option} emacspeak-jabber-chat-text-foreign-voice
-Personality used for jabber-chat-text-foreign
-This personality uses  voice-brighten whose  effect can be changed globally by customizing voice-brighten-settings.
-
-@end defvar
-
-@defvar {User Option} emacspeak-jabber-chat-text-local-voice
-Personality used for jabber-chat-text-local
-This personality uses  voice-smoothen whose  effect can be changed globally by customizing voice-smoothen-settings.
-
-@end defvar
-
-@defvar {User Option} emacspeak-jabber-rare-time-personality
-Personality used for jabber-rare-time-face
-This personality uses  voice-animate-extra whose  effect can be changed globally by customizing voice-animate-extra-settings.
-
-@end defvar
-
-@defvar {User Option} emacspeak-jabber-roster-user-away-voice
-Personality used for jabber-roster-user-away
-This personality uses  voice-smoothen-extra whose  effect can be changed globally by customizing voice-smoothen-extra-settings.
-
-@end defvar
-
-@defvar {User Option} emacspeak-jabber-roster-user-chatty-voice
-Personality used for jabber-roster-user-chatty
-This personality uses  voice-brighten whose  effect can be changed globally by customizing voice-brighten-settings.
-
-@end defvar
-
-@defvar {User Option} emacspeak-jabber-roster-user-dnd-voice
-Personality used for jabber-roster-user-dnd
-This personality uses  voice-lighten-medium whose  effect can be changed globally by customizing voice-lighten-medium-settings.
-
-@end defvar
-
-@defvar {User Option} emacspeak-jabber-roster-user-error-voice
-Personality used for jabber-roster-user-error
-This personality uses  voice-bolden-and-animate whose  effect can be changed globally by customizing voice-bolden-and-animate-settings.
-
-@end defvar
-
-@defvar {User Option} emacspeak-jabber-roster-user-offline-voice
-Personality used for jabber-roster-user-offline
-This personality uses  voice-smoothen-extra whose  effect can be changed globally by customizing voice-smoothen-extra-settings.
-
-@end defvar
-
-@defvar {User Option} emacspeak-jabber-roster-user-online-voice
-Personality used for jabber-roster-user-online
-This personality uses  voice-bolden whose  effect can be changed globally by customizing voice-bolden-settings.
-
-@end defvar
-
-@defvar {User Option} emacspeak-jabber-roster-user-xa-voice
-Personality used for jabber-roster-user-xa
-This personality uses  voice-lighten whose  effect can be changed globally by customizing voice-lighten-settings.
-
-@end defvar
-
 @defvar {User Option} emacspeak-jabber-speak-presence-alerts
 Set to T if you want to hear presence alerts.
-
-@end defvar
-
-@defvar {User Option} emacspeak-jabber-title-large-voice
-Personality used for jabber-title-large
-This personality uses  voice-bolden-extra whose  effect can be changed globally by customizing voice-bolden-extra-settings.
-
-@end defvar
-
-@defvar {User Option} emacspeak-jabber-title-medium-voice
-Personality used for jabber-title-medium
-This personality uses  voice-bolden whose  effect can be changed globally by customizing voice-bolden-settings.
-
-@end defvar
-
-@defvar {User Option} emacspeak-jabber-title-small-voice
-Personality used for jabber-title-small
-This personality uses  voice-lighten whose  effect can be changed globally by customizing voice-lighten-settings.
-
-@end defvar
-
-@node emacspeak-jade
-@section emacspeak-jade
-
-JADE ==  Javascript IDE 
-This module speech-enables Jade.
-
-@subsection emacspeak-jade Options
-
-@defvar {User Option} emacspeak-jade-button-personality
-Personality used for jade-button-face
-This personality uses  voice-bolden-medium whose  effect can be changed globally by customizing voice-bolden-medium-settings.
-
-@end defvar
-
-@defvar {User Option} emacspeak-jade-header-personality
-Personality used for jade-header-face
-This personality uses  voice-smoothen whose  effect can be changed globally by customizing voice-smoothen-settings.
-
-@end defvar
-
-@defvar {User Option} emacspeak-jade-highlight-personality
-Personality used for jade-highlight-face
-This personality uses  voice-animate whose  effect can be changed globally by customizing voice-animate-settings.
-
-@end defvar
-
-@defvar {User Option} emacspeak-jade-keyword-personality
-Personality used for jade-keyword-face
-This personality uses  voice-animate whose  effect can be changed globally by customizing voice-animate-settings.
-
-@end defvar
-
-@defvar {User Option} emacspeak-jade-link-personality
-Personality used for jade-link-face
-This personality uses  voice-bolden whose  effect can be changed globally by customizing voice-bolden-settings.
-
-@end defvar
-
-@defvar {User Option} emacspeak-jade-repl-error-personality
-Personality used for jade-repl-error-face
-This personality uses  voice-animate-extra whose  effect can be changed globally by customizing voice-animate-extra-settings.
-
-@end defvar
-
-@defvar {User Option} emacspeak-jade-repl-prompt-personality
-Personality used for jade-repl-prompt-face
-This personality uses  voice-annotate whose  effect can be changed globally by customizing voice-annotate-settings.
-
-@end defvar
-
-@defvar {User Option} emacspeak-jade-repl-stdout-personality
-Personality used for jade-repl-stdout-face
-This personality uses  voice-monotone whose  effect can be changed globally by customizing voice-monotone-settings.
 
 @end defvar
 
@@ -9462,25 +10382,24 @@ relief.
 @subsection emacspeak-keymap Options
 
 @defvar {User Option} emacspeak-alt-keys
-*Specifies alt key bindings for the audio desktop.
-You can turn the ‘Pause’ key  on your Linux PC keyboard into a ‘alt’ key
-on Linux by having it emit the sequence ‘C-x@@a’.
+*Specifies alt key bindings for the audio desktop. You can turn the
+‘Pause’ key on your Linux PC keyboard into a ‘alt’ key on Linux by
+having it emit the sequence ‘C-x@@a’.
 
-Bindings specified here are available on prefix key ‘alt’
-(not to be confused with alt==meta)
-for example, if you bind
-‘s’ to command emacspeak-emergency-tts-restart
-then that command will be available on key ‘ALT  s’
+Bindings specified here are available on prefix key ‘alt’ (not to be
+ confused with alt==meta) for example, if you bind ‘s’ to command
+ emacspeak-emergency-tts-restart then that command will be available
+ on key ‘ALT s’
 
 KEYS should be a string constant in the format used for saving
 keyboard macros (see ‘edmacro-mode’).
 
 Command is an interactive command or a prefix-command that can be
-bound to a key. 
+bound to a key.
 
-The value of this variable is an association list. The car of
-each element specifies a key sequence. The cdr specifies an
-interactive command that the key sequence executes.
+The value of this variable is an association list. The car of each
+element specifies a key sequence. The cdr specifies an interactive
+command that the key sequence executes.
 
 @end defvar
 
@@ -9724,6 +10643,21 @@ API Info: https://librivox.org/api/info
 It provides a simple Web  API
 This module implements an Emacspeak Librivox client.
 
+@subsection Usage
+
+main entry point is command @code{emacspeak-librivox} bound to @kbd{C-; l}.
+This prompts with the following choices:
+@itemize
+@item @kbd{a} Author --- Search  by Author.
+@item @kbd{t} Title --- Search  by Title.
+@item @kbd{g} Genre --- Search  by Genre --- with minibuffer completion.
+@item @kbd{p} Play --- Play a  book.
+@item @kbd{d} Directory --- Browse local cache.
+@end itemize
+
+Search results are displayed in a Web page that provides controls
+for accessing the book.
+
 @subsection emacspeak-librivox Commands
 
 @subsubsection emacspeak-librivox
@@ -9760,9 +10694,9 @@ Play book stream
 @findex emacspeak-librivox-search-by-author
 
 @format
-Search by author.
-Both exact and partial matches for ‘author’.
-Optional interactive prefix arg ‘offset’ prompts for offset --- use this for retrieving next set of results.
+Search by author. Both exact and partial matches for
+‘author’. Optional interactive prefix arg ‘offset’ prompts for offset
+--- use this for retrieving next set of results.
 
 (fn AUTHOR &optional OFFSET)
 @end format
@@ -9785,9 +10719,9 @@ Optional prefix arg ‘offset’ prompts for offset.
 @findex emacspeak-librivox-search-by-title
 
 @format
-Search by title.
-Both exact and partial matches for ‘title’.
-Optional prefix arg ‘offset’ prompts for offset --- use this for retrieving more results.
+Search by title. Both exact and partial matches for ‘title’. Optional
+prefix arg ‘offset’ prompts for offset --- use this for retrieving
+more results.
 
 (fn TITLE &optional OFFSET)
 @end format
@@ -9809,14 +10743,27 @@ Speech-enable lua-mode.
 @node emacspeak-m-player
 @section emacspeak-m-player
 
-Defines a simple derived mode for interacting with mplayer.
-mplayer  is a versatile media player capable of playing many
-streaming formats  and is especially useful for playing windows
-media (WMA) and streaming windows media (ASF) files.
-Mplayer FAQ at
-http://www.mplayerhq.hu/DOCS/faq.html
-Mplayer docs at
-http://www.mplayerhq.hu/DOCS/
+Defines an Emacspeak front-end for interacting with @code{mplayer}.
+Program @code{mplayer}  is a versatile media player capable of playing many
+streaming media formats.
+This module provides complete access to all @code{mplayer} functionality
+from a convenient Emacs interface.
+
+@subsection Usage
+
+The main entry-point is command @code{emacspeak-multimedia}
+bound to @kbd{C-e ;}.
+This prompts for and launches the desired media stream.
+Once a stream is playing, you can control it with single-letter keystrokes
+in the @code{*M-Player*} buffer.
+Alternatively, you can switch away from that buffer to do real work,
+And invoke @code{m-player} commands by  first pressing @kbd{C-e ;}.
+As an example, pressing @kbd{v} in the @code{*M-Player*} buffer
+prompts for and sets the volume;
+When not in the @code{*M-Player*} buffer, you can achieve the same
+by pressing @kbd{C-e ; v}.
+Press @kbd{C-h b} in the @code{*M-Player*}
+buffer  to list  @code{m-player} keybindings.
 
 @subsection emacspeak-m-player Commands
 
@@ -9849,7 +10796,7 @@ Add predefined autopan effect.
 @findex emacspeak-m-player-add-equalizer
 
 @format
-Add equalizer to playing stream.  Equalizer is applied as each change
+Add equalizer to playing stream.  Equalizer is updated as each change
 is made, and the final effect set by pressing RET.  Interactive prefix
 arg ‘reset’ starts with all filters set to 0.
 
@@ -9874,15 +10821,6 @@ Adds specified filter.
 
 @format
 Apply plugin to running MPlayer.
-@end format
-@end deffn
-
-@subsubsection emacspeak-m-player-af-add
-@deffn {Command} emacspeak-m-player-af-add   
-@findex emacspeak-m-player-af-add
-
-@format
-Add slave command af_add.
 @end format
 @end deffn
 
@@ -10245,6 +11183,7 @@ SPC		emacspeak-m-player-pause
 -		emacspeak-m-player-volume-down
 .		emacspeak-m-player-forward-10s
 /		emacspeak-m-player-restore-process
+1 .. 9		emacspeak-m-player-volume-set
 ;		emacspeak-m-player-pop-to-player
 <		emacspeak-m-player-backward-1min
 =		emacspeak-m-player-volume-up
@@ -10252,6 +11191,7 @@ SPC		emacspeak-m-player-pause
 ?		emacspeak-m-player-display-position
 A		emacspeak-m-player-amark-add
 C		emacspeak-m-player-clear-filters
+E		amixer-equalize
 G		emacspeak-m-player-seek-percentage
 L		emacspeak-m-player-locate-media
 M		emacspeak-m-player-display-metadata
@@ -10284,7 +11224,6 @@ t		emacspeak-m-player-play-tracks-jump
 u		emacspeak-m-player-url
 v		emacspeak-m-player-volume-change
 x		emacspeak-m-player-pan
-z		emacspeak-m-player-af-add
 @{		emacspeak-m-player-half-speed
 @}		emacspeak-m-player-double-speed
 DEL		emacspeak-m-player-reset-speed
@@ -10300,7 +11239,7 @@ DEL		emacspeak-m-player-reset-speed
 M-l		emacspeak-m-player-load-playlist
 
 In addition to any hooks its parent mode ‘comint-mode’ might have run,
-this mode runs the hook ‘emacspeak-m-player-mode-hook’, as the final step
+this mode runs the hook ‘emacspeak-m-player-mode-hook’, as the final or penultimate step
 during initialization.
 @end format
 @end deffn
@@ -10561,8 +11500,25 @@ Call emacspeak-m-player with specified URL.
 @end format
 @end deffn
 
+@subsubsection emacspeak-m-player-using-hrtf
+@deffn {Command} emacspeak-m-player-using-hrtf   
+@table @kbd
+@item C-; '
+@kindex C-; '
+@item C-x @@ h '
+@kindex C-x @@ h '
+@end table
+
+@findex emacspeak-m-player-using-hrtf
+
+@format
+Add af resample=48000,hrtf to startup options.
+This will work if the soundcard is set to 48000.
+@end format
+@end deffn
+
 @subsubsection emacspeak-m-player-using-openal
-@deffn {Command} emacspeak-m-player-using-openal   
+@deffn {Command} emacspeak-m-player-using-openal  (resource &optional play-list)
 @table @kbd
 @item C-; ;
 @kindex C-; ;
@@ -10576,7 +11532,9 @@ Call emacspeak-m-player with specified URL.
 Use openal as the audio output driver. Adding hrtf=true to
 ~/.alsoftrc gives HRTF. You need to have openal installed and have an
 mplayer that has been compiled with openal support to use this
-feature.
+feature. Calling spec is like ‘emacspeak-m-player’.
+
+(fn RESOURCE &optional PLAY-LIST)
 @end format
 @end deffn
 
@@ -10597,6 +11555,17 @@ Change volume to specified absolute value.
 
 @format
 Decrease volume.
+@end format
+@end deffn
+
+@subsubsection emacspeak-m-player-volume-set
+@deffn {Command} emacspeak-m-player-volume-set  (&optional arg)
+@findex emacspeak-m-player-volume-set
+
+@format
+Set Volume in steps from 1 to 9.
+
+(fn &optional ARG)
 @end format
 @end deffn
 
@@ -10633,6 +11602,81 @@ Use youtube-dl and mplayer to stream YouTube content.
 
 @format
 Start or control Emacspeak multimedia player.
+
+Uses current context to prompt for media to play.
+Controls media playback when already playing a stream.
+
+key             binding
+---             -------
+
+C-l		ladspa
+RET		emacspeak-m-player-load
+ESC		Prefix Command
+SPC		emacspeak-m-player-pause
+%		emacspeak-m-player-display-percent
+(		emacspeak-m-player-left-channel
+)		emacspeak-m-player-right-channel
++		emacspeak-m-player-volume-up
+,		emacspeak-m-player-backward-10s
+-		emacspeak-m-player-volume-down
+.		emacspeak-m-player-forward-10s
+/		emacspeak-m-player-restore-process
+1 .. 9		emacspeak-m-player-volume-set
+;		emacspeak-m-player-pop-to-player
+<		emacspeak-m-player-backward-1min
+=		emacspeak-m-player-volume-up
+>		emacspeak-m-player-forward-1min
+?		emacspeak-m-player-display-position
+A		emacspeak-m-player-amark-add
+C		emacspeak-m-player-clear-filters
+E		amixer-equalize
+G		emacspeak-m-player-seek-percentage
+L		emacspeak-m-player-locate-media
+M		emacspeak-m-player-display-metadata
+O		emacspeak-m-player-reset-options
+P		emacspeak-m-player-apply-reverb-preset
+Q		emacspeak-m-player-quit
+R		emacspeak-m-player-edit-reverb
+S		emacspeak-amark-save
+[		emacspeak-m-player-slower
+\		emacspeak-m-player-persist-process
+]		emacspeak-m-player-faster
+a		emacspeak-m-player-add-autopan
+b		emacspeak-wizards-view-buffers-filtered-by-m-player-mode
+c		emacspeak-m-player-slave-command
+d		emacspeak-m-player-delete-filter
+e		emacspeak-m-player-add-equalizer
+f		emacspeak-m-player-add-filter
+g		emacspeak-m-player-seek-absolute
+i		emacspeak-m-player-stream-info
+j		emacspeak-m-player-amark-jump
+l		emacspeak-m-player-get-length
+m		emacspeak-m-player-speak-mode-line
+n		emacspeak-m-player-next-track
+o		emacspeak-m-player-customize-options
+p		emacspeak-m-player-previous-track
+q		bury-buffer
+r		emacspeak-m-player-seek-relative
+s		emacspeak-m-player-scale-speed
+t		emacspeak-m-player-play-tracks-jump
+u		emacspeak-m-player-url
+v		emacspeak-m-player-volume-change
+x		emacspeak-m-player-pan
+@{		emacspeak-m-player-half-speed
+@}		emacspeak-m-player-double-speed
+DEL		emacspeak-m-player-reset-speed
+<down>		emacspeak-m-player-forward-1min
+<end>		emacspeak-m-player-end-of-track
+<home>		emacspeak-m-player-beginning-of-track
+<left>		emacspeak-m-player-backward-10s
+<next>		emacspeak-m-player-forward-10min
+<prior>		emacspeak-m-player-backward-10min
+<right>		emacspeak-m-player-forward-10s
+<up>		emacspeak-m-player-backward-1min
+
+M-l		emacspeak-m-player-load-playlist
+
+.
 @end format
 @end deffn
 
@@ -11125,6 +12169,239 @@ This personality uses  voice-bolden-and-animate whose  effect can be changed glo
 
 @end defvar
 
+@node emacspeak-maths
+@section emacspeak-maths
+
+@subsection Setup 
+Do not try what follows until you have read  js/node/README.org
+and successfully set up nvm (Node Version Manager) as described there.
+@subsection Technical Overview 
+Spoken mathematics on the emacspeak audio desktop. Use a NodeJS
+based speech-rule-engine for Mathematics as the backend for
+processing mathematical markup. The result of this processing is
+an annotated S-expression that is rendered via Emacspeak's speech
+facilities. Annotations follow Aural CSS as implemented in
+Emacspeak, This allows us to map these expressions to aural
+properties supported by specific TTS engines. 
+@subsection Basic Usage: 
+
+Start  the server/client: M-x emacspeak-maths-start. Once the server
+and client are started, you can browse any number of math
+expressions using the emacspeak-maths-navigator described below.
+Note: In general, once everything is configured correctly, using
+the maths navigator automatically starts the server and
+client. Invoke the Navigator using s-spc --- this is the <windows>
+key on
+Linux. Now you can use these keys:
+@itemize
+@item  Show Output <o> Switch to output buffer and quit Maths Navigator
+@item Enter: <SPC>
+Enter a LaTeX expression.
+@item Smart-Enter: <enter> Enter the guessed expression with no prompting.
+@item Alt-Text <a> Process alt-text
+under point as LaTeX.
+@item Down <down> Move down a level.
+@item
+Up <up> Move up a level.
+@item Left <left> Move left.
+@item Right
+<right> Move right.
+@item Exit <any other key> Exit
+navigator.
+
+@end itemize
+The current expression is spoken after
+each of the above commands. It is also displayed in a special
+buffer *Spoken Math*. That buffer holds all previously generated
+output, And Emacs commands forward-page and backward-page can be
+used to move through each chunk of output.
+
+@subsection emacspeak-maths Commands
+
+@subsubsection emacspeak-maths-depth
+@deffn {Command} emacspeak-maths-depth   
+@findex emacspeak-maths-depth
+
+@format
+Move depth in current Math expression.
+@end format
+@end deffn
+
+@subsubsection emacspeak-maths-down
+@deffn {Command} emacspeak-maths-down   
+@findex emacspeak-maths-down
+
+@format
+Move down in current Math expression.
+@end format
+@end deffn
+
+@subsubsection emacspeak-maths-enter
+@deffn {Command} emacspeak-maths-enter  (latex)
+@findex emacspeak-maths-enter
+
+@format
+Send a LaTeX expression to Maths server.
+Tries to guess default based on context.
+Uses guessed default if user enters an empty string.
+@end format
+@end deffn
+
+@subsubsection emacspeak-maths-enter-guess
+@deffn {Command} emacspeak-maths-enter-guess   
+@findex emacspeak-maths-enter-guess
+
+@format
+Send the guessed  LaTeX expression to Maths server.
+Guess is based on context.
+@end format
+@end deffn
+
+@subsubsection emacspeak-maths-left
+@deffn {Command} emacspeak-maths-left   
+@findex emacspeak-maths-left
+
+@format
+Move left in current Math expression.
+@end format
+@end deffn
+
+@subsubsection emacspeak-maths-navigator/body
+@deffn {Command} emacspeak-maths-navigator/body   
+@table @kbd
+@item s-SPC
+@kindex s-SPC
+@end table
+
+@findex emacspeak-maths-navigator/body
+
+@format
+Create a hydra with no body and the heads:
+
+"o":    ‘emacspeak-maths-switch-to-output’,
+"RET":    ‘emacspeak-maths-enter-guess’,
+"SPC":    ‘emacspeak-maths-enter’,
+"a":    ‘emacspeak-maths-speak-alt’,
+"d":    ‘emacspeak-maths-depth’,
+"r":    ‘emacspeak-maths-root’,
+"<up>":    ‘emacspeak-maths-up’,
+"<down>":    ‘emacspeak-maths-down’,
+"<left>":    ‘emacspeak-maths-left’,
+"<right>":    ‘emacspeak-maths-right’
+
+The body can be accessed via ‘emacspeak-maths-navigator/body’.
+@end format
+@end deffn
+
+@subsubsection emacspeak-maths-restart
+@deffn {Command} emacspeak-maths-restart   
+@findex emacspeak-maths-restart
+
+@format
+Restart Node math-server if running. Otherwise starts a new one.
+@end format
+@end deffn
+
+@subsubsection emacspeak-maths-right
+@deffn {Command} emacspeak-maths-right   
+@findex emacspeak-maths-right
+
+@format
+Move right in current Math expression.
+@end format
+@end deffn
+
+@subsubsection emacspeak-maths-root
+@deffn {Command} emacspeak-maths-root   
+@findex emacspeak-maths-root
+
+@format
+Move root in current Math expression.
+@end format
+@end deffn
+
+@subsubsection emacspeak-maths-shutdown
+@deffn {Command} emacspeak-maths-shutdown   
+@findex emacspeak-maths-shutdown
+
+@format
+Shutdown client and server processes.
+@end format
+@end deffn
+
+@subsubsection emacspeak-maths-speak-alt
+@deffn {Command} emacspeak-maths-speak-alt   
+@findex emacspeak-maths-speak-alt
+
+@format
+Speak alt text as Maths.
+For use on Wikipedia pages  for example.
+@end format
+@end deffn
+
+@subsubsection emacspeak-maths-spoken-mode
+@deffn {Command} emacspeak-maths-spoken-mode   
+@findex emacspeak-maths-spoken-mode
+
+@format
+Special mode for interacting with Spoken Math.
+
+This mode is used by the special buffer that displays spoken math
+returned from the Node server.
+This mode is similar to Emacs’ ‘view-mode’.
+see the key-binding list at the end of this description.
+Emacs online help facility to look up help on these commands.
+
+key             binding
+---             -------
+
+[		backward-page
+]		forward-page
+h		emacspeak-maths-left
+j		emacspeak-maths-down
+k		emacspeak-maths-up
+l		emacspeak-maths-right
+
+In addition to any hooks its parent mode ‘special-mode’ might have run,
+this mode runs the hook ‘emacspeak-maths-spoken-mode-hook’, as the final or penultimate step
+during initialization.
+@end format
+@end deffn
+
+@subsubsection emacspeak-maths-start
+@deffn {Command} emacspeak-maths-start   
+@findex emacspeak-maths-start
+
+@format
+Start Maths server bridge.
+@end format
+@end deffn
+
+@subsubsection emacspeak-maths-switch-to-output
+@deffn {Command} emacspeak-maths-switch-to-output   
+@findex emacspeak-maths-switch-to-output
+
+@format
+Switch to output buffer.
+@end format
+@end deffn
+
+@subsubsection emacspeak-maths-up
+@deffn {Command} emacspeak-maths-up   
+@findex emacspeak-maths-up
+
+@format
+Move up in current Math expression.
+@end format
+@end deffn
+
+@subsection emacspeak-maths Options
+
+@defvar {User Option} emacspeak-maths-inferior-program
+Location of ‘node’ executable.
+
+@end defvar
+
 @node emacspeak-message
 @section emacspeak-message
 
@@ -11289,11 +12566,13 @@ attempt to automatically install package hydra if it is not found.
 @item  org-mode structure nav: <C-c SPC> Structure navigation  for org-mode.
 @item  org-mode tables: <C-c t> Table UI for org-mode tables.
 @item m-player: <s-m> Emacspeak-M-Player Commands
+@item m-player: <s-;> Emacspeak-M-Player muggle
 @item pianobar: <s-'> Emacspeak-M-pianobar Commands
 @item hideshow: C-c h Provide HideShow bindings.
 @item toggle-option:  <C-c o> Single binding for toggling options.
 @item outliner: <C-c .> Bindings from outline-minor-mode.
 @item Info-Summary: <?> in Info Info Summary Muggle
+@item Repeatable-Yank: <C-y> Smart yank
 @end itemize
 
 Emacspeak automatically speaks Hydra hints when displayed.
@@ -11316,6 +12595,7 @@ example, Muggle @samp{ViewMode} binds @code{s} to this command.
 @format
 Create a hydra with no body and the heads:
 
+"?":    ‘(emacspeak-muggles-self-help "emacspeak-muggles-brightness")’,
 "s":    ‘xbacklight-set’,
 "g":    ‘xbacklight-get’,
 "<print>":    ‘xbacklight-black’,
@@ -11355,6 +12635,7 @@ Temporarily use keymap emacspeak-m-player-mode-map
 @format
 Create a hydra with no body and the heads:
 
+"?":    ‘(emacspeak-muggles-self-help "emacspeak-muggles-hideshow")’,
 "h":    ‘hs-hide-block’,
 "s":    ‘hs-show-block’,
 "H":    ‘hs-hide-all’,
@@ -11362,6 +12643,20 @@ Create a hydra with no body and the heads:
 "i":    ‘hs-hide-initial-comment-block’
 
 The body can be accessed via ‘emacspeak-muggles-hideshow/body’.
+@end format
+@end deffn
+
+@subsubsection emacspeak-muggles-ido-yank
+@deffn {Command} emacspeak-muggles-ido-yank   
+@table @kbd
+@item C-M-y
+@kindex C-M-y
+@end table
+
+@findex emacspeak-muggles-ido-yank
+
+@format
+Pick what to yank using ido completion.
 @end format
 @end deffn
 
@@ -11419,6 +12714,11 @@ The body can be accessed via ‘emacspeak-muggles-info-summary/body’.
 
 @subsubsection emacspeak-muggles-m-player/body
 @deffn {Command} emacspeak-muggles-m-player/body   
+@table @kbd
+@item s-;
+@kindex s-;
+@end table
+
 @findex emacspeak-muggles-m-player/body
 
 @format
@@ -11495,6 +12795,7 @@ The body can be accessed via ‘emacspeak-muggles-m-player/body’.
 @format
 Create a hydra with no body and the heads:
 
+"?":    ‘(emacspeak-muggles-self-help "emacspeak-muggles-navigate")’,
 "s":    ‘emacspeak-muggles-toggle-talkative’,
 "n":    ‘next-line’,
 "p":    ‘previous-line’,
@@ -11521,6 +12822,7 @@ The body can be accessed via ‘emacspeak-muggles-navigate/body’.
 @format
 Create a hydra with no body and the heads:
 
+"?":    ‘(emacspeak-muggles-self-help "emacspeak-muggles-org-nav")’,
 "SPC":    ‘emacspeak-outline-speak-this-heading’,
 "n":    ‘outline-next-visible-heading’,
 "p":    ‘outline-previous-visible-heading’,
@@ -11540,6 +12842,7 @@ The body can be accessed via ‘emacspeak-muggles-org-nav/body’.
 @format
 Create a hydra with no body and the heads:
 
+"?":    ‘(emacspeak-muggles-self-help "emacspeak-muggles-org-table")’,
 "j":    ‘org-table-next-row’,
 "k":    ‘org-table-previous-row’,
 "h":    ‘org-table-previous-field’,
@@ -11561,6 +12864,7 @@ The body can be accessed via ‘emacspeak-muggles-org-table/body’.
 @format
 Create a hydra with no body and the heads:
 
+"?":    ‘(emacspeak-muggles-self-help "emacspeak-muggles-outliner")’,
 "q":    ‘outline-hide-sublevels’,
 "t":    ‘outline-hide-body’,
 "o":    ‘outline-hide-other’,
@@ -11595,12 +12899,16 @@ The body can be accessed via ‘emacspeak-muggles-outliner/body’.
 @format
 Create a hydra with no body and the heads:
 
+"?":    ‘(emacspeak-muggles-self-help "emacspeak-muggles-toggle-option")’,
+"F":    ‘flyspell-mode’,
 "a":    ‘abbrev-mode’,
 "d":    ‘toggle-debug-on-error’,
 "f":    ‘auto-fill-mode’,
 "g":    ‘toggle-debug-on-quit’,
 "h":    ‘(setq hydra-is-helpful (not hydra-is-helpful))’,
+"i":    ‘ido-everywhere’,
 "t":    ‘toggle-truncate-lines’,
+"u":    ‘ido-ubiquitous-mode’,
 "w":    ‘whitespace-mode’,
 "q":    ‘nil’
 
@@ -11613,7 +12921,7 @@ The body can be accessed via ‘emacspeak-muggles-toggle-option/body’.
 @findex emacspeak-muggles-toggle-talkative
 
 @format
-Toggle state of emacspeak-muggles-talkative-p.
+Toggle state of hydra-is-helpful
 @end format
 @end deffn
 
@@ -11622,10 +12930,10 @@ Toggle state of emacspeak-muggles-talkative-p.
 @table @kbd
 @item C-c v
 @kindex C-c v
-@item C-; v
-@kindex C-; v
-@item C-x @@ h v
-@kindex C-x @@ h v
+@item C-' v
+@kindex C-' v
+@item C-x @@ s v
+@kindex C-x @@ s v
 @end table
 
 @findex emacspeak-muggles-view/body
@@ -11633,6 +12941,7 @@ Toggle state of emacspeak-muggles-talkative-p.
 @format
 Create a hydra with no body and the heads:
 
+"?":    ‘(emacspeak-muggles-self-help "emacspeak-muggles-view")’,
 "$":    ‘set-selective-display’,
 "%":    ‘View-goto-percent’,
 "’":    ‘register-to-point’,
@@ -11680,6 +12989,26 @@ Create a hydra with no body and the heads:
 "@}":    ‘forward-paragraph’
 
 The body can be accessed via ‘emacspeak-muggles-view/body’.
+@end format
+@end deffn
+
+@subsubsection emacspeak-muggles-yank-pop/body
+@deffn {Command} emacspeak-muggles-yank-pop/body   
+@findex emacspeak-muggles-yank-pop/body
+
+@format
+Create a hydra with no body and the heads:
+
+"?":    ‘(emacspeak-muggles-self-help "emacspeak-muggles-yank-pop")’,
+"C-y":    ‘yank’,
+"M-y":    ‘yank-pop’,
+"y":    ‘(funcall-interactively (function yank-pop) 1)’,
+"Y":    ‘(funcall-interactively (function yank-pop) -1)’,
+"i":    ‘emacspeak-muggles-ido-yank’,
+"s":    ‘emacspeak-muggles-ido-yank’,
+"l":    ‘browse-kill-ring’
+
+The body can be accessed via ‘emacspeak-muggles-yank-pop/body’.
 @end format
 @end deffn
 
@@ -11796,16 +13125,16 @@ It provides a simple Web  API documented at http://www.npr.org/api/index.
 This module implements an Emacspeak Npr client.
 Users will need to get their own API key.
 
-Entry Points:
+@subsection Usage
 
-Command: emacspeak-npr-play-program
+Command: @code{emacspeak-npr-play-program} @kbd{C-; n}
 --- Play current or past program with completion for program name.
 
-emacspeak-npr-listing
+@code{emacspeak-npr-listing} @kbd{C-; N}
 --- List NPR programs, blogs, etc with completion.
 Streams can be played from within the displayed listing.
 
-In all cases, streams are played using module emacspeak-m-player.
+In all cases, streams are played using module @code{emacspeak-m-player}.
 
 @subsection emacspeak-npr Commands
 
@@ -12305,7 +13634,7 @@ w		emacspeak-ocr-write-document
 .
 
 In addition to any hooks its parent mode ‘text-mode’ might have run,
-this mode runs the hook ‘emacspeak-ocr-mode-hook’, as the final step
+this mode runs the hook ‘emacspeak-ocr-mode-hook’, as the final or penultimate step
 during initialization.
 @end format
 @end deffn
@@ -12970,6 +14299,11 @@ Number of presets.
 
 @end defvar
 
+@node emacspeak-popup
+@section emacspeak-popup
+
+POPUP ==  popup.el from MELPA
+
 @node emacspeak-proced
 @section emacspeak-proced
 
@@ -13023,6 +14357,15 @@ Navigate to previous field.
 
 @format
 Move to next line and speak a summary.
+@end format
+@end deffn
+
+@subsubsection emacspeak-proced-speak-args
+@deffn {Command} emacspeak-proced-speak-args   
+@findex emacspeak-proced-speak-args
+
+@format
+Speak command  invocation  for this process.
 @end format
 @end deffn
 
@@ -13390,6 +14733,49 @@ This personality uses  voice-bolden-extra whose  effect can be changed globally 
 @section emacspeak-python
 
 This speech-enables python-mode bundled with Emacs
+
+@node emacspeak-racket
+@section emacspeak-racket
+
+racket-mode implements an IDE for racket, a dialect of scheme.
+
+@subsection emacspeak-racket Options
+
+@defvar {User Option} emacspeak-racket-check-syntax-def-personality
+Personality used for racket-check-syntax-def-face
+This personality uses  voice-bolden whose  effect can be changed globally by customizing voice-bolden-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-racket-check-syntax-use-personality
+Personality used for racket-check-syntax-use-face
+This personality uses  voice-annotate whose  effect can be changed globally by customizing voice-annotate-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-racket-here-string-personality
+Personality used for racket-here-string-face
+This personality uses  voice-lighten whose  effect can be changed globally by customizing voice-lighten-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-racket-keyword-argument-personality
+Personality used for racket-keyword-argument-face
+This personality uses  voice-animate whose  effect can be changed globally by customizing voice-animate-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-racket-paren-personality
+Personality used for racket-paren-face
+This personality uses  voice-smoothen whose  effect can be changed globally by customizing voice-smoothen-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-racket-selfeval-personality
+Personality used for racket-selfeval-face
+This personality uses  voice-bolden-and-animate whose  effect can be changed globally by customizing voice-bolden-and-animate-settings.
+
+@end defvar
 
 @node emacspeak-re-builder
 @section emacspeak-re-builder
@@ -13871,28 +15257,8 @@ See tvr/emacs-startup.el in the Emacspeak Git repository for  my setup.
 
 @subsection emacspeak-setup Options
 
-@defvar {User Option} dectalk-default-speech-rate
-*Default speech rate at which TTS is started. 
-
-@end defvar
-
 @defvar {User Option} emacspeak-tts-use-notify-stream
 Set to true to use a separate TTS stream for notifications.
-
-@end defvar
-
-@defvar {User Option} espeak-default-speech-rate
-Default speech rate for eSpeak.
-
-@end defvar
-
-@defvar {User Option} mac-default-speech-rate
-Default speech rate for mac.
-
-@end defvar
-
-@defvar {User Option} outloud-default-speech-rate
-Default speech rate for outloud.
 
 @end defvar
 
@@ -14133,6 +15499,11 @@ Personality used for slime-warning-face
 This personality uses  voice-animate-medium whose  effect can be changed globally by customizing voice-animate-medium-settings.
 
 @end defvar
+
+@node emacspeak-smart-window
+@section emacspeak-smart-window
+
+SMART-WINDOW ==  Smart Window switching for Emacs
 
 @node emacspeak-solitaire
 @section emacspeak-solitaire
@@ -14479,6 +15850,22 @@ Move to previous available minibuffer completion.
 @end format
 @end deffn
 
+@subsubsection emacspeak-open-info
+@deffn {Command} emacspeak-open-info   
+@table @kbd
+@item C-e TAB
+@kindex C-e TAB
+@item <fn> TAB
+@kindex <fn> TAB
+@end table
+
+@findex emacspeak-open-info
+
+@format
+Open Emacspeak Info Manual.
+@end format
+@end deffn
+
 @subsubsection emacspeak-owindow-next-line
 @deffn {Command} emacspeak-owindow-next-line  (count)
 @table @kbd
@@ -14655,9 +16042,8 @@ Run shell command and speak its output.
 
 @format
 Silence is golden. Stop speech, and pause/resume any media
-streams.
-Runs ‘emacspeak-silence-hook’ which can be used to configure
-which media players get silenced or paused/resumed.
+streams. Runs ‘emacspeak-silence-hook’ which can be used to
+configure which media players get silenced or paused/resumed.
 @end format
 @end deffn
 
@@ -14866,9 +16252,9 @@ Speak current field.
 @format
 Speak the current kill entry.
 This is the text that will be yanked in
-by the next C-y. Prefix numeric arg, COUNT, specifies that the
-text that will be yanked as a result of a C-y followed by count-1
-M-y be spoken. The kill number that is spoken says what
+by the next <S-insertchar>. Prefix numeric arg, COUNT, specifies that the
+text that will be yanked as a result of a <S-insertchar> followed by count-1
+M-x yank-pop be spoken. The kill number that is spoken says what
 numeric prefix arg to give to command yank.
 
 (fn COUNT)
@@ -15823,7 +17209,7 @@ Second interactive prefix sets clock to new timezone.
 @end deffn
 
 @subsubsection emacspeak-speak-version
-@deffn {Command} emacspeak-speak-version  (&optional update)
+@deffn {Command} emacspeak-speak-version  (&optional speak-rev)
 @table @kbd
 @item C-e V
 @kindex C-e V
@@ -15835,8 +17221,9 @@ Second interactive prefix sets clock to new timezone.
 
 @format
 Announce version information for running emacspeak.
+Optional interactive prefix arg ‘speak-rev’ speaks only the Git revision number.
 
-(fn &optional UPDATE)
+(fn &optional SPEAK-REV)
 @end format
 @end deffn
 
@@ -15846,6 +17233,7 @@ Announce version information for running emacspeak.
 
 @format
 Speaks current visual line.
+Cues the start of a physical line with auditory icon ‘left’.
 @end format
 @end deffn
 
@@ -15857,6 +17245,24 @@ Speaks current visual line.
 Locate paragraphs and voice annotate the first word.
 Here, paragraph is taken to mean a chunk of text preceded by a blank line.
 Useful to do this before you listen to an entire buffer.
+@end format
+@end deffn
+
+@subsubsection emacspeak-speak-which-function
+@deffn {Command} emacspeak-speak-which-function   
+@table @kbd
+@item C-e M-w
+@kindex C-e M-w
+@item <fn> M-w
+@kindex <fn> M-w
+@end table
+
+@findex emacspeak-speak-which-function
+
+@format
+Speak which function we are on.  Uses which-function from
+which-func without turning that mode on.  We actually use
+semantic to do the work.
 @end format
 @end deffn
 
@@ -16147,6 +17553,24 @@ current local  value to the result.
 A customized blink-paren to speak  matching opening paren.
 We need to call this in case Emacs is anal and loads its own
 builtin blink-paren function which does not talk.
+@end format
+@end deffn
+
+@subsubsection emacspeak-view-notifications
+@deffn {Command} emacspeak-view-notifications   
+@table @kbd
+@item C-h T
+@kindex C-h T
+@item <f1> T
+@kindex <f1> T
+@item <help> T
+@kindex <help> T
+@end table
+
+@findex emacspeak-view-notifications
+
+@format
+Display notifications.
 @end format
 @end deffn
 
@@ -16777,10 +18201,10 @@ Current buffer must be in emacspeak-table mode.
 @subsubsection emacspeak-table-display-table-in-region
 @deffn {Command} emacspeak-table-display-table-in-region  (start end)
 @table @kbd
-@item C-e TAB
-@kindex C-e TAB
-@item <fn> TAB
-@kindex <fn> TAB
+@item C-e M-i
+@kindex C-e M-i
+@item <fn> M-i
+@kindex <fn> M-i
 @end table
 
 @findex emacspeak-table-display-table-in-region
@@ -17638,35 +19062,6 @@ You can use @kbd{SPC} and @kbd{/} to review the board.
 
 @subsection emacspeak-threes Commands
 
-@subsubsection emacspeak-2048-pop-state
-@deffn {Command} emacspeak-2048-pop-state   
-@findex emacspeak-2048-pop-state
-
-@format
-Reset state from stack.
-@end format
-@end deffn
-
-@subsubsection emacspeak-2048-prune-stack
-@deffn {Command} emacspeak-2048-prune-stack  (drop)
-@findex emacspeak-2048-prune-stack
-
-@format
-Prune game stack to specified length.
-
-(fn DROP)
-@end format
-@end deffn
-
-@subsubsection emacspeak-2048-push-state
-@deffn {Command} emacspeak-2048-push-state   
-@findex emacspeak-2048-push-state
-
-@format
-Push current game state on stack.
-@end format
-@end deffn
-
 @subsubsection emacspeak-threes-1
 @deffn {Command} emacspeak-threes-1   
 @findex emacspeak-threes-1
@@ -17941,13 +19336,6 @@ Save out url templates.
 (fn FILE)
 @end format
 @end deffn
-
-@subsection emacspeak-url-template Options
-
-@defvar {User Option} emacspeak-url-template-weather-city-state
-Default city/state for weather forecasts
-
-@end defvar
 
 @node emacspeak-view
 @section emacspeak-view
@@ -19615,33 +21003,6 @@ Open headline at point by following its link property and filter for content.
 @end format
 @end deffn
 
-@subsubsection emacspeak-webspace-freebase-search
-@deffn {Command} emacspeak-webspace-freebase-search  (query)
-@table @kbd
-@item C-; f
-@kindex C-; f
-@item C-x @@ h f
-@kindex C-x @@ h f
-@end table
-
-@findex emacspeak-webspace-freebase-search
-
-@format
-Perform a Freebase search and display results.
-
-(fn QUERY)
-@end format
-@end deffn
-
-@subsubsection emacspeak-webspace-google
-@deffn {Command} emacspeak-webspace-google   
-@findex emacspeak-webspace-google
-
-@format
-Display Google Search in a WebSpace buffer.
-@end format
-@end deffn
-
 @subsubsection emacspeak-webspace-headlines
 @deffn {Command} emacspeak-webspace-headlines   
 @table @kbd
@@ -19654,19 +21015,15 @@ Display Google Search in a WebSpace buffer.
 @findex emacspeak-webspace-headlines
 
 @format
-Startup Headlines ticker.
+Startup Headlines ticker using RSS/Atom  feeds.
 @end format
 @end deffn
 
 @subsubsection emacspeak-webspace-headlines-browse
 @deffn {Command} emacspeak-webspace-headlines-browse   
 @table @kbd
-@item C-' h
-@kindex C-' h
 @item C-; SPC SPC
 @kindex C-; SPC SPC
-@item C-x @@ s h
-@kindex C-x @@ s h
 @item C-x @@ h SPC SPC
 @kindex C-x @@ h SPC SPC
 @end table
@@ -19736,7 +21093,7 @@ y		emacspeak-webspace-yank-link
 C-M-i		backward-button
 
 In addition to any hooks its parent mode ‘special-mode’ might have run,
-this mode runs the hook ‘emacspeak-webspace-mode-hook’, as the final step
+this mode runs the hook ‘emacspeak-webspace-mode-hook’, as the final or penultimate step
 during initialization.
 @end format
 @end deffn
@@ -19756,32 +21113,6 @@ Open headline at point by following its link property.
 
 @format
 Transcode headline at point by following its link property.
-@end format
-@end deffn
-
-@subsubsection emacspeak-webspace-weather
-@deffn {Command} emacspeak-webspace-weather   
-@table @kbd
-@item C-; SPC w
-@kindex C-; SPC w
-@item C-x @@ h SPC w
-@kindex C-x @@ h SPC w
-@end table
-
-@findex emacspeak-webspace-weather
-
-@format
-Speak current weather.
-@end format
-@end deffn
-
-@subsubsection emacspeak-webspace-weather-update
-@deffn {Command} emacspeak-webspace-weather-update   
-@findex emacspeak-webspace-weather-update
-
-@format
-Setup periodic weather updates.
-Updated weather is found in ‘emacspeak-webspace-current-weather’.
 @end format
 @end deffn
 
@@ -20045,16 +21376,16 @@ annotation is inserted into the working buffer when complete.
 @findex emacspeak-clipboard-copy
 
 @format
-Copy contents of the region to the emacspeak clipboard.
-Previous contents of the clipboard will be overwritten.  The Emacspeak
-clipboard is a convenient way of sharing information between
-independent Emacspeak sessions running on the same or different
-machines.  Do not use this for sharing information within an Emacs
-session --Emacs’ register commands are far more efficient and
-light-weight.  Optional interactive prefix arg results in Emacspeak
-prompting for the clipboard file to use.
-Argument START and END specifies  region.
-Optional argument PROMPT  specifies whether we prompt for the name of a clipboard file.
+Copy contents of the region to the emacspeak clipboard. Previous
+contents of the clipboard will be overwritten. The Emacspeak clipboard
+is a convenient way of sharing information between independent
+Emacspeak sessions running on the same or different machines. Do not
+use this for sharing information within an Emacs session --Emacs’
+register commands are far more efficient and light-weight. Optional
+interactive prefix arg results in Emacspeak prompting for the
+clipboard file to use. Argument START and END specifies
+region. Optional argument PROMPT specifies whether we prompt for the
+name of a clipboard file.
 
 (fn START END &optional PROMPT)
 @end format
@@ -20133,18 +21464,6 @@ Customize Emacspeak.
 @end format
 @end deffn
 
-@subsubsection emacspeak-customize-personal-settings
-@deffn {Command} emacspeak-customize-personal-settings  (file)
-@findex emacspeak-customize-personal-settings
-
-@format
-Create a customization buffer for browsing and updating
-personal customizations.
-
-(fn FILE)
-@end format
-@end deffn
-
 @subsubsection emacspeak-emergency-tts-restart
 @deffn {Command} emacspeak-emergency-tts-restart   
 @table @kbd
@@ -20183,15 +21502,6 @@ Switch to labelled frame.
 With optional PREFIX argument, label current frame.
 
 (fn &optional PREFIX)
-@end format
-@end deffn
-
-@subsubsection emacspeak-frame-read-frame-label
-@deffn {Command} emacspeak-frame-read-frame-label   
-@findex emacspeak-frame-read-frame-label
-
-@format
-Read a frame label with completion.
 @end format
 @end deffn
 
@@ -20339,7 +21649,7 @@ Switch  to this buffer as displayed in a different frame.  Emacs
 allows you to display the same buffer in multiple windows or
 frames.  These different windows can display different
 portions of the buffer.  This is equivalent to leaving a
-book open at places at once.  This command allows you to
+book open at multiple places at once.  This command allows you to
 move to the places where you have left the book open.  The
 number used to invoke this command specifies which of the
 displays you wish to select.  Typically you will have two or
@@ -20480,7 +21790,7 @@ tabulated output. This command should be used for shell commands
 that produce tabulated output that works with Emacspeak’s table
 recognizer. Verify this first by running the command in a shell
 and executing command ‘emacspeak-table-display-table-in-region’
-normally bound to C-e TAB.
+normally bound to C-e M-i.
 
 (fn COMMAND &optional READ-AS-CSV)
 @end format
@@ -20803,7 +22113,7 @@ Major mode for browsing DVI files.
 
 DVI files  are converted to text and previewed using text mode.
 
-This mode runs the hook ‘emacspeak-wizards-dvi-mode-hook’, as the final step
+This mode runs the hook ‘emacspeak-wizards-dvi-mode-hook’, as the final or penultimate step
 during initialization.
 
 key             binding
@@ -20850,7 +22160,8 @@ Enumerate  faces matching pattern.
 @findex emacspeak-wizards-enumerate-obsolete-faces
 
 @format
-utility function to enumerate old, obsolete maps that we have still  mapped to voices.
+utility function to enumerate old, obsolete maps that we have still
+mapped to voices.
 @end format
 @end deffn
 
@@ -21009,7 +22320,7 @@ directory to where find is to be launched.
 @format
 Emacspeak Finder
 
-This mode runs the hook ‘emacspeak-wizards-finder-mode-hook’, as the final step
+This mode runs the hook ‘emacspeak-wizards-finder-mode-hook’, as the final or penultimate step
 during initialization.
 
 key             binding
@@ -21120,17 +22431,32 @@ With interactive prefix arg, prompts for and remembers the file local pattern.
 @end format
 @end deffn
 
-@subsubsection emacspeak-wizards-ido-yank
-@deffn {Command} emacspeak-wizards-ido-yank   
+@subsubsection emacspeak-wizards-iheart
+@deffn {Command} emacspeak-wizards-iheart  (q)
 @table @kbd
-@item C-M-y
-@kindex C-M-y
+@item C-, i
+@kindex C-, i
+@item C-x @@ a i
+@kindex C-x @@ a i
 @end table
 
-@findex emacspeak-wizards-ido-yank
+@findex emacspeak-wizards-iheart
 
 @format
-Pick what to yank using ido completion.
+Perform IHeart Radio search and display clickable results.
+
+(fn Q)
+@end format
+@end deffn
+
+@subsubsection emacspeak-wizards-iheart-radio-play
+@deffn {Command} emacspeak-wizards-iheart-radio-play  (id)
+@findex emacspeak-wizards-iheart-radio-play
+
+@format
+Play specified   station from IHeart Radio.
+
+(fn ID)
 @end format
 @end deffn
 
@@ -21293,7 +22619,7 @@ Major mode for browsing PPT slides.
 PPT files  are converted to HTML and previewed using a browser.
 
 In addition to any hooks its parent mode ‘text-mode’ might have run,
-this mode runs the hook ‘emacspeak-wizards-ppt-mode-hook’, as the final step
+this mode runs the hook ‘emacspeak-wizards-ppt-mode-hook’, as the final or penultimate step
 during initialization.
 
 key             binding
@@ -21356,6 +22682,22 @@ Run rpm -qi on current dired entry.
 @end format
 @end deffn
 
+@subsubsection emacspeak-wizards-scratch
+@deffn {Command} emacspeak-wizards-scratch   
+@table @kbd
+@item C-' SPC
+@kindex C-' SPC
+@item C-x @@ s SPC
+@kindex C-x @@ s SPC
+@end table
+
+@findex emacspeak-wizards-scratch
+
+@format
+Switch to *scratch* buffer, creating it if necessary.
+@end format
+@end deffn
+
 @subsubsection emacspeak-wizards-shell
 @deffn {Command} emacspeak-wizards-shell  (&optional prefix)
 @table @kbd
@@ -21368,10 +22710,69 @@ Run rpm -qi on current dired entry.
 @findex emacspeak-wizards-shell
 
 @format
-Run Emacs built-in ‘shell’ command when not in a shell buffer, or when called with a prefix argument.
-When called from a shell buffer, switches to ‘next’ shell buffer.
+Run Emacs built-in ‘shell’ command when not in a shell buffer, or
+when called with a prefix argument. When called from a shell buffer,
+switches to ‘next’ shell buffer. When called from outside a shell
+buffer, find the most ‘appropriate shell’ and switch to it.
+Once switched, set default directory in that target shell to the directory of the source buffer.
 
 (fn &optional PREFIX)
+@end format
+@end deffn
+
+@subsubsection emacspeak-wizards-shell-by-key
+@deffn {Command} emacspeak-wizards-shell-by-key  (&optional rekey)
+@table @kbd
+@item C-e x 9
+@kindex C-e x 9
+@item C-e x 8
+@kindex C-e x 8
+@item C-e x 7
+@kindex C-e x 7
+@item C-e x 6
+@kindex C-e x 6
+@item C-e x 5
+@kindex C-e x 5
+@item C-e x 4
+@kindex C-e x 4
+@item C-e x 2
+@kindex C-e x 2
+@item C-e x 1
+@kindex C-e x 1
+@item C-e x 0
+@kindex C-e x 0
+@item <fn> x 9
+@kindex <fn> x 9
+@item <fn> x 8
+@kindex <fn> x 8
+@item <fn> x 7
+@kindex <fn> x 7
+@item <fn> x 6
+@kindex <fn> x 6
+@item <fn> x 5
+@kindex <fn> x 5
+@item <fn> x 4
+@kindex <fn> x 4
+@item <fn> x 2
+@kindex <fn> x 2
+@item <fn> x 1
+@kindex <fn> x 1
+@item <fn> x 0
+@kindex <fn> x 0
+@end table
+
+@findex emacspeak-wizards-shell-by-key
+
+@format
+Switch to shell buffer by key. This provides a predictable means
+  for switching to a specific shell buffer. When invoked from a
+  non-shell-mode buffer that is visiting a file, invokes ‘cd ’ in
+  the shell to change to the value of ‘default-directory’ --- use
+  a prefix-arg to negate this behavior. When already in a shell
+  buffer, interactive prefix arg ‘rekey’ causes this shell to be
+  re-keyed if appropriate --- see M-x emacspeak-wizards-shell-re-key for an explanation of  how re-keying works.
+
+(fn &optional REKEY)
 @end format
 @end deffn
 
@@ -21390,6 +22791,15 @@ When called from a shell buffer, switches to ‘next’ shell buffer.
 Prompts for and runs shell command on current file.
 
 (fn COMMAND)
+@end format
+@end deffn
+
+@subsubsection emacspeak-wizards-shell-directory-reset
+@deffn {Command} emacspeak-wizards-shell-directory-reset   
+@findex emacspeak-wizards-shell-directory-reset
+
+@format
+Set current directory to this shell’s initial directory if one was defined.
 @end format
 @end deffn
 
@@ -21707,7 +23117,7 @@ key             binding
 
 C-l		emacspeak-wizards-vc-viewer-refresh
 
-This mode runs the hook ‘emacspeak-wizards-vc-viewer-mode-hook’, as the final step
+This mode runs the hook ‘emacspeak-wizards-vc-viewer-mode-hook’, as the final or penultimate step
 during initialization.
 @end format
 @end deffn
@@ -21812,7 +23222,7 @@ Major mode for browsing XL spreadsheets.
 XL Sheets are converted to HTML and previewed using a browser.
 
 In addition to any hooks its parent mode ‘text-mode’ might have run,
-this mode runs the hook ‘emacspeak-wizards-xl-mode-hook’, as the final step
+this mode runs the hook ‘emacspeak-wizards-xl-mode-hook’, as the final or penultimate step
 during initialization.
 
 key             binding
@@ -21854,17 +23264,6 @@ Symbols are separated by whitespace.
 @format
 Display quotes using YQL API.
 Symbols are taken from ‘emacspeak-wizards-personal-portfolio’.
-@end format
-@end deffn
-
-@subsubsection emacspeak-wizards-yql-weather
-@deffn {Command} emacspeak-wizards-yql-weather  (zip)
-@findex emacspeak-wizards-yql-weather
-
-@format
-Display weather forecast table.
-
-(fn ZIP)
 @end format
 @end deffn
 
@@ -21952,15 +23351,20 @@ Command for running pdftotext.
 @end defvar
 
 @defvar {User Option} emacspeak-wizards-personal-portfolio
-Set this to the stock tickers you want to check.
-Default is GAFA. Tickers are separated by white-space and are automatically sorted in lexical
-order with duplicates removed  when saving.
+Set this to the stock tickers you want to check. Default is
+GAFA. Tickers are separated by white-space and are automatically
+sorted in lexical order with duplicates removed when saving.
 
 @end defvar
 
 @defvar {User Option} emacspeak-wizards-ppthtml-program
 Program for converting PPT  to HTML.
 Set this to nil if you do not want to use the PPTHTML wizard.
+
+@end defvar
+
+@defvar {User Option} emacspeak-wizards-project-shells
+List of shell-name/initial-directory pairs.
 
 @end defvar
 
@@ -21995,11 +23399,6 @@ Template used to audio-format  rows.
 
 @end defvar
 
-@defvar {User Option} emacspeak-wizards-yql-weather-filter
-Template used to audio-format  weather.
-
-@end defvar
-
 @node emacspeak-woman
 @section emacspeak-woman
 
@@ -22008,9 +23407,9 @@ WOMAN ==  Man pages implemented in Emacs Lisp
 @node emacspeak-xkcd
 @section emacspeak-xkcd
 
-XKCD ==  emacs-xkcd
+XKCD ==  XKCD In Emacs
 View XKCD comics in Emacs.
-Speech enables package emacs-xkcd
+Speech enables package xkcd
 Augments it by displaying the alt text and the transcript.
 
 @subsection emacspeak-xkcd Commands
@@ -22123,7 +23522,7 @@ C-c C-v		emacspeak-xml-shell-browse-result
 C-c v		emacspeak-xml-shell-browse-current
 
 In addition to any hooks its parent mode ‘comint-mode’ might have run,
-this mode runs the hook ‘emacspeak-xml-shell-mode-hook’, as the final step
+this mode runs the hook ‘emacspeak-xml-shell-mode-hook’, as the final or penultimate step
 during initialization.
 @end format
 @end deffn
@@ -22280,6 +23679,13 @@ Start ESpeak engine.
 @end format
 @end deffn
 
+@subsection espeak-voices Options
+
+@defvar {User Option} espeak-default-speech-rate
+Default speech rate for eSpeak.
+
+@end defvar
+
 @node g
 @section g
 
@@ -22306,12 +23712,11 @@ Used by modules like gphoto, gblogger etc.
 @format
 Major mode for APP interaction
 
-Uses keymap ‘g-app-mode-map
+\@{g-app-mode-map
 
-In addition to any hooks its parent mode `nxml-mode' might have run,
-this mode runs the hook `g-app-mode-hook', as the final step
-during initialization.’, which is not currently defined.
-
+In addition to any hooks its parent mode ‘nxml-mode’ might have run,
+this mode runs the hook ‘g-app-mode-hook’, as the final or penultimate step
+during initialization.
 @end format
 @end deffn
 
@@ -22428,45 +23833,6 @@ XSLT Processor.
 
 @end defvar
 
-@node gf
-@section gf
-
-Explore Freebase graph search results
-
-@node gfeeds
-@section gfeeds
-
-Fast feed access from Google for use in Emacs
-
-@subsection gfeeds Commands
-
-@subsubsection gfeeds-view
-@deffn {Command} gfeeds-view  (&rest rest)
-@findex gfeeds-view
-
-@format
-:around advice: ‘ad-Advice-gfeeds-view’
-
-Display Feed in a browser.
-Interactive prefix arg causes the feed url to be looked up given a Web site.
-
-(fn URL &optional LOOKUP)
-@end format
-@end deffn
-
-@subsection gfeeds Options
-
-@defvar {User Option} gfeeds-freshness
-Freshness used to decide if we return titles.
-
-@end defvar
-
-@defvar {User Option} gfeeds-referer
-Referer URL to send to the API.
-Customize this to point to your Web location.
-
-@end defvar
-
 @node gm-nnir
 @section gm-nnir
 
@@ -22568,7 +23934,7 @@ Driving directions from Google Maps.
 A Google Maps front-end for the Emacspeak desktop.
 
 In addition to any hooks its parent mode ‘special-mode’ might have run,
-this mode runs the hook ‘gmaps-mode-hook’, as the final step
+this mode runs the hook ‘gmaps-mode-hook’, as the final or penultimate step
 during initialization.
 
 key             binding
@@ -22730,37 +24096,6 @@ Provide Google services --- such as search, search-based completion etc.
 For use from within Emacs tools.
 This is meant to be fast and efficient --- and uses WebAPIs as opposed to HTML  scraping.
 
-@subsection gweb Commands
-
-@subsubsection gweb-google-at-point
-@deffn {Command} gweb-google-at-point  (search-term &optional refresh)
-@findex gweb-google-at-point
-
-@format
-Google for term at point, and display top result succinctly.
-Attach URL at point so we can follow it later --- subsequent invocations of this command simply follow that URL.
-Optional interactive prefix arg refresh forces this cached URL to be refreshed.
-
-(fn SEARCH-TERM &optional REFRESH)
-@end format
-@end deffn
-
-@subsubsection gweb-news-view
-@deffn {Command} gweb-news-view  (query)
-@findex gweb-news-view
-
-@format
-Display News Search results  in a browser.
-
-(fn QUERY)
-@end format
-@end deffn
-
-@node json-view
-@section json-view
-
-json-viewer.el: View, Explore JSON data 
-
 @node ladspa
 @section ladspa
 
@@ -22823,7 +24158,7 @@ Instantiate plugin at point by prompting for control values.
 A Ladspa workbench for the Emacspeak desktop.
 
 In addition to any hooks its parent mode ‘special-mode’ might have run,
-this mode runs the hook ‘ladspa-mode-hook’, as the final step
+this mode runs the hook ‘ladspa-mode-hook’, as the final or penultimate step
 during initialization.
 
 key             binding
@@ -22845,6 +24180,13 @@ p		previous-line
 
 This module defines the various voices used in voice-lock mode by Mac TTS.
 
+@subsection mac-voices Options
+
+@defvar {User Option} mac-default-speech-rate
+Default speech rate for mac.
+
+@end defvar
+
 @node outloud-voices
 @section outloud-voices
 
@@ -22854,7 +24196,7 @@ This module is IBM ViaVoice Outloud specific.
 @subsection outloud-voices Commands
 
 @subsubsection outloud
-@deffn {Command} outloud   
+@deffn {Command} outloud  (&optional device)
 @table @kbd
 @item C-e d C-o
 @kindex C-e d C-o
@@ -22866,24 +24208,26 @@ This module is IBM ViaVoice Outloud specific.
 
 @format
 Select Outloud server.
+
+(fn &optional DEVICE)
 @end format
 @end deffn
 
 @subsubsection outloud-32
 @deffn {Command} outloud-32   
-@table @kbd
-@item C-e d C-v
-@kindex C-e d C-v
-@item <fn> d C-v
-@kindex <fn> d C-v
-@end table
-
 @findex outloud-32
 
 @format
 Select 32-Outloud server.
 @end format
 @end deffn
+
+@subsection outloud-voices Options
+
+@defvar {User Option} outloud-default-speech-rate
+Default speech rate for outloud.
+
+@end defvar
 
 @node plain-voices
 @section plain-voices
@@ -23164,7 +24508,7 @@ Edit effect at point.
 An audio workbench for the Emacspeak desktop.
 
 In addition to any hooks its parent mode ‘special-mode’ might have run,
-this mode runs the hook ‘sox-mode-hook’, as the final step
+this mode runs the hook ‘sox-mode-hook’, as the final or penultimate step
 during initialization.
 
 key             binding
@@ -23263,9 +24607,73 @@ Location of play from SoX utility.
 @node sox-gen
 @section sox-gen
 
-Contains a collection of functions that generate sound using SoX.
-These functions are primarily for use from other Emacs/Emacspeak modules.
+Provides binaural audio along with pre-defined themes.
 This module can be used independent of Emacspeak.
+
+@subsection Binaural Beats  Using SoX
+
+A binaural beat is an auditory illusion perceived when two different
+pure-tone sine waves, both with frequencies lower than 1500 Hz, with
+less than a 40 Hz difference between them, are presented to a listener
+dichotically (one through each ear). For example, if a 530 Hz pure tone
+is presented to a subject's right ear, while a 520 Hz pure tone is
+presented to the subject's left ear, the listener will perceive the
+auditory illusion of a third tone, in addition to the two pure-tones
+presented to each ear. The third sound is called a binaural beat, and in
+this example would have a perceived pitch correlating to a frequency of
+10 Hz, that being the difference between the 530 Hz and 520 Hz pure
+tones presented to each ear. For more details, see
+@url{https://en.wikipedia.org/wiki/Binaural_beats}.
+
+This module implements a set of user-facing commands for generating
+binaural beats. The commands are organized from high-level commands that
+play predefined binaural beats to lower-level commands that can be
+used to create new effect sequences.
+
+All binaural beat sequences are played with a relatively low gain
+--- they are designed to be heard in the background and when
+effective blend fully into the background. You can increase the
+overall volume of all binaural beat sequences by customizing
+@defvar {User Option} sox-binaural-gain-offset to a positive value
+@end defvar
+--- default is 0.
+
+@subsubsection High-Level Commands For Pre-Defined Binaural Beats
+
+These commands can be called directly to play one of the predefined
+binaural beats.
+
+@itemize
+@item @command{sox-rev-up}: A set of binaural beats designed for  use
+at the start of the day. Transitions from @emph{Dream} -> @emph{Think}
+->@emph{Act} -> @emph{Focus}.
+@item @command{sox-wind-down}: A  set of binaural beats for winding down
+at the end of the day. This can be thought of as the reverse of
+@command{sox-rev-up} and the sequence transitions from @emph{Act} ->
+@emph{Think} -> @emph{Dream} ->@emph{Sleep}.
+@item @command{sox-turn-down}: Designed for falling asleep.
+This sequence starts with a short period of @emph{Dream} before moving
+to @emph{Sleep}.
+@item @command{sox-relax}:  A variant of the previous sequence,
+@code{sox-relax} spends equal time in @emph{Dream} and @emph{Sleep}.
+@item @command{sox-binaural}: Provide a completion-based front-end to
+playing any one of the predefined binaural effects (@emph{Delta},
+@emph{Theta}, @emph{Alpha}, @emph{Beta}, or @emph{Gamma}. The previously
+defined sequences are built up using these effects.
+@item @command{sox-beats-binaural}: Plays a collection of binaural
+beats, prompting for carrier and beat frequencies for each tone. The
+predefined sequences listed earlier were created after first generating
+experimental beat-sequences using this command.
+@item @command{sox-slide-binaural}: Prompts for two binaural effects
+(see above) and generates a binaural beat that @emph{slides} from the
+first effect to the second over a specified duration.
+@item @command{sox-chakras}: Pick  amongst one of a predefined set of
+sequences designed for @emph{Chakra} meditation.
+@item @command{sox-tone-binaural}: Generate a simple binaural beat
+with a single carrier frequency.
+@item @command{sox-tone-slide-binaural}: Generate a  tone that slides
+from one binaural beat to another.
+@end itemize
 
 @subsection sox-gen Commands
 
@@ -23275,7 +24683,7 @@ This module can be used independent of Emacspeak.
 
 @format
 Play binaural audio with beat-spec specifying the various tones.
-Param ‘beat-spec’ is a list of ‘(carrier beat) tupples.
+Param ‘beat-spec-list’ is a list of ‘(carrier beat) tupples.
 
 (fn LENGTH BEAT-SPEC-LIST GAIN)
 @end format
@@ -23312,26 +24720,37 @@ Parameter ‘theme’ specifies variant.
 @end deffn
 
 @subsubsection sox-relax
-@deffn {Command} sox-relax  (duration-scale)
+@deffn {Command} sox-relax  (length)
 @findex sox-relax
 
 @format
 Play relax set of  binaural beats.
-Each segment is scaled by ‘duration-scale’.
+Param ‘length’ specifies total duration.
 
-(fn DURATION-SCALE)
+(fn LENGTH)
 @end format
 @end deffn
 
 @subsubsection sox-rev-up
-@deffn {Command} sox-rev-up  (duration-scale)
+@deffn {Command} sox-rev-up  (length)
 @findex sox-rev-up
 
 @format
 Play rev-up set of  binaural beats.
-Each segment is scaled by ‘duration-scale’.
+Param ‘length’ specifies total duration.
 
-(fn DURATION-SCALE)
+(fn LENGTH)
+@end format
+@end deffn
+
+@subsubsection sox-slide-binaural
+@deffn {Command} sox-slide-binaural  (name-1 name-2 duration)
+@findex sox-slide-binaural
+
+@format
+Play specified binaural slide from ‘name-1’ to ‘name-2’.
+
+(fn NAME-1 NAME-2 DURATION)
 @end format
 @end deffn
 
@@ -23340,23 +24759,67 @@ Each segment is scaled by ‘duration-scale’.
 @findex sox-tone-binaural
 
 @format
-Play binaural audio with carrier frequency ‘freq’, beat ‘beat’,  and gain ‘gain’.
+Play binaural audio with carrier frequency ‘freq’, beat ‘beat’, and
+gain ‘gain’.
 
 (fn LENGTH FREQ BEAT GAIN)
 @end format
 @end deffn
 
+@subsubsection sox-tone-slide-binaural
+@deffn {Command} sox-tone-slide-binaural  (length freq beat-start beat-end gain)
+@findex sox-tone-slide-binaural
+
+@format
+Play binaural audio with carrier frequency ‘freq’, beat
+‘beat-start’ -> ‘beat-end’, and gain ‘gain’.
+
+(fn LENGTH FREQ BEAT-START BEAT-END GAIN)
+@end format
+@end deffn
+
+@subsubsection sox-turn-down
+@deffn {Command} sox-turn-down  (length)
+@findex sox-turn-down
+
+@format
+Play turn-down set of  binaural beats.
+Param ‘length’ specifies total duration.
+
+(fn LENGTH)
+@end format
+@end deffn
+
 @subsubsection sox-wind-down
-@deffn {Command} sox-wind-down  (duration-scale)
+@deffn {Command} sox-wind-down  (length)
 @findex sox-wind-down
 
 @format
 Play wind-down set of  binaural beats.
-Each segment is scaled by ‘duration-scale’.
+Param ‘length’ specifies total duration.
 
-(fn DURATION-SCALE)
+(fn LENGTH)
 @end format
 @end deffn
+
+@subsection sox-gen Options
+
+@defvar {User Option} sox-binaural-gain-offset
+User specified offset that is added to default gain when generating
+tones using SoX, e.g., for binaural beats.
+
+@end defvar
+
+@defvar {User Option} sox-binaural-slider-scale
+Scale factor used to compute slide duration when moving from one
+binaural beat to another.
+
+@end defvar
+
+@defvar {User Option} sox-gen-p
+Should sox-gen commands attempt to invoke SoX.
+
+@end defvar
 
 @node stack-f
 @section stack-f
@@ -23364,16 +24827,6 @@ Each segment is scaled by ‘duration-scale’.
 The stack is implemented as a linked list with a tag 'STACK
 as the first element.  All entries and removals are done using
 destructive functions.
-
-@node subr-x
-@section subr-x
-
-Less commonly used functions that complement basic APIs, often implemented in
-C code (like hash-tables and strings), and are not eligible for inclusion
-in subr.el.
-
-Do not document these functions in the lispref.
-http://lists.gnu.org/archive/html/emacs-devel/2014-01/msg01006.html
 
 @node tetris
 @section tetris
@@ -23885,7 +25338,7 @@ Step-size used when incrementing and decrementing brightness.
 @node URL Templates 
 @section URL Templates
 
-This section documents a total of 83 URL Templates.
+This section documents a total of 85 URL Templates.
 
 All of these URL templates can be invoked via command
  @kbd{M-x emacspeak-url-template-fetch} normally bound to
@@ -24003,9 +25456,26 @@ Display content from Google Finance.
 
 Display content from Google Finance.
 
+@b{Flight Status}
+
+Show Flight Status.
+
+@b{Flight Tracker}
+
+Flight Tracker
+
 @b{FreeSound}
 
 Search FreeSound.
+
+@b{GitHub Code Search}
+
+GitHub Code Search.
+Query can include filters such as:
+
+<term>: Query Term.
+extension:<ext> Filter by file extension
+-filename:<pattern> Filter out files matching pattern.
 
 @b{GitHub Search}
 
@@ -24071,9 +25541,9 @@ Page Analysis From Google Webmaster tools.
 
 Display specified news feed.
 
-@b{IToRSS}
+@b{Lightweight  weather from wunderground}
 
-Pull RSS feed corresponding to an ITunes Podcast.
+Pull light-weight weather feed for specified state/city.
 
 @b{MLB Scorecard}
 
@@ -24142,10 +25612,6 @@ RadioTime Categories .
 
 RadioTime Search.
 
-@b{Reuters Finance}
-
-Reuters Finance Lookup
-
 @b{Seeking Alpha Stock Search}
 
 Seeking Alpha search.
@@ -24157,7 +25623,8 @@ Login to Google.
 @b{StreamWorld Radio}
 
 Play radio stream.
-See http://www.cbsradio.com/streaming/index.html for a list of CBS stations that use StreamTheWorld.
+Example: kcbsFM.
+Format is stationid+AM/FM.
 
 @b{Structured Data Extractor}
 

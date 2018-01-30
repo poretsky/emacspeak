@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{ Copyright:
 
-;;; Copyright (C) 1995 -- 2015, T. V. Raman<raman@cs.cornell.edu>
+;;; Copyright (C) 1995 -- 2017, T. V. Raman<raman@cs.cornell.edu>
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -177,7 +177,7 @@ dont-url-encode if true then url arguments are not url-encoded "
     (with-current-buffer buffer
       (setq buffer-undo-list t)
       (erase-buffer)
-      (loop
+      (cl-loop
        for key being the hash-keys of emacspeak-url-template-table do
        (insert
         (format
@@ -212,7 +212,7 @@ dont-url-encode if true then url arguments are not url-encoded "
 
 (emacspeak-url-template-define
  "Amazon Product Details By ASIN"
- "http://amazon.com/o/dt/upda-1.0-i/tg/aa/upda/item/-/%s"
+ "https://amazon.com/o/dt/upda-1.0-i/tg/aa/upda/item/-/%s"
  (list "ASIN Or ISBN: ")
  nil
  "Retrieve product details from Amazon by either ISBN or ASIN.")
@@ -331,14 +331,14 @@ dont-url-encode if true then url arguments are not url-encoded "
 
 (emacspeak-url-template-define
  "Google Trends"
- "http://www.google.com/trends/hottrends/atom/feed?pn=p1"
+ "https://www.google.com/trends/hottrends/atom/feed?pn=p1"
  nil nil
  "Google Trends"
  #'emacspeak-feeds-rss-display)
 
 (emacspeak-url-template-define
  "Google Trends Compared"
- "http://www.google.com/trends/fetchComponent?hl=en-US&q=%s&geo=US&cid=RISING_QUERIES_0_0"
+ "https://www.google.com/trends/fetchComponent?hl=en-US&q=%s&geo=US&cid=RISING_QUERIES_0_0"
  (list "Comma Separated Keywords: ")
  nil
  "Display comparative trends."
@@ -346,7 +346,7 @@ dont-url-encode if true then url arguments are not url-encoded "
 
 (emacspeak-url-template-define
  "Google Related Trends"
- "http://www.google.com/trends/fetchComponent?hl=en-US&q=%s&geo=US&cid=RISING_QUERIES_0_0"
+ "https://www.google.com/trends/fetchComponent?hl=en-US&q=%s&geo=US&cid=RISING_QUERIES_0_0"
  (list "Comma Separated Keywords: ")
  nil
  "Display Related Query Trends."
@@ -359,7 +359,7 @@ dont-url-encode if true then url arguments are not url-encoded "
 (defvar w3-auto-image-alt)
 (emacspeak-url-template-define
  "Market summary from Google"
- "http://finance.google.com/finance"
+ "https://finance.google.com/finance"
  nil
  nil
  "Display financial market summary."
@@ -396,7 +396,7 @@ dont-url-encode if true then url arguments are not url-encoded "
 
 (emacspeak-url-template-define
  "Anonymize Google Search"
- "http://www.google.com/accounts/Logout"
+ "https://www.google.com/accounts/Logout"
  nil
  nil
  "Logout from Google to do an anonymous search.")
@@ -409,7 +409,7 @@ dont-url-encode if true then url arguments are not url-encoded "
 
 (emacspeak-url-template-define
  "Patent Search From Google"
- "http://www.google.com/patents?ie=ISO-8859-1&q=%s"
+ "https://www.google.com/patents?ie=ISO-8859-1&q=%s"
  (list "Google For Patents: ")
  #'(lambda nil
      (search-forward " Patent Search" nil t)
@@ -439,7 +439,7 @@ dont-url-encode if true then url arguments are not url-encoded "
 
 (emacspeak-url-template-define
  "Finance Google Search"
- "http://finance.google.com/finance?q=%s"
+ "https://finance.google.com/finance?q=%s"
  (list "Finance Search: ")
  'emacspeak-speak-buffer
  "Display content from Google Finance."
@@ -456,7 +456,7 @@ dont-url-encode if true then url arguments are not url-encoded "
 
 (emacspeak-url-template-define
  "Finance Google news"
- "http://finance.google.com/"
+ "https://finance.google.com/"
  nil
  nil
  "Display content from Google Finance."
@@ -469,7 +469,7 @@ dont-url-encode if true then url arguments are not url-encoded "
 
 (emacspeak-url-template-define
  "Google Scholar"
- "http://scholar.google.com/scholar?ie=UTF-8&oe=UTF-8&hl=en&btnG=Search&num=25&q=%s"
+ "https://scholar.google.com/scholar?ie=UTF-8&oe=UTF-8&hl=en&btnG=Search&num=25&q=%s"
  (list "Google Scholar Search: ")
  nil
  "Google Scholar Search"
@@ -481,7 +481,7 @@ dont-url-encode if true then url arguments are not url-encoded "
 
 (emacspeak-url-template-define
  "Google Image Search"
- "http://images.google.com/images?hl=en&source=hp&q=%s&btnG=Search+Images&gbv=1"
+ "https://images.google.com/images?hl=en&source=hp&q=%s&btnG=Search+Images&gbv=1"
  (list "Google Image Search: ")
  #'(lambda ()
      (search-forward "results" nil t)
@@ -496,7 +496,7 @@ dont-url-encode if true then url arguments are not url-encoded "
 
 (emacspeak-url-template-define
  "Multilingual dictionary via Google."
- "http://translate.google.com/translate_dict?q=%s&sa=N&hl=en&langpair=%s"
+ "https://translate.google.com/translate_dict?q=%s&sa=N&hl=en&langpair=%s"
  (list
   "Word: "
   "Translate from|To:")
@@ -554,7 +554,7 @@ from English to German")
 
 (emacspeak-url-template-define
  "Google NewsPaper"
- "http://news.google.com/news"
+ "https://news.google.com/news"
  nil
  nil
  "Retrieve and speak Google News Overview."
@@ -568,7 +568,7 @@ from English to German")
 
 (emacspeak-url-template-define
  "html Google News Search"
- "http://news.google.com/news?hl=en&ned=tus&q=%s&btnG=Google+Search"
+ "https://news.google.com/news?hl=en&ned=tus&q=%s&btnG=Google+Search"
  (list "Google News: ")
  #'(lambda ()
      (emacspeak-url-template-setup-content-filter)
@@ -588,7 +588,7 @@ from English to German")
 
 (emacspeak-url-template-define
  "Google News Search"
- "http://news.google.com/news?hl=en&ned=tus&q=%s&btnG=Google+Search&output=atom"
+ "https://news.google.com/news?hl=en&ned=tus&q=%s&btnG=Google+Search&output=atom"
  (list "Google News: ")
  nil
  "Search Google news."
@@ -609,7 +609,7 @@ from English to German")
   "Completion table for reading news category.")
 (emacspeak-url-template-define
  "Google Category News"
- "http://news.google.com/news?hl=en&topic=%s&output=atom"
+ "https://news.google.com/news?hl=en&topic=%s&output=atom"
  (list
   #'(lambda ()
       (let* ((completion-ignore-case t)
@@ -635,7 +635,7 @@ from English to German")
  #'emacspeak-url-template-google-atom-news-display)
 
 (defvar emacspeak-url-template-google-transcoder-url
-  "http://www.google.com/gwt/n?_gwt_noimg=1&output=xhtml&u=%s"
+  "https://www.google.com/gwt/n?_gwt_noimg=1&output=xhtml&u=%s"
   "URL for obtaining mobile transcoder page views.")
 
 (emacspeak-url-template-define
@@ -651,7 +651,7 @@ from English to German")
 
 (emacspeak-url-template-define
  "Google topical News"
- "http://news.google.com/news?ned=us&topic=%s&output=atom"
+ "https://news.google.com/news?ned=us&topic=%s&output=atom"
  (list "Topic Code: ")
  nil
  "Display specified news feed."
@@ -664,19 +664,11 @@ from English to German")
  "Structured Data Extractor"
  "https://search.google.com/structured-data/testing-tool/u/0/?url=%s"
  (list "URL: ")
- nil 
+ nil
  "Extract/Validate Structured Data.")
 
 ;;}}}
 ;;{{{ Google Archive Search
-
-(emacspeak-url-template-define
- "IToRSS"
- "http://feedflipper.net/convert.php?feed=%s"
- (list "ITunes URL: ")
- nil
- "Pull RSS feed corresponding to an ITunes Podcast."
- #'emacspeak-feeds-rss-display)
 
 ;;}}}
 ;;{{{ cnet news
@@ -885,7 +877,7 @@ name of the list.")
 
 (emacspeak-url-template-define
  "MLB standings"
- "http://www.mlb.com/NASApp/mlb/mlb/standings/index.jsp" ;;; dummy 
+ "http://www.mlb.com/NASApp/mlb/mlb/standings/index.jsp" ;;; dummy
  nil
  nil
  "Display MLB standings."
@@ -1047,7 +1039,7 @@ JSON is retrieved from `url'."
 
 (emacspeak-url-template-define
  "NBA  standings"
- "http://www.nba.com/NASApp/nba/nba/standings/index.jsp" ;;; dummy 
+ "http://www.nba.com/NASApp/nba/nba/standings/index.jsp" ;;; dummy
  nil
  nil
  "Display NBA standings."
@@ -1089,21 +1081,23 @@ Set up URL rewrite rule to get print page."
 
 ;;}}}
 ;;{{{ weather underground
-;;;###autoload
-(defcustom emacspeak-url-template-weather-city-state
-  (bound-and-true-p  gweb-my-postal-code)
-  "Default city/state for weather forecasts"
-  :type 'string
-  :group 'emacspeak-url-template)
+(emacspeak-url-template-define
+ "Lightweight  weather from wunderground"
+ "https://braille.wunderground.com/cgi-bin/findweather/hdfForecast?brand=braille&query=%s"
+ (list
+  #'(lambda nil
+      (read-from-minibuffer "State/City:"
+                            (bound-and-true-p  gweb-my-postal-code))))
+ #'emacspeak-speak-buffer
+ "Pull light-weight weather feed for specified state/city.")
 
 (emacspeak-url-template-define
  "rss weather from wunderground"
  "http://www.wunderground.com/auto/rss_full/%s.xml?units=both"
  (list
   #'(lambda nil
-      (declare (special emacspeak-url-template-weather-city-state))
       (read-from-minibuffer "State/City:"
-                            emacspeak-url-template-weather-city-state)))
+                            (bound-and-true-p  gweb-my-postal-code))))
  nil
  "Pull RSS weather feed for specified state/city."
  #'emacspeak-feeds-rss-display)
@@ -1112,7 +1106,8 @@ Set up URL rewrite rule to get print page."
  "Weather forecast from Weather Underground"
  "http://mobile.wunderground.com/cgi-bin/findweather/getForecast?query=%s"
  (list
-  #'(lambda () (read-from-minibuffer "Zip: " emacspeak-url-template-weather-city-state)))
+  #'(lambda () (read-from-minibuffer "Zip: "
+                                     (bound-and-true-p  gweb-my-postal-code))))
  'emacspeak-speak-buffer
  "Weather forecast from weather underground mobile."
  )
@@ -1140,16 +1135,6 @@ Set up URL rewrite rule to get print page."
      (search-forward "Result page" nil t)
      (emacspeak-speak-line))
  "EmacsWiki Search")
-
-;;}}}
-;;{{{ reuters
-
-(emacspeak-url-template-define
- "Reuters Finance"
- "http://today.reuters.com/stocks/Overview.aspx?ticker=%s&fs=1"
- (list "Ticker: ")
- nil
- "Reuters Finance Lookup")
 
 ;;}}}
 ;;{{{ wordnet
@@ -1188,7 +1173,8 @@ Set up URL rewrite rule to get print page."
   #'(lambda () (upcase (read-from-minibuffer "Station ID: "))))
  nil
  "Play radio stream.
-See http://www.cbsradio.com/streaming/index.html for a list of CBS stations that use StreamTheWorld."
+Example: kcbsFM.
+Format is stationid+AM/FM."
  #'(lambda (url)
      (emacspeak-m-player url 'playlist)))
 
@@ -1197,8 +1183,16 @@ See http://www.cbsradio.com/streaming/index.html for a list of CBS stations that
 
 (emacspeak-url-template-define
  "Bing Search"
- "http://www.bing.com/search?format=rss&q=%s"
- (list "Bing Search: ")
+ "http://www.bing.com/search?format=rss&q=%s%s"
+ (list
+  "Bing Search: "
+  #'(lambda ()
+      (let ((choice
+             (completing-read "Date Restrict d w m y: "
+                              '("d" "w" "m" "y"))))
+        (cond
+         ((string= "" choice) "")
+         (t (format "&tbs=qdr:%s" choice))))))
  nil
  "Bing results as RSS feed."
  #'emacspeak-feeds-rss-display)
@@ -1215,11 +1209,23 @@ See http://www.cbsradio.com/streaming/index.html for a list of CBS stations that
 ;;{{{ GitHub Search
 
 (emacspeak-url-template-define
+ "GitHub Code Search"
+ "https://github.com/search?q=%s&type=Code&utf8=✓"
+ (list "GitHub Code Search:")
+ nil
+ "GitHub Code Search.
+Query can include filters such as:
+
+<term>: Query Term.
+extension:<ext> Filter by file extension
+-filename:<pattern> Filter out files matching pattern.")
+
+(emacspeak-url-template-define
  "GitHub Search"
  "https://github.com/search?q=%s"
  (list "Query: ")
  #'(lambda ()
-     (emacspeak-imenu-goto-next-index-position)
+     (emacspeak-eww-next-h)
      (emacspeak-speak-rest-of-buffer))
  "Perform a GitHub Search.")
 
@@ -1330,7 +1336,7 @@ See http://www.cbsradio.com/streaming/index.html for a list of CBS stations that
     (kill-new url)
     (funcall fetcher url)))
 
-(defsubst emacspeak-url-template-help-internal (name)
+(defun emacspeak-url-template-help-internal (name)
   "Display and speak help."
   (with-output-to-temp-buffer "*Help*"
     (princ name)
@@ -1349,10 +1355,9 @@ See http://www.cbsradio.com/streaming/index.html for a list of CBS stations that
   "Generate a setter that sets emacspeak-eww-url-template
 to specified name for use as a callback."
   (eval
-   (function
-    `(lambda ()
+    `#'(lambda ()
        (declare (special emacspeak-eww-url-template))
-       (setq emacspeak-eww-url-template ',name)))))
+       (setq emacspeak-eww-url-template ',name))))
 
 ;;;###autoload
 (defun emacspeak-url-template-fetch (&optional documentation)
@@ -1396,7 +1401,7 @@ resources."
 (defun emacspeak-url-template-generate-texinfo-documentation (buffer)
   "Generates texinfo section documenting all defined URL templates."
   (declare (special emacspeak-url-template-table))
-  (with-current-buffer buffer 
+  (with-current-buffer buffer
     (insert
      "@node URL Templates \n@section URL Templates\n\n")
     (insert
@@ -1428,9 +1433,9 @@ prompts for a location and speaks the forecast. \n\n"
     (let
         ((keys
           (sort
-           (loop for k being the hash-keys of emacspeak-url-template-table collect k)
+           (cl-loop for k being the hash-keys of emacspeak-url-template-table collect k)
            'string-lessp)))
-      (loop
+      (cl-loop
        for key in keys do
        (insert
         (format "@b{%s}\n\n" key))
@@ -1471,7 +1476,28 @@ prompts for a location and speaks the forecast. \n\n"
  "Lookup Stock Quote information on Bloomberg. Ticker is of the form goog:us")
 
 ;;}}}
+;;{{{ Flight Status
 
+(emacspeak-url-template-define
+ "Flight Status"
+ "http://www.flightstats.com/go/FlightStatus/flightStatusByFlight.do?airline=%s"
+ (list "Flight: ")
+ nil
+ "Show Flight Status.")
+
+(emacspeak-url-template-define
+ "Flight Tracker"
+ "http://www.flightstats.com/go/FlightTracker/flightTracker.do?%s"
+ (list
+  #'(lambda ()
+      (let* ((code (read-from-minibuffer "Flight Number: "))
+             (fields (split-string code)))
+        (format "airline=%s&flightNumber=%s"
+                (first fields) (second fields)))))
+ nil
+ "Flight Tracker")
+
+;;}}}
 (provide 'emacspeak-url-template)
 ;;{{{ end of file
 
