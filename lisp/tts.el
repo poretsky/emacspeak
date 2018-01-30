@@ -142,7 +142,7 @@
 
 (defvar tts-state-prototype 
   (make-tts-state
-     :rate  100
+   :rate  100
    :punctuations  'all
    :quiet  nil
    :capitalize  nil
@@ -163,8 +163,7 @@ appropriately initialized for engine used in this speaker process."
    (t
     (let ((env (tts-env speaker)))
       (setq tts-state (copy-tts-state tts-state-prototype))
-      (setf
-         (tts-env-default-speech-rate env))
+      (setf (tts-state-rate tts-state)  (tts-env-default-speech-rate env))
       tts-state))))
 
 ;;}}}
@@ -173,7 +172,7 @@ appropriately initialized for engine used in this speaker process."
 (loop
  for field in
  '(name default-voice
-        default-speech-rate speech-rate-step speech-rate-base )
+        default-speech-rate speech-rate-step speech-rate-base)
  do
  (eval
   `(defun ,(intern (format "tts-%s" field)) ()

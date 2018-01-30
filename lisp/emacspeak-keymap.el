@@ -111,9 +111,9 @@
 ;;}}}
 ;;{{{   Binding keymap and submap
 
-(define-prefix-command 'emacspeak-prefix-command 'emacspeak-keymap )
-(define-prefix-command  'emacspeak-dtk-submap-command 'emacspeak-dtk-submap )
-(define-prefix-command  'emacspeak-table-submap-command 'emacspeak-table-submap )
+(define-prefix-command 'emacspeak-prefix-command 'emacspeak-keymap)
+(define-prefix-command  'emacspeak-dtk-submap-command 'emacspeak-dtk-submap)
+(define-prefix-command  'emacspeak-table-submap-command 'emacspeak-table-submap)
 
 (global-set-key emacspeak-prefix 'emacspeak-prefix-command)
 (define-key emacspeak-keymap "d"  'emacspeak-dtk-submap-command)
@@ -130,15 +130,15 @@
 
 (loop for binding in
       '(
-        ( "B" customize-browse)
-        ( "G" customize-group)
-        ( "M" emacspeak-speak-popup-messages)
-        ( "M-F" find-function-at-point)
-        ( "M-V" find-variable-at-point)
-        ( "M-f" find-function)
-        ( "M-k" find-function-on-key)
-        ( "M-v" find-variable)
-        ( "V" customize-variable)
+        ("B" customize-browse)
+        ("G" customize-group)
+        ("M" emacspeak-speak-popup-messages)
+        ("M-F" find-function-at-point)
+        ("M-V" find-variable-at-point)
+        ("M-f" find-function)
+        ("M-k" find-function-on-key)
+        ("M-v" find-variable)
+        ("V" customize-variable)
         ("C-e"   emacspeak-describe-emacspeak)
         ("C-l" emacspeak-learn-emacs-mode)
         ("C-m" man)
@@ -156,16 +156,16 @@
 (loop
  for binding in
  '(
-   (  "C-a" emacspeak-toggle-auditory-icons )
-   ( "M-f" emacspeak-frame-label-or-switch-to-labelled-frame )
+   ("C-a" emacspeak-toggle-auditory-icons)
+   ("M-f" emacspeak-frame-label-or-switch-to-labelled-frame)
    ("!" emacspeak-speak-run-shell-command)
    ("#" emacspeak-gridtext)
    ("%" emacspeak-speak-current-percentage)
    ("&" emacspeak-wizards-shell-command-on-current-file)
-   ("'" emacspeak-pianobar )
+   ("'" emacspeak-pianobar)
    ("(" emacspeak-audio-setup)
    (")" emacspeak-sounds-select-theme)
-   ("," emacspeak-speak-browse-buffer )
+   ("," emacspeak-speak-browse-buffer)
    ("." emacspeak-speak-current-field)
    ("/" emacspeak-speak-this-buffer-other-window-display)
    (":" emacspeak-m-player-shuffle)
@@ -184,13 +184,13 @@
    ("<up>"  emacspeak-read-previous-line)
    ("=" emacspeak-speak-current-column)
    (">"  emacspeak-speak-next-field)
-   ("?" emacspeak-websearch-dispatch )
+   ("?" emacspeak-websearch-dispatch)
    ("@" emacspeak-speak-message-at-time)
    ("A" emacspeak-appt-repeat-announcement)
    ("B" emacspeak-speak-buffer-interactively)
    ("C" emacspeak-customize)
-   ("C-@" emacspeak-speak-current-mark )
-   ("C-SPC" emacspeak-speak-current-mark )
+   ("C-@" emacspeak-speak-current-mark)
+   ("C-SPC" emacspeak-speak-current-mark)
    ("C-b" emacspeak-bookshare)
    ("C-c" emacspeak-clipboard-copy)
    ("C-d" emacspeak-toggle-show-point)
@@ -198,11 +198,11 @@
    ("C-j" emacspeak-hide-speak-block-sans-prefix)
    ("C-l" emacspeak-speak-line-number)
    ("C-m"  emacspeak-speak-continuously)
-   ("C-n" emacspeak-speak-next-window )
-   ("C-o" emacspeak-ocr )
+   ("C-n" emacspeak-speak-next-window)
+   ("C-o" emacspeak-ocr)
    ("C-p" emacspeak-speak-previous-window)
    ("C-q" emacspeak-toggle-comint-autospeak)
-   ("C-s" tts-restart )
+   ("C-s" tts-restart)
    ("C-u" emacspeak-feeds-browse)
    ("C-v" view-mode)
    ("C-w" emacspeak-speak-window-information)
@@ -212,10 +212,10 @@
    ("L" emacspeak-speak-line-interactively)
    ("M" emacspeak-speak-minor-mode-line)
    ("M-%" emacspeak-goto-percent)
-   ("M-;" emacspeak-webutils-play-media-at-point )
+   ("M-;" emacspeak-webutils-play-media-at-point)
    ("M-C-@" emacspeak-speak-spaces-at-point)
    ("M-C-SPC" emacspeak-speak-spaces-at-point)
-   ("M-C-b" emacspeak-submit-bug )
+   ("M-C-b" emacspeak-submit-bug)
    ("M-C-k" kill-emacs)
    ("M-a" emacspeak-set-auditory-icon-player)
    ("M-b" emacspeak-speak-other-buffer)
@@ -236,7 +236,7 @@
    ("P" emacspeak-speak-paragraph-interactively)
    ("R" emacspeak-speak-rectangle)
    ("SPC" emacspeak-speak-header-line)
-   ("T" emacspeak-view-emacspeak-tips )
+   ("T" emacspeak-view-emacspeak-tips)
    ("V" emacspeak-speak-version)
    ("W" emacspeak-tapestry-select-window-by-name)
    ("[" emacspeak-speak-page)
@@ -244,15 +244,15 @@
    ("\\" emacspeak-toggle-speak-line-invert-filter)
    ("]" emacspeak-speak-page-interactively)
    ("^" emacspeak-filtertext)
-   ("a" emacspeak-speak-message-again )
+   ("a" emacspeak-speak-message-again)
    ("b" emacspeak-speak-buffer)
    ("c" emacspeak-speak-char)
-   ("f" emacspeak-speak-buffer-filename )
+   ("f" emacspeak-speak-buffer-filename)
    ("g" emacspeak-epub)
    ("h" emacspeak-speak-help)
    ("i" emacspeak-tabulate-region)
    ("j" emacspeak-hide-or-expose-block)
-   ("k" emacspeak-speak-current-kill )
+   ("k" emacspeak-speak-current-kill)
    ("l" emacspeak-speak-line)
    ("m" emacspeak-speak-mode-line)
    ("n" emacspeak-speak-rest-of-buffer)
@@ -261,7 +261,7 @@
    ("q" emacspeak-toggle-speak-messages)
    ("r" emacspeak-speak-region)
    ("s" dtk-stop)
-   ("t" emacspeak-speak-time )
+   ("t" emacspeak-speak-time)
    ("u" emacspeak-url-template-fetch)
    ("v" view-register)
    ("w" emacspeak-speak-word)
@@ -273,8 +273,8 @@
  (emacspeak-keymap-update emacspeak-keymap binding))
 
 (dotimes (i 10)
-  (define-key emacspeak-keymap   (format "%s" i )
-    'emacspeak-speak-predefined-window ))
+  (define-key emacspeak-keymap   (format "%s" i)
+    'emacspeak-speak-predefined-window))
 
 (loop
  for binding in
@@ -298,14 +298,14 @@
    ("c" dtk-toggle-capitalization)
    ("d" dtk-select-server)
    ("f" dtk-set-character-scale)
-   ("i" emacspeak-toggle-audio-indentation )
+   ("i" emacspeak-toggle-audio-indentation)
    ("k" emacspeak-toggle-character-echo)
    ("l" emacspeak-toggle-line-echo)
    ("m"emacspeak-speak-set-mode-punctuations)
    ("n" dtk-toggle-speak-nonprinting-chars)
    ("o" dtk-toggle-strip-octals)
    ("p" dtk-set-punctuations)
-   ("q" dtk-toggle-quiet )
+   ("q" dtk-toggle-quiet)
    ("r" dtk-set-rate)
    ("s" dtk-toggle-split-caps)
    ("t" emacspeak-dial-dtk)
@@ -320,7 +320,7 @@
 
 (dotimes (i 10)
   (define-key emacspeak-dtk-submap
-    (format "%s" i )   'dtk-set-predefined-speech-rate ))
+    (format "%s" i)   'dtk-set-predefined-speech-rate))
 
 (loop
  for binding in
@@ -391,7 +391,7 @@ relief."
         (where-is-internal 'emacspeak-self-insert-command
                            (list keymap))
         do
-        (define-key keymap k 'undefined )
+        (define-key keymap k 'undefined)
         ))
 
 (defun emacspeak-keymap-refresh ()
@@ -407,7 +407,25 @@ relief."
 
 (define-prefix-command 'emacspeak-personal-keymap   'emacspeak-personal-keymap)
 
-(defcustom emacspeak-personal-keys nil
+(defcustom emacspeak-personal-keys 
+  '(
+    ("=" emacspeak-wizards-find-longest-line-in-region)
+    ("3" emacspeak-wizards-cycle-browser)
+    ("b" battery)
+    ("e" emacspeak-we-xsl-map)
+    ("h" emacspeak-wizards-how-many-matches)
+    ("j" emacspeak-jabber-popup-roster)
+    ("m" mspools-show)
+    ("o" emacspeak-wizards-occur-header-lines)
+    ("Q" emacspeak-wizards-yql-lookup)
+    ("q" emacspeak-wizards-yql-quotes)
+    ("r" jabber-activity-switch-to)
+    ("s" emacspeak-emergency-tts-restart)
+    ("t" emacspeak-speak-telephone-directory)
+    ("u" emacspeak-wizards-units)
+    ("v" emacspeak-wizards-vc-viewer)
+    ("|" emacspeak-wizards-squeeze-blanks)
+    ("" desktop-clear)) 
   "*Specifies personal key bindings for the audio desktop.
 Bindings specified here are available on prefix key C-e x
 for example, if you bind
@@ -489,7 +507,24 @@ interactive command that the key sequence executes."
 
 (define-prefix-command 'emacspeak-super-keymap   'emacspeak-super-keymap)
 
-(defcustom emacspeak-super-keys nil
+(defcustom emacspeak-super-keys 
+  '(
+    ("." auto-correct-update)
+    ("c" emacspeak-wizards-color-at-point)
+    ("r" soundscape-restart)
+    ("s" soundscape)
+    ("t" soundscape-toggle)
+    ("u" soundscape-update-mood)
+    ("S" soundscape-stop)
+    ("b" emacspeak-bbc)
+    ("e" elfeed)
+    ("f" emacspeak-feeds-lookup-and-view)
+    ("h" emacspeak-webspace-headlines-browse)
+    ("l" emacspeak-m-player-locate-media)
+    ("m" emacspeak-wizards-view-buffers-filtered-by-this-mode)
+    ("n" gweb-news-view)
+    ("p" proced)
+    ("R" emacspeak-webspace-feed-reader))
   "*Specifies super key bindings for the audio desktop. You can
 turn the right `windows menu' keys on your Linux PC keyboard into
 a `super' key on Linux by having it emit the sequence `C-x@s'.
@@ -535,7 +570,22 @@ interactive command that the key sequence executes."
 
 (define-prefix-command 'emacspeak-alt-keymap   'emacspeak-alt-keymap)
 
-(defcustom emacspeak-alt-keys nil
+(defcustom emacspeak-alt-keys 
+  '(
+    ("," emacspeak-eldoc-speak-doc)
+    ("a" emacspeak-feeds-atom-display)
+    ("c" emacspeak-wizards-view-buffers-filtered-by-this-mode)
+    ("e" eww)
+    ("f" emacspeak-feeds-find-feeds)
+    ("l" eww-open-file)
+    ("m" magit-status)
+    ("n" emacspeak-wizards-cycle-to-next-buffer)
+    ("o" emacspeak-feeds-opml-display)
+    ("p" emacspeak-wizards-cycle-to-previous-buffer)
+    ("r" emacspeak-feeds-rss-display)
+    ("s" emacspeak-wizards-tune-in-radio-search)
+    ("t" emacspeak-wizards-tune-in-radio-browse)
+    ("u" emacspeak-m-player-url)) 
   "*Specifies alt key bindings for the audio desktop.
 You can turn the `Pause' key  on your Linux PC keyboard into a `alt' key
 on Linux by having it emit the sequence `C-x@a'.
@@ -583,7 +633,33 @@ interactive command that the key sequence executes."
 
 (define-prefix-command 'emacspeak-hyper-keymap   'emacspeak-hyper-keymap)
 
-(defcustom emacspeak-hyper-keys nil
+(defcustom emacspeak-hyper-keys 
+  '(
+    ("d" magit-dispatch-popup)
+    (":" emacspeak-wizards-view-buffers-filtered-by-m-player-mode)
+    (":" emacspeak-m-player-using-openal)
+    ("B" eww-list-bookmarks)
+    ("C" apu-chars)
+    ("N" emacspeak-npr-listing)
+    ("a" emacspeak-wizards-term)
+    ("b" eww-list-buffers)
+    ("c" browse-url-chromium)
+    ("e" gmaps)
+    ("f" emacspeak-webspace-freebase-search)
+    ("k" emacspeak-webspace-knowledge-search)
+    ("g" gnus)
+    ("h" emacspeak-org-capture-link)
+    ("i" ido-everywhere)
+    ("l" emacspeak-librivox)
+    ("m" vm)
+    ("n" emacspeak-npr-play-program)
+    ("p" emacspeak-wizards-pdf-open)
+    ("q" emacspeak-remote-quick-connect-to-server)
+    ("r" org-capture)
+    ("s" emacspeak-wizards-shell)
+    ("t" twit)
+    ("u" browse-url)
+    ("v" emacspeak-muggles-view/body))
   "*Specifies hyper key bindings for the audio desktop. Emacs can
 use the `hyper' key as a modifier key. You can turn the `windows'
 keys on your Linux PC keyboard into a `hyper' key on Linux by
@@ -615,13 +691,13 @@ interactive command that the key sequence executes."
                         (sort
                          val
                          #'(lambda (a b) (string-lessp (car a) (car b)))))))
+
 (global-set-key (kbd "C-&") 'emacspeak-launch-application)
 (global-set-key "\C-x@h"
                 'emacspeak-hyper-keymap)
 (define-key emacspeak-hyper-keymap " " 'emacspeak-webspace)
 ;;}}}
 ;;{{{ Keymaps <-> Org (text) Files :
-
 
 ;;; This makes it easy to consolidate personal bindings across machines.
 ;;; It also protects against custom losing settings due to Custom accidents.
@@ -646,23 +722,22 @@ interactive command that the key sequence executes."
            bindings))
         (forward-line 1)))
     (setq bindings (nreverse (copy-sequence bindings)))
-    (set variable  bindings )
-    (customize-save-variable variable bindings  )))
+    (set variable  bindings)
+    (customize-save-variable variable bindings)))
 
 (defun emacspeak-keymap-bindings-to-org (variable filename)
   "Persists mapping to org file."
   (interactive "vVariable: \nfFilename: ")
   (let ((buffer (find-file-noselect  filename)))
     (with-current-buffer
-      buffer
+        buffer
       (goto-char (point-max))
       (loop
        for binding  in (symbol-value variable) do
-       (insert (format "%s %s\n" (first binding) (second binding ))))
+       (insert (format "%s %s\n" (first binding) (second binding))))
       (save-buffer buffer))
     (switch-to-buffer buffer)))
-      
-                 
+
 ;;}}}
 (provide 'emacspeak-keymap)
 ;;{{{  emacs local variables

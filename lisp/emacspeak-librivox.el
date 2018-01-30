@@ -179,6 +179,11 @@ Optional arg `page-title' specifies page title."
          and i from 1
          do
          (emacspeak-librivox-display-book b i))
+        (add-hook
+         'emacspeak-web-post-process-hook
+         #'(lambda ()
+             (setq emacspeak-we-url-executor 'emacspeak-librivox-play)))
+        
         (browse-url-of-buffer)))))
 ;;;###autoload
 (defun emacspeak-librivox-search-by-genre (genre)
@@ -249,7 +254,7 @@ Both exact and partial matches for `title'."
              (libxml-parse-xml-region (point-min) (point-max))
              'title)))
       (when title
-        (setq title (dom-text (first title )))
+        (setq title (dom-text (first title)))
         (setq title (replace-regexp-in-string " +" "-" title)))
       (kill-buffer)
       (expand-file-name

@@ -34,7 +34,7 @@
 ;;}}}
 ;;{{{ required packages
 
-(require 'cl)
+(require 'cl-lib)
 (declaim  (optimize  (safety 0) (speed 3)))
 
 ;;}}}
@@ -42,7 +42,7 @@
 
 ;;}}}
 ;;{{{ Definitions
-;;;###autoload 
+
 (defcustom amixer-card "0"
   "Card number to control."
   :type 'string
@@ -51,13 +51,13 @@
 (defvar amixer-db nil
   "Holds cached values.")
 
-(defstruct amixer-control
+(cl-defstruct amixer-control
   numid iface name setting)
 
 (declare-function amixer-control-name  "amixer.el" (amixer))
 (declare-function amixer-control-numid  "amixer.el" (amixer))
 (declare-function amixer-control-iface  "amixer.el" (amixer))
-(defstruct amixer-control-setting
+(cl-defstruct amixer-control-setting
   type access values
   min max step
   current)
@@ -90,9 +90,9 @@
               (line-end-position))
              ","))
       (setq slots
-            (loop for f in fields
-                  collect
-                  (second (split-string f "="))))
+            (cl-loop for f in fields
+                     collect
+                     (second (split-string f "="))))
       (while (and (not (eobp))
                   (looking-at "^ *;"))
         (forward-line 1))
@@ -147,9 +147,9 @@
                (nth 1 fields)
                (mapconcat #'identity (nthcdr 2 fields) " ")))
         (setq slots
-              (loop for f in fields
-                    collect
-                    (second (split-string f "="))))
+              (cl-loop for f in fields
+                       collect
+                       (second (split-string f "="))))
         (push
          (cons
           (third slots)
@@ -197,7 +197,6 @@
   "Personal sound card settings.
 Copied from /var/lib/alsa/asound.state to your ~/.emacs.d to avoid needing to run alsactl as root on first use.")
 
-
 (defun amixer-alsactl-setup ()
   "Set up alsactl sound state."
   (declare (special amixer-alsactl-config-file))
@@ -208,7 +207,7 @@ Copied from /var/lib/alsa/asound.state to your ~/.emacs.d to avoid needing to ru
      (unless (file-exists-p sys-alsa) (error "Alsa not setup correctly."))
      (unless  (file-exists-p f) (copy-file sys-alsa user-emacs-directory))
      f)))
-           
+
 ;;;###autoload
 (defun amixer (&optional refresh)
   "Interactively manipulate ALSA settings.

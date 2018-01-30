@@ -80,8 +80,8 @@
   (emacspeak-xslt-get "legacy-atom.xsl")
   "XSL stylesheet used for viewing Atom Feeds."
   :type '(choice
-          (string :tag "Legacy"  (emacspeak-xslt-get "legacy-atom.xsl"))
-          (string :tag "Modern" (emacspeak-xslt-get "atom-view.xsl")))
+          (string :tag "Legacy"  "/usr/local/google/home/raman/emacs/lisp/emacspeak/xsl/legacy-atom.xsl")
+          (string :tag "Modern" "/usr/local/google/home/raman/emacs/lisp/emacspeak/xsl/atom-view.xsl"))
   :group 'emacspeak-xsl)
 
 ;;;###autoload
@@ -264,7 +264,7 @@ This directly  updates emacspeak-feeds from the archive, rather than adding thos
           (browse-url-of-buffer))))))))
 
 ;;;###autoload
-(defun emacspeak-feeds-rss-display (feed-url )
+(defun emacspeak-feeds-rss-display (feed-url)
   "Display RSS feed."
   (interactive
    (list
@@ -272,14 +272,14 @@ This directly  updates emacspeak-feeds from the archive, rather than adding thos
   (declare (special emacspeak-rss-view-xsl))
   (emacspeak-feeds-feed-display feed-url emacspeak-rss-view-xsl 'speak))
 ;;;###autoload
-(defun emacspeak-feeds-opml-display (feed-url )
+(defun emacspeak-feeds-opml-display (feed-url)
   "Display OPML feed."
   (interactive (list (emacspeak-webutils-read-this-url)))
   (declare (special emacspeak-opml-view-xsl))
   (emacspeak-feeds-feed-display feed-url emacspeak-opml-view-xsl 'speak))
 
 ;;;###autoload
-(defun emacspeak-feeds-atom-display (feed-url )
+(defun emacspeak-feeds-atom-display (feed-url)
   "Display ATOM feed."
   (interactive (list (emacspeak-webutils-read-this-url)))
   (declare (special emacspeak-atom-view-xsl))
@@ -339,8 +339,8 @@ Argument `feed' is a feed structure (label url type)."
   (let ((url (button-get button 'url))
         (link (button-get button 'link)))
     (cond
-     ( (zerop (length url)) ; missing feed url 
-       (browse-url (button-get button 'link)))
+     ((zerop (length url)) ; missing feed url 
+      (browse-url (button-get button 'link)))
      ((string-match "atom" url)
       (emacspeak-feeds-atom-display url))
      ((string-match "blogspot" url)

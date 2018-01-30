@@ -63,7 +63,7 @@
 ;;;@item m-player: <s-m> Emacspeak-M-Player Commands
 ;;; @item hideshow: C-c h Provide HideShow bindings.
 ;;; @item toggle-option:  <C-c o> Single binding for toggling options.
-;;; @item outliner: <C-c #> Bindings from outline-minor-mode.
+;;; @item outliner: <C-c .> Bindings from outline-minor-mode.
 ;;;@item Info-Summary: <?> in Info Info Summary Muggle
 ;;;@end itemize
 
@@ -230,19 +230,19 @@ Also turn on emacspeak-muggles-talkative-p if it was turned off."
    ("=" what-line)
    (">" end-of-buffer)
    ("@" View-back-to-mark)
-   ("A"beginning-of-defun )
+   ("A"beginning-of-defun)
    ("DEL" View-scroll-page-backward)
-   ("E"end-of-defun )
+   ("E"end-of-defun)
    ("J" (emacspeak-hide-or-expose-block 'all))
    ("SPC" View-scroll-page-forward)
    ("[" previous-page)
    ("\\" View-search-regexp-backward)
    ("]" next-page)
-   ("a" move-beginning-of-line )
+   ("a" move-beginning-of-line)
    ("b" backward-word)
    ("c" emacspeak-speak-char)
    ("d" View-scroll-half-page-forward)
-   ("e" move-end-of-line )
+   ("e" move-end-of-line)
    ("f" forward-word)
    ("g" goto-line)
    ("h" backward-char)
@@ -271,21 +271,21 @@ Also turn on emacspeak-muggles-talkative-p if it was turned off."
 (define-key org-mode-map 
   (kbd "C-c SPC")
   (defhydra emacspeak-muggles-org-nav
-  (:body-pre
-    (progn
-      (emacspeak-muggles-toggle-talkative)
-      (emacspeak-muggles-body-pre "OrgNavView"))
-    :hint nil
-    :pre emacspeak-muggles-pre :post emacspeak-muggles-post
-    :color red :columns 3)
-  "Org Mode Movements"
-  ("SPC" emacspeak-outline-speak-this-heading  "Speak this section")
-  ("n" outline-next-visible-heading "next heading")
-  ("p" outline-previous-visible-heading "prev heading")
-  ("N" org-forward-heading-same-level "next heading at same level")
-  ("P" org-backward-heading-same-level "prev heading at same level")
-  ("u" outline-up-heading "up heading")
-  ("g" org-goto "goto" :exit t)))
+    (:body-pre
+     (progn
+       (emacspeak-muggles-toggle-talkative)
+       (emacspeak-muggles-body-pre "OrgNavView"))
+     :hint nil
+     :pre emacspeak-muggles-pre :post emacspeak-muggles-post
+     :color red :columns 3)
+    "Org Mode Movements"
+    ("SPC" emacspeak-outline-speak-this-heading  "Speak this section")
+    ("n" outline-next-visible-heading "next heading")
+    ("p" outline-previous-visible-heading "prev heading")
+    ("N" org-forward-heading-same-level "next heading at same level")
+    ("P" org-backward-heading-same-level "prev heading at same level")
+    ("u" outline-up-heading "up heading")
+    ("g" org-goto "goto" :exit t)))
 
 ;;}}}
 ;;{{{ Org-Mode Table Navigation:
@@ -406,13 +406,13 @@ _t_ truncate-lines:    %`truncate-lines
 _w_ whitespace-mode:   %`whitespace-mode
 
 "
-   ("a" abbrev-mode )
-   ("d" toggle-debug-on-error )
-   ("f" auto-fill-mode )
-   ("g"  toggle-debug-on-quit  )
+   ("a" abbrev-mode)
+   ("d" toggle-debug-on-error)
+   ("f" auto-fill-mode)
+   ("g"  toggle-debug-on-quit)
    ("h" (setq hydra-is-helpful (not hydra-is-helpful)))
-   ("t" toggle-truncate-lines )
-   ("w" whitespace-mode )
+   ("t" toggle-truncate-lines)
+   ("w" whitespace-mode)
    ("q" nil "quit")))
 
 ;;}}}
@@ -420,7 +420,7 @@ _w_ whitespace-mode:   %`whitespace-mode
 
 ;;; Cloned from Hydra Wiki:
 (global-set-key
- (kbd "C-c #")
+ (kbd "C-c .")
  (defhydra emacspeak-muggles-outliner
    (:body-pre (progn
                 (outline-minor-mode 1)
@@ -477,7 +477,6 @@ _d_: subtree
     :pre emacspeak-muggles-pre :post emacspeak-muggles-post)
    "move"
    ("s" emacspeak-muggles-toggle-talkative)
-
    ("n" next-line)
    ("p" previous-line)
    ("f" forward-char)

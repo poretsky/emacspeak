@@ -1,4 +1,4 @@
-;;; $Id: sox.el 4797 2007-07-16 23:31:22Z tv.raman.tv $
+;;; sox.el --- An Audio Work-Bench For The Emacspeak Desktop
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Speech-enable SOX An Emacs Interface to sox
 ;;; Keywords: Emacspeak,  Audio Desktop sox
@@ -46,10 +46,13 @@
 ;;; Launching M-x sox  creates a special interaction buffer
 ;;; that provides single keystroke commands for editing and
 ;;; applying effects to a selected sound file. For adding mp3
-;;; support to sox,
+;;; support to sox, do
 ;;;
 ;;; sudo apt-get libsox-fmt-mp3 install
 ;;;
+;;; This module provides support for ladspa effects using module ladspa.el.
+;;; To use ladspa effects with SoX, you need a relatively new build of Sox;
+;;; The stock SoX that is package for Debian/Ubuntu  does not always work.
 ;;; This module can be used independent of Emacspeak.
 ;;; Code:
 
@@ -59,6 +62,7 @@
 (require 'cl)
 (declaim  (optimize  (safety 0) (speed 3)))
 (require 'derived)
+(require 'ladspa)
 
 ;;}}}
 ;;{{{ Customizations:
@@ -79,6 +83,7 @@
 
 ;;}}}
 ;;{{{ Define Special Mode
+
 (defsubst sox-effect-at-point (&optional pos)
   "Return effect at  point."
   (get-text-property (or pos (point)) 'sox-effect))
@@ -86,18 +91,23 @@
 (defun sox-draw-effect (effect)
   "Insert a representation of specified effect at point."
   (let ((name (sox-effect-name effect))
+        (type (sox-effect-type effect))
         (params (sox-effect-params effect))
         (orig (point)))
     (insert (propertize  name 'face  'fixed-pitch))
     (insert ":\t")
-    (loop
-     for p in params do
-     (when (second p) (insert (propertize (first p) 'face 'italic ))
-           (insert "\t")
-           (insert (propertize (second p) 'face 'bold))
-           (insert "\t")))
-    (put-text-property orig (point) 'sox-effect effect)
-    )
+    (cond
+     ((eq 'ladspa type)
+      (insert
+       (mapconcat #'ladspa-control-value (ladspa-plugin-controls (sox-effect-params effect)) " ")))
+     (t
+      (loop
+       for p in params do
+       (when (second p) (insert (propertize (first p) 'face 'italic))
+             (insert "\t")
+             (insert (propertize (second p) 'face 'bold))
+             (insert "\t")))))
+    (put-text-property orig (point) 'sox-effect effect))
   (insert "\n"))
 
 (defun sox-redraw (context)
@@ -107,7 +117,7 @@
         (file  (sox-context-file context))
         (effects (sox-context-effects context)))
     (goto-char orig)
-    (when file (setq file (abbreviate-file-name file )))
+    (when file (setq file (abbreviate-file-name file)))
     (erase-buffer)
     (insert (propertize "Audio File:  " 'face font-lock-doc-face))
     (when  file (insert  (propertize file 'face font-lock-keyword-face)))
@@ -120,6 +130,7 @@
   (interactive)
   (declare (special sox-context))
   (sox-redraw sox-context))
+
 (defconst sox-header-line-format
   '((:eval
      (format
@@ -132,7 +143,7 @@
   "Header line format for SoX buffers.")
 
 (define-derived-mode sox-mode special-mode
-                     "Interactively manipulate audio files."
+  "Interactively manipulate audio files."
   "An audio workbench for the Emacspeak desktop."
   (declare (special sox-context))
   (setq sox-context (make-sox-context))
@@ -154,7 +165,9 @@
       (with-current-buffer buffer
         (sox-mode)
         (sox-setup-keys))))
-  (funcall-interactively #'switch-to-buffer sox-buffer))
+  (switch-to-buffer sox-buffer)
+  (emacspeak-speak-mode-line)
+  (emacspeak-auditory-icon 'open-object))
 
 (defun sox-setup-keys ()
   "Set up sox keymap."
@@ -164,9 +177,9 @@
    '(
      ("." sox-show-timestamp)
      ("C-k" sox-delete-effect-at-point)
-     ("E" sox-add-effect)
+     ("e" sox-add-effect)
      ("RET" sox-edit-effect-at-point)
-     ("e" sox-set-effect)
+     ("E" sox-set-effect)
      ("f" sox-open-file)
      ("g" sox-refresh)
      ("k" sox-stop)
@@ -180,6 +193,7 @@
 ;;{{{ Top-level Context:
 
 (defstruct sox-effect
+  type ; native: nil ladspa: 'ladspa
   name ; effect name
   params ; list of effect name/value pairs
   )
@@ -201,7 +215,7 @@
 ;;{{{ Commands:
 
 (defvar sox-sound-regexp
-  (regexp-opt  '(".mp3" ".wav" ".au"))
+  (regexp-opt  '(".mp3" ".wav" ".au" ".aiff"))
   "Regexp matching sound files.")
 
 (defsubst sox-sound-p (snd-file)
@@ -228,18 +242,23 @@
   "Apply action to    current context."
   (let ((file (sox-context-file context))
         (effects (sox-context-effects context))
-        (command nil)
         (options nil))
     (loop
      for e in effects  do
-     (push (sox-effect-name e) options)
-     (loop
-      for  p in (sox-effect-params e) do
-      (when (second p)(push (second p)  options))))
+     (cond
+      ((eq 'ladspa (sox-effect-type e))
+       (mapc #'(lambda(o)  (push o    options))
+             (sox-ladspa-cmd (sox-effect-params e))))
+      (t
+       (push (sox-effect-name e) options)
+       (loop
+        for  p in (sox-effect-params e) do
+        (when (second p)(push (second p)  options))))))
     (setq options (nreverse  options))
     (when (string= action sox-edit) (push save-file options))
     (apply #'start-process
-           sox-play "*SOX*" action file options)))
+           "player" "*SOX*"
+           action file options)))
 
 (defun sox-play ()
   "Play sound from current context."
@@ -248,8 +267,8 @@
   (when (process-live-p (sox-context-play sox-context))
     (error "Already playing stream."))
   (setf (sox-context-start-time sox-context) (current-time))
-  (setf (sox-context-play sox-context)(sox-action sox-context
-                                                  sox-play)))
+  (setf (sox-context-play sox-context)
+        (sox-action sox-context sox-play)))
 
 (defun sox-stop ()
   "Stop currently playing  sound from current context."
@@ -290,13 +309,17 @@
         (desc nil)
         (repeat nil))
     (unless effect (error "No effect at point."))
-    (setq desc (intern (format "sox-%s-params" (sox-effect-name effect))))
-    (setq repeat (get desc 'repeat))
-    (setf (sox-effect-params effect)
-          (sox-read-effect-params (eval desc) repeat ))
-    (delete-region (line-beginning-position) (line-end-position))
-    (sox-draw-effect effect)
-    (flush-lines "^ *$" (point-min) (point-max))))
+    (cond
+     ((eq 'ladspa (sox-effect-type   effect))
+      (ladspa-create (sox-effect-params effect)))
+     (t
+      (setq desc (intern (format "sox-%s-params" (sox-effect-name effect))))
+      (setq repeat (get desc 'repeat))
+      (setf (sox-effect-params effect)
+            (sox-read-effect-params (eval desc) repeat))
+      (delete-region (line-beginning-position) (line-end-position))
+      (sox-draw-effect effect)
+      (flush-lines "^ *$" (point-min) (point-max))))))
 
 (defun sox-delete-effect-at-point ()
   "Delete effect at point."
@@ -305,8 +328,9 @@
   (let ((inhibit-read-only  t)
         (e (sox-effect-at-point)))
     (unless e (error "No effect at point."))
-    (setf  (sox-context-effects sox-context) (remove e (sox-context-effects sox-context)))
-    (message "Deleted effect %s at point. " (sox-effect-name e ))
+    (setf  (sox-context-effects sox-context)
+           (remove e (sox-context-effects sox-context)))
+    (message "Deleted effect %s at point. " (sox-effect-name e))
     (sox-redraw sox-context)))
 
 (defun sox-set-effect (name)
@@ -336,122 +360,122 @@
 (defsubst sox-read-effect-params-per-desk (p)
   "Read sox effect param per spec."
   (let ((result (read-from-minibuffer (capitalize p))))
-    (when (>  (length result) 0) (list p result ))))
+    (when (>  (length result) 0) (list p result))))
 
 (defun sox-read-effect-params (param-desc &optional repeat)
   "Read list of effect  params."
   (let ((r (delq nil (mapcar #'sox-read-effect-params-per-desk param-desc))))
     ;;; Now handle repeat
     (cond
-     ((null repeat ) r) ; base case
+     ((null repeat) r) ; base case
      ((null r) r) ; all done
      (t ; recur till done
       (append r (sox-read-effect-params param-desc 'repeat))))))
 
 ;;}}}
 ;;{{{  Effects Infrastructure:
+(defvar sox-effects nil
+  "Table of implemented effects.")
+
+(defsubst sox-register-effect (name)
+  "Register effect."
+  (pushnew name sox-effects :test #'string=))
 
 ;;; To define support for an effect,:
 ;;; 1. Add it to the effect table below.
 ;;; 2. Clone the code from one of the previously implemented effects,
 ;;; And update per the SoX man page.
 
-(defconst sox-effects
-  '(
-    "bass"
-    "chorus"
-    "reverb"
-    "treble"
-    "trim")
-  "Table of implemented effects.")
-
 ;;}}}
-;;{{{ Trim:
+;;{{{ Ladspa Effects:
 
-(defvar sox-trim-params '("|")
-  "Parameter spec for effect trim.")
-(put 'sox-trim-params 'repeat t)
+;;; Heavy lifting done by Ladspa module.
 
-(defun sox-get-trim-effect ()
-  "Read needed params for effect trim,
+(defvar sox-ladspa-params nil
+  "Generic spec for ladspa effect.")
+
+(put 'sox-ladspa-params 'create #'ladspa-create)
+(sox-register-effect "ladspa")
+
+(defun sox-get-ladspa-effect ()
+  "Read needed params for effect ladspa,
 and return a suitable effect structure."
-  (make-sox-effect
-   :name "trim"
-   :params
-   (sox-read-effect-params sox-trim-params 'repeat)))
+  (ladspa-plugins)
+  (let ((plugin (ladspa-create (ladspa-read "Ladspa effect: "))))
+    (make-sox-effect
+     :type 'ladspa
+     :name (ladspa-plugin-label plugin)
+     :params plugin)))
 
 ;;}}}
-;;{{{ Bass:
+;;{{{ Apply Ladspa to SoX:
 
-;;; bass|treble gain [frequency[k] [width[s|h|k|o|q]]]
-(defvar sox-bass-params
-  '("gain" "frequency" "width")
-  "Params accepted by bass.")
-
-(defun sox-get-bass-effect ()
-  "Read needed params for effect bass,
-and return a suitable effect structure."
-  (declare (special sox-bass-params))
-  (make-sox-effect
-   :name "bass"
-   :params (sox-read-effect-params sox-bass-params)))
+(defun sox-ladspa-cmd (plugin)
+  "Convert Ladspa Plugin to SoX args."
+  `("ladspa"
+    ,(ladspa-plugin-library plugin) ,(ladspa-plugin-label plugin)
+    ,@(mapcar #'ladspa-control-value  (ladspa-plugin-controls plugin))))
 
 ;;}}}
-;;{{{ Treble:
+;;{{{ Define SoX Effect: Macro
 
-;;; bass|treble gain [frequency[k] [width[s|h|k|o|q]]]
-(defvar sox-treble-params
-  '("gain" "frequency" "width")
-  "Params accepted by treble.")
+(defun sox-def-effect (name params repeat)
+  "Defines needed functions and variables for manipulating effect name."
+  (let ((p-sym (intern (format "sox-%s-params" name)))
+        (getter (intern (format "sox-get-%s-effect" name))))
+    ;;; Register effect
+    (sox-register-effect name)
+;;; Parameter template used for prompting:
+    (eval
+     `(defconst ,p-sym ',params
+        ,(format "Parameters for effect %s" name)))
 
-(defun sox-get-treble-effect ()
-  "Read needed params for effect treble,
-and return a suitable effect structure."
-  (declare (special sox-treble-params))
-  (make-sox-effect
-   :name "treble"
-   :params (sox-read-effect-params sox-treble-params) ))
+;;; Set up  repeat
+    (when repeat
+      (eval `(put ',p-sym 'repeat t)))
 
-;;}}}
-;;{{{ Chorus:
-
-;;;  chorus gain-in gain-out <delay decay speed depth -s|-t>
-(defvar sox-chorus-params
-  '("gain-in" "gain-out" "delay" "decay" "speed" "step" "shape" )
-  "Parameters for effect chorus.")
-(put 'sox-chorus-params 'repeat t)
-(defun sox-get-chorus-effect  ()
-  "Read needed params for effect chorus
-and return a suitable effect structure."
-  (declare (special sox-chorus-params))
-  (make-sox-effect
-   :name "chorus"
-   :params (sox-read-effect-params sox-chorus-params)))
+;;; Function  for generating effect structure:
+    (eval
+     `(defun ,getter ()
+        ,(format "Read needed params for effect %s
+and return a suitable effect structure." name)
+        (declare (special ,p-sym))
+        (make-sox-effect
+         :name ,name
+         :params (sox-read-effect-params ,p-sym ,repeat))))))
 
 ;;}}}
-;;{{{ Reverb:
+;;{{{ Use: sox-def-effect
 
+(sox-def-effect "echo" '("gain-in" "gain-out" "delay" "decay") t)
+
+(sox-def-effect "channels" '("count") nil)
+
+(sox-def-effect "remix" '("out-spec") t)
+
+(sox-def-effect "trim" '("position") t)
+
+(sox-def-effect "bass" '("gain" "frequency" "width") nil)
+
+(sox-def-effect "treble" '("gain" "frequency" "width") nil)
+
+(sox-def-effect
+ "chorus"
+ '("gain-in" "gain-out" "delay" "decay" "speed" "step" "shape")
+ t)
+
+(sox-def-effect "fade" '("shape"  "fade-in" "stop" "fade-out") nil)
+
+;;; reverb:
 ;;;reverb [-w|--wet-only] [reverberance (50%) [HF-damping (50%)
 ;;; [room-scale (100%) [stereo-depth (100%)
 ;;; [pre-delay (0ms) [wet-gain (0dB)]]]]]]
-
-;; reverb [-w|--wet-only] [reverberance (50%) [HF-damping (50%)
-;;               [room-scale (100%) [stereo-depth (100%)
-;;               [pre-delay (0ms) [wet-gain (0dB)]]]]]]
-
-(defconst sox-reverb-params
-  '("-w"  "reverb" "hf-damp"
-    "room-scale" "stereo-depth"
-    "pre-delay"  "wet-gain")
-  "Parameters for effect reverb.")
-
-(defun sox-get-reverb-effect  ()
-  "Read needed params for effect reverb
-and return a suitable effect structure."
-  (declare (special sox-reverb-params))
-  (make-sox-effect
-   :name "reverb"
-   :params (sox-read-effect-params sox-reverb-params)))
+(sox-def-effect
+ "reverb"
+ '("-w"  "reverb" "hf-damp"
+   "room-scale" "stereo-depth"
+   "pre-delay"  "wet-gain")
+ nil)
 
 ;;}}}
 (provide 'sox)
@@ -460,17 +484,11 @@ and return a suitable effect structure."
 ;;; Code here can be factored out to emacspeak-sox.el
 (require 'emacspeak-preamble)
 
-(defadvice sox (after emacspeak pre act comp)
-  "Provide auditory feedback."
-  (when (ems-interactive-p)
-    (emacspeak-speak-header-line)))
-
 (defadvice sox-open-file(after emacspeak pre act comp)
   "Provide auditory feedback."
   (when (ems-interactive-p)
     (emacspeak-auditory-icon 'select-object)))
 
-(provide 'emacspeak-sox)
 (defadvice sox-refresh (after emacspeak pre act comp)
   "Provide auditory feedback."
   (when (ems-interactive-p)
@@ -480,6 +498,7 @@ and return a suitable effect structure."
   "Provide auditory feedback."
   (when (ems-interactive-p)
     (emacspeak-auditory-icon 'delete-object)))
+(provide 'emacspeak-sox)
 
 ;;}}}
 ;;{{{ end of file

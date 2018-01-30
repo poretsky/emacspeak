@@ -58,6 +58,7 @@
 
 (voice-setup-add-map
  '(
+   (Man-overstrike   voice-animate)
    (woman-unknown  voice-monotone)
    (woman-edition voice-bolden-medium)
    (woman-bold voice-bolden)
@@ -68,13 +69,13 @@
 
 (defadvice WoMan-next-manpage(after emacspeak pre act comp)
   "Provide auditory feedback."
-  (when (ems-interactive-p )
+  (when (ems-interactive-p)
     (emacspeak-auditory-icon 'select-object)
     (emacspeak-speak-mode-line)))
 
 (defadvice WoMan-previous-manpage(after emacspeak pre act comp)
   "Provide auditory feedback."
-  (when (ems-interactive-p )
+  (when (ems-interactive-p)
     (emacspeak-auditory-icon 'select-object)
     (emacspeak-speak-mode-line)))
 

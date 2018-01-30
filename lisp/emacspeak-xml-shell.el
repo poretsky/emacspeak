@@ -79,7 +79,7 @@ customize the default to be xsh."
 ;;{{{ xml browse mode
 
 (define-derived-mode emacspeak-xml-shell-mode comint-mode 
-                     "XML Shell "
+  "XML Shell "
   "XML Shell\n\n
 Interactive XML browser.
 \\{emacspeak-xml-shell-mode-map}")
@@ -107,7 +107,7 @@ Interactive XML browser.
                        (append emacspeak-xml-shell-options
                                (if (string-match ".html?$" system-id)
                                    (list "--html")
-                                 nil )
+                                 nil)
                                (list system-id)))))
     (save-excursion
       (set-buffer buffer)
@@ -236,7 +236,7 @@ and end."
    (t ""))
   "Set according to the XML Shell in use.")
 
-(defun emacspeak-xml-shell-process-node ( xpath display-function)
+(defun emacspeak-xml-shell-process-node (xpath display-function)
   "Apply display-function to the contents of node specified by xpath.
 Display function accepts two arguments, start and end that specify the
 region of text to process."

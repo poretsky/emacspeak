@@ -127,7 +127,7 @@ This variable is buffer-local.")
 (make-variable-buffer-local 'emacspeak-google-toolbelt-names)
 (defun emacspeak-google-toolbelt ()
   "Returns buffer-local toolbelt or a a newly initialized toolbelt."
-  (declare (special emacspeak-google-toolbelt ))
+  (declare (special emacspeak-google-toolbelt))
   (or emacspeak-google-toolbelt
       (setq
        emacspeak-google-toolbelt
@@ -144,7 +144,7 @@ This variable is buffer-local.")
         (make-emacspeak-google-tool
          :name "recent"
          :param "rcnt"
-         :range '( 0 1)
+         :range '(0 1)
          :default 0
          :value 0
          :type 'tbs)
@@ -569,10 +569,48 @@ This variable is buffer-local.")
     ad-do-it
     (emacspeak-speak-region  (point)
                              (or
-                              (next-single-property-change (point) 'place-details )
+                              (next-single-property-change (point) 'place-details)
                               (point-max))))
    (t ad-do-it))
   ad-return-value)
+
+;;}}}
+;;{{{ TTS:
+
+(defcustom emacspeak-google-tts-default-language "en-us"
+  "Default language used for Google TTS."
+  :type 'string
+  :group 'emacspeak-google)
+
+(defvar emacspeak-google-tts-rest-uri
+  "https://www.google.com/speech-api/v1/synthesize?lang=%s&text=%s"
+  "REST endpoint for network speech synthesis.")
+;;;###autoload
+(defun emacspeak-google-tts (text &optional lang)
+  "Speak text using Google Network TTS."
+  (interactive
+   (list
+    (read-from-minibuffer "Text: ")
+    current-prefix-arg))
+  (declare (special emacspeak-google-tts-default-language
+                    emacspeak-google-tts-rest-uri emacspeak-m-player-program))
+  (when (called-interactively-p 'interactive)
+    (unless lang
+      (setq lang
+            (read-from-minibuffer
+             "Language: " nil nil t nil
+             emacspeak-google-tts-default-language))))
+  (start-process
+   "google-tts" nil  emacspeak-m-player-program 
+   (format emacspeak-google-tts-rest-uri
+           (or lang emacspeak-google-tts-default-language)
+           (url-hexify-string  text))))
+
+;;;###autoload
+(defun emacspeak-google-tts-region (start end)
+  "Speak region using Google Network TTS."
+  (interactive "r")
+  (emacspeak-google-tts (buffer-substring-no-properties start end)))
 
 ;;}}}
 (provide 'emacspeak-google)

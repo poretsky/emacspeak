@@ -58,6 +58,7 @@
 (require 'emacspeak-preamble)
 (require 'emacspeak-webutils)
 (require 'gweb)
+(require 'g-utils)
 (require 'emacspeak-we)
 (require 'emacspeak-xslt)
 (eval-when-compile
@@ -82,7 +83,7 @@
   "Instantiate URL identified by URL template."
   (let ((url
          (apply 'format
-                ( emacspeak-url-template-template ut)
+                (emacspeak-url-template-template ut)
                 (mapcar
                  #'(lambda (g)
                      (let ((input nil))
@@ -106,7 +107,7 @@
 (defun emacspeak-url-template-set (key ut)
   "Add specified template to key. "
   (declare (special emacspeak-url-template-table))
-  (setf (gethash key emacspeak-url-template-table ) ut))
+  (setf (gethash key emacspeak-url-template-table) ut))
 
 ;;;###autoload
 (defun emacspeak-url-template-get (key)
@@ -227,7 +228,7 @@ dont-url-encode if true then url arguments are not url-encoded "
  "This months Old Time Radio Programming"
  #'(lambda (url)
      (emacspeak-we-extract-nested-table-list
-      (list 2 3 )
+      (list 2 3)
       url)))
 
 ;;}}}
@@ -279,7 +280,7 @@ dont-url-encode if true then url arguments are not url-encoded "
  #'(lambda (url)
      (emacspeak-webutils-autospeak)
      (emacspeak-xslt-view-xml
-      (emacspeak-xslt-get "bbc-iplayer.xsl" ) url))
+      (emacspeak-xslt-get "bbc-iplayer.xsl") url))
  'dont-url-encode)
 
 (emacspeak-url-template-define
@@ -306,7 +307,7 @@ dont-url-encode if true then url arguments are not url-encoded "
  "Display interactive BBC Program Guide."
  #'(lambda (url)
      (emacspeak-xslt-view-xml
-      (emacspeak-xslt-get "bbc-ppg.xsl") url )))
+      (emacspeak-xslt-get "bbc-ppg.xsl") url)))
 (emacspeak-url-template-define
  "BBC Podcast Directory"
  "http://www.bbc.co.uk/podcasts.opml"
@@ -421,7 +422,7 @@ dont-url-encode if true then url arguments are not url-encoded "
     (cond
      (minus-p
       (format " down %s"
-              (substring value (1+ minus-p ))))
+              (substring value (1+ minus-p))))
      (t (format " up %s " value)))))
 
 (emacspeak-url-template-define
@@ -502,7 +503,7 @@ from English to German")
      (let ((buffer
             (emacspeak-xslt-xml-url
              (emacspeak-xslt-get "opml.xsl")
-             url )))
+             url)))
        (save-current-buffer
          (set-buffer buffer)
          (browse-url-of-buffer)))))
@@ -537,20 +538,33 @@ from English to German")
       'speak)))
 
 (emacspeak-url-template-define
+ "html Google News Search"
+ "http://news.google.com/news?hl=en&ned=tus&q=%s&btnG=Google+Search"
+ (list "Google News: ")
+ #'(lambda ()
+     (emacspeak-url-template-setup-content-filter)
+     (emacspeak-speak-rest-of-buffer))
+ "Search Google news.")
+
+(defun emacspeak-url-template-google-atom-news-display (feed-url)
+  "View Google Atom news feed pulled using Curl."
+  (interactive)
+  (declare (special g-atom-view-xsl
+                    g-curl-program g-curl-common-options))
+  (emacspeak-webutils-autospeak)
+  (g-display-result
+   (format
+    "%s %s    '%s' 2>/dev/null"
+    g-curl-program g-curl-common-options feed-url)
+   g-atom-view-xsl))
+
+(emacspeak-url-template-define
  "Google News Search"
  "http://news.google.com/news?hl=en&ned=tus&q=%s&btnG=Google+Search&output=atom"
  (list "Google News: ")
- 'emacspeak-url-template-setup-content-filter
- "Search Google news."
- #'emacspeak-feeds-atom-display)
-
-(emacspeak-url-template-define
- "Google Recent News Search"
- "http://news.google.com/news?hl=en&ned=tus&q=%s&scoring=d&output=atom"
- (list "Search news for: ")
  nil
  "Search Google news."
- #'emacspeak-feeds-atom-display)
+ #'emacspeak-url-template-google-atom-news-display)
 
 (defvar emacspeak-url-template-google-transcoder-url
   "http://www.google.com/gwt/n?_gwt_noimg=1&output=xhtml&u=%s"
@@ -679,17 +693,20 @@ name of the list.")
  "http://www.cnn.com/services/podcasting/"
  nil
  nil
- "List CNN Podcast media links."
- #'(lambda (url)
-     (emacspeak-we-extract-by-class-list
-      '("cnnPODcastleft"
-        "cnnPODcastright")
-      url
-      'speak )))
+ "List CNN Podcast media links.")
 
 (emacspeak-url-template-define
  "CNN Content"
- "http://www.cnn.com/"
+ "http://www.cnn.com/us"
+ nil
+ nil
+ "Filter down to CNN content area."
+ #'(lambda (url)
+     (emacspeak-we-extract-by-class "column" url 'speak)))
+
+(emacspeak-url-template-define
+ "world CNN Content"
+ "http://www.cnn.com/world"
  nil
  nil
  "Filter down to CNN content area."
@@ -730,38 +747,6 @@ name of the list.")
       'speak)))
 
 ;;}}}
-;;{{{ The Linux Show
-
-(emacspeak-url-template-define
- "Geek Linux Daily"
- "http://thelinuxdaily.com/shows/%s.m3u"
- (list
-  #'(lambda ()
-      (emacspeak-speak-collect-date "Date:"
-                                    "%Y/%m/%d")))
- nil
- "Play specified edition of Geek Linux DailyShow"
- #'(lambda (url)
-     (funcall emacspeak-media-player url 'play-list)))
-
-(emacspeak-url-template-define
- "Redhat Linux Show"
- "http://www.thelinuxshow.com/archives/%s.mp3"
- (list
-  #'(lambda ()
-      (let ((mm-dd-yy
-             (emacspeak-speak-collect-date
-              "Date: (Tuesday)"
-              "%m-%d-%Y")))
-        (format "%s/tls-%s"
-                (third (split-string mm-dd-yy "-"))
-                mm-dd-yy))))
- nil
- "Play specified edition of Redhat Linux Show"
- #'(lambda (url)
-     (funcall emacspeak-media-player url 'play-list)))
-
-;;}}}
 ;;{{{ sourceforge
 
 (emacspeak-url-template-define
@@ -789,6 +774,7 @@ name of the list.")
 
 ;;}}}
 ;;{{{ MLB scores
+
 ;;; standings:
 
 (emacspeak-url-template-define
@@ -820,15 +806,13 @@ name of the list.")
       url)))
 
 (emacspeak-url-template-define
- "Baseball standings"
+ "MLB standings"
  "http://www.mlb.com/NASApp/mlb/mlb/standings/index.jsp"
  nil
  nil
  "Display MLB standings."
  #'(lambda (url)
-     (emacspeak-we-extract-table-by-match
-      "Standings"
-      url 'speak)))
+     (emacspeak-wizards-mlb-standings)))
 
 (emacspeak-url-template-define
  "Baseball Game Index"
@@ -854,8 +838,79 @@ name of the list.")
  )
 
 (emacspeak-url-template-define
- "Baseball Play By Play"
- "http://gd.mlb.com/components/game/%s_%smlb_%smlb_1/playbyplay.html"
+ "Baseball Highlights"
+ "http://gd2.mlb.com/components/game/mlb/%s_%smlb_%smlb_1/media/mobile.xml"
+ (list
+  #'(lambda nil
+      (let ((date
+             (emacspeak-speak-collect-date
+              "Date: "
+              "%Y-%m-%d"))
+            (fields nil)
+            (result nil))
+        (setq fields (split-string date "-"))
+        (setq result
+              (format
+               "year_%s/month_%s/day_%s/gid_%s_%s_%s"
+               (first fields)
+               (second fields)
+               (third fields)
+               (first fields)
+               (second fields)
+               (third fields)))
+        result))
+  "Visiting Team: "
+  "Home Team: ")
+ nil
+ "Display baseball Video Highlights."
+ #'(lambda (url)
+     (emacspeak-webutils-autospeak)
+     (emacspeak-xslt-view-xml
+      (emacspeak-xslt-get "mlb-media.xsl") url)))
+
+(emacspeak-url-template-define
+ "Baseball Game Details"
+ "http://gd2.mlb.com/components/game/mlb/%s_%smlb_%smlb_1/"
+ (list
+  #'(lambda nil
+      (let ((date
+             (emacspeak-speak-collect-date
+              "Date: "
+              "%Y-%m-%d"))
+            (fields nil)
+            (result nil))
+        (setq fields (split-string date "-"))
+        (setq result
+              (format
+               "year_%s/month_%s/day_%s/gid_%s_%s_%s"
+               (first fields)
+               (second fields)
+               (third fields)
+               (first fields)
+               (second fields)
+               (third fields)))
+        result))
+  "Visiting Team: "
+  "Home Team: ")
+ nil
+ "Display baseball Play By Play.")
+
+(defun emacspeak-url-dtemplate--mlb-play-by-play (url)
+  "Display Play By Play details for an MLB game.
+JSON is retrieved from `url'."
+  (let ((inhibit-read-only t)
+        (buffer (get-buffer-create "*Baseball Play By Play*"))
+        (plays (g-json-from-url url)))
+    (with-current-buffer buffer
+      (erase-buffer)
+      (insert (prin1-to-string plays))
+      (special-mode)
+      (goto-char (point-min)))
+    (funcall-interactively #'switch-to-buffer buffer)))
+
+(emacspeak-url-template-define
+ "Baseball Box Scores"
+ "http://gd2.mlb.com/components/game/mlb/%s_%smlb_%smlb_1/boxscore.json"
  (list
   #'(lambda nil
       (let ((date
@@ -879,7 +934,7 @@ name of the list.")
   "Home Team: ")
  nil
  "Display baseball Play By Play."
- )
+ #'emacspeak-url-dtemplate--mlb-play-by-play)
 
 (emacspeak-url-template-define
  "Baseball scores"
@@ -908,6 +963,18 @@ name of the list.")
  nil
  "Display baseball scores."
  )
+
+;;}}}
+;;{{{ NBA Standings:
+
+(emacspeak-url-template-define
+ "NBA  standings"
+ "http://www.nba.com/NASApp/nba/nba/standings/index.jsp"
+ nil
+ nil
+ "Display NBA standings."
+ #'(lambda (url)
+     (emacspeak-wizards-nba-standings)))
 
 ;;}}}
 ;;{{{ Listening to Air Traffic control
@@ -1020,18 +1087,6 @@ Set up URL rewrite rule to get print page."
  "Look up term in WordNet.")
 
 ;;}}}
-;;{{{ prairie home companion
-
-(emacspeak-url-template-define
- "PHC Prairie Home Companion"
- "http://www.publicradio.org/tools/media/player/phc/%s_phc.ram"
- (list 'emacspeak-speak-read-date-year/month/date)
- nil
- "Play Prairie Home Companion"
- #'(lambda (url)
-     (funcall emacspeak-media-player url 'play-list)))
-
-;;}}}
 ;;{{{ earthquakes
 
 (emacspeak-url-template-define
@@ -1125,7 +1180,7 @@ See http://www.cbsradio.com/streaming/index.html for a list of CBS stations that
  #'emacspeak-feeds-opml-display)
 
 ;;}}}
-;;{{{ OpenLibrary 
+;;{{{ OpenLibrary
 
 (emacspeak-url-template-define
  "OpenLibrary"
@@ -1136,9 +1191,9 @@ See http://www.cbsradio.com/streaming/index.html for a list of CBS stations that
 
 ;;}}}
 ;;{{{ GoLang.org:
-(defvar emacspeak-url-template-go-base 
-"http://golang.org/"
-"Base REST end-point for Golang.org")
+(defvar emacspeak-url-template-go-base
+  "http://golang.org/"
+  "Base REST end-point for Golang.org")
 
 (emacspeak-url-template-define
  "GoLang Browse"
@@ -1160,8 +1215,16 @@ See http://www.cbsradio.com/streaming/index.html for a list of CBS stations that
  (list "Go Package: ")
  'emacspeak-speak-buffer
  "Search GoLang package documentation.")
- 
 
+;;}}}
+;;{{{ FreeSound.org:
+
+(emacspeak-url-template-define
+ "FreeSound"
+ "http://freesound.org/search/?q=%s"
+ (list "Search FreeSound: ")
+ nil
+ "Search FreeSound.")
 
 ;;}}}
 ;;{{{ Interactive commands
@@ -1169,7 +1232,7 @@ See http://www.cbsradio.com/streaming/index.html for a list of CBS stations that
 ;;;###autoload
 (defun emacspeak-url-template-open (ut)
   "Fetch resource identified by URL template."
-  (declare (special emacspeak-web-post-process-hook ))
+  (declare (special emacspeak-web-post-process-hook))
   (let ((fetcher (or (emacspeak-url-template-fetcher ut) 'browse-url))
         (url (emacspeak-url-template-url ut))
         (action (emacspeak-url-template-post-action ut))
@@ -1286,6 +1349,19 @@ prompts for a location and speaks the forecast. \n\n"
       (emacspeak-url-template-documentation
        (emacspeak-url-template-get key)))
      (insert "\n\n"))))
+
+;;}}}
+;;{{{ wikiData:
+
+(emacspeak-url-template-define
+ "Wiki Data Search"
+ "https://www.wikidata.org/w/index.php?search=%s"
+ (list "WikiData Query: ")
+ #'(lambda nil
+     (re-search-forward "^Result")
+     (forward-line 1)
+     (emacspeak-speak-rest-of-buffer))
+ "Search WikiData.")
 
 ;;}}}
 (provide 'emacspeak-url-template)

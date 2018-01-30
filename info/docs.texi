@@ -2,7 +2,7 @@
 
 @chapter Emacspeak Commands And Options 
 
-This chapter documents a total of 1129 commands and 929 options.
+This chapter documents a total of 1149 commands and 941 options.
 
 @menu
 * acss-structure::
@@ -61,6 +61,7 @@ This chapter documents a total of 1129 commands and 929 options.
 * emacspeak-ediff::
 * emacspeak-ein::
 * emacspeak-elfeed::
+* emacspeak-elpy::
 * emacspeak-emms::
 * emacspeak-enriched::
 * emacspeak-entertain::
@@ -79,7 +80,6 @@ This chapter documents a total of 1129 commands and 929 options.
 * emacspeak-filtertext::
 * emacspeak-find-dired::
 * emacspeak-find-func::
-* emacspeak-finder::
 * emacspeak-fix-interactive::
 * emacspeak-flycheck::
 * emacspeak-flyspell::
@@ -141,6 +141,7 @@ This chapter documents a total of 1129 commands and 929 options.
 * emacspeak-projectile::
 * emacspeak-pronounce::
 * emacspeak-py::
+* emacspeak-pydoc::
 * emacspeak-python::
 * emacspeak-re-builder::
 * emacspeak-redefine::
@@ -202,24 +203,25 @@ This chapter documents a total of 1129 commands and 929 options.
 * g-app::
 * g-auth::
 * g-utils::
-* gblogger::
 * gf::
 * gfeeds::
 * gm-nnir::
 * gmaps::
-* gphoto::
 * gweb::
 * json-view::
+* ladspa::
 * mac-voices::
 * outloud-voices::
 * plain-voices::
+* soundscape::
 * sox::
 * sox-gen::
 * stack-f::
 * subr-x::
 * tetris::
 * toy-braille::
-* tts-env::
+* tts::
+* tts-cmds::
 * voice-setup::
 * xbacklight::
 * URL Templates ::
@@ -435,7 +437,7 @@ will say ````aw fifteen dot'''' when speaking the string
 @findex dtk-cloud
 
 @format
-Select prefered Cloud TTS server.
+Select preferred Cloud TTS server.
 @end format
 @end deffn
 
@@ -856,7 +858,7 @@ with a repeat count.
 @end defvar
 
 @defvar {User Option} dtk-cloud-server
-Set this to your prefered cloud TTS server.
+Set this to your preferred cloud TTS server.
 
 @end defvar
 
@@ -1107,6 +1109,24 @@ C-SPC		emacspeak-speak-current-mark
 <right>		emacspeak-speak-this-buffer-next-display
 <up>		emacspeak-read-previous-line
 
+x 3		emacspeak-wizards-cycle-browser
+x =		emacspeak-wizards-find-longest-line-in-region
+x Q		emacspeak-wizards-yql-lookup
+x b		battery
+x e		emacspeak-we-xsl-map
+x h		emacspeak-wizards-how-many-matches
+x j		emacspeak-jabber-popup-roster
+x m		mspools-show
+x o		emacspeak-wizards-occur-header-lines
+x q		emacspeak-wizards-yql-quotes
+x r		jabber-activity-switch-to
+x s		emacspeak-emergency-tts-restart
+x t		emacspeak-speak-telephone-directory
+x u		emacspeak-wizards-units
+x v		emacspeak-wizards-vc-viewer
+x |		emacspeak-wizards-squeeze-blanks
+x DEL		desktop-clear
+
 # a		emacspeak-gridtext-apply
 # l		emacspeak-gridtext-load
 # s		emacspeak-gridtext-save
@@ -1212,6 +1232,40 @@ d v		voice-lock-mode
 d w		emacspeak-toggle-word-echo
 d z		emacspeak-zap-tts
 
+x e C-c		emacspeak-we-junk-by-class-list
+x e C-f		emacspeak-we-count-matches
+x e C-p		emacspeak-we-xpath-junk-and-follow
+x e C-t		emacspeak-we-count-tables
+x e C-x		emacspeak-we-count-nested-tables
+x e C		emacspeak-we-extract-by-class-list
+x e D		emacspeak-we-junk-by-class-list
+x e I		emacspeak-we-extract-by-id-list
+x e M		emacspeak-we-extract-tables-by-match-list
+x e P		emacspeak-we-follow-and-extract-main
+x e S		emacspeak-we-style-filter
+x e T		emacspeak-we-extract-tables-by-position-list
+x e X		emacspeak-we-extract-nested-table-list
+x e a		emacspeak-we-xslt-apply
+x e b		emacspeak-we-follow-and-filter-by-id
+x e c		emacspeak-we-extract-by-class
+x e d		emacspeak-we-junk-by-class
+x e e		emacspeak-we-url-expand-and-execute
+x e f		emacspeak-we-xslt-filter
+x e i		emacspeak-we-extract-by-id
+x e j		emacspeak-we-xslt-junk
+x e k		emacspeak-we-toggle-xsl-keep-result
+x e m		emacspeak-we-extract-table-by-match
+x e o		emacspeak-we-xsl-toggle
+x e p		emacspeak-we-xpath-filter-and-follow
+x e r		emacspeak-we-extract-by-role
+x e s		emacspeak-we-xslt-select
+x e t		emacspeak-we-extract-table-by-position
+x e u		emacspeak-we-extract-matching-urls
+x e v		emacspeak-we-class-filter-and-follow-link
+x e w		emacspeak-we-extract-by-property
+x e x		emacspeak-we-extract-nested-table
+x e y		emacspeak-we-class-filter-and-follow
+
 C-t M-<		emacspeak-table-goto-top
 C-t M->		emacspeak-table-goto-bottom
 C-t M-l		emacspeak-table-ui-filter-load
@@ -1257,6 +1311,12 @@ This personality uses  voice-bolden whose  effect can be changed globally by cus
 @defvar {User Option} emacspeak-Info-quoted-voice
 Personality used for Info-quoted
 This personality uses  voice-lighten whose  effect can be changed globally by customizing voice-lighten-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-Man-overstrike-voice
+Personality used for Man-overstrike
+This personality uses  voice-animate whose  effect can be changed globally by customizing voice-animate-settings.
 
 @end defvar
 
@@ -3612,7 +3672,7 @@ This personality uses  voice-bolden-medium whose  effect can be changed globally
 
 @defvar {User Option} emacspeak-voice-lock-keyword-personality
 Personality used for font-lock-keyword-face
-This personality uses  voice-animate-extra whose  effect can be changed globally by customizing voice-animate-extra-settings.
+This personality uses  voice-animate whose  effect can be changed globally by customizing voice-animate-settings.
 
 @end defvar
 
@@ -3927,11 +3987,30 @@ Emacs 21,
 And preferably only run on Emacs 22.
 This version of Emacspeak is only tested on Emacs 24 and later.
 
+@subsection emacspeak-advice Commands
+
+@subsubsection emacspeak-eldoc-speak-doc
+@deffn {Command} emacspeak-eldoc-speak-doc   
+@kbd{C-, , C-x @@ a ,}
+
+@kindex C-, , C-x @@ a ,
+@findex emacspeak-eldoc-speak-doc
+
+@format
+Speak Eldoc documentation if available.
+@end format
+@end deffn
+
 @subsection emacspeak-advice Options
 
 @defvar {User Option} emacspeak-advice-progress-reporter
 Set to true if progress reporter should produce an auditory
 icon.
+
+@end defvar
+
+@defvar {User Option} emacspeak-eldoc-speak-explicitly
+Set to T if not using a separate TTS notification stream.
 
 @end defvar
 
@@ -4671,6 +4750,9 @@ For downloading a program etc., use Emacs package iplayer.
 
 @subsubsection emacspeak-bbc
 @deffn {Command} emacspeak-bbc  (&optional genre)
+@kbd{C-' b C-x @@ s b}
+
+@kindex C-' b C-x @@ s b
 @findex emacspeak-bbc
 
 @format
@@ -6016,6 +6098,12 @@ Display current article after filtering using W3.
 Work-around for async fetch bug in EWW.
 @end format
 @end deffn
+
+@node emacspeak-elpy
+@section emacspeak-elpy
+
+ELPY ==  Emacs Lisp Python IDE
+Speech-enables all aspects of elpy.
 
 @node emacspeak-emms
 @section emacspeak-emms
@@ -7709,6 +7797,9 @@ Archiving is useful when synchronizing feeds across multiple machines.
 
 @subsubsection emacspeak-feeds-atom-display
 @deffn {Command} emacspeak-feeds-atom-display  (feed-url)
+@kbd{C-, a C-x @@ a a}
+
+@kindex C-, a C-x @@ a a
 @findex emacspeak-feeds-atom-display
 
 @format
@@ -7740,6 +7831,9 @@ This directly  updates emacspeak-feeds from the archive, rather than adding thos
 
 @subsubsection emacspeak-feeds-find-feeds
 @deffn {Command} emacspeak-feeds-find-feeds  (query)
+@kbd{C-, f C-x @@ a f}
+
+@kindex C-, f C-x @@ a f
 @findex emacspeak-feeds-find-feeds
 
 @format
@@ -7749,6 +7843,9 @@ Browse feeds matching specified query.
 
 @subsubsection emacspeak-feeds-lookup-and-view
 @deffn {Command} emacspeak-feeds-lookup-and-view  (site)
+@kbd{C-' f C-x @@ s f}
+
+@kindex C-' f C-x @@ s f
 @findex emacspeak-feeds-lookup-and-view
 
 @format
@@ -7758,6 +7855,9 @@ Lookup feed URL for a site and browse result.
 
 @subsubsection emacspeak-feeds-opml-display
 @deffn {Command} emacspeak-feeds-opml-display  (feed-url)
+@kbd{C-, o C-x @@ a o}
+
+@kindex C-, o C-x @@ a o
 @findex emacspeak-feeds-opml-display
 
 @format
@@ -7777,6 +7877,9 @@ Archiving is useful when synchronizing feeds across multiple machines.
 
 @subsubsection emacspeak-feeds-rss-display
 @deffn {Command} emacspeak-feeds-rss-display  (feed-url)
+@kbd{C-, r C-x @@ a r}
+
+@kindex C-, r C-x @@ a r
 @findex emacspeak-feeds-rss-display
 
 @format
@@ -7878,12 +7981,6 @@ this module speech-enables find-dired
 @section emacspeak-find-func
 
 This module speech enables find-func
-
-@node emacspeak-finder
-@section emacspeak-finder
-
-Inspired by finder.el
-Not to be loaded at runtime.
 
 @node emacspeak-fix-interactive
 @section emacspeak-fix-interactive
@@ -8581,6 +8678,31 @@ Change  web-history-visited in the currently active toolbelt.
 @end format
 @end deffn
 
+@subsubsection emacspeak-google-tts
+@deffn {Command} emacspeak-google-tts  (text &optional lang)
+@findex emacspeak-google-tts
+
+@format
+Speak text using Google Network TTS.
+@end format
+@end deffn
+
+@subsubsection emacspeak-google-tts-region
+@deffn {Command} emacspeak-google-tts-region  (start end)
+@findex emacspeak-google-tts-region
+
+@format
+Speak region using Google Network TTS.
+@end format
+@end deffn
+
+@subsection emacspeak-google Options
+
+@defvar {User Option} emacspeak-google-tts-default-language
+Default language used for Google TTS.
+
+@end defvar
+
 @node emacspeak-gridtext
 @section emacspeak-gridtext
 
@@ -8655,6 +8777,9 @@ Provide additional advice to ease debugger interaction with gud
 @section emacspeak-helm
 
 HELM ==  Smart narrowing/selection in emacs
+This module speech-enables Helm interaction.
+See tvr/helm-prepare.el in the GitHub repository for my  helm setup.
+that file provides convenient emacspeak-centric keybindings for Helm interaction.
 
 @node emacspeak-hide
 @section emacspeak-hide
@@ -8890,6 +9015,9 @@ Returns a cons (start . end) that delimits the message.
 
 @subsubsection emacspeak-jabber-popup-roster
 @deffn {Command} emacspeak-jabber-popup-roster   
+@kbd{C-e x j}
+
+@kindex C-e x j
 @findex emacspeak-jabber-popup-roster
 
 @format
@@ -9462,6 +9590,9 @@ This module implements an Emacspeak Librivox client.
 
 @subsubsection emacspeak-librivox
 @deffn {Command} emacspeak-librivox  (search-type)
+@kbd{C-; l C-x @@ h l}
+
+@kindex C-; l C-x @@ h l
 @findex emacspeak-librivox
 
 @format
@@ -9528,8 +9659,6 @@ Defines a simple derived mode for interacting with mplayer.
 mplayer  is a versatile media player capable of playing many
 streaming formats  and is especially useful for playing windows
 media (WMA) and streaming windows media (ASF) files.
-You may need the  win32 codecs which can be downloaded from
-http://ftp.lug.udel.edu/MPlayer/releases/w32codec-0.60.tar.bz2
 Mplayer FAQ at
 http://www.mplayerhq.hu/DOCS/faq.html
 Mplayer docs at
@@ -9550,6 +9679,15 @@ The player is placed in a buffer in emacspeak-m-player-mode.
 @end format
 @end deffn
 
+@subsubsection emacspeak-m-player-add-autopan
+@deffn {Command} emacspeak-m-player-add-autopan   
+@findex emacspeak-m-player-add-autopan
+
+@format
+Add predefined autopan effect.
+@end format
+@end deffn
+
 @subsubsection emacspeak-m-player-add-equalizer
 @deffn {Command} emacspeak-m-player-add-equalizer  (&optional reset)
 @findex emacspeak-m-player-add-equalizer
@@ -9562,11 +9700,29 @@ arg ``reset'' starts with all filters set to 0.
 @end deffn
 
 @subsubsection emacspeak-m-player-add-filter
-@deffn {Command} emacspeak-m-player-add-filter   
+@deffn {Command} emacspeak-m-player-add-filter  (filter-name)
 @findex emacspeak-m-player-add-filter
 
 @format
 Adds specified filter.
+@end format
+@end deffn
+
+@subsubsection emacspeak-m-player-add-ladspa
+@deffn {Command} emacspeak-m-player-add-ladspa   
+@findex emacspeak-m-player-add-ladspa
+
+@format
+Apply plugin to running MPlayer.
+@end format
+@end deffn
+
+@subsubsection emacspeak-m-player-af-add
+@deffn {Command} emacspeak-m-player-af-add   
+@findex emacspeak-m-player-af-add
+
+@format
+Add slave command af_add.
 @end format
 @end deffn
 
@@ -9604,7 +9760,7 @@ Jump to specified AMark.
 @findex emacspeak-m-player-apply-reverb-preset
 
 @format
-Prompt for a predefined reverb preset and apply it if there is media playing.
+Prompt for a predefined reverb preset and apply it.
 You need to use mplayer built with ladspa support, and have package
 tap-reverb already installed.
 @end format
@@ -9700,6 +9856,15 @@ Delete filter.
 @end format
 @end deffn
 
+@subsubsection emacspeak-m-player-delete-ladspa
+@deffn {Command} emacspeak-m-player-delete-ladspa   
+@findex emacspeak-m-player-delete-ladspa
+
+@format
+Delete plugin from  running MPlayer.
+@end format
+@end deffn
+
 @subsubsection emacspeak-m-player-display-metadata
 @deffn {Command} emacspeak-m-player-display-metadata   
 @findex emacspeak-m-player-display-metadata
@@ -9741,7 +9906,7 @@ Scale speed by 2.0
 @findex emacspeak-m-player-edit-reverb
 
 @format
-Add ladspa reverb filter.
+Edit  current ladspa reverb filter.
 See option emacspeak-m-player-reverb-filter to customize reverb filter values.
 You need to use mplayer built with ladspa support, and have package
 tap-reverb already installed.
@@ -9860,6 +10025,9 @@ Load specified playlist file.
 
 @subsubsection emacspeak-m-player-locate-media
 @deffn {Command} emacspeak-m-player-locate-media  (pattern)
+@kbd{C-' l C-x @@ s l}
+
+@kindex C-' l C-x @@ s l
 @findex emacspeak-m-player-locate-media
 
 @format
@@ -9878,6 +10046,7 @@ Major mode for m-player interaction.
 key             binding
 ---             -------
 
+C-l		ladspa
 RET		emacspeak-m-player-load
 ESC		Prefix Command
 SPC		emacspeak-m-player-pause
@@ -9888,12 +10057,15 @@ SPC		emacspeak-m-player-pause
 ,		emacspeak-m-player-backward-10s
 -		emacspeak-m-player-volume-down
 .		emacspeak-m-player-forward-10s
+/		emacspeak-m-player-restore-process
 ;		emacspeak-m-player-pop-to-player
 <		emacspeak-m-player-backward-1min
 =		emacspeak-m-player-volume-up
 >		emacspeak-m-player-forward-1min
 ?		emacspeak-m-player-display-position
+A		emacspeak-m-player-amark-add
 C		emacspeak-m-player-clear-filters
+G		emacspeak-m-player-seek-percentage
 L		emacspeak-m-player-locate-media
 M		emacspeak-m-player-display-metadata
 O		emacspeak-m-player-reset-options
@@ -9902,9 +10074,10 @@ Q		emacspeak-m-player-quit
 R		emacspeak-m-player-edit-reverb
 S		emacspeak-amark-save
 [		emacspeak-m-player-slower
+\		emacspeak-m-player-persist-process
 ]		emacspeak-m-player-faster
-a		emacspeak-m-player-amark-add
-b		emacspeak-m-player-balance
+a		emacspeak-m-player-add-autopan
+b		emacspeak-wizards-view-buffers-filtered-by-m-player-mode
 c		emacspeak-m-player-slave-command
 d		emacspeak-m-player-delete-filter
 e		emacspeak-m-player-add-equalizer
@@ -9923,6 +10096,8 @@ s		emacspeak-m-player-scale-speed
 t		emacspeak-m-player-play-tracks-jump
 u		emacspeak-m-player-url
 v		emacspeak-m-player-volume-change
+x		emacspeak-m-player-pan
+z		emacspeak-m-player-af-add
 @{		emacspeak-m-player-half-speed
 @}		emacspeak-m-player-double-speed
 DEL		emacspeak-m-player-reset-speed
@@ -9952,12 +10127,31 @@ Move to next track.
 @end format
 @end deffn
 
+@subsubsection emacspeak-m-player-pan
+@deffn {Command} emacspeak-m-player-pan   
+@findex emacspeak-m-player-pan
+
+@format
+Pan from left to right   and back from right to left one step at a time.
+@end format
+@end deffn
+
 @subsubsection emacspeak-m-player-pause
 @deffn {Command} emacspeak-m-player-pause   
 @findex emacspeak-m-player-pause
 
 @format
 Pause or unpause media player.
+@end format
+@end deffn
+
+@subsubsection emacspeak-m-player-persist-process
+@deffn {Command} emacspeak-m-player-persist-process  (&optional name)
+@findex emacspeak-m-player-persist-process
+
+@format
+Persists current m-player process instance by renaming its buffer.
+Optional interactive prefix arg prompts for name to use for  player.
 @end format
 @end deffn
 
@@ -10033,6 +10227,16 @@ Reset playing speed to normal.
 @end format
 @end deffn
 
+@subsubsection emacspeak-m-player-restore-process
+@deffn {Command} emacspeak-m-player-restore-process   
+@findex emacspeak-m-player-restore-process
+
+@format
+Restore emacspeak-m-player-process from current buffer.
+Check first if current buffer is in emacspeak-m-player-mode.
+@end format
+@end deffn
+
 @subsubsection emacspeak-m-player-right-channel
 @deffn {Command} emacspeak-m-player-right-channel   
 @findex emacspeak-m-player-right-channel
@@ -10056,7 +10260,16 @@ Scale speed by specified factor.
 @findex emacspeak-m-player-seek-absolute
 
 @format
-Seek  to absolute specified position.
+Seek  to absolute specified position in seconds.
+@end format
+@end deffn
+
+@subsubsection emacspeak-m-player-seek-percentage
+@deffn {Command} emacspeak-m-player-seek-percentage  (position)
+@findex emacspeak-m-player-seek-percentage
+
+@format
+Seek  to absolute specified position in percent.
 @end format
 @end deffn
 
@@ -10120,10 +10333,28 @@ Interactive prefix arg toggles automatic cueing of ICY info updates.
 
 @subsubsection emacspeak-m-player-url
 @deffn {Command} emacspeak-m-player-url  (url &optional playlist-p)
+@kbd{C-, u C-x @@ a u}
+
+@kindex C-, u C-x @@ a u
 @findex emacspeak-m-player-url
 
 @format
 Call emacspeak-m-player with specified URL.
+@end format
+@end deffn
+
+@subsubsection emacspeak-m-player-using-openal
+@deffn {Command} emacspeak-m-player-using-openal   
+@kbd{C-; : C-x @@ h :}
+
+@kindex C-; : C-x @@ h :
+@findex emacspeak-m-player-using-openal
+
+@format
+Use openal as the audio output driver. Adding hrtf=true to
+~/.alsoftrc gives HRTF. You need to have openal installed and have an
+mplayer that has been compiled with openal support to use this
+feature.
 @end format
 @end deffn
 
@@ -10600,7 +10831,7 @@ attempt to automatically install package hydra if it is not found.
 @item m-player: <s-m> Emacspeak-M-Player Commands
 @item hideshow: C-c h Provide HideShow bindings.
 @item toggle-option:  <C-c o> Single binding for toggling options.
-@item outliner: <C-c #> Bindings from outline-minor-mode.
+@item outliner: <C-c .> Bindings from outline-minor-mode.
 @item Info-Summary: <?> in Info Info Summary Muggle
 @end itemize
 
@@ -10917,9 +11148,9 @@ Toggle state of emacspeak-muggles-talkative-p.
 
 @subsubsection emacspeak-muggles-view/body
 @deffn {Command} emacspeak-muggles-view/body   
-@kbd{C-c v}
+@kbd{C-c v C-; v C-x @@ h v}
 
-@kindex C-c v
+@kindex C-c v C-; v C-x @@ h v
 @findex emacspeak-muggles-view/body
 
 @format
@@ -11103,6 +11334,9 @@ In all cases, streams are played using module emacspeak-m-player.
 
 @subsubsection emacspeak-npr-listing
 @deffn {Command} emacspeak-npr-listing  (&optional search)
+@kbd{C-; N C-x @@ h N}
+
+@kindex C-; N C-x @@ h N
 @findex emacspeak-npr-listing
 
 @format
@@ -11123,6 +11357,9 @@ Optional prefix arg prompts for date.
 
 @subsubsection emacspeak-npr-play-program
 @deffn {Command} emacspeak-npr-play-program  (pid &optional get-date)
+@kbd{C-; n C-x @@ h n}
+
+@kindex C-; n C-x @@ h n
 @findex emacspeak-npr-play-program
 
 @format
@@ -11779,6 +12016,9 @@ Bookmark from org.
 
 @subsubsection emacspeak-org-capture-link
 @deffn {Command} emacspeak-org-capture-link   
+@kbd{C-; h C-x @@ h h}
+
+@kindex C-; h C-x @@ h h
 @findex emacspeak-org-capture-link
 
 @format
@@ -12520,6 +12760,91 @@ This personality uses  emacspeak-voice-lock-variable-name-personality whose  eff
 
 @end defvar
 
+@node emacspeak-pydoc
+@section emacspeak-pydoc
+
+PYDOC ==  Python Documentation Viewer
+
+@subsection emacspeak-pydoc Options
+
+@defvar {User Option} emacspeak-pydoc-button-personality
+Personality used for pydoc-button-face
+This personality uses  voice-bolden whose  effect can be changed globally by customizing voice-bolden-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-pydoc-callable-name-personality
+Personality used for pydoc-callable-name-face
+This personality uses  voice-animate whose  effect can be changed globally by customizing voice-animate-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-pydoc-callable-param-personality
+Personality used for pydoc-callable-param-face
+This personality uses  emacspeak-voice-lock-variable-name-personality whose  effect can be changed globally by customizing emacspeak-voice-lock-variable-name-personality-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-pydoc-class-name-link-personality
+Personality used for pydoc-class-name-link-face
+This personality uses  voice-bolden whose  effect can be changed globally by customizing voice-bolden-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-pydoc-data-personality
+Personality used for pydoc-data-face
+This personality uses  voice-lighten-extra whose  effect can be changed globally by customizing voice-lighten-extra-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-pydoc-envvars-personality
+Personality used for pydoc-envvars-face
+This personality uses  voice-monotone whose  effect can be changed globally by customizing voice-monotone-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-pydoc-package-link-personality
+Personality used for pydoc-package-link-face
+This personality uses  emacspeak-voice-lock-variable-name-personality whose  effect can be changed globally by customizing emacspeak-voice-lock-variable-name-personality-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-pydoc-source-file-link-personality
+Personality used for pydoc-source-file-link-face
+This personality uses  voice-monotone whose  effect can be changed globally by customizing voice-monotone-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-pydoc-sphinx-directive-personality
+Personality used for pydoc-sphinx-directive-face
+This personality uses  voice-monotone whose  effect can be changed globally by customizing voice-monotone-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-pydoc-sphinx-param-name-personality
+Personality used for pydoc-sphinx-param-name-face
+This personality uses  voice-monotone whose  effect can be changed globally by customizing voice-monotone-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-pydoc-sphinx-param-type-personality
+Personality used for pydoc-sphinx-param-type-face
+This personality uses  voice-monotone whose  effect can be changed globally by customizing voice-monotone-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-pydoc-string-personality
+Personality used for pydoc-string-face
+This personality uses  emacspeak-voice-lock-string-personality whose  effect can be changed globally by customizing emacspeak-voice-lock-string-personality-settings.
+
+@end defvar
+
+@defvar {User Option} emacspeak-pydoc-superclass-name-link-personality
+Personality used for pydoc-superclass-name-link-face
+This personality uses  voice-bolden-extra whose  effect can be changed globally by customizing voice-bolden-extra-settings.
+
+@end defvar
+
 @node emacspeak-python
 @section emacspeak-python
 
@@ -12660,6 +12985,9 @@ Uses value returned by ``emacspeak-remote-get-current-remote-hostname''.
 
 @subsubsection emacspeak-remote-quick-connect-to-server
 @deffn {Command} emacspeak-remote-quick-connect-to-server   
+@kbd{C-; q C-x @@ h q}
+
+@kindex C-; q C-x @@ h q
 @findex emacspeak-remote-quick-connect-to-server
 
 @format
@@ -13126,6 +13454,15 @@ from becoming dependent on the speech server modules
 
 @subsection emacspeak-speak Commands
 
+@subsubsection emacspeak--choose-completion
+@deffn {Command} emacspeak--choose-completion   
+@findex emacspeak--choose-completion
+
+@format
+Choose the completion at point.
+@end format
+@end deffn
+
 @subsubsection emacspeak-blink-matching-open
 @deffn {Command} emacspeak-blink-matching-open   
 @findex emacspeak-blink-matching-open
@@ -13199,7 +13536,7 @@ Also set the mark at the position where point was.
 @findex emacspeak-launch-application
 
 @format
-Launch an application. 
+Launch an application.
 This command  is designed for use in a windowing environment like X.
 @end format
 @end deffn
@@ -13213,6 +13550,33 @@ This command  is designed for use in a windowing environment like X.
 
 @format
 Cycle backward through the mark ring.
+@end format
+@end deffn
+
+@subsubsection emacspeak-minibuffer-choose-completion
+@deffn {Command} emacspeak-minibuffer-choose-completion   
+@findex emacspeak-minibuffer-choose-completion
+
+@format
+Choose current completion.
+@end format
+@end deffn
+
+@subsubsection emacspeak-minibuffer-next-completion
+@deffn {Command} emacspeak-minibuffer-next-completion   
+@findex emacspeak-minibuffer-next-completion
+
+@format
+Move to next available minibuffer completion.
+@end format
+@end deffn
+
+@subsubsection emacspeak-minibuffer-previous-completion
+@deffn {Command} emacspeak-minibuffer-previous-completion   
+@findex emacspeak-minibuffer-previous-completion
+
+@format
+Move to previous available minibuffer completion.
 @end format
 @end deffn
 
@@ -15796,6 +16160,15 @@ Optional interactive prefix arg displays documentation for specified resource.
 @end format
 @end deffn
 
+@subsubsection emacspeak-url-template-google-atom-news-display
+@deffn {Command} emacspeak-url-template-google-atom-news-display  (feed-url)
+@findex emacspeak-url-template-google-atom-news-display
+
+@format
+View Google Atom news feed pulled using Curl.
+@end format
+@end deffn
+
 @subsubsection emacspeak-url-template-help
 @deffn {Command} emacspeak-url-template-help   
 @findex emacspeak-url-template-help
@@ -16334,6 +16707,9 @@ abstractions not already covered by browse-url
 
 @subsubsection emacspeak-we-class-filter-and-follow
 @deffn {Command} emacspeak-we-class-filter-and-follow  (class url)
+@kbd{C-e x e y}
+
+@kindex C-e x e y
 @findex emacspeak-we-class-filter-and-follow
 
 @format
@@ -16346,6 +16722,9 @@ used as well.
 
 @subsubsection emacspeak-we-class-filter-and-follow-link
 @deffn {Command} emacspeak-we-class-filter-and-follow-link  (&optional prompt)
+@kbd{C-e x e v}
+
+@kindex C-e x e v
 @findex emacspeak-we-class-filter-and-follow-link
 
 @format
@@ -16358,6 +16737,9 @@ used as well.
 
 @subsubsection emacspeak-we-count-matches
 @deffn {Command} emacspeak-we-count-matches  (url locator)
+@kbd{C-e x e C-f}
+
+@kindex C-e x e C-f
 @findex emacspeak-we-count-matches
 
 @format
@@ -16367,6 +16749,9 @@ Count matches for locator  in Web page.
 
 @subsubsection emacspeak-we-count-nested-tables
 @deffn {Command} emacspeak-we-count-nested-tables  (url)
+@kbd{C-e x e C-x}
+
+@kindex C-e x e C-x
 @findex emacspeak-we-count-nested-tables
 
 @format
@@ -16376,6 +16761,9 @@ Count nested tables in Web page.
 
 @subsubsection emacspeak-we-count-tables
 @deffn {Command} emacspeak-we-count-tables  (url)
+@kbd{C-e x e C-t}
+
+@kindex C-e x e C-t
 @findex emacspeak-we-count-tables
 
 @format
@@ -16385,6 +16773,9 @@ Count  tables in Web page.
 
 @subsubsection emacspeak-we-extract-by-class
 @deffn {Command} emacspeak-we-extract-by-class  (class url &optional speak)
+@kbd{C-e x e c}
+
+@kindex C-e x e c
 @findex emacspeak-we-extract-by-class
 
 @format
@@ -16396,6 +16787,9 @@ buffer. Interactive use provides list of class values as completion.
 
 @subsubsection emacspeak-we-extract-by-class-list
 @deffn {Command} emacspeak-we-extract-by-class-list  (classes url &optional speak)
+@kbd{C-e x e C}
+
+@kindex C-e x e C
 @findex emacspeak-we-extract-by-class-list
 
 @format
@@ -16408,6 +16802,9 @@ values as completion.
 
 @subsubsection emacspeak-we-extract-by-id
 @deffn {Command} emacspeak-we-extract-by-id  (id url &optional speak)
+@kbd{C-e x e i}
+
+@kindex C-e x e i
 @findex emacspeak-we-extract-by-id
 
 @format
@@ -16420,6 +16817,9 @@ Interactive use provides list of id values as completion.
 
 @subsubsection emacspeak-we-extract-by-id-list
 @deffn {Command} emacspeak-we-extract-by-id-list  (ids url &optional speak)
+@kbd{C-e x e I}
+
+@kindex C-e x e I
 @findex emacspeak-we-extract-by-id-list
 
 @format
@@ -16431,6 +16831,9 @@ separate buffer. Interactive use provides list of id values as completion.
 
 @subsubsection emacspeak-we-extract-by-property
 @deffn {Command} emacspeak-we-extract-by-property  (url &optional speak)
+@kbd{C-e x e w}
+
+@kindex C-e x e w
 @findex emacspeak-we-extract-by-property
 
 @format
@@ -16441,6 +16844,9 @@ and provide a completion list of applicable  property values. Filter document by
 
 @subsubsection emacspeak-we-extract-by-role
 @deffn {Command} emacspeak-we-extract-by-role  (role url &optional speak)
+@kbd{C-e x e r}
+
+@kindex C-e x e r
 @findex emacspeak-we-extract-by-role
 
 @format
@@ -16475,6 +16881,9 @@ Interactive use provides list of id values as completion.
 
 @subsubsection emacspeak-we-extract-matching-urls
 @deffn {Command} emacspeak-we-extract-matching-urls  (pattern url &optional speak)
+@kbd{C-e x e u}
+
+@kindex C-e x e u
 @findex emacspeak-we-extract-matching-urls
 
 @format
@@ -16505,6 +16914,9 @@ In browser buffers, extract media streams from url under point.
 
 @subsubsection emacspeak-we-extract-nested-table
 @deffn {Command} emacspeak-we-extract-nested-table  (index url &optional speak)
+@kbd{C-e x e x}
+
+@kindex C-e x e x
 @findex emacspeak-we-extract-nested-table
 
 @format
@@ -16517,6 +16929,9 @@ spoken automatically.
 
 @subsubsection emacspeak-we-extract-nested-table-list
 @deffn {Command} emacspeak-we-extract-nested-table-list  (tables url &optional speak)
+@kbd{C-e x e X}
+
+@kindex C-e x e X
 @findex emacspeak-we-extract-nested-table-list
 
 @format
@@ -16538,6 +16953,9 @@ operate on current web page when in a browser buffer; otherwise
 
 @subsubsection emacspeak-we-extract-table-by-match
 @deffn {Command} emacspeak-we-extract-table-by-match  (match url &optional speak)
+@kbd{C-e x e m}
+
+@kindex C-e x e m
 @findex emacspeak-we-extract-table-by-match
 
 @format
@@ -16548,6 +16966,9 @@ Extract table containing  specified match.
 
 @subsubsection emacspeak-we-extract-table-by-position
 @deffn {Command} emacspeak-we-extract-table-by-position  (position url &optional speak)
+@kbd{C-e x e t}
+
+@kindex C-e x e t
 @findex emacspeak-we-extract-table-by-position
 
 @format
@@ -16558,6 +16979,9 @@ Default is to extract from current page.
 
 @subsubsection emacspeak-we-extract-tables-by-match-list
 @deffn {Command} emacspeak-we-extract-tables-by-match-list  (match-list url &optional speak)
+@kbd{C-e x e M}
+
+@kindex C-e x e M
 @findex emacspeak-we-extract-tables-by-match-list
 
 @format
@@ -16569,6 +16993,9 @@ Tables are specified by containing  match pattern
 
 @subsubsection emacspeak-we-extract-tables-by-position-list
 @deffn {Command} emacspeak-we-extract-tables-by-position-list  (positions url &optional speak)
+@kbd{C-e x e T}
+
+@kindex C-e x e T
 @findex emacspeak-we-extract-tables-by-position-list
 
 @format
@@ -16580,6 +17007,9 @@ Tables are specified by their position in the list
 
 @subsubsection emacspeak-we-follow-and-extract-main
 @deffn {Command} emacspeak-we-follow-and-extract-main  (&optional speak)
+@kbd{C-e x e P}
+
+@kindex C-e x e P
 @findex emacspeak-we-follow-and-extract-main
 
 @format
@@ -16589,6 +17019,9 @@ Follow URL, then extract role=main.
 
 @subsubsection emacspeak-we-follow-and-filter-by-id
 @deffn {Command} emacspeak-we-follow-and-filter-by-id  (id)
+@kbd{C-e x e b}
+
+@kindex C-e x e b
 @findex emacspeak-we-follow-and-filter-by-id
 
 @format
@@ -16601,6 +17034,9 @@ used as well.
 
 @subsubsection emacspeak-we-junk-by-class
 @deffn {Command} emacspeak-we-junk-by-class  (class url &optional speak)
+@kbd{C-e x e d}
+
+@kindex C-e x e d
 @findex emacspeak-we-junk-by-class
 
 @format
@@ -16612,6 +17048,9 @@ buffer. Interactive use provides list of class values as completion.
 
 @subsubsection emacspeak-we-junk-by-class-list
 @deffn {Command} emacspeak-we-junk-by-class-list  (classes url &optional speak)
+@kbd{C-e x e D C-e x e C-c}
+
+@kindex C-e x e D C-e x e C-c
 @findex emacspeak-we-junk-by-class-list
 
 @format
@@ -16624,6 +17063,9 @@ values as completion.
 
 @subsubsection emacspeak-we-style-filter
 @deffn {Command} emacspeak-we-style-filter  (style url &optional speak)
+@kbd{C-e x e S}
+
+@kindex C-e x e S
 @findex emacspeak-we-style-filter
 
 @format
@@ -16636,6 +17078,9 @@ specifies the page to extract contents  from.
 
 @subsubsection emacspeak-we-toggle-xsl-keep-result
 @deffn {Command} emacspeak-we-toggle-xsl-keep-result   
+@kbd{C-e x e k}
+
+@kindex C-e x e k
 @findex emacspeak-we-toggle-xsl-keep-result
 
 @format
@@ -16645,6 +17090,9 @@ Toggle xsl keep result flag.
 
 @subsubsection emacspeak-we-url-expand-and-execute
 @deffn {Command} emacspeak-we-url-expand-and-execute  (&optional prefix)
+@kbd{C-e x e e}
+
+@kindex C-e x e e
 @findex emacspeak-we-url-expand-and-execute
 
 @format
@@ -16671,6 +17119,9 @@ a rewrite rule even if one is already defined.
 
 @subsubsection emacspeak-we-xpath-filter-and-follow
 @deffn {Command} emacspeak-we-xpath-filter-and-follow  (&optional prompt)
+@kbd{C-e x e p}
+
+@kindex C-e x e p
 @findex emacspeak-we-xpath-filter-and-follow
 
 @format
@@ -16683,6 +17134,9 @@ used as well.
 
 @subsubsection emacspeak-we-xpath-junk-and-follow
 @deffn {Command} emacspeak-we-xpath-junk-and-follow  (&optional prompt)
+@kbd{C-e x e C-p}
+
+@kindex C-e x e C-p
 @findex emacspeak-we-xpath-junk-and-follow
 
 @format
@@ -16696,6 +17150,9 @@ used as well.
 
 @subsubsection emacspeak-we-xsl-toggle
 @deffn {Command} emacspeak-we-xsl-toggle   
+@kbd{C-e x e o}
+
+@kindex C-e x e o
 @findex emacspeak-we-xsl-toggle
 
 @format
@@ -16705,6 +17162,9 @@ Toggle  application of XSL transformations.
 
 @subsubsection emacspeak-we-xslt-apply
 @deffn {Command} emacspeak-we-xslt-apply  (xsl)
+@kbd{C-e x e a}
+
+@kindex C-e x e a
 @findex emacspeak-we-xslt-apply
 
 @format
@@ -16714,6 +17174,9 @@ Apply specified transformation to current Web page.
 
 @subsubsection emacspeak-we-xslt-filter
 @deffn {Command} emacspeak-we-xslt-filter  (path url &optional speak)
+@kbd{C-e x e f}
+
+@kindex C-e x e f
 @findex emacspeak-we-xslt-filter
 
 @format
@@ -16724,6 +17187,9 @@ from Web page -- default is the current page being viewed.
 
 @subsubsection emacspeak-we-xslt-junk
 @deffn {Command} emacspeak-we-xslt-junk  (path url &optional speak)
+@kbd{C-e x e j}
+
+@kindex C-e x e j
 @findex emacspeak-we-xslt-junk
 
 @format
@@ -16733,6 +17199,9 @@ Junk elements matching specified locator.
 
 @subsubsection emacspeak-we-xslt-select
 @deffn {Command} emacspeak-we-xslt-select  (xsl)
+@kbd{C-e x e s}
+
+@kindex C-e x e s
 @findex emacspeak-we-xslt-select
 
 @format
@@ -16983,12 +17452,12 @@ Search the Merriam Webster Dictionary.
 @end deffn
 
 @subsubsection emacspeak-websearch-news-yahoo
-@deffn {Command} emacspeak-websearch-news-yahoo  (query &optional no-rss)
+@deffn {Command} emacspeak-websearch-news-yahoo  (query &optional rss)
 @findex emacspeak-websearch-news-yahoo
 
 @format
 Perform an Yahoo News search.
-Optional prefix arg no-rss scrapes information from HTML.
+Optional prefix arg  avoids scraping  information from HTML.
 @end format
 @end deffn
 
@@ -17091,6 +17560,9 @@ WEBSPACE == Smart Web Gadgets For The Emacspeak Desktop
 
 @subsubsection emacspeak-webspace-feed-reader
 @deffn {Command} emacspeak-webspace-feed-reader  (&optional refresh)
+@kbd{C-' R C-x @@ s R}
+
+@kindex C-' R C-x @@ s R
 @findex emacspeak-webspace-feed-reader
 
 @format
@@ -17110,6 +17582,9 @@ Open headline at point by following its link property and filter for content.
 
 @subsubsection emacspeak-webspace-freebase-search
 @deffn {Command} emacspeak-webspace-freebase-search  (query)
+@kbd{C-; f C-x @@ h f}
+
+@kindex C-; f C-x @@ h f
 @findex emacspeak-webspace-freebase-search
 
 @format
@@ -17140,9 +17615,9 @@ Startup Headlines ticker.
 
 @subsubsection emacspeak-webspace-headlines-browse
 @deffn {Command} emacspeak-webspace-headlines-browse   
-@kbd{C-; SPC SPC C-x @@ h SPC SPC}
+@kbd{C-' h C-; SPC SPC C-x @@ s h C-x @@ h SPC SPC}
 
-@kindex C-; SPC SPC C-x @@ h SPC SPC
+@kindex C-' h C-; SPC SPC C-x @@ s h C-x @@ h SPC SPC
 @findex emacspeak-webspace-headlines-browse
 
 @format
@@ -17157,6 +17632,19 @@ Display buffer of browsable headlines.
 @format
 Setup news updates.
 Updated headlines found in emacspeak-webspace-headlines.
+@end format
+@end deffn
+
+@subsubsection emacspeak-webspace-knowledge-search
+@deffn {Command} emacspeak-webspace-knowledge-search  (query &optional limit)
+@kbd{C-; k C-x @@ h k}
+
+@kindex C-; k C-x @@ h k
+@findex emacspeak-webspace-knowledge-search
+
+@format
+Perform a Google Knowledge Graph search.
+Optional interactive prefix arg ``limit'' prompts for number of results, default is 1.
 @end format
 @end deffn
 
@@ -17242,6 +17730,13 @@ Updated weather is found in ``emacspeak-webspace-current-weather''.
 Yank link under point into kill ring.
 @end format
 @end deffn
+
+@subsection emacspeak-webspace Options
+
+@defvar {User Option} emacspeak-webspace-kg-key
+API Key for Google Knowledge Graph.
+
+@end defvar
 
 @node emacspeak-webutils
 @section emacspeak-webutils
@@ -17534,9 +18029,9 @@ personal customizations.
 
 @subsubsection emacspeak-emergency-tts-restart
 @deffn {Command} emacspeak-emergency-tts-restart   
-@kbd{C-e <insert>}
+@kbd{C-e <insert> C-e x s}
 
-@kindex C-e <insert>
+@kindex C-e <insert> C-e x s
 @findex emacspeak-emergency-tts-restart
 
 @format
@@ -17795,6 +18290,9 @@ normally bound to C-e TAB.
 
 @subsubsection emacspeak-speak-telephone-directory
 @deffn {Command} emacspeak-speak-telephone-directory  (&optional edit)
+@kbd{C-e x t}
+
+@kindex C-e x t
 @findex emacspeak-speak-telephone-directory
 
 @format
@@ -17957,9 +18455,9 @@ Cleans up duplicates in shell path env variable.
 
 @subsubsection emacspeak-wizards-color-at-point
 @deffn {Command} emacspeak-wizards-color-at-point   
-@kbd{C-h , <f1> , <help> ,}
+@kbd{C-h , C-' c <f1> , <help> , C-x @@ s c}
 
-@kindex C-h , <f1> , <help> ,
+@kindex C-h , C-' c <f1> , <help> , C-x @@ s c
 @findex emacspeak-wizards-color-at-point
 
 @format
@@ -17987,6 +18485,9 @@ Count slides starting from point.
 
 @subsubsection emacspeak-wizards-cycle-browser
 @deffn {Command} emacspeak-wizards-cycle-browser   
+@kbd{C-e x 3}
+
+@kindex C-e x 3
 @findex emacspeak-wizards-cycle-browser
 
 @format
@@ -17996,6 +18497,9 @@ Cycles through available browsers.
 
 @subsubsection emacspeak-wizards-cycle-to-next-buffer
 @deffn {Command} emacspeak-wizards-cycle-to-next-buffer   
+@kbd{C-, n C-x @@ a n}
+
+@kindex C-, n C-x @@ a n
 @findex emacspeak-wizards-cycle-to-next-buffer
 
 @format
@@ -18005,6 +18509,9 @@ Cycles to next buffer having same mode.
 
 @subsubsection emacspeak-wizards-cycle-to-previous-buffer
 @deffn {Command} emacspeak-wizards-cycle-to-previous-buffer   
+@kbd{C-, p C-x @@ a p}
+
+@kindex C-, p C-x @@ a p
 @findex emacspeak-wizards-cycle-to-previous-buffer
 
 @format
@@ -18168,6 +18675,9 @@ Interactive  arguments specify filename pattern and search pattern.
 
 @subsubsection emacspeak-wizards-find-longest-line-in-region
 @deffn {Command} emacspeak-wizards-find-longest-line-in-region  (start end)
+@kbd{C-e x =}
+
+@kindex C-e x =
 @findex emacspeak-wizards-find-longest-line-in-region
 
 @format
@@ -18294,6 +18804,9 @@ View Web through Google Transcoder.
 
 @subsubsection emacspeak-wizards-how-many-matches
 @deffn {Command} emacspeak-wizards-how-many-matches  (start end &optional prefix)
+@kbd{C-e x h}
+
+@kindex C-e x h
 @findex emacspeak-wizards-how-many-matches
 
 @format
@@ -18323,6 +18836,16 @@ load file into emacs
 @end format
 @end deffn
 
+@subsubsection emacspeak-wizards-mlb-standings
+@deffn {Command} emacspeak-wizards-mlb-standings  (&optional raw)
+@findex emacspeak-wizards-mlb-standings
+
+@format
+Display MLB standings as of today.
+Optional interactive prefix arg shows  unprocessed results.
+@end format
+@end deffn
+
 @subsubsection emacspeak-wizards-move-and-speak
 @deffn {Command} emacspeak-wizards-move-and-speak  (command count)
 @findex emacspeak-wizards-move-and-speak
@@ -18334,6 +18857,16 @@ count that specifies how many times to execute that command
 first.  Point is left at the target position.  Interactively,
 command is specified by pressing the key that invokes the
 command.
+@end format
+@end deffn
+
+@subsubsection emacspeak-wizards-nba-standings
+@deffn {Command} emacspeak-wizards-nba-standings  (&optional raw)
+@findex emacspeak-wizards-nba-standings
+
+@format
+Display NBA standings as of today.
+Optional interactive prefix arg shows  unprocessed results.
 @end format
 @end deffn
 
@@ -18366,6 +18899,9 @@ Switch to next shell.
 
 @subsubsection emacspeak-wizards-occur-header-lines
 @deffn {Command} emacspeak-wizards-occur-header-lines  (start end &optional prefix)
+@kbd{C-e x o}
+
+@kindex C-e x o
 @findex emacspeak-wizards-occur-header-lines
 
 @format
@@ -18379,6 +18915,9 @@ prompts for and sets value of the file local pattern.
 
 @subsubsection emacspeak-wizards-pdf-open
 @deffn {Command} emacspeak-wizards-pdf-open  (filename &optional ask-pwd)
+@kbd{C-; p C-x @@ h p}
+
+@kindex C-; p C-x @@ h p
 @findex emacspeak-wizards-pdf-open
 
 @format
@@ -18481,6 +19020,9 @@ Run rpm -qi on current dired entry.
 
 @subsubsection emacspeak-wizards-shell
 @deffn {Command} emacspeak-wizards-shell  (&optional prefix)
+@kbd{C-; s C-x @@ h s}
+
+@kindex C-; s C-x @@ h s
 @findex emacspeak-wizards-shell
 
 @format
@@ -18583,6 +19125,9 @@ for ``word'' and displays hits in a compilation buffer.
 
 @subsubsection emacspeak-wizards-squeeze-blanks
 @deffn {Command} emacspeak-wizards-squeeze-blanks  (start end)
+@kbd{C-e x |}
+
+@kindex C-e x |
 @findex emacspeak-wizards-squeeze-blanks
 
 @format
@@ -18601,6 +19146,9 @@ Display sunrise/sunset for specified address.
 
 @subsubsection emacspeak-wizards-term
 @deffn {Command} emacspeak-wizards-term  (create)
+@kbd{C-; a C-x @@ h a}
+
+@kindex C-; a C-x @@ h a
 @findex emacspeak-wizards-term
 
 @format
@@ -18668,6 +19216,9 @@ Location is specified by name.
 
 @subsubsection emacspeak-wizards-tune-in-radio-browse
 @deffn {Command} emacspeak-wizards-tune-in-radio-browse   
+@kbd{C-, t C-x @@ a t}
+
+@kindex C-, t C-x @@ a t
 @findex emacspeak-wizards-tune-in-radio-browse
 
 @format
@@ -18677,6 +19228,9 @@ Browse Tune-In Radio.
 
 @subsubsection emacspeak-wizards-tune-in-radio-search
 @deffn {Command} emacspeak-wizards-tune-in-radio-search   
+@kbd{C-, s C-x @@ a s}
+
+@kindex C-, s C-x @@ a s
 @findex emacspeak-wizards-tune-in-radio-search
 
 @format
@@ -18695,6 +19249,9 @@ UnEscape URI
 
 @subsubsection emacspeak-wizards-units
 @deffn {Command} emacspeak-wizards-units   
+@kbd{C-e x u}
+
+@kindex C-e x u
 @findex emacspeak-wizards-units
 
 @format
@@ -18713,6 +19270,9 @@ Accelerator for VC viewer.
 
 @subsubsection emacspeak-wizards-vc-viewer
 @deffn {Command} emacspeak-wizards-vc-viewer  (console)
+@kbd{C-e x v}
+
+@kindex C-e x v
 @findex emacspeak-wizards-vc-viewer
 
 @format
@@ -18755,6 +19315,15 @@ Launch sudo vi on specified file in a terminal.
 @end format
 @end deffn
 
+@subsubsection emacspeak-wizards-view-buffers-filtered-by-m-player-mode
+@deffn {Command} emacspeak-wizards-view-buffers-filtered-by-m-player-mode   
+@findex emacspeak-wizards-view-buffers-filtered-by-m-player-mode
+
+@format
+Buffer menu filtered by  m-player mode.
+@end format
+@end deffn
+
 @subsubsection emacspeak-wizards-view-buffers-filtered-by-mode
 @deffn {Command} emacspeak-wizards-view-buffers-filtered-by-mode  (mode)
 @findex emacspeak-wizards-view-buffers-filtered-by-mode
@@ -18766,6 +19335,9 @@ Display list of buffers filtered by specified mode.
 
 @subsubsection emacspeak-wizards-view-buffers-filtered-by-this-mode
 @deffn {Command} emacspeak-wizards-view-buffers-filtered-by-this-mode   
+@kbd{C-' m C-, c C-x @@ a c C-x @@ s m}
+
+@kindex C-' m C-, c C-x @@ a c C-x @@ s m
 @findex emacspeak-wizards-view-buffers-filtered-by-this-mode
 
 @format
@@ -18815,6 +19387,9 @@ key             binding
 
 @subsubsection emacspeak-wizards-yql-lookup
 @deffn {Command} emacspeak-wizards-yql-lookup  (symbols)
+@kbd{C-e x Q}
+
+@kindex C-e x Q
 @findex emacspeak-wizards-yql-lookup
 
 @format
@@ -18825,6 +19400,9 @@ Symbols are separated by whitespace.
 
 @subsubsection emacspeak-wizards-yql-quotes
 @deffn {Command} emacspeak-wizards-yql-quotes   
+@kbd{C-e x q}
+
+@kindex C-e x q
 @findex emacspeak-wizards-yql-quotes
 
 @format
@@ -19380,118 +19958,6 @@ XSLT Processor.
 
 @end defvar
 
-@node gblogger
-@section gblogger
-
-This module is obsolete pending implementation of the new
-Blogger authentication API.
-That API presently requires one to get an auth token through
- a heavy-weight Web browser like Chrome or Firefox, and is
-consequently beyond Emacs.
-
-Simple wrapper using Curl to post/edit Blogger.com Blogs
-posts are edited as XML
-nxml-mode is highly recommend and will be used if available.
-
-@subsection gblogger Commands
-
-@subsubsection gblogger-add-label
-@deffn {Command} gblogger-add-label  (label)
-@findex gblogger-add-label
-
-@format
-Adds labels to gblogger entry being edited.
-@end format
-@end deffn
-
-@subsubsection gblogger-atom-display
-@deffn {Command} gblogger-atom-display  (feed-url)
-@findex gblogger-atom-display
-
-@format
-Retrieve and display specified feed after authenticating.
-@end format
-@end deffn
-
-@subsubsection gblogger-blog
-@deffn {Command} gblogger-blog   
-@findex gblogger-blog
-
-@format
-Retrieve and display feed of feeds after authenticating.
-@end format
-@end deffn
-
-@subsubsection gblogger-delete-entry
-@deffn {Command} gblogger-delete-entry  (edit-url)
-@findex gblogger-delete-entry
-
-@format
-Delete item at specified edit URL.
-@end format
-@end deffn
-
-@subsubsection gblogger-edit-entry
-@deffn {Command} gblogger-edit-entry  (url)
-@findex gblogger-edit-entry
-
-@format
-Retrieve entry and prepare it for editing.
-The retrieved entry is placed in a buffer ready for editing.
-``url'' is the URL of the entry.
-@end format
-@end deffn
-
-@subsubsection gblogger-new-entry
-@deffn {Command} gblogger-new-entry  (url &optional title text)
-@findex gblogger-new-entry
-
-@format
-Create a new Blog post.
-@end format
-@end deffn
-
-@subsubsection gblogger-sign-in
-@deffn {Command} gblogger-sign-in   
-@findex gblogger-sign-in
-
-@format
-Resets client so you can start with a different userid.
-@end format
-@end deffn
-
-@subsubsection gblogger-sign-out
-@deffn {Command} gblogger-sign-out   
-@findex gblogger-sign-out
-
-@format
-Resets client so you can start with a different userid.
-@end format
-@end deffn
-
-@subsection gblogger Options
-
-@defvar {User Option} gblogger-author
-Author name under which we post.
-
-@end defvar
-
-@defvar {User Option} gblogger-posting-url
-URL for posting to this post.
-You can get the URL from a [post] link shown by ``gblogger-blog''
-
-@end defvar
-
-@defvar {User Option} gblogger-user-email
-Mail address that identifies blogger user.
-
-@end defvar
-
-@defvar {User Option} gblogger-user-password
-Password for authenticating to reader account.
-
-@end defvar
-
 @node gf
 @section gf
 
@@ -19569,6 +20035,9 @@ Implements the Google Maps API
 
 @subsubsection gmaps
 @deffn {Command} gmaps  (&rest rest)
+@kbd{C-; e C-x @@ h e}
+
+@kindex C-; e C-x @@ h e
 @findex gmaps
 
 @format
@@ -19776,192 +20245,6 @@ Location address. Setting this updates gweb-my-location coordinates  via geocodi
 
 @end defvar
 
-@node gphoto
-@section gphoto
-
-Emacs client for accessing Picasa --- Google Photo Albums
-See  http://code.google.com/apis/picasaweb/overview.html
-
-@subsection gphoto Commands
-
-@subsubsection gphoto-album-create
-@deffn {Command} gphoto-album-create   
-@findex gphoto-album-create
-
-@format
-Create a new GPhoto album.
-@end format
-@end deffn
-
-@subsubsection gphoto-albums
-@deffn {Command} gphoto-albums  (&optional prompt)
-@findex gphoto-albums
-
-@format
-Display feed of albums.
-Interactive prefix arg prompts for userid whose albums we request.
-@end format
-@end deffn
-
-@subsubsection gphoto-comment-or-tag
-@deffn {Command} gphoto-comment-or-tag  (type resource)
-@findex gphoto-comment-or-tag
-
-@format
-Add comments or tags  to an existing photo.
-@end format
-@end deffn
-
-@subsubsection gphoto-community-search
-@deffn {Command} gphoto-community-search  (query)
-@findex gphoto-community-search
-
-@format
-Search all public photos.
-@end format
-@end deffn
-
-@subsubsection gphoto-delete-item
-@deffn {Command} gphoto-delete-item  (url)
-@findex gphoto-delete-item
-
-@format
-Delete specified item.
-@end format
-@end deffn
-
-@subsubsection gphoto-directory-add-photos
-@deffn {Command} gphoto-directory-add-photos  (directory album-name)
-@findex gphoto-directory-add-photos
-
-@format
-Add all jpeg files in a directory to specified album.
-@end format
-@end deffn
-
-@subsubsection gphoto-download
-@deffn {Command} gphoto-download  (resource)
-@findex gphoto-download
-
-@format
-Download resource after authenticating.
-@end format
-@end deffn
-
-@subsubsection gphoto-edit-entry
-@deffn {Command} gphoto-edit-entry  (url)
-@findex gphoto-edit-entry
-
-@format
-Retrieve metadata for entry and prepare it for editting.
-The retrieved entry is placed in a buffer ready for editing.
-``url'' is the URL of the entry.
-@end format
-@end deffn
-
-@subsubsection gphoto-feeds
-@deffn {Command} gphoto-feeds  (kind user)
-@findex gphoto-feeds
-
-@format
-Retrieve and display feed of albums or tags after authenticating.
-@end format
-@end deffn
-
-@subsubsection gphoto-photo-add
-@deffn {Command} gphoto-photo-add  (album-name photo)
-@findex gphoto-photo-add
-
-@format
-Add a photo to an existing album.
-@end format
-@end deffn
-
-@subsubsection gphoto-recent
-@deffn {Command} gphoto-recent  (user kind)
-@findex gphoto-recent
-
-@format
-Retrieve feed of recently uploaded photos or comments.
-@end format
-@end deffn
-
-@subsubsection gphoto-sign-in
-@deffn {Command} gphoto-sign-in   
-@findex gphoto-sign-in
-
-@format
-Resets client so you can start with a different userid.
-@end format
-@end deffn
-
-@subsubsection gphoto-sign-out
-@deffn {Command} gphoto-sign-out   
-@findex gphoto-sign-out
-
-@format
-Resets client so you can start with a different userid.
-@end format
-@end deffn
-
-@subsubsection gphoto-tags
-@deffn {Command} gphoto-tags   
-@findex gphoto-tags
-
-@format
-View feed of tags.
-@end format
-@end deffn
-
-@subsubsection gphoto-user-search
-@deffn {Command} gphoto-user-search  (user query)
-@findex gphoto-user-search
-
-@format
-Retrieve feed of recently uploaded comments for  specified user.
-@end format
-@end deffn
-
-@subsubsection gphoto-user-tagsearch
-@deffn {Command} gphoto-user-tagsearch  (user tag)
-@findex gphoto-user-tagsearch
-
-@format
-Retrieve feed o matches comments for  specified user.
-@end format
-@end deffn
-
-@subsubsection gphoto-view
-@deffn {Command} gphoto-view  (resource)
-@findex gphoto-view
-
-@format
-Retrieve and display resource after authenticating.
-@end format
-@end deffn
-
-@subsection gphoto Options
-
-@defvar {User Option} gphoto-album-default-access
-Default access mode for newly created albums.
-
-@end defvar
-
-@defvar {User Option} gphoto-album-default-commenting-enabled
-Default commenting mode for newly created albums.
-
-@end defvar
-
-@defvar {User Option} gphoto-user-email
-Mail address that identifies Picasa user.
-
-@end defvar
-
-@defvar {User Option} gphoto-user-password
-Password for authenticating to Picasa account.
-
-@end defvar
-
 @node gweb
 @section gweb
 
@@ -19984,6 +20267,9 @@ Optional interactive prefix arg refresh forces this cached URL to be refreshed.
 
 @subsubsection gweb-news-view
 @deffn {Command} gweb-news-view  (query)
+@kbd{C-' n C-x @@ s n}
+
+@kindex C-' n C-x @@ s n
 @findex gweb-news-view
 
 @format
@@ -19996,31 +20282,79 @@ Display News Search results  in a browser.
 
 json-viewer.el: View, Explore JSON data 
 
-@subsection json-view Commands
+@node ladspa
+@section ladspa
 
-@subsubsection json-view
-@deffn {Command} json-view  (json)
-@findex json-view
+This module  uses tools from the Ladspa SDK  to expose
+Ladspa plugins in a consistent way to elisp.
+The goal is to make it easy to inspect Ladspa Plugins,
+And invoke them easily from  Ladspa host applications such as MPlayer.
+See
+@url{http://emacspeak.blogspot.com/2015/12/a-ladspa-work-bench-for-emacspeak.html}
+Some Ladspa Packages that provide plugins:
+sudo apt-get install zam-plugins wah-plugins vco-plugins tap-plugins 
+swh-plugins rev-plugins mcp-plugins liquidsoap-plugin-ladspa 
+ladspa-foo-plugins invada-studio-plugins-ladspa fil-plugins 
+
+@subsection ladspa Commands
+
+@subsubsection ladspa
+@deffn {Command} ladspa  (&optional refresh)
+@findex ladspa
 
 @format
-Launch a viewer for data in json.
-``json'' is the parsed representation of a JSON data structure.
+Launch Ladspa workbench.
 @end format
 @end deffn
 
-@subsubsection json-view-mode
-@deffn {Command} json-view-mode   
-@findex json-view-mode
+@subsubsection ladspa-analyse-plugin-at-point
+@deffn {Command} ladspa-analyse-plugin-at-point   
+@findex ladspa-analyse-plugin-at-point
 
 @format
-View, Explore JSON-encoded data on the Emacspeak Audio Desktop.
+Analyse plugin at point.
+@end format
+@end deffn
+
+@subsubsection ladspa-edit-control
+@deffn {Command} ladspa-edit-control   
+@findex ladspa-edit-control
+
+@format
+Edit Ladspa control  at point by prompting for control values.
+@end format
+@end deffn
+
+@subsubsection ladspa-instantiate
+@deffn {Command} ladspa-instantiate   
+@findex ladspa-instantiate
+
+@format
+Instantiate plugin at point by prompting for control values.
+@end format
+@end deffn
+
+@subsubsection ladspa-mode
+@deffn {Command} ladspa-mode   
+@findex ladspa-mode
+
+@format
+A Ladspa workbench for the Emacspeak desktop.
 
 In addition to any hooks its parent mode ``special-mode'' might have run,
-this mode runs the hook ``json-view-mode-hook'', as the final step
+this mode runs the hook ``ladspa-mode-hook'', as the final step
 during initialization.
 
 key             binding
 ---             -------
+
+RET		ladspa-instantiate
+SPC		ladspa-analyse-plugin-at-point
+a		emacspeak-m-player-add-ladspa
+d		emacspeak-m-player-delete-ladspa
+e		ladspa-edit-control
+n		next-line
+p		previous-line
 
 @end format
 @end deffn
@@ -20068,6 +20402,184 @@ Select 32-Outloud server.
 This module defines the various voices used in voice-lock mode.
 This module is Plain  i.e. suitable for a device  for which you haven't yet implemented appropriate voice-locking controls
 
+@node soundscape
+@section soundscape
+
+Soundscapes @url{https://en.wikipedia.org/wiki/Soundscape}
+define an acoustic environment.
+Boodler  at @url{http://boodler.org} is a
+Python-based SoundScape generator.
+To use this module, first install boodler.
+Then install the soundscape packages (*.boop) files available
+at @url{http://boodler.org/lib}.
+Make sure boodler works and produces audio in your environment.
+finally install the Boodler packages  from
+emacspeak/scapes from the Emacspeak GitHub repository by running
+@code{cd emacspeak/scapes; make }
+
+When  boodler is set up and all packages installed, copy
+file emacspeak/scapes/soundscapes  to ~/.boodler/Collection.
+The above file lists all installed SoundScapes.
+Directory emacspeak/scapes also contains
+additional Boodler Agents and SoundScapes  that
+I have created for use with Emacspeak.
+
+ Module soundscape.el  defines Emacs conveniences for running
+Soundscapes. Main Entry Points:
+
+@itemize
+@item M-x soundscape-toggle -- Enables or
+disables automatic SoundScapes.
+@item M-x soundscape --
+runs a named SoundScape
+@item M-x soundscape-stop -- Stops a specified running Soundscape.
+@item M-x soundscape-kill -- Kills all running Soundscapes.
+@end itemize
+
+When automatic Soundscapes are enabled, SoundScapes are
+ started and stopped based on the current major
+mode. Active Soundscape  are displayed as part of the minor-mode-alist.
+Command emacspeak-speak-minor-mode-line can be used to have this spoken.
+
+Thus, SoundScapes can be thought of as reflecting the
+@emph{mood} of the current @emph{mode}.
+This package defines a single @var{soundscape-default-theme}
+that is loaded using @code{(soundscape-load soundscape-default-theme)}.
+Emacs modes that provide similar functionality e.g.,
+communication == email, IM, ... map to  the same @emph{mood}.
+
+@subsection soundscape Commands
+
+@subsubsection soundscape
+@deffn {Command} soundscape  (scape)
+@kbd{C-' s C-x @@ s s}
+
+@kindex C-' s C-x @@ s s
+@findex soundscape
+
+@format
+Play soundscape.
+@end format
+@end deffn
+
+@subsubsection soundscape-kill
+@deffn {Command} soundscape-kill   
+@findex soundscape-kill
+
+@format
+Stop all running soundscapes.
+@end format
+@end deffn
+
+@subsubsection soundscape-listener
+@deffn {Command} soundscape-listener  (&optional restart)
+@findex soundscape-listener
+
+@format
+Start  a Soundscape listener.
+Listener is loaded with all Soundscapes defined in ``soundscape-default-theme'' .
+Optional interactive prefix arg restarts the listener if already running.
+@end format
+@end deffn
+
+@subsubsection soundscape-listener-shutdown
+@deffn {Command} soundscape-listener-shutdown   
+@findex soundscape-listener-shutdown
+
+@format
+Shutdown listener.
+@end format
+@end deffn
+
+@subsubsection soundscape-remote
+@deffn {Command} soundscape-remote  (names)
+@findex soundscape-remote
+
+@format
+Activate scapes named names.
+@end format
+@end deffn
+
+@subsubsection soundscape-restart
+@deffn {Command} soundscape-restart  (&optional device)
+@kbd{C-' r C-x @@ s r}
+
+@kindex C-' r C-x @@ s r
+@findex soundscape-restart
+
+@format
+Restart Soundscape  environment.
+With prefix arg ``device'', prompt for a alsa/ladspa device.
+@end format
+@end deffn
+
+@subsubsection soundscape-stop
+@deffn {Command} soundscape-stop  (scape)
+@kbd{C-' S C-x @@ s S}
+
+@kindex C-' S C-x @@ s S
+@findex soundscape-stop
+
+@format
+Stop running Soundscape.
+@end format
+@end deffn
+
+@subsubsection soundscape-theme
+@deffn {Command} soundscape-theme   
+@findex soundscape-theme
+
+@format
+Shows default theme in a special buffer.
+@end format
+@end deffn
+
+@subsubsection soundscape-toggle
+@deffn {Command} soundscape-toggle   
+@kbd{C-' t C-x @@ s t}
+
+@kindex C-' t C-x @@ s t
+@findex soundscape-toggle
+
+@format
+Toggle automatic SoundScapes.
+When turned on, Soundscapes are automatically run based on current major mode.
+Run command M-x soundscape-theme to see the default mode->mood mapping.
+@end format
+@end deffn
+
+@subsubsection soundscape-update-mood
+@deffn {Command} soundscape-update-mood   
+@kbd{C-' u C-x @@ s u}
+
+@kindex C-' u C-x @@ s u
+@findex soundscape-update-mood
+
+@format
+Update mood/scape mapping for current major mode.
+This updated mapping is not persisted.
+@end format
+@end deffn
+
+@subsection soundscape Options
+
+@defvar {User Option} soundscape-data
+Soundscape data directory.
+
+@end defvar
+
+@defvar {User Option} soundscape-idle-delay
+Number of seconds of idle time
+before soundscapes are synchronized with current mode.
+
+@end defvar
+
+@defvar {User Option} soundscape-manager-options
+User customizable options list passed to boodler.
+Defaults specify alsa as the output and set master volume to 0.5
+
+@end defvar
+
 @node sox
 @section sox
 
@@ -20077,10 +20589,13 @@ interface for editing mp3 and wav files using SoX.
 Launching M-x sox  creates a special interaction buffer
 that provides single keystroke commands for editing and
 applying effects to a selected sound file. For adding mp3
-support to sox,
+support to sox, do
 
 sudo apt-get libsox-fmt-mp3 install
 
+This module provides support for ladspa effects using module ladspa.el.
+To use ladspa effects with SoX, you need a relatively new build of Sox;
+The stock SoX that is package for Debian/Ubuntu  does not always work.
 This module can be used independent of Emacspeak.
 
 @subsection sox Commands
@@ -20273,11 +20788,121 @@ References:
 
   http://www.unicode.org/Public/4.0-Update1/UnicodeData-4.0.1.txt
 
-@node tts-env
-@section tts-env
+@node tts
+@section tts
 
 Define data structure and API for setting up, accessing and manipulating TTS environment.
 When complete, this will  be used by the various engine configuration functions to set everything in one structure.
+
+@subsection tts Commands
+
+@subsubsection tts-set-chunk-separator
+@deffn {Command} tts-set-chunk-separator  (chunk-separator)
+@findex tts-set-chunk-separator
+
+@format
+Set tts chunk-separator.
+@end format
+@end deffn
+
+@subsubsection tts-set-punctuations
+@deffn {Command} tts-set-punctuations  (punctuations)
+@findex tts-set-punctuations
+
+@format
+Set tts punctuations.
+@end format
+@end deffn
+
+@subsubsection tts-set-rate
+@deffn {Command} tts-set-rate  (rate)
+@findex tts-set-rate
+
+@format
+Set tts rate.
+@end format
+@end deffn
+
+@subsubsection tts-toggle-allcaps
+@deffn {Command} tts-toggle-allcaps   
+@findex tts-toggle-allcaps
+
+@format
+Toggle field allcaps in current tts-state.
+@end format
+@end deffn
+
+@subsubsection tts-toggle-capitalize
+@deffn {Command} tts-toggle-capitalize   
+@findex tts-toggle-capitalize
+
+@format
+Toggle field capitalize in current tts-state.
+@end format
+@end deffn
+
+@subsubsection tts-toggle-quiet
+@deffn {Command} tts-toggle-quiet   
+@findex tts-toggle-quiet
+
+@format
+Toggle field quiet in current tts-state.
+@end format
+@end deffn
+
+@subsubsection tts-toggle-speak-nonprinting-chars
+@deffn {Command} tts-toggle-speak-nonprinting-chars   
+@findex tts-toggle-speak-nonprinting-chars
+
+@format
+Toggle field speak-nonprinting-chars in current tts-state.
+@end format
+@end deffn
+
+@subsubsection tts-toggle-split-caps
+@deffn {Command} tts-toggle-split-caps   
+@findex tts-toggle-split-caps
+
+@format
+Toggle field split-caps in current tts-state.
+@end format
+@end deffn
+
+@subsubsection tts-toggle-strip-octals
+@deffn {Command} tts-toggle-strip-octals   
+@findex tts-toggle-strip-octals
+
+@format
+Toggle field strip-octals in current tts-state.
+@end format
+@end deffn
+
+@subsubsection tts-toggle-use-auditory-icons
+@deffn {Command} tts-toggle-use-auditory-icons   
+@findex tts-toggle-use-auditory-icons
+
+@format
+Toggle field use-auditory-icons in current tts-state.
+@end format
+@end deffn
+
+@node tts-cmds
+@section tts-cmds
+
+End-user TTS Commands implemented using tts-state. If this works
+out, these will eventually replace the commands implemented in
+dtk-speak.el
+
+@subsection tts-cmds Commands
+
+@subsubsection tts-cmd-set-rate
+@deffn {Command} tts-cmd-set-rate  (rate &optional prefix)
+@findex tts-cmd-set-rate
+
+@format
+Set speech rate.
+@end format
+@end deffn
 
 @node voice-setup
 @section voice-setup
@@ -20378,7 +21003,7 @@ take effect.
 @subsection voice-setup Options
 
 @defvar {User Option} voice-animate-extra-settings
-Adds extra animation  current voice.
+Adds extra animation  to current voice.
 
 @end defvar
 
@@ -20483,8 +21108,7 @@ Turns current voice into a monotone and speaks all punctuations.
 @end defvar
 
 @defvar {User Option} voice-punctuations-all-settings
-Turns current voice into one that  speaks all
-punctuations.
+Turns current voice into one that  speaks all punctuations.
 
 @end defvar
 
@@ -20494,8 +21118,7 @@ Turns current voice into one that  speaks no punctuations.
 @end defvar
 
 @defvar {User Option} voice-punctuations-some-settings
-Turns current voice into one that  speaks some
-punctuations.
+Turns current voice into one that  speaks some punctuations.
 
 @end defvar
 
@@ -20602,7 +21225,7 @@ Step-size used when incrementing and decrementing brightness.
 @node URL Templates 
 @section URL Templates
 
-This section documents a total of 71 URL Templates.
+This section documents a total of 74 URL Templates.
 
 All of these URL templates can be invoked via command
  @kbd{M-x emacspeak-url-template-fetch} normally bound to
@@ -20652,21 +21275,25 @@ Display interactive BBC Program Guide.
 
 BBC iPlayer
 
+@b{Baseball Box Scores}
+
+Display baseball Play By Play.
+
+@b{Baseball Game Details}
+
+Display baseball Play By Play.
+
 @b{Baseball Game Index}
 
 Display baseball Play By Play.
 
-@b{Baseball Play By Play}
+@b{Baseball Highlights}
 
-Display baseball Play By Play.
+Display baseball Video Highlights.
 
 @b{Baseball scores}
 
 Display baseball scores.
-
-@b{Baseball standings}
-
-Display MLB standings.
 
 @b{Bing News}
 
@@ -20712,9 +21339,9 @@ Display content from Google Finance.
 
 Display content from Google Finance.
 
-@b{Geek Linux Daily}
+@b{FreeSound}
 
-Play specified edition of Geek Linux DailyShow
+Search FreeSound.
 
 @b{GitHub Search}
 
@@ -20744,10 +21371,6 @@ Search Google news.
 
 Retrieve and speak Google News Overview.
 
-@b{Google Recent News Search}
-
-Search Google news.
-
 @b{Google Scholar}
 
 Google Scholar Search
@@ -20772,6 +21395,10 @@ Pull RSS feed corresponding to an ITunes Podcast.
 
 Show MLB Scorecard.
 
+@b{MLB standings}
+
+Display MLB standings.
+
 @b{Market summary from Google}
 
 Display financial market summary.
@@ -20786,6 +21413,10 @@ Translate word using Google.
 Source and target languages
 are specified as two-letter language codes, e.g. en|de translates
 from English to German
+
+@b{NBA  standings}
+
+Display NBA standings.
 
 @b{NY Times Mobile}
 
@@ -20803,10 +21434,6 @@ This months Old Time Radio Programming
 
 Open Library Search
 
-@b{PHC Prairie Home Companion}
-
-Play Prairie Home Companion
-
 @b{Patent Search From Google}
 
 Perform patent search via Google
@@ -20822,10 +21449,6 @@ RadioTime Entry point.
 @b{RadioTime Search}
 
 RadioTime Search.
-
-@b{Redhat Linux Show}
-
-Play specified edition of Redhat Linux Show
 
 @b{Reuters Finance}
 
@@ -20865,6 +21488,10 @@ Display package tracking information from UPS.
 
 Weather forecast from weather underground mobile.
 
+@b{Wiki Data Search}
+
+Search WikiData.
+
 @b{WordNet Search}
 
 Look up term in WordNet.
@@ -20880,6 +21507,10 @@ List Yahoo RSS Feeds.
 @b{fedex packages}
 
 Display package tracking information from Fedex.
+
+@b{html Google News Search}
+
+Search Google news.
 
 @b{html5IRC}
 
@@ -20912,4 +21543,8 @@ name of the channel.
 Use this to pull up the
 archived mail from the W3C list. You need to know the exact
 name of the list.
+
+@b{world CNN Content}
+
+Filter down to CNN content area.
 

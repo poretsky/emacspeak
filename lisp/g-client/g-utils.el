@@ -123,7 +123,7 @@ Receives buffer containing HTML as its argument."
   :group 'g)
 
 (defcustom g-cookie-jar
-  (make-temp-file ".g-cookie-jar")
+  nil
   "Cookie jar used for Google services.
 Customize this to live on your local disk."
   :type 'file
@@ -135,10 +135,27 @@ Customize this to live on your local disk."
           (set-default sym val))
   :group 'g)
 
+(defun g-cookie-jar ()
+  "Return our cookie jar."
+  (declare (special g-cookie-jar))
+
+
+  (unless g-cookie-jar (setq g-cookie-jar (make-temp-file ".g-cookie-jar")))
+  g-cookie-jar)
+
 (defvar g-cookie-options
   (format "--cookie %s --cookie-jar %s"
           g-cookie-jar g-cookie-jar)
   "Options to pass for using our cookie jar.")
+
+(defun g-cookie-options ()
+  "Return cookie jar options."
+  (declare (special g-cookie-options))
+  (unless g-cookie-options
+    (setq g-cookie-options
+          (format "--cookie %s --cookie-jar %s"
+                  (g-cookie-jar) ( g-cookie-jar))))
+  g-cookie-options)
 
 (defcustom g-curl-debug nil
   "Set to T to see Curl stderr output."
@@ -275,7 +292,6 @@ references, poor-man's xpath."
      ((null name) v)
      (t nil))))
 
-
 (defun g-json-lookup-string  (key object)
   "Like g-json-lookup, but returns empty string for nil."
   (or (g-json-lookup key object) ""))
@@ -313,6 +329,11 @@ references, poor-man's xpath."
 string."
   (json-read-from-string
    (g-get-result command)))
+
+(defsubst g-json-from-url (url)
+  "Return JSON read from URL."
+  (g-json-get-result
+   (format "%s  %s '%s'" g-curl-program g-curl-common-options url)))
 
 (defsubst g-display-result (command style)
   "Display result retrieved by command using specified style.
@@ -444,7 +465,7 @@ Note that in the Curl output, we see lf rather than crlf.")
 (defsubst g-html-string (html-string)
   "Return formatted string."
   (or (require 'shr) (error "Need  emacs 24.4"))
-  (with-temp-buffer 
+  (with-temp-buffer
     (insert html-string)
     (shr-render-region  (point-min) (point-max))
     (buffer-string)))

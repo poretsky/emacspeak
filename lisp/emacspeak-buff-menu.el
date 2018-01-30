@@ -73,49 +73,46 @@
 (defun emacspeak-list-buffers-speak-buffer-line ()
   "Speak information about this buffer"
   (interactive)
-  (declare (special list-buffers-directory
-                    dtk-stop-immediately))
-  (cond
-   ((eq major-mode 'Buffer-menu-mode)
-    (let((buffer (Buffer-menu-buffer t)))
-      (cond
-       ((get-buffer buffer)
-        (when dtk-stop-immediately (dtk-stop))
-        (let ((name (buffer-name buffer))
-              (file (buffer-file-name buffer))
-              this-buffer-read-only
-              this-buffer-modified-p
-              this-buffer-size
-              this-buffer-mode-name
-              this-buffer-directory
-              (dtk-stop-immediately nil))
-          (save-current-buffer
-            (set-buffer buffer)
-            (setq this-buffer-read-only buffer-read-only)
-            (setq this-buffer-modified-p (buffer-modified-p))
-            (setq this-buffer-size (buffer-size))
-            (setq this-buffer-mode-name mode-name)
-            (or file
-                ;; No visited file.  Check local value of
-                ;; list-buffers-directory.
-                (if (and (boundp 'list-buffers-directory)
-                         list-buffers-directory)
-                    (setq this-buffer-directory list-buffers-directory))))
+  (declare (special list-buffers-directory dtk-stop-immediately))
+  (unless (eq major-mode 'Buffer-menu-mode)
+    (error "This command can be used only in buffer menus"))
+  (let((buffer (Buffer-menu-buffer t)))
+    (cond
+     ((get-buffer buffer)
+      (when dtk-stop-immediately (dtk-stop))
+      (let ((name (buffer-name buffer))
+            (file (buffer-file-name buffer))
+            this-buffer-read-only
+            this-buffer-modified-p
+            this-buffer-size
+            this-buffer-mode-name
+            this-buffer-directory
+            (dtk-stop-immediately nil))
+        (save-current-buffer
+          (set-buffer buffer)
+          (setq this-buffer-read-only buffer-read-only)
+          (setq this-buffer-modified-p (buffer-modified-p))
+          (setq this-buffer-size (buffer-size))
+          (setq this-buffer-mode-name mode-name)
+          (or file
+              ;; No visited file.  Check local value of
+              ;; list-buffers-directory.
+              (if (and (boundp 'list-buffers-directory)
+                       list-buffers-directory)
+                  (setq this-buffer-directory list-buffers-directory))))
                                         ;format and speak the line
-          (when this-buffer-modified-p (dtk-tone 700 70))
-          (when this-buffer-read-only (dtk-tone 250 50))
-          (dtk-speak
-           (format  "%s a %s  document  %s with size  %s"
-                    name
-                    this-buffer-mode-name
-                    (if (or file this-buffer-directory)
-                        (format "visiting %s"
-                                (or file this-buffer-directory))
-                      "")
-                    this-buffer-size))))
-       (t(emacspeak-auditory-icon 'error)
-         (emacspeak-speak-line)))))
-   (t (error "This command can be used only in buffer menus"))))
+        (when this-buffer-modified-p (emacspeak-auditory-icon 'modified-object))
+        (when this-buffer-read-only (emacspeak-auditory-icon 'unmodified-object))
+        (dtk-speak
+         (format  "%s a %s  document  %s with size  %s"
+                  name this-buffer-mode-name
+                  (if (or file this-buffer-directory)
+                      (format "visiting %s"
+                              (or file this-buffer-directory))
+                    "")
+                  this-buffer-size))))
+     (t(emacspeak-auditory-icon 'error)
+       (emacspeak-speak-line)))))
 
 (defun emacspeak-list-buffers-next-line (count)
   "Speech enabled buffer menu navigation"
@@ -129,11 +126,12 @@
   (previous-line count)
   (emacspeak-list-buffers-speak-buffer-line))
 
-(defadvice list-buffers (after emacspeak pre act )
-  "Provide auditory feedback"
+(defadvice list-buffers (after emacspeak pre act)
+  "Select the window displaying buffer-menu,
+and set up additional Emacspeak bindings."
   (declare (special Buffer-menu-mode-map))
-  (when (ems-interactive-p )
-    (other-window 1)
+  (when (ems-interactive-p)
+    (select-window  ad-return-value)
     (goto-char (point-min))
     (forward-line 2)
     (define-key Buffer-menu-mode-map "," 'emacspeak-list-buffers-speak-buffer-name)
@@ -142,90 +140,90 @@
     (define-key Buffer-menu-mode-map "n" 'emacspeak-list-buffers-next-line)
     (define-key Buffer-menu-mode-map "p" 'emacspeak-list-buffers-previous-line)
     (emacspeak-list-buffers-speak-buffer-line)
-    (emacspeak-auditory-icon 'task-done)))
+    (emacspeak-auditory-icon 'open-object)))
 
-(defadvice buffer-menu (after emacspeak pre act )
+(defadvice buffer-menu (after emacspeak pre act)
   "Provide auditory feedback"
-  (when (ems-interactive-p )
+  (when (ems-interactive-p)
     (emacspeak-auditory-icon 'task-done)
     (message "Displayed list of buffers in other window")))
 
 ;;{{{  buffer manipulation commands 
 (defadvice Buffer-menu-bury (after emacspeak pre act)
   "Provide auditory feedback"
-  (when (ems-interactive-p )
+  (when (ems-interactive-p)
     (emacspeak-auditory-icon 'select-object)
-    (emacspeak-list-buffers-speak-buffer-line )))
+    (emacspeak-list-buffers-speak-buffer-line)))
 
 (defadvice Buffer-menu-delete-backwards (after emacspeak pre act)
   "Provide auditory feedback"
-  (when (ems-interactive-p )
+  (when (ems-interactive-p)
     (emacspeak-auditory-icon 'delete-object)
-    (emacspeak-list-buffers-speak-buffer-line )))
+    (emacspeak-list-buffers-speak-buffer-line)))
 
 (defadvice Buffer-menu-delete (after emacspeak pre act)
   "Provide spoken and auditory feedback."
-  (when (ems-interactive-p )
+  (when (ems-interactive-p)
     (emacspeak-auditory-icon 'delete-object)
-    (emacspeak-list-buffers-speak-buffer-line )))
+    (emacspeak-list-buffers-speak-buffer-line)))
 
 (defadvice Buffer-menu-mark (after emacspeak pre act)
   "Provide spoken and auditory feedback."
-  (when (ems-interactive-p )
+  (when (ems-interactive-p)
     (emacspeak-auditory-icon 'mark-object)
-    (emacspeak-list-buffers-speak-buffer-line )))
+    (emacspeak-list-buffers-speak-buffer-line)))
 
 (defadvice Buffer-menu-quit (after emacspeak pre act)
   "Speak the modeline of the newly visible buffer."
-  (when (ems-interactive-p )
+  (when (ems-interactive-p)
     (emacspeak-auditory-icon 'close-object)
     (emacspeak-speak-mode-line)))
 
 (defadvice Buffer-menu-save (after emacspeak pre act)
   "Provide auditory feedback"
-  (when (ems-interactive-p )
+  (when (ems-interactive-p)
     (emacspeak-auditory-icon 'save-object)
-    (emacspeak-list-buffers-speak-buffer-line )))
+    (emacspeak-list-buffers-speak-buffer-line)))
 
 (defadvice Buffer-menu-select (after emacspeak pre act)
   "Provide auditory feedback"
-  (when (ems-interactive-p )
+  (when (ems-interactive-p)
     (emacspeak-auditory-icon 'select-object)
-    (emacspeak-speak-mode-line )))
+    (emacspeak-speak-mode-line)))
 
 (defadvice Buffer-menu-unmark (after emacspeak pre act)
   "Provide auditory feedback"
-  (when (ems-interactive-p )
+  (when (ems-interactive-p)
     (emacspeak-auditory-icon 'deselect-object)
-    (emacspeak-list-buffers-speak-buffer-line )))
+    (emacspeak-list-buffers-speak-buffer-line)))
 
 (defadvice Buffer-menu-backup-unmark (after emacspeak pre act)
   "Provide auditory feedback"
-  (when (ems-interactive-p )
+  (when (ems-interactive-p)
     (emacspeak-auditory-icon 'deselect-object)
-    (emacspeak-list-buffers-speak-buffer-line )))
+    (emacspeak-list-buffers-speak-buffer-line)))
 
-(defadvice Buffer-menu-execute (after emacspeak pre act )
+(defadvice Buffer-menu-execute (after emacspeak pre act)
   "Provide auditory feedback"
-  (when (ems-interactive-p )
+  (when (ems-interactive-p)
     (emacspeak-auditory-icon 'task-done)))
 
-(defadvice Buffer-menu-toggle-read-only (after emacspeak pre act )
+(defadvice Buffer-menu-toggle-read-only (after emacspeak pre act)
   "Provide auditory feedback"
-  (when (ems-interactive-p )
-    (emacspeak-list-buffers-speak-buffer-line )))
+  (when (ems-interactive-p)
+    (emacspeak-list-buffers-speak-buffer-line)))
 
-(defadvice Buffer-menu-not-modified (after emacspeak pre act )
+(defadvice Buffer-menu-not-modified (after emacspeak pre act)
   "Provide auditory feedback "
-  (when (ems-interactive-p )
+  (when (ems-interactive-p)
     (emacspeak-list-buffers-speak-buffer-line)
     (if (ad-get-arg 0)
-        (emacspeak-auditory-icon 'modified-object )
+        (emacspeak-auditory-icon 'modified-object)
       (emacspeak-auditory-icon 'unmodified-object))))
 
-(defadvice Buffer-menu-visit-tags-table (before emacspeak pre act )
+(defadvice Buffer-menu-visit-tags-table (before emacspeak pre act)
   "Provide auditory feedback"
-  (when (ems-interactive-p )
+  (when (ems-interactive-p)
     (message "Visiting tags table on current line")))
 
 ;;}}}
@@ -233,24 +231,24 @@
 
 (defadvice Buffer-menu-1-window (after emacspeak pre act)
   "Announce the newly selected buffer."
-  (when (ems-interactive-p  )
-    (emacspeak-speak-mode-line )
+  (when (ems-interactive-p)
+    (emacspeak-speak-mode-line)
     (emacspeak-auditory-icon 'select-object)))
 
 (defadvice Buffer-menu-2-window (after emacspeak pre act)
   "Announce the newly selected buffer."
-  (when (ems-interactive-p  )
-    (emacspeak-speak-mode-line )
+  (when (ems-interactive-p)
+    (emacspeak-speak-mode-line)
     (emacspeak-auditory-icon 'select-object)))
 
 (defadvice Buffer-menu-this-window (after emacspeak pre act)
   "Announce the newly selected buffer."
-  (when (ems-interactive-p  )
-    (emacspeak-speak-mode-line )
+  (when (ems-interactive-p)
+    (emacspeak-speak-mode-line)
     (emacspeak-auditory-icon 'select-object)))
 (defadvice Buffer-menu-other-window (after emacspeak pre act)
   "Provide auditory feedback"
-  (when (ems-interactive-p  )
+  (when (ems-interactive-p)
     (emacspeak-auditory-icon 'open-object)
     (emacspeak-speak-mode-line)))
 

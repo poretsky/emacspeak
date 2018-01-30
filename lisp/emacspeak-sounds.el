@@ -72,7 +72,7 @@
 ;;}}}
 ;;{{{  state of auditory icons
 
-(defvar emacspeak-use-auditory-icons nil
+(defvar emacspeak-use-auditory-icons t
   "Tells if emacspeak should use auditory icons.
 Do not set this variable by hand,
 use `emacspeak-toggle-auditory-icons' bound to
@@ -97,7 +97,7 @@ use `emacspeak-toggle-auditory-icons' bound to
 
 (defvar emacspeak-default-sound
   (expand-file-name
-   "classic/button.au"
+   "classic/button.wav"
    emacspeak-sounds-directory)
   "Default sound to play if requested icon not found.")
 
@@ -111,7 +111,7 @@ use `emacspeak-toggle-auditory-icons' bound to
   (declare (special emacspeak-sounds-themes-table))
   (setq theme-name (intern theme-name))
   (setf (gethash  theme-name emacspeak-sounds-themes-table)
-        file-ext ))
+        file-ext))
 
 (defgroup emacspeak-sounds nil
   "Emacspeak auditory icons."
@@ -119,8 +119,7 @@ use `emacspeak-toggle-auditory-icons' bound to
 
 ;;;###autoload
 (defcustom emacspeak-sounds-default-theme
-  (expand-file-name "3d"
-                    emacspeak-sounds-directory)
+  (expand-file-name "3d/" emacspeak-sounds-directory)
   "Default theme for auditory icons. "
   :type '(directory :tag "Sound Theme Directory")
   :group 'emacspeak-sounds)
@@ -145,7 +144,7 @@ use `emacspeak-toggle-auditory-icons' bound to
 Do not set this by hand;
 --use command \\[emacspeak-sounds-select-theme].")
 
-(defsubst emacspeak-sounds-theme-get-extension (theme-name )
+(defsubst emacspeak-sounds-theme-get-extension (theme-name)
   "Retrieve filename extension for specified theme. "
   (declare (special emacspeak-sounds-themes-table))
   (gethash
@@ -208,7 +207,7 @@ Do not set this by hand;
   (declare (special dtk-speaker-process))
   (process-send-string dtk-speaker-process
                        (format "a %s\n"
-                               (emacspeak-get-sound-filename sound-name ))))
+                               (emacspeak-get-sound-filename sound-name))))
 
 ;;}}}
 ;;{{{  native player (
@@ -217,7 +216,7 @@ Do not set this by hand;
   "Play auditory icon using native Emacs player."
   (play-sound
    (list 'sound
-         :file (format "%s" (emacspeak-get-sound-filename sound-name )))))
+         :file (format "%s" (emacspeak-get-sound-filename sound-name)))))
 
 ;;}}}
 ;;{{{  serve an auditory icon
@@ -228,7 +227,7 @@ Do not set this by hand;
   (declare (special dtk-speaker-process))
   (process-send-string dtk-speaker-process
                        (format "p %s\n"
-                               (emacspeak-get-sound-filename sound-name ))))
+                               (emacspeak-get-sound-filename sound-name))))
 
 ;;}}}
 ;;{{{  Play an icon
@@ -236,7 +235,7 @@ Do not set this by hand;
 (defcustom emacspeak-play-args "-q"
   "Set this to nil if using paplay from pulseaudio."
   :type '(choice (string :tag "Arguments" "-q")
-		 (const :tag "None" nil))
+                 (const :tag "None" nil))
   :group 'emacspeak-sounds)
 
 (defun emacspeak-play-auditory-icon (sound-name)
@@ -317,7 +316,7 @@ Optional interactive PREFIX arg toggles global value."
    (t (setq emacspeak-use-auditory-icons
             (not emacspeak-use-auditory-icons))))
   (message "Turned %s auditory icons %s"
-           (if emacspeak-use-auditory-icons  "on" "off" )
+           (if emacspeak-use-auditory-icons  "on" "off")
            (if prefix "" "locally"))
   (when emacspeak-use-auditory-icons
     (emacspeak-auditory-icon 'on)))
@@ -345,9 +344,9 @@ emacspeak-serve-auditory-icon for  the wave device.
 emacspeak-queue-auditory-icon when using software TTS."
   (interactive
    (list
-    (emacspeak-select-auditory-icon-player )))
+    (emacspeak-select-auditory-icon-player)))
   (declare (special emacspeak-auditory-icon-function))
-  (setq emacspeak-auditory-icon-function player))  (when (ems-interactive-p )
+  (setq emacspeak-auditory-icon-function player))  (when (ems-interactive-p)
                                                      (emacspeak-auditory-icon 'select-object))
 
 ;;}}}

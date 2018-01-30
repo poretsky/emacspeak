@@ -4,7 +4,10 @@
 @top Emacspeak
 
 
-This manual documents Emacspeak, a speech interface to Emacs.  
+
+This manual documents @b{Emacspeak, The Complete Audio Desktop}.
+This document was last updated on @today{}.
+
 @ifinfo 
 The manual is divided into the following chapters. 
 @end ifinfo
@@ -12,6 +15,7 @@ The manual is divided into the following chapters.
 @menu
 * Copying: Copyright.
 * Announce: Announce.
+* Background: Background.
 * Introduction: Introduction.
 * Installation: Installation.
 * Basic Usage: Basic Usage.

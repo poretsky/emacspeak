@@ -55,7 +55,7 @@
 (defun xbacklight-get ()
   "Get current brightness level."
   (interactive)
-  (let ((value (shell-command-to-string (format "%s -get " xbacklight-cmd ))))
+  (let ((value (shell-command-to-string (format "%s -get " xbacklight-cmd))))
     (cond
      ((= 0 (length value)) (message "XBacklight not supported."))
      ((numberp (read value))
@@ -68,8 +68,8 @@
 `brightness' is a percentage value."
   (interactive "nBrightness: ")
   (let ((emacspeak-speak-messages nil))
-   (shell-command (format "%s -set %s"
-                          xbacklight-cmd brightness)))
+    (shell-command (format "%s -set %s"
+                           xbacklight-cmd brightness)))
   (xbacklight-get))
 
 (defgroup xbacklight nil
@@ -86,8 +86,8 @@
   "Increase brightness by  by one step."
   (interactive)
   (let ((emacspeak-speak-messages nil))
-   (shell-command (format "%s -inc %s" xbacklight-cmd xbacklight-step))
-   (xbacklight-get))
+    (shell-command (format "%s -inc %s" xbacklight-cmd xbacklight-step))
+    (xbacklight-get))
   (xbacklight-get))
 
 ;;;###autoload
@@ -95,7 +95,7 @@
   "Decrease brightness by  by one step."
   (interactive)
   (let ((emacspeak-speak-messages nil))
-   (shell-command (format "%s -dec %s" xbacklight-cmd xbacklight-step)))
+    (shell-command (format "%s -dec %s" xbacklight-cmd xbacklight-step)))
   (xbacklight-get))
 
 ;;;###autoload

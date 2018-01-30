@@ -136,7 +136,7 @@
   "Return location of .opf file within epub archive."
   (declare (special emacspeak-epub-opf-command))
   (substring
-   (shell-command-to-string (format emacspeak-epub-opf-command file ))
+   (shell-command-to-string (format emacspeak-epub-opf-command file))
    0 -1))
 
 (defvar emacspeak-epub-ls-command
@@ -147,7 +147,7 @@
   "Return list of files in an epub archive."
   (declare (special emacspeak-epub-ls-command))
   (split-string
-   (shell-command-to-string (format emacspeak-epub-ls-command file ))))
+   (shell-command-to-string (format emacspeak-epub-ls-command file))))
 
 (defstruct emacspeak-epub
   path ; path to .epub file
@@ -222,7 +222,7 @@
 (declare-function w3-fetch  "w3" (url))
 (declare-function w3-download-url  "w3" (url &optional file-name))
 
-(defun emacspeak-epub-browse-content (epub element fragment &optional style )
+(defun emacspeak-epub-browse-content (epub element fragment &optional style)
   "Browse content in specified element of EPub."
   (unless   (emacspeak-epub-p epub) (error "Invalid epub"))
   (let ((base (emacspeak-epub-base epub))
@@ -486,7 +486,7 @@ Interactive prefix arg searches recursively in directory."
       (emacspeak-epub-bookshelf-redraw)
       (message "Removed %d books. " updated))))
 
-(defun emacspeak-epub-bookshelf-remove-this-book ( )
+(defun emacspeak-epub-bookshelf-remove-this-book ()
   "Remove the book on current line from this bookshelf.
 No book files are deleted."
   (interactive)
@@ -494,7 +494,7 @@ No book files are deleted."
   (let ((epub (get-text-property (point) 'epub))
         (orig (point)))
     (when epub
-      (remhash epub emacspeak-epub-db      )
+      (remhash epub emacspeak-epub-db)
       (emacspeak-epub-bookshelf-save)
       (emacspeak-epub-bookshelf-redraw)
       (emacspeak-auditory-icon 'task-done)
@@ -531,7 +531,7 @@ No book files are deleted."
       (print  emacspeak-epub-db  buff)
       (save-buffer buff)
       (kill-buffer buff)
-      (when (ems-interactive-p ) (emacspeak-auditory-icon 'save-object)))))
+      (when (ems-interactive-p) (emacspeak-auditory-icon 'save-object)))))
 
 (defun emacspeak-epub-bookshelf-load ()
   "Load bookshelf metadata from disk."
@@ -554,7 +554,7 @@ No book files are deleted."
                     #'(lambda (s) (string-match ".bsf$" s)))))
   (declare (special emacspeak-epub-db))
   (let ((buffer (find-file-noselect bookshelf))
-        (bookshelf-name  (substring (file-name-nondirectory bookshelf ) 0 -4)))
+        (bookshelf-name  (substring (file-name-nondirectory bookshelf) 0 -4)))
     (with-current-buffer buffer
       (goto-char (point-min))
       (setq emacspeak-epub-db (read buffer)))
@@ -631,7 +631,7 @@ Suitable for text searches."
                           epub-file 
                           (shell-quote-argument f)
                           emacspeak-epub-html-to-text-command))
-            (insert (shell-command-to-string command ))
+            (insert (shell-command-to-string command))
             (goto-char (point-max)))
       (setq buffer-read-only t)
       (goto-char (point-min)))
@@ -667,7 +667,7 @@ Suitable for text searches."
                   (format "unzip -c -qq %s %s "
                           epub-file 
                           (shell-quote-argument f)))
-            (insert (shell-command-to-string command ))
+            (insert (shell-command-to-string command))
             (goto-char (point-max)))
       (browse-url-of-buffer))))
 
@@ -758,7 +758,7 @@ Suitable for text searches."
     (insert
      (format
       "%-20s%s\n"
-      ( emacspeak-epub-format-author (emacspeak-epub-metadata-author epub))
+      (emacspeak-epub-format-author (emacspeak-epub-metadata-author epub))
       (propertize (emacspeak-epub-metadata-title epub) 'face 'italic)))
     (put-text-property start (point) 'epub key)))
 
@@ -773,7 +773,7 @@ Optional interactive prefix arg author-first prints author at the
                        'emacspeak-epub-insert-author-title
                      'emacspeak-epub-insert-title-author)))
     (erase-buffer)
-    (maphash formatter emacspeak-epub-db  )
+    (maphash formatter emacspeak-epub-db)
     (sort-lines nil (point-min) (point-max))
     (goto-char (point-min)))
   (when (ems-interactive-p) (emacspeak-auditory-icon 'task-done)))
@@ -787,11 +787,11 @@ Optional interactive prefix arg author-first prints author at the
   (emacspeak-epub-bookshelf-load)
   (emacspeak-epub-bookshelf-update)
   (emacspeak-epub-bookshelf-redraw)
-  ( emacspeak-epub-bookshelf-save)
+  (emacspeak-epub-bookshelf-save)
   (emacspeak-auditory-icon 'task-done))
 
 (define-derived-mode emacspeak-epub-mode special-mode
-                     "EPub Interaction On The Emacspeak Audio Desktop"
+  "EPub Interaction On The Emacspeak Audio Desktop"
   "An EPub Front-end.
 Letters do not insert themselves; instead, they are commands.
 \\<emacspeak-epub-mode-map>
@@ -879,8 +879,7 @@ Letters do not insert themselves; instead, they are commands.
     (cond
      ((file-exists-p file)
       (message "Book available locally as %s" file))
-     (t (w3-download-url url file)
-        (message "downloading ...")))))
+     (t (kill-new (message "%s" url))))))
 
 (defvar emacspeak-epub-gutenberg-catalog-url
   "http://www.gutenberg.org/dirs/GUTINDEX.ALL"
@@ -938,7 +937,7 @@ Fetch if needed, or if refresh is T."
 
 (defstruct emacspeak-epub-calibre-record
                                         ; "b.title,  b.author_sort, b.path,  d.format"
-  title author  path format )
+  title author  path format)
 
 ;;; Helper: Construct query
 (defun emacspeak-epub-calibre-build-query (where &optional limit)
@@ -1074,7 +1073,7 @@ Searches for matches in both  Title and Author."
     (dtk-speak-and-echo  (format "Added %d books" (length results)))))
 
 (define-derived-mode emacspeak-calibre-mode special-mode
-                     "Calibre Interaction On The Emacspeak Audio Desktop"
+  "Calibre Interaction On The Emacspeak Audio Desktop"
   "A Calibre Front-end.
 Letters do not insert themselves; instead, they are commands.
 \\<emacspeak-calibre-mode-map>
@@ -1097,7 +1096,7 @@ Letters do not insert themselves; instead, they are commands.
     (emacspeak-speak-mode-line)))
 
 (declaim (special emacspeak-calibre-mode-map))
-(define-key emacspeak-calibre-mode-map [Return] 'emacspeak-epub-calibre-dired-at-point )
+(define-key emacspeak-calibre-mode-map [Return] 'emacspeak-epub-calibre-dired-at-point)
 
 (defun emacspeak-epub-calibre-results ()
   "Show most recent Calibre search results."
@@ -1136,7 +1135,7 @@ Letters do not insert themselves; instead, they are commands.
 (defun emacspeak-epub-locate-epubs (pattern)
   "Locate epub files using locate."  (interactive "sSearch Pattern: ")
   (let ((locate-make-command-line #'(lambda (s) (list locate-command "-i" s))))
-    (funcall-interactively #'locate-with-filter pattern ".epub$")))
+    (locate-with-filter pattern ".epub$")))
 
 ;;}}}
 

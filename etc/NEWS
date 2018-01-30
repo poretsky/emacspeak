@@ -1,87 +1,86 @@
 #    -*- mode: org -*-
 
 Emacspeak News --History Of User-Visible Changes
-$Id$
+
 Author: T. V. Raman <tv.raman.tv@gmail.com>
 
 
-* Emacspeak 43 -- Emacspeak 43 User Visible Changes
-** Multiple TTS Streams:
+* Emacspeak 44 -- Emacspeak 44 User Visible Changes
 
-Emacspeak now uses a separate TTS instance for its notification stream.
+** Multiple Media Players 
 
-** Sound Themes:
+Module [[http://emacspeak.blogspot.com/2015/11/listening-to-multiple-media-streams-on.html][emacspeak-m-player]] can now launch and control multiple media
+player instances. Use C-e;\ to persist the current m-player session; Use a
+prefix arg to give that session a name.
 
-Reorganized sound themes. The original default-8k sounds have
-been converted to 44.1k stereo and renamed =classic=.
-Emacspeak now defaults to theme =3d= out of the gox.
-** emacspeak-eww.el:
+** Panning In MPlayer
 
-Added interactive command =emacspeak-eww-phantom= that retrieves using PhantomJS.
-Useful for viewing AngularJS powered sites like http://golang.org/tour using EWW.
-** emacspeak-org.el:
+Module emacspeak-m-player adds support for panning audio from the currently
+playing stream from left to right.
 
-Exported command for using org-capture for capturing hyperlinks to personalized  hotlists. 
+** Ladspa And MPlayer
 
-** emacspeak-info.el:
+Module emacspeak-m-player  now  provides Ladspa integration with more
+presets including an autopan+pinknoise setting suitable for
+relaxation.
 
-updated Info support.
-** emacspeak-helm.el:
+** Spatialized Chimes Theme 
 
-Early speech-enable support  for helm and its related packages.
+Sound theme pan-chimes provides a spatialized theme generated from the
+original =chimes= theme.
 
-** emacspeak-yasnippet.el:
+** Ladspa Workbench
 
-Speech-enables package yasnippet.
+Module =ladspa.el= implements a Ladspa workbench for the Emacspeak
+desktop. 
+It is integrated with =MPlayer=. 
 
-** Emacspeak-Muggles:
+**  Speech-Enabled ElPY:
 
-Keyboard conveniences implemented using package Hydra.
+Module =emacspeak-elpy.el= speech-enables package =ElPY= --- a Python IDE.
 
-** emacspeak-lua.el:
+** SoundScapes:
 
-Speech-enable lua-mode.
-
-** emacspeak-projectile:
-
-Speech-Enable project management utility projectile.el.
-
-** XBackLight:
-
-Module xbacklight.el  provides an Emacs front-end to XBackLight for controlling display brightness on laptops and  exposes it using a light-weight Hydra.
-
-** emacspeak-slime:
-
-Speech-enables package SLIME --- Superior Lisp Interaction Mode  --- a powerful IDE for Common Lisp and Clojure.
-
-** emacspeak-librivox:
-Implements the new Librivox API.
-Search, browse download and play book streams. 
+[[http://emacspeak.blogspot.com/2015/11/listening-to-multiple-media-streams-on][Soundscapes]] --- a continuous loop of softly playing sound-effects ---
+can be automatically turned on and off to match the user's current
+activity. Module ~soundscape.el~ implements SoundScapes using Python
+package ~boodler~ --- see [[http://boodler.org]].
 
 
-** emacspeak-npr:
+** Additional Emacspeak Soundscapes
 
-Updated to API 0.94.
-Commands for browsing, searching and playing present and past shows.
+Directory emacspeak/scapes includes Soundscapes developed for use on
+the Audio Desktop.
+These scapes will not be distributed as part of Emacspeak due to their
+size --- they can be obtained from the GitHub repository.
 
-** emacspeak-bbc: 
-Updated implementation to reflect that older iplayer
-convertor no longer works.  Emacspeak-bbc now plays links through
-Chrome or by using command get_iplayer to stream via mplayer.
-Complements download functionality available via Emacs package iplayer.
+A release snapshot can be found at
+https://github.com/tvraman/emacspeak/releases/download/soundscape-1.1/soundscapes-1.1.tar.bz2
 
-** emacspeak-eww:
+** Using CrossFeed With ALSA
 
-Better filtering: filter by elements, class, roles and attributes.
-History navigating through nested filter invocations works.
-** emacspeak-paradox:
+File ~scapes/ladspa-asoundrc~ defines *crossfeed*, *reverb_crossfeed*
+and *tap_reverb* virtual devices that can be used to enable enhanced
+headphones listening --- works particularly well for soundscapes.
 
-Speech-enables paradox, an alternative package-manager UI.
+** MPlayer, HRTF And OpenAL
 
-** emacspeak-url-templates:
+Module emacspeak-m-player provides a new command for invoking
+~MPlayer~ with *OpenAL* as the output driver. This provides *HRTF* for
+a better listening experience.
 
-Updated templates.
+** Helm Support:
 
-** emacspeak-wizards:
+Module emacspeak-helm.el has been enhanced to provide better coverage of Helm use-cases.
 
-Code cleanup and updates.
+
+** Browsing/Choosing Completions From Within The Minibuffer:
+
+You can now use =C-n= and =C-p=  in the minibuffer to move through
+displayed completion and =C-c= to select the current completion. 
+
+
+* Knowledge Graph Search
+
+Module ~emacspeak-webspace~ now provides an early implementation of
+Google Knowledge Graph search.

@@ -147,7 +147,6 @@ emacspeak-filtertext.elc \
 emacspeak-find-dired.elc \
 emacspeak-ftf.elc \
 emacspeak-find-func.elc \
-emacspeak-finder.elc \
 emacspeak-flycheck.elc \
 emacspeak-flyspell.elc \
 emacspeak-folding.elc \
@@ -202,6 +201,8 @@ emacspeak-php-mode.elc \
 emacspeak-pianobar.elc \
 emacspeak-proced.elc \
 emacspeak-py.elc \
+emacspeak-elpy.elc \
+emacspeak-pydoc.elc \
 emacspeak-python.elc \
 emacspeak-re-builder.elc \
 emacspeak-reftex.elc \
@@ -219,7 +220,9 @@ emacspeak-sh-script.elc \
 emacspeak-sigbegone.elc \
 emacspeak-solitaire.elc \
 emacspeak-speedbar.elc \
+ladspa.elc \
 sox.elc \
+soundscape.elc \
 sox-gen.elc \
 emacspeak-sql.elc \
 emacspeak-supercite.elc \
@@ -269,7 +272,7 @@ all: $(OBJECTS)
 
 force:
 
-config: emacspeak-loaddefs.el emacspeak-cus-load.el emacspeak-finder-inf.el
+config: emacspeak-loaddefs.el emacspeak-cus-load.el 
 lint:
 	echo "." |\
 emacs -batch -q \
@@ -277,9 +280,6 @@ emacs -batch -q \
 -f elint-directory 
 # }}}
 # {{{build time target --loaddefs
-
-emacspeak-finder-inf.el: force
-	$(EMACS) $(BATCH) -l emacspeak-load-path.el  -l emacspeak-finder.el  -f emacspeak-finder-compile-keywords
 
 emacspeak-loaddefs.el: force
 	echo ";;;Auto generated" > emacspeak-loaddefs.el
@@ -386,7 +386,6 @@ emacspeak-filtertext.elc: emacspeak-filtertext.el dtk-speak.elc voice-setup.elc
 emacspeak-find-dired.elc: emacspeak-find-dired.el dtk-speak.elc voice-setup.elc
 emacspeak-ftf.elc: emacspeak-ftf.el dtk-speak.elc
 emacspeak-find-func.elc: emacspeak-find-func.el dtk-speak.elc voice-setup.elc
-emacspeak-finder.elc: emacspeak-finder.el
 emacspeak-fix-interactive.elc: emacspeak-fix-interactive.el dtk-speak.elc voice-setup.elc
 emacspeak-flycheck.elc: emacspeak-flycheck.el dtk-speak.elc voice-setup.elc
 emacspeak-flyspell.elc: emacspeak-flyspell.el dtk-speak.elc voice-setup.elc
@@ -421,7 +420,7 @@ emacspeak-lua.elc: emacspeak-lua.el dtk-speak.elc
 emacspeak-loaddefs.elc: emacspeak-loaddefs.el
 emacspeak-load-path.elc: emacspeak-load-path.elc
 emacspeak-magit.elc: emacspeak-magit.el dtk-speak.elc voice-setup.elc
-emacspeak-m-player.elc: emacspeak-m-player.el dtk-speak.elc voice-setup.elc
+emacspeak-m-player.elc: emacspeak-m-player.el dtk-speak.elc ladspa.elc
 emacspeak-make-mode.elc: emacspeak-make-mode.el dtk-speak.elc voice-setup.elc
 emacspeak-markdown.elc: emacspeak-markdown.el dtk-speak.elc
 emacspeak-man.elc: emacspeak-man.el dtk-speak.elc voice-setup.elc
@@ -449,6 +448,8 @@ emacspeak-proced.elc: emacspeak-proced.el dtk-speak.elc voice-setup.elc
 emacspeak-projectile.elc: emacspeak-projectile.el dtk-speak.elc
 emacspeak-py.elc: emacspeak-py.el dtk-speak.elc voice-setup.elc
 emacspeak-python.elc: emacspeak-python.el dtk-speak.elc voice-setup.elc
+emacspeak-elpy.elc: emacspeak-elpy.el dtk-speak.elc
+emacspeak-pydoc.elc: emacspeak-pydoc.el dtk-speak.elc
 emacspeak-re-builder.elc: emacspeak-re-builder.el dtk-speak.elc voice-setup.elc
 emacspeak-redefine.elc: emacspeak-redefine.el  dtk-speak.elc voice-setup.elc
 emacspeak-reftex.elc: emacspeak-reftex.el dtk-speak.elc voice-setup.elc
@@ -469,7 +470,9 @@ emacspeak-sounds.elc: emacspeak-sounds.el
 emacspeak-speak.elc: emacspeak-speak.el dtk-speak.elc voice-setup.elc
 emacspeak-speedbar.elc: emacspeak-speedbar.el dtk-speak.elc voice-setup.elc
 emacspeak-sql.elc: emacspeak-sql.el dtk-speak.elc voice-setup.elc
-sox.elc: sox.el
+ladspa.elc: ladspa.el 
+sox.elc: sox.el ladspa.elc
+soundscape.elc: soundscape.el
 sox-gen.elc: sox-gen.el sox.elc
 emacspeak-supercite.elc: emacspeak-supercite.el dtk-speak.elc voice-setup.elc
 emacspeak-sudoku.elc: emacspeak-sudoku.el dtk-speak.elc
@@ -513,12 +516,15 @@ emacspeak.elc: emacspeak.el
 emacspeak-setup.elc: emacspeak-setup.el
 loaddefs: emacspeak-loaddefs.elc
 # }}}
-# {{{Development  target: indent
+# {{{Development  target: indent, tags
 indent:
 	$(EMACS) -batch -q -no-site-file -l ../utils/indent-files.el
 
 elint:
 	$(EMACS) -batch -q -no-site-file -l ../utils/elint-files.el
+
+tags:
+	etags *.el g-client/*.el
 
 # }}}
 # {{{  user level target-- clean

@@ -62,7 +62,7 @@
 ;;}}}
 ;;{{{  APP Methods
 (define-derived-mode g-app-mode nxml-mode
-  "Atom  Publishing Interaction"
+                     "Atom  Publishing Interaction"
   "Major mode for APP interaction\n\n
 \\{g-app-mode-map"
   (auto-fill-mode 1))
@@ -118,8 +118,7 @@
   "Publish Atom entry in current buffer.
 http-method is either POST or PUT.
 Returns HTTP response as (list headers body)."
-  (declare (special g-cookie-options
-                    g-curl-program g-curl-common-options
+  (declare (special g-curl-program g-curl-common-options
                     g-app-this-url g-app-auth-handle
                     g-curl-atom-header))
   (unless (and (eq major-mode 'g-app-mode)
@@ -128,14 +127,14 @@ Returns HTTP response as (list headers body)."
     (error "Not in a correctly initialized Atom Entry."))
   (goto-char (point-min))
   (let ((cl
-	 (format "-H Content-Length:%s" (g-buffer-bytes))))
+         (format "-H Content-Length:%s" (g-buffer-bytes))))
     (shell-command-on-region
      (point-min) (point-max)
      (format
       "%s %s %s %s %s %s -i -X %s --data-binary @- %s 2>/dev/null"
       g-curl-program g-curl-common-options g-curl-atom-header cl
       (g-authorization g-app-auth-handle)
-      g-cookie-options
+      (g-cookie-options)
       http-method
       g-app-this-url)
      (current-buffer) 'replace)
@@ -208,12 +207,12 @@ action is the function to call when we're ready to submit the edit."
   (interactive)
   (declare (special g-atom-view-xsl
                     g-curl-program g-curl-common-options
-                    g-cookie-options))
+                    (g-cookie-options)))
   (g-auth-ensure-token auth-handle)
   (g-display-result
    (format
     "%s %s %s --location --header 'Authorization: GoogleLogin auth=%s' %s 2>/dev/null"
-    g-curl-program g-curl-common-options g-cookie-options
+    g-curl-program g-curl-common-options (g-cookie-options)
     (g-cookie "Auth" auth-handle)
     feed-url)
    g-atom-view-xsl))

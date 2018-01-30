@@ -152,12 +152,12 @@ OUTLOUD=${ECI}/eci.ini \
 ${ECI}/*.h \
 ${ECI}/*.cpp \
 ${ECI}/ALSA ${ECI}/asoundrc \
-${ECI}/Makefile
+${ECI}/atcleci.so ${ECI}/Makefile
 
 NEWS = etc/NEWS*  etc/COPYRIGHT \
 etc/remote.txt etc/applications.html   etc/tips.html
 SOUNDS=sounds/classic sounds/emacspeak.mp3 \
-sounds/chimes  sounds/3d
+sounds/pan-chimes  sounds/3d
 
 TCL_PROGRAMS = servers/.servers \
 servers/dtk-exp  servers/ssh-dtk-exp\
@@ -322,7 +322,7 @@ cd .. ;\
 	tar cvfj emacspeak-${LABEL}.tar.bz2 emacspeak-$(LABEL); \
 	/bin/rm -rf emacspeak-${LABEL} ;\
 	echo "Prepared release in emacspeak-${LABEL}.tar.bz2"
-	./utils/ghr ${LABEL} "emacspeak-${LABEL}.tar.bz2"
+	./utils/emacspeak-ghr ${LABEL} "emacspeak-${LABEL}.tar.bz2"
 
 # }}}
 # {{{list distfiles to stdout

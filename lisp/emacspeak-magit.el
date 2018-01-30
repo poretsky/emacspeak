@@ -57,25 +57,25 @@
 ;;{{{ Map voices to faces:
 (voice-setup-add-map
  '(
-   ( magit-branch voice-lighten)
-   ( magit-diff-add voice-animate-extra)
-   ( magit-diff-del voice-animate-extra)
-   ( magit-diff-file-header voice-animate)
-   ( magit-diff-hunk-header voice-animate-medium)
-   ( magit-diff-none voice-monotone)
-   ( magit-item-highlight voice-brighten)
-   ( magit-item-mark voice-lighten-extra)
-   ( magit-log-graph voice-monotone)
-   ( magit-log-head-label-bisect-bad voice-smoothen)
-   ( magit-log-head-label-bisect-good voice-bolden)
-   ( magit-log-head-label-default voice-monotone)
-   ( magit-log-head-label-local voice-lighten)
-   ( magit-log-head-label-patches voice-bolden)
-   ( magit-log-head-label-remote voice-bolden)
-   ( magit-log-head-label-tags voice-animate)
-   ( magit-log-message voice-monotone)
-   ( magit-log-sha1 voice-monotone)
-   ( magit-log-tag-label voice-annotate)
+   (magit-branch voice-lighten)
+   (magit-diff-add voice-animate-extra)
+   (magit-diff-del voice-animate-extra)
+   (magit-diff-file-header voice-animate)
+   (magit-diff-hunk-header voice-animate-medium)
+   (magit-diff-none voice-monotone)
+   (magit-item-highlight voice-brighten)
+   (magit-item-mark voice-lighten-extra)
+   (magit-log-graph voice-monotone)
+   (magit-log-head-label-bisect-bad voice-smoothen)
+   (magit-log-head-label-bisect-good voice-bolden)
+   (magit-log-head-label-default voice-monotone)
+   (magit-log-head-label-local voice-lighten)
+   (magit-log-head-label-patches voice-bolden)
+   (magit-log-head-label-remote voice-bolden)
+   (magit-log-head-label-tags voice-animate)
+   (magit-log-message voice-monotone)
+   (magit-log-sha1 voice-monotone)
+   (magit-log-tag-label voice-annotate)
    (magit-branch-local voice-brighten)
    (magit-branch-remote voice-lighten)
    (magit-diff-added-highlight voice-animate)
@@ -105,6 +105,8 @@
                                           (cons 're-search-forward
                                                 'emacspeak-pronounce-sha-checksum))
 (emacspeak-pronounce-add-super 'magit-mode 'magit-commit-mode)
+(emacspeak-pronounce-add-super 'magit-mode 'magit-revision-mode)
+(emacspeak-pronounce-add-super 'magit-mode 'magit-log-mod)
 
 (add-hook
  'magit-mode-hook
@@ -116,13 +118,13 @@
 ;;; Advice navigators:
 (defadvice magit-mark-item (after emacspeak pre act comp)
   "Provide auditory feedback."
-  (when (ems-interactive-p )
+  (when (ems-interactive-p)
     (emacspeak-auditory-icon 'mark-object)
     (emacspeak-speak-line)))
 
 (defadvice magit-toggle-section (after emacspeak pre act comp)
   "Provide auditory feedback."
-  (when (ems-interactive-p )
+  (when (ems-interactive-p)
     (let ((state (magit-section-hidden (magit-current-section))))
       (cond
        (state (emacspeak-auditory-icon 'close-object))
@@ -145,7 +147,7 @@
  (eval
   `(defadvice ,f (after emacspeak pre act comp)
      "Provide auditory feedback"
-     (when (ems-interactive-p )
+     (when (ems-interactive-p)
        (emacspeak-auditory-icon 'large-movement)
        (emacspeak-speak-line)))))
 
@@ -181,7 +183,7 @@
       (eval
        `(defadvice ,f (after emacspeak pre act comp)
           "Provide auditory feedback."
-          (when (ems-interactive-p )
+          (when (ems-interactive-p)
             (emacspeak-speak-line)
             (emacspeak-auditory-icon 'open-object)))))
 
@@ -191,7 +193,7 @@
       (eval
        `(defadvice ,f (after emacspeak pre act comp)
           "Provide auditory feedback."
-          (when (ems-interactive-p )
+          (when (ems-interactive-p)
             (emacspeak-speak-line)
             (emacspeak-auditory-icon 'close-object)))))
 
@@ -200,19 +202,19 @@
 
 (defadvice magit-display-process (after emacspeak pre act comp)
   "Provide auditory feedback."
-  (when (ems-interactive-p )
+  (when (ems-interactive-p)
     (emacspeak-auditory-icon 'open-object)
     (message "Displayed process buffer in other window.")))
 
 (defadvice magit-refresh (after emacspeak pre act comp)
   "Provide auditory feedback."
-  (when (ems-interactive-p )
+  (when (ems-interactive-p)
     (emacspeak-auditory-icon 'task-done)
     (emacspeak-speak-line)))
 
 (defadvice magit-status (after emacspeak pre act  comp)
   "Provide auditory feedback."
-  (when (ems-interactive-p )
+  (when (ems-interactive-p)
     (emacspeak-auditory-icon 'open-object)
     (emacspeak-speak-line)))
 (loop
@@ -222,13 +224,13 @@
  (eval
   `(defadvice ,f (after emacspeak pre act  comp)
      "Provide auditory feedback."
-     (when (ems-interactive-p )
+     (when (ems-interactive-p)
        (emacspeak-auditory-icon 'close-object)
        (emacspeak-speak-mode-line)))))
 
 (defadvice magit-refresh-all (after emacspeak pre act comp)
   "Provide auditory feedback."
-  (when (ems-interactive-p )
+  (when (ems-interactive-p)
     (emacspeak-auditory-icon 'task-done)
     (emacspeak-speak-line)))
 
@@ -237,20 +239,20 @@
 
 (defadvice magit-remove-branch (after emacspeak pre act comp)
   "Provide auditory feedback."
-  (when (ems-interactive-p )
+  (when (ems-interactive-p)
     (emacspeak-auditory-icon 'delete-object)
     (emacspeak-speak-line)))
 
 (defadvice magit-remove-branch-in-remote-repo (after emacspeak pre act comp)
   "Provide auditory feedback."
-  (when (ems-interactive-p )
+  (when (ems-interactive-p)
     (emacspeak-auditory-icon 'delete-object)
     (emacspeak-speak-line)))
 
 (defadvice magit-change-what-branch-tracks (after emacspeak pre
                                                   act comp)
   "Provide auditory feedback."
-  (when (ems-interactive-p )
+  (when (ems-interactive-p)
     (emacspeak-auditory-icon 'task-done)
     (emacspeak-speak-line)))
 

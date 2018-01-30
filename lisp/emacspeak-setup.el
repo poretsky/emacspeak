@@ -109,19 +109,21 @@ such as pronunciation dictionaries are stored. ")
 
 ;;;###autoload
 (defvar emacspeak-media-extensions
-  (concat
-   "\\."
-   (regexp-opt
-    (list "wma" "wmv" "flv"
-          "m4a" "m4b" "flac"
-          "ogg" "mp3" "MP3" "mp4")
-    'parens)
-   "$")
+  (let
+      ((ext
+        '("wma" "wmv" "flv" "m4a" "m4b"  "flac" ".aiff"
+          "ogg" "mp3"  "mp4" "webm" "wav")))
+    (concat
+     "\\."
+     (regexp-opt
+      (nconc ext (mapcar #'upcase ext))
+      'parens)
+     "$"))
   "Extensions that match media files.")
 
 ;;;###autoload
 (defvar emacspeak-codename
-  "SolidDog"
+  "SteadyDog"
   "Code name of present release.")
 
 ;;;###autoload
@@ -143,7 +145,7 @@ such as pronunciation dictionaries are stored. ")
 ;;;###autoload
 (defvar emacspeak-version
   (format
-   "43.0 %s:  %s"
+   "44.0 %s:  %s"
    emacspeak-codename
    (emacspeak-setup-get-revision))
   "Version number for Emacspeak.")
@@ -178,8 +180,8 @@ such as pronunciation dictionaries are stored. ")
 ;;}}}
 ;;{{{ Hooks
 
-(add-to-list 'load-path emacspeak-lisp-directory )
-(add-to-list 'load-path (expand-file-name "g-client" emacspeak-lisp-directory ))
+(add-to-list 'load-path emacspeak-lisp-directory)
+(add-to-list 'load-path (expand-file-name "g-client" emacspeak-lisp-directory))
 
 (load-library "emacspeak")
 
@@ -193,15 +195,15 @@ such as pronunciation dictionaries are stored. ")
 (add-hook 'dtk-startup-hook 'emacspeak-tts-startup-hook)
 
 ;;;###autoload
-(defcustom emacspeak-tts-use-notify-stream nil
+(defun emacspeak-tts-multistream-p (tts-engine)
+  "Checks if this tts-engine can support multiple streams."
+  (member tts-engine '("outloud" "32-outloud" "cloud-outloud")))
+
+(defcustom emacspeak-tts-use-notify-stream
+  (when (emacspeak-tts-multistream-p dtk-program) t)
   "Set to true to use a separate TTS stream for notifications."
   :type 'boolean
   :group 'emacspeak)
-
-(defun emacspeak-tts-multistream-p (tts-engine)
-  "Checks if this tts-engine can support multiple streams."
-  (member tts-engine '("outloud" "32-outloud" "espeak" "mac"
-                       "cloud-outloud" "cloud-espeak" "cloud-mac")))
 
 (defun emacspeak-tts-notify-hook ()
   "Starts up a notification stream if current synth supports  multiple invocations.

@@ -77,14 +77,14 @@
 (make-variable-buffer-local 'emacspeak-filtertext-info)
 
 (define-derived-mode emacspeak-filtertext-mode text-mode 
-                     "FilterText mode"
+  "FilterText mode"
   "Major mode for FilterText interaction. \n\n
 \\{emacspeak-filtertext-mode-map}")
 (declare (special emacspeak-filtertext-mode-map))
 (define-key emacspeak-filtertext-mode-map "=" 'keep-lines)
 (define-key emacspeak-filtertext-mode-map "^" 'flush-lines)
 (define-key emacspeak-filtertext-mode-map "r"
-  'emacspeak-filtertext-revert )
+  'emacspeak-filtertext-revert)
 
 ;;}}}
 ;;{{{ Interactive commands 

@@ -75,7 +75,7 @@
     :score *2048-score*
     :rows *2048-rows*
     :cols *2048-columns*)
-   emacspeak-2048-game-stack )
+   emacspeak-2048-game-stack)
   (emacspeak-auditory-icon 'mark-object)
   (message "Saved state."))
 
@@ -106,7 +106,7 @@
      (t (read-number
          (format "Stack: %s New? "
                  (length emacspeak-2048-game-stack))
-                 (/ (length emacspeak-2048-game-stack ) 2))))))
+         (/ (length emacspeak-2048-game-stack) 2))))))
   (declare (special emacspeak-2048-game-stack))
   (setq emacspeak-2048-game-stack
         (butlast emacspeak-2048-game-stack
@@ -132,13 +132,13 @@ Note that the file is overwritten silently."
   (declare (special emacspeak-2048-game-file emacspeak-2048-game-stack))
   (with-temp-buffer
     (let ((file
-         (if prompt
-             (read-file-name "File to save game to: ")
-emacspeak-2048-game-file))
+           (if prompt
+               (read-file-name "File to save game to: ")
+             emacspeak-2048-game-file))
           (print-length nil)
-            (print-level nil))
-	(insert "(setq emacspeak-2048-game-stack \n'")
-	(pp emacspeak-2048-game-stack (current-buffer))
+          (print-level nil))
+      (insert "(setq emacspeak-2048-game-stack \n'")
+      (pp emacspeak-2048-game-stack (current-buffer))
       (insert ")\n")
       (write-file file)
       (emacspeak-auditory-icon 'save-object)
@@ -174,7 +174,6 @@ Optional interactive prefix arg prompts for a filename."
      (aset  *2048-board* i  (aref board i))
      (2048-print-board))
     (message "Added row.")))
-
 
 (defun emacspeak-2048-drop-row ()
   "Drop last  row  from  the current board."
@@ -221,8 +220,8 @@ Optional interactive prefix arg prompts for a filename."
 (defun emacspeak-2048-speak-board ()
   "Speak board."
   (interactive)
-  (declare (special *2048-board* *2048-columns* ))
-  (dtk-speak-list (append *2048-board* nil ) *2048-columns*))
+  (declare (special *2048-board* *2048-columns*))
+  (dtk-speak-list (append *2048-board* nil) *2048-columns*))
 
 (defun emacspeak-2048-speak-transposed-board ()
   "Speak board column-wise."
@@ -285,13 +284,13 @@ Optional interactive prefix arg prompts for a filename."
   (define-key 2048-mode-map "g" '2048-game)
   (dtk-set-rate
    (+ dtk-speech-rate-base
-      (* dtk-speech-rate-step  3 )))
+      (* dtk-speech-rate-step  3)))
   (dtk-set-punctuations 'some)
   (emacspeak-auditory-icon 'open-object)
   (emacspeak-pronounce-define-local-pronunciation "0" "o")
   (emacspeak-2048-speak-board))
 (declaim (special-display-p 2048-mode-hook))
-(add-hook '2048-mode-hook 'emacspeak-2048-setup )
+(add-hook '2048-mode-hook 'emacspeak-2048-setup)
 ;;}}}
 ;;{{{ Counting moves:
 

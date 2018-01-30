@@ -145,7 +145,7 @@ Argument duration --- default is 1ms --- specifies duration of each step."
          (+ 200                         ; translating X axis
             (round
              (* 1000
-                (sqrt (- 1 (/ (* i i ) 1000000.0))))))))  
+                (sqrt (- 1 (/ (* i i) 1000000.0))))))))  
 
   ;;}}}
   ;;{{{ Ellipse :
@@ -161,7 +161,7 @@ Argument duration --- default is 1ms --- specifies duration of each step."
             (round
              (* 1000
                 0.75 ; b/a
-                (sqrt (- 1(/ (* i i ) 1000000.0))))))))
+                (sqrt (- 1(/ (* i i) 1000000.0))))))))
 
 ;;; the same ellipse with major and minor axies flipped:
   (congrats-data-to-tones
@@ -171,7 +171,7 @@ Argument duration --- default is 1ms --- specifies duration of each step."
             (round
              (* 1000
                 (/ 4.0 3.0) ; b/a
-                (sqrt (- 1(/ (* i i ) 1000000.0))))))))
+                (sqrt (- 1(/ (* i i) 1000000.0))))))))
 
   ;;}}}
   ;;{{{ Parabola: y=x^2 x in [-2, 2] stepsize 2/1000
@@ -189,14 +189,14 @@ Argument duration --- default is 1ms --- specifies duration of each step."
   (congrats-data-to-tones
    (loop for i from -3141 to 3141
          collect 
-         (abs  (round (* 1000 (sin ( / i 1000.0)))))))
+         (abs  (round (* 1000 (sin (/ i 1000.0)))))))
 
 ;;; Cosine in the same range:
 
   (congrats-data-to-tones
    (loop for i from -3141 to 3141
          collect 
-         (abs  (round (* 1000 (cos ( / i 1000.0)))))))
+         (abs  (round (* 1000 (cos (/ i 1000.0)))))))
 
   ;;}}}
   ;;}}}

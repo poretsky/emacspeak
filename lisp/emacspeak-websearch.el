@@ -65,7 +65,7 @@
 (defvar emacspeak-wizards-personal-portfolio)
 
 (declare-function gweb-google-autocomplete (&optional prompt))
-(declare-function gtube-video-by-tag(tag &optional page count))
+(declare-function gtu(tag &optional page count))
 (declare-function calendar-astro-date-string (&optional date))
 ;;}}}
 ;;{{{ searcher table
@@ -119,14 +119,14 @@
         (loop for m in map
               do
               (princ (key-description (list (car m))))
-              (move-to-column 16 )
+              (move-to-column 16)
               (princ "`")
               (princ (emacspeak-websearch-get-searcher (cdr m)))
               (princ "'")
               (princ "\n"))
         (help-setup-xref
          (list #'emacspeak-websearch-help)
-         (ems-interactive-p ))))
+         (ems-interactive-p))))
     (pop-to-buffer "*Help*")
     (help-mode)
     (goto-char (point-min))
@@ -165,7 +165,7 @@ When using supported browsers,  this interface attempts to speak the most releva
 
 (defsubst emacspeak-websearch-read-query (prompt &optional
                                                  default
-                                                 initial )
+                                                 initial)
   (let ((answer
          (read-from-minibuffer
           prompt
@@ -231,7 +231,7 @@ When using supported browsers,  this interface attempts to speak the most releva
 (emacspeak-websearch-set-key 3 'citeseer)
 
 ;;;###autoload
-(defun emacspeak-websearch-citeseer-search(term )
+(defun emacspeak-websearch-citeseer-search(term)
   "Perform a CiteSeer search. "
   (interactive
    (list
@@ -350,7 +350,7 @@ Retrieves company news, research, profile, insider trades,  or upgrades/downgrad
        (format-time-string "%Y")
        'emacspeak-speak-line)))))
 
-(defun emacspeak-websearch-view-csv-data (process state )
+(defun emacspeak-websearch-view-csv-data (process state)
   "Process csv data and put it in emacspeak table mode. "
   (message "state: %s" state)
   (when (string-match "^finished" state)
@@ -507,7 +507,7 @@ Optional second arg as-html processes the results as HTML rather than data."
       (?p (call-interactively 'emacspeak-websearch-cpan-search))
       (?s (call-interactively 'emacspeak-websearch-sourceforge-search))
       (?t (call-interactively 'emacspeak-websearch-ctan-search))
-      (otherwise (message emacspeak-websearch-software-sites )))))
+      (otherwise (message emacspeak-websearch-software-sites)))))
 
 ;;}}}
 ;;{{{ Gutenberg
@@ -622,7 +622,7 @@ prefix arg is equivalent to hitting the I'm Feeling Lucky button on Google. "
      (lucky (browse-url search-url))
      (t                                 ; always just show results
       (emacspeak-we-extract-by-id-list
-       '( "rhs" "center_col" "nav")
+       '("center_col" "nav" "rhs_block")
        search-url 'speak)))))
 
 ;;{{{ IMFA
@@ -648,22 +648,23 @@ Optional prefix arg prompts for toolbelt options."
     current-prefix-arg))
   (declare (special emacspeak-websearch-accessible-google-url emacspeak-google-toolbelt))
   (setq emacspeak-google-toolbelt nil)
-  (let ((emacspeak-eww-masquerade nil)
+  (let ((emacspeak-eww-masquerade t)
         (toolbelt (emacspeak-google-toolbelt)))
     (emacspeak-webutils-cache-google-query query)
     (emacspeak-webutils-cache-google-toolbelt toolbelt)
     (cond
      (options (emacspeak-google-toolbelt-change))
-     (t (emacspeak-we-extract-by-id
-         "center_col"
-         (format emacspeak-websearch-accessible-google-url query)
-         'speak)))))
+     (t
+      (emacspeak-we-extract-by-id-list
+       '("center_col" "nav" "rhs_block")
+       (format emacspeak-websearch-accessible-google-url query)
+       'speak)))))
 
 ;;;###autoload
 (defun emacspeak-websearch-google-with-toolbelt (query)
   "Launch Google search with toolbelt."
   (interactive (list (gweb-google-autocomplete "AGoogle: ")))
-  (funcall-interactively #'emacspeak-websearch-accessible-google query 'use-toolbelt))
+  (emacspeak-websearch-accessible-google query 'use-toolbelt))
 (emacspeak-websearch-set-searcher 'google-lucky
                                   'emacspeak-websearch-google-feeling-lucky)
 
@@ -696,7 +697,7 @@ https://www.google.com/options/specialsearches.html "
   (let ((emacspeak-websearch-google-uri-template
          (format "www.google.com/%s?q="
                  specialize)))
-    (emacspeak-websearch-google query )))
+    (emacspeak-websearch-google query)))
 
 ;;;###autoload
 (defun emacspeak-websearch-google-search-in-date-range ()
@@ -709,7 +710,7 @@ https://www.google.com/options/specialsearches.html "
                                                   (error "No mark set in this buffer"))))))
     (emacspeak-websearch-google
      (concat
-      (emacspeak-url-encode query )
+      (emacspeak-url-encode query)
       (format "+daterange:%s-%s"
               (min from to)
               (max from to))))))
@@ -725,7 +726,7 @@ https://www.google.com/options/specialsearches.html "
 (emacspeak-websearch-set-searcher 'google-news
                                   'emacspeak-websearch-google-news)
 
-(emacspeak-websearch-set-key ?n 'google-news )
+(emacspeak-websearch-set-key ?n 'google-news)
 
 ;;;###autoload
 (defun emacspeak-websearch-google-news ()
@@ -773,9 +774,9 @@ https://www.google.com/options/specialsearches.html "
   "*RSS URI for launching a Yahoo News search")
 
 ;;;###autoload
-(defun emacspeak-websearch-news-yahoo (query &optional no-rss)
+(defun emacspeak-websearch-news-yahoo (query &optional rss)
   "Perform an Yahoo News search.
-Optional prefix arg no-rss scrapes information from HTML."
+Optional prefix arg  avoids scraping  information from HTML."
   (interactive
    (list
     (emacspeak-websearch-read-query "Yahoo News Query: ")
@@ -789,7 +790,7 @@ Optional prefix arg no-rss scrapes information from HTML."
                       emacspeak-we-url-rewrite-rule
                       '("$" "&printer=1"))))
   (cond
-   ((null no-rss)                       ;use rss feed
+   (rss                       ;use rss feed
     (emacspeak-feeds-rss-display
      (concat emacspeak-websearch-news-yahoo-rss-uri
              (format "p=%s&n=20&c=news"
@@ -871,7 +872,7 @@ Optional prefix arg no-rss scrapes information from HTML."
    (list (emacspeak-websearch-read-query "City,State or Zip: ")))
   (declare (special emacspeak-websearch-weather-uri))
   (emacspeak-we-extract-tables-by-match-list
-   (list "Area" "Humidity" )
+   (list "Area" "Humidity")
    (concat emacspeak-websearch-weather-uri
            (emacspeak-url-encode query))
    'speak))
