@@ -46,6 +46,7 @@
 
 ;;}}}
 ;;{{{ requires
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 
 ;;}}}
@@ -63,14 +64,14 @@
   "Commands to speech enable")
 
 (cl-loop for f in emacspeak-net-utils-commands
-      do
-      (eval
-       `(defadvice ,f  (after emacspeak pre act comp)
-          "Speak output"
-          (when (ems-interactive-p)
-            (emacspeak-auditory-icon 'open-object)
-            (message "Displayed results of %s in other window"
-                     (quote ,f))))))
+         do
+         (eval
+          `(defadvice ,f  (after emacspeak pre act comp)
+             "Speak output"
+             (when (ems-interactive-p)
+               (emacspeak-auditory-icon 'open-object)
+               (message "Displayed results of %s in other window"
+                        (quote ,f))))))
 
 ;;}}}
 (provide 'emacspeak-net-utils)
@@ -79,7 +80,7 @@
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end: 
 
 ;;}}}

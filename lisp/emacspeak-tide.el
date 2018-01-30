@@ -48,8 +48,8 @@
 ;;}}}
 ;;{{{  Required modules
 
-(require 'cl)
-(declaim  (optimize  (safety 0) (speed 3)))
+(require 'cl-lib)
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 
 ;;}}}
@@ -81,7 +81,7 @@
  for f in
  '(
    tide-find-next-reference tide-find-previous-reference tide-goto-reference
-                            tide-jump-back tide-jump-to-definition)
+   tide-jump-back tide-jump-to-definition)
  do
  (eval
   `(defadvice ,f (after emacspeak pre act comp)

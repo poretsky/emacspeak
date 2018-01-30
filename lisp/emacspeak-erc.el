@@ -50,12 +50,14 @@
 
 ;;}}}
 ;;{{{ required modules
+(require 'cl-lib)
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 (require 'erc)
 ;;}}}
 ;;{{{  variables
 
-(declaim (special emacspeak-sounds-directory))
+(cl-declaim (special emacspeak-sounds-directory))
 
 ;;}}}
 ;;{{{ personalities 
@@ -92,13 +94,13 @@ server."
 
 ;;}}}
 ;;{{{ advice interactive commands
-(declaim (special emacspeak-pronounce-internet-smileys-pronunciations))
+(cl-declaim (special emacspeak-pronounce-internet-smileys-pronunciations))
 (emacspeak-pronounce-augment-pronunciations 'erc-mode
                                             emacspeak-pronounce-internet-smileys-pronunciations)
 
 (defadvice erc-mode (after emacspeak pre act comp)
   "Turn on voice lock mode."
-  (declare (special voice-lock-mode))
+  (cl-declare (special voice-lock-mode))
   (emacspeak-pronounce-refresh-pronunciations)
   (setq voice-lock-mode t))
 
@@ -164,11 +166,10 @@ Optional interactive prefix  arg defines a pronunciation that
    (list
     (emacspeak-erc-read-person "Add ")
     current-prefix-arg))
-  (declare (special emacspeak-erc-people-to-monitor))
+  (cl-declare (special emacspeak-erc-people-to-monitor))
   (unless (eq major-mode 'erc-mode)
     (error "Not in an ERC buffer."))
-  (pushnew name emacspeak-erc-people-to-monitor
-           :test #'string-equal)
+  (cl-pushnew name emacspeak-erc-people-to-monitor :test #'string-equal)
   (when quiten-pronunciation
     (emacspeak-pronounce-add-buffer-local-dictionary-entry name ""))
   (emacspeak-auditory-icon 'select-object)
@@ -181,11 +182,11 @@ Optional interactive prefix  arg defines a pronunciation that
   (interactive
    (list
     (emacspeak-erc-read-person "Delete ")))
-  (declare (special emacspeak-erc-people-to-monitor))
+  (cl-declare (special emacspeak-erc-people-to-monitor))
   (unless (eq major-mode 'erc-mode)
     (error "Not in an ERC buffer."))
   (setq emacspeak-erc-people-to-monitor
-        (remove-if
+        (cl-remove-if
          (function
           (lambda (x)
             (string-equal x name)))
@@ -204,7 +205,7 @@ Optional interactive prefix  arg defines a pronunciation that
 (defun emacspeak-erc-compute-message (string _buffer)
   "Uses environment of buffer to decide what message to
 display. String is the original message."
-  (declare (special emacspeak-erc-people-to-monitor
+  (cl-declare (special emacspeak-erc-people-to-monitor
                     emacspeak-erc-my-nick
                     emacspeak-erc-speak-all-participants
                     emacspeak-erc-monitor-my-messages))
@@ -237,7 +238,7 @@ set the current local value to the result.")
 (defadvice erc-display-line-buffer  (after emacspeak pre act
                                            comp)
   "Speech-enable ERC."
-  (declare (special emacspeak-erc-room-monitor
+  (cl-declare (special emacspeak-erc-room-monitor
                     emacspeak-erc-monitor-my-messages
                     emacspeak-erc-my-nick))
   (let ((buffer (ad-get-arg 1))
@@ -256,7 +257,7 @@ set the current local value to the result.")
 
 (defadvice erc-display-line-1  (after emacspeak pre act comp)
   "Speech-enable ERC."
-  (declare (special emacspeak-erc-room-monitor
+  (cl-declare (special emacspeak-erc-room-monitor
                     emacspeak-erc-monitor-my-messages
                     emacspeak-erc-my-nick))
   (let ((buffer (ad-get-arg 1))
@@ -306,7 +307,7 @@ set the current local value to the result.")
 
 ;;}}}
 ;;{{{ define emacspeak keys
-(declaim (special erc-mode-map))
+(cl-declaim (special erc-mode-map))
 (define-key erc-mode-map "\C-c "
   'emacspeak-erc-toggle-speak-all-participants)
 (define-key erc-mode-map "\C-cm"
@@ -328,15 +329,15 @@ set the current local value to the result.")
   (let ((fields (split-string pattern "-")))
     (format " %s for %s off %s overs with %s maidens "
             (cond
-             ((string-equal "0" (fourth fields)) 
+             ((string-equal "0" (cl-fourth fields)) 
               "none")
-             (t (fourth fields)))
-            (third fields)
-            (first fields)
+             (t (cl-fourth fields)))
+            (cl-third fields)
+            (cl-first fields)
             (cond
-             ((string-equal "0" (second fields)) 
+             ((string-equal "0" (cl-second fields)) 
               "no")
-             (t (second fields))))))
+             (t (cl-second fields))))))
 
 (defvar emacspeak-erc-cricket-4-6-pattern
   " [0-9]+x\[46]"
@@ -392,7 +393,7 @@ set the current local value to the result.")
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

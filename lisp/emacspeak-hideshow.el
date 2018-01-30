@@ -40,6 +40,7 @@
 
 ;;{{{ required modules
 
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 ;;}}}
 ;;{{{  Introduction:
@@ -90,8 +91,13 @@
 (defadvice hs-toggle-hiding (after emacspeak pre act comp)
   "Provide auditory feedback."
   (when (ems-interactive-p)
-    (emacspeak-auditory-icon 'close-object)
-    (message "Toggled HideShow.")))
+    (cond
+     ((hs-already-hidden-p)
+      (emacspeak-auditory-icon 'close-object)
+      (message "Hid block"))
+     (t
+      (emacspeak-auditory-icon 'open-object)
+      (message "Exposed block")))))
 
 (defadvice hs-hide-initial-comment-block (after emacspeak pre act comp)
   "Provide auditory feedback."
@@ -106,7 +112,7 @@
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

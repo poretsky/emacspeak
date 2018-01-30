@@ -46,6 +46,7 @@
 ;;}}}
 ;;{{{ required modules
 
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 (require 'emacspeak-dired)
 
@@ -53,14 +54,14 @@
 ;;{{{ Advice interactive commands.
 
 (cl-loop for c in
-      '(wdired-next-line wdired-previous-line)
-      do
-      (eval
-       `(defadvice ,c (after emacspeak pre act comp)
-          "Provide spoken feedback."
-          (when (ems-interactive-p)
-            (emacspeak-auditory-icon 'select-object)
-            (emacspeak-dired-speak-line)))))
+         '(wdired-next-line wdired-previous-line)
+         do
+         (eval
+          `(defadvice ,c (after emacspeak pre act comp)
+             "Provide spoken feedback."
+             (when (ems-interactive-p)
+               (emacspeak-auditory-icon 'select-object)
+               (emacspeak-dired-speak-line)))))
 
 (defadvice wdired-upcase-word (after emacspeak pre act comp)
   "Provide spoken feedback."
@@ -114,7 +115,7 @@
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

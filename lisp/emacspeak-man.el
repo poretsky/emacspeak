@@ -47,6 +47,7 @@
 ;;{{{ Required modules
 
 ;;; Code:
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 (require 'voice-setup)
 (require 'man)
@@ -54,7 +55,7 @@
 ;;}}}
 ;;{{{  Configure man
 
-(declaim (special Man-switches system-type))
+(cl-declaim (special Man-switches system-type))
 
 (when (eq system-type 'gnu/linux)
   (setq Man-switches "-a"))
@@ -168,7 +169,7 @@ Also provide an auditory icon"
 (autoload 'emacspeak-view-line-to-top 
   "emacspeak-view" "Move current line to top of window"  t)
 
-(declaim (special  Man-mode-map))
+(cl-declaim (special  Man-mode-map))
 (define-key Man-mode-map ";"
   'emacspeak-speak-current-window)
 (define-key Man-mode-map "\M-j" 'imenu)
@@ -187,7 +188,7 @@ Also provide an auditory icon"
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end: 
 
 ;;}}}

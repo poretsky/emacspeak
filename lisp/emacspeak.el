@@ -52,8 +52,8 @@
 ;;}}}
 ;;{{{ Required modules
 
-(require 'cl)
-(declaim  (optimize  (safety 0) (speed 3)))
+(require 'cl-lib)
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 (require 'emacspeak-sounds)
 (require 'emacspeak-fix-interactive)
@@ -62,11 +62,12 @@
 ;;{{{ autoloads
 
 (unless noninteractive
-  (load-library "emacspeak-loaddefs")
-  (load-library "emacspeak-cus-load")
-  (load-library "g-loaddefs")
-  (load-library "g-cus-load"))
-
+  (mapc
+   #'(lambda (f)
+       (let ((file-name-handler-alist nil))
+         (load (expand-file-name f emacspeak-lisp-directory))))
+   '("emacspeak-loaddefs.el" "emacspeak-cus-load.el"
+     "g-client/g-loaddefs" "g-client/g-cus-load")))
 ;;}}}
 ;;{{{  Customize groups
 
@@ -109,12 +110,6 @@ the Emacspeak desktop.")
   :group 'accessibility)
 
 ;;;###autoload
-(defcustom emacspeak-startup-hook nil
-  "Hook to run after starting emacspeak."
-  :type 'hook
-  :group 'emacspeak)
-
-;;;###autoload
 (defvar emacspeak-media-player 'emacspeak-m-player
   "Default media player to use.
 This is a Lisp function that takes a resource locator.")
@@ -123,25 +118,30 @@ This is a Lisp function that takes a resource locator.")
 ;;{{{ Package Setup Helper
 
 (defun emacspeak-do-package-setup (package module)
-  "Setup Emacspeak extension for a specific PACKAGE.
-This function adds
+  "Setup Emacspeak extension for a specific PACKAGE.  This function adds
 the appropriate form to `after-load-alist' to set up Emacspeak support
-for a given package.  Argument MODULE specifies the emacspeak module
-that implements the speech-enabling extensions."
+for a given package.  Argument MODULE (a symbol)specifies the emacspeak module
+that implements the speech-enabling extensions for `package' (a string)."
   (eval-after-load package
     `(progn
        (require ',module)
-       (emacspeak-fix-commands-loaded-from
-        (locate-library
-         ,(format "%s" module)))
-       (emacspeak-fix-commands-loaded-from
-        (locate-library
-         ,(format "%s" package))))))
+       (emacspeak-fix-commands-loaded-from ,(format "%s" module))
+       (emacspeak-fix-commands-loaded-from ,package))))
 
 ;;; DocView
 (declare-function doc-view-open-text "doc-view")
-(eval-after-load 'doc-view
+(eval-after-load "doc-view"
   `(add-hook 'doc-view-mode-hook #'doc-view-open-text))
+
+;;; find-func:
+(eval-after-load  "find-func"
+  `(progn
+     (emacspeak-fix-commands-loaded-from "find-func")))
+
+;;; subr.el
+(eval-after-load  "subr"
+  `(progn
+     (emacspeak-fix-commands-loaded-from "find-func")))
 
 ;;}}}
 ;;{{{ Setup package extensions
@@ -184,7 +184,6 @@ that implements the speech-enabling extensions."
 (emacspeak-do-package-setup "dired" 'emacspeak-dired)
 (emacspeak-do-package-setup "dismal" 'emacspeak-dismal)
 (emacspeak-do-package-setup "dictionary" 'emacspeak-dictionary)
-(emacspeak-do-package-setup "dmacro" 'emacspeak-dmacro)
 (emacspeak-do-package-setup "doctor" 'emacspeak-entertain)
 (emacspeak-do-package-setup "dunnet" 'emacspeak-entertain)
 (emacspeak-do-package-setup "ediary" 'emacspeak-ediary)
@@ -224,7 +223,7 @@ that implements the speech-enabling extensions."
 (emacspeak-do-package-setup "go-mode" 'emacspeak-go-mode)
 (emacspeak-do-package-setup "hangman" 'emacspeak-entertain)
 (emacspeak-do-package-setup "hideshow" 'emacspeak-hideshow)
-(emacspeak-do-package-setup "hydra" 'emacspeak-muggles)
+(emacspeak-do-package-setup "hydra" 'emacspeak-hydra)
 (emacspeak-do-package-setup "imenu" 'emacspeak-imenu)
 (emacspeak-do-package-setup "ibuffer" 'emacspeak-ibuffer)
 (emacspeak-do-package-setup "ido" 'emacspeak-ido)
@@ -232,7 +231,7 @@ that implements the speech-enabling extensions."
 (emacspeak-do-package-setup "info" 'emacspeak-info)
 (emacspeak-do-package-setup "ispell" 'emacspeak-ispell)
 (emacspeak-do-package-setup "jabber" 'emacspeak-jabber)
-(emacspeak-do-package-setup "jde" 'emacspeak-jde)
+(emacspeak-do-package-setup "jdee" 'emacspeak-jdee)
 (emacspeak-do-package-setup "js2" 'emacspeak-js2)
 (emacspeak-do-package-setup "indium" 'emacspeak-indium)
 (emacspeak-do-package-setup "js2-mode" 'emacspeak-js2)
@@ -249,6 +248,7 @@ that implements the speech-enabling extensions."
 (emacspeak-do-package-setup "mpg123" 'emacspeak-mpg123)
 (emacspeak-do-package-setup "muse-mode" 'emacspeak-muse)
 (emacspeak-do-package-setup "midge-mode" 'emacspeak-midge)
+(emacspeak-do-package-setup "mines" 'emacspeak-mines)
 (emacspeak-do-package-setup "mpuz" 'emacspeak-entertain)
 (emacspeak-do-package-setup "mspools" 'emacspeak-mspools)
 (emacspeak-do-package-setup "nero" 'emacspeak-nero)
@@ -256,6 +256,7 @@ that implements the speech-enabling extensions."
 (emacspeak-do-package-setup "newsticker" 'emacspeak-newsticker)
 (emacspeak-do-package-setup "nxml-mode" 'emacspeak-nxml)
 (emacspeak-do-package-setup "org" 'emacspeak-org)
+(emacspeak-do-package-setup "origami" 'emacspeak-origami)
 (emacspeak-do-package-setup "outline" 'emacspeak-outline)
 (emacspeak-do-package-setup "perl-mode" 'emacspeak-perl)
 (emacspeak-do-package-setup "php-mode" 'emacspeak-php-mode)
@@ -269,6 +270,7 @@ that implements the speech-enabling extensions."
 (emacspeak-do-package-setup "python-mode" 'emacspeak-py)
 (emacspeak-do-package-setup "racket-mode" 'emacspeak-racket)
 (emacspeak-do-package-setup "re-builder" 'emacspeak-re-builder)
+(emacspeak-do-package-setup "rg" 'emacspeak-rg)
 (emacspeak-do-package-setup "reftex" 'emacspeak-reftex)
 (emacspeak-do-package-setup "rst" 'emacspeak-rst)
 (emacspeak-do-package-setup "related" 'emacspeak-related)
@@ -277,8 +279,10 @@ that implements the speech-enabling extensions."
 (emacspeak-do-package-setup "ruby-mode" 'emacspeak-ruby)
 (emacspeak-do-package-setup "sgml-mode" 'emacspeak-sgml-mode)
 (emacspeak-do-package-setup "sh-script" 'emacspeak-sh-script)
+(emacspeak-do-package-setup "shx" 'emacspeak-shx)
 (emacspeak-do-package-setup "slime" 'emacspeak-slime)
 (emacspeak-do-package-setup "sigbegone" 'emacspeak-sigbegone)
+(emacspeak-do-package-setup "smartparens" 'emacspeak-smartparens)
 (emacspeak-do-package-setup "smart-window" 'emacspeak-smart-window)
 (emacspeak-do-package-setup "solitaire" 'emacspeak-solitaire)
 (emacspeak-do-package-setup "speedbar" 'emacspeak-speedbar)
@@ -303,14 +307,14 @@ that implements the speech-enabling extensions."
 (emacspeak-do-package-setup "texinfo" 'emacspeak-texinfo)
 (emacspeak-do-package-setup "tmm" 'emacspeak-facemenu)
 (emacspeak-do-package-setup "todo-mode" 'emacspeak-todo-mode)
-(emacspeak-do-package-setup "twit" 'emacspeak-twit)
 (emacspeak-do-package-setup "twittering-mode" 'emacspeak-twittering)
+(emacspeak-do-package-setup "typo" 'emacspeak-typo)
+(emacspeak-do-package-setup "vdiff" 'emacspeak-vdiff)
 (emacspeak-do-package-setup "view" 'emacspeak-view)
 (emacspeak-do-package-setup "view-pr" 'emacspeak-view-process)
 (emacspeak-do-package-setup "vm" 'emacspeak-vm)
 (emacspeak-do-package-setup "w3" 'emacspeak-w3)
 (emacspeak-do-package-setup "w3-display" 'emacspeak-w3)
-(emacspeak-do-package-setup "w3m" 'emacspeak-w3m)
 (emacspeak-do-package-setup "wdired" 'emacspeak-wdired)
 (emacspeak-do-package-setup "cus-edit" 'emacspeak-custom)
 (emacspeak-do-package-setup "wid-edit" 'emacspeak-widget)
@@ -345,10 +349,9 @@ that implements the speech-enabling extensions."
                   emacspeak-use-auditory-icons
                   emacspeak-audio-indentation)))
       (mapcar
-       (function
-        (lambda (x)
+        #'(lambda (x)
           (if (not (and (boundp x) (symbol-value x)))
-              (setq vars (delq x vars))))) vars)
+              (setq vars (delq x vars))))vars)
       (reporter-submit-bug-report
        emacspeak-bug-address
        (concat "Emacspeak Version: " emacspeak-version)
@@ -363,7 +366,7 @@ that implements the speech-enabling extensions."
   "Export shell environment.
 This exports emacspeak's system variables to the environment
 so it can be passed to subprocesses."
-  (declare (special emacspeak-directory emacspeak-play-program
+  (cl-declare (special emacspeak-directory emacspeak-play-program
                     emacspeak-sounds-directory))
   (setenv "EMACSPEAK_DIR" emacspeak-directory)
   (setenv "EMACSPEAK_SOUNDS_DIR" emacspeak-sounds-directory)
@@ -381,7 +384,7 @@ so it can be passed to subprocesses."
 Turns on audio indentation and sets
 punctuation mode to all, activates the dictionary and turns on split
 caps."
-  (declare (special dtk-split-caps
+  (cl-declare (special dtk-split-caps
                     emacspeak-audio-indentation))
   (ems-with-messages-silenced
    (dtk-set-punctuations 'all)
@@ -389,37 +392,30 @@ caps."
        (dtk-toggle-split-caps))
    (emacspeak-pronounce-refresh-pronunciations)
    (or emacspeak-audio-indentation
-       (emacspeak-toggle-audio-indentation))
-   (hs-minor-mode 1)))
+       (emacspeak-toggle-audio-indentation))))
 
 (defun emacspeak-setup-programming-modes ()
   "Setup programming modes."
-  (mapcar
+  (add-hook 'prog-mode-hook #'emacspeak-setup-programming-mode)
+  (mapc
    #'(lambda (hook)
-       (add-hook hook 'emacspeak-setup-programming-mode))
-   (list
-    'prog-mode-hook'c-mode-common-hook
-    'conf-unix-mode-hook 'prolog-mode-hook
-    'markdown-mode-hook 'yaml-mode-hook
-    'lisp-mode-hook 'emacs-lisp-mode-hook 'lisp-interaction-mode-hook
-    'javascript-mode-hook 'js2-mode-hook 'lua-mode-hook
-    'scala-mode-hook 'midge-mode-hook 'meta-common-mode-hook
-    'perl-mode-hook 'muse-mode-hook 'cperl-mode-hook
-    'sh-mode-hook 'ruby-mode-hook 'sql-mode-hook
-    'sgml-mode-hook 'xml-mode-hook 'nxml-mode-hook
-    'xsl-mode-hook
-    'makefile-mode-hook
-    'TeX-mode-hook 'LaTeX-mode-hook 'bibtex-mode-hook
-    'tcl-mode-hook
-    'html-helper-mode-hook
-    'scheme-mode-hook
-    'python-mode-hook)))
+       (add-hook hook #'emacspeak-setup-programming-mode))
+   '(
+     conf-unix-mode-hook html-helper-mode-hook
+     markdown-mode-hook muse-mode-hook
+     sgml-mode-hook xml-mode-hook nxml-mode-hook xsl-mode-hook
+     TeX-mode-hook LaTeX-mode-hook bibtex-mode-hook)))
 
 ;;}}}
 ;;{{{ set up after-init-hook to fix interactive functions
 
 (add-hook 'after-init-hook 'emacspeak-fix-commands-that-use-interactive)
-(add-hook 'after-init-hook 'emacspeak-keymap-refresh)
+(run-at-time 10 nil #'emacspeak-fix-commands-that-use-interactive)
+;;}}}
+;;{{{ set up after-init-hook to fix interactive functions
+
+(add-hook 'after-init-hook 'emacspeak-fix-commands-that-use-interactive)
+;(add-hook 'after-init-hook 'emacspeak-keymap-refresh)
 
 ;;}}}
 ;;{{{ Emacspeak:
@@ -429,11 +425,11 @@ caps."
   "If set to T, emacspeak plays its icon as it launches."
   :type 'boolean
   :group 'emacspeak)
-(defun emacspeak-play-startup-icon ()
+(defsubst emacspeak-play-startup-icon ()
   "Play startup icon if requested."
-  (declare (special emacspeak-play-emacspeak-startup-icon))
+  (cl-declare (special emacspeak-play-emacspeak-startup-icon))
   (let ((player  (or (executable-find "mplayer")
-                     (executable-find "mpg321"))))
+                     (executable-find "play"))))
     (when (and  emacspeak-play-emacspeak-startup-icon player)
       (start-process
        "mp3" nil
@@ -480,38 +476,43 @@ Press C-, to access keybindings in emacspeak-alt-keymap:
 See the online documentation \\[emacspeak-open-info] for individual
 commands and options for details."
   (interactive)
-  (declare (special
-            emacspeak-pronounce-load-pronunciations-on-startup
-            emacspeak-info-directory
-            use-dialog-box emacspeak-pronounce-dictionaries-file
-            emacspeak-play-program emacspeak-sounds-directory))
-  (emacspeak-export-environment)
-  (setq use-dialog-box nil)
-  (when (boundp 'Info-directory-list)
-    (push emacspeak-info-directory Info-directory-list))
-  (require 'emacspeak-personality)
-  (dtk-initialize)
-  (tts-configure-synthesis-setup)
-  (require 'emacspeak-redefine)
-  (require 'emacspeak-replace)
-  (require 'emacspeak-advice)
-  (emacspeak-play-startup-icon)
-  (emacspeak-sounds-define-theme-if-necessary emacspeak-sounds-default-theme)
-  (when emacspeak-pronounce-load-pronunciations-on-startup
-    (emacspeak-pronounce-load-dictionaries
-     emacspeak-pronounce-dictionaries-file))
-  (emacspeak-setup-programming-modes)
-  (run-hooks 'emacspeak-startup-hook)
-  (emacspeak-use-customized-blink-paren)
-  (tts-with-punctuations
-   'some
-   (dtk-speak-and-echo
-    (format
-     "  Press %s to get an   overview of emacspeak  %s \
+  (cl-declare (special
+               emacspeak-pronounce-load-pronunciations-on-startup line-move-visual
+               emacspeak-info-directory
+               use-dialog-box emacspeak-pronounce-dictionaries-file
+               emacspeak-play-program emacspeak-sounds-directory))
+  (let ((file-name-handler-alist nil))
+    (emacspeak-export-environment)
+    (setq-default line-move-visual nil)
+    (setq use-dialog-box nil)
+    (when (boundp 'Info-directory-list)
+      (push emacspeak-info-directory Info-directory-list))
+    (require 'emacspeak-personality)
+    (dtk-initialize)
+    (tts-configure-synthesis-setup)
+    (require 'emacspeak-keymap)
+    (require 'emacspeak-redefine)
+    (require 'emacspeak-advice)
+    (emacspeak-sounds-define-theme-if-necessary emacspeak-sounds-default-theme)
+    (when emacspeak-pronounce-load-pronunciations-on-startup
+      (emacspeak-pronounce-load-dictionaries
+       emacspeak-pronounce-dictionaries-file))
+    (emacspeak-setup-programming-modes)
+    (emacspeak-use-customized-blink-paren)
+    (emacspeak-fix-commands-that-use-interactive)
+    (require 'emacspeak-m-player)
+    (run-hooks 'emacspeak-startup-hook)
+    (tts-with-punctuations
+     'some
+     (dtk-speak-and-echo
+      (format
+       "  Press %s to get an   overview of emacspeak  %s \
  I am  completely operational,  and all my circuits are functioning perfectly!"
-     (substitute-command-keys
-      "\\[emacspeak-describe-emacspeak]")
-     emacspeak-version))))
+       (substitute-command-keys
+        "\\[emacspeak-describe-emacspeak]")
+       emacspeak-version)))
+    (emacspeak-play-startup-icon)))
+
 ;;;###autoload
 (defun emacspeak-info ()
   "Open Emacspeak Info Manual."
@@ -535,11 +536,9 @@ commands and options for details."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}
-
-
 
 ;;; emacspeak.el ends here

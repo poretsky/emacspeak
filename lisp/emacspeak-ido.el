@@ -48,7 +48,7 @@
 ;;; conveying a dynamically updating set of choices?
 ;;; current strategy is to walk the list using c-s and c-r as
 ;;; provided by ido
-;;; Set number matches shown to 3 using Custom so you dont hear
+;;; Set number matches shown (ido-max-prospects) to 3 using Custom so you dont hear
 ;;; the entire list.
 
 ;;; Code:
@@ -57,8 +57,10 @@
 
 ;;{{{ required modules
 
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
-(require 'ido)
+(eval-when-compile (require 'ido))
+
 ;;}}}
 ;;{{{ speech-enable feedback routines
 
@@ -69,21 +71,25 @@
   "Cache previous value of ido-current-directory."
   (setq emacspeak-ido-cache-current-directory ido-current-directory))
 
-(defadvice ido-exhibit (after emacspeak pre act comp)
-  "Speak first of the displayed matches."
-  (when (and ido-matches
-             (sit-for 0.5))
-    (emacspeak-auditory-icon 'progress)
+(defgroup emacspeak-ido nil
+  "IDO Completions On The emacspeak Audio Desktop."
+  :group  'emacspeak)
+
+(defcustom emacspeak-ido-typing-delay 0.15
+  "How long we wait before speaking completions."
+  :type 'float 
+  :group 'emacspeak-ido)(defadvice ido-exhibit (after emacspeak pre act comp)
+  "Speak ido minibuffer intelligently."
+  (when  (and ido-matches (sit-for emacspeak-ido-typing-delay))
     (dtk-speak
      (concat 
-      (car ido-matches)
-      (format " %d choices: " (length ido-matches))
       (minibuffer-contents)
+      (format " %d choices: " (length ido-matches))
       (if(or (null ido-current-directory)
              (string-equal ido-current-directory emacspeak-ido-cache-current-directory))
           " "
         (format "In directory: %s"
-                ido-current-directory))))))
+                (abbreviate-file-name ido-current-directory)))))))
 
 ;;}}}
 ;;{{{ speech-enable interactive commands:
@@ -119,6 +125,7 @@ The default value of 12 is too high for using ido effectively with speech. "
     (dtk-speak
      (format "Case %s"
              (if ido-enable-regexp 'on 'off)))))
+
 (defadvice ido-toggle-prefix (after emacspeak pre act comp)
   "Provide auditory feedback."
   (when (ems-interactive-p)
@@ -126,6 +133,7 @@ The default value of 12 is too high for using ido effectively with speech. "
     (dtk-speak
      (format "Prefix %s"
              (if ido-enable-prefix 'on 'off)))))
+
 ;;; forward declaration
 (defvar ido-process-ignore-lists) 
 (defadvice ido-toggle-ignore (after emacspeak pre act comp)
@@ -142,58 +150,25 @@ The default value of 12 is too high for using ido effectively with speech. "
   (when (ems-interactive-p)
     (dtk-speak (car ido-matches))))
 
-(cl-loop for f in
-      '(ido-find-file ido-find-file-other-frame ido-find-file-other-window
-                      ido-find-alternate-file ido-find-file-read-only ido-find-file-read-only-other-window ido-find-file-read-only-other-frame)
-      do
-      (eval
-       `(defadvice   ,f(around emacspeak pre act comp)
-          "Provide auditory feedback."
-          (cond
-           ((ems-interactive-p)
-            (let ((emacspeak-minibuffer-enter-auditory-icon nil))
-              (emacspeak-auditory-icon 'open-object)
-              ad-do-it
-              (emacspeak-auditory-icon 'open-object)
-              (emacspeak-speak-mode-line)))
-           (t ad-do-it))
-          ad-return-value)))
-
-(cl-loop for f in
-      '(ido-switch-buffer ido-switch-buffer-other-window
-                          ido-switch-buffer-other-frame ido-display-buffer)
-      do
-      (eval
-       `(defadvice   ,f(around emacspeak pre act comp)
-          "Provide auditory feedback."
-          (cond
-           ((ems-interactive-p)
-            (let ((emacspeak-minibuffer-enter-auditory-icon nil))
-              (emacspeak-auditory-icon 'open-object)
-              ad-do-it
-              (emacspeak-auditory-icon 'select-object)
-              (emacspeak-speak-mode-line)))
-           (t ad-do-it))
-          ad-return-value)))
+(cl-loop 
+ for f in
+ '(
+   ido-switch-buffer ido-switch-buffer-other-window
+   ido-switch-buffer-other-frame ido-display-buffer
+   ido-find-file ido-find-file-other-frame ido-find-file-other-window
+   ido-find-alternate-file ido-find-file-read-only ido-find-file-read-only-other-window ido-find-file-read-only-other-frame)
+ do
+ (eval
+  `(defadvice   ,f(after emacspeak pre act comp)
+     "Provide auditory feedback."
+     (when (ems-interactive-p)
+       (emacspeak-auditory-icon 'open-object)
+       (emacspeak-speak-mode-line)))))
 
 ;;; note that though these are after advice fragments,
 ;;; ido-matches does not reflect the change at the time we
 ;;; get called.
 ;;; hence the off-by-one hack
-
-(defadvice ido-next-match (after emacspeak pre act comp)
-  "Speak match at the front of the list."
-  (when (ems-interactive-p)
-    (emacspeak-auditory-icon 'select-object)
-    (dtk-speak
-     (second ido-matches))))
-
-(defadvice ido-prev-match (after emacspeak pre act comp)
-  "Speak match at the front of the list."
-  (when (ems-interactive-p)
-    (emacspeak-auditory-icon 'select-object)
-    (dtk-speak
-     (car (last ido-matches)))))
 
 (defadvice ido-kill-buffer-at-head (after emacspeak pre act comp)
   "Provide auditory icon."
@@ -218,12 +193,6 @@ The default value of 12 is too high for using ido effectively with speech. "
     (emacspeak-auditory-icon 'open-object)))
 
 ;;}}}
-;;{{{ Exit Minibuffer:
-(defadvice ido-exit-minibuffer (after emacspeak pre act comp)
-  "Provide auditory feedback."
-  (emacspeak-auditory-icon 'close-object))
-
-;;}}}
 ;;{{{ define personalities 
 
 (defgroup emacspeak-ido nil
@@ -233,10 +202,11 @@ The default value of 12 is too high for using ido effectively with speech. "
 
 (voice-setup-add-map
  '(
-   (ido-first-match voice-brighten-extra)
+   (ido-virtual voice-smoothen)
+   (ido-first-match voice-brighten)
    (ido-only-match voice-bolden)
-   (ido-subdir voice-lighten-extra)
-   (ido-indicator voice-smoothen)
+   (ido-subdir voice-lighten)
+   (ido-indicator voice-brighten)
    (ido-incomplete-regexp voice-monotone)
    (flx-highlight-face voice-bolden)))
 
@@ -245,17 +215,20 @@ The default value of 12 is too high for using ido effectively with speech. "
 
 (defun emacspeak-ido-keys ()
   "Setup additional  keybindings within ido."
-  (declare (special ido-completion-map))
-  (define-key ido-completion-map "\C-f" 'ido-enter-find-file)
-  (define-key ido-completion-map "^" 'ido-up-directory))
+  (cl-declare (special ido-completion-map))
+  (define-key ido-common-completion-map "\C-f" 'ido-enter-find-file)
+  (define-key ido-common-completion-map "^" 'ido-up-directory)
+  (define-key ido-common-completion-map emacspeak-prefix 'emacspeak-prefix-command)
+  (define-key ido-common-completion-map (kbd "M-e")  'ido-edit-input))
 
+(emacspeak-ido-keys)
 ;;}}}
 (provide 'emacspeak-ido)
 ;;{{{ end of file
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

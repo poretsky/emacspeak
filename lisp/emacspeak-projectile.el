@@ -49,8 +49,8 @@
 ;;}}}
 ;;{{{  Required modules
 
-(require 'cl)
-(declaim  (optimize  (safety 0) (speed 3)))
+(require 'cl-lib)
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 
 ;;}}}
@@ -63,6 +63,13 @@
 
 ;;}}}
 ;;{{{ Speech-enable Interactive Commands:
+(defadvice projectile-vc (after emacspeak pre act comp)
+  "Provide auditory feedback."
+  (when (ems-interactive-p)
+    (emacspeak-auditory-icon 'open-object)
+                             (emacspeak-speak-mode-line)))
+
+
 
 (cl-loop
  for f in

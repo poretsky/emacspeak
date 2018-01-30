@@ -46,6 +46,7 @@
 
 ;;}}}
 ;;{{{ requires
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 
 ;;}}}
@@ -59,13 +60,13 @@
   "Commands to speech enable")
 
 (cl-loop for f in emacspeak-find-func-commands
-      do
-      (eval
-       `(defadvice ,f  (after emacspeak pre act comp)
-          "Speak current line"
-          (when  (ems-interactive-p)
-            (emacspeak-auditory-icon 'open-object)
-            (dtk-speak (format "Found %s" (ad-get-arg 0)))))))
+         do
+         (eval
+          `(defadvice ,f  (after emacspeak pre act comp)
+             "Speak current line"
+             (when  (ems-interactive-p)
+               (emacspeak-auditory-icon 'open-object)
+               (dtk-speak (format "Found %s" (ad-get-arg 0)))))))
 
 ;;}}}
 
@@ -74,7 +75,7 @@
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end: 
 
 ;;}}}

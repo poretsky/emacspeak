@@ -49,8 +49,8 @@
 ;;}}}
 ;;{{{  Required modules
 
-(require 'cl)
-(declaim  (optimize  (safety 0) (speed 3)))
+(require 'cl-lib)
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 (require 'json)
 (require 'xkcd "xkcd" 'no-error)
@@ -77,12 +77,11 @@
 ;;; Content downloaded by the time this is called.
 (defun emacspeak-xkcd-get-current-transcript ()
   "Cache current transcript."
-  (declare (special xkcd-cur))
+  (cl-declare (special xkcd-cur))
   (setq 
    xkcd-transcript 
    (cdr 
     (assoc 'transcript (json-read-from-string (xkcd-get-json "" xkcd-cur))))))
-
 
 (defadvice xkcd-get (after emacspeak first pre act comp)
   "Insert cached transcript in xkcd-transcript."
@@ -99,11 +98,18 @@
     (goto-char (point-min))
     (emacspeak-auditory-icon 'open-object)
     (emacspeak-speak-buffer)))
+;;{{{ Advice browse-url-default-browser:
 
+(defadvice browse-url-default-browser (around emacspeak pre act comp)
+  "Use Emacs browser --- rather than an external browser."
+  (when nil ad-do-it) ; to silence byte-compiler 
+  (eww-browse-url (ad-get-arg 0)))
+
+;;}}}
 (defun emacspeak-xkcd-open-explanation-browser ()
   "Open explanation of current xkcd in default browser"
   (interactive)
-  (declare (special xkcd-cur))
+  (cl-declare (special xkcd-cur))
   (browse-url (concat "http://www.explainxkcd.com/wiki/index.php/"
                       (number-to-string xkcd-cur))))
 (when (boundp 'xkcd-mode-map)

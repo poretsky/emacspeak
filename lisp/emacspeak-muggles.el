@@ -39,13 +39,12 @@
 
 ;;; Commentary:
 
-;;; MUGGLES ==  Keybinding Conveniences For The Emacspeak Desktop.
+;;; MUGGLES ==  Emacspeak spells for power-users.
 
 ;;; This module implements no new functionality --- contrast with
 ;;; emacspeak-wizards.  Instead, it uses package hydra to provide
 ;;; convenience key-bindings that access existing Emacspeak
 ;;; functionality.
-;;; This module is automatically loaded if package Hydra is loaded.
 ;;; You need to install package Hydra first:
 ;;; @samp{M-x package-install  hydra}.
 
@@ -58,22 +57,24 @@
 ;;; @item Brightness: <print> Control display brightness using xbacklight.
 ;;; @item View-Mode: <C-c v> Temporarily behave like view-mode.
 ;;; @item Navigate: <s-n> Navigate with ease.
-;;;@item  org-mode structure nav: <C-c SPC> Structure navigation  for org-mode.
+;;;@item  org-mode structure nav: <C-c C-SPC> Structure navigation  for org-mode.
 ;;;@item  org-mode tables: <C-c t> Table UI for org-mode tables.
 ;;;@item m-player: <s-m> Emacspeak-M-Player Commands
 ;;;@item m-player: <s-;> Emacspeak-M-Player muggle
 ;;;@item pianobar: <s-'> Emacspeak-M-pianobar Commands
 ;;; @item hideshow: C-c h Provide HideShow bindings.
+;;; @item origami: C-c / Origami   bindings.
 ;;; @item toggle-option:  <C-c o> Single binding for toggling options.
 ;;; @item outliner: <C-c .> Bindings from outline-minor-mode.
 ;;;@item Info-Summary: <?> in Info Info Summary Muggle
 ;;; @item Repeatable-Yank: <C-y> Smart yank
+;;; @item SmartParens: <C-c ,> Smart Parens 
 ;;;@end itemize
 
 ;;; Emacspeak automatically speaks Hydra hints when displayed.
 ;;; To silence all Hydra hints, set hydra-is-helpful to nil.  To
 ;;; temporarily silence speaking of Hydra hints, Muggles can bind
-;;; command @code{emacspeak-muggles-toggle-talkative}.  As an
+;;; command @code{emacspeak-hydra-toggle-talkative}.  As an
 ;;; example, Muggle @samp{ViewMode} binds @code{s} to this command.
 
 ;;; Code:
@@ -81,19 +82,23 @@
 ;;}}}
 ;;{{{  Required modules
 
-(require 'cl)
-(declaim  (optimize  (safety 0) (speed 3)))
+(require 'cl-lib)
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
-(require 'hideshow)
-(require 'outline)
 (cl-eval-when '(load)
   (when (locate-library "package")
     (unless (locate-library "hydra") (package-install 'hydra))))
-(require 'hydra "hydra" 'no-error)
-(require 'xbacklight)
-(require 'view)
-(require 'org)
-(require 'emacspeak-m-player)
+(require 'emacspeak-hydra)
+(eval-when-compile
+  (require 'hideshow)
+  (require 'emacspeak-maths)
+  (require 'origami "origami" 'no-error)
+  (require 'smartparens "smartparens" 'no-error)
+  (require 'browse-kill-ring "browse-kill-ring" 'no-error)
+  (require 'hydra "hydra" 'no-error)
+  (require 'xbacklight)
+  (require 'view)
+  (require 'emacspeak-m-player))
 
 ;;}}}
 ;;{{{ Generate Muggles From Keymaps:
@@ -104,7 +109,7 @@
 ;;; Invoking that command temporarily activates the previously supplied keymap.
 ;;; That activated keymap remains active until the user presses a key that is not bound in that keymap.
 ;;; Inspired by the Hydra package.
-
+;;;###autoload
 (defun emacspeak-muggles-generate (k-map)
   "Generate a Muggle from specified k-map.
 Argument `k-map' is a symbol  that names a keymap."
@@ -149,58 +154,17 @@ Argument `k-map' is a symbol  that names a keymap."
    (hydra-face-teal voice-lighten-medium)))
 
 ;;}}}
-;;{{{ Toggle Talkative:
-
-(defun emacspeak-muggles-toggle-talkative ()
-  "Toggle state of hydra-is-helpful"
-  (interactive)
-  (declare (special hydra-is-helpful))
-  (setq hydra-is-helpful (not hydra-is-helpful))
-  (emacspeak-auditory-icon (if hydra-is-helpful 'on 'off)))
-
-;;}}}
-;;{{{ Emacspeak Helpers:
-
-(defun emacspeak-muggles-body-pre (&optional name)
-  "Provide auditory icon"
-  (when name (dtk-speak name))
-  (emacspeak-auditory-icon 'open-object))
-
-(defun emacspeak-muggles-pre ()
-  "Provide auditory icon"
-  (emacspeak-auditory-icon 'progress))
-
-(defun emacspeak-muggles-post ()
-  "Provide auditory icon.
-Also turn on hydra-is-helpful if it was turned off."
-  (setq hydra-is-helpful t)
-  (call-interactively #'dtk-stop)
-  (when emacspeak-use-auditory-icons(emacspeak-play-auditory-icon 'close-object)))
-
-;;}}}
-;;{{{ Setup Help And Hint 
-
-;;; We use plain messages:
-
-(setq hydra-head-format "%s "
-      hydra-lv nil)
-
-(defun emacspeak-muggles-self-help (name)
-  "Speak hint for specified Hydra."
-  (message (eval (symbol-value (intern (format "%s/hint" name))))))
-
-;;}}}
 ;;{{{ Brightness:
 
 (global-set-key
  (kbd "<print>")
  (defhydra emacspeak-muggles-brightness
-   (:body-pre (emacspeak-muggles-body-pre "Brightness")
-              :timeout 0.3
-              :pre emacspeak-muggles-pre
-              :post emacspeak-muggles-post)
+   (:body-pre (emacspeak-hydra-body-pre "Brightness")
+              :timeout 0.5
+              :pre emacspeak-hydra-pre
+              :post emacspeak-hydra-post)
    "Brightness "
-   ("?" (emacspeak-muggles-self-help "emacspeak-muggles-brightness") "Help")
+   ("?" (emacspeak-hydra-self-help "emacspeak-muggles-brightness") "Help")
    ("s" xbacklight-set "set")
    ("g" xbacklight-get "Get")
    ("<print>" xbacklight-black "black")
@@ -218,12 +182,12 @@ Also turn on hydra-is-helpful if it was turned off."
  (defhydra emacspeak-muggles-view
    (:body-pre
     (progn
-      (emacspeak-muggles-toggle-talkative)
-      (emacspeak-muggles-body-pre "View"))
+      (emacspeak-hydra-toggle-talkative)
+      (emacspeak-hydra-body-pre "View"))
     :hint nil
-    :pre emacspeak-muggles-pre :post emacspeak-muggles-post)
+    :pre emacspeak-hydra-pre :post emacspeak-hydra-post)
    "View Mode"
-   ("?" (emacspeak-muggles-self-help "emacspeak-muggles-view"))
+   ("?" (emacspeak-hydra-self-help "emacspeak-muggles-view"))
    ("$" set-selective-display)
    ("%"  View-goto-percent)
    ("'" register-to-point)
@@ -261,7 +225,7 @@ Also turn on hydra-is-helpful if it was turned off."
    ("p" View-search-last-regexp-backward)
    ("q" nil "quit")
    ("r" copy-to-register)
-   ("s" emacspeak-muggles-toggle-talkative)
+   ("s" emacspeak-hydra-toggle-talkative)
    ("t" (recenter 0))
    ("u" View-scroll-half-page-backward)
    ("w"emacspeak-speak-word)
@@ -275,20 +239,20 @@ Also turn on hydra-is-helpful if it was turned off."
 ;;{{{ Org Mode Structure Navigation:
 
 (define-key org-mode-map
-  (kbd "C-c SPC")
+  (kbd "C-c C-SPC")
   (defhydra emacspeak-muggles-org-nav
     (:body-pre
      (progn
-       (emacspeak-muggles-toggle-talkative)
-       (emacspeak-muggles-body-pre "OrgNavView"))
+       (emacspeak-hydra-toggle-talkative)
+       (emacspeak-hydra-body-pre "OrgNavView"))
      :hint nil
-     :pre emacspeak-muggles-pre :post emacspeak-muggles-post
+     :pre emacspeak-hydra-pre :post emacspeak-hydra-post
      :color red :columns 3)
     "Org Mode Navigate "
-    ("?" (emacspeak-muggles-self-help "emacspeak-muggles-org-nav"))
+    ("?" (emacspeak-hydra-self-help "emacspeak-muggles-org-nav"))
     ("SPC" emacspeak-outline-speak-this-heading  "Speak this section")
-    ("n" outline-next-visible-heading "next heading")
-    ("p" outline-previous-visible-heading "prev heading")
+    ("n" emacspeak-outline-speak-next-heading  "next heading")
+    ("p" emacspeak-outline-speak-previous-heading "prev heading")
     ("N" org-forward-heading-same-level "next heading at same level")
     ("P" org-backward-heading-same-level "prev heading at same level")
     ("u" outline-up-heading "up heading")
@@ -300,10 +264,13 @@ Also turn on hydra-is-helpful if it was turned off."
 (define-key
   org-mode-map (kbd "C-c t")
   (defhydra emacspeak-muggles-org-table
-    (:body-pre (emacspeak-muggles-body-pre "Org Table UI")
-               :pre emacspeak-muggles-pre :post emacspeak-muggles-post)
+    (:body-pre
+     (progn
+       (emacspeak-hydra-body-pre "Org Table UI")
+       (when hydra-is-helpful (emacspeak-hydra-toggle-talkative)))
+               :pre emacspeak-hydra-pre :post emacspeak-hydra-post)
     "Org Table UI"
-    ("?"(emacspeak-muggles-self-help "emacspeak-muggles-org-table"))
+    ("?"(emacspeak-hydra-self-help "emacspeak-muggles-org-table"))
     ("j" org-table-next-row)
     ("k" org-table-previous-row)
     ("h" org-table-previous-field)
@@ -320,9 +287,9 @@ Also turn on hydra-is-helpful if it was turned off."
 (global-set-key
  (kbd "s-;")
  (defhydra emacspeak-muggles-m-player
-   (:body-pre (emacspeak-muggles-body-pre "Media Player")
+   (:body-pre (emacspeak-hydra-body-pre "Media Player")
               :timeout 0.5
-              :pre emacspeak-muggles-pre :post emacspeak-muggles-post)
+              :pre emacspeak-hydra-pre :post emacspeak-hydra-post)
    (";" emacspeak-m-player)
    ("+" emacspeak-m-player-volume-up)
    ("," emacspeak-m-player-backward-10s)
@@ -386,29 +353,33 @@ Also turn on hydra-is-helpful if it was turned off."
  (kbd "C-c h")
  (defhydra  emacspeak-muggles-hideshow
    (
-    :body-pre (emacspeak-muggles-body-pre  "Hide Show")
-              :pre emacspeak-muggles-pre :post emacspeak-muggles-post :color blue)
+    :body-pre
+    (progn 
+      (emacspeak-hydra-body-pre  "Hide Show")
+      (hs-minor-mode 1))
+    :pre emacspeak-hydra-pre :post emacspeak-hydra-post :color blue)
    "Hideshow"
-   ("?" (emacspeak-muggles-self-help "emacspeak-muggles-hideshow"))
+   ("?" (emacspeak-hydra-self-help "emacspeak-muggles-hideshow"))
    ("h" hs-hide-block)
    ("s" hs-show-block)
    ("H" hs-hide-all)
    ("S" hs-show-all)
+   ("l" hs-hide-level)
    ("i" hs-hide-initial-comment-block)))
 
 ;;}}}
 ;;{{{ Option Toggle
 
 ;;; Cloned from hydra-examples.el and modified to tase.
-(require 'whitespace)
+
 (global-set-key
  (kbd "C-c o")
  (defhydra emacspeak-muggles-toggle-option
-   (:color blue :body-pre (emacspeak-muggles-body-pre "Toggle Option ")
+   (:color blue :body-pre (emacspeak-hydra-body-pre "Toggle Option ")
            :pre (progn
-                  (emacspeak-muggles-pre)
-                  (unless hydra-is-helpful (emacspeak-muggles-toggle-talkative)))
-           :post emacspeak-muggles-post)
+                  (emacspeak-hydra-pre)
+                  (unless hydra-is-helpful (emacspeak-hydra-toggle-talkative)))
+           :post emacspeak-hydra-post)
    "
 _F_ flyspell-mode:       %`flyspell-mode
 _a_ abbrev-mode:       %`abbrev-mode
@@ -417,22 +388,21 @@ _f_ auto-fill-mode:    %`auto-fill-function
 _g_ debug-on-quit:    %`debug-on-quit
 _h_ hydra-is-helpful    %`hydra-is-helpful
 _i_ ido-everywhere    %`ido-everywhere
+_I_ flx-ido-mode    %`flx-ido-mode
 _t_ truncate-lines:    %`truncate-lines
 _u_ ido-ubiquitous-mode:       %`ido-ubiquitous-mode
-_w_ whitespace-mode:   %`whitespace-mode
-
 "
-   ("?" (emacspeak-muggles-self-help "emacspeak-muggles-toggle-option"))
-   ("F" flyspell-mode)
-   ("a" abbrev-mode)
-   ("d" toggle-debug-on-error)
-   ("f" auto-fill-mode)
-   ("g"  toggle-debug-on-quit)
+   ("?" (emacspeak-hydra-self-help "emacspeak-muggles-toggle-option"))
+   ("F" (call-interactively #'flyspell-mode))
+   ("a" (call-interactively #'abbrev-mode))
+   ("d" (call-interactively #'toggle-debug-on-error))
+   ("f" (call-interactively #'auto-fill-mode))
+   ("g"  (call-interactively #'toggle-debug-on-quit))
    ("h" (setq hydra-is-helpful (not hydra-is-helpful)))
-   ("i" ido-everywhere)
-   ("t" toggle-truncate-lines)
-   ("u" ido-ubiquitous-mode "Ubiquitous IDo")
-   ("w" whitespace-mode)
+   ("i" (call-interactively #'ido-mode))
+   ("I" (call-interactively #'flx-ido-mode))
+   ("t" (call-interactively #'toggle-truncate-lines))
+   ("u" (call-interactively #'ido-ubiquitous-mode))
    ("q" nil "quit")))
 
 ;;}}}
@@ -442,11 +412,12 @@ _w_ whitespace-mode:   %`whitespace-mode
 (global-set-key
  (kbd "C-c .")
  (defhydra emacspeak-muggles-outliner
-   (:body-pre (progn
-                (outline-minor-mode 1)
-                (emacspeak-muggles-body-pre "Outline Navigation"))
-              :pre emacspeak-muggles-pre :post emacspeak-muggles-post
-              :color pink :hint nil)
+   (:body-pre
+    (progn
+      (outline-minor-mode 1)
+      (emacspeak-hydra-body-pre "Outline Navigation"))
+    :pre emacspeak-hydra-pre :post emacspeak-hydra-post
+    :color pink :hint nil)
    "
 ^Hide^             ^Show^           ^Move
 ^^^^^^------------------------------------------------------
@@ -458,7 +429,7 @@ _l_: leaves        _s_: subtree     _b_: backward same level
 _d_: subtree
 
 "
-   ("?" (emacspeak-muggles-self-help "emacspeak-muggles-outliner"))
+   ("?" (emacspeak-hydra-self-help "emacspeak-muggles-outliner"))
    ;; Hide
    ("q" outline-hide-sublevels) ; Hide everything but the top-level headings
    ("t" outline-hide-body) ; Hide everything but headings (all body lines)
@@ -491,14 +462,14 @@ _d_: subtree
  (defhydra emacspeak-muggles-navigate
    (:body-pre
     (progn
-      (emacspeak-muggles-body-pre "Move")
-      (emacspeak-muggles-toggle-talkative)
+      (emacspeak-hydra-body-pre "Move")
+      (emacspeak-hydra-toggle-talkative)
       (condition-case nil (next-line) (error nil)))
     :hint nil
-    :pre emacspeak-muggles-pre :post emacspeak-muggles-post)
+    :pre emacspeak-hydra-pre :post emacspeak-hydra-post)
    "move"
-   ("?" (emacspeak-muggles-self-help "emacspeak-muggles-navigate"))
-   ("s" emacspeak-muggles-toggle-talkative "quiet")
+   ("?" (emacspeak-hydra-self-help "emacspeak-muggles-navigate"))
+   ("s" emacspeak-hydra-toggle-talkative "quiet")
    ("n" next-line "next ")
    ("p" previous-line "previous ")
    ("f" forward-char)
@@ -521,8 +492,8 @@ _d_: subtree
 (define-key Info-mode-map (kbd "?")
   (defhydra emacspeak-muggles-info-summary
     (:color blue :hint nil
-            :body-pre (emacspeak-muggles-body-pre "Info Summary")
-            :pre emacspeak-muggles-pre :post emacspeak-muggles-post)
+            :body-pre (emacspeak-hydra-body-pre "Info Summary")
+            :pre emacspeak-hydra-pre :post emacspeak-hydra-post)
     "
 Info-mode:
 
@@ -594,7 +565,6 @@ Info-mode:
 (defun emacspeak-muggles-ido-yank ()
   "Pick what to yank using ido completion."
   (interactive)
-  (require 'ido)
   (when (eq last-command 'yank)
     (delete-region (region-beginning) (region-end)))
   (let ((orig (point)))
@@ -607,28 +577,165 @@ Info-mode:
 (global-set-key (kbd "M-C-y") 'emacspeak-muggles-ido-yank)
 
 (defhydra emacspeak-muggles-yank-pop
-  (:body-pre (emacspeak-muggles-body-pre "Yank")
+  (:body-pre (emacspeak-hydra-body-pre "Yank")
              :pre
              (progn
-               (when hydra-is-helpful (emacspeak-muggles-toggle-talkative))
-               (emacspeak-muggles-pre))
-             :post emacspeak-muggles-post)
+               (when hydra-is-helpful (emacspeak-hydra-toggle-talkative))
+               (emacspeak-hydra-pre))
+             :post emacspeak-hydra-post)
   "Yank"
-  ("?" (emacspeak-muggles-self-help "emacspeak-muggles-yank-pop"))
+  ("?" (emacspeak-hydra-self-help "emacspeak-muggles-yank-pop"))
   ("C-y" yank nil)
   ("M-y" yank-pop nil)
   ("y" (funcall-interactively #'yank-pop 1) "next")
   ("Y" (funcall-interactively #'yank-pop -1) "prev")
   ("i" emacspeak-muggles-ido-yank "IDo Yank" :color blue)
-  ("s" emacspeak-muggles-ido-yank "IDo Yank" :color blue)
   ("l" browse-kill-ring "list" :color blue))
 
 (global-set-key (kbd "M-y") #'emacspeak-muggles-yank-pop/yank-pop)
 (global-set-key (kbd "C-y") #'emacspeak-muggles-yank-pop/yank)
 
 ;;}}}
+;;{{{ origami:
+
+(global-set-key
+   (kbd "C-c /")
+   (defhydra emacspeak-origami
+     (:color red
+:body-pre
+    (progn
+      (origami-mode 1)
+      (emacspeak-hydra-body-pre "Origami")
+      (emacspeak-hydra-toggle-talkative))
+    :hint nil
+    :pre emacspeak-hydra-pre :post emacspeak-hydra-post)
+     "
+    _o_pen node    _n_ext fold       toggle _f_orward
+    _c_lose node   _p_revious fold   toggle _a_ll
+    "
+     ("o" origami-open-node)
+     ("c" origami-close-node)
+     ("n" origami-next-fold)
+     ("p" origami-previous-fold)
+     ("f" origami-forward-toggle-node)
+     ("a" origami-toggle-all-nodes)))
+
+;;}}}
 ;;{{{ hydra-ox:
-(when (locate-library "hydra-ox")(require 'hydra-ox))
+(eval-after-load 'org
+  `(progn
+     (when (locate-library "hydra-ox")
+       (require 'hydra-ox)
+       (define-key org-mode-map (kbd "C-c DEL") 'hydra-ox/body))))
+
+;;}}}
+;;{{{ Muggle: Speak And Browse Math
+
+(global-set-key
+ (kbd "s-SPC")
+ (defhydra emacspeak-muggles-maths-navigator
+   (:body-pre
+    (progn
+      (when hydra-is-helpful (emacspeak-hydra-toggle-talkative))
+      (emacspeak-hydra-body-pre "Spoken Math"))
+    :pre emacspeak-hydra-pre
+    :post emacspeak-hydra-post)
+   "Spoken Math"
+   ("o" emacspeak-maths-switch-to-output :color blue)
+   ("RET" emacspeak-maths-enter-guess)
+   ("SPC" emacspeak-maths-enter "enter")
+   ("a" emacspeak-maths-speak-alt "Alt Text")
+   ("d" emacspeak-maths-depth "Depth")
+                                        ;("r" emacspeak-maths-root "Root")
+   ("<up>" emacspeak-maths-up "Up")
+   ("<down>" emacspeak-maths-down"down")
+   ("<left>" emacspeak-maths-left "left")
+   ("<right>" emacspeak-maths-right "right")))
+
+;;}}}
+;;{{{ smartParens:
+(global-set-key
+ (kbd "C-c ,")
+ (defhydra emacspeak-muggles-smartparens
+   (:body-pre
+    (progn
+      (when hydra-is-helpful (emacspeak-hydra-toggle-talkative))
+      (emacspeak-hydra-body-pre "SmartParens"))
+    :pre emacspeak-hydra-pre
+    :post emacspeak-hydra-post)
+   "Smart Parens"
+   ("'" (lambda (_) (interactive "P") (sp-wrap-with-pair "'")))  
+   ("(" (lambda (_) (interactive "P") (sp-wrap-with-pair "(")))  
+   ("<down>" sp-splice-sexp-killing-forward)  
+   ("<left>" sp-forward-barf-sexp)  
+   ("<right>" sp-forward-slurp-sexp)  
+   ("<up>" sp-splice-sexp-killing-backward)  
+   ("?" (emacspeak-hydra-self-help "emacspeak-muggles-smartparens"))
+   ("C-<left>" sp-backward-barf-sexp)  
+   ("C-<right>" sp-backward-slurp-sexp)
+   ("R" sp-splice-sexp)  
+   ("\"" (lambda (_) (interactive "P") (sp-wrap-with-pair "\"")))  
+   ("a" beginning-of-defun)
+   ("b" sp-backward-sexp)  
+   ("c" sp-convolute-sexp)  
+   ("d" sp-down-sexp)  
+   ("e" end-of-defun)
+   ("f" sp-forward-sexp )  
+   ("i" sp-indent-defun)  
+   ("j" sp-join-sexp)  
+   ("k" sp-kill-sexp)  
+   ("n" sp-next-sexp)  
+   ("p" sp-previous-sexp)  
+   ("r" sp-splice-sexp-killing-around)  
+   ("s" sp-split-sexp)  
+   ("t" sp-transpose-sexp)  
+   ("u" sp-backward-up-sexp)  
+   ("w" sp-copy-sexp)  
+   ("{" (lambda (_) (interactive "P") (sp-wrap-with-pair "{")))  ))
+   
+
+;;}}}
+;;{{{ Muggles Autoload Wizard:
+
+(defvar emacspeak-muggles-pattern
+  "emacspeak-muggles-.*/body$"
+  "Pattern matching muggles we are interested in.")
+
+(defun emacspeak-muggles-enumerate ()
+  "Enumerate all interactive muggles."
+  (cl-declare (special emacspeak-muggles-pattern))
+  (let ((result nil))
+    (mapatoms
+     #'(lambda (s)
+         (let ((name (symbol-name s)))
+           (when
+               (and
+                (commandp s)
+                (string-match emacspeak-muggles-pattern  name))
+             (push s result)))))
+    result))
+
+;;;###autoload
+(defun emacspeak-muggles-generate-autoloads ()
+  "Generate autoload lines for all defined muggles.
+Also generates global keybindings if any."
+  (let ((muggles (emacspeak-muggles-enumerate))
+        (buff
+         (find-file-noselect
+          (expand-file-name "emacspeak-muggles-autoloads.el"
+                            emacspeak-lisp-directory))))
+    (with-current-buffer buff
+      (erase-buffer)
+      (insert ";;; Auto Generated: Do Not Hand Edit.\n\n")
+      (cl-loop
+       for m in muggles do
+       (let ((key  (where-is-internal m nil 'first)))
+       (insert (format "(autoload \'%s \"emacspeak-muggles\" \"%s\" t)\n" m m))
+       (when key 
+       (insert (format "(global-set-key %s \'%s)\n" key m)))))
+      (insert "\n(provide \'emacspeak-muggles-autoloads)\n")
+      (save-buffer))
+    (message "Generated autoloads for muggles.")))
 
 ;;}}}
 (provide 'emacspeak-muggles)

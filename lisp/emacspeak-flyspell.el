@@ -52,81 +52,102 @@
 ;;; @item helm: A helm interface for picking amongst  corrections.
 ;;; @end itemize
 ;;;
-;;; Use Customization emacspeak-flyspell-correct-interface to pick
+;;; Use Customization emacspeak-flyspell-correct to pick
 ;;; between ido, popup and helm.
-
 
 ;;; Code:
 
 ;;}}}
 ;;{{{ Requires
 
-(require 'cl) (declaim (optimize (safety 0) (speed 3))) (require
-'emacspeak-preamble) (require 'flyspell "flyspell" 'no-error)
+(require 'cl-lib)
+(cl-declaim  (optimize  (safety 0) (speed 3)))
+(require 'emacspeak-preamble) (require 'flyspell "flyspell" 'no-error)
 
 ;;}}}
 ;;{{{ define personalities
 
-(defgroup emacspeak-flyspell nil "Emacspeak support for on the fly
-spell checking." :group 'emacspeak :group 'flyspell :prefix
-"emacspeak-flyspell-")
+(defgroup emacspeak-flyspell nil
+  "Emacspeak support for on the
+fly spell checking."
+  :group 'emacspeak
+  :group 'flyspell
+  :prefix "emacspeak-flyspell-")
 
-(voice-setup-add-map '( (flyspell-incorrect voice-bolden)
- (flyspell-duplicate voice-monotone)))
+(voice-setup-add-map
+ '((flyspell-incorrect voice-bolden)
+   (flyspell-duplicate voice-monotone)))
 
 ;;}}}
 ;;{{{ advice
 
-(declaim (special flyspell-delayed-commands)) (when (fboundp
-'emacspeak-self-insert-command) (push 'emacspeak-self-insert-command
-flyspell-delayed-commands))
+(cl-declaim (special flyspell-delayed-commands))
+(when (fboundp 'emacspeak-self-insert-command)
+  (push 'emacspeak-self-insert-command flyspell-delayed-commands))
 
 (defadvice flyspell-auto-correct-word (around emacspeak pre act comp)
-"Speak the correction we inserted." (cond ((ems-interactive-p)
-(ems-with-messages-silenced ad-do-it (dtk-speak (car
-(flyspell-get-word nil))) (when (sit-for 1)(dtk-notify-speak
-(cl-second flyspell-auto-correct-ring))) (when (sit-for 1)
-(emacspeak-speak-message-again)) (emacspeak-auditory-icon
-'select-object))) (t ad-do-it)) ad-return-value)
+  "Speak the correction we inserted."
+  (cond
+   ((ems-interactive-p)
+    (ems-with-messages-silenced
+     ad-do-it
+     (dtk-speak (car (flyspell-get-word nil)))
+     (when (sit-for 1)
+       (dtk-notify-speak (cl-second flyspell-auto-correct-ring)))
+     (when (sit-for 1) (emacspeak-speak-message-again))
+     (emacspeak-auditory-icon 'select-object))) (t ad-do-it)) ad-return-value)
 
-(defadvice flyspell-unhighlight-at (before debug pre act comp) (let
-  ((overlay-list (overlays-at (ad-get-arg 0))) (o nil)) (while
-  overlay-list (setq o (car overlay-list)) (when (flyspell-overlay-p
-  o) (put-text-property (overlay-start o) (overlay-end o) 'personality
-  nil)) (setq overlay-list (cdr overlay-list)))))
+(defadvice flyspell-unhighlight-at (before debug pre act comp)
+  "handle highlight/unhighlight."
+  (let ((overlay-list (overlays-at (ad-get-arg 0)))
+        (o nil))
+    (while overlay-list
+      (setq o (car overlay-list))
+      (when (flyspell-overlay-p o)
+        (put-text-property (overlay-start o) (overlay-end o) 'personality nil))
+      (setq overlay-list (cdr overlay-list)))))
 
-(defadvice flyspell-highlight-incorrect-region (after emacspeak pre
-act comp) "Speak word before point, followed by default correction."
-(emacspeak-speak-word) (emacspeak-auditory-icon 'help))
+(add-hook
+ 'flyspell-incorrect-hook
+ #'(lambda (_s _e p)
+     (unless (eq p 'doublon) (emacspeak-auditory-icon 'help))
+     nil))
 
 ;;}}}
 ;;{{{ use flyspell-correct if available:
 
-(defcustom emacspeak-flyspell-correct (cond ((locate-library
-  "flyspell-correct-popup") 'flyspell-correct-popup) ((locate-library
-  "flyspell-correct-ido") 'flyspell-correct-ido) ((locate-library
-  "flyspell-correct-helm") 'flyspell-correct-helm) (t nil))
-  "Correction style to use with flyspell." :type 'symbol)
-   
+(defcustom emacspeak-flyspell-correct
+  (cond
+   ((locate-library "flyspell-correct-popup") 'flyspell-correct-popup)
+   ((locate-library "flyspell-correct-ido") 'flyspell-correct-ido)
+   ((locate-library "flyspell-correct-helm") 'flyspell-correct-helm)
+   (t nil))
+  "Correction style to use with flyspell."
+  :type 'symbol)
+
 ;;; flyspell-correct is available on melpa:
 
-(when (locate-library "flyspell-correct") (define-key
-  flyspell-mode-map (kbd "C-;")
-  'flyspell-correct-previous-word-generic) (require
-  emacspeak-flyspell-correct))
+(when (locate-library "flyspell-correct")
+  (define-key flyspell-mode-map (kbd "C-;") 'flyspell-correct-previous-word-generic)
+  (require emacspeak-flyspell-correct))
 
-(cl-loop for f in '(flyspell-correct-word-generic
- flyspell-correct-previous-word-generic) do (eval `(defadvice ,f
- (after emacspeak pre act comp) "Speak word." (when
- (ems-interactive-p) (dtk-speak (car (flyspell-get-word nil)) )))))
+(cl-loop
+ for f in
+ '(flyspell-correct-word-generic flyspell-correct-previous-word-generic)
+ do
+ (eval
+  `(defadvice ,f (after emacspeak pre act comp)
+     "Speak word."
+     (when (ems-interactive-p)
+       (dtk-speak (car (flyspell-get-word nil)))))))
 
 ;;}}}
 (provide 'emacspeak-flyspell)
 ;;{{{ emacs local variables
 
-;;; local variables: 
+;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

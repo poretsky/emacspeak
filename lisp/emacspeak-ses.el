@@ -48,6 +48,7 @@
 ;;{{{ required modules
 
 ;;; Code:
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 (require 'ses)
 ;;}}}
@@ -63,14 +64,14 @@
 
 (defun emacspeak-ses-current-cell-value ()
   "Return current cell value."
-  (declare (special ses--named-cell-hashmap ses--cells))
+  (cl-declare (special ses--named-cell-hashmap ses--cells))
   (ses-cell-value
    (car (ses-sym-rowcol (emacspeak-ses-current-cell-symbol)))
    (cdr (ses-sym-rowcol (emacspeak-ses-current-cell-symbol)))))
 
 (defun emacspeak-ses-get-cell-value-by-name (cell-name)
   "Return current  value of cell specified by name."
-  (declare (special ses--named-cell-hashmap ses--cells))
+  (cl-declare (special ses--named-cell-hashmap ses--cells))
   (ses-cell-value
    
    (car (ses-sym-rowcol cell-name))
@@ -137,7 +138,7 @@
 
 (defun emacspeak-ses-setup ()
   "Setup SES for use with emacspeak."
-  (declare (special ses-mode-map))
+  (cl-declare (special ses-mode-map))
   )
 
 (defadvice ses-forward-or-insert (after emacspeak pre act comp)
@@ -170,7 +171,7 @@
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

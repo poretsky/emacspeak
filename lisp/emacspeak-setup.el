@@ -54,10 +54,9 @@
 ;;}}}
 ;;{{{ Required Modules
 
-(eval-when-compile (require 'cl))
-(declaim  (optimize  (safety 0) (speed 3)))
+(require 'cl-lib)
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'custom)
-(eval-when (compile) (require 'emacspeak-preamble))
 
 ;;}}}
 ;;{{{  Define locations
@@ -131,19 +130,34 @@ such as pronunciation dictionaries are stored. ")
 ;;}}}
 ;;{{{ Hooks
 
-(add-to-list 'load-path emacspeak-lisp-directory)
-(add-to-list 'load-path (expand-file-name "g-client" emacspeak-lisp-directory))
+(push emacspeak-lisp-directory load-path)
+(push (expand-file-name "g-client" emacspeak-lisp-directory) load-path)
 
-(load-library "emacspeak")
+(let ((file-name-handler-alist nil))
+  (load (expand-file-name "emacspeak.elc" emacspeak-lisp-directory)))
 
-(defvar dtk-startup-hook nil)
+;;;###autoload
+(defcustom dtk-startup-hook
+  '(emacspeak-tts-startup-hook emacspeak-tts-notify-hook)
+  "List of hooks to be run after starting up the speech server.
+Set things like speech rate, punctuation mode etc in this
+hook."
+  :type 'hook
+  :group 'tts)
+
 ;;;###autoload
 (defun emacspeak-tts-startup-hook ()
   "Default hook function run after TTS is started."
-  (declare (special dtk-program))
+  (cl-declare (special dtk-program))
   (tts-configure-synthesis-setup dtk-program))
 
-(add-hook 'dtk-startup-hook 'emacspeak-tts-startup-hook)
+
+;;;###autoload
+(defcustom tts-notification-device
+  (cl-first (split-string (shell-command-to-string  "aplay -L 2>/dev/null | grep mono")))
+  "Virtual ALSA device to use for notifications stream."
+  :type 'string
+  :group 'tts)
 
 ;;;###autoload
 (defun emacspeak-tts-multistream-p (tts-engine)
@@ -160,29 +174,36 @@ such as pronunciation dictionaries are stored. ")
 
 (defun emacspeak-tts-use-notify-stream-p ()
   "Predicate to check if we use a separate notify stream."
-  (declare (special emacspeak-tts-use-notify-stream))
+  (cl-declare (special emacspeak-tts-use-notify-stream))
   emacspeak-tts-use-notify-stream)
 
 (defun emacspeak-tts-notify-hook ()
   "Starts up a notification stream if current synth supports  multiple invocations.
 TTS engine should use ALSA for this to be usable."
-       (declare (special dtk-program dtk-notify-process
-                         emacspeak-tts-use-notify-stream))
-       (when (process-live-p dtk-notify-process) (delete-process dtk-notify-process))
-       (when (and emacspeak-tts-use-notify-stream (emacspeak-tts-multistream-p dtk-program))
-         (dtk-notify-initialize)))
+  (cl-declare (special dtk-program dtk-notify-process
+                       emacspeak-tts-use-notify-stream))
+  (when (process-live-p dtk-notify-process) (delete-process dtk-notify-process))
+  (when (and emacspeak-tts-use-notify-stream (emacspeak-tts-multistream-p dtk-program))
+    (dtk-notify-initialize)))
 
-(add-hook 'dtk-startup-hook 'emacspeak-tts-notify-hook 'at-end)
-
-(defvar emacspeak-startup-hook nil)
+;;;###autoload
 (defun emacspeak-setup-header-line ()
   "Set up Emacspeak to speak a default header line."
-  (declare (special emacspeak-use-header-line
-                    header-line-format emacspeak-header-line-format))
+  (cl-declare (special emacspeak-use-header-line
+                       header-line-format emacspeak-header-line-format))
   (when emacspeak-use-header-line
     (setq header-line-format emacspeak-header-line-format)))
 
-(add-hook 'emacspeak-startup-hook 'emacspeak-setup-header-line)
+(defun emacspeak-turn-off-visual-line-mode ()
+  "This function turns off visual line mode globally.
+It's placed by default on customizable option `emacspeak-startup-hook'."
+  (global-visual-line-mode -1))
+;;;###autoload
+(defcustom emacspeak-startup-hook
+  '(emacspeak-setup-header-line emacspeak-turn-off-visual-line-mode)
+  "Hook run after Emacspeak is started."
+  :type 'hook
+  :group 'emacspeak)
 
 (defvar emacspeak-info-already-loaded nil
   "Track info support load.")
@@ -190,11 +211,13 @@ TTS engine should use ALSA for this to be usable."
 (add-hook
  'Info-mode-hook
  #'(lambda ()
-     (unless emacspeak-info-already-loaded
-       (load-library "emacspeak-info")
+     (let ((file-name-handler-alist nil))
+       (unless emacspeak-info-already-loaded
+         (load-library "emacspeak-info"))
        (setq emacspeak-info-already-loaded t))))
 
 ;;}}}
+
 (emacspeak)
 
 (provide 'emacspeak-setup)

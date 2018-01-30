@@ -38,6 +38,7 @@
 
 ;;}}}
 ;;{{{ Required modules 
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 ;;}}}
 ;;{{{  Introduction:
@@ -135,14 +136,14 @@ Provide auditory feedback after formatting region"
              post-self-insert-hook
              (memq 'emacspeak-post-self-insert-hook post-self-insert-hook))
   (cl-loop for f in
-        '(TeX-insert-dollar TeX-insert-backslash
-                            LaTeX-babel-insert-hyphen)
-        do
-        (eval
-         `(defadvice ,f (after emacspeak pre act comp)
-            "Speak what you inserted"
-            (when (ems-interactive-p)
-              (emacspeak-speak-this-char  (preceding-char)))))))
+           '(TeX-insert-dollar TeX-insert-backslash
+                               LaTeX-babel-insert-hyphen)
+           do
+           (eval
+            `(defadvice ,f (after emacspeak pre act comp)
+               "Speak what you inserted"
+               (when (ems-interactive-p)
+                 (emacspeak-speak-this-char  (preceding-char)))))))
 
 ;;}}}
 ;;{{{  Inserting structures
@@ -214,7 +215,7 @@ the opening line of the newly inserted environment. "
 (add-hook  'LaTeX-mode-hook
            (function
             (lambda ()
-              (declare (special imenu-generic-expression
+              (cl-declare (special imenu-generic-expression
                                 imenu-create-index-function))
               (require 'imenu)
               (setq imenu-create-index-function 'imenu-default-create-index-function)
@@ -245,7 +246,7 @@ the opening line of the newly inserted environment. "
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end: 
 
 ;;}}}

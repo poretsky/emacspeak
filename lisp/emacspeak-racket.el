@@ -47,8 +47,8 @@
 ;;}}}
 ;;{{{  Required modules
 
-(require 'cl)
-(declaim  (optimize  (safety 0) (speed 3)))
+(require 'cl-lib)
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 
 ;;}}}
@@ -96,11 +96,11 @@
  for f in
  '(
    racket-visit-module racket-visit-definition
-                       racket-smart-open-bracket racket-insert-lambda racket-insert-closing
-                       racket-indent-line racket-check-syntax-mode-goto-def
-                       racket-check-syntax-mode-goto-next-def racket-check-syntax-mode-goto-next-use
-                       racket-check-syntax-mode-goto-prev-def racket-check-syntax-mode-goto-prev-use
-                       racket-backward-up-list)
+   racket-smart-open-bracket racket-insert-lambda racket-insert-closing
+   racket-indent-line racket-check-syntax-mode-goto-def
+   racket-check-syntax-mode-goto-next-def racket-check-syntax-mode-goto-next-use
+   racket-check-syntax-mode-goto-prev-def racket-check-syntax-mode-goto-prev-use
+   racket-backward-up-list)
  do
  (eval
   `(defadvice ,f (after emacspeak pre act comp)

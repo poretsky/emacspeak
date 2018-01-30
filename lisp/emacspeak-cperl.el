@@ -39,6 +39,7 @@
 
 ;;{{{ required modules 
 
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 ;;}}}
 ;;{{{  Introduction:
@@ -69,15 +70,15 @@
              post-self-insert-hook
              (memq 'emacspeak-post-self-insert-hook post-self-insert-hook))
   (cl-loop for e in emacspeak-cperl-electric-insertion-commands-to-advice
-        do
-        (eval
-         `(defadvice ,e (after emacspeak pre act comp)
-            "Speak what you inserted.
+           do
+           (eval
+            `(defadvice ,e (after emacspeak pre act comp)
+               "Speak what you inserted.
 Cue electric insertion with a tone."
-            (when (ems-interactive-p)
-              (let ((emacspeak-speak-messages nil))
-                (emacspeak-speak-this-char last-input-event)
-                (dtk-tone 800 100 t)))))))
+               (when (ems-interactive-p)
+                 (let ((emacspeak-speak-messages nil))
+                   (emacspeak-speak-this-char last-input-event)
+                   (dtk-tone 800 100 t)))))))
 
 (defadvice cperl-electric-backspace (around emacspeak pre act)
   "Speak character you're deleting."
@@ -93,7 +94,7 @@ Cue electric insertion with a tone."
   "Speak the previous line if line echo is on. 
   See command \\[emacspeak-toggle-line-echo].
 Otherwise cue user to the line just created. "
-  (declare (special emacspeak-line-echo))
+  (cl-declare (special emacspeak-line-echo))
   (cond
    ((ems-interactive-p)
     (cond
@@ -204,12 +205,12 @@ Otherwise cue user to the line just created. "
 ;;{{{ set up hooks 
 
 (add-hook 'cperl-mode-hook
-          (function (lambda ()
+          #'(lambda ()
                       (dtk-set-punctuations 'all)
                       (or dtk-split-caps
                           (dtk-toggle-split-caps))
                       (or emacspeak-audio-indentation
-                          (emacspeak-toggle-audio-indentation)))))
+                          (emacspeak-toggle-audio-indentation))))
 
 ;;}}}
 (provide  'emacspeak-cperl)
@@ -217,7 +218,7 @@ Otherwise cue user to the line just created. "
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end: 
 
 ;;}}}

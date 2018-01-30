@@ -1,4 +1,4 @@
-;;; outloud-voices.el --- Define various device independent voices in terms of OutLoud tags  -*- lexical-binding: t; -*-
+;;; outloud-voices.el --- Define  OutLoud tags  -*- lexical-binding: t; -*-
 ;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Module to set up Eloquent voices and personalities
@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;;Copyright (C) 1995 -- 2017, T. V. Raman 
+;;;Copyright (C) 1995 -- 2017, T. V. Raman
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -48,8 +48,8 @@
 ;;}}}
 ;;{{{ Required modules
 
-(require 'cl)
-(declaim  (optimize  (safety 0) (speed 3)))
+(require 'cl-lib)
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'acss-structure)
 (require 'dtk-unicode)
 (require 'tts)
@@ -65,7 +65,7 @@
            (set-default sym val)
            (when (and (getenv "DTK_PROGRAM")
                       (string-match "outloud" (getenv "DTK_PROGRAM")))
-           (setq-default dtk-speech-rate val))))
+             (setq-default dtk-speech-rate val))))
 
 ;;}}}
 ;;{{{ Forward declarations:
@@ -105,28 +105,28 @@ The string can set any voice parameter.")
   "Define a Outloud  voice named NAME.
 This voice will be set   by sending the string
 COMMAND-STRING to the TTS engine."
-  (declare (special outloud-voice-table))
+  (cl-declare (special outloud-voice-table))
   (puthash name command-string outloud-voice-table))
 
 (defun outloud-get-voice-command-internal  (name)
   "Retrieve command string for  voice NAME."
-  (declare (special outloud-voice-table))
+  (cl-declare (special outloud-voice-table))
   (cond
    ((listp name)
-    (mapconcat #'outloud-get-voice-command name " "))
+    (mapconcat #'outloud-get-voice-command-internal name " "))
    (t (or  (gethash name outloud-voice-table)
            outloud-default-voice-string))))
 
 (defun outloud-get-voice-command (name)
   "Retrieve command string for  voice NAME."
-  (declare (special dtk-speech-rate))
-  (concat 
+  (cl-declare (special dtk-speech-rate))
+  (concat
    (outloud-get-voice-command-internal name)
    (format "`vs%s" dtk-speech-rate)))
 
 (defun outloud-voice-defined-p (name)
   "Check if there is a voice named NAME defined."
-  (declare (special outloud-voice-table))
+  (cl-declare (special outloud-voice-table))
   (gethash name outloud-voice-table))
 
 ;;}}}
@@ -171,13 +171,13 @@ Values are vectors holding the control codes for the 10 settings.")
   "Set up voice FAMILY.
 Argument DIMENSION is the dimension being set,
 and TABLE gives the values along that dimension."
-  (declare (special outloud-css-code-tables))
+  (cl-declare (special outloud-css-code-tables))
   (let ((key (intern (format "%s-%s" family dimension))))
     (puthash key table outloud-css-code-tables)))
 
 (defun outloud-css-get-code-table (family dimension)
   "Retrieve table of values for specified FAMILY and DIMENSION."
-  (declare (special outloud-css-code-tables))
+  (cl-declare (special outloud-css-code-tables))
   (let ((key (intern (format "%s-%s" family dimension))))
     (gethash key outloud-css-code-tables)))
 
@@ -199,15 +199,15 @@ and TABLE gives the values along that dimension."
 ;;; produce a more natural change on the TTS engine.
 
 ;;{{{  paul average pitch
-;;; median: pitch: 65  head-size 50 
+;;; median: pitch: 65  head-size 50
 (let ((table (make-vector 10 "")))
-  (mapcar
+  (mapc
    #'(lambda (setting)
        (aset table
-             (first setting)
+             (cl-first setting)
              (format
               " `vb%s `vh%s "
-              (second setting) (third setting))))
+              (cl-second setting) (cl-third setting))))
    '(
      (0 40 75) ; pitch, head-size
      (1 45 70)
@@ -226,14 +226,13 @@ and TABLE gives the values along that dimension."
 
 (let ((table (make-vector 10 "")))
 
-  (mapcar
-   (function
-    (lambda (setting)
-      (aset table
-            (first setting)
-            (format " `vb%s `vh% s"
-                    (second setting)
-                    (third setting)))))
+  (mapc
+   #'(lambda (setting)
+       (aset table
+             (cl-first setting)
+             (format " `vb%s `vh% s"
+                     (cl-second setting)
+                     (cl-third setting))))
    '(
      (0 0 90)
      (1 10 85)
@@ -250,17 +249,16 @@ and TABLE gives the values along that dimension."
 ;;}}}
 ;;{{{  betty average pitch
 
-;;;defalt baseline is average pitch of 81 
+;;;defalt baseline is average pitch of 81
 
 (let ((table (make-vector 10 "")))
-  (mapcar
-   (function
-    (lambda (setting)
-      (aset table
-            (first setting)
-            (format " `vb%s `vh% s"
-                    (second setting)
-                    (third setting)))))
+  (mapc
+   #'(lambda (setting)
+       (aset table
+             (cl-first setting)
+             (format " `vb%s `vh% s"
+                     (cl-second setting)
+                     (cl-third setting))))
    '(
      (0 5 70)
      (1 17 66)
@@ -279,7 +277,7 @@ and TABLE gives the values along that dimension."
 (defun outloud-get-average-pitch-code (value family)
   "Get  AVERAGE-PITCH for specified VALUE and  FAMILY."
   (or family (setq family 'paul))
-  (if value 
+  (if value
       (aref (outloud-css-get-code-table family 'average-pitch)
             value)
     ""))
@@ -295,12 +293,12 @@ and TABLE gives the values along that dimension."
 ;;{{{  paul pitch range
 
 (let ((table (make-vector 10 "")))
-  (mapcar
+  (mapc
    #'(lambda (setting)
        (aset table
-             (first setting)
+             (cl-first setting)
              (format
-              " `vf%s  " (second setting))))
+              " `vf%s  " (cl-second setting))))
    '(
      (0 0)
      (1 5)
@@ -318,13 +316,12 @@ and TABLE gives the values along that dimension."
 ;;{{{  harry pitch range
 
 (let ((table (make-vector 10 "")))
-  (mapcar
-   (function
-    (lambda (setting)
-      (aset table
-            (first setting)
-            (format " `vf%s  "
-                    (second setting)))))
+  (mapc
+   #'(lambda (setting)
+       (aset table
+             (cl-first setting)
+             (format " `vf%s  "
+                     (cl-second setting))))
    '(
      (0 0)
      (1 5)
@@ -342,13 +339,12 @@ and TABLE gives the values along that dimension."
 ;;{{{  betty pitch range
 
 (let ((table (make-vector 10 "")))
-  (mapcar
-   (function
-    (lambda (setting)
-      (aset table
-            (first setting)
-            (format " `vf%s  "
-                    (second setting)))))
+  (mapc
+   #'(lambda (setting)
+       (aset table
+             (cl-first setting)
+             (format " `vf%s  "
+                     (cl-second setting))))
    '(
      (0 0)
      (1 5)
@@ -366,7 +362,7 @@ and TABLE gives the values along that dimension."
 (defun outloud-get-pitch-range-code (value family)
   "Get pitch-range code for specified VALUE and FAMILY."
   (or family (setq family 'paul))
-  (if value 
+  (if value
       (aref (outloud-css-get-code-table family 'pitch-range)
             value)
     ""))
@@ -379,11 +375,11 @@ and TABLE gives the values along that dimension."
 ;;{{{  paul stress
 
 (let ((table (make-vector 10 "")))
-  (mapcar
+  (mapc
    #'(lambda (setting)
-       (aset table (first setting)
+       (aset table (cl-first setting)
              (format " `vr%s  "
-                     (second setting))))
+                     (cl-second setting))))
 ;;; stress markers not used for now.
    '(
      (0 0 "`00")
@@ -403,7 +399,7 @@ and TABLE gives the values along that dimension."
 ;;}}}
 (defun outloud-get-stress-code (value family)
   (or family (setq family 'paul))
-  (if value 
+  (if value
       (aref (outloud-css-get-code-table family 'stress)
             value)
     ""))
@@ -414,14 +410,14 @@ and TABLE gives the values along that dimension."
 ;;{{{  paul richness
 
 (let ((table (make-vector 10 "")))
-  (mapcar
+  (mapc
    #'(lambda (setting)
        (aset table
-             (first setting)
+             (cl-first setting)
              (format
               " `vy%s  `vv%s "
-              (second setting) (third setting))))
-   '(; whisper, volume 
+              (cl-second setting) (cl-third setting))))
+   '(; whisper, volume
      (0 0 60)
      (1 4 78)
      (2 8 80)
@@ -440,7 +436,7 @@ and TABLE gives the values along that dimension."
 
 (defun outloud-get-richness-code (value family)
   (or family (setq family 'paul))
-  (if value 
+  (if value
       (aref (outloud-css-get-code-table family 'richness)
             value)
     ""))
@@ -460,7 +456,7 @@ and TABLE gives the values along that dimension."
   "Define NAME to be a outloud voice as specified by settings in STYLE."
   (let* ((family(acss-family style))
          (command
-          (concat 
+          (concat
            (outloud-get-family-code family)
            (outloud-get-punctuations-code (acss-punctuations style))
            (outloud-get-average-pitch-code (acss-average-pitch style) family)
@@ -470,35 +466,37 @@ and TABLE gives the values along that dimension."
     (outloud-define-voice name command)))
 
 ;;}}}
-;;{{{ list voices 
+;;{{{ list voices
 
 (defun outloud-list-voices ()
   "List defined voices."
-  (declare (special outloud-voice-table))
+  (cl-declare (special outloud-voice-table))
   (cl-loop for k being the hash-keys of outloud-voice-table collect   k))
 
 ;;}}}
-;;{{{ Configurater 
+;;{{{ Configurater
 ;;;###autoload
 (defun outloud-configure-tts ()
   "Configure TTS environment to use ViaVoice  family of synthesizers."
-  (declare (special tts-default-speech-rate tts-default-voice
-                    outloud-default-speech-rate
-                    dtk-speech-rate-step dtk-speech-rate-base))
+  (cl-declare (special tts-default-speech-rate tts-default-voice
+                       outloud-default-speech-rate
+                       dtk-speech-rate-step dtk-speech-rate-base))
   (fset 'tts-list-voices'outloud-list-voices)
   (fset 'tts-voice-defined-p 'outloud-voice-defined-p)
   (fset 'tts-get-voice-command 'outloud-get-voice-command)
-  (fset 'tts-define-voice-from-speech-style 'outloud-define-voice-from-speech-style)
+  (fset
+   'tts-define-voice-from-speech-style 'outloud-define-voice-from-speech-style)
   (setq tts-default-voice 'paul)
   (setq tts-default-speech-rate outloud-default-speech-rate)
   (set-default 'tts-default-speech-rate outloud-default-speech-rate)
-  (setq dtk-speech-rate-step 8
+  (setq dtk-speech-rate-step 10
         dtk-speech-rate-base 50
         dtk-speech-rate outloud-default-speech-rate)
-  (setq-default dtk-speech-rate-step 8
+  (setq-default dtk-speech-rate-step 10
                 dtk-speech-rate outloud-default-speech-rate
                 dtk-speech-rate-base 50)
-  (dtk-unicode-update-untouched-charsets '(ascii latin-iso8859-1 latin-iso8859-15 latin-iso8859-9 eight-bit-graphic)))
+  (dtk-unicode-update-untouched-charsets
+   '(ascii latin-iso8859-1 latin-iso8859-15 latin-iso8859-9 eight-bit-graphic)))
 
 ;;}}}
 ;;{{{  tts-env for Outloud:
@@ -506,7 +504,7 @@ and TABLE gives the values along that dimension."
 ;;;###autoload
 (defun outloud-make-tts-env  ()
   "Constructs a TTS environment for Outloud."
-  (declare (special outloud-default-speech-rate))
+  (cl-declare (special outloud-default-speech-rate))
   (make-tts-env
    :name :outloud :default-voice 'paul
    :default-speech-rate outloud-default-speech-rate
@@ -524,8 +522,8 @@ and TABLE gives the values along that dimension."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

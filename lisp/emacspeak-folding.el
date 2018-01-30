@@ -37,6 +37,7 @@
 
 ;;}}}
 ;;{{{ requires
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 
 ;;}}}
@@ -85,12 +86,13 @@ Then speak the folded line."
 (defadvice fold-hide (after emacspeak pre act)
   "Provide auditory feedback"
   (when (ems-interactive-p)
+    (emacspeak-speak-line)
     (emacspeak-auditory-icon 'close-object)
     (message "Hid current fold")))
 
 ;;}}}
 ;;{{{ Fix keymap:
-(declaim (special folding-mode-map))
+(cl-declaim (special folding-mode-map))
 (when (boundp 'folding-mode-map)
   (define-key folding-mode-map "\C-e" 'emacspeak-prefix-command))
 
@@ -100,7 +102,7 @@ Then speak the folded line."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end: 
 
 ;;}}}

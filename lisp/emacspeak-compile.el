@@ -47,6 +47,7 @@
 
 ;;}}}
 ;;{{{ Required modules
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 
 ;;}}}
@@ -58,7 +59,9 @@
    (compilation-info voice-lighten)
    (compilation-error voice-animate-extra)
    (compilation-warning voice-animate)
-   ))
+   (compilation-mode-line-exit voice-animate)
+   (compilation-mode-line-fail voice-brighten)
+   (compilation-mode-line-run voice-annotate)))
 
 ;;}}}
 ;;{{{  functions
@@ -73,32 +76,32 @@
 ;;}}}
 ;;{{{  advice  interactive commands
 (cl-loop for f in 
-      '(
-        next-error previous-error
-                   compilation-next-file compilation-previous-file
-                   compile-goto-error compile-mouse-goto-error
-                   )
-      do
-      (eval
-       `(defadvice ,f (after  emacspeak pre act)
-          "Speak the line containing the error. "
-          (when (ems-interactive-p)
-            (dtk-stop)
-            (emacspeak-compilation-speak-error)))))
+         '(
+           next-error previous-error
+           compilation-next-file compilation-previous-file
+           compile-goto-error compile-mouse-goto-error
+           )
+         do
+         (eval
+          `(defadvice ,f (after  emacspeak pre act)
+             "Speak the line containing the error. "
+             (when (ems-interactive-p)
+               (dtk-stop)
+               (emacspeak-compilation-speak-error)))))
 
 (cl-loop for f in 
-      '(
-        compilation-next-error
-        compilation-previous-error
-        next-error-no-select
-        previous-error-no-select)
-      do
-      (eval
-       `(defadvice ,f (after emacspeak pre act comp)
-          "Provide spoken feedback."
-          (when (ems-interactive-p)
-            (emacspeak-speak-line)
-            (emacspeak-auditory-icon 'select-object)))))
+         '(
+           compilation-next-error
+           compilation-previous-error
+           next-error-no-select
+           previous-error-no-select)
+         do
+         (eval
+          `(defadvice ,f (after emacspeak pre act comp)
+             "Provide spoken feedback."
+             (when (ems-interactive-p)
+               (emacspeak-speak-line)
+               (emacspeak-auditory-icon 'select-object)))))
 ;;}}}
 ;;{{{ advise process filter and sentinels
 
@@ -122,7 +125,7 @@
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end: 
 
 ;;}}}

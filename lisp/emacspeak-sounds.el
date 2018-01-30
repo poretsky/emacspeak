@@ -63,11 +63,10 @@
 ;;{{{ required modules
 
 ;;; Code:
-(eval-when-compile (require 'cl))
-(declaim  (optimize  (safety 0) (speed 3)))
+(require 'cl-lib)
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'custom)
-(eval-when (compile)
-  (require 'dtk-speak))
+(eval-when-compile (require 'dtk-speak))
 
 ;;}}}
 ;;{{{  state of auditory icons
@@ -108,7 +107,7 @@ use `emacspeak-toggle-auditory-icons' bound to
 ;;;###autoload
 (defun emacspeak-sounds-define-theme (theme-name file-ext)
   "Define a sounds theme for auditory icons. "
-  (declare (special emacspeak-sounds-themes-table))
+  (cl-declare (special emacspeak-sounds-themes-table))
   (setq theme-name (intern theme-name))
   (setf (gethash  theme-name emacspeak-sounds-themes-table)
         file-ext))
@@ -119,7 +118,7 @@ use `emacspeak-toggle-auditory-icons' bound to
 
 ;;;###autoload
 (defcustom emacspeak-sounds-default-theme
-  (expand-file-name "3d/" emacspeak-sounds-directory)
+  (expand-file-name "pan-chimes/" emacspeak-sounds-directory)
   "Default theme for auditory icons. "
   :type '(directory :tag "Sound Theme Directory")
   :group 'emacspeak-sounds)
@@ -146,22 +145,19 @@ Do not set this by hand;
 
 (defun emacspeak-sounds-theme-get-extension (theme-name)
   "Retrieve filename extension for specified theme. "
-  (declare (special emacspeak-sounds-themes-table))
+  (cl-declare (special emacspeak-sounds-themes-table))
   (gethash
    (intern theme-name)
    emacspeak-sounds-themes-table))
 
 (defun emacspeak-sounds-define-theme-if-necessary (theme-name)
   "Define selected theme if necessary."
-  (cond
-   ((emacspeak-sounds-theme-get-extension theme-name)
-    t)
-   ((file-exists-p (expand-file-name "define-theme.el"
-                                     theme-name))
-    (load-file (expand-file-name
-                "define-theme.el"
-                theme-name)))
-   (t (error "Theme %s is missing its configuration file. " theme-name))))
+  (let ((file-name-handler-alist nil))
+    (cond
+     ((emacspeak-sounds-theme-get-extension theme-name) t)
+     ((file-exists-p (expand-file-name "define-theme.el" theme-name))
+      (load-file (expand-file-name "define-theme.el" theme-name)))
+     (t (error "Theme %s is missing its configuration file. " theme-name)))))
 
 (defun emacspeak-sounds-theme-p  (theme)
   "Predicate to test if theme is available."
@@ -175,7 +171,7 @@ Do not set this by hand;
    (list
     (expand-file-name
      (read-directory-name "Theme: " emacspeak-sounds-directory))))
-  (declare (special emacspeak-sounds-current-theme emacspeak-sounds-themes-table))
+  (cl-declare (special emacspeak-sounds-current-theme emacspeak-sounds-themes-table))
   (setq theme (expand-file-name theme emacspeak-sounds-directory))
   (unless (file-directory-p theme)
     (setq theme  (file-name-directory theme)))
@@ -187,7 +183,7 @@ Do not set this by hand;
 
 (defun emacspeak-get-sound-filename (sound-name)
   "Retrieve name of sound file that produces  auditory icon SOUND-NAME."
-  (declare (special emacspeak-sounds-themes-table
+  (cl-declare (special emacspeak-sounds-themes-table
                     emacspeak-sounds-current-theme))
   (let ((f
          (expand-file-name
@@ -206,7 +202,7 @@ Do not set this by hand;
 ;;;###autoload
 (defun emacspeak-queue-auditory-icon (sound-name)
   "Queue auditory icon SOUND-NAME."
-  (declare (special dtk-speaker-process))
+  (cl-declare (special dtk-speaker-process))
   (process-send-string dtk-speaker-process
                        (format "a %s\n"
                                (emacspeak-get-sound-filename sound-name))))
@@ -226,13 +222,14 @@ Do not set this by hand;
 ;;;###autoload
 (defun emacspeak-serve-auditory-icon (sound-name)
   "Serve auditory icon SOUND-NAME."
-  (declare (special dtk-speaker-process))
+  (cl-declare (special dtk-speaker-process))
   (process-send-string dtk-speaker-process
                        (format "p %s\n"
                                (emacspeak-get-sound-filename sound-name))))
 
 ;;}}}
 ;;{{{  Play an icon
+
 ;;;###autoload
 (defcustom emacspeak-play-args "-q"
   "Set this to nil if using paplay from pulseaudio."
@@ -242,18 +239,19 @@ Do not set this by hand;
 
 (defun emacspeak-play-auditory-icon (sound-name)
   "Produce auditory icon SOUND-NAME."
-  (declare (special emacspeak-play-program emacspeak-play-args))
+  (cl-declare (special emacspeak-play-program emacspeak-play-args))
   (let ((process-connection-type nil))
     (if emacspeak-play-args
         (start-process
          emacspeak-play-program nil emacspeak-play-program
          emacspeak-play-args
-         (emacspeak-get-sound-filename sound-name)
-         "&")
+         (emacspeak-get-sound-filename sound-name))
       (start-process
        emacspeak-play-program nil emacspeak-play-program
-       (emacspeak-get-sound-filename sound-name)
-       "&"))))
+       (emacspeak-get-sound-filename sound-name)))))
+;;;###autoload
+(defvar emacspeak-sox (executable-find "sox")
+  "Name of SoX executable.")
 
 ;;;###autoload
 (defcustom emacspeak-soxplay-command 
@@ -265,10 +263,23 @@ Do not set this by hand;
 (defun emacspeak-soxplay-auditory-icon (sound-name)
   "Produce auditory icon SOUND-NAME.
 This uses SoX play and is specifically for use with headphones."
-  (declare (special emacspeak-soxplay-command))
+  (cl-declare (special emacspeak-soxplay-command))
   (let ((icon (emacspeak-get-sound-filename sound-name)))
     (call-process shell-file-name nil nil nil shell-command-switch
                   (format emacspeak-soxplay-command icon))))
+
+;;}}}
+;;{{{ Play icon list:
+
+;;; For now this is like emacspeak-play-auditory-icon,
+;;; i.e. wont work via the speech server,
+;;; and consequently not for Emacspeak  on a remote machine.
+
+(defun emacspeak-play-auditory-icon-list (icon-list)
+  "Play list of icons."
+  (cl-declare (special emacspeak-play-program))
+  (apply #'start-process "APlay" nil emacspeak-play-program
+         (mapcar #'emacspeak-get-sound-filename icon-list)))
 
 ;;}}}
 ;;{{{  setup play function
@@ -285,14 +296,14 @@ Use Serve when working with remote speech servers."
   :type '(choice
           (const emacspeak-play-auditory-icon)
           (const emacspeak-serve-auditory-icon)
-          (const emacspeak-native-auditory-icon)
+          (const emacspeak-play-auditory-icon)
           (const emacspeak-soxplay-auditory-icon)
           (const emacspeak-queue-auditory-icon)))
 
 ;;;###autoload
 (defun emacspeak-auditory-icon (icon)
   "Play an auditory ICON."
-  (declare (special emacspeak-auditory-icon-function
+  (cl-declare (special emacspeak-auditory-icon-function
                     emacspeak-use-auditory-icons))
   (when emacspeak-use-auditory-icons
     (funcall emacspeak-auditory-icon-function icon)))
@@ -306,7 +317,7 @@ Use Serve when working with remote speech servers."
   "Toggle use of auditory icons.
 Optional interactive PREFIX arg toggles global value."
   (interactive "P")
-  (declare (special emacspeak-use-auditory-icons
+  (cl-declare (special emacspeak-use-auditory-icons
                     dtk-program emacspeak-auditory-icon-function))
   (require 'emacspeak-aumix)
   (cond
@@ -326,12 +337,12 @@ Optional interactive PREFIX arg toggles global value."
 (defvar emacspeak-sounds-auditory-icon-players
   '("emacspeak-serve-auditory-icon"
     "emacspeak-play-auditory-icon"
-    "emacspeak-native-auditory-icon")
+    "emacspeak-play-auditory-icon")
   "Table of auditory icon players used  when selecting a player.")
 
 (defun emacspeak-select-auditory-icon-player ()
   "Pick a player for producing auditory icons."
-  (declare (special emacspeak-sounds-auditory-icon-players))
+  (cl-declare (special emacspeak-sounds-auditory-icon-players))
   (read
    (completing-read "Select auditory icon player: "
                     emacspeak-sounds-auditory-icon-players
@@ -346,7 +357,7 @@ emacspeak-serve-auditory-icon for  the wave device.
 emacspeak-queue-auditory-icon when using software TTS."
   (interactive
    (list (emacspeak-select-auditory-icon-player)))
-  (declare (special emacspeak-auditory-icon-function))
+  (cl-declare (special emacspeak-auditory-icon-function))
   (setq emacspeak-auditory-icon-function player)
   (when (called-interactively-p 'interactive)
     (emacspeak-auditory-icon 'select-object)))
@@ -360,7 +371,7 @@ solaris after I've used it for a while from a remote session
 where it would use the more primitive speech-server based
 audio player."
   (interactive)
-  (declare (special emacspeak-play-program))
+  (cl-declare (special emacspeak-play-program))
   (if (file-exists-p "/usr/demo/SOUND/play")
       (setq
        emacspeak-play-program "/usr/demo/SOUND/play"
@@ -387,7 +398,7 @@ audio player."
 (defun emacspeak-sounds-reset-sound  ()
   "Reload sound drivers."
   (interactive)
-  (declare (special emacspeak-sounds-reset-snd-module-command))
+  (cl-declare (special emacspeak-sounds-reset-snd-module-command))
   (when emacspeak-sounds-reset-snd-module-command
     (shell-command emacspeak-sounds-reset-snd-module-command)))
 
@@ -397,7 +408,7 @@ audio player."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

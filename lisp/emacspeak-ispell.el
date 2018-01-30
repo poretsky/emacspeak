@@ -52,13 +52,12 @@
 ;;; And that module sets up flyspell-correct to use IDO-style completion,
 ;;; i.e. you can move through corrections with C-r and C-s.
 
-
 ;;; Code:
 ;;}}}
 ;;{{{ requires
 
-(require 'cl)
-(declaim  (optimize  (safety 0) (speed 3)))
+(require 'cl-lib)
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 
 ;;}}}
@@ -132,20 +131,18 @@ many available corrections."
  do
  (eval
   `(defadvice ,f (around emacspeak pre act comp)
-  "Produce auditory icons for ispell."
-  (cond
-   ((ems-interactive-p)
-    (let ((dtk-stop-immediately t))
-      (ems-with-messages-silenced ad-do-it)
-      (emacspeak-auditory-icon 'task-done)))
-   (t ad-do-it))
-  ad-return-value)))
-
-
+     "Produce auditory icons for ispell."
+     (cond
+      ((ems-interactive-p)
+       (let ((dtk-stop-immediately t))
+         (ems-with-messages-silenced ad-do-it)
+         (emacspeak-auditory-icon 'task-done)))
+      (t ad-do-it))
+     ad-return-value)))
 
 (defadvice ispell-word (around emacspeak pre act comp)
   "Produce auditory icons for ispell."
-  (declare (special emacspeak-last-message))
+  (cl-declare (special emacspeak-last-message))
   (cond
    ((ems-interactive-p)
     (let ((dtk-stop-immediately t))
@@ -162,7 +159,7 @@ many available corrections."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

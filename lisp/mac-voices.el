@@ -1,4 +1,4 @@
-;;; mac-voices.el --- Define various device independent voices in terms of Mac tags  -*- lexical-binding: t; -*-
+;;; mac-voices.el --- Define  Mac tags  -*- lexical-binding: t; -*-
 ;;; $Id: mac-voices.el 6342 2009-10-20 19:12:40Z tv.raman.tv $
 ;;; $Author: Dave $
 ;;; Description:  Module to set up Mac voices and personalities
@@ -49,8 +49,8 @@
 ;;}}}
 ;;{{{ Required modules
 
-(require 'cl)
-(declaim  (optimize  (safety 0) (speed 3)))
+(require 'cl-lib)
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'acss-structure)
 (require 'tts)
 
@@ -81,12 +81,12 @@ The string can set any voice parameter.")
   "Define a Mac  voice named NAME.
 This voice will be set   by sending the string
 COMMAND-STRING to the TTS engine."
-  (declare (special mac-voice-table))
+  (cl-declare (special mac-voice-table))
   (puthash name command-string mac-voice-table))
 
 (defun mac-get-voice-command-internal  (name)
   "Retrieve command string for  voice NAME."
-  (declare (special mac-voice-table))
+  (cl-declare (special mac-voice-table))
   (cond
    ((listp name)
     (mapconcat #'mac-get-voice-command name " "))
@@ -99,15 +99,17 @@ COMMAND-STRING to the TTS engine."
 
 (defun mac-voice-defined-p (name)
   "Check if there is a voice named NAME defined."
-  (declare (special mac-voice-table))
+  (cl-declare (special mac-voice-table))
   (gethash name mac-voice-table))
 
 ;;}}}
 ;;{{{ voice definitions
 
-;;; the nine predefined voices: TODO: figure out if embedding is possible (and update voice names).
-(mac-define-voice 'paul  " [{voice alex}] ")
-(mac-define-voice 'harry " [{voice ralf}] ")
+;;; the nine predefined voices: TODO: figure out if embedding is
+;;; possible (and update voice names).
+
+(mac-define-voice 'paul  " [{voice systemDefault}] ")
+(mac-define-voice 'harry " [{voice alex}] ")
 (mac-define-voice 'dennis " [{voice bruce}] ")
 (mac-define-voice 'frank " [{voice fred}] ")
 (mac-define-voice 'betty " [{voice victoria}] ")
@@ -145,13 +147,13 @@ Values are vectors holding the control codes for the 10 settings.")
   "Set up voice FAMILY.
 Argument DIMENSION is the dimension being set,
 and TABLE gives the values along that dimension."
-  (declare (special mac-css-code-tables))
+  (cl-declare (special mac-css-code-tables))
   (let ((key (intern (format "%s-%s" family dimension))))
     (puthash key table mac-css-code-tables)))
 
 (defun mac-css-get-code-table (family dimension)
   "Retrieve table of values for specified FAMILY and DIMENSION."
-  (declare (special mac-css-code-tables))
+  (cl-declare (special mac-css-code-tables))
   (let ((key (intern (format "%s-%s" family dimension))))
     (gethash key mac-css-code-tables)))
 
@@ -174,13 +176,12 @@ and TABLE gives the values along that dimension."
 ;;{{{  paul average pitch
 
 (let ((table (make-vector 10 "")))
-  (mapcar
-   (function
-    (lambda (setting)
-      (aset table
-            (first setting)
-            (format " [[pbas %s]] "
-                    (second setting)))))
+  (mapc
+   #'(lambda (setting)
+       (aset table
+             (cl-first setting)
+             (format " [[pbas %s]] "
+                     (cl-second setting))))
    '(
      (0 1)
      (1 10)
@@ -198,13 +199,12 @@ and TABLE gives the values along that dimension."
 ;;{{{  harry average pitch
 
 (let ((table (make-vector 10 "")))
-  (mapcar
-   (function
-    (lambda (setting)
-      (aset table
-            (first setting)
-            (format " [[pbas %s]]"
-                    (second setting)))))
+  (mapc
+   #'(lambda (setting)
+       (aset table
+             (cl-first setting)
+             (format " [[pbas %s]]"
+                     (cl-second setting))))
    '(
      (0 0)
      (1 10)
@@ -224,13 +224,12 @@ and TABLE gives the values along that dimension."
 ;;;defalt baseline is average pitch of 81 
 
 (let ((table (make-vector 10 "")))
-  (mapcar
-   (function
-    (lambda (setting)
+  (mapc
+   #'(lambda (setting)
       (aset table
-            (first setting)
+            (cl-first setting)
             (format " [[pbas %s]] "
-                    (second setting)))))
+                    (cl-second setting))))
    '(
      (0 5)
      (1 17)
@@ -265,13 +264,12 @@ and TABLE gives the values along that dimension."
 ;;{{{  paul pitch range
 
 (let ((table (make-vector 10 "")))
-  (mapcar
-   (function
-    (lambda (setting)
+  (mapc
+   #'(lambda (setting)
       (aset table
-            (first setting)
+            (cl-first setting)
             (format " [[pmod %s]] "
-                    (second setting)))))
+                    (cl-second setting))))
    '(
      (0 0)
      (1 14.1)
@@ -304,17 +302,16 @@ and TABLE gives the values along that dimension."
 ;;{{{  paul stress TODO
 
 (let ((table (make-vector 10 "")))
-  (mapcar
-   (function
-    (lambda (setting)
+  (mapc
+   #'(lambda (setting)
       (aset table
-            (first setting)
+            (cl-first setting)
             (format " [{echo %s %s %s %s}] "
-                    (second setting)
-                    (third setting)
-                    (fourth setting)
-                    (fifth setting)
-                    ))))
+                    (cl-second setting)
+                    (cl-third setting)
+                    (cl-fourth setting)
+                    (cl-fifth setting)
+                    )))
    '(
      (0 1 1 0.1 0.1)
      (1 1 1 10 .1)
@@ -388,16 +385,16 @@ and TABLE gives the values along that dimension."
 
 (defun mac-list-voices ()
   "List defined voices."
-  (declare (special mac-voice-table))
+  (cl-declare (special mac-voice-table))
   (cl-loop for k being the hash-keys of mac-voice-table 
-        collect   k))
+           collect   k))
 
 ;;}}}
 ;;{{{ Configurater 
 ;;;###autoload
 (defun mac-configure-tts ()
   "Configure TTS environment to use mac  family of synthesizers."
-  (declare (special tts-default-speech-rate mac-default-speech-rate))
+  (cl-declare (special tts-default-speech-rate mac-default-speech-rate))
   (fset 'tts-list-voices'mac-list-voices)
   (fset 'tts-voice-defined-p 'mac-voice-defined-p)
   (fset 'tts-get-voice-command 'mac-get-voice-command)
@@ -412,7 +409,7 @@ and TABLE gives the values along that dimension."
 ;;;###autoload
 (defun mac-make-tts-env  ()
   "Constructs a TTS environment for Mac."
-  (declare (special mac-default-speech-rate))
+  (cl-declare (special mac-default-speech-rate))
   (make-tts-env
    :name :mac :default-voice 'paul
    :default-speech-rate mac-default-speech-rate
@@ -430,8 +427,8 @@ and TABLE gives the values along that dimension."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

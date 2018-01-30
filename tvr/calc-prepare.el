@@ -1,4 +1,4 @@
-;; -*- lexical-binding: t; -*-
+;; -*- lexical-binding: nil; -*-
 
 ;;; Commands added by calc-private-autoloads on Fri Mar 25 22:44:12 1994.
 (autoload 'calc-dispatch	   "calc" "Calculator Options" t)
@@ -14,7 +14,7 @@
 (autoload 'calc-grab-region	   "calc" "Grab region of Calc data" t)
 (autoload 'calc-grab-rectangle	   "calc" "Grab rectangle of data" t)
 
-(augment-load-path "calc" "calc")
+
 (global-set-key "\e#" 'calc-dispatch)
 ;;; End of Calc autoloads.
 ;;; Calc mode settings:

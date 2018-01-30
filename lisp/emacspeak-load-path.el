@@ -36,6 +36,7 @@
 
 ;;}}}
 (require 'cl-lib)
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (setq byte-compile-warnings t)
 
 (defvar emacspeak-directory
@@ -53,7 +54,6 @@
 (defvar emacspeak-resource-directory (expand-file-name "~/.emacspeak")
   "Directory where Emacspeak resource files such as pronunciation dictionaries are stored. ")
 
-(setq byte-compile-warnings t)
 ;;{{{ Interactive Check Implementation:
 
 ;;; Notes:
@@ -98,7 +98,7 @@ interactive command. Turn off the flag once used."
           (caller-advice ; advice wrapper of containing function
            (ad-get-advice-info-field ems-called-interactively-p  'advicefunname))
           (result nil))
-       ; T if called from our advice
+                                        ; T if called from our advice
       (setq result (eq caller caller-advice))
       (when result
         (setq ems-called-interactively-p nil) ; turn off now that we used  it
@@ -130,7 +130,7 @@ interactive command. Turn off the flag once used."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

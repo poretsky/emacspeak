@@ -56,6 +56,7 @@
 ;;}}}
 ;;{{{  Required modules
 
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 (require 'speedbar "speedbar" 'no-error)
 ;;}}}
@@ -190,7 +191,7 @@ An automatically updating speedbar consumes resources.")
 (defun emacspeak-speedbar-goto-speedbar ()
   "Switch to the speedbar"
   (interactive)
-  (declare (special emacspeak-speedbar-disable-updates))
+  (cl-declare (special emacspeak-speedbar-disable-updates))
   (unless (get-buffer " SPEEDBAR")
     (speedbar-frame-mode))
   (pop-to-buffer (get-buffer " SPEEDBAR"))
@@ -227,20 +228,20 @@ An automatically updating speedbar consumes resources.")
                (setq action-char (following-char))
                (emacspeak-speedbar-speak-line)
                (emacspeak-auditory-icon
-                (case action-char
-                  (?+ 'open-object)
-                  (?- 'close-object)
-                  (t 'large-movement))))
+                (cl-case action-char
+                      (?+ 'open-object)
+                      (?- 'close-object)
+                      (t 'large-movement))))
        (t (message "No target on this line"))))))
 
 ;;}}}
 ;;{{{  hooks
-(declaim (special speedbar-mode-map))
-(eval-when (load)
-  )
+(cl-declaim (special speedbar-mode-map))
+(cl-eval-when (load)
+           )
 (defun emacspeak-speedbar-enter-hook ()
   "Actions taken when we enter the Speedbar"
-  (declare (special speedbar-mode-map
+  (cl-declare (special speedbar-mode-map
                     speedbar-hide-button-brackets-flag))
   (dtk-set-punctuations 'all)
   (setq speedbar-hide-button-brackets-flag t)
@@ -322,7 +323,7 @@ An automatically updating speedbar consumes resources.")
 
 ;;}}}
 ;;{{{ keys 
-(declaim (special emacspeak-keymap))
+(cl-declaim (special emacspeak-keymap))
 
                                         ;(define-key emacspeak-keymap '[insert] 'emacspeak-speedbar-goto-speedbar)
 
@@ -332,7 +333,7 @@ An automatically updating speedbar consumes resources.")
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end: 
 
 ;;}}}

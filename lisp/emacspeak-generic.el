@@ -40,6 +40,7 @@
 
 ;;{{{ required modules
 
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 ;;}}}
 ;;{{{  Introduction:
@@ -59,12 +60,12 @@
 ;;}}}
 ;;{{{  generic setup
 (cl-loop for mode in generic-mode-list
-      do
-      (when (functionp mode)
-        (eval
-         `(defadvice ,mode (after emacspeak pre act comp)
-            "Setup Emacspeak programming mode hooks."
-            (emacspeak-setup-programming-mode)))))
+         do
+         (when (functionp mode)
+           (eval
+            `(defadvice ,mode (after emacspeak pre act comp)
+               "Setup Emacspeak programming mode hooks."
+               (emacspeak-setup-programming-mode)))))
 
 ;;}}}
 (provide 'emacspeak-generic)
@@ -72,7 +73,7 @@
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

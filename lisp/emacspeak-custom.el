@@ -40,6 +40,7 @@
 
 ;;{{{  Required modules
 
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 (require 'cus-edit)
 ;;}}}
@@ -77,11 +78,13 @@
     (emacspeak-auditory-icon 'button)
     (dtk-speak "Set for current session")))
 
-(defadvice Custom-save (after emacspeak pre act comp)
-  "Provide auditory feedback."
+(defadvice Custom-save (around emacspeak pre act comp)
+  "Silence messages and produce auditory feedback."
+  ad-do-it
   (when (ems-interactive-p)
     (emacspeak-auditory-icon 'save-object)
-    (dtk-speak "Set and saved")))
+    (dtk-speak "Set and saved"))
+  ad-return-value)
 
 (defadvice Custom-buffer-done (after emacspeak pre act comp)
   "Provide auditory feedback."
@@ -179,6 +182,9 @@
 ;;{{{ define voices
 (voice-setup-add-map
  '(
+   (custom-group-subtitle  voice-smoothen)
+   (custom-themed voice-brighten)
+   (custom-visibility voice-annotate)
    (custom-button voice-bolden)
    (custom-button-pressed voice-bolden-extra)
    (custom-button-pressed-unraised voice-bolden-extra)
@@ -213,7 +219,7 @@
 (defun emacspeak-custom-goto-group ()
   "Jump to custom group when in a customization buffer."
   (interactive)
-  (declare (special emacspeak-custom-group-regexp))
+  (cl-declare (special emacspeak-custom-group-regexp))
   (when (eq major-mode 'custom-mode)
     (goto-char (point-min))
     (re-search-forward emacspeak-custom-group-regexp
@@ -229,7 +235,7 @@
 (defun emacspeak-custom-goto-toolbar ()
   "Jump to custom toolbar when in a customization buffer."
   (interactive)
-  (declare (special emacspeak-custom-toolbar-regexp))
+  (cl-declare (special emacspeak-custom-toolbar-regexp))
   (when (eq major-mode 'custom-mode)
     (goto-char (point-min))
     (re-search-forward emacspeak-custom-toolbar-regexp nil
@@ -240,7 +246,7 @@
 ;;}}}
 ;;{{{  bind emacspeak commands 
 
-(declaim (special custom-mode-map))
+(cl-declaim (special custom-mode-map))
 (define-key custom-mode-map "E" 'Custom-reset-standard)
 (define-key custom-mode-map "r" 'Custom-reset-current)
 (define-key custom-mode-map "R" 'Custom-reset-saved)
@@ -262,7 +268,7 @@
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end: 
 
 ;;}}}

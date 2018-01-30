@@ -48,8 +48,8 @@
 ;;}}}
 ;;{{{  Required modules
 
-(require 'cl)
-(declaim  (optimize  (safety 0) (speed 3)))
+(require 'cl-lib)
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 (require 'elfeed "elfeed" 'no-match)
 ;;}}}
@@ -70,12 +70,12 @@
  for f in
  '(
    elfeed-apply-hooks-now elfeed-search-browse-url elfeed-show-entry elfeed-show-visit
-                          elfeed-update-feed elfeed-update elfeed-show-refresh
-                          elfeed-search-update--force elfeed-search-update elfeed-search-untag-all-unread
-                          elfeed-search-untag-all elfeed-search-tag-all-unread elfeed-search-tag-all
-                          elfeed-search-show-entry elfeed-load-opml elfeed-export-opml
-                          elfeed-db-compact elfeed-add-feed
-                          )
+   elfeed-update-feed elfeed-update elfeed-show-refresh
+   elfeed-search-update--force elfeed-search-update elfeed-search-untag-all-unread
+   elfeed-search-untag-all elfeed-search-tag-all-unread elfeed-search-tag-all
+   elfeed-search-show-entry elfeed-load-opml elfeed-export-opml
+   elfeed-db-compact elfeed-add-feed
+   )
  do
  (eval
   `(defadvice ,f (after emacspeak pre act comp)
@@ -116,7 +116,7 @@
 
 (defun emacspeak-elfeed-entry-at-point ()
   "Return entry at point."
-  (declare (special  elfeed-search--offset elfeed-search-entries))
+  (cl-declare (special  elfeed-search--offset elfeed-search-entries))
   (let ((index  (- (line-number-at-pos (point)) elfeed-search--offset)))
     (cond
      ((>= index 0) (nth index elfeed-search-entries))
@@ -156,7 +156,7 @@
 (defun emacspeak-elfeed-filter-entry-at-point ()
   "Display current article after filtering."
   (interactive)
-  (declare (special emacspeak-we-recent-xpath-filter))
+  (cl-declare (special emacspeak-we-recent-xpath-filter))
   (let* ((entry (emacspeak-elfeed-entry-at-point))
          (link(elfeed-entry-link entry)))
     (cond
@@ -168,7 +168,7 @@
   "Display current article after filtering using W3.
 Work-around for async fetch bug in EWW."
   (interactive)
-  (declare (special emacspeak-we-recent-xpath-filter))
+  (cl-declare (special emacspeak-we-recent-xpath-filter))
   (let* ((browse-url-browser-function 'browse-url-w3)
          (entry (emacspeak-elfeed-entry-at-point))
          (link(elfeed-entry-link entry)))
@@ -215,7 +215,7 @@ Work-around for async fetch bug in EWW."
 
 (defadvice elfeed-search-mode (after emacspeak pre act comp)
   "Set up Emacspeak commands."
-  (declare (special elfeed-search-mode-map goal-column))
+  (cl-declare (special elfeed-search-mode-map goal-column))
   (setq goal-column 11)                 ; place point on entry title
   (define-key elfeed-search-mode-map "n" 'emacspeak-elfeed-next-entry)
   (define-key elfeed-search-mode-map "p" 'emacspeak-elfeed-previous-entry)

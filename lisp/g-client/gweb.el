@@ -48,17 +48,18 @@
 
 ;;{{{  introduction
 
-;;; Commentary:
-;;; Provide Google services --- such as search, search-based completion etc.
-;;; For use from within Emacs tools.
-;;; This is meant to be fast and efficient --- and uses WebAPIs as opposed to HTML  scraping.
+;;; Commentary: Provide Google services --- such as search,
+;;; search-based completion etc.  For use from within Emacs tools.
+;;; This is meant to be fast and efficient --- and uses WebAPIs as
+;;; opposed to HTML scraping.
+
 ;;; Code:
 
 ;;}}}
 ;;{{{  Required modules
 
-(require 'cl)
-(declaim  (optimize  (safety 0) (speed 3)))
+(require 'cl-lib)
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'json)
 (require 'g-utils)
 
@@ -74,54 +75,59 @@
 
 (defvar gweb-referer "http://emacspeak.sf.net"
   "Referer URL to send to the API.")
+(defvar gweb-history nil
+  "History of Google Search queries.")
+
+(put 'gweb-history 'history-length 100)
+(put 'gweb-history 'history-delete-duplicates t)
+
+(defvar gweb-completion-flag nil
+  "Flag that records  Google Suggest in progress.")
+;;; This is dynamically scoped:
+(defvar flx-ido-mode)
+(defvar gweb-completion-corpus "psy"
+  "Corpus to use for completion. Let-bind this for using a different corpus.")
 
 ;;}}}
 ;;{{{ google suggest helper:
 
-;;; Get search completions from Google
-;;; Service Names: (corpus)
-;; youtube : 'youtube',
-;;                      books : 'books',
-;;                      products : 'products-cc',
-;;                      news : 'news-cc',
-;;                      img : 'img',
-;;                      web : 'psy'
-;; youtube: 'youtube
-
-(defvar gweb-suggest-url
+(defvar gweb-search-suggest-url
   "http://clients1.google.com/complete/search?json=t&nohtml=t&nolabels=t&client=%s&q=%s"
   "URL  that gets suggestions from Google as JSON.")
-;;; corpus is ds=n for News
-;;; ds=r for recipes
+
+(defvar gweb-g-suggest-url 
+  "http://suggestqueries.google.com/complete/search?ds=%s&q=%s&client=chrome"
+  "Query Suggest: Youtube: yt, News: n")
 
 (defun gweb-suggest (input &optional corpus)
   "Get completion list from Google Suggest."
-  (declare (special gweb-suggest-url))
-  (unless (> (length input) 0) (setq input minibuffer-default))
-  (unless corpus (setq corpus "psy"))
-  (g-using-scratch
-   (let ((js nil)
-         (url (format gweb-suggest-url corpus (g-url-encode input))))
-     (call-process
-      g-curl-program
-      nil t nil
-      "-s" url)
-     (goto-char (point-min))
-     (setq js (json-read))
-     (setq js  (aref js 1))
-     (cl-loop for e across js
-           collect
-           (replace-regexp-in-string
-            "</?b>" ""
-            ;;; note: psy is different:
-            (if (string= corpus "psy")
-                (aref e 0)
-              e))))))
+  (cl-declare (special gweb-search-suggest-url
+                    gweb-completion-corpus
+                    gweb-g-suggest-url))
+  (unless corpus (setq corpus gweb-completion-corpus))
+  (when input 
+    (let* ((url
+            (format
+             (cond
+              ((string= corpus "psy") gweb-search-suggest-url)
+              (t gweb-g-suggest-url))
+             corpus
+             (g-url-encode input)))
+           (js (g-json-from-url url)))
+      (setq js  (aref js 1))
+      (cl-loop
+       for e across js collect
+       (replace-regexp-in-string
+        "</?b>" ""
+;;; note: psy is different:
+        (if (string= corpus "psy")
+            (aref e 0)
+          e))))))
 
 (defvar gweb-google-suggest-metadata
   '(metadata .
              (
-                                        ; Google suggest returns suggestions already sorted
+;;; Google suggest returns suggestions already sorted
               (display-sort-function . identity)
                                         ; add annots function here
               ))
@@ -129,61 +135,32 @@
 
 (defun gweb-suggest-completer (string predicate action)
   "Generate completions using Google Suggest. "
-  (save-current-buffer
-    (set-buffer
-     (let ((window (minibuffer-selected-window)))
-       (if (window-live-p window)
-           (window-buffer window)
-         (current-buffer))))
-    (cond
-     ((eq action 'metadata) gweb-google-suggest-metadata)
-     (t
-      (complete-with-action action
-                            (gweb-suggest string)
-                            string predicate)))))
+  (cl-declare (special gweb-completion-corpus))
+  (when (and (sit-for 0.2)(stringp string) (> (length string)  0))
+    (save-current-buffer
+      (set-buffer
+       (let ((window (minibuffer-selected-window)))
+         (if (window-live-p window)
+             (window-buffer window)
+           (current-buffer))))
+      (cond
+       ((eq action 'metadata) gweb-google-suggest-metadata)
+       (t
+        (complete-with-action action
+                              (gweb-suggest string gweb-completion-corpus)
+                              string predicate))))))
+(defvar ido-max-prospects)
 
-;;{{{  Generate suggest handlers for Google properties
-(cl-loop for c in
-      '("news-cc" "products-cc" "youtube" "books" "img")
-      do
-      (eval
-       `(defun
-            , (intern
-               (format  "gweb-%s-suggest-completer" c))
-            (string predicate action)
-          ,(format
-            "Generate completions using Google %s Suggest. " c)
-          (save-current-buffer
-            (set-buffer
-             (let ((window (minibuffer-selected-window)))
-               (if (window-live-p window)
-                   (window-buffer window)
-                 (current-buffer))))
-            (cond
-             ((eq action 'metadata) gweb-google-suggest-metadata)
-             (t
-              (complete-with-action action
-                                    (gweb-suggest string ,c)
-                                    string predicate)))))))
-
-;;}}}
-
-(defvar gweb-history nil
-  "History of Google Search queries.")
-
-(put 'gweb-history 'history-length 100)
-(put 'gweb-history 'history-delete-duplicates t)
-
-;;; Emacs 23 and beyond:
-;;; i.e. if complete-with-action is defined
-
-(defun gweb-google-autocomplete (&optional prompt)
-  "Read user input using Google Suggest for auto-completion."
-  (let* ((minibuffer-completing-file-name t) ;; accept spaces
-         (completion-ignore-case t)
-         (word (thing-at-point 'word))
-         (query nil))
-    (setq gweb-history (remove-duplicates gweb-history :test #'string-equal))
+(defun gweb--autocomplete-helper (&optional prompt)
+  "Helper: Read user input using Google Suggest for auto-completion.
+Uses corpus found in gweb-completion-corpus"
+  (let ((flx-ido-mode  nil)
+        (ido-max-prospects 5)
+        (gweb-completion-flag t)
+        (completion-ignore-case t)
+        (word (thing-at-point 'word))
+        (query nil))
+    (setq gweb-history (cl-remove-duplicates gweb-history :test #'string-equal))
     (setq query
           (completing-read
            (or prompt "Google: ")
@@ -193,42 +170,28 @@
            'gweb-history))
     (g-url-encode query)))
 
-;;;###autoload
+(defun gweb-google-autocomplete (&optional prompt)
+  "Autocomplete using Google Search corpus."
+  (let ((gweb-completion-corpus "psy"))
+    (gweb--autocomplete-helper (or prompt "Google: "))))
 
-(defun gweb-google-autocomplete-with-corpus (corpus)
-  "Read user input using Google Suggest for auto-completion.
-Uses specified corpus for prompting and suggest selection."
-  (let* (
-         (completer (intern (format "gweb-%s-suggest-completer"  corpus)))
-         (minibuffer-completing-file-name t) ;; accept spaces
-         (completion-ignore-case t)
-         (word (thing-at-point 'word))
-         (query nil))
-    (unless (fboundp completer)
-      (error "No  suggest handler for corpus %s" corpus))
-    (setq query
-          (completing-read
-           (format "%s: " corpus)
-           completer                   ; collection
-           nil nil                     ; predicate required-match
-           word                        ; initial input
-           'gweb-history))
-    (g-url-encode query)))
-;;; For news:
+(defun gweb-youtube-autocomplete (&optional prompt)
+  "Autocomplete using Youtube Search corpus."
+  (let ((gweb-completion-corpus "yt"))
+    (gweb--autocomplete-helper (or prompt "YouTube: "))))
 
 (defun gweb-news-autocomplete (&optional prompt)
-  "Read user input using Google News Suggest for auto-completion."
-  (let* ((minibuffer-completing-file-name t) ;; accept spaces
-         (completion-ignore-case t)
-         (word (thing-at-point 'word))
-         (query nil))
-    (setq query
-          (completing-read
-           (or prompt "Google News: ")
-           'gweb-news-cc-suggest-completer
-           nil nil
-           word 'gweb-history))
-    (g-url-encode query)))
+  "Autocomplete using News Search corpus."
+  (let ((gweb-completion-corpus "n"))
+    (gweb--autocomplete-helper (or prompt "News: "))))
+
+(defadvice ido-complete-space (around emacspeak pre act comp)
+  "Fix up ido-complete-space for use with Google autocomplete."
+  (cond
+   (gweb-completion-flag  (insert-char  ?\ )
+                          (emacspeak-speak-word))
+   (t ad-do-it))
+  ad-return-value)
 
 ;;}}}
 (provide 'gweb)

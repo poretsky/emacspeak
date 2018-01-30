@@ -48,8 +48,8 @@
 ;;}}}
 ;;{{{  Required modules
 
-(require 'cl)
-(declaim  (optimize  (safety 0) (speed 3)))
+(require 'cl-lib)
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 (eval-when-compile (require 'paradox "paradox" 'no-error))
 (require 'calendar)
@@ -59,14 +59,17 @@
 
 (voice-setup-add-map
  '(
-   
    (paradox-name-face voice-bolden)
    (paradox-description-face voice-monotone)
    (paradox-description-face-multiline voice-monotone)
    (paradox-comment-face voice-monotone)
    (paradox-star-face voice-animate)
    (paradox-starred-face voice-bolden-and-animate)
-   ))
+   (paradox-archive-face voice-lighten)
+   (paradox-commit-tag-face voice-brighten)
+   (paradox-download- voice-smoothen)
+   (paradox-highlight-face voice-bolden)
+   ( paradox-homepage-button-face voice-bolden-medium)))
 
 ;;}}}
 ;;{{{ Additional Commands

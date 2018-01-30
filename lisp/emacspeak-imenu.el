@@ -39,8 +39,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;{{{  Required modules
-(require 'cl)
-(declaim  (optimize  (safety 0) (speed 3)))
+(require 'cl-lib)
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 (require 'imenu)
 ;;}}}
@@ -64,7 +64,7 @@
   ;; name and a space concatenated to the names of the children.
   ;; Third argument PREFIX is for internal use only.
 
-  (declare (special imenu-level-separator))
+  (cl-declare (special imenu-level-separator))
   (mapcan
    (function
     (lambda (item)
@@ -85,7 +85,7 @@
 
 (defadvice imenu--make-index-alist (after emacspeak pre act comp)
   "Cache flattened index alist"
-  (declare (special emacspeak-imenu-flattened-index-alist))
+  (cl-declare (special emacspeak-imenu-flattened-index-alist))
   (setq emacspeak-imenu-flattened-index-alist
         (emacspeak-imenu-flatten-index-alist
          imenu--index-alist t)))
@@ -113,10 +113,10 @@
 (defun emacspeak-imenu-goto-next-index-position ()
   "Goto the next index position in current buffer"
   (interactive)
-  (declare (special emacspeak-imenu-flattened-index-alist
+  (cl-declare (special emacspeak-imenu-flattened-index-alist
                     emacspeak-imenu-autospeak
                     imenu--index-alist))
-  (let ((position (point))
+  (let ((pos (point))
         (guess 0)
         (target (point-max)))
     (unless imenu--index-alist (imenu--make-index-alist 'no-error))
@@ -125,17 +125,17 @@
             (emacspeak-imenu-flatten-index-alist
              imenu--index-alist t)))
     (cl-loop for item  in emacspeak-imenu-flattened-index-alist
-          do
-          (setq guess
-                (cond
-                 ((overlayp (cdr item))
-                  (overlay-start (cdr item)))
-                 ((markerp (cdr item))
-                  (marker-position (cdr item)))
-                 (t (cdr item))))
-          (when (< position guess)
-            (if (< guess target)
-                (setq target guess))))
+             do
+             (setq guess
+                   (cond
+                    ((overlayp (cdr item))
+                     (overlay-start (cdr item)))
+                    ((markerp (cdr item))
+                     (marker-position (cdr item)))
+                    (t (cdr item))))
+             (when (< pos guess)
+               (if (< guess target)
+                   (setq target guess))))
     (goto-char target)
     (when (ems-interactive-p)
       (emacspeak-auditory-icon 'large-movement)
@@ -146,13 +146,13 @@
         (goto-char (overlay-end (car (overlays-at (point)))))))))
 
 ;;;###autoload
-(defun emacspeak-imenu-goto-previous-index-position ()
-  "Goto the previous index position in current buffer"
+(defun emacspeak-imenu-goto-previous-index-pos ()
+  "Goto the previous index pos in current buffer"
   (interactive)
-  (declare (special emacspeak-imenu-flattened-index-alist
+  (cl-declare (special emacspeak-imenu-flattened-index-alist
                     emacspeak-imenu-autospeak
                     imenu--index-alist))
-  (let ((position (point))
+  (let ((pos (point))
         (guess 0)
         (target (point-min)))
     (unless imenu--index-alist (imenu--make-index-alist 'no-error))
@@ -161,17 +161,17 @@
             (emacspeak-imenu-flatten-index-alist
              imenu--index-alist t)))
     (cl-loop for item  in emacspeak-imenu-flattened-index-alist
-          do
-          (setq guess
-                (cond
-                 ((overlayp (cdr item))
-                  (overlay-start (cdr item)))
-                 ((markerp (cdr item))
-                  (marker-position (cdr item)))
-                 (t (cdr item))))
-          (when (> position guess)
-            (if (> guess target)
-                (setq target guess))))
+             do
+             (setq guess
+                   (cond
+                    ((overlayp (cdr item))
+                     (overlay-start (cdr item)))
+                    ((markerp (cdr item))
+                     (marker-position (cdr item)))
+                    (t (cdr item))))
+             (when (> pos guess)
+               (if (> guess target)
+                   (setq target guess))))
     (goto-char target)
     (when (ems-interactive-p)
       (emacspeak-auditory-icon 'large-movement)
@@ -204,7 +204,7 @@
 ;;}}}
 ;;{{{ customize settings
 
-(declaim (special imenu-space-replacement
+(cl-declaim (special imenu-space-replacement
                   imenu-max-items))
 (setq imenu-space-replacement "."
       imenu-max-items 200)
@@ -215,7 +215,7 @@
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

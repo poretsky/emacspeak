@@ -43,6 +43,7 @@
 ;;; Code:
 ;;}}}
 ;;{{{ requires
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 
 ;;}}}
@@ -50,7 +51,7 @@
 
 (defadvice gud-display-line (after emacspeak pre act)
   "Speak the error line"
-  (declare (special gud-overlay-arrow-position))
+  (cl-declare (special gud-overlay-arrow-position))
   (let ((marker gud-overlay-arrow-position))
     (emacspeak-auditory-icon 'large-movement)
     (and marker
@@ -92,7 +93,7 @@
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

@@ -48,8 +48,8 @@
 ;;}}}
 ;;{{{  Required modules
 
-(require 'cl)
-(declaim  (optimize  (safety 0) (speed 3)))
+(require 'cl-lib)
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 (eval-when-compile (require 'package "package" 'no-error))
 (require 'calendar)
@@ -80,7 +80,7 @@
   "Succinct Summary."
   (interactive)
   (let* ((entry   (get-text-property (point) 'tabulated-list-entry))
-         (name (copy-sequence (first (aref entry 0))))
+         (name (copy-sequence (cl-first (aref entry 0))))
          (desc (aref entry 4))
          (state (aref entry 2)))
     (cond
@@ -140,7 +140,7 @@
  for f in
  '(
    package-menu-mark-delete package-menu-mark-install package-show-package-list
-                            package-menu-mark-unmark package-menu-backup-unmark)
+   package-menu-mark-unmark package-menu-backup-unmark)
  do
  (eval
   `(defadvice ,f (after emacspeak pre act com)

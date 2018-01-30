@@ -40,6 +40,7 @@
 
 ;;{{{  Required modules
 
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 
 ;;}}}
@@ -54,20 +55,20 @@
 ;;{{{ advice semantic completion
 
 (cl-loop for f in
-      '(semantic-complete-symbol)
-      do
-      (eval
-       `(defadvice ,f (around emacspeak pre act comp)
-          "Provide auditory feedback."
-          (let ((prior (point))
-                (dtk-stop-immediately t))
-            (emacspeak-kill-buffer-carefully "*Completions*")
-            ad-do-it
-            (if (> (point) prior)
-                (tts-with-punctuations 'all
-                                       (emacspeak-speak-rest-of-buffer))
-              (emacspeak-speak-completions-if-available))
-            ad-return-value))))
+         '(semantic-complete-symbol)
+         do
+         (eval
+          `(defadvice ,f (around emacspeak pre act comp)
+             "Provide auditory feedback."
+             (let ((prior (point))
+                   (dtk-stop-immediately t))
+               (emacspeak-kill-buffer-carefully "*Completions*")
+               ad-do-it
+               (if (> (point) prior)
+                   (tts-with-punctuations 'all
+                                          (emacspeak-speak-rest-of-buffer))
+                 (emacspeak-speak-completions-if-available))
+               ad-return-value))))
 
 ;;}}}
 (provide 'emacspeak-cedet)
@@ -75,7 +76,7 @@
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

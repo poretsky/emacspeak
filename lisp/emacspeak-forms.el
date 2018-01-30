@@ -39,7 +39,8 @@
 
 ;;{{{ requires
 
-(require 'forms)(require 'emacspeak-preamble)
+(require 'forms)(cl-declaim  (optimize  (safety 0) (speed 3)))
+(require 'emacspeak-preamble)
 
 ;;}}}
 ;;{{{  Introduction:
@@ -67,13 +68,13 @@ speak the first field")
 (defun emacspeak-forms-summarize-current-record ()
   "Summarize current record"
   (interactive)
-  (declare (special emacspeak-forms-current-record-summarizer))
+  (cl-declare (special emacspeak-forms-current-record-summarizer))
   (funcall emacspeak-forms-current-record-summarizer))
 
 (defun emacspeak-forms-summarize-current-position ()
   "Summarize current position in list of records"
   (interactive)
-  (declare (special forms--current-record forms--total-records
+  (cl-declare (special forms--current-record forms--total-records
                     forms-file))
   (dtk-speak
    (format "Record %s of %s from %s"
@@ -180,13 +181,11 @@ Assumes that point is at the front of a field value."
 
 (defadvice forms-prev-field (after emacspeak pre act comp)
   "Provide auditory feedback."
-  (cond
-   ((ems-interactive-p)
-    ad-do-it
+  
+  (when (ems-interactive-p)
     (emacspeak-auditory-icon 'large-movement)
-    (emacspeak-forms-speak-field))
-   (t ad-do-it))
-  ad-return-value)
+    (emacspeak-forms-speak-field)))   
+  
 
 (defadvice forms-kill-record (after emacspeak pre act comp)
   "Provide auditory feedback."
@@ -220,7 +219,7 @@ Assumes that point is at the front of a field value."
 (defun emacspeak-forms-rerun-filter ()
   "Rerun  filter --allows us to nuke more matching records"
   (interactive)
-  (declare (special forms--file-buffer
+  (cl-declare (special forms--file-buffer
                     forms--total-records forms-read-only))
   (save-current-buffer
     (set-buffer forms--file-buffer)
@@ -256,7 +255,7 @@ Assumes that point is at the front of a field value."
 
 ;;}}}
 ;;{{{ bind smart filters
-(declaim (special forms-mode-map forms-mode-ro-map
+(cl-declaim (special forms-mode-map forms-mode-ro-map
                   forms-mode-edit-map))
 (add-hook 'forms-mode-hooks
           (function
@@ -279,7 +278,7 @@ Assumes that point is at the front of a field value."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end: 
 
 ;;}}}

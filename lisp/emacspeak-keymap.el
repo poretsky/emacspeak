@@ -49,8 +49,8 @@
 ;;{{{ requires
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(require 'cl)
-(declaim  (optimize  (safety 0) (speed 3)))
+(require 'cl-lib)
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'wid-edit)
 
 ;;}}}
@@ -64,14 +64,14 @@
 ;;;###autoload
 (defun emacspeak-keymap-update (keymap binding)
   "Update keymap with specified binding."
-  (define-key keymap  (kbd (first binding)) (second binding)))
+  (define-key keymap  (kbd (cl-first binding)) (cl-second binding)))
 
 (defun emacspeak-keymap-bindings-update (keymap bindings)
   "Update keymap with specified list of bindings."
   (cl-loop
    for binding in bindings
    do
-   (define-key keymap (kbd (first binding)) (second binding)))) 
+   (define-key keymap (kbd (cl-first binding)) (cl-second binding)))) 
 
 (define-widget 'ems-interactive-command 'restricted-sexp
   "An interactive command  or keymap that can be bound to a key."
@@ -133,33 +133,40 @@
 ;;; help map additions:
 
 (cl-loop for binding in
-      '(
-        (":" describe-help-keys)
-        ("B" customize-browse)
-        ("G" customize-group)
-        ("M" emacspeak-speak-popup-messages)
-        ("T" emacspeak-view-notifications)
-        ("M-F" find-function-at-point)
-        ("M-V" find-variable-at-point)
-        ("M-f" find-function)
-        ("M-k" find-function-on-key)
-        ("M-v" find-variable)
-        ("V" customize-variable)
-        ("C-e"   emacspeak-describe-emacspeak)
-        ("C-j" finder-commentary)
-        ("C-l" emacspeak-learn-emacs-mode)
-        ("C-m" man)
-        ("C-s" customize-saved)
-        ("C-r" info-display-manual)
-        ("SPC" customize-group)
-        ("TAB" emacspeak-info-wizard)
-        ("'" describe-text-properties)
-        ("," emacspeak-wizards-color-at-point)
-        ("\;" describe-font)
-        ("p" list-packages)
-        )
-      do
-      (emacspeak-keymap-update help-map binding))
+         '(
+           (":" describe-help-keys)
+           ("B" customize-browse)
+           ("G" customize-group)
+           ("M-m" describe-minor-mode-from-indicator)
+           ("T" emacspeak-view-notifications)
+           ("M-F" find-function-at-point)
+           ("M-V" find-variable-at-point)
+           ("M-f" find-function)
+           ("M-k" find-function-on-key)
+           ("M-v" find-variable)
+           ("V" customize-variable)
+           ("C-e"   emacspeak-describe-emacspeak)
+           ("C-j" finder-commentary)
+           ("C-l" emacspeak-learn-emacs-mode)
+           ("C-m" man)
+           ("C-s" emacspeak-wizards-customize-saved)
+           ("C-r" info-display-manual)
+           ("SPC" customize-group)
+           ("TAB" emacspeak-info-wizard)
+           ("C-<tab>" emacs-index-search)
+           ("M" emacspeak-speak-popup-messages)
+           ("'" describe-text-properties)
+           ("\"" voice-setup-list-voices)
+           ("," emacspeak-wizards-color-at-point)
+           ("\\" emacspeak-wizards-color-diff-at-point)
+           ("/" describe-face)
+           ("u" apu-chars)
+           ("C-v" voice-setup-describe-personality)
+           ("\;" describe-font)
+           ("p" list-packages)
+           )
+         do
+         (emacspeak-keymap-update help-map binding))
 
 ;;; emacspeak-keymap bindings:
 (cl-loop
@@ -207,11 +214,12 @@
    ("C-i" emacspeak-open-info)
    ("C-j" emacspeak-hide-speak-block-sans-prefix)
    ("C-l" emacspeak-speak-line-number)
+   ("M-C-l" emacspeak-speak-overlay-properties)
    ("C-m"  emacspeak-speak-continuously)
    ("C-n" emacspeak-speak-next-window)
    ("C-o" emacspeak-ocr)
    ("C-p" emacspeak-speak-previous-window)
-   ("C-q" emacspeak-toggle-comint-autospeak)
+   ("C-q" emacspeak-toggle-inaudible-or-comint-autospeak)
    ("C-s" tts-restart)
    ("C-u" emacspeak-feeds-browse)
    ("C-v" view-mode)
@@ -240,7 +248,7 @@
    ("M-s" emacspeak-symlink-current-file)
    ("M-t" emacspeak-tapestry-describe-tapestry)
    ("M-u" emacspeak-feeds-add-feed)
-   ("M-P" emacspeak-show-property-at-point)
+   ("M-p" emacspeak-show-property-at-point)
    ("M-v" emacspeak-show-personality-at-point)
    ("N" emacspeak-view-emacspeak-news)
    ("P" emacspeak-speak-paragraph-interactively)
@@ -361,6 +369,7 @@
 ;;; Get hyper, alt and super like on the console:
 (global-set-key (kbd "C-,") 'emacspeak-alt-keymap)
 (global-set-key  (kbd "C-'") 'emacspeak-super-keymap)
+(global-set-key  (kbd "C-.") 'emacspeak-super-keymap)
 (global-set-key  (kbd "C-;") 'emacspeak-hyper-keymap)
 ;;; Our very own silence key on the console
 ;;; I use the Windows key.
@@ -378,8 +387,8 @@ to do if you run emacspeak on a remote machine from inside a terminal
 that is running inside a local emacspeak session.  You can have the
 remote emacspeak use a different control key to give your fingers some
 relief."
-  (interactive "kPress the key you would like to use as the emacspeak prefix")
-  (declare (special emacspeak-prefix))
+  (interactive (list (read-key-sequence "Emacspeak Prefix: ")))
+  (cl-declare (special emacspeak-prefix))
   (let ((current-use (lookup-key  global-map prefix-key)))
     (global-set-key prefix-key 'emacspeak-prefix-command)
     (unless (eq  current-use 'emacspeak-prefix-command)
@@ -396,11 +405,11 @@ relief."
     (keymap)
   "We define keys that invoke editing commands to be undefined"
   (cl-loop for k in
-        (where-is-internal 'emacspeak-self-insert-command
-                           (list keymap))
-        do
-        (define-key keymap k 'undefined)
-        ))
+           (where-is-internal 'emacspeak-self-insert-command
+                              (list keymap))
+           do
+           (define-key keymap k 'undefined)
+           ))
 
 (defun emacspeak-keymap-refresh ()
   "Load emacspeak-keymap module."
@@ -417,21 +426,22 @@ relief."
 
 (defcustom emacspeak-personal-keys 
   '(
-    ("0" emacspeak-wizards-shell-by-key ) 
-    ("1" emacspeak-wizards-shell-by-key ) 
-    ("2" emacspeak-wizards-shell-by-key ) 
-    ("3" emacspeak-wizards-shell-by-key ) 
-    ("4" emacspeak-wizards-shell-by-key ) 
-    ("5" emacspeak-wizards-shell-by-key ) 
-    ("6" emacspeak-wizards-shell-by-key ) 
-    ("7" emacspeak-wizards-shell-by-key ) 
-    ("8" emacspeak-wizards-shell-by-key ) 
-    ("9" emacspeak-wizards-shell-by-key ) 
-
-
+    ("0" emacspeak-wizards-shell-by-key) 
+    ("1" emacspeak-wizards-shell-by-key) 
+    ("2" emacspeak-wizards-shell-by-key) 
+    ("3" emacspeak-wizards-shell-by-key) 
+    ("4" emacspeak-wizards-shell-by-key) 
+    ("5" emacspeak-wizards-shell-by-key) 
+    ("6" emacspeak-wizards-shell-by-key) 
+    ("7" emacspeak-wizards-shell-by-key) 
+    ("8" emacspeak-wizards-shell-by-key) 
+    ("9" emacspeak-wizards-shell-by-key) 
+    ("." emacspeak-wizards-shell-directory-reset)
+    ("," emacspeak-wizards-shell-directory-set)
     ("=" emacspeak-wizards-find-longest-line-in-region)
-    ("3" emacspeak-wizards-cycle-browser)
     ("b" battery)
+    ("C" emacspeak-wizards-color-wheel)
+    ("c" emacspeak-wizards-colors)
     ("e" emacspeak-we-xsl-map)
     ("h" emacspeak-wizards-how-many-matches)
     ("i" ibuffer)
@@ -439,8 +449,8 @@ relief."
     ("m" mspools-show)
     ("o" emacspeak-wizards-occur-header-lines)
     ("p" paradox-list-packages)
-    ("Q" emacspeak-wizards-yql-lookup)
-    ("q" emacspeak-wizards-yql-quotes)
+    ("q" emacspeak-wizards-alpha-vantage-quotes)
+    ("w" emacspeak-wizards-noaa-weather)
     ("r" jabber-activity-switch-to)
     ("s" emacspeak-emergency-tts-restart)
     ("t" emacspeak-speak-telephone-directory)
@@ -472,10 +482,11 @@ interactive command that the key sequence executes."
            (ems-interactive-command :tag "Command")))
   :set #'(lambda (sym val)
            (emacspeak-keymap-bindings-update emacspeak-personal-keymap val)
-           (set-default sym
-                        (sort
-                         val
-                         #'(lambda (a b) (string-lessp (car a) (car b)))))))
+           (set-default
+            sym
+            (sort
+             val
+             #'(lambda (a b) (string-lessp (car a) (car b)))))))
 
 (define-key  emacspeak-keymap "x" 'emacspeak-personal-keymap)
 
@@ -532,8 +543,9 @@ interactive command that the key sequence executes."
 (defcustom emacspeak-super-keys 
   '(
     ("SPC"  emacspeak-wizards-scratch)
-    ("." auto-correct-update)
+    ("." emacspeak-wizards-shell-directory-reset)
     ("f" flyspell-mode)
+    ("g" emacspeak-google-tts-region)
     ("j" ido-imenu-anywhere)
     ("o" ciel-co)
     ("r" soundscape-restart)
@@ -543,12 +555,11 @@ interactive command that the key sequence executes."
     ("S" soundscape-stop)
     ("b" emacspeak-bbc)
     ("e" elfeed)
-    ;("h" emacspeak-webspace-headlines-browse)
+    ("h" emacspeak-m-player-from-media-history)
     ("l" emacspeak-m-player-locate-media)
     ("m" emacspeak-wizards-view-buffers-filtered-by-this-mode)
     ("p" proced)
-    ("R" emacspeak-webspace-feed-reader)
-    ("v" emacspeak-muggles-view/body))
+    ("R" emacspeak-webspace-feed-reader))
   "*Specifies super key bindings for the audio desktop. You can
 turn the right `windows menu' keys on your Linux PC keyboard into
 a `super' key on Linux by having it emit the sequence `C-x@s'.
@@ -601,6 +612,7 @@ interactive command that the key sequence executes."
     ("c" emacspeak-wizards-view-buffers-filtered-by-this-mode)
     ("e" eww)
     ("f" emacspeak-feeds-find-feeds)
+    ("g" emacspeak-gnus-async)
     ("i" emacspeak-wizards-iheart)
     ("l" eww-open-file)
     ("m" magit-status)
@@ -667,13 +679,13 @@ command that the key sequence executes."
     (";" emacspeak-m-player-using-openal)
     ("'" emacspeak-m-player-using-hrtf)
     ("B" eww-list-bookmarks)
-    ("C" apu-chars)
     ("N" emacspeak-npr-listing)
     ("a" emacspeak-wizards-term)
     ("b" eww-list-buffers)
     ("c" browse-url-chrome)
     ("d" magit-dispatch-popup)
     ("e" gmaps)
+    ("F" rg-dwim)
     ("f" rg)
     ("g" gnus)
     ("h" emacspeak-org-capture-link)
@@ -690,7 +702,8 @@ command that the key sequence executes."
     ("s" emacspeak-wizards-shell)
     ("t" twit)
     ("u" browse-url)
-    ("v" emacspeak-evil-toggle-evil))
+    ("v" emacspeak-evil-toggle-evil)
+    ("w" emacspeak-wizards-quick-weather))
   "*Specifies hyper key bindings for the audio desktop. Emacs can
 use the `hyper' key as a modifier key. You can turn the `windows'
 keys on your Linux PC keyboard into a `hyper' key on Linux by
@@ -751,7 +764,7 @@ interactive command that the key sequence executes."
                  (line-beginning-position) (line-end-position))
                 " " 'omit-nulls)))
           (push
-           (list (first fields) (intern (second fields)))
+           (list (cl-first fields) (intern (cl-second fields)))
            bindings))
         (forward-line 1)))
     (setq bindings (nreverse (copy-sequence bindings)))
@@ -767,9 +780,22 @@ interactive command that the key sequence executes."
       (goto-char (point-max))
       (cl-loop
        for binding  in (symbol-value variable) do
-       (insert (format "%s %s\n" (first binding) (second binding))))
+       (insert (format "%s %s\n" (cl-first binding) (cl-second binding))))
       (save-buffer buffer))
     (switch-to-buffer buffer)))
+
+;;}}}
+;;{{{ Helper: recover end-of-line
+
+(defun emacspeak-keymap-recover-eol ()
+  "Recover end-of-line."
+  (cl-declare (special emacspeak-prefix))
+  (global-set-key (concat emacspeak-prefix "e") 'end-of-line)
+  (global-set-key (concat emacspeak-prefix emacspeak-prefix) 'end-of-line))
+
+;;}}}
+;;{{{ Global Bindings From Other Modules:
+(global-set-key (kbd "C-x r e") 'emacspeak-eww-open-mark)
 
 ;;}}}
 (provide 'emacspeak-keymap)
@@ -777,7 +803,7 @@ interactive command that the key sequence executes."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

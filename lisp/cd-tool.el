@@ -40,7 +40,7 @@
 ;;{{{ required packages
 
 (require 'cl-lib)
-(cl-declaim (optimize  (safety 0) (speed 3)))
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 
 ;;}}}
 ;;{{{ top level
@@ -82,27 +82,27 @@ cap C   Save clip to disk
   (let ((command nil))
     (while (null command)
       (setq command
-            (case (read-char "CD Action? ")
-              (?+ (concat cd-tool-start-command " +"))
-              (?> (concat cd-tool-start-command " +"))
-              (?. (concat cd-tool-start-command " +"))
-              (?- (concat cd-tool-start-command " -"))
-              (?< (concat cd-tool-start-command " -"))
-              (?, (concat cd-tool-start-command " -"))
-              (?t (format (concat cd-tool-start-command " %s")
-                          (read-from-minibuffer "Enter track number: ")))
-              (?p cd-tool-start-command)
-              (?s "cdstop")
-              (?= "cdshuffle")
-              (?\ "cdpause")
-              (?r cd-tool-start-command)
-              (?i "cdir ")
-              (?e "cdeject")
-              (?c (cd-tool-get-clip-command))
-              (?C (cd-tool-get-clip-command 'save))
-              (otherwise (message cd-tool-message)
-                         (sit-for 5)
-                         nil))))
+            (cl-case (read-char "CD Action? ")
+                  (?+ (concat cd-tool-start-command " +"))
+                  (?> (concat cd-tool-start-command " +"))
+                  (?. (concat cd-tool-start-command " +"))
+                  (?- (concat cd-tool-start-command " -"))
+                  (?< (concat cd-tool-start-command " -"))
+                  (?, (concat cd-tool-start-command " -"))
+                  (?t (format (concat cd-tool-start-command " %s")
+                              (read-from-minibuffer "Enter track number: ")))
+                  (?p cd-tool-start-command)
+                  (?s "cdstop")
+                  (?= "cdshuffle")
+                  (?\ "cdpause")
+                  (?r cd-tool-start-command)
+                  (?i "cdir ")
+                  (?e "cdeject")
+                  (?c (cd-tool-get-clip-command))
+                  (?C (cd-tool-get-clip-command 'save))
+                  (otherwise (message cd-tool-message)
+                             (sit-for 5)
+                             nil))))
     (shell-command
      (format "%s &"
              command))))
@@ -124,10 +124,8 @@ cap C   Save clip to disk
 
 (defun cd-tool-get-clip-command (&optional save)
   "Query for and return an appropriate CD clip command"
-  (declare (special cd-tool-clipper
-                    cd-tool-clip-track-history
-                    cd-tool-clip-skip-history
-                    cd-tool-clip-duration-history))
+  (cl-declare (special cd-tool-clipper cd-tool-clip-track-history
+                    cd-tool-clip-skip-history cd-tool-clip-duration-history))
   (let ((filename (when save
                     (read-file-name
                      "File name to save clip to: ")))
@@ -148,9 +146,9 @@ cap C   Save clip to disk
                                         nil ;KEYMAP
                                         nil ; READ
                                         cd-tool-clip-duration-history)))
-    (pushnew track cd-tool-clip-track-history)
-    (pushnew  skip cd-tool-clip-skip-history)
-    (pushnew duration cd-tool-clip-duration-history)
+    (cl-pushnew track cd-tool-clip-track-history :test #'string=)
+    (cl-pushnew  skip cd-tool-clip-skip-history :test #'string=)
+    (cl-pushnew duration cd-tool-clip-duration-history :test #'string=)
     (format "%s %s -t %s -o %s -d %s %s"
             cd-tool-clipper
             cd-tool-clipper-default-args
@@ -164,7 +162,7 @@ cap C   Save clip to disk
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

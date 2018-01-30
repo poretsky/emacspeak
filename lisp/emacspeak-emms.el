@@ -53,6 +53,7 @@
 ;;}}}
 ;;{{{ required modules
 
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 (require 'emms "emms" 'no-error)
 ;;}}}
@@ -65,46 +66,46 @@
    (cdr (assq 'name (emms-playlist-current-selected-track)))))
 
 (cl-loop for f in
-      '(emms-next emms-next-noerror emms-previous)
-      do
-      (eval
-       `(defadvice ,f (after emacspeak pre act comp)
-          "Speak track name."
-          (when (ems-interactive-p)
-            (emacspeak-auditory-icon 'select-object)))))
+         '(emms-next emms-next-noerror emms-previous)
+         do
+         (eval
+          `(defadvice ,f (after emacspeak pre act comp)
+             "Speak track name."
+             (when (ems-interactive-p)
+               (emacspeak-auditory-icon 'select-object)))))
 
 ;;; these commands should not be made to talk since that would  interferes
 ;;; with real work.
 (cl-loop for f in
-      '(emms-start emms-stop emms-sort
-                   emms-shuffle emms-random)
-      do
-      (eval
-       `(defadvice ,f (after emacspeak pre act comp)
-          "Provide auditory icon."
-          (when (ems-interactive-p)
-            (emacspeak-auditory-icon 'select-object)))))
+         '(emms-start emms-stop emms-sort
+                      emms-shuffle emms-random)
+         do
+         (eval
+          `(defadvice ,f (after emacspeak pre act comp)
+             "Provide auditory icon."
+             (when (ems-interactive-p)
+               (emacspeak-auditory-icon 'select-object)))))
 
 (cl-loop for f in
-      '(emms-playlist-first emms-playlist-last
-                            emms-playlist-mode-first emms-playlist-mode-last)
-      do
-      (eval
-       `(defadvice ,f (after emacspeak pre act comp)
-          "Provide auditory feedback."
-          (when (ems-interactive-p)
-            (emacspeak-auditory-icon 'large-movement)
-            (emacspeak-speak-line)))))
+         '(emms-playlist-first emms-playlist-last
+                               emms-playlist-mode-first emms-playlist-mode-last)
+         do
+         (eval
+          `(defadvice ,f (after emacspeak pre act comp)
+             "Provide auditory feedback."
+             (when (ems-interactive-p)
+               (emacspeak-auditory-icon 'large-movement)
+               (emacspeak-speak-line)))))
 (cl-loop for f in
-      '(emms-browser emms-browser-next-filter
-                     emms-browser-previous-filter)
-      do
-      (eval
-       `(defadvice ,f (after emacspeak pre act comp)
-          "Provide auditory feedback."
-          (when (ems-interactive-p)
-            (emacspeak-speak-mode-line)
-            (emacspeak-auditory-icon 'open-object)))))
+         '(emms-browser emms-browser-next-filter
+                        emms-browser-previous-filter)
+         do
+         (eval
+          `(defadvice ,f (after emacspeak pre act comp)
+             "Provide auditory feedback."
+             (when (ems-interactive-p)
+               (emacspeak-speak-mode-line)
+               (emacspeak-auditory-icon 'open-object)))))
 
 (defadvice emms-browser-bury-buffer (after emacspeak pre act comp)
   "Provide auditory feedback."
@@ -114,7 +115,7 @@
 
 ;;}}}
 ;;{{{ Module emms-streaming:
-(declaim (special emms-stream-mode-map))
+(cl-declaim (special emms-stream-mode-map))
 (defadvice emms-stream-mode (after emacspeak pre act comp)
   "Update keymaps."
   (define-key emms-stream-mode-map "\C-e"
@@ -134,25 +135,25 @@
     (message "Saved stream bookmarks.")))
 
 (cl-loop for f in
-      '(emms-streams emms-stream-quit
-                     emms-stream-popup emms-stream-popup-revert
-                     emms-playlist-mode-go
-                     )
-      do
-      (eval
-       `(defadvice ,f (after emacspeak pre act comp)
-          "Provide auditory feedback."
-          (when (ems-interactive-p)
-            (emacspeak-speak-mode-line)))))
+         '(emms-streams emms-stream-quit
+                        emms-stream-popup emms-stream-popup-revert
+                        emms-playlist-mode-go
+                        )
+         do
+         (eval
+          `(defadvice ,f (after emacspeak pre act comp)
+             "Provide auditory feedback."
+             (when (ems-interactive-p)
+               (emacspeak-speak-mode-line)))))
 
 (cl-loop for f in
-      '(emms-stream-next-line emms-stream-previous-line)
-      do
-      (eval
-       `(defadvice ,f (after emacspeak pre act comp)
-          "Provide auditory feedback."
-          (when (ems-interactive-p)
-            (emacspeak-speak-line)))))
+         '(emms-stream-next-line emms-stream-previous-line)
+         do
+         (eval
+          `(defadvice ,f (after emacspeak pre act comp)
+             "Provide auditory feedback."
+             (when (ems-interactive-p)
+               (emacspeak-speak-line)))))
 (defadvice emms-playlist-mode-bury-buffer (after emacspeak pre act)
   "Announce the buffer that becomes current."
   (when (ems-interactive-p)
@@ -176,7 +177,7 @@
 (defun emacspeak-emms-pause-or-resume ()
   "Pause/resume if emms is running. For use  in
 emacspeak-silence-hook."
-  (declare (special emms-player-playing-p))
+  (cl-declare (special emms-player-playing-p))
   (when (and (boundp 'emms-player-playing-p)
              (not (null emms-player-playing-p)))
     (emms-player-pause)))
@@ -189,7 +190,7 @@ emacspeak-silence-hook."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

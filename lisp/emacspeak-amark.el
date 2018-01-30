@@ -52,13 +52,13 @@
 ;;; Code:
 ;;}}}
 ;;{{{  Required modules
-(require 'cl)
-(declaim  (optimize  (safety 0) (speed 3)))
+(require 'cl-lib)
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-sounds)
 ;;}}}
 ;;{{{ Structure:
 
-(defstruct emacspeak-amark
+(cl-defstruct emacspeak-amark
   path                                  ; fully qualified pathname
   name                                  ; Bookmark tag
   position                              ; Offset in ms from start
@@ -77,21 +77,21 @@ Automatically becomes buffer-local when set.")
 ;;{{{ AMark Functions:
 (defun emacspeak-amark-names ()
   "Return list of  amark names."
-  (declare (special emacspeak-amark-list))
+  (cl-declare (special emacspeak-amark-list))
   (cl-loop for a in emacspeak-amark-list collect (emacspeak-amark-name a)))
 
 (defun emacspeak-amark-find (name)
   "Return matching AMark if found in buffer-local AMark list."
   (interactive (list (completing-read "Name: " (emacspeak-amark-names))))
-  (declare (special emacspeak-amark-list))
-  (find name emacspeak-amark-list :test #'string= :key #'emacspeak-amark-name))
+  (cl-declare (special emacspeak-amark-list))
+  (cl-find name emacspeak-amark-list :test #'string= :key #'emacspeak-amark-name))
 
 (defun emacspeak-amark-add (path name position)
   "Add an AMark to the buffer local list of AMarks. AMarks are
 bookmarks in audio content. If there is an existing amark of the
 given name, it is updated with path and position."
   (interactive "fPath\nsName\nnPosition")
-  (declare (special emacspeak-amark-list))
+  (cl-declare (special emacspeak-amark-list))
   (let ((amark (emacspeak-amark-find name)))
     (when (and path (not (zerop (length path))))
       (cond
@@ -109,7 +109,7 @@ given name, it is updated with path and position."
 (defun emacspeak-amark-save ()
   "Save buffer-local AMarks in current directory."
   (interactive)
-  (declare (special  emacspeak-amark-file))
+  (cl-declare (special  emacspeak-amark-file))
   (let ((l  emacspeak-amark-list)
         (print-length nil)
         (buff (find-file-noselect (expand-file-name emacspeak-amark-file))))
@@ -125,7 +125,7 @@ given name, it is updated with path and position."
 (defun emacspeak-amark-load ()
   "Locate AMarks file from current directory, and load it."
   (interactive)
-  (declare (special emacspeak-amark-list
+  (cl-declare (special emacspeak-amark-list
                     emacspeak-amark-file))
   (let ((buff nil)
         (l nil)
@@ -153,7 +153,7 @@ given name, it is updated with path and position."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

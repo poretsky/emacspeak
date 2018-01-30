@@ -40,6 +40,7 @@
 
 ;;{{{  Required modules
 
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 (require 'tar-mode)
 ;;}}}
@@ -160,7 +161,7 @@
 (defun emacspeak-tar-speak-file-date()
   "Speak date of file current entry "
   (interactive)
-  (declare (special emacspeak-speak-time-format-string))
+  (cl-declare (special emacspeak-speak-time-format-string))
   (unless (eq major-mode 'tar-mode)
     (error "This command should be called only in tar mode"))
   (let ((entry (tar-current-descriptor)))
@@ -174,14 +175,14 @@
 
 (defun emacspeak-tar-setup-keys ()
   "Setup emacspeak keys for tar mode"
-  (declare (special tar-mode-map))
+  (cl-declare (special tar-mode-map))
   (define-key tar-mode-map "z" 'emacspeak-tar-speak-file-size)
   (define-key tar-mode-map "/" 'emacspeak-tar-speak-file-permissions)
   (define-key tar-mode-map "c" 'emacspeak-tar-speak-file-date)
   )
 
-(eval-when (load)
-  (emacspeak-tar-setup-keys))
+(cl-eval-when (load)
+           (emacspeak-tar-setup-keys))
 
 ;;}}}
 (provide 'emacspeak-tar)
@@ -189,7 +190,7 @@
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

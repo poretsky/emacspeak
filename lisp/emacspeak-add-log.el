@@ -47,9 +47,9 @@
 ;;}}}
 ;;{{{  Required modules
 
-(require 'cl)
-(declaim  (optimize  (safety 0) (speed 3)))
+(require 'cl-lib)
 (require 'custom)
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 ;;}}}
 ;;{{{ define personalities
@@ -60,7 +60,7 @@
 
 (voice-setup-add-map
  '(
-   (change-log-acknowledgement voice-smoothen)
+   (change-log-acknowledgment voice-smoothen)
    (change-log-conditionals voice-animate)
    (change-log-email voice-lighten)
    (change-log-function voice-bolden-extra)
@@ -68,6 +68,7 @@
    (change-log-email voice-lighten)
    (change-log-list voice-lighten)
    (change-log-name voice-lighten-extra)
+   (change-log-date voice-monotone)
    ))
 
 ;;}}}
@@ -77,7 +78,7 @@
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

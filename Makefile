@@ -45,7 +45,7 @@ README = README
 # {{{  User level targets emacspeak info  outloud espeak 
 
 emacspeak:
-	@test -f  lisp/emacspeak-loaddefs.el || @$(MAKE) config
+	@test -f  lisp/emacspeak-loaddefs.el || $(MAKE) config
 	@cd lisp && $(MAKE)
 	@make   $(README)
 	@chmod 644 $(README)
@@ -81,18 +81,20 @@ dist:
 config:
 	@cd etc && $(MAKE) config  
 	@cd lisp && $(MAKE) config
-	@echo "Configured emacspeak in directory $(SRC). Now type make emacspeak"
+	@cd lisp/g-client  && $(MAKE) config
+	@echo "Configured emacspeak in directory $(SRC)."
 
 # }}}
 # {{{  complete build
 
 all: emacspeak
 
-#clean, config and build
+#clean, config and build (development)
 q:
 	make clean
 	make config 
-	make 
+	make
+	cd lisp && make muggles 
 
 # }}}
 # {{{  user level target-- clean

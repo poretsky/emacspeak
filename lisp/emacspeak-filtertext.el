@@ -40,6 +40,7 @@
 
 ;;{{{ required modules
 
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 ;;}}}
 ;;{{{  Introduction:
@@ -62,7 +63,7 @@
 ;;}}}
 ;;{{{  structures 
 
-(defstruct (emacspeak-filtertext
+(cl-defstruct (emacspeak-filtertext
             (:constructor
              emacspeak-filtertext-constructor))
   text                                  ;original text
@@ -80,7 +81,7 @@
   "FilterText mode"
   "Major mode for FilterText interaction. \n\n
 \\{emacspeak-filtertext-mode-map}")
-(declare (special emacspeak-filtertext-mode-map))
+(cl-declare (special emacspeak-filtertext-mode-map))
 (define-key emacspeak-filtertext-mode-map "=" 'keep-lines)
 (define-key emacspeak-filtertext-mode-map "^" 'flush-lines)
 (define-key emacspeak-filtertext-mode-map "r"
@@ -93,7 +94,7 @@
   "Copy over text in region to special filtertext buffer in
 preparation for interactively filtering text. "
   (interactive "r")
-  (declare (special emacspeak-filtertext-info
+  (cl-declare (special emacspeak-filtertext-info
                     case-fold-search))
   (let ((this (buffer-substring-no-properties start end))
         (buffer (get-buffer-create
@@ -115,7 +116,7 @@ preparation for interactively filtering text. "
 (defun emacspeak-filtertext-revert ()
   "Revert to original text."
   (interactive)
-  (declare (special emacspeak-filtertext-info))
+  (cl-declare (special emacspeak-filtertext-info))
   (unless (eq  major-mode 'emacspeak-filtertext-mode)
     (error "Not in filter text mode."))
   (when emacspeak-filtertext-info
@@ -130,7 +131,7 @@ preparation for interactively filtering text. "
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

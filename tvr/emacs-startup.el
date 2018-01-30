@@ -1,265 +1,244 @@
-;;{{{ History: Emacs initialization file for Raman:  -*- lexical-binding: t; -*-
-
+;;; Emacs initialization file for Raman:  -*- lexical-binding: t; -*-
+;;{{{ History:
 ;;; Segre March 22 1991
 ;;; July 15, 2001 finally cutting over to custom.
 ;;; August 12, 2007: Cleaned up for Emacs 22
-
+;;; September 2017: Optimized and Cleaned Up
 ;;}}}
-;;{{{ personal lib
+;;{{{  lib
 
-(setq inhibit-startup-echo-area-message user-login-name)
-
-(defvar emacs-private-library (expand-file-name "~/.elisp")
-  "Private library directory. ")
-
+(require 'cl-lib)
+(cl-declaim  (optimize  (safety 0) (speed 3)))
+(defvar emacspeak-speak-messages)
 (defvar emacs-personal-library
   (expand-file-name "~/emacs/lisp/site-lisp")
-  "Directory where we keep site libraries. Mostly superceded by elpa.")
+  "Site libs.")
+
+(when (file-exists-p  emacs-personal-library)
+  (push emacs-personal-library load-path))
+
+(defvar tvr-libs
+  '(
+    "kbd-setup"
+    "vm-prepare" "gnus-prepare"  "bbdb-prepare" "elfeed-prepare"
+    "vdiff-prepare"  "sp-prepare"
+    "auctex-prepare"  "folding-prepare" "org-prepare"
+    "use-emms" "calc-prepare" "helm-prepare"                      ;helm not activated
+    "js-prepare" "tcl-prepare" "slime-prepare" "yasnippet-prepare"
+    "python-mode-prepare" "projectile-prepare" "iplayer-prepare"
+    "erc-prepare" "jabber-prepare" "twittering-prepare"
+    "default")
+  "Libraries to load.")
 
 ;;}}}
 ;;{{{ helper functions:
 
-;;; This is for setting variables customized via custom.
-
-(defmacro csetq (variable value)
-  `(funcall (or (get ',variable 'custom-set) 'set-default) ',variable ,value))
-
-(defsubst augment-load-path (path &optional library whence at-end)
-  "add directory to load path.
-Path is resolved relative to `whence' which defaults to emacs-personal-library."
-  (interactive "Denter directory name: ")
-  (declare (special emacs-personal-library))
-  (unless (and library (locate-library library))
-    (add-to-list
-     'load-path
-     (expand-file-name
-      path
-      (or
-       whence
-       (and (boundp 'emacs-personal-library) emacs-personal-library)))
-     at-end))
-  (when library (locate-library library)))
-
-(defsubst augment-auto-mode-alist (ext mode)
-  "Add to auto-mode-alist."
-  (declare (special auto-mode-alist))
-  (setq auto-mode-alist
-        (cons
-         (cons ext mode)
-         auto-mode-alist)))
+(defsubst tvr-time-it (start what)
+  "Time code."
+  (message "<%s %.4f %d gcs %.4f>"
+           what (float-time (time-subtract (current-time) start))
+           gcs-done gc-elapsed))
 
 (defsubst load-library-if-available (lib)
-  "Safe load library."
-  (let ((emacspeak-speak-messages nil))
-    (condition-case nil
-        (cond
-         ((locate-library lib)
+  "Safe load lib."
+  (let ((start (current-time))
+        (file-name-handler-alist nil)
+        (inhibit-message t)
+        (gc-cons-threshold 64000000)
+        (emacspeak-speak-messages nil))
+    (condition-case err
+        (progn
           (load-library lib)
-          (message "Loaded %s" lib)
-          t)
-         (t (message "Could not locate library %s" lib)
-            nil))
-      (error (message "Error loading %s" lib)))))
+          (tvr-time-it start lib))
+      (error (message "Error loading %s: %s" lib (error-message-string err))))))
 
 ;;}}}
-;;{{{ customize custom
+;;{{{ tvr-shell-bind-keys:
 
-(declare (special custom-file))
-(setq custom-file (expand-file-name "~/.customize-emacs"))
+(defsubst tvr-shell-bind-keys ()
+  "Set up  shell mode keys."
+  (cl-declare (special shell-mode-map))
+  (cl-loop 
+   for b in
+   '(
+     ;("C-c TAB" emacspeak-wizards-bash-completion-toggle)
+     ("SPC" comint-magic-space)
+     ("C-c k" comint-clear-buffer))
+   do
+   (define-key shell-mode-map (kbd (cl-first b)) (cl-second b))))
 
 ;;}}}
-(defun start-up-my-emacs()
-  "Start up emacs for me. "
-  (declare (special emacs-personal-library emacs-private-library))
-  (let ((gc-cons-threshold 8000000))
+;;{{{ Handlers: Custom, after-init-hook
+
+(defun tvr-customize ()
+  "Load my customizations."
+  (cl-declare (special custom-file))
+  (let ((file-name-handler-alist nil)
+        (gc-cons-threshold  64000000)
+        (inhibit-message t)
+        (emacspeak-speak-messages nil))
+    (setq-default custom-file (expand-file-name "~/.customize-emacs"))
+    (define-key esc-map "\M-:" 'emacspeak-wizards-show-eval-result)
+    (global-set-key (kbd "C-RET") 'hippie-expand)
+    (bbdb-insinuate-vm)
+    (when (file-exists-p custom-file) (load custom-file))))
+
+(defun tvr-defer-muggles ()
+  "Defered muggles loader."
+  (unless (featurep 'emacspeak-muggles)
+    (make-thread
+     #'(lambda ()
+         (let ((file-name-handler-alist nil)
+               (gc-cons-threshold 64000000))
+           (load "emacspeak-muggles"))))))
+
+(defun tvr-after-init ()
+  "Actions to take after Emacs is up and ready."
+  (cl-declare (special emacspeak-sounds-directory tvr-libs))
+  (let ((after-start (current-time))
+        (gc-cons-threshold 64000000)
+        (file-name-handler-alist nil)
+        (inhibit-message t)
+        (emacspeak-speak-messages nil))
+    (dynamic-completion-mode 1)
+    (completion-initialize)
+    (mapc #'load tvr-libs)
+    (run-with-idle-timer  0.1  nil  #'tvr-defer-muggles)
+    (tvr-customize)
+    (soundscape-toggle)
+    (setq frame-title-format '(multiple-frames "%b" ( "Emacs")))
+    (require 'emacspeak-dbus)
+    (when (dbus-list-known-names :session)
+      (nm-enable)
+      (emacspeak-dbus-sleep-enable)
+      (emacspeak-dbus-watch-screen-lock))
+    (emacspeak-wizards-project-shells-initialize)
+    (start-process
+     "play" nil "play"
+     (expand-file-name "highbells.au" emacspeak-sounds-directory))
+    (tvr-time-it after-start "after-init")))
+
+(add-hook 'after-init-hook #'tvr-after-init)
+(add-hook
+ 'emacs-startup-hook
+ #'(lambda ()
+     (delete-other-windows)
+     (message "<Successfully initialized Emacs for %s in %s with %s gcs (%.4fs)>"
+              user-login-name (emacs-init-time) gcs-done gc-elapsed)))
+
+(defun tvr-text-mode-hook ()
+  "TVR:text-mode"
+  (auto-correct-mode 1)
+  (abbrev-mode 1))
+
+(defun tvr-prog-mode-hook ()
+  "TVR:prog-mode"
+  (company-mode 1)
+(hs-minor-mode 1)
+  (smartparens-mode 1)
+  (abbrev-mode 1))
+
+;;}}}
+(defun tvr-emacs()
+  "Start up emacs."
+  (cl-declare (special  emacspeak-directory
+                       outloud-default-speech-rate dectalk-default-speech-rate
+                       outline-mode-prefix-map))
+  (let ((gc-cons-threshold 64000000)
+        (file-name-handler-alist nil)   ; to speed up, avoid tramp etc
+        (emacspeak-speak-messages nil)
+        (inhibit-message t))
     ;;{{{ Basic Look And Feel:
 
+    (setq inhibit-startup-echo-area-message user-login-name
+          initial-scratch-message ""
+          initial-buffer-choice t
+          text-quoting-style 'grave)
     (tooltip-mode -1)
     (menu-bar-mode -1)
     (tool-bar-mode -1)
     (scroll-bar-mode -1)
     (fringe-mode 0)
-    (setq text-quoting-style 'grave)
+
     (put 'upcase-region 'disabled nil)
     (put 'downcase-region 'disabled nil)
     (put 'narrow-to-region 'disabled nil)
     (put 'eval-expression 'disabled nil)
+    (put 'timer-list 'disabled nil)
 
     ;;}}}
-    ;;{{{ Augment Load Path:
-
-    (when (file-exists-p  emacs-private-library)
-      (augment-load-path emacs-private-library ))
-
-    (when (file-exists-p  emacs-personal-library)
-      (augment-load-path emacs-personal-library))
-
-    ;;}}}
-    ;;{{{ Load and customize emacspeak
-
-    (load-file (expand-file-name "~/emacs/lisp/emacspeak/lisp/emacspeak-setup.el"))
-    (when (featurep 'emacspeak)
-      (emacspeak-sounds-select-theme "pan-chimes/"))
-    
-(when (file-exists-p (expand-file-name "tvr/" emacspeak-directory))
-    (add-to-list 'load-path (expand-file-name "tvr/" emacspeak-directory)))
-
-    ;;}}}
+    (package-initialize)
     ;;{{{  set up terminal codes and global keys
 
     (prefer-coding-system 'utf-8-emacs)
-    (mapc #'load-library-if-available '("console" "screen"))
-
-    (when (eq window-system 'x) (load-library-if-available "x"))
-
     (cl-loop
      for  key in
      '(
-       ([f3] bury-buffer)
-       ([f4] emacspeak-kill-buffer-quietly)
-       ([pause] dtk-stop)
-       ("\M--" undo)
-       ([f11]shell)
-       ([f12]vm)
-       ( "\C-xc"compile)
-       (  "\C-x%"comment-region)
-       ( "\M-r"replace-string)
-       ( "\M-e"end-of-word)
-       ( "\M-\C-j"imenu)
-       ( "\M-\C-c"calendar))
+       ("<f3>" bury-buffer)
+       ("<f4>" emacspeak-kill-buffer-quietly)
+       ("M--" undo)
+       ("<f11> "shell)
+       ("<f12>" vm)
+       ( "M-r"replace-string)
+       ("M-e"emacspeak-wizards-end-of-word)
+       ( "M-C-j"imenu)
+       ("M-C-c"calendar)
+       ("C-RET" hippie-expand))
      do
-     (global-set-key (first key) (second key)))
-;;; Experimental:
-(global-set-key [S-return] 'other-window)
-
+     (global-set-key (kbd (cl-first key)) (cl-second key)))
+    (cl-loop ; shell wizard
+     for i from 0 to 9 do
+     (global-set-key (kbd (format "C-c %s" i)) 'emacspeak-wizards-shell-by-key))
+    (global-set-key  (kbd "C-c <tab>") 'hs-toggle-hiding)
 ;;; Smarten up ctl-x-map
     (define-key ctl-x-map "\C-n" 'forward-page)
     (define-key ctl-x-map "\C-p" 'backward-page)
 
-
-;;; Shell navigation:
-(cl-loop
-     for  key in
-     '(
-       ("C-c -" emacspeak-wizards-previous-shell)
-       ("C-c =" emacspeak-wizards-next-shell)
-       ("C-c <" emacspeak-wizards-previous-shell)
-       ("C-c >" emacspeak-wizards-next-shell)
-)
-     do
-     (global-set-key (kbd (first key)) (second key)))
-
-
+;;; Shell mode bindings:
+    (eval-after-load "shell" `(progn (tvr-shell-bind-keys)))
 
     ;;}}}
-    ;;{{{  Basic Support Libraries
-
-    (require 'dired-x)
-    (require 'dired-aux)
-    (dynamic-completion-mode)
-    (unless enable-completion (completion-mode ))
-
-    ;;}}}
-    ;;{{{  different mode settings
-
-;;; Mode hooks.
-
-    (eval-after-load "shell"
-      '(progn
-         (define-key shell-mode-map "\C-cr" 'comint-redirect-send-command)
-         (define-key shell-mode-map "\C-ch" 'emacspeak-wizards-refresh-shell-history)))
+    ;;{{{ Load  emacspeak
+    (setq outloud-default-speech-rate 125 ; because we load custom at the end
+          dectalk-default-speech-rate 485)
+    (load (expand-file-name"~/emacs/lisp/emacspeak/lisp/emacspeak-setup.elc"))
+    (when (file-exists-p (expand-file-name "tvr/" emacspeak-directory))
+      (push (expand-file-name "tvr/" emacspeak-directory) load-path))
 
     ;;}}}
     ;;{{{ outline mode setup:
 
-    (load-library "outline")
+    (eval-after-load 'outline
+      `(progn
 ;;;restore what we are about to steal
-    (define-key outline-mode-prefix-map "o" 'open-line)
-    (global-set-key "\C-o"outline-mode-prefix-map)
-
-    ;;}}}
-    ;;{{{ Prepare needed libraries
-
-    (package-initialize)
-
-    ;;; mail-abbrevs-setup added to mail-mode hooks in custom.
-
-    (mapc
-     #'load-library-if-available
-     '(
-       "emacspeak-dbus" "emacspeak-muggles" "emacspeak-maths"
-       "my-functions"
-;;; Mail:
-       "vm-prepare" "gnus-prepare" "bbdb-prepare"
-       "mspools-prepare" "sigbegone"
-;;; Web:
-       "w3-prepare" "elfeed-prepare"
-;;; Authoring:
-       "auctex-prepare" "nxml-prepare" "folding-prepare"
-       "calc-prepare"
-        "helm-prepare"   ;helm not activated
-       "js-prepare" "tcl-prepare" "slime-prepare"
-       "company-prepare" "python-mode-prepare"
-       "projectile-prepare"
-                                        ; jde and ecb will pull in cedet.
-                                        ;"jde-prepare" "ecb-prepare"
-       "org-prepare"
-       "erc-prepare" "jabber-prepare" "twittering-prepare"
-       "tramp-prepare"  "fap-prepare"
-       "emms-prepare" "iplayer-prepare"
-       "auto-correct-setup"
-       "color-theme-prepare" "elscreen-prepare"
-       "smart-window"
-       "local"))
+         (define-key outline-mode-prefix-map "o" 'open-line)
+         (global-set-key "\C-o"outline-mode-prefix-map)
+         ))
 
     ;;}}}
     ;;{{{ turn on modes:
-
-    (initialize-completions)
+    (add-hook 'prog-mode-hook 'tvr-prog-mode-hook)
+    (add-hook 'text-mode-hook 'tvr-text-mode-hook)
     (savehist-mode )
     (save-place-mode)
     (midnight-mode)
     (server-start)
     (pinentry-start)
-    (bbdb-insinuate-vm)
-    (when (locate-library "ido-ubiquitous") (ido-ubiquitous-mode 1))
+    (bbdb-insinuate-vm))
 
-    ;;}}}
-    ;;{{{ Save abbrevs On Quit:
+  ;;}}}
+  ) ;end defun
+(tvr-emacs)
+;;{{{ Additional Interactive Commands:
 
-    (when (file-exists-p abbrev-file-name)
-      (read-abbrev-file)
-      (add-hook #'kill-emacs-hook #'write-abbrev-file))
-
-    ;;}}}
-    )) ;end defun
-;;{{{  start it up
-
-(add-hook
- 'after-init-hook
- #'(lambda ()
-     (soundscape-toggle)
-     (setq frame-title-format '(multiple-frames "%b" ( "Emacs")))
-     (calendar)
-     (when (dbus-list-known-names :session)
-       (nm-enable)
-       (emacspeak-dbus-sleep-enable)
-       (emacspeak-dbus-watch-screen-lock))
-     (custom-reevaluate-setting 'gweb-my-address)
-     (play-sound
-      `(sound
-        :file ,(expand-file-name "highbells.au" emacspeak-sounds-directory)))
-     (when (file-exists-p custom-file) (load-file custom-file))
-     (emacspeak-wizards-project-shells-initialize)
-     (message "Successfully initialized Emacs for %s" user-login-name)))
-(start-up-my-emacs)
 
 
 ;;}}}
 (provide 'emacs-startup)
 ;;{{{  emacs local variables
+
 ;;;local variables:
 ;;;folded-file: t
 ;;;end:
+
 ;;}}}
-(put 'timer-list 'disabled nil)

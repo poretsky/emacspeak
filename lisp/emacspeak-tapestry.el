@@ -44,6 +44,7 @@
 ;;; Code:
 ;;}}}
 ;;{{{ requires
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 (require 'tapestry)
 
@@ -55,7 +56,7 @@
 Use interactive prefix arg to get coordinate positions of the
 displayed buffers."
   (interactive "P")
-  (declare (special voice-animate voice-bolden))
+  (cl-declare (special voice-animate voice-bolden))
   (let* ((buffer-map (tapestry-buffer-map))
          (count (length buffer-map))
          (window-list  (tapestry-window-list))
@@ -75,7 +76,7 @@ displayed buffers."
         for buffer in buffer-map
         and window in window-list
         collect
-        (let ((w (format "%s "  (second buffer)))
+        (let ((w (format "%s "  (cl-second buffer)))
               (corners  (window-edges window))
               (tl nil)
               (br nil))
@@ -83,12 +84,12 @@ displayed buffers."
            0 (length w)
            'personality voice-animate w)
           (setq
-           tl (format  " %d %d " (first corners) (second corners))
-           br  (format " %d %d " (third corners) (fourth corners)))
+           tl (format  " %d %d " (cl-first corners) (cl-second corners))
+           br  (format " %d %d " (cl-third corners) (cl-fourth corners)))
           (put-text-property 0 (length tl) 'personality voice-bolden tl)
           (put-text-property 0 (length br) 'personality voice-bolden br)
           (concat w " with top left " tl " and bottom right " br))))
-      (t (mapcar #'second buffer-map ))))
+      (t (mapcar #'second buffer-map))))
     (tts-with-punctuations
      'all
      (dtk-speak (concat description (mapconcat #'identity windows " "))))))
@@ -118,7 +119,7 @@ but quickly switch to a window by name."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end: 
 
 ;;}}}

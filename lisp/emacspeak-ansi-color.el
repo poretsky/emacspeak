@@ -52,19 +52,21 @@
 ;;{{{ required modules
 
 ;;; Code:
+(require 'cl-lib)
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 ;;}}}
 ;;{{{ color to voice
 
 (defun emacspeak-ansi-color-to-voice (face-spec)
   "Return a voice corresponding to specified face-spec."
-  (declare (special ansi-color-names-vector ansi-color-faces-vector))
+  (cl-declare (special ansi-color-names-vector ansi-color-faces-vector))
   (condition-case nil
       (let* ((voice-name nil)
              (color (cdr (assq 'foreground-color  face-spec)))
              (color-index
               (when color
-                (position  color ansi-color-names-vector
+                (cl-position  color ansi-color-names-vector
                            :test #'string-equal)))
              (style nil)
              (color-parameter nil))
@@ -83,7 +85,7 @@
 
 (defadvice ansi-color-set-extent-face (after emacspeak pre act comp)
   "Apply aural properties."
-  (declare (special emacspeak-personality-voiceify-faces))
+  (cl-declare (special emacspeak-personality-voiceify-faces))
   (let* ((extent (ad-get-arg 0))
          (face (ad-get-arg 1))
          (start (overlay-start extent))
@@ -118,7 +120,7 @@
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

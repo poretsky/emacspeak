@@ -89,17 +89,12 @@
 
 ;;}}}
 ;;{{{  Required modules
-
-(eval-when-compile (require 'cl))
-(declaim  (optimize  (safety 0) (speed 3)))
+(cl-declaim  (optimize  (safety 0) (speed 3)))
+(require 'emacspeak-preamble)
+(require 'cl-lib)
 (require 'comint)
 (require 'derived)
-(cl-eval-when '(load)
-  (when (locate-library "package")
-    (unless (locate-library "hydra") (package-install 'hydra))))
-(require 'hydra "hydra" 'no-error)
-(require 'emacspeak-preamble)
-(require 'emacspeak-muggles)
+(require 'nvm "nvm" 'no-error )
 
 ;;}}}
 ;;{{{ Customizations And Variables:
@@ -109,8 +104,18 @@
   :group 'emacspeak)
 
 (defcustom emacspeak-maths-inferior-program
-  (executable-find "node")
-  "Location of `node' executable."
+  (cond
+   ((executable-find "node") (executable-find "node"))
+   ((and (locate-library "nvm")
+         (nvm--installed-versions))
+    (let ((v (car (sort (mapcar #'car (nvm--installed-versions)) #'string>))))
+      (nvm-use v)
+      (executable-find "node"))) 
+   (t  nil))
+  "Location of `node' executable.  Make sure the environment in which
+Emacs is launched finds the right installation of node.  M-x
+package-install nvm makes it easier to have Emacs find the right node
+install."
   :type 'file
   :group 'emacspeak-maths)
 
@@ -135,13 +140,13 @@
   "Map of handlers for parsing Maths Server output.")
 (defun emacspeak-maths-handler-set (name handler)
   "Set up handler for name `name'."
-  (declare (special emacspeak-maths-handler-table))
+  (cl-declare (special emacspeak-maths-handler-table))
   (puthash name handler emacspeak-maths-handler-table))
 
 (defun emacspeak-maths-handler-get (name)
   "Return handler  for name `name'.
 Throw error if no handler defined."
-  (declare (special emacspeak-maths-handler-table))
+  (cl-declare (special emacspeak-maths-handler-table))
   (or (gethash name emacspeak-maths-handler-table)
       (error "No handler defined for %s" name)))
 
@@ -157,7 +162,7 @@ Throw error if no handler defined."
 
 (defun emacspeak-maths-handle-string (string)
   "Handle plain, unannotated string."
-  (declare (special emacspeak-maths))
+  (cl-declare (special emacspeak-maths))
   (with-current-buffer (emacspeak-maths-output emacspeak-maths)
     (let ((start (point)))
       (insert (format "%s\n" string))
@@ -171,14 +176,14 @@ Otherwise, Examine head of sexp, and applies associated handler to the tail."
    ((stringp sexp)
     (emacspeak-maths-handle-string sexp))
    (t
-    (cl-assert  (listp sexp) t "%s is not a list." contents)
+    (cl-assert  (listp sexp) t "%s is not a list." sexp)
     (let ((handler (emacspeak-maths-handler-get(car sexp))))
       (cl-assert (fboundp handler) t "%s is not  a function.")
       (funcall handler (cdr sexp))))))
 
 (defun emacspeak-maths-handle-exp (contents)
   "Handle top-level exp returned from Maths Server."
-  (declare (special emacspeak-maths))
+  (cl-declare (special emacspeak-maths))
   (with-current-buffer (emacspeak-maths-output emacspeak-maths)
     (goto-char (point-max))
     (let ((inhibit-read-only  t)
@@ -206,7 +211,7 @@ Otherwise, Examine head of sexp, and applies associated handler to the tail."
 
 (defun emacspeak-maths-apply-pause (start)
   "Apply pause."
-  (declare (special emacspeak-maths))
+  (cl-declare (special emacspeak-maths))
   (let ((pause (emacspeak-maths-pause emacspeak-maths)))
     (when pause
       (save-excursion
@@ -220,11 +225,10 @@ Otherwise, Examine head of sexp, and applies associated handler to the tail."
 (defun emacspeak-maths-handle-text (contents)
   "Handle body of annotated text from Maths Server.
 Expected: ((acss) string)."
-  (declare (special emacspeak-maths))
+  (cl-declare (special emacspeak-maths))
   (cl-assert (listp contents) t "%s is not a list. " contents)
   (let ((acss (cl-first contents))
         (string (cl-second contents))
-        (pause (emacspeak-maths-pause emacspeak-maths))
         (start nil))
     (with-current-buffer  (emacspeak-maths-output emacspeak-maths)
       (setq start (goto-char (point-max)))
@@ -236,7 +240,7 @@ Expected: ((acss) string)."
 
 (defun emacspeak-maths-handle-pause (ms)
   "Handle Pause value."
-  (declare (special emacspeak-maths))
+  (cl-declare (special emacspeak-maths))
   (cl-assert (numberp ms) t "%s is not a number. " ms)
   (cond
    ((null (emacspeak-maths-pause emacspeak-maths))
@@ -281,7 +285,7 @@ incomplete parse, that is expected to be caught by the caller."
   "Handle process output from Node math-server.
 All complete chunks of output are consumed. Partial output is
 left for next run."
-  (declare (special emacspeak-maths))
+  (cl-declare (special emacspeak-maths))
   (with-current-buffer (process-buffer proc)
     (let ((moving (= (point) (process-mark proc))))
       (save-excursion
@@ -319,7 +323,7 @@ left for next run."
 (defun emacspeak-maths-start ()
   "Start Maths server bridge."
   (interactive)
-  (declare (special emacspeak-maths-inferior-program
+  (cl-declare (special emacspeak-maths-inferior-program
                     emacspeak-maths emacspeak-maths-server-program))
   (cl-assert emacspeak-maths-inferior-program nil "No node executable found.")
   (let ((server
@@ -344,7 +348,7 @@ left for next run."
 (defun emacspeak-maths-shutdown ()
   "Shutdown client and server processes."
   (interactive)
-  (declare (special emacspeak-maths))
+  (cl-declare (special emacspeak-maths))
   (when (process-live-p (emacspeak-maths-client-process emacspeak-maths))
     (delete-process (emacspeak-maths-client-process emacspeak-maths)))
   (when (process-live-p (emacspeak-maths-server-process emacspeak-maths))
@@ -358,7 +362,7 @@ left for next run."
 
 (defun emacspeak-maths-ensure-server ()
   "Start up Maths Server bridge if not already running."
-  (declare (special emacspeak-maths))
+  (cl-declare (special emacspeak-maths))
   (unless
       (and emacspeak-maths
            (process-live-p (emacspeak-maths-server-process emacspeak-maths))
@@ -374,11 +378,12 @@ left for next run."
 
 ;;}}}
 ;;{{{ Navigators:
+(declare-function calc-kill "calc-yank" (flag no-delete))
 ;;; Guess expression from Calc:
 (defun emacspeak-maths-guess-calc ()
   "Guess expression to speak in calc buffers.
 Set calc-language to tex to use this feature."
-  (declare (special calc-last-kill))
+  (cl-declare (special calc-last-kill))
   (cl-assert (eq major-mode 'calc-mode) nil "This is not a Calc buffer.")
   (calc-kill 1 'no-delete)
   (substring (car calc-last-kill) 2))
@@ -387,7 +392,7 @@ Set calc-language to tex to use this feature."
 
 (defun emacspeak-maths-guess-tex ()
   "Extract math content around point."
-  (declare (special texmathp-why))
+  (cl-declare (special texmathp-why))
   (cl-assert (require 'texmathp) nil "Install package auctex to get texmathp")
   (when (texmathp)
     (let ((delimiter (car texmathp-why))
@@ -432,7 +437,7 @@ Set calc-language to tex to use this feature."
 
 (defun emacspeak-maths-guess-input ()
   "Examine current mode, text around point etc. to guess Math content to read."
-  (declare (special emacspeak-maths))
+  (cl-declare (special emacspeak-maths))
   (unless emacspeak-maths (emacspeak-maths-start))
   (setf(emacspeak-maths-input emacspeak-maths)
        (cond
@@ -454,7 +459,7 @@ Set calc-language to tex to use this feature."
   "Send the guessed  LaTeX expression to Maths server.
 Guess is based on context."
   (interactive)
-  (declare (special emacspeak-maths))
+  (cl-declare (special emacspeak-maths))
   (emacspeak-maths-guess-input)         ;guess based on context
   (emacspeak-maths-ensure-server)
   (process-send-string
@@ -480,7 +485,7 @@ Uses guessed default if user enters an empty string."
       (read-from-minibuffer "LaTeX: "
                             nil nil nil nil
                             (emacspeak-maths-input emacspeak-maths)))))
-  (declare (special emacspeak-maths))
+  (cl-declare (special emacspeak-maths))
   (emacspeak-maths-ensure-server)
   (when (string= "" latex)
     (setq latex (emacspeak-maths-input emacspeak-maths)))
@@ -497,7 +502,7 @@ Uses guessed default if user enters an empty string."
   `(defun ,(intern (format "emacspeak-maths-%s" move)) ()
      ,(format "Move %s in current Math expression." move)
      (interactive)
-     (declare (special emacspeak-maths))
+     (cl-declare (special emacspeak-maths))
      (process-send-string
       (emacspeak-maths-client-process emacspeak-maths)
       ,(format "%s:\n" move)))))
@@ -519,7 +524,7 @@ Emacs online help facility to look up help on these commands.
   (goto-char (point-min))
   (setq header-line-format "Spoken Math")
   (modify-syntax-entry 10 ">"))
-(declaim (special emacspeak-maths-spoken-mode-map))
+(cl-declaim (special emacspeak-maths-spoken-mode-map))
 (cl-loop
  for b in
  '(
@@ -543,7 +548,7 @@ Emacs online help facility to look up help on these commands.
 (defun emacspeak-maths-switch-to-output ()
   "Switch to output buffer."
   (interactive)
-  (declare (special emacspeak-maths))
+  (cl-declare (special emacspeak-maths))
   (funcall-interactively #'pop-to-buffer (emacspeak-maths-output emacspeak-maths)))
 
 ;;}}}
@@ -557,31 +562,6 @@ For use on Wikipedia pages  for example."
   (let ((alt-text (get-text-property (point) 'shr-alt)))
     (unless (string-equal alt-text "No image under point")
       (funcall-interactively #'emacspeak-maths-enter alt-text))))
-
-;;}}}
-;;{{{ Muggle: Speak And Browse Math
-(when (featurep 'hydra)
-  (require 'emacspeak-muggles)
-  (global-set-key
-   (kbd "s-SPC")
-   (defhydra emacspeak-maths-navigator
-     (:body-pre
-      (progn
-        (when hydra-is-helpful (emacspeak-muggles-toggle-talkative))
-        (emacspeak-muggles-body-pre "Spoken Math"))
-      :pre emacspeak-muggles-pre
-      :post emacspeak-muggles-post)
-     "Spoken Math"
-     ("o" emacspeak-maths-switch-to-output :color blue)
-     ("RET" emacspeak-maths-enter-guess)
-     ("SPC" emacspeak-maths-enter "enter")
-     ("a" emacspeak-maths-speak-alt "Alt Text")
-     ("d" emacspeak-maths-depth "Depth")
-     ("r" emacspeak-maths-root "Root")
-     ("<up>" emacspeak-maths-up "Up")
-     ("<down>" emacspeak-maths-down"down")
-     ("<left>" emacspeak-maths-left "left")
-     ("<right>" emacspeak-maths-right "right"))))
 
 ;;}}}
 ;;{{{ Advice Preview:

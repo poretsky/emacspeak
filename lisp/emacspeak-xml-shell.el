@@ -49,6 +49,7 @@
 ;;}}}
 ;;{{{  Required modules
 
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 (require 'comint)
 (require 'emacspeak-xslt)
@@ -97,7 +98,7 @@ Interactive XML browser.
 
 (defun emacspeak-xml-shell-start-process (system-id)
   "Launch Xml-Shell process."
-  (declare (special emacspeak-xml-shell-process
+  (cl-declare (special emacspeak-xml-shell-process
                     emacspeak-xml-shell-hooks
                     emacspeak-xml-shell-command
                     emacspeak-xml-shell-options))
@@ -121,7 +122,7 @@ Interactive XML browser.
 
 (defun emacspeak-xml-shell-process-sentinel  (_proc _status)
   "Process sentinel for XML shell."
-  (declare (special emacspeak-xml-shell-document))
+  (cl-declare (special emacspeak-xml-shell-document))
   (setq emacspeak-xml-shell-document nil))
 ;;;###autoload
 (defun emacspeak-xml-shell (system-id)
@@ -134,7 +135,7 @@ Interactive XML browser.
         emacspeak-xml-shell-document
       (read-file-name
        "Browse XML: "))))
-  (declare (special emacspeak-xml-shell-process
+  (cl-declare (special emacspeak-xml-shell-process
                     emacspeak-xml-shell-document))
   (unless (string-match "^http:" system-id)
     (setq system-id (expand-file-name system-id)))
@@ -155,7 +156,7 @@ Interactive XML browser.
 
 (defun emacspeak-xml-shell-navigate (xpath)
   "Navigate to the node specified by xpath."
-  (declare (special emacspeak-xml-shell-process))
+  (cl-declare (special emacspeak-xml-shell-process))
   (save-excursion
     (set-buffer (process-buffer emacspeak-xml-shell-process))
     (goto-char (point-max))
@@ -201,7 +202,7 @@ When accumulation is done, post-processor is called to process the
 content.
 Post-processor accepts a region of text to process specified by start
 and end."
-  (declare (special emacspeak-xml-shell-display-buffer))
+  (cl-declare (special emacspeak-xml-shell-display-buffer))
   `(lambda (process output)
      (let ((stream  ,accumulate)
            (processor (function ,post-processor))
@@ -240,7 +241,7 @@ and end."
   "Apply display-function to the contents of node specified by xpath.
 Display function accepts two arguments, start and end that specify the
 region of text to process."
-  (declare (special emacspeak-xml-shell-process
+  (cl-declare (special emacspeak-xml-shell-process
                     emacspeak-xml-shell-cat))
   (let ((accumulator nil)
         (terminator nil)
@@ -281,7 +282,7 @@ HTML head if none found."
 
 (defun emacspeak-xml-shell-display-as-html (start end)
   "Suitable for use in displaying current node as HTML."
-  (declare (special emacspeak-xml-shell-xslt))
+  (cl-declare (special emacspeak-xml-shell-xslt))
   (when emacspeak-xml-shell-xslt
     (emacspeak-xslt-region
      emacspeak-xml-shell-xslt
@@ -298,7 +299,7 @@ HTML head if none found."
 (defun emacspeak-xml-shell-browse-current ()
   "Display current node."
   (interactive)
-  (declare (special emacspeak-xml-shell-display-buffer))
+  (cl-declare (special emacspeak-xml-shell-display-buffer))
   (emacspeak-xml-shell-process-node "."
                                     'emacspeak-xml-shell-display-as-html)
   (switch-to-buffer emacspeak-xml-shell-display-buffer))
@@ -306,14 +307,14 @@ HTML head if none found."
 (defun emacspeak-xml-shell-browse-result (xpath)
   "Display XPath  and display its result using W3."
   (interactive "sXPath:")
-  (declare (special emacspeak-xml-shell-display-buffer))
+  (cl-declare (special emacspeak-xml-shell-display-buffer))
   (emacspeak-xml-shell-process-node xpath 
                                     'emacspeak-xml-shell-display-as-html))
 
 ;;}}}
 ;;{{{ keybindings
 
-(declaim (special emacspeak-xml-shell-mode-map))
+(cl-declaim (special emacspeak-xml-shell-mode-map))
 (define-key emacspeak-xml-shell-mode-map [left] 
   'emacspeak-xml-shell-goto-previous-child)
 (define-key emacspeak-xml-shell-mode-map [right] 
@@ -332,7 +333,7 @@ HTML head if none found."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

@@ -45,6 +45,7 @@
 ;;; Code:
 ;;}}}
 ;;{{{ requires
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 
 ;;}}}
@@ -233,32 +234,32 @@ in the white-space."
     (save-excursion
       (goto-char start)
       (cl-loop for
-            i from 0 to (1- row-count)
-            do
-            (setq row-vector (make-vector column-count nil))
-            (setq separators white-space)
-            (beginning-of-line)
-            (setq col-start (point))
-            (setq left-edge  col-start)
-            (setq col-end
-                  (+ left-edge (ems-interval-start (car separators))))
-            (setq element (buffer-substring col-start col-end))
-            (aset row-vector j element)
-            (incf j)
-            (while separators
-              (setq col-start
-                    (+ left-edge (ems-interval-end (car separators))))
-              (setq separators (cdr separators))
-              (setq col-end
-                    (if separators
-                        (+ left-edge (ems-interval-start (car separators)))
-                      (progn (end-of-line) (point))))
-              (setq element (buffer-substring col-start col-end))
-              (aset row-vector j element)
-              (incf j))
-            (setq j 0)
-            (aset table i row-vector)
-            (forward-line 1)))
+               i from 0 to (1- row-count)
+               do
+               (setq row-vector (make-vector column-count nil))
+               (setq separators white-space)
+               (beginning-of-line)
+               (setq col-start (point))
+               (setq left-edge  col-start)
+               (setq col-end
+                     (+ left-edge (ems-interval-start (car separators))))
+               (setq element (buffer-substring col-start col-end))
+               (aset row-vector j element)
+               (cl-incf j)
+               (while separators
+                 (setq col-start
+                       (+ left-edge (ems-interval-end (car separators))))
+                 (setq separators (cdr separators))
+                 (setq col-end
+                       (if separators
+                           (+ left-edge (ems-interval-start (car separators)))
+                         (progn (end-of-line) (point))))
+                 (setq element (buffer-substring col-start col-end))
+                 (aset row-vector j element)
+                 (cl-incf j))
+               (setq j 0)
+               (aset table i row-vector)
+               (forward-line 1)))
     table))
 
 ;;}}}
@@ -268,7 +269,7 @@ in the white-space."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end: 
 
 ;;}}}

@@ -46,6 +46,8 @@
 ;;{{{ required modules
 
 ;;; Code:
+(require 'cl-lib)
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 ;;}}}
 ;;{{{ speech-enable interactive commands
@@ -135,15 +137,15 @@
 
 ;;}}}
 ;;{{{ add keybinding on emacspeak desktop
-(eval-when (load)
-  (define-key emacspeak-keymap "\C-k" 'browse-kill-ring))
+(cl-eval-when (load)
+           (define-key emacspeak-keymap "\C-k" 'browse-kill-ring))
 ;;}}}
 (provide 'emacspeak-browse-kill-ring)
 ;;{{{ end of file
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end:
 
 (defadvice browse-kill-ring-search-forward (after

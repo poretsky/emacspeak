@@ -53,19 +53,19 @@
 ;;}}}
 ;;{{{  Required modules
 
-(require 'cl)
-(declaim  (optimize  (safety 0) (speed 3)))
+(require 'cl-lib)
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 (require 'gweb)
 (require 'gmaps)
 (require 'derived)
-(require 'html2text)
+
 ;;}}}
 ;;{{{ Data Structures
 
 ;;; One tool on a tool-belt
 
-(defstruct emacspeak-google-tool
+(cl-defstruct emacspeak-google-tool
   name ; human readable
   param ; url param bit
   range ; range of possible values
@@ -127,7 +127,7 @@ This variable is buffer-local.")
 (make-variable-buffer-local 'emacspeak-google-toolbelt-names)
 (defun emacspeak-google-toolbelt ()
   "Returns buffer-local toolbelt or a a newly initialized toolbelt."
-  (declare (special emacspeak-google-toolbelt))
+  (cl-declare (special emacspeak-google-toolbelt))
   (or emacspeak-google-toolbelt
       (setq
        emacspeak-google-toolbelt
@@ -390,7 +390,7 @@ This variable is buffer-local.")
 
 (defun emacspeak-google-canonicalize-result-url (url)
   "Strip out the actual result URL from the redirect wrapper."
-  (declare (special emacspeak-websearch-google-use-https))
+  (cl-declare (special emacspeak-websearch-google-use-https))
   (url-unhex-string
    (substring url
               (if emacspeak-websearch-google-use-https 29 28)
@@ -398,7 +398,7 @@ This variable is buffer-local.")
 
 (defun emacspeak-google-result-url-prefix ()
   "Return prefix of result urls."
-  (declare (special emacspeak-websearch-google-use-https))
+  (cl-declare (special emacspeak-websearch-google-use-https))
   (format "%s://www.google.com/url?q="
           (if emacspeak-websearch-google-use-https "https" "http")))
 
@@ -406,59 +406,59 @@ This variable is buffer-local.")
 ;;{{{ Interactive Commands
 
 (cl-loop for this-tool in
-      (emacspeak-google-toolbelt)
-      do
-      (eval
-       `(defun
-            ,(intern
-              (format
-               "emacspeak-google-toolbelt-change-%s"
-               (emacspeak-google-tool-name this-tool)))
-            ()
-          ,(format
-            "Change  %s in the currently active toolbelt."
-            (emacspeak-google-tool-name this-tool))
-          (interactive)
-          (let*
-              ((belt (emacspeak-google-toolbelt))
-               (tool
-                (find-if #'(lambda (tool) (string-equal (emacspeak-google-tool-name tool)
-                                                        ,(emacspeak-google-tool-name this-tool)))
-                         belt))
-               (param (emacspeak-google-tool-param tool))
-               (value (emacspeak-google-tool-value tool))
-               (range (emacspeak-google-tool-range tool)))
-            (cond
-             ((and (listp range)
-                   (= 2 (length range)))
+         (emacspeak-google-toolbelt)
+         do
+         (eval
+          `(defun
+               ,(intern
+                 (format
+                  "emacspeak-google-toolbelt-change-%s"
+                  (emacspeak-google-tool-name this-tool)))
+               ()
+             ,(format
+               "Change  %s in the currently active toolbelt."
+               (emacspeak-google-tool-name this-tool))
+             (interactive)
+             (let*
+                 ((belt (emacspeak-google-toolbelt))
+                  (tool
+                   (cl-find-if #'(lambda (tool) (string-equal (emacspeak-google-tool-name tool)
+                                                           ,(emacspeak-google-tool-name this-tool)))
+                            belt))
+                  (param (emacspeak-google-tool-param tool))
+                  (value (emacspeak-google-tool-value tool))
+                  (range (emacspeak-google-tool-range tool)))
+               (cond
+                ((and (listp range)
+                      (= 2 (length range)))
 ;;; toggle value
-              (setf (emacspeak-google-tool-value tool)
-                    (if (equal value (first range))
-                        (second range)
-                      (first range))))
-             ((listp range)
+                 (setf (emacspeak-google-tool-value tool)
+                       (if (equal value (cl-first range))
+                           (cl-second range)
+                         (cl-first range))))
+                ((listp range)
 ;;; Prompt using completion
-              (setf  (emacspeak-google-tool-value tool)
-                     (completing-read
-                      "Set tool to: "
-                      range)))
-             ((stringp range)
-              (setf (emacspeak-google-tool-value tool)
-                    (read-from-minibuffer  range)))
-             (t (error "Unexpected type!")))
-            (let
-                ((emacspeak-websearch-google-options
-                  (concat
-                   (emacspeak-google-toolbelt-to-tbs belt)
-                   (emacspeak-google-toolbelt-to-tbm belt))))
-              (emacspeak-webutils-cache-google-toolbelt belt)
-              (emacspeak-websearch-google
-               (or emacspeak-google-query
-                   (gweb-google-autocomplete))))))))
+                 (setf  (emacspeak-google-tool-value tool)
+                        (completing-read
+                         "Set tool to: "
+                         range)))
+                ((stringp range)
+                 (setf (emacspeak-google-tool-value tool)
+                       (read-from-minibuffer  range)))
+                (t (error "Unexpected type!")))
+               (let
+                   ((emacspeak-websearch-google-options
+                     (concat
+                      (emacspeak-google-toolbelt-to-tbs belt)
+                      (emacspeak-google-toolbelt-to-tbm belt))))
+                 (emacspeak-webutils-cache-google-toolbelt belt)
+                 (emacspeak-websearch-google
+                  (or emacspeak-google-query
+                      (gweb-google-autocomplete))))))))
 
 (defun emacspeak-google-toolbelt-names ()
   "Return memoized cache of names."
-  (declare (special emacspeak-google-toolbelt-names))
+  (cl-declare (special emacspeak-google-toolbelt-names))
   (or emacspeak-google-toolbelt-names
       (setq emacspeak-google-toolbelt-names
             (cl-loop
@@ -485,7 +485,7 @@ This variable is buffer-local.")
 (defun emacspeak-google-show-toolbelt()
   "Reload search page with toolbelt showing."
   (interactive)
-  (declare (special emacspeak-google-query))
+  (cl-declare (special emacspeak-google-query))
   (let ((emacspeak-websearch-google-options "&tbo=1"))
     (emacspeak-websearch-google emacspeak-google-query)))
 
@@ -503,13 +503,13 @@ This variable is buffer-local.")
 (defun emacspeak-google-sign-in ()
   "Sign in to Google."
   (interactive)
-  (declare (special emacspeak-google-sign-in-url))
+  (cl-declare (special emacspeak-google-sign-in-url))
   (browse-url emacspeak-google-sign-in-url))
 
 (defun emacspeak-google-sign-out ()
   "Sign out to Google."
   (interactive)
-  (declare (special emacspeak-google-sign-out-url))
+  (cl-declare (special emacspeak-google-sign-out-url))
   (browse-url emacspeak-google-sign-out-url))
 
 ;;}}}
@@ -526,6 +526,7 @@ This variable is buffer-local.")
    ("a" emacspeak-google-sign-out)
    ("c" emacspeak-webutils-google-extract-from-cache)
    ("g" emacspeak-websearch-google)
+   ("i" emacspeak-google-what-is-my-ip)
    ("l" emacspeak-webutils-google-who-links-to-this-page)
    ("s" emacspeak-webutils-google-similar-to-this-page)
    )
@@ -541,16 +542,16 @@ This variable is buffer-local.")
     (emacspeak-auditory-icon 'open-object)
     (emacspeak-speak-mode-line)))
 (cl-loop for f in
-      '(gmaps-driving-directions gmaps-bicycling-directions
-                                 gmaps-walking-directions gmaps-transit-directions
-                                 gmaps-places-nearby gmaps-places-search)
-      do
-      (eval
-       `(defadvice ,f (after emacspeak pre act comp)
-          "Provide auditory feedback."
-          (when (ems-interactive-p)
-            (emacspeak-auditory-icon 'task-done)
-            (emacspeak-speak-rest-of-buffer)))))
+         '(gmaps-driving-directions gmaps-bicycling-directions
+                                    gmaps-walking-directions gmaps-transit-directions
+                                    gmaps-places-nearby gmaps-places-search)
+         do
+         (eval
+          `(defadvice ,f (after emacspeak pre act comp)
+             "Provide auditory feedback."
+             (when (ems-interactive-p)
+               (emacspeak-auditory-icon 'task-done)
+               (emacspeak-speak-rest-of-buffer)))))
 
 (defadvice gmaps-set-current-location (after emacspeak pre act comp)
   "Provide auditory feedback."
@@ -587,19 +588,19 @@ This variable is buffer-local.")
   "REST endpoint for network speech synthesis.")
 ;;;###autoload
 (defun emacspeak-google-tts (text &optional lang)
-  "Speak text using Google Network TTS."
+  "Speak text using Google Network TTS.
+Optional interactive prefix arg `lang' prompts for language identifier."
   (interactive
    (list
     (read-from-minibuffer "Text: ")
     current-prefix-arg))
-  (declare (special emacspeak-google-tts-default-language
+  (cl-declare (special emacspeak-google-tts-default-language
                     emacspeak-google-tts-rest-uri emacspeak-m-player-program))
-  (when (called-interactively-p 'interactive)
-    (unless lang
-      (setq lang
-            (read-from-minibuffer
-             "Language: " nil nil t nil
-             emacspeak-google-tts-default-language))))
+  (when lang
+    (setq lang
+          (read-from-minibuffer
+           "Language: " nil nil t nil
+           emacspeak-google-tts-default-language)))
   (let ((url (format emacspeak-google-tts-rest-uri
                      (or lang emacspeak-google-tts-default-language)
                      (url-hexify-string  text))))
@@ -608,10 +609,21 @@ This variable is buffer-local.")
      "google-tts" nil  emacspeak-m-player-program url)))
 
 ;;;###autoload
-(defun emacspeak-google-tts-region (start end)
+(defun emacspeak-google-tts-region (start end &optional ask-lang)
   "Speak region using Google Network TTS."
-  (interactive "r")
-  (emacspeak-google-tts (buffer-substring-no-properties start end)))
+  (interactive
+   (list (region-beginning) (region-end) current-prefix-arg))
+  (emacspeak-google-tts (buffer-substring-no-properties start end) ask-lang))
+
+;;}}}
+;;{{{ What Is My IP:
+
+(defun emacspeak-google-what-is-my-ip ()
+  "Show my public IP"
+  (interactive)
+  (emacspeak-we-extract-by-class
+   "_h4c _rGd vk_h"
+   "https://www.google.com/search?lite=90586&q=what+is+my+ip" 'speak))
 
 ;;}}}
 (provide 'emacspeak-google)
@@ -619,7 +631,7 @@ This variable is buffer-local.")
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

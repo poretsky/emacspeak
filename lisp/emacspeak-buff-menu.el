@@ -47,13 +47,14 @@
 
 ;;; Code:
 
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 
 ;;}}}
 ;;{{{ voice personalities
 (voice-setup-add-map
  '(
-   (Buffer-menu-buffer voice-bolden)
+   (buffer-menu-buffer voice-bolden)
    ))
 
 ;;}}}
@@ -73,7 +74,7 @@
 (defun emacspeak-list-buffers-speak-buffer-line ()
   "Speak information about this buffer"
   (interactive)
-  (declare (special list-buffers-directory dtk-stop-immediately))
+  (cl-declare (special list-buffers-directory dtk-stop-immediately))
   (unless (eq major-mode 'Buffer-menu-mode)
     (error "This command can be used only in buffer menus"))
   (let((buffer (Buffer-menu-buffer t)))
@@ -129,7 +130,7 @@
 (defadvice list-buffers (after emacspeak pre act)
   "Select the window displaying buffer-menu,
 and set up additional Emacspeak bindings."
-  (declare (special Buffer-menu-mode-map))
+  (cl-declare (special Buffer-menu-mode-map))
   (when (ems-interactive-p)
     (select-window  ad-return-value)
     (goto-char (point-min))
@@ -260,7 +261,7 @@ and set up additional Emacspeak bindings."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end: 
 
 ;;}}}

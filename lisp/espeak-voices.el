@@ -1,4 +1,4 @@
-;;; espeak-voices.el --- Define various device independent voices in terms of Espeak tags  -*- lexical-binding: t; -*-
+;;; espeak-voices.el --- Define  Espeak tags  -*- lexical-binding: t; -*-
 ;;; Description:  Module to set up Espeak voices and personalities
 ;;; Keywords: Voice, Personality, Espeak
 ;;{{{  LCD Archive entry:
@@ -31,14 +31,17 @@
 ;;{{{  Introduction:
 
 ;;; Commentary:
-;;; This module defines the various voices used in voice-lock mode by the ESpeak TTS engine.
+
+;;; This module defines the various voices used in voice-lock mode by
+;;; the ESpeak TTS engine.
+
 
 ;;; Code:
 ;;}}}
 ;;{{{ Required modules
 
-(require 'cl)
-(declaim  (optimize  (safety 0) (speed 3)))
+(require 'cl-lib)
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'acss-structure)
 (require 'tts)
 
@@ -83,12 +86,12 @@ The string can set any voice parameter.")
   "Define an Espeak  voice named NAME.
 This voice will be set   by sending the string
 COMMAND-STRING to the TTS engine."
-  (declare (special espeak-voice-table))
+  (cl-declare (special espeak-voice-table))
   (puthash name command-string espeak-voice-table))
 
 (defun espeak-get-voice-command  (name)
   "Retrieve command string for  voice NAME."
-  (declare (special espeak-voice-table))
+  (cl-declare (special espeak-voice-table))
   (cond
    ((listp name)
     (mapconcat #'espeak-get-voice-command name " "))
@@ -97,7 +100,7 @@ COMMAND-STRING to the TTS engine."
 
 (defun espeak-voice-defined-p (name)
   "Check if there is a voice named NAME defined."
-  (declare (special espeak-voice-table))
+  (cl-declare (special espeak-voice-table))
   (gethash name espeak-voice-table))
 
 ;;}}}
@@ -143,13 +146,13 @@ Values are vectors holding the control codes for the 10 settings.")
   "Set up voice FAMILY.
 Argument DIMENSION is the dimension being set,
 and TABLE gives the values along that dimension."
-  (declare (special espeak-css-code-tables))
+  (cl-declare (special espeak-css-code-tables))
   (let ((key (intern (format "%s-%s" family dimension))))
     (puthash key table espeak-css-code-tables)))
 
 (defun espeak-css-get-code-table (family dimension)
   "Retrieve table of values for specified FAMILY and DIMENSION."
-  (declare (special espeak-css-code-tables))
+  (cl-declare (special espeak-css-code-tables))
   (let ((key (intern (format "%s-%s" family dimension))))
     (gethash key espeak-css-code-tables)))
 
@@ -169,13 +172,12 @@ and TABLE gives the values along that dimension."
 ;;{{{  paul average pitch
 
 (let ((table (make-vector 10 "")))
-  (mapcar
-   (function
-    (lambda (setting)
+  (mapc
+   #'(lambda (setting)
       (aset table
-            (first setting)
+            (cl-first setting)
             (format "<prosody pitch=\"%s\">"
-                    (second setting)))))
+                    (cl-second setting))))
    '(
      (0 0)
      (1 10)
@@ -193,13 +195,12 @@ and TABLE gives the values along that dimension."
 ;;{{{  harry average pitch
 
 (let ((table (make-vector 10 "")))
-  (mapcar
-   (function
-    (lambda (setting)
+  (mapc
+   #'(lambda (setting)
       (aset table
-            (first setting)
+            (cl-first setting)
             (format "<prosody pitch=\"%s\">"
-                    (second setting)))))
+                    (cl-second setting))))
    '(
      (0 26)
      (1 32.5)
@@ -217,13 +218,12 @@ and TABLE gives the values along that dimension."
 ;;{{{  betty average pitch
 
 (let ((table (make-vector 10 "")))
-  (mapcar
-   (function
-    (lambda (setting)
+  (mapc
+   #'(lambda (setting)
       (aset table
-            (first setting)
+            (cl-first setting)
             (format "<prosody pitch=\"%s\">"
-                    (second setting)))))
+                    (cl-second setting))))
    '(
      (0 40)
      (1 48)
@@ -255,13 +255,12 @@ and TABLE gives the values along that dimension."
 ;;{{{  paul pitch range
 
 (let ((table (make-vector 10 "")))
-  (mapcar
-   (function
-    (lambda (setting)
+  (mapc
+   #'(lambda (setting)
       (aset table
-            (first setting)
+            (cl-first setting)
             (format "<prosody range=\"%s\">"
-                    (second setting)))))
+                    (cl-second setting))))
    '(
      (0 0)
      (1 10)
@@ -279,13 +278,12 @@ and TABLE gives the values along that dimension."
 ;;{{{  harry pitch range
 
 (let ((table (make-vector 10 "")))
-  (mapcar
-   (function
-    (lambda (setting)
+  (mapc
+   #'(lambda (setting)
       (aset table
-            (first setting)
+            (cl-first setting)
             (format "<prosody range=\"%s\">"
-                    (second setting)))))
+                    (cl-second setting))))
    '(
      (0 0)
      (1 10)
@@ -303,13 +301,12 @@ and TABLE gives the values along that dimension."
 ;;{{{  betty pitch range
 
 (let ((table (make-vector 10 "")))
-  (mapcar
-   (function
-    (lambda (setting)
+  (mapc
+   #'(lambda (setting)
       (aset table
-            (first setting)
+            (cl-first setting)
             (format "<prosody range=\"%s\">"
-                    (second setting)))))
+                    (cl-second setting))))
    '(
      (0 0)
      (1 10)
@@ -351,15 +348,14 @@ and TABLE gives the values along that dimension."
 ;;{{{  paul richness
 
 (let ((table (make-vector 10 "")))
-  (mapcar
-   (function
-    (lambda (setting)
+  (mapc
+   #'(lambda (setting)
       (aset table
-            (first setting)
+            (cl-first setting)
             (format "<prosody volume=\"%s\">"
-                    (second setting)))))
+                    (cl-second setting))))
    ;;            (format " ri:%s sm:%s "
-   ;;                    (third setting)))))
+   ;;                    (cl-third setting)))))
    '(
      (0 10 100)
      (1 20 80)
@@ -377,15 +373,14 @@ and TABLE gives the values along that dimension."
 ;;{{{  harry richness
 
 (let ((table (make-vector 10 "")))
-  (mapcar
-   (function
-    (lambda (setting)
-      (aset table (first setting)
+  (mapc
+   #'(lambda (setting)
+      (aset table (cl-first setting)
             (format "<prosody volume=\"%s\">"
-                    (second setting)))))
+                    (cl-second setting))))
    ;;            (format " ri:%s sm:%s "
-   ;;                     (second setting)
-   ;;                     (third setting)))))
+   ;;                     (cl-second setting)
+   ;;                     (cl-third setting)))))
    '(
      (0 10 100)
      (1 20 80)
@@ -403,15 +398,14 @@ and TABLE gives the values along that dimension."
 ;;{{{  betty richness
 
 (let ((table (make-vector 10 "")))
-  (mapcar
-   (function
-    (lambda (setting)
-      (aset table (first setting)
+  (mapc
+   #'(lambda (setting)
+      (aset table (cl-first setting)
             (format "<prosody volume=\"%s\">"
-                    (second setting)))))
+                    (cl-second setting))))
    ;;            (format " ri:%s sm:%s "
-   ;;                     (second setting)
-   ;;                     (third setting)))))
+   ;;                     (cl-second setting)
+   ;;                     (cl-third setting)))))
    '(
      (0 10 100)
      (1 20 80)
@@ -467,9 +461,9 @@ and TABLE gives the values along that dimension."
 
 (defun espeak-list-voices ()
   "List defined voices."
-  (declare (special espeak-voice-table))
+  (cl-declare (special espeak-voice-table))
   (cl-loop for k being the hash-keys of espeak-voice-table 
-        collect   k))
+           collect   k))
 
 ;;}}}
 ;;{{{ Configurater 
@@ -482,22 +476,23 @@ and TABLE gives the values along that dimension."
              (boundp 'dtk-character-to-speech-table)
              (vectorp dtk-character-to-speech-table))
     (setq espeak-character-to-speech-table
-          (let ((table (copy-seq dtk-character-to-speech-table)))
+          (let ((table (cl-copy-seq  dtk-character-to-speech-table)))
             (cl-loop for entry across-ref table 
-                  when   (string-match "\\(\\[\\*\\]\\)"  entry) do
-                  (setf entry (replace-match " " nil nil  entry 1)))
+                     when   (string-match "\\(\\[\\*\\]\\)"  entry) do
+                     (setf entry (replace-match " " nil nil  entry 1)))
             table))))
 ;;;###autoload
 (defun espeak-configure-tts ()
   "Configure TTS environment to use eSpeak."
-  (declare (special tts-default-speech-rate
+  (cl-declare (special tts-default-speech-rate
                     espeak-default-speech-rate
                     dtk-speaker-process
                     emacspeak-unspeakable-rule))
   (fset 'tts-list-voices'espeak-list-voices)
   (fset 'tts-voice-defined-p 'espeak-voice-defined-p)
   (fset 'tts-get-voice-command 'espeak-get-voice-command)
-  (fset 'tts-define-voice-from-speech-style 'espeak-define-voice-from-speech-style)
+  (fset
+   'tts-define-voice-from-speech-style 'espeak-define-voice-from-speech-style)
   (setq tts-default-voice nil)
   (setq tts-default-speech-rate espeak-default-speech-rate)
   (set-default 'tts-default-speech-rate espeak-default-speech-rate)
@@ -509,7 +504,7 @@ and TABLE gives the values along that dimension."
 ;;;###autoload
 (defun espeak-make-tts-env  ()
   "Constructs a TTS environment for Espeak."
-  (declare (special espeak-default-speech-rate))
+  (cl-declare (special espeak-default-speech-rate))
   (make-tts-env
    :name :espeak :default-voice 'paul
    :default-speech-rate espeak-default-speech-rate
@@ -527,8 +522,8 @@ and TABLE gives the values along that dimension."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
+;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

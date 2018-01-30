@@ -48,8 +48,8 @@
 ;;}}}
 ;;{{{  Required modules
 
-(require 'cl)
-(declaim  (optimize  (safety 0) (speed 3)))
+(require 'cl-lib)
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 
 ;;}}}
@@ -63,7 +63,10 @@
    (indium-repl-stdout-face voice-monotone)
    (indium-repl-error-face  voice-animate-extra)
    (indium-link-face voice-bolden)
-   (indium-highlight-face voice-animate)))
+   (indium-highlight-face voice-animate)
+   (indium-breakpoint-face voice-lighten)
+   (indium-frame-url-face  voice-animate)
+   (indium-litable-face voice-lighten)))
 
 ;;}}}
 ;;{{{ Advice indium-backend.el:
@@ -107,6 +110,7 @@
   indium-debugger-step-into
   indium-debugger-step-out
   indium-debugger-step-over)
+
 ;;}}}
 ;;{{{ Advice indium-inspector.el
 
@@ -121,6 +125,24 @@
 
 ;;}}}
 ;;{{{ Advice indium-repl.el
+(defadvice indium-repl-return (after emacspeak pre act comp)
+  "Provide auditory feedback."
+  (when (ems-interactive-p)
+    (save-excursion
+      (forward-line -1)
+      (emacspeak-speak-line)
+      (emacspeak-auditory-icon 'close-object))))
+
+(cl-loop
+ for f in 
+ '(indium-repl-next-input indium-repl-previous-input)
+ do
+ (eval
+  `(defadvice ,f (after emacspeak pre act comp)
+     "Provide auditory feedback."
+     (when (ems-interactive-p)
+       (emacspeak-auditory-icon 'large-movement)
+       (emacspeak-speak-line)))))
 
 ;;}}}
 ;;{{{ Advice indium-scratch.el

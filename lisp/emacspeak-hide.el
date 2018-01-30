@@ -52,8 +52,8 @@
 ;;}}}
 ;;{{{  Required modules
 
-(require 'cl)
-(declaim  (optimize  (safety 0) (speed 3)))
+(require 'cl-lib)
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 
 ;;}}}
@@ -65,7 +65,7 @@
   :group 'emacspeak-hide)
 
 ;;; forcibly set this to t to avoid a possible Emacs bug:
-(declaim (special line-move-ignore-invisible))
+(cl-declaim (special line-move-ignore-invisible))
 (setq line-move-ignore-invisible t)
 
 ;;}}}
@@ -202,7 +202,7 @@ Returns t if a block was found and hidden."
           (beginning-of-line 2)
           (unless (emacspeak-hide-prefix-matches-this-line prefix)
             (setq continue nil))
-          (incf count))
+          (cl-incf count))
         (cond
          ((> count 1)
           (with-silent-modifications
@@ -212,10 +212,10 @@ Returns t if a block was found and hidden."
                                        'intangible t))
             (add-text-properties begin (point)
                                  (list 'emacspeak-hide-block-prefix (nth 2  prefix)
-                                       'emacspeak-hidden-block (first prefix)
+                                       'emacspeak-hidden-block (cl-first prefix)
                                        'personality emacspeak-hidden-header-line-personality)))
           (message "Hid %s  %s lines"
-                   count (first prefix))
+                   count (cl-first prefix))
           t)
          (t (message "Not on a block") nil)))))))
 
@@ -272,7 +272,7 @@ Returns t if a block was found and hidden."
          (cond
           ((and prefix
                 (emacspeak-hide-current-block prefix))
-           (incf count)
+           (cl-incf count)
            (goto-char
             (next-single-property-change (point)
                                          'emacspeak-hidden-block
@@ -294,7 +294,7 @@ Returns t if a block was found and hidden."
          (cond
           (block-end
            (goto-char block-end)
-           (incf count))
+           (cl-incf count))
           (t (forward-line 1)))))
      (dtk-speak (format "Exposed %s blocks" count)))))
 
@@ -302,7 +302,7 @@ Returns t if a block was found and hidden."
 ;;{{{ User interface
 ;;;helper to get prefix
 (defun emacspeak-hide-get-block-prefix ()
-  (declare (special emacspeak-hide-prefix-token-table))
+  (cl-declare (special emacspeak-hide-prefix-token-table))
   (let ((block-prefix nil))
     (or (emacspeak-hide-parse-prefix)
         (when (and (not (looking-at "^[ \t]*$"))
@@ -409,7 +409,7 @@ and when you have heard enough navigate easily  to move past the block."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

@@ -42,15 +42,15 @@
 
 ;;; Commentary:
 ;;; This module provides common Web utilities for emacspeak.
-;;; This is to avoid duplication of code between emacspeak-w3.el
-;;;and emacspeak-w3m.el
+;;; This is to avoid duplication of code  in web support libraries
+
 
 ;;}}}
 ;;{{{ required modules
 
 ;;; Code:
-(require 'cl)
-(declaim  (optimize  (safety 0) (speed 3)))
+(require 'cl-lib)
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 (require 'url)
 (require 'browse-url)
@@ -75,22 +75,6 @@
     ad-do-it))
 
 ;;}}}
-;;{{{ keymap: web-prefix
-;;;###autoload
-(define-prefix-command 'emacspeak-web-prefix)
-
-(declaim (special emacspeak-web-prefix))
-(cl-loop for k in
-      '(
-        ("R" emacspeak-xslt-view-region)
-        ("b" browse-url-of-buffer)
-        ("m" emacspeak-wizards-eww-buffer-list)
-        ("r" browse-url-of-region)
-        )
-      do
-      (emacspeak-keymap-update  emacspeak-web-prefix k))
-(define-key emacspeak-hyper-keymap "w" 'emacspeak-web-prefix)
-;;}}}
 ;;{{{ web-pre-process
 
 ;;;###autoload
@@ -99,7 +83,7 @@
 
 (defun emacspeak-webutils-run-pre-process-hook (&rest _ignore)
   "Run web pre process hook."
-  (declare (special emacspeak-web-pre-process-hook))
+  (cl-declare (special emacspeak-web-pre-process-hook))
   (when     emacspeak-web-pre-process-hook
     (condition-case nil
         (let ((inhibit-read-only t))
@@ -118,7 +102,7 @@ Note that the Web browser should reset this hook after using it.")
 
 (defun emacspeak-webutils-run-post-process-hook (&rest _ignore)
   "Use web post process hook."
-  (declare (special emacspeak-web-post-process-hook
+  (cl-declare (special emacspeak-web-post-process-hook
                     emacspeak-web-pre-process-hook))
   (setq emacspeak-web-pre-process-hook nil) ;clear  pre-process hook
   (when     emacspeak-web-post-process-hook
@@ -160,42 +144,42 @@ Note that the Web browser should reset this hook after using it.")
 
 (defun emacspeak-webutils-unescape-charent (start end)
   "Clean up charents in XML."
-  (declare (special emacspeak-webutils-charent-alist))
+  (cl-declare (special emacspeak-webutils-charent-alist))
   (cl-loop for entry in emacspeak-webutils-charent-alist
-        do
-        (let ((entity (car  entry))
-              (replacement (cdr entry)))
-          (goto-char start)
-          (while (search-forward entity end t)
-            (replace-match replacement)))))
+           do
+           (let ((entity (car  entry))
+                 (replacement (cdr entry)))
+             (goto-char start)
+             (while (search-forward entity end t)
+               (replace-match replacement nil t)))))
 
 (defun emacspeak-webutils-supported-p ()
   "Check if this is a supported browser."
   (or   (eq browse-url-browser-function 'w3-fetch)
         (eq browse-url-browser-function 'browse-url-w3)
-        (eq browse-url-browser-function 'w3m-browse-url)))
+        (eq browse-url-browser-function 'eww-browse-url)))
 
 (defun emacspeak-webutils-autospeak()
   "Setup post process hook to speak the Web page when rendered.
 Forward punctuation and rate  settings to resulting buffer."
-  (lexical-let
-      ((p dtk-punctuation-mode)
-       (r dtk-speech-rate))
-    (add-hook
-     'emacspeak-web-post-process-hook
-     #'(lambda nil
-         (declare (special emacspeak-we-xpath-filter))
-         (let ((inhibit-read-only t))
-           (dtk-set-punctuations p)
-           (dtk-set-rate r)
-           (emacspeak-dtk-sync)
-           (setq emacspeak-we-xpath-filter emacspeak-we-paragraphs-xpath-filter)
-           (emacspeak-speak-buffer)))
-     'at-end)))
+  (let
+   ((p dtk-punctuation-mode)
+    (r dtk-speech-rate))
+   (add-hook
+    'emacspeak-web-post-process-hook
+    #'(lambda nil
+        (cl-declare (special emacspeak-we-xpath-filter))
+        (let ((inhibit-read-only t))
+          (dtk-set-punctuations p)
+          (dtk-set-rate r)
+          (emacspeak-dtk-sync)
+          (setq emacspeak-we-xpath-filter emacspeak-we-paragraphs-xpath-filter)
+          (emacspeak-speak-buffer)))
+    'at-end)))
 
 (defun emacspeak-webutils-cache-google-query(query)
   "Setup post process hook to cache google query when rendered."
-  (declare (special emacspeak-google-query))
+  (cl-declare (special emacspeak-google-query))
   (let ((cache
          (eval `(function
                  (lambda nil
@@ -204,7 +188,7 @@ Forward punctuation and rate  settings to resulting buffer."
 
 (defun emacspeak-webutils-cache-google-toolbelt(belt)
   "Setup post process hook to cache google toolbelt when rendered."
-  (declare (special emacspeak-google-toolbelt))
+  (cl-declare (special emacspeak-google-toolbelt))
   (let ((cache
          (eval `(function
                  (lambda nil
@@ -213,16 +197,15 @@ Forward punctuation and rate  settings to resulting buffer."
 
 (defun emacspeak-webutils-browser-check ()
   "Check to see if functions are called from a browser buffer"
-  (declare (special major-mode))
+  (cl-declare (special major-mode))
   (unless (or (eq major-mode 'w3-mode)
-              (eq major-mode 'w3m-mode)
               (eq major-mode 'eww-mode))
     (error "This command cannot be used outside browser buffers.")))
 
 (defun emacspeak-webutils-read-url ()
   "Return URL of current page,
 or URL read from minibuffer."
-  (declare (special emacspeak-webutils-current-url))
+  (cl-declare (special emacspeak-webutils-current-url))
   (if (functionp  emacspeak-webutils-current-url)
       (funcall emacspeak-webutils-current-url)
     (read-from-minibuffer "URL: "
@@ -232,7 +215,7 @@ or URL read from minibuffer."
 (defun emacspeak-webutils-read-this-url ()
   "Return URL under point
 or URL read from minibuffer."
-  (declare (special emacspeak-webutils-url-at-point))
+  (cl-declare (special emacspeak-webutils-url-at-point))
   (if (functionp  emacspeak-webutils-url-at-point)
       (funcall emacspeak-webutils-url-at-point)
     (car (browse-url-interactive-arg "URL: "))))
@@ -256,7 +239,7 @@ or URL read from minibuffer."
 LOCATOR is a string to search for in the results page.
 SPEAKER is a function to call to speak relevant information.
 ARGS specifies additional arguments to SPEAKER if any."
-  (declare (special emacspeak-web-post-process-hook))
+  (cl-declare (special emacspeak-web-post-process-hook))
   (when (emacspeak-webutils-supported-p)
     (add-hook
      'emacspeak-web-post-process-hook
@@ -281,12 +264,12 @@ ARGS specifies additional arguments to SPEAKER if any."
 (defmacro emacspeak-webutils-without-xsl (&rest body)
   "Execute body with XSL turned off."
   `(progn
-     (declare (special emacspeak-we-xsl-p))
+     (cl-declare (special emacspeak-we-xsl-p))
      (when emacspeak-we-xsl-p
        (setq emacspeak-we-xsl-p nil)
        (add-hook 'emacspeak-web-post-process-hook
                  #'(lambda ()
-                     (declare (special emacspeak-we-xsl-p))
+                     (cl-declare (special emacspeak-we-xsl-p))
                      (setq emacspeak-we-xsl-p t))
                  'append))
      ,@body))
@@ -302,7 +285,7 @@ and xsl environment specified by style, params and options."
       'emacspeak-web-post-process-hook
       (eval
        `#'(lambda ()
-            (declare (special emacspeak-we-xsl-p emacspeak-we-xsl-transform
+            (cl-declare (special emacspeak-we-xsl-p emacspeak-we-xsl-transform
                               emacspeak-xslt-options emacspeak-we-xsl-params))
             (setq emacspeak-we-xsl-p ,emacspeak-we-xsl-p
                   emacspeak-xslt-options ,emacspeak-xslt-options
@@ -340,17 +323,17 @@ and xsl environment specified by style, params and options."
   "Returns list of attributes from HTML stack."
   (delete nil
           (cl-loop for e in html-stack
-                append
-                (mapcar 'car (rest e)))))
+                   append
+                   (mapcar 'car (rest e)))))
 
 (defun emacspeak-webutils-get-property-from-html-stack (html-stack prop)
   "Extract and return list of prop values from HTML  stack.
 Stack is a list of the form ((element-name (attribute-alist)))."
   (let ((props nil))
     (cl-loop for element in html-stack
-          do
-          (push (cdr (assoc prop (rest element)))
-                props))
+             do
+             (push (cdr (assoc prop (rest element)))
+                   props))
     (nreverse (delq nil props))))
 
 ;;}}}
@@ -400,7 +383,7 @@ With a prefix argument, extracts url under point."
    (list
     (read-from-minibuffer "URL:"
                           (funcall emacspeak-webutils-current-url))))
-  (declare (special emacspeak-w3-google-related-uri))
+  (cl-declare (special emacspeak-w3-google-related-uri))
   (emacspeak-we-extract-by-id
    "res"
    (format
@@ -415,7 +398,7 @@ With a prefix argument, extracts url under point."
 (defun emacspeak-webutils-transcoded-to-plain-url (url)
   "Extract plain URL from Google transcoder URL."
   (let ((prefix (substring emacspeak-webutils-google-transcoder-url 0
-                           (1+ (position ?? emacspeak-webutils-google-transcoder-url)))))
+                           (1+ (cl-position ?? emacspeak-webutils-google-transcoder-url)))))
     (when (equal prefix (substring url 0 (length prefix)))
       (let* ((args (substring url (length prefix)))
              (arg-alist (url-parse-args (subst-char-in-string ?& ?\; args))))
@@ -423,7 +406,7 @@ With a prefix argument, extracts url under point."
 ;;;###autoload
 (defun emacspeak-webutils-transcode-this-url-via-google (url)
   "Transcode specified url via Google."
-  (declare (special emacspeak-webutils-google-transcoder-url))
+  (cl-declare (special emacspeak-webutils-google-transcoder-url))
   (browse-url
    (format emacspeak-webutils-google-transcoder-url
            (emacspeak-url-encode url))))
@@ -483,6 +466,8 @@ instances."
           (emacspeak-speak-line)
           (emacspeak-auditory-icon 'large-movement))
       (error "Title not found in body."))))
+(defvar emacspeak-webutils-media-history nil
+  "Store media links played from the web.")
 
 ;;;###autoload
 (defun emacspeak-webutils-play-media-at-point (&optional  playlist-p)
@@ -490,12 +475,14 @@ instances."
 Optional interactive prefix arg `playlist-p' says to treat the link as a playlist.
  A second interactive prefix arg adds mplayer option -allow-dangerous-playlist-parsing"
   (interactive "P")
+  (cl-declare (special emacspeak-webutils-media-history))
   (let ((url
          (if emacspeak-webutils-url-at-point
              (funcall emacspeak-webutils-url-at-point)
            (browse-url-url-at-point))))
     (message "Playing media  URL under point")
     (kill-new url)
+    (push (list url (if playlist-p t nil)) emacspeak-webutils-media-history)
     (funcall  emacspeak-media-player  url  playlist-p)))
 
 (defun emacspeak-webutils-curl-play-media-at-point ()
@@ -519,7 +506,7 @@ Useful in handling double-redirect from TuneIn."
 (defun emacspeak-webutils-open-in-other-browser ()
   "Opens link in alternate browser."
   (interactive)
-  (declare (special major-mode
+  (cl-declare (special major-mode
                     w3-mode
                     eww-mode))
   (emacspeak-webutils-browser-check)
@@ -532,16 +519,17 @@ Useful in handling double-redirect from TuneIn."
 
 (defun emacspeak-webutils-feed-titles (feed-url)
   "Return a list of the form `((title url)...) given an RSS/Atom  feed  URL."
-  (declare (special emacspeak-xslt-directory emacspeak-xslt-program))
+  (cl-declare (special emacspeak-xslt-directory emacspeak-xslt-program
+                       g-curl-program g-curl-common-options))
   (with-temp-buffer
     (shell-command
-     (format "%s %s %s "
+     (format "%s %s %s | %s %s - "
+             g-curl-program g-curl-common-options feed-url
              emacspeak-xslt-program
-             (expand-file-name "feed-titles.xsl" emacspeak-xslt-directory )
-             feed-url)
+             (expand-file-name "feed-titles.xsl" emacspeak-xslt-directory))
      (current-buffer))
     (goto-char (point-min))
-    ;;; newline -> spc
+;;; newline -> spc
     (while (re-search-forward "\n" nil t) (replace-match " "))
     (goto-char (point-min))
     (read (current-buffer))))
@@ -552,7 +540,7 @@ Useful in handling double-redirect from TuneIn."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

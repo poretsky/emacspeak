@@ -40,6 +40,7 @@
 
 ;;{{{ required modules
 
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 ;;}}}
 ;;{{{  Introduction:
@@ -222,7 +223,7 @@
 
 ;;}}}
 ;;{{{  keys 
-(declaim (special calculator-mode-map))
+(cl-declaim (special calculator-mode-map))
 (when (boundp 'calculator-mode-map)
   (define-key calculator-mode-map "k" 'calculator-copy)
   (define-key calculator-mode-map "p" 'calculator-paste)
@@ -234,7 +235,7 @@
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

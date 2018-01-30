@@ -49,7 +49,7 @@
 ;;{{{  Required modules
 
 (require 'cl-lib)
-(declaim  (optimize  (safety 0) (speed 3)))
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'tts)
 ;;}}}
 ;;{{{ Setters:
@@ -57,7 +57,7 @@
 (defun tts-cmd-set-rate (rate    &optional prefix)
   "Set speech rate."
   (interactive "nRate:\nP")
-  (declare (special  dtk-speaker-process dtk-speak-server-initialized))
+  (cl-declare (special  dtk-speaker-process dtk-speak-server-initialized))
   (when prefix
     (setf (tts-state-rate tts-state-prototype) rate))
   (when dtk-speak-server-initialized

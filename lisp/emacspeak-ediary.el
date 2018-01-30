@@ -48,6 +48,7 @@
 
 ;;; Code:
 
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 
 ;;}}}
@@ -56,22 +57,22 @@
 (defvar emacspeak-ediary-commands-that-speak-entry
   '(
     ediary-entry-earlier      ediary-modify-entry
-                              ediary-time-block-longer        ediary-previous-entry       ediary-boe
-                              ediary-point-on-entry-date-p   ediary-next-entry   ediary-block-longer
-                              ediary-time-block-earlier     ediary-eoe     ediary-time-block-shorter
-                              ediary-time-earlier        ediary-block-later        ediary-kill-entry
-                              ediary-block-earlier      ediary-entry-later      ediary-block-shorter
-                              ediary-time-later     ediary-time-block-later)
+    ediary-time-block-longer        ediary-previous-entry       ediary-boe
+    ediary-point-on-entry-date-p   ediary-next-entry   ediary-block-longer
+    ediary-time-block-earlier     ediary-eoe     ediary-time-block-shorter
+    ediary-time-earlier        ediary-block-later        ediary-kill-entry
+    ediary-block-earlier      ediary-entry-later      ediary-block-shorter
+    ediary-time-later     ediary-time-block-later)
   "Commands that should speak the entry when done.")
 
 (cl-loop for f in emacspeak-ediary-commands-that-speak-entry
-      do
-      (eval
-       `(defadvice ,f (after emacspeak pre act comp)
-          "Speak the entry."
-          (when (ems-interactive-p)
-            (emacspeak-speak-line)
-            (emacspeak-auditory-icon 'select-object)))))
+         do
+         (eval
+          `(defadvice ,f (after emacspeak pre act comp)
+             "Speak the entry."
+             (when (ems-interactive-p)
+               (emacspeak-speak-line)
+               (emacspeak-auditory-icon 'select-object)))))
 
 ;;}}}
 (provide 'emacspeak-ediary)
@@ -79,7 +80,7 @@
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

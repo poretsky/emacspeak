@@ -46,8 +46,8 @@
 ;;}}}
 ;;{{{  Required modules
 
-(require 'cl)
-(declaim  (optimize  (safety 0) (speed 3)))
+(require 'cl-lib)
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 
 ;;}}}
@@ -68,7 +68,7 @@
    (diff-indicator-removed voice-smoothen)
    (diff-nonexistent voice-lighten-extra)
    (diff-refine-added voice-lighten)
-   (diff-refine-change voice-brighten-medium)
+   (diff-refine-changed voice-brighten-medium)
    (diff-refine-removed voice-smoothen)
    (diff-removed voice-smoothen-extra)))
 
@@ -93,7 +93,7 @@
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

@@ -40,6 +40,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;{{{  Required modules 
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 ;;}}}
 ;;{{{  Introduction:
@@ -55,7 +56,7 @@
 
 (defun emacspeak-texinfo-mode-hook ()
   "Setup Emacspeak extensions"
-  (declare (special dtk-split-caps))
+  (cl-declare (special dtk-split-caps))
   (dtk-set-punctuations 'all)
   (or dtk-split-caps
       (dtk-toggle-split-caps))
@@ -101,7 +102,7 @@
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end: 
 
 ;;}}}

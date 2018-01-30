@@ -39,6 +39,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;{{{ required modules
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)              
 ;;}}}
 ;;{{{  Introduction:
@@ -96,7 +97,7 @@
 (defadvice eudc-query-form (after emacspeak pre act comp)
   "Attach emacspeak help to all EUDC widgets.
 Summarize the form to welcome the user. "
-  (declare (special eudc-server))
+  (cl-declare (special eudc-server))
   (emacspeak-eudc-widgets-add-emacspeak-help)
   (emacspeak-auditory-icon 'open-object)
   (let((server "Server ")
@@ -137,7 +138,7 @@ Summarize the form to welcome the user. "
 ;;}}}
 ;;{{{ bind additional commands 
 
-(declaim (special eudc-mode-map))
+(cl-declaim (special eudc-mode-map))
 (when (boundp 'eudc-mode-map)
   (define-key eudc-mode-map "m" 'emacspeak-eudc-send-mail)
   )
@@ -176,7 +177,7 @@ Summarize the form to welcome the user. "
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

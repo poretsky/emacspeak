@@ -40,6 +40,7 @@
 
 ;;{{{ required modules
 
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 ;;}}}
 ;;{{{  Introduction:
@@ -62,7 +63,7 @@
 
 (defun emacspeak-tdtd-voice-lock-setup()
   "Setup voice locking for tdtd mode."
-  (declare (special 
+  (cl-declare (special 
             dtd-xml-flag 
             dtd-decl-flag dtd-sys-decl-flag))
   (cond
@@ -80,7 +81,7 @@
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

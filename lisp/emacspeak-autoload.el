@@ -45,13 +45,12 @@
 ;;}}}
 ;;{{{  Required modules
 
-(require 'cl)
-(declaim  (optimize  (safety 0) (speed 3)))
+(require 'cl-lib)
 (require 'autoload)
 ;;}}}
 ;;{{{ Variables
 
-(declaim (special emacspeak-lisp-directory))
+(cl-declaim (special emacspeak-lisp-directory))
 (defvar emacspeak-auto-autoloads-file
   (expand-file-name "emacspeak-loaddefs.el" emacspeak-lisp-directory)
   "File that holds automatically generated autoloads for
@@ -75,7 +74,7 @@ Emacspeak.")
 
 (defun emacspeak-auto-generate-autoloads ()
   "Generate emacspeak autoloads."
-  (declare (special  emacspeak-auto-autoloads-file
+  (cl-declare (special  emacspeak-auto-autoloads-file
                      emacspeak-update-autoloads-from-directories emacspeak-lisp-directory))
   (let ((dtk-quiet t)
         (generated-autoload-file emacspeak-auto-autoloads-file))
@@ -87,7 +86,7 @@ Emacspeak.")
 
 (defun emacspeak-auto-custom-make-dependencies ()
   "Generate emacspeak custom deps."
-  (declare (special  emacspeak-auto-custom-file))
+  (cl-declare (special  emacspeak-auto-custom-file))
   (let ((dtk-quiet t)
         (generated-custom-dependencies-file emacspeak-auto-custom-file))
     (custom-make-dependencies)))
@@ -98,7 +97,7 @@ Emacspeak.")
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

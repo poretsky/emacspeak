@@ -1,5 +1,4 @@
 ;;; voice-setup.el --- Setup voices for voice-lock  -*- lexical-binding: t; -*-
-;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Voice lock mode for Emacspeak
 ;;{{{  LCD Archive entry:
@@ -86,8 +85,8 @@
 ;;}}}
 ;;{{{ Required modules
 
-(require 'cl)
-(declaim  (optimize  (safety 0) (speed 3)))
+(require 'cl-lib)
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (eval-when-compile (require 'easy-mmode))
 (require 'custom)
 (require 'acss-structure)
@@ -150,19 +149,19 @@ means that Voice Lock mode is turned on for buffers in C and C++ modes only."
 
 (defun voice-setup-set-voice-for-face (face voice)
   "Map face --a symbol-- to relevant voice."
-  (declare (special  voice-setup-face-voice-table))
+  (cl-declare (special  voice-setup-face-voice-table))
   (setf (gethash face voice-setup-face-voice-table) voice))
 
 (defun voice-setup-get-voice-for-face (face)
   "Map face --a symbol-- to relevant voice."
-  (declare (special  voice-setup-face-voice-table))
+  (cl-declare (special  voice-setup-face-voice-table))
   (gethash face voice-setup-face-voice-table))
 
 (defun voice-setup-show-rogue-faces ()
   "Return list of voices that map to non-existent faces."
-  (declare (special voice-setup-face-voice-table))
+  (cl-declare (special voice-setup-face-voice-table))
   (cl-loop for f being the hash-keys of voice-setup-face-voice-table
-        unless (facep f) collect f))
+           unless (facep f) collect f))
 
 ;;}}}
 ;;{{{ special form def-voice-font
@@ -190,7 +189,7 @@ means that Voice Lock mode is turned on for buffers in C and C++ modes only."
                    (let ((observing  (get sym 'observing)))
                      (when (and (symbolp sym)
                                 (symbolp observing))
-                       (remprop observing sym))
+                       (cl-remprop observing sym))
                      (set-default sym val)))
            ,@args))
 ;;; other actions performed at define time
@@ -230,7 +229,7 @@ means that Voice Lock mode is turned on for buffers in C and C++ modes only."
   (cl-loop
    for fv in fv-alist
    do
-   (voice-setup-map-face (first fv) (second fv))))
+   (voice-setup-map-face (cl-first fv) (cl-second fv))))
 
 ;;}}}
 ;;{{{  special form defvoice
@@ -241,7 +240,7 @@ Keys are personality names.")
 
 (defun voice-setup-personality-from-style (style-list)
   "Define a personality given a list of speech style settings."
-  (declare (special voice-setup-personality-table))
+  (cl-declare (special voice-setup-personality-table))
   (let ((voice
          (acss-personality-from-speech-style
           (make-acss
@@ -261,15 +260,15 @@ VOICE-NAME are  changed."
   (let* ((plist (symbol-plist voice-name))
          (l (1- (length plist))))
     (cl-loop for i from 0 to l by 2
-          collect (nth i plist))))
+             collect (nth i plist))))
 
 (defun voice-setup-update-personalities (personality)
   "Update  personalities  that use this voice to  new setting."
   (let ((value (symbol-value personality))
         (observers (voice-setup-observing-personalities personality)))
     (cl-loop for o in observers
-          do                            ;o is already quoted
-          (set o value))))
+             do                            ;o is already quoted
+             (set o value))))
 
 ;;; note that for now we dont use  gain settings
 
@@ -278,7 +277,7 @@ VOICE-NAME are  changed."
 (list paul 5 5 5 5 'all) which defines a standard male voice
 that speaks `all' punctuations.  Once
 defined, the newly declared personality can be customized by calling
-command \\[customize-variable] on <personality>-settings.. "
+command \\[customize-variable] on <personality>-settings. "
   `(progn
      (defvar  ,personality
        (voice-setup-personality-from-style ,settings)
@@ -317,7 +316,7 @@ command \\[customize-variable] on <personality>-settings.. "
        '(lambda  (sym val)
           (let ((voice-name (voice-setup-personality-from-style val)))
             (setq ,personality voice-name)
-;;; update all observers                ; ; ; ; ; ; ; ; ; ; ; ; ; ; ; ; ; ; ; ; ; ; ;
+;;; update all observers
             (voice-setup-update-personalities ',personality)
             (set-default sym val))))))
 
@@ -338,29 +337,29 @@ command \\[customize-variable] on <personality>-settings.. "
 (defvoice  voice-monotone (list nil nil 0 0 nil 'all)
   "Turns current voice into a monotone and speaks all punctuations.")
 
-(defvoice  voice-monotone-light (list nil nil 2 2  nil 'all)
-  "Turns current voice into a light monotone.")
-
-(defvoice  voice-monotone-medium (list nil nil 1  1  nil 'all)
+(defvoice  voice-monotone-medium (list nil nil 2 2  nil 'all)
   "Turns current voice into a medium monotone.")
 
-(defvoice voice-animate (list nil 7 7 4)
-  "Animates current voice.")
-
-(defvoice voice-animate-medium (list nil 6 6  5)
-  "Adds medium animation  current voice.")
+(defvoice  voice-monotone-light (list nil nil 4 4   nil 'all)
+  "Turns current voice into a light monotone.")
 
 (defvoice voice-animate-extra (list nil 8 8 6)
   "Adds extra animation  to current voice.")
 
-(defvoice voice-smoothen (list nil nil nil 3 4)
-  "Smoothen current voice.")
+(defvoice voice-animate (list nil 7 7 4)
+  "Animates current voice.")
 
-(defvoice voice-smoothen-extra (list nil nil nil 2 2)
+(defvoice voice-animate-medium (list nil 6 6  3)
+  "Adds medium animation  current voice.")
+
+(defvoice voice-smoothen-extra (list nil nil nil 4 5)
   "Extra smoothen current voice.")
 
-(defvoice voice-smoothen-medium (list nil nil nil 3 3)
+(defvoice voice-smoothen-medium (list nil nil nil 3 4)
   "Add medium smoothen current voice.")
+
+(defvoice voice-smoothen (list nil nil  2 2)
+  "Smoothen current voice.")
 
 (defvoice voice-brighten-medium (list nil nil nil 5 6)
   "Brighten  (medium) current voice.")
@@ -371,10 +370,10 @@ command \\[customize-variable] on <personality>-settings.. "
 (defvoice voice-brighten-extra (list nil nil nil 7 8)
   "Extra brighten current voice.")
 
-(defvoice voice-bolden (list nil 3 6 6  nil)
+(defvoice voice-bolden (list nil 3 6 6  6)
   "Bolden current voice.")
 
-(defvoice voice-bolden-medium (list nil 2 6 7  nil)
+(defvoice voice-bolden-medium (list nil 2 6 7  7)
   "Add medium bolden current voice.")
 
 (defvoice voice-bolden-extra (list nil 1 6 7 8)
@@ -431,14 +430,13 @@ command \\[customize-variable] on <personality>-settings.. "
  '(
    (shr-link voice-bolden)
    (bold voice-bolden)
-                                        ;(variable-pitch voice-animate) ; this is often the default
    (bold-italic voice-bolden-and-animate)
-   (button voice-bolden)
-   (link voice-bolden)
-   (link-visited voice-bolden-medium)
-   (success voice-bolden)
+   (button voice-bolden-medium)
+   (link voice-bolden-medium)
+   (link-visited voice-bolden)
+   (success voice-brighten-extra)
    (error voice-animate)
-   (warning voice-bolden-and-animate)
+   (warning voice-smoothen)
    (fixed-pitch voice-monotone)
    (font-lock-builtin-face voice-bolden)
    (font-lock-comment-face voice-monotone)
@@ -449,17 +447,19 @@ command \\[customize-variable] on <personality>-settings.. "
    (font-lock-constant-face voice-lighten)
    (font-lock-doc-face voice-monotone-medium)
    (font-lock-function-name-face voice-bolden-medium)
-   (font-lock-keyword-face voice-animate)
+   (font-lock-keyword-face voice-animate-extra)
    (font-lock-preprocessor-face voice-monotone-medium)
    (shadow voice-monotone-medium)
+   (file-name-shadow voice-monotone-medium)
    (font-lock-string-face voice-lighten-extra)
    (font-lock-type-face voice-smoothen)
-   (font-lock-variable-name-face voice-bolden)
+   (font-lock-variable-name-face voice-bolden-extra)
    (font-lock-warning-face voice-bolden-and-animate)
    (help-argument-name voice-smoothen)
    (query-replace voice-bolden)
    (match voice-lighten)
    (isearch voice-bolden)
+   (isearch-fail voice-monotone)
    (highlight voice-animate)
    (italic voice-animate)
    (match voice-animate)
@@ -515,7 +515,7 @@ command \\[customize-variable] on <personality>-settings.. "
   :version "24.1")
 
 ;; Install ourselves:
-(declaim (special text-property-default-nonsticky))
+(cl-declaim (special text-property-default-nonsticky))
 (unless (assq 'personality text-property-default-nonsticky)
   (push  (cons 'personality t) text-property-default-nonsticky))
 
@@ -537,8 +537,7 @@ Sample text to use comes from variable
   `voice-setup-sample-text'. "
   (interactive (list (and current-prefix-arg
                           (read-string "List faces matching regexp: "))))
-  (declare (special voice-setup-sample-text
-                    list-faces-sample-text))
+  (cl-declare (special voice-setup-sample-text))
   (let ((list-faces-sample-text voice-setup-sample-text))
     (list-faces-display pattern)
     (message "Displayed voice-face mappings in other window.")))
@@ -559,21 +558,80 @@ then the original face->personality mapping is restored.  In
 either case, the buffer is refontified to have the new mapping
 take effect."
   (interactive)
-  (declare (special voice-setup-buffer-face-voice-table))
-  (let* ((personality (get-text-property (point) 'personality))
+  (cl-declare (special voice-setup-buffer-face-voice-table))
+  (let* ((personality  (dtk-get-style))
          (face (get-text-property (point) 'face))
          (orig (gethash face voice-setup-buffer-face-voice-table)))
     (cond
+     ((null personality) (message "No personality here."))
      ((eq personality  'inaudible)
       (voice-setup-set-voice-for-face face  orig)
+      (message "Made personality %s audible." orig)
       (emacspeak-auditory-icon 'open-object))    
      (t (voice-setup-set-voice-for-face face 'inaudible)
         (setf
          (gethash face voice-setup-buffer-face-voice-table)
          personality)
+        (message "Silenced personality %s" personality)
         (emacspeak-auditory-icon 'close-object)))
-    (when (buffer-file-name)
-      (normal-mode))))
+    (when (buffer-file-name) (normal-mode))))
+
+;;}}}
+;;{{{ Helper: voice-setup-defined-voices 
+
+(defun voice-setup-defined-voices ()
+  "Return list of voices defined via defvoice."
+  (let ((result nil))
+    (mapatoms
+     #'(lambda (s)
+         (when  
+             (and
+              (string-match "^voice-"  (symbol-name s))
+              (boundp s)
+              (symbolp (symbol-value s))
+              (string-match  "^acss-" (symbol-name  (symbol-value s))))
+           (push s result))))
+    result))
+
+;;}}}
+;;{{{ describe-voice at point:
+
+(defun voice-setup-describe-personality(personality)
+  "Describe specified voice --- analogous to \\[describe-face].
+When called interactively, `personality' defaults to first personality at point.
+If there are multiple personalities at point,
+these are available via minibuffer history."
+  (interactive
+   (list
+    (let* ((v (dtk-get-style)))
+      (setq v
+            (if (listp v)
+                (mapcar #'symbol-name v)
+              (symbol-name v)))
+      (when (listp v) (setq v (cl-first v)))
+      (read-from-minibuffer
+       "Personality: "
+       nil nil 'read nil  v))))
+  (let ((voice (get personality 'observing))
+        (settings nil)
+        (n '(family average-pitch pitch-range stress richness punctuations))
+        (values nil))
+    (when voice (setq settings (intern (format "%s-settings" voice))))
+    (cond
+     ((symbol-value settings) ;;; globally bound, display it
+      (setq values (symbol-value settings))
+      (with-help-window (help-buffer)
+        (with-current-buffer standard-output
+          (insert (format "Personality: %s\tVoice:%s\n\n" personality voice))
+          (put-text-property (point-min) (point)
+                             'personality personality)
+          (cl-loop
+           for i from 0 to (1- (length n))do
+           (insert (format "%s: %s\n"
+                           (elt n i) (elt values i))))))
+      (when (called-interactively-p 'interactive)
+        (emacspeak-speak-help)))
+     (t (message "%s doesn't look like a valid personality." personality)))))
 
 ;;}}}
 (provide 'voice-setup)
@@ -581,7 +639,7 @@ take effect."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

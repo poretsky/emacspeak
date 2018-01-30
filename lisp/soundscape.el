@@ -117,11 +117,18 @@
 
 (defvar soundscape--scapes nil
   "Cache of currently running scapes.")
+;;;###autoload
+(defcustom soundscape-device nil
+  "Alsa sound device to use for soundscapes."
+  :type  '(choice  :tag "Device"
+                   (const :tag "None" nil)
+                   (string :tag "Alsa Device Name"))
+  :group 'soundscape)
 
 ;;;###autoload
 (defcustom soundscape-manager-options
   '("-o" "alsa"
-    "-m" "0.5")
+    "-m" "0.3")
   "User customizable options list passed to boodler.
 Defaults specify alsa as the output and set master volume to 0.5"
   :group 'soundscape
@@ -135,7 +142,7 @@ Defaults specify alsa as the output and set master volume to 0.5"
 
 (defun soundscape-catalog-add-entry()
   "Add catalog entry from current line."
-  (declare (special soundscape--missing-packages))
+  (cl-declare (special soundscape--missing-packages))
   (let ((name nil)
         (scape nil)
         (package nil)
@@ -151,7 +158,7 @@ Defaults specify alsa as the output and set master volume to 0.5"
      (t (push scape soundscape--missing-packages)))))
 (defun soundscape-catalog (&optional refresh)
   "Return catalog of installed Soundscapes, initialize if necessary."
-  (declare (special soundscape--catalog soundscape-list))
+  (cl-declare (special soundscape--catalog soundscape-list))
   (when (null (file-exists-p soundscape-list)) (error "Catalog missing."))
   (cond
    ((and soundscape--catalog (null refresh)) soundscape--catalog)
@@ -191,16 +198,20 @@ Default is to return NullAgent if name not found."
 (defun soundscape (scape)
   "Play soundscape."
   (interactive (list (soundscape-read)))
-  (declare (special soundscape-processes
-                    soundscape-manager-options))
+  (cl-declare (special soundscape-processes
+                    soundscape-device soundscape-manager-options))
   (let ((process-connection-type  nil)
         (proc (gethash scape soundscape-processes)))
     (unless (process-live-p proc)
       (setq proc
             (apply
              #'start-process
-             "Boodler" nil soundscape-player
-             `(,@soundscape-manager-options ,scape)))
+             "Boodler" nil
+             "nice" "-n"  "19" soundscape-player
+             `(,@soundscape-manager-options
+               "--device"
+               ,soundscape-device
+               ,scape)))
       (when (process-live-p proc) (puthash scape proc soundscape-processes)))))
 
 (defun soundscape-stop (scape)
@@ -209,7 +220,7 @@ Default is to return NullAgent if name not found."
    (list
     (let ((completion-ignore-case t))
       (completing-read "Stop: " (hash-table-keys soundscape-processes)))))
-  (declare (special soundscape-processes))
+  (cl-declare (special soundscape-processes))
   (let ((proc (gethash scape soundscape-processes)))
     (when (process-live-p proc) (delete-process proc))
     (remhash  scape soundscape-processes)))
@@ -217,7 +228,7 @@ Default is to return NullAgent if name not found."
 (defun soundscape-kill ()
   "Stop all running soundscapes."
   (interactive)
-  (declare (special soundscape-processes))
+  (cl-declare (special soundscape-processes))
   (mapc  #'soundscape-stop (hash-table-keys soundscape-processes))
   (message "Stopped all soundscapes."))
 
@@ -227,7 +238,7 @@ Default is to return NullAgent if name not found."
 
 (defun soundscape-current ()
   "Return names of currently running scapes."
-  (declare (special soundscape--scapes))
+  (cl-declare (special soundscape--scapes))
   (mapconcat #'soundscape-lookup-scape soundscape--scapes " "))
 
 ;;}}}
@@ -262,14 +273,14 @@ Default is to return NullAgent if name not found."
 (defconst soundscape-communication-modes
   '(
     message-mode gnus-summary-mode gnus-article-mode gnus-group-mode
-                 mspools-mode vm-presentation-mode vm-mode mail-mode
-                 twittering-mode jabber-roster-mode jabber-chat-mode erc-mode)
+    mspools-mode vm-presentation-mode vm-mode mail-mode
+    twittering-mode jabber-roster-mode jabber-chat-mode erc-mode)
   "List of mode names that get the Communication mood.")
 
 (defconst soundscape-help-modes
   '(
     Info-mode  help-mode  Man-mode
-               Custom-mode messages-buffer-mode)
+    Custom-mode messages-buffer-mode)
   "List of mode names that get the Help mood.")
 
 ;;;###autoload
@@ -293,14 +304,18 @@ See  \\{soundscape-default-theme} for details."
     ("BirdChorus" (shell-mode term-mode))
     ("BlopEchoes"  (elfeed-search-mode))
     ("Bonfire" (calendar-mode diary-mode))
-    ("BuddhaLoop" (comint-mode))
+    ("BuddhaLoop" nil)
+    ("RandomLoop" nil)
+    ("LoopStew" (lisp-interaction-mode))
     ("Cavern" (prog-mode))
     ("ChangingLoops" (special-mode))
-    ("ChangingLoopsPitches" (lisp-interaction-mode))
+    ("ChangingLoopsPitches" (comint-mode))
     ("Drip" ,soundscape-communication-modes)
     ("GardenBackground" nil)
     ("LoopStew" (emacspeak-m-player-mode))
     ("ManyMockingBirds" nil)
+    ("SomeMockingBirds" nil)
+    ("MoreMockingBirds" nil)
     ("ManyNightingales" nil)
     ("MockingBirds" nil)
     ("MockingCuckoos" nil)
@@ -337,7 +352,7 @@ Optional interactive prefix arg `prompt-mode' prompts for the mode."
           (soundscape-lookup-name
            (completing-read "Scape:" (mapcar 'car soundscape-default-theme)))))
     (soundscape-map-mode mode scape)
-    <    (soundscape-sync major-mode)
+        (soundscape-sync major-mode)
     (message "Now using %s for %s" scape mode)))
 
 ;;}}}
@@ -349,14 +364,14 @@ Optional interactive prefix arg `prompt-mode' prompts for the mode."
 
 (defun soundscape-sentinel (proc _state)
   "Delete remote control end point on exit."
-  (declare (special soundscape--remote))
+  (cl-declare (special soundscape--remote))
   (unless (process-live-p  proc)
     (when (file-exists-p soundscape--remote)
       (delete-file soundscape--remote))))
 
 (defun soundscape-kill-emacs-hook ()
   "Clean up remote control end-points."
-  (declare (special soundscape--remote))
+  (cl-declare (special soundscape--remote))
   (when (file-exists-p soundscape--remote) (delete-file soundscape--remote)))
 
 (add-hook 'kill-emacs-hook #'soundscape-kill-emacs-hook)
@@ -369,7 +384,7 @@ Optional interactive prefix arg `prompt-mode' prompts for the mode."
 
 (defun soundscape-lookup-position (name)
   "Return position in soundscape-default-theme."
-  (declare (special soundscape-default-theme))
+  (cl-declare (special soundscape-default-theme))
   (format "%s"
           (cl-position-if
            #'(lambda (pair)
@@ -391,8 +406,8 @@ Optional interactive prefix arg `prompt-mode' prompts for the mode."
 Listener is loaded with all Soundscapes defined in `soundscape-default-theme' .
 Optional interactive prefix arg restarts the listener if already running."
   (interactive "P")
-  (declare (special soundscape-listener-process soundscape--remote
-                    soundscape-manager-options
+  (cl-declare (special soundscape-listener-process soundscape--remote
+                    soundscape-manager-options soundscape-device
                     soundscape-remote-control soundscape-default-theme))
   (let ((process-connection-type nil))
     (cond
@@ -401,8 +416,11 @@ Optional interactive prefix arg restarts the listener if already running."
        soundscape-listener-process
        (apply
         #'start-process
-        "SoundscapeListener" " *Soundscapes*"  soundscape-player
+        "SoundscapeListener" " *Soundscapes*"
+        "nice" "-n"  "19" soundscape-player
         `(,@soundscape-manager-options
+          "--device"
+          ,soundscape-device
           "--listen" "--port" ,soundscape--remote
           "org.emacspeak.listen/SoundscapePanel"
           ,@(mapcar #'(lambda (m) (soundscape-lookup-name (car m)))
@@ -414,7 +432,7 @@ Optional interactive prefix arg restarts the listener if already running."
 (defun soundscape-listener-shutdown ()
   "Shutdown listener."
   (interactive)
-  (declare (special soundscape-listener-process soundscape-remote-control
+  (cl-declare (special soundscape-listener-process soundscape-remote-control
                     soundscape--scapes))
   (setq soundscape--scapes nil)
   (when (process-live-p soundscape-listener-process)
@@ -437,7 +455,7 @@ Optional interactive prefix arg restarts the listener if already running."
                                (mapcar #'car soundscape-default-theme)))
         (when (> (length name) 0) (push name  result)))
       result)))
-  (declare (special soundscape-remote-nc))
+  (cl-declare (special soundscape-remote-nc))
   (unless (process-live-p soundscape-listener-process) (soundscape-listener))
   (unless (process-live-p soundscape-remote-control)
     (when (and (process-live-p soundscape-listener-process)
@@ -463,7 +481,7 @@ Do not set this by hand, use command \\[soundscape-toggle].")
 (defun soundscape-sync (mode &optional force)
   "Activate  Soundscapes for  this mode.
 Optional interactive prefix arg `force' skips optimization checks."
-  (declare (special soundscape--scapes))
+  (cl-declare (special soundscape--scapes))
   (let ((scapes (soundscape-for-mode mode)))
     (when (or force (not   (equal scapes soundscape--scapes)))
       (setq soundscape--scapes scapes)
@@ -474,7 +492,7 @@ Optional interactive prefix arg `force' skips optimization checks."
 
 (defun soundscape-update ()
   "Function to update Soundscape automatically."
-  (declare (special  soundscape--last-mode))
+  (cl-declare (special  soundscape--last-mode))
   (unless
       (or
        (eq major-mode soundscape--last-mode)
@@ -494,7 +512,7 @@ Optional interactive prefix arg `force' skips optimization checks."
 ;;}}}
 ;;{{{ SoundScape Toggle:
 (defun
- soundscape-quiet ()
+    soundscape-quiet ()
   "Activate NullAgent."
   (when (process-live-p soundscape-remote-control)
     (process-send-string soundscape-remote-control "soundscape 0\n")))
@@ -512,7 +530,7 @@ before soundscapes are synchronized with current mode."
 When turned on, Soundscapes are automatically run based on current major mode.
 Run command \\[soundscape-theme] to see the default mode->mood mapping."
   (interactive)
-  (declare (special soundscape--auto soundscape--scapes
+  (cl-declare (special soundscape--auto soundscape--scapes
                     soundscape-idle-delay soundscape--last-mode))
   (cond
    (soundscape--auto
@@ -529,32 +547,38 @@ Run command \\[soundscape-theme] to see the default mode->mood mapping."
   (when (called-interactively-p 'interactive)
     (message "Automatic Soundscapes are now %s"
              (if soundscape--auto "on" "off"))))
-(defvar soundscape--cached-device nil
-  "Cache    last used audio device.")
+
+(defconst soundscape--filters
+  '("crossfeed" "reverb_crossfeed" "default" "tap_reverb"
+    "tts_a0_e45" tts_a0_em45 tts_a0_e90
+    "tts_a0_em30" "tts_a0_em15"
+    "tts_a0_e60" "tts_a0_e30" "tts_a0_e15"
+    "tts_a45_e45" "tts_a135_e45" "tts_a225_e45" "tts_am45_e45"
+    "tts_a45_em45" "tts_a135_em45" "tts_a225_em45" "tts_am45_em45")
+  "Available virtual ALSA devices for filtering soundscapes.")
 
 (defun soundscape-restart (&optional device)
   "Restart Soundscape  environment.
 With prefix arg `device', prompt for a alsa/ladspa device.
-Caches most recently used device, which then becomes the default for future invocations."
+This is then saved to soundscape-device for future use."
   (interactive "P")
-  (declare (special soundscape--last-mode  soundscape--scapes
-                    soundscape--cached-device
-                    soundscape--auto soundscape-manager-options))
+  (cl-declare (special soundscape--last-mode  soundscape--scapes
+                    soundscape--filters soundscape--auto
+                    soundscape-manager-options soundscape-device))
   (setq soundscape--scapes nil soundscape--last-mode nil)
-  (when device
-    (setq soundscape--cached-device
-          (completing-read
-           "Filter: " '("crossfeed" "reverb_crossfeed" "default" "tap_reverb"))))
-  (let ((soundscape-manager-options
-         (append
-          (copy-sequence soundscape-manager-options) ; clone default options
-          (when soundscape--cached-device `("--device" ,soundscape--cached-device)))))
+  (when  device
+    (setq soundscape-device
+          (if (called-interactively-p 'interactive)
+              (completing-read
+               "Filter: "
+               soundscape--filters)
+            device)))
     (when soundscape--auto
       (soundscape-toggle)
       (soundscape-listener-shutdown))
     (soundscape-toggle)
     (sit-for 0.1)
-    (soundscape-sync major-mode 'force)))
+    (soundscape-sync major-mode 'force))
 
 ;;}}}
 ;;{{{ Display Theme:
@@ -562,7 +586,7 @@ Caches most recently used device, which then becomes the default for future invo
 (defun soundscape-theme ()
   "Shows default theme in a special buffer."
   (interactive)
-  (declare (special soundscape-default-theme soundscape-base))
+  (cl-declare (special soundscape-default-theme soundscape-base))
   (let ((buffer (get-buffer-create "*Soundscape Theme*"))
         (inhibit-read-only  t))
     (with-current-buffer buffer

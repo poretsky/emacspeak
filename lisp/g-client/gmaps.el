@@ -53,10 +53,10 @@
 ;;}}}
 ;;{{{  Required modules
 
-(require 'cl)
-(declaim  (optimize  (safety 0) (speed 3)))
+(require 'cl-lib)
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'g-utils)
-
+(require 'pp)
 ;;}}}
 ;;{{{ Customizations
 
@@ -65,6 +65,87 @@
   :group 'g)
 
 ;;}}}
+;;{{{ Address Structure 
+
+(cl-defstruct gmaps--location
+  address
+  alias ; short-form entered by user
+  zip
+  lat-lng)
+
+(defun gmaps-locations-load ()
+  "Load saved GMaps locations."
+  (interactive)
+  (cl-declare (special gmaps-locations-file))
+  (when (file-exists-p gmaps-locations-file)
+    (load-file gmaps-locations-file)))
+
+(defvar gmaps-location-table (make-hash-table  :test  #'equal)
+  "Hash table that memoizes geolocation.")
+;;;###autoload
+(defun gmaps-address-location (address)
+  "Returns gmaps--location structure. Memoized to save network calls."
+  (cl-declare (special gmaps-location-table gmaps-locations-loaded-p))
+  (unless gmaps-locations-loaded-p (gmaps-locations-load))
+  (let ((found (gethash address gmaps-location-table))
+        (result nil))
+    (cond
+     (found found)
+     (t ;;; Get geocode from network  and  memoize
+      (setq result 
+            (let-alist (aref (gmaps-geocode address 'raw) 0)
+              (make-gmaps--location
+               :alias address
+               :address .formatted_address
+               :zip (g-json-get 'short_name
+                                (cl-find-if ; component whose type contains postal_code
+                                 #'(lambda (v) (cl-find "postal_code" (g-json-get 'types v) :test #'string=))
+                                 .address_components))
+               :lat-lng .geometry.location)))
+      (puthash  address result gmaps-location-table)
+      (puthash  (gmaps--location-address result) result gmaps-location-table)
+      (gmaps-locations-save)
+      result))))
+;;;###autoload
+(defun gmaps-address-geocode(address)
+  "Return lat/long for a given address."
+  (gmaps--location-lat-lng (gmaps-address-location address)))
+
+(defun gmaps-address-zip(address)
+  "Return ZIP code  for a given address."
+  (gmaps--location-zip (gmaps-address-location address)))
+
+(defvar gmaps-locations-loaded-p nil
+  "Record if Locations cache  is loaded.")
+(defvar emacspeak-resource-directory)
+
+(defvar gmaps-locations-file
+  (expand-file-name "gmaps-locations" emacspeak-resource-directory)
+  "File where we save Locations.")
+(declare-function emacspeak-auditory-icon (icon) "emacspeak-sounds")
+
+(defun gmaps-locations-save ()
+  "Save GMaps Locations."
+  (interactive)
+  (cl-declare (special gmaps-locations-file gmaps-location-table))
+  (let ((buffer (find-file-noselect gmaps-locations-file))
+        (print-length nil)
+        (print-level nil))
+    (with-current-buffer buffer
+      (erase-buffer)
+      (insert  ";;; Auto-generated.\n\n")
+      (insert "(setq gmaps-location-table\n")
+      (pp gmaps-location-table (current-buffer))
+      (insert ") ;;; set hash table\n\n")
+      (insert "(setq gmaps-locations-loaded-p t)\n")
+      (save-buffer))
+    (when (called-interactively-p 'interactive)
+      (message "Saved GMaps Locations."))
+    (when (featurep 'emacspeak)
+    (emacspeak-auditory-icon 'save-object)))                                    )
+
+;;}}}
+
 ;;{{{ Maps Geo-Coding and Reverse Geo-Coding:
 
 ;;; See http://feedproxy.google.com/~r/GoogleGeoDevelopersBlog/~3/0aP4dsogPJ4/introducing-new-google-geocoding-web.html
@@ -75,25 +156,22 @@
 
 (defun gmaps-geocoder-url (address)
   "Return URL   for geocoding address."
-  (declare (special gmaps-geocoder-base))
+  (cl-declare (special gmaps-geocoder-base))
   (format "%saddress=%s&sensor=false"
           gmaps-geocoder-base address))
 
-(defun gmaps-reverse-geocoder-url (address)
+(defun gmaps-reverse-geocoder-url (location)
   "Return URL   for reverse geocoding location."
-  (declare (special gmaps-geocoder-base))
+  (cl-declare (special gmaps-geocoder-base))
   (format "%slatlng=%s&sensor=false"
-          gmaps-geocoder-base address))
+          gmaps-geocoder-base location))
 
 ;;;###autoload
 (defun gmaps-geocode (address &optional raw-p)
   "Geocode given address.
 Optional argument `raw-p' returns complete JSON  object."
-  (let ((result 
-         (g-json-get-result
-          (format "%s --max-time 8 --connect-timeout 10 %s '%s'"
-                  g-curl-program g-curl-common-options
-                  (gmaps-geocoder-url (g-url-encode address))))))
+  (let ((result
+         (g-json-from-url (gmaps-geocoder-url (g-url-encode address)))))
     (unless (string= "OK" (g-json-get 'status result))
       (error "Error geo-coding location."))
     (cond
@@ -104,7 +182,7 @@ Optional argument `raw-p' returns complete JSON  object."
 (defun gmaps-reverse-geocode (lat-long &optional raw-p)
   "Reverse geocode lat-long.
 Optional argument `raw-p' returns raw JSON  object."
-  (let ((result 
+  (let ((result
          (g-json-get-result
           (format "%s --max-time 5 --connect-timeout 3 %s '%s'"
                   g-curl-program g-curl-common-options
@@ -122,46 +200,44 @@ Optional argument `raw-p' returns raw JSON  object."
   "Reverse geocode location and return postal coe."
   (condition-case nil
       (g-json-get
-       'short_name 
-       (find-if  ; component whose type contains postal_code
-        #'(lambda (v) (find "postal_code" (g-json-get 'types v) :test #'string=)) 
+       'short_name
+       (cl-find-if  ; component whose type contains postal_code
+        #'(lambda (v) (cl-find "postal_code" (g-json-get 'types v) :test #'string=))
         (g-json-get ; from address_components at finest granularity
          'address_components
          (aref (gmaps-reverse-geocode location 'raw) 0))))
     (error "")))
 
 ;;; Example of use:
-;;;###autoload
 (defvar gweb-my-location
   nil
   "Geo coordinates --- automatically set by reverse geocoding gweb-my-address")
 
-(defvar gweb-my-postal-code
+(defvar gweb-my-zip
   nil
   "Postal Code --- automatically set by reverse geocoding gweb-my-address")
 
-
+(declare-function  emacspeak-calendar-setup-sunrise-sunset  nil "emacspeak-calendar")
+;;;###autoload
 (defcustom gweb-my-address
   nil
   "Location address. Setting this updates gweb-my-location coordinates  via geocoding."
   :type '(choice
           (const :tag "None" nil)
           (string  :tag "Address"))
-  :set  #'(lambda (sym val)
-            (declare (special gweb-my-location))
-            (when val 
-              (setq gweb-my-location (gmaps-geocode val))
-              (when gweb-my-location
-                (setq gweb-my-postal-code
-                      (gmaps-postal-code-from-location gweb-my-location)))
-              
-              (when (featurep 'emacspeak)
-                (emacspeak-calendar-setup-sunrise-sunset)))
-            (set-default sym val))
+  :set
+  #'(lambda (sym val)
+      (cl-declare (special gweb-my-location))
+      (when val
+        (setq gweb-my-location (gmaps-address-location val))
+        (setq gweb-my-zip (gmaps--location-zip gweb-my-location))
+        (set-default sym (gmaps--location-address gweb-my-location))
+        (when (featurep 'emacspeak) (emacspeak-calendar-setup-sunrise-sunset))
+        val))
   :group 'gweb)
 
 ;;}}}
-;;{{{ Maps Directions 
+;;{{{ Maps Directions
 
 ;;; See  https://developers.google.com/maps/documentation/directions/
 (defvar gmaps-directions-base
@@ -171,13 +247,13 @@ Optional argument `raw-p' returns raw JSON  object."
 (defun gmaps-directions-url (origin destination mode)
   "Return URL   for getting directions from origin to destination.
 Parameters 'origin' and 'destination' are  be url-encoded."
-  (declare (special gmaps-directions-base))
+  (cl-declare (special gmaps-directions-base))
   (format gmaps-directions-base  origin destination
           mode (float-time)))
 
 ;;; Places:
 ;;; https://developers.google.com/places/documentation/
-;; 
+;;
 (defvar gmaps-places-base
   "https://maps.googleapis.com/maps/api/place/%s/json?sensor=false&key=%s"
   "Base URL  end-point for talking to the Google Maps Places service.")
@@ -186,7 +262,7 @@ Parameters 'origin' and 'destination' are  be url-encoded."
   "Return URL  for Places services.
 Parameter `query-type' is one of nearbysearch or textsearch.
 Parameter `key' is the API  key."
-  (declare (special gmaps-places-base))
+  (cl-declare (special gmaps-places-base))
   (format gmaps-places-base  query-type key))
 
 ;;}}}
@@ -198,14 +274,10 @@ Parameter `key' is the API  key."
 
 (defun gmaps-routes (origin destination mode)
   "Return routes as found by Google Maps Directions."
-  (let ((result
-         (g-json-get-result
-          (format "%s --max-time 2 --connect-timeout 1 %s '%s'"
-                  g-curl-program g-curl-common-options
-                  (gmaps-directions-url origin  destination mode)))))
+  (let-alist (g-json-from-url (gmaps-directions-url origin  destination mode))
     (cond
-     ((string= "OK" (g-json-get 'status result)) (g-json-get 'routes result))
-     (t (error "Status %s from Maps" (g-json-get 'status result))))))
+     ((string= "OK" .status) .routes)
+     (t (error "Status %s from Maps" .status)))))
 
 ;;; https://developers.google.com/places/
 
@@ -217,7 +289,7 @@ Parameter `key' is the API  key."
   :group 'gmaps)
 
 ;;}}}
-;;{{{ Maps UI: 
+;;{{{ Maps UI:
 
 (make-variable-buffer-local 'gmaps-current-location)
 
@@ -232,29 +304,31 @@ Parameter `key' is the API  key."
     (put-text-property start (point) 'face font-lock-doc-face)
     (insert "\n\f\n")
     (and gweb-my-address (gmaps-set-current-location gweb-my-address))
-    (setq header-line-format '("Google Maps: " (:eval (get 'gmaps-current-location 'address))))))
+    (setq header-line-format
+          '("Google Maps: "
+            (:eval   (gmaps--location-address gmaps-current-location))))))
 
-(declaim (special gmaps-mode-map))
+(cl-declaim (special gmaps-mode-map))
 
 (cl-loop for k in
-      '(
-        ("d" gmaps-driving-directions)
-        ("w" gmaps-walking-directions)
-        ("t" gmaps-transit-directions)
-        ("b" gmaps-bicycling-directions)
-        ("n" gmaps-places-nearby)
-        ("c" gmaps-set-current-location)
-        ("f" gmaps-set-current-filter)
-        ("r" gmaps-set-current-radius)
-        ("s" gmaps-places-search)
-        (" " gmaps-place-details)
-        ("\M-i" backward-button)
-        ("\C-i" forward-button)
-        ("[" backward-page)
-        ("]" forward-page)
-        )
-      do
-      (define-key  gmaps-mode-map (first k) (second k)))
+         '(
+           ("d" gmaps-driving-directions)
+           ("w" gmaps-walking-directions)
+           ("t" gmaps-transit-directions)
+           ("b" gmaps-bicycling-directions)
+           ("n" gmaps-places-nearby)
+           ("c" gmaps-set-current-location)
+           ("f" gmaps-set-current-filter)
+           ("r" gmaps-set-current-radius)
+           ("s" gmaps-places-search)
+           (" " gmaps-place-details)
+           ("\M-i" backward-button)
+           ("\C-i" forward-button)
+           ("[" backward-page)
+           ("]" forward-page)
+           )
+         do
+         (define-key  gmaps-mode-map (cl-first k) (cl-second k)))
 
 (defvar gmaps-interaction-buffer "*Google Maps*"
   "Google Maps interaction buffer.")
@@ -263,7 +337,7 @@ Parameter `key' is the API  key."
 (defun gmaps ()
   "Google Maps Interaction."
   (interactive)
-  (declare (special gmaps-interaction-buffer))
+  (cl-declare (special gmaps-interaction-buffer))
   (let ((buffer (get-buffer gmaps-interaction-buffer)))
     (cond
      ((buffer-live-p buffer) (switch-to-buffer buffer))
@@ -279,66 +353,52 @@ Parameter `key' is the API  key."
 
 (defun gmaps-display-leg (leg)
   "Display a leg of a route."
-  (let ((i 1)
-        (inhibit-read-only t)
+  (let ((inhibit-read-only t)
         (start (point)))
-    (cl-loop for step across (g-json-get 'steps leg)
-          do
-          (insert
-           (format "%d:\t%-40ss\t%s\t%s\n"
-                   i
-                   (g-json-get  'html_instructions step)
-                   (g-json-get 'text (g-json-get 'distance step))
-                   (g-json-get 'text (g-json-get 'duration step))))
-          (save-excursion
-            (save-restriction
-              (narrow-to-region start (point))
-              (html2text)))
-          (put-text-property start (1- (point))
-                             'maps-data step)
-          (setq start  (point))
-          (incf i))))
+    (insert "<ol>")
+    (cl-loop
+     for step across (g-json-get 'steps leg) do
+     (let-alist step
+       (insert
+        (format "<li>:%s%s%s</li>\n"
+                .html_instructions .distance.text .duration.text))))
+    (shr-render-region start (point))))
 
 (defun gmaps-display-route (route)
   "Display route in a Maps buffer."
-  (let ((i 1)
-        (inhibit-read-only t)
-        (length (length  (g-json-get 'legs route)))
-        (leg nil))
-    (insert
-     (format "Summary: %s\n"
-             (g-json-get 'summary route)))
-    (cond
-     ((= 1 length)
-      (setq leg (aref (g-json-get 'legs route) 0))
-      (insert (format "From %s to %s\n%s\t%s\n"
-                      (g-json-get 'start_address leg)
-                      (g-json-get 'end_address leg)
-                      (g-json-get 'text (g-json-get 'distance leg))
-                      (g-json-get 'text (g-json-get 'duration leg))))
-      (gmaps-display-leg (aref (g-json-get 'legs route) 0)))
-     (t
-      (cl-loop
-       for leg across (g-json-get 'legs route)
-       do
-       (insert (format "Leg:%d: From %s to %s\n"
-                       i
-                       (g-json-get 'start_address leg)
-                       (g-json-get 'end_address leg)))
-       (gmaps-display-leg leg)
-       (incf i))))
-    (insert
-     (format "Warnings: %s\n"
-             (g-json-get 'warnings route)))
-    (insert
-     (format "Copyrights: %s\n\f\n"
-             (g-json-get 'copyrights route)))))
+  (let-alist route
+    (let ((i 1)
+          (inhibit-read-only t)
+          (length (length  .legs))
+          (leg nil))
+      (insert (format "Summary: %s\n" .summary))
+      (cond
+       ((= 1 length)
+        (setq leg (aref .legs 0))
+        (insert (format "From %s to %s\n%s\t%s\n"
+                        (g-json-get 'start_address leg)
+                        (g-json-get 'end_address leg)
+                        (g-json-get 'text (g-json-get 'distance leg))
+                        (g-json-get 'text (g-json-get 'duration leg))))
+        (gmaps-display-leg (aref .legs 0)))
+       (t
+        (cl-loop
+         for leg across .legs
+         do
+         (insert (format "Leg:%d: From %s to %s\n"
+                         i
+                         (g-json-get 'start_address leg)
+                         (g-json-get 'end_address leg)))
+         (gmaps-display-leg leg)
+         (cl-incf i))))
+      (insert (format "Warnings: %s\n" .warnings))
+      (insert (format "Copyrights: %s\n\f\n" .copyrights)))))
 
 (defun gmaps-read-origin-destination ()
   "Read origin and destination addresses using context-based
 guesses. Addresses are returned url-encoded; if available
 origin/destination may be returned as a lat,long string."
-  (declare (special gmaps-current-location))
+  (cl-declare (special gmaps-current-location))
   (let* ((maps-data (get-text-property (point) 'maps-data))
          (place-location (and maps-data
                               (g-json-lookup
@@ -348,7 +408,8 @@ origin/destination may be returned as a lat,long string."
          (destination nil))
     (setq origin
           (cond
-           (gmaps-current-location (url-hexify-string(get 'gmaps-current-location 'address)))
+           (gmaps-current-location
+            (url-hexify-string (gmaps--location-address gmaps-current-location)))
            (t (url-hexify-string (read-from-minibuffer "Start Address: ")))))
     (setq destination
           (cond
@@ -367,11 +428,11 @@ origin/destination may be returned as a lat,long string."
     (cond
      ((= 1 length) (gmaps-display-route (aref routes 0)))
      (t
-      (cl-loop for route across routes
-            do
-            (insert (format  "\nRoute %d\n" i))
-            (incf i)
-            (gmaps-display-route route))))))
+      (cl-loop
+       for route across routes do
+       (insert (format  "\nRoute %d\n" i))
+       (cl-incf i)
+       (gmaps-display-route route))))))
 
 (defun gmaps-driving-directions (origin destination)
   "Driving directions from Google Maps."
@@ -542,16 +603,12 @@ origin/destination may be returned as a lat,long string."
 (defun gmaps-set-current-location (address)
   " Set current location."
   (interactive  "sAddress: ")
-  (declare (special gmaps-current-location))
-  (condition-case nil
-      (progn 
-        (setq gmaps-current-location (gmaps-geocode address))
-        (put 'gmaps-current-location 'address address)
-        (message "Moved to %s" address))
-    (error (message "Error finding %s" address))))
+  (cl-declare (special gmaps-current-location))
+  (setq gmaps-current-location (gmaps-address-location address))
+  (message "Moved to %s" address))
 
-(defstruct gmaps-places-filter
-  type ; singleton as per new API 
+(cl-defstruct gmaps-places-filter
+  type ; singleton as per new API
   types ; multiple types (until Feb 2017)
   keyword name)
 
@@ -569,7 +626,7 @@ origin/destination may be returned as a lat,long string."
             (if keyword (format "&keyword=%s" keyword) "")
             (if name (format "&name=%s" name) "")
             (if type (format "&type=%s" type) "")
-            (if types (format "&types=%s" (mapconcat #'identity types "|")) ""))))    
+            (if types (format "&types=%s" (mapconcat #'identity types "|")) ""))))
 
 (defun gmaps-places-filter-as-string (filter)
   "Convert filter structure into display-friendly string."
@@ -584,24 +641,24 @@ origin/destination may be returned as a lat,long string."
             (if types (format "Types: %s" (mapconcat #'identity types "|")) ""))))
 (defun gmaps-place-read-types ()
   "Returns a list of types."
-  (declare (special gmaps-place-types))
+  (cl-declare (special gmaps-place-types))
   (let ((result nil)
         (type (completing-read "Type: Blank to quit " gmaps-place-types)))
     (while (not (= 0 (length type)))
-      (pushnew type result)
+      (cl-pushnew type result)
       (setq type (completing-read "Type: Blank to quit " gmaps-place-types)))
     result))
 
 (defun gmaps-place-read-type ()
   "Returns a type."
-  (declare (special gmaps-place-types))
+  (cl-declare (special gmaps-place-types))
   (completing-read "Type: " gmaps-place-types))
 
 (defun gmaps-set-current-filter (&optional all)
   "Set up filter in current buffer.
 Optional interactive prefix arg prompts for all filter fields."
   (interactive "P")
-  (declare (special gmaps-current-filter gmaps-place-types))
+  (cl-declare (special gmaps-current-filter gmaps-place-types))
   (cond
    (all
     (let ((name (read-string "Name: "))
@@ -632,7 +689,7 @@ Optional interactive prefix arg prompts for all filter fields."
 (defun gmaps-set-current-radius  (radius)
   "Set current radius"
   (interactive "nRadius: ")
-  (declare (special gmaps-current-radius))
+  (cl-declare (special gmaps-current-radius))
   (setq gmaps-current-radius radius)
   (call-interactively 'gmaps-places-nearby))
 
@@ -640,47 +697,43 @@ Optional interactive prefix arg prompts for all filter fields."
   "Find places near current location.
 Uses default radius. optional interactive prefix arg clears any active filters."
   (interactive "P")
-  (declare (special g-curl-program g-curl-common-options
-                    gmaps-current-location gmaps-current-filter
-                    gmaps-places-key
-                    gmaps-places-radius))
+  (cl-declare (special gmaps-current-location gmaps-current-filter
+                    gmaps-places-key gmaps-places-radius))
   (unless gmaps-current-location (error "Set current location."))
   (and clear-filter (setq gmaps-current-filter nil))
   (goto-char (point-max))
-  (let ((start nil)
-        (inhibit-read-only t)
-        (result
-         (g-json-get-result
-          (format "%s --max-time 2 --connect-timeout 1 %s '%s'"
-                  g-curl-program g-curl-common-options
-                  (format "%s&%s&%s%s"
-                          (gmaps-places-url-base "nearbysearch" gmaps-places-key)
-                          (format "location=%s,%s"
-                                  (g-json-get 'lat gmaps-current-location) (g-json-get 'lng gmaps-current-location))
-                          (format "radius=%s" gmaps-current-radius)
-                          (if gmaps-current-filter
-                              (gmaps-places-filter-as-params gmaps-current-filter)
-                            ""))))))
-    (cond
-     ((string= "OK" (g-json-get 'status result))
-      (goto-char (point-max))
-      (setq start (point))
-      (insert
-       (format "Places within %sm of  %s\n"
-               gmaps-current-radius
-               (get 'gmaps-current-location 'address)))
-      (when gmaps-current-filter
-        (insert (format "Filter: %s\n"
-                        (gmaps-places-filter-as-string gmaps-current-filter))))
-      (gmaps-display-places (g-json-get 'results result))
-      (goto-char start))
-     ((string= "ZERO_RESULTS"  (g-json-get 'status result))
-      (insert
-       (format "No places within %sm  matching %s.\n"
-               gmaps-current-radius
-               (gmaps-places-filter-as-string gmaps-current-filter))))
-     (t (error "Status %s from Maps" (g-json-get 'status
-                                                 result))))))
+  (let-alist
+      (g-json-from-url
+       (format "%s&%s&%s%s"
+               (gmaps-places-url-base "nearbysearch" gmaps-places-key)
+               (format "location=%s,%s"
+                       (g-json-get 'lat (gmaps--location-lat-lng gmaps-current-location))
+                       (g-json-get 'lng (gmaps--location-lat-lng gmaps-current-location)))
+               (format "radius=%s" gmaps-current-radius)
+               (if gmaps-current-filter
+                   (gmaps-places-filter-as-params gmaps-current-filter)
+                 "")))
+    (let ((start nil)
+          (inhibit-read-only t))
+      (cond
+       ((string= "OK" .status)
+        (goto-char (point-max))
+        (setq start (point))
+        (insert
+         (format "Places within %sm of  %s\n"
+                 gmaps-current-radius
+                 (gmaps--location-address gmaps-current-location)))
+        (when gmaps-current-filter
+          (insert (format "Filter: %s\n"
+                          (gmaps-places-filter-as-string gmaps-current-filter))))
+        (gmaps-display-places .results)
+        (goto-char start))
+       ((string= "ZERO_RESULTS"  .status)
+        (insert
+         (format "No places within %sm  matching %s.\n"
+                 gmaps-current-radius
+                 (gmaps-places-filter-as-string gmaps-current-filter))))
+       (t (error "Status %s from Maps" .status))))))
 
 (defun gmaps-places-search (query &optional clear-filter)
   "Perform a places search.
@@ -690,40 +743,33 @@ Optional  prefix arg clears any active filters."
    (list
     (read-from-minibuffer "Search For: ")
     current-prefix-arg))
-  (declare (special g-curl-program g-curl-common-options
-                    gmaps-current-filter
-                    gmaps-places-key))
+  (cl-declare (special gmaps-current-filter gmaps-places-key))
   (and clear-filter (setq gmaps-current-filter nil))
   (goto-char (point-max))
-  (let ((start nil)
-        (inhibit-read-only t)
-        (result
-         (g-json-get-result
-          (format "%s --max-time 2 --connect-timeout 1 %s '%s'"
-                  g-curl-program g-curl-common-options
-                  (format "%s&query=%s%s"
-                          (gmaps-places-url-base "textsearch" gmaps-places-key)
-                          (url-hexify-string query)
-                          (if gmaps-current-filter
-                              (gmaps-places-filter-as-params gmaps-current-filter)
-                            ""))))))
-    (cond
-     ((string= "OK" (g-json-get 'status result))
-      (goto-char (point-max))
-      (setq start (point))
-      (insert
-       (format "Places  matching %s\n"
-               query))
-      (when gmaps-current-filter
-        (insert (format "Filter: %s\n"
-                        (gmaps-places-filter-as-string gmaps-current-filter))))
-      (gmaps-display-places (g-json-get 'results result))
-      (goto-char start))
-     ((string= "ZERO_RESULTS"  (g-json-get 'status result))
-      (insert
-       (format "No places matching %s" query)))
-     (t (error "Status %s from Maps" (g-json-get 'status
-                                                 result))))))
+  (let-alist
+      (g-json-from-url
+       (format "%s&query=%s%s"
+               (gmaps-places-url-base "textsearch" gmaps-places-key)
+               (url-hexify-string query)
+               (if gmaps-current-filter
+                   (gmaps-places-filter-as-params gmaps-current-filter)
+                 "")))
+    (let ((start nil)
+          (inhibit-read-only t))
+      (cond
+       ((string= "OK" .status)
+        (goto-char (point-max))
+        (setq start (point))
+        (insert (format "Places  matching %s\n" query))
+        (when gmaps-current-filter
+          (insert
+           (format "Filter: %s\n"
+                   (gmaps-places-filter-as-string gmaps-current-filter))))
+        (gmaps-display-places .results)
+        (goto-char start))
+       ((string= "ZERO_RESULTS"  .status)
+        (insert (format "No places matching %s" query)))
+       (t (error "Status %s from Maps" .status))))))
 
 (defun gmaps-display-places (places)
   "Display places in Maps interaction buffer."
@@ -732,9 +778,10 @@ Optional  prefix arg clears any active filters."
     (cond
      ((= 1 length) (gmaps-display-place (aref places 0)))
      (t
-      (cl-loop for place across places
-            do
-            (gmaps-display-place place))))))
+      (cl-loop
+       for place across places do
+       (gmaps-display-place place))))))
+
 (defun gmaps-colonize-timestring (timestring)
   "Insert `:' to turn 0800 into 08:00. "
   (format "%s:%s"
@@ -751,14 +798,14 @@ Optional  prefix arg clears any active filters."
           '["Sunday" "Monday" "Tuesday" "Wednesday" "Thursday" "Friday" "Saturday"]
           day)))
     (setq open
-          (find-if 
+          (cl-find-if
            #'(lambda (h)
                (= day (g-json-lookup "open.day" h))) hours)
           close
-          (find-if
+          (cl-find-if
            #'(lambda (h) (= day (g-json-lookup "close.day" h))) hours))
     (format "%s Open: %s, Close: %s"
-            weekday 
+            weekday
             (gmaps-colonize-timestring (g-json-lookup "open.time" open))
             (gmaps-colonize-timestring (g-json-lookup "close.time" close)))))
 
@@ -778,66 +825,62 @@ Optional  prefix arg clears any active filters."
   "Insert place details."
   (goto-char (line-end-position))
   (insert "\n")
-  (let ((start (point))
-        (hours (g-json-lookup "opening_hours.periods" details))
-        (open (g-json-lookup "opening_hours.open_now" details))
-        (website (g-json-get 'website details))
-        (url (g-json-get 'url details))
-        (rating (g-json-get 'rating details))
-        (price (g-json-get 'price_level  details))
-        (phone  (g-json-get 'international_phone_number details))
-        (address (g-json-get 'formatted_address details)))
-    (when hours
-      (let ((today (gmaps-hours-for-day hours (read (format-time-string "%w"))))
-            (here nil))
+  (let-alist details
+    (let ((start (point))
+          (hours .opening_hours.periods)
+          (open .opening_hours.open_now))
+      (when hours
+        (let ((today (gmaps-hours-for-day hours (read (format-time-string "%w"))))
+              (here nil))
+          (insert-text-button
+           "[Hours]\t"
+           'hours hours
+           'action
+           #'(lambda (b)
+               (gmaps-display-places-hours  (button-get b 'hours))))
+          (setq here (point))
+          (insert (format "%s\t" today))
+          (put-text-property  here (point) 'open-hours t)))
+      (when .website
         (insert-text-button
-         "[Hours]\t"
-         'hours hours
+         "[WebSite]\t"
+         'url-link .website
          'action
-         #'(lambda (b) (gmaps-display-places-hours  (button-get b 'hours))))
-        (setq here (point))
-        (insert (format "%s\t" today))
-        (put-text-property  here (point)
-                            'open-hours t)))
-    (when website
-      (insert-text-button "[WebSite]\t"
-                          'url-link website
-                          'action #'(lambda (b) (browse-url
-                                                 (button-get b
-                                                             'url-link)))))
-    (when url
-      (insert-text-button "[Places URL]\n"
-                          'url-link url
-                          'action #'(lambda (b) (browse-url (button-get b 'url-link)))))
-    (when (or address phone)
-      (insert (format "%s\t%s\n" address  phone)))
-    (insert (format "Open: %s\tRating: %s\tPrice: %s\n"
-                    (if open "Yes" "No")
-                    (or rating "N/A")
-                    (or price "N/A")))
-    (indent-rigidly start  (point) 4)
-    (put-text-property start (point)
-                       'place-details details)
-    (goto-char start)))
+         #'(lambda (b)
+             (browse-url (button-get b 'url-link)))))
+      (when .url
+        (insert-text-button
+         "[Places URL]\n"
+         'url-link .url
+         'action #'(lambda (b) (browse-url (button-get b 'url-link)))))
+      (when (or .formatted_address .international_phone_number)
+        (insert
+         (format "%s\t%s\n" .formatted_address  .international_phone_number)))
+      (insert
+       (format "Open: %s\tRating: %s\tPrice: %s\n"
+               (if open "Yes" "No")
+               (or .ratings "N/A")
+               (or .price_level "N/A")))
+      (indent-rigidly start  (point) 4)
+      (put-text-property start (point)
+                         'place-details details)
+      (goto-char start))))
 
 (defun gmaps-display-place (place)
   "Display place in Maps buffer."
-  (let ((inhibit-read-only t)
-        (start (point)))
-    (insert
-     (format "%s\t%s\t%s\n"
-             (g-json-get  'name place)
-             (g-json-get 'types place)
-             (g-json-get 'vicinity place)))
-    (put-text-property start (1- (point))
-                       'maps-data place)))
+  (let-alist place
+    (let ((inhibit-read-only t)
+          (start (point)))
+      (insert
+       (format "%s\t%s\t%s\n"
+               .name .types .vicinity))
+      (put-text-property start (1- (point)) 'maps-data place))))
 
 (defun gmaps-place-details ()
   "Display details for place at point.
 Insert reviews if already displaying details."
   (interactive)
-  (declare (special g-curl-program g-curl-common-options
-                    gmaps-places-key))
+  (cl-declare (special gmaps-places-key))
   (unless (eq major-mode 'gmaps-mode) (error "Not in a Google Maps buffer."))
   (unless
       (or (get-text-property  (point) 'maps-data)
@@ -849,21 +892,20 @@ Insert reviews if already displaying details."
    (t
     (let* ((inhibit-read-only t)
            (place-ref
-            (g-json-get 'reference (get-text-property (point)'maps-data)))
-           (result
-            (and place-ref
-                 (g-json-get-result
-                  (format "%s --max-time 2 --connect-timeout 1 %s '%s'"
-                          g-curl-program g-curl-common-options
-                          (format "%s&%s"
-                                  (gmaps-places-url-base "details" gmaps-places-key)
-                                  (format "reference=%s" place-ref)))))))
-      (cond
-       ((string= "OK" (g-json-get 'status result))
-        (put-text-property (line-beginning-position) (line-end-position)
-                           'place-details t)
-        (gmaps-display-place-details (g-json-get 'result result)))
-       (t (error "Status %s from Maps" (g-json-get 'status result))))))))
+            (g-json-get 'reference (get-text-property (point)'maps-data))))
+      (unless place-ref (error "No place here"))
+      (let-alist
+          (g-json-from-url
+           (format
+            "%s&%s"
+            (gmaps-places-url-base "details" gmaps-places-key)
+            (format "reference=%s" place-ref)))
+        (cond
+         ((string= "OK" .status)
+          (put-text-property (line-beginning-position) (line-end-position)
+                             'place-details t)
+          (gmaps-display-place-details .result))
+         (t (error "Status %s from Maps" .result))))))))
 
 (defun gmaps-place-reviews ()
   "Display reviews for place at point.

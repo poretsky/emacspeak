@@ -51,7 +51,8 @@
 ;;{{{ required modules
 
 ;;; Code:
-
+(require 'cl-lib)
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 ;;}}}
 ;;{{{ advice window navigation
@@ -59,7 +60,7 @@
 (cl-loop
  for f in
  '(windmove-left windmove-right
-   windmove-up windmove-down)
+                 windmove-up windmove-down)
  do
  (eval
   `(defadvice  ,f (after emacspeak pre act comp)
@@ -75,7 +76,7 @@
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

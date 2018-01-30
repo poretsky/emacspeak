@@ -49,6 +49,7 @@
 ;;{{{ required modules
 
 ;;; Code:
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 ;;}}}
 ;;{{{ define personalities 
@@ -88,39 +89,39 @@
   (emacspeak-speak-line))
 
 (cl-loop for f in
-      '(newsticker-next-item newsticker-previous-item
-                             newsticker-next-new-item
-                             newsticker-previous-new-item
-                             newsticker-previous-feed newsticker-next-feed
-                             )
-      do
-      (eval
-       `(defadvice ,f (after emacspeak pre act comp)
-          "Provide spoken feedback."
-          (when (ems-interactive-p)
-            (emacspeak-auditory-icon 'large-movement)
-            (emacspeak-newsticker-summarize-item)))))
+         '(newsticker-next-item newsticker-previous-item
+                                newsticker-next-new-item
+                                newsticker-previous-new-item
+                                newsticker-previous-feed newsticker-next-feed
+                                )
+         do
+         (eval
+          `(defadvice ,f (after emacspeak pre act comp)
+             "Provide spoken feedback."
+             (when (ems-interactive-p)
+               (emacspeak-auditory-icon 'large-movement)
+               (emacspeak-newsticker-summarize-item)))))
 
 ;;}}}
 ;;{{{  silence auto activity
 
 (cl-loop for f in
-      '(newsticker-get-news-with-delay
-        newsticker-get-news
-        newsticker--cache-save)
-      do
-      (eval
-       `(defadvice  ,f (around emacspeak pre act comp)
-          "Silence messages."
-          (let ((emacspeak-speak-messages nil))
-            ad-do-it))))
+         '(newsticker-get-news-with-delay
+           newsticker-get-news
+           newsticker--cache-save)
+         do
+         (eval
+          `(defadvice  ,f (around emacspeak pre act comp)
+             "Silence messages."
+             (let ((emacspeak-speak-messages nil))
+               ad-do-it))))
 ;;}}}
 (provide 'emacspeak-newsticker)
 ;;{{{ end of file
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

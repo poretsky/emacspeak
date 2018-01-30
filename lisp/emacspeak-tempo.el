@@ -46,6 +46,7 @@
 ;;; Code:
 ;;}}}
 ;;{{{ requires
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 
 ;;}}}
@@ -53,12 +54,13 @@
 
 ;;; Prompting in the minibuffer is useful:
 
-(declaim  (special tempo-interactive))
+(cl-declaim  (special tempo-interactive))
 (setq tempo-interactive t)
-(add-hook 'tempo-insert-string-hook
-          (function (lambda (string)
-                      (dtk-speak string)
-                      string)))
+(add-hook
+ 'tempo-insert-string-hook
+ #'(lambda (string)
+     (dtk-speak string)
+     string))
 
 ;;}}}
 ;;{{{  Advice: 
@@ -95,7 +97,7 @@
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end: 
 
 ;;}}}

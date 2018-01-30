@@ -1,13 +1,11 @@
-;; -*- lexical-binding: t; -*-
-(when (locate-library "python-mode-autoloads")
-  (load-library "python-mode-autoloads"))
+;; -*- lexical-binding: nil; -*-
 
-(when (locate-library "ipython-autoloads")
-  (load-library "ipython-autoloads"))
-
-(add-hook
- 'python-mode-hook
- #'(lambda ()
-     (when (locate-library "company") (company-mode  1))
-     ;(when (locate-library "elpy") (elpy-enable))
-     ))
+;(load-library "python-mode-autoloads")
+(eval-after-load "python-mode"
+  `(progn
+     (add-hook
+      'python-mode-hook
+      #'(lambda ()
+           (company-mode  1)
+           ;(elpy-enable)
+           ))))

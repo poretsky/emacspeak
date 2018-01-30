@@ -40,6 +40,7 @@
 
 ;;{{{ required modules
 
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 ;;}}}
 ;;{{{  Introduction:
@@ -56,7 +57,7 @@
 (defun emacspeak-ibuffer-speak-buffer-line ()
   "Speak information about this buffer"
   (interactive)
-  (declare (special dtk-stop-immediately
+  (cl-declare (special dtk-stop-immediately
                     list-buffers-directory))
   (unless (eq major-mode 'ibuffer-mode)
     (error "This command can only be used in buffer menus"))
@@ -591,23 +592,11 @@
   (when (ems-interactive-p)
     (emacspeak-auditory-icon 'mark-object)))
 
-;;;;;;;;;;;;;;;;;;;;;;
-;; now, go back to ibuffer-yank and add the missing functions:
-
-;; (defun ibuffer-yank ()
-;; (defun ibuffer-yank-filter-group (name)
-;; (defun ibuffer-or-filter (&optional reverse)
-;; (defun ibuffer-save-filter-groups (name groups)
-;; (defun ibuffer-delete-saved-filter-groups (name)
-;; (defun ibuffer-switch-to-saved-filter-groups (name)
-;; (defun ibuffer-pop-filter ()
-;; (defun ibuffer-exchange-filters ()
-;; (defun ibuffer-negate-filter ()
-;; (defun ibuffer-save-filters (name filters)
-;; (defun ibuffer-delete-saved-filters (name)
-;; (defun ibuffer-add-saved-filters (name)
-;; (defun ibuffer-switch-to-saved-filters (name)
-;; (defun ibuffer-do-occur (regexp &optional nlines)
+(defadvice ibuffer-pop-filter (after emacspeak pre act comp)
+  "Provide auditory feedback."
+  (when (ems-interactive-p)
+    (emacspeak-auditory-icon 'select-object)
+    (emacspeak-speak-line)))
 
 ;;}}}
 (provide 'emacspeak-ibuffer)
@@ -615,7 +604,7 @@
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

@@ -40,6 +40,7 @@
 
 ;;{{{  Required modules
 
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 ;;}}}
 ;;{{{ Introduction:
@@ -63,17 +64,17 @@
   "List of rpm-spec insertion commands to speech-enable.")
 
 (cl-loop for f in emacspeak-rpm-spec-insertion-commands
-      do
-      (eval
-       `(defadvice ,f (after emacspeak pre act comp)
-          "Provide spoken feedback."
-          (when (ems-interactive-p)
-            (let ((entry  (format "%s"
-                                  (quote ,f))))
-              (setq entry
-                    (car (last (split-string entry "-"))))
-              (message
-               (format "Inserted %s entry" entry)))))))
+         do
+         (eval
+          `(defadvice ,f (after emacspeak pre act comp)
+             "Provide spoken feedback."
+             (when (ems-interactive-p)
+               (let ((entry  (format "%s"
+                                     (quote ,f))))
+                 (setq entry
+                       (car (last (split-string entry "-"))))
+                 (message
+                  (format "Inserted %s entry" entry)))))))
 
 ;;}}}
 ;;{{{ Advice navigation 
@@ -84,13 +85,13 @@
                          rpm-goto-section)
   "Navigation commands in rpm-spec to speech-enable.")
 (cl-loop for f in emacspeak-rpm-spec-navigation-commands
-      do
-      (eval
-       `(defadvice ,f (after emacspeak pre act comp)
-          "Provide auditory feedback."
-          (when (ems-interactive-p)
-            (emacspeak-auditory-icon 'large-movement)
-            (emacspeak-speak-line)))))
+         do
+         (eval
+          `(defadvice ,f (after emacspeak pre act comp)
+             "Provide auditory feedback."
+             (when (ems-interactive-p)
+               (emacspeak-auditory-icon 'large-movement)
+               (emacspeak-speak-line)))))
 
 ;;}}}
 ;;{{{ Advice build commands 
@@ -106,18 +107,18 @@
   "Build commands from rpm-spec that are speech-enabled.")
 
 (cl-loop for  f in emacspeak-rpm-spec-build-commands
-      do
-      (eval
-       `(defadvice ,f (after emacspeak pre act comp)
-          "Provide spoken feedback."
-          (when (ems-interactive-p)
-            (let ((target  (format "%s"
-                                   (quote ,f))))
-              (setq target
-                    (car (last (split-string target "-"))))
-              (emacspeak-auditory-icon 'task-done)
-              (message
-               (format "Launched build %s " target)))))))
+         do
+         (eval
+          `(defadvice ,f (after emacspeak pre act comp)
+             "Provide spoken feedback."
+             (when (ems-interactive-p)
+               (let ((target  (format "%s"
+                                      (quote ,f))))
+                 (setq target
+                       (car (last (split-string target "-"))))
+                 (emacspeak-auditory-icon 'task-done)
+                 (message
+                  (format "Launched build %s " target)))))))
 
 ;;}}}
 ;;{{{ advice toggles 
@@ -131,19 +132,19 @@
   "Toggle commands from rpm-spec that are speech-enabled.")
 
 (cl-loop for f in emacspeak-rpm-spec-toggle-commands
-      do
-      (eval
-       `(defadvice ,f (after emacspeak pre act comp)
-          "Provide spoken feedback."
-          (when (ems-interactive-p)
-            (let ((toggle  (format "%s" (quote ,f)))
-                  (switch nil))
-              (setq switch
-                    (intern
-                     (replace-regexp-in-string "toggle"
-                                               "spec"
-                                               toggle)))
-              (emacspeak-auditory-icon (if (eval switch) 'on 'off)))))))
+         do
+         (eval
+          `(defadvice ,f (after emacspeak pre act comp)
+             "Provide spoken feedback."
+             (when (ems-interactive-p)
+               (let ((toggle  (format "%s" (quote ,f)))
+                     (switch nil))
+                 (setq switch
+                       (intern
+                        (replace-regexp-in-string "toggle"
+                                                  "spec"
+                                                  toggle)))
+                 (emacspeak-auditory-icon (if (eval switch) 'on 'off)))))))
 
 ;;}}}
 ;;{{{ voice locking 
@@ -163,7 +164,7 @@
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end: 
 
 ;;}}}

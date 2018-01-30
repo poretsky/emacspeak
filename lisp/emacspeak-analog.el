@@ -48,7 +48,8 @@
 ;;{{{ required modules
 
 ;;; Code:
-(require 'cl)
+(require 'cl-lib)
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 ;;}}}
 ;;{{{ autoloads to help compiler
@@ -77,19 +78,19 @@
     (emacspeak-speak-mode-line)))
 
 (cl-loop for command in
-      '(analog-next-group
-        analog-previous-group
-        analog-next-entry
-        analog-previous-entry
-        analog-refresh-display-buffer
-        analog-toggle-timer-and-redisplay)
-      do
-      (eval
-       `(defadvice ,command (after emacspeak pre act comp)
-          "Provide auditory feedback."
-          (when (ems-interactive-p)
-            (emacspeak-speak-line)
-            (emacspeak-auditory-icon 'select-object)))))
+         '(analog-next-group
+           analog-previous-group
+           analog-next-entry
+           analog-previous-entry
+           analog-refresh-display-buffer
+           analog-toggle-timer-and-redisplay)
+         do
+         (eval
+          `(defadvice ,command (after emacspeak pre act comp)
+             "Provide auditory feedback."
+             (when (ems-interactive-p)
+               (emacspeak-speak-line)
+               (emacspeak-auditory-icon 'select-object)))))
 
 ;;}}}
 ;;{{{ voice setup 
@@ -149,7 +150,7 @@ Speak field or char moved to."
           (start nil)
           (end nil)
           (left 0)
-          (right  (first fields)))
+          (right  (cl-first fields)))
       (beginning-of-line)
       (while (and fields 
                   (<=  right col))
@@ -180,7 +181,7 @@ Speak field or char moved to."
 (defun emacspeak-analog-next-field (fields)
   "Move to next field."
   (let ((col (current-column))
-        (end (first fields)))
+        (end (cl-first fields)))
     (while (and fields 
                 (<= end col))
       (setq end (pop fields)))  
@@ -195,7 +196,7 @@ Speak field or char moved to."
   (let ((col (current-column))
         (prev 0)
         (start 0)
-        (end (first fields)))
+        (end (cl-first fields)))
     (while (and fields 
                 (< end col))
       (setq prev start
@@ -230,7 +231,7 @@ Speak field or char moved to."
 ;;}}}
 ;;{{{ key bindings
 (when (boundp 'analog-mode-map)
-  (declaim (special analog-mode-map))
+  (cl-declaim (special analog-mode-map))
   (define-key analog-mode-map '[left]
     'emacspeak-analog-backward-field-or-char)
   (define-key analog-mode-map '[right] 'emacspeak-analog-forward-field-or-char)
@@ -241,14 +242,14 @@ Speak field or char moved to."
 (defun emacspeak-analog-update-edit-keys ()
   "We define keys that invoke editing commands to invoke
 emacspeak-speak-and-skip-extent-upto-char "
-  (declare (special analog-mode-map))
+  (cl-declare (special analog-mode-map))
   (mapcar 
    #'(lambda (cmd)
        (cl-loop for k in
-             (where-is-internal cmd)
-             do
-             (define-key analog-mode-map k
-               'emacspeak-speak-and-skip-extent-upto-this-char)))
+                (where-is-internal cmd)
+                do
+                (define-key analog-mode-map k
+                  'emacspeak-speak-and-skip-extent-upto-this-char)))
    (list 'emacspeak-self-insert-command
          'completion-separator-self-insert-command)))
 
@@ -258,7 +259,7 @@ emacspeak-speak-and-skip-extent-upto-char "
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

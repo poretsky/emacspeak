@@ -58,11 +58,13 @@
 ;;; structured text files and the output from programs that
 ;;; tabulate their output.
 ;;; It's also useful for handling multicolumn text.
+;;; The "grid" is specified as a list of (start end) tuples..
 ;;; Code:
 
 ;;}}}
 ;;{{{ required modules
 
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 (require 'emacspeak-table)
 (require 'emacspeak-table-ui)
@@ -82,7 +84,7 @@ buffer.")
   "Generates a key for current context.
 The key is used when persisting out the grid setting for
 future  use."
-  (declare (special  major-mode))
+  (cl-declare (special  major-mode))
   (or (buffer-file-name)
       (format "%s:%s" (buffer-name) major-mode)))
 
@@ -102,30 +104,30 @@ end   as specified by grid."
             (goto-char start)
           (goto-char end))
         (cl-loop for i from 0 to (1- num-rows)
-              do
-              (beginning-of-line)
-              (setq this-line
-                    (buffer-substring (line-beginning-position) (line-end-position)))
-              (setq this-length (length this-line))
-              (setq this-row (make-vector num-columns ""))
-              (cl-loop for j from 0 to (1- (length grid))
-                    do
-                    (when (< (1- (nth j grid)) this-length)
+                 do
+                 (beginning-of-line)
+                 (setq this-line
+                       (buffer-substring (line-beginning-position) (line-end-position)))
+                 (setq this-length (length this-line))
+                 (setq this-row (make-vector num-columns ""))
+                 (cl-loop for j from 0 to (1- (length grid))
+                          do
+                          (when (< (1- (nth j grid)) this-length)
 ;;; within bounds 
-                      (aset  this-row j
-                             (substring
-                              this-line
-                              (if (= j 0) 
-                                  0
-                                (nth  (1- j) grid))
-                              (1- (nth j grid))))))
-              (aset this-row (length grid)
-                    (if (< (nth (1- (length grid)) grid) this-length)
-                        (substring this-line
-                                   (nth (1- (length grid)) grid))
-                      ""))
-              (aset result-grid i this-row)
-              (forward-line 1))
+                            (aset  this-row j
+                                   (substring
+                                    this-line
+                                    (if (= j 0) 
+                                        0
+                                      (nth  (1- j) grid))
+                                    (1- (nth j grid))))))
+                 (aset this-row (length grid)
+                       (if (< (nth (1- (length grid)) grid) this-length)
+                           (substring this-line
+                                      (nth (1- (length grid)) grid))
+                         ""))
+                 (aset result-grid i this-row)
+                 (forward-line 1))
         result-grid))))
 
 ;;}}}
@@ -136,12 +138,12 @@ end   as specified by grid."
 
 (defun emacspeak-gridtext-set (key grid)
   "Map grid to key."
-  (declare (special emacspeak-gridtext-table))
+  (cl-declare (special emacspeak-gridtext-table))
   (setf (gethash key emacspeak-gridtext-table) grid))
 
 (defun emacspeak-gridtext-get (key)
   "Lookup key and return corresponding grid. "
-  (declare (special emacspeak-gridtext-table))
+  (cl-declare (special emacspeak-gridtext-table))
   (gethash key emacspeak-gridtext-table))
 ;;;###autoload
 (defun emacspeak-gridtext-load (file)
@@ -165,7 +167,7 @@ end   as specified by grid."
     (read-file-name "Save gridtext settings  to file: "
                     emacspeak-resource-directory
                     ".gridtext")))
-  (declare (special emacspeak-resource-directory))
+  (cl-declare (special emacspeak-resource-directory))
   (let ((print-level nil)
         (print-length nil)
         (buffer (find-file-noselect
@@ -175,16 +177,16 @@ end   as specified by grid."
       (set-buffer buffer)
       (erase-buffer)
       (cl-loop for key being the hash-keys of
-            emacspeak-gridtext-table
-            do
-            (insert
-             (format
-              "\n(setf
+               emacspeak-gridtext-table
+               do
+               (insert
+                (format
+                 "\n(setf
  (gethash %s emacspeak-gridtext-table)
  (quote %s))"
-              (prin1-to-string key)
-              (prin1-to-string (emacspeak-gridtext-get
-                                key)))))
+                 (prin1-to-string key)
+                 (prin1-to-string (emacspeak-gridtext-get
+                                   key)))))
       (basic-save-buffer)
       (kill-buffer buffer))))
 
@@ -195,17 +197,13 @@ end   as specified by grid."
   "Apply grid to region."
   (interactive
    (list
-    (point)
-    (mark)
-    (read-minibuffer "Specify grid as a list: "
+    (point) (mark)
+    (read-minibuffer "Specify grid as a list of tuples: "
                      (format "%s" (emacspeak-gridtext-get (emacspeak-gridtext-generate-key))))))
-  (let ((grid-table (emacspeak-table-make-table
-                     (emacspeak-gridtext-vector-region start
-                                                       end
-                                                       grid)))
-        (buffer (get-buffer-create
-                 (format "*%s-grid*"
-                         (buffer-name)))))
+  (let ((grid-table
+         (emacspeak-table-make-table
+          (emacspeak-gridtext-vector-region start end grid)))
+        (buffer (get-buffer-create (format "*%s-grid*" (buffer-name)))))
     (emacspeak-gridtext-set
      (emacspeak-gridtext-generate-key) grid)
     (emacspeak-table-prepare-table-buffer grid-table buffer)))
@@ -226,7 +224,7 @@ end   as specified by grid."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

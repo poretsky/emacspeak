@@ -39,6 +39,7 @@
 ;;}}}
 
 ;;{{{  Required libraries
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 ;;}}}
 ;;{{{  Introduction:
@@ -49,21 +50,29 @@
 ;;}}}
 ;;{{{ personalities 
 
+
+(voice-setup-add-map
+ '(
+   ( bbdb-field-name voice-monotone)
+   (bbdb-name voice-bolden)
+   (bbdb-organization voice-lighten)))
+
+
+;;}}}
 ;;{{{  Variable settings:
 
 ;;; Emacspeak will not work if bbdb is in electric mode
-(declaim (special bbdb-electric-p))
+(cl-declaim (special bbdb-electric-p))
 (setq bbdb-electric-p nil)
-(declaim (special bbdb-mode-map))
+(cl-declaim (special bbdb-mode-map))
 
-(add-hook 'bbdb-mode-hook
-          (function (lambda ()
-                      (define-key  bbdb-mode-map "b" 'bbdb)
-                      (define-key bbdb-mode-map "N" 'bbdb-name)
-                      (define-key bbdb-mode-map "c" 'bbdb-create)
-                      )))
-
-;;}}}
+(add-hook
+ 'bbdb-mode-hook
+ #'(lambda ()
+     (define-key  bbdb-mode-map "b" 'bbdb)
+     (define-key bbdb-mode-map "N" 'bbdb-name)
+     (define-key bbdb-mode-map "c" 'bbdb-create)
+     ))
 
 ;;}}}
 ;;{{{ Advice:
@@ -141,7 +150,7 @@
 
 (defadvice bbdb-complete-name (around emacspeak pre act)
   "Provide spoken feedback"
-  (declare (special completion-reference-buffer))
+  (cl-declare (special completion-reference-buffer))
   (cond
    ((ems-interactive-p)
     (let ((prior (point))
@@ -194,7 +203,7 @@
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end: 
 
 ;;}}}

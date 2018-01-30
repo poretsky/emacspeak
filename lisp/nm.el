@@ -45,23 +45,24 @@ indicates network is up."
   "Enable integration with NetworkManager. Does nothing if
 already enabled or service is not available."
   (interactive)
-  (declare (special nm-dbus-registration))
+  (cl-declare (special nm-dbus-registration))
   (cond
    ((not (nm-service-p))
     (message "NetworkManager service not available.") nil)
    ((not nm-dbus-registration)
-    (setq nm-dbus-registration (dbus-register-signal
-                                :system
-                                "org.freedesktop.NetworkManager" "/org/freedesktop/NetworkManager"
-                                "org.freedesktop.NetworkManager" "StateChanged"
-                                'nm-state-dbus-signal-handler))
+    (setq nm-dbus-registration
+          (dbus-register-signal
+           :system
+           "org.freedesktop.NetworkManager" "/org/freedesktop/NetworkManager"
+           "org.freedesktop.NetworkManager" "StateChanged"
+           'nm-state-dbus-signal-handler))
     (message "Enabled integration with NetworkManager."))
    ((message "Integration with NetworkManager already enabled."))))
 
 (defun nm-disable()
   "Disable integration with NetworkManager. Does nothing if already disabled."
   (interactive)
-  (declare (special nm-dbus-registration))
+  (cl-declare (special nm-dbus-registration))
   (when nm-dbus-registration
     (dbus-unregister-object nm-dbus-registration)
     (setq nm-dbus-registration nil)

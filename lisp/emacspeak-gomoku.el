@@ -40,6 +40,7 @@
 
 ;;{{{  Required modules
 
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 (require 'gomoku)
 ;;}}}
@@ -53,7 +54,7 @@
 (defun gomoku-point-x ()
   (gomoku-index-to-x (gomoku-point-square)))
 (defun emacspeak-gomoku-cell-value (row column)
-  (declare (special gomoku-board))
+  (cl-declare (special gomoku-board))
   (aref  gomoku-board
          (gomoku-xy-to-index column row)))
 
@@ -76,47 +77,47 @@
    (format "%s %s %s"
            (gomoku-point-y)
            (gomoku-point-x)
-           (case (char-after (point))
-             (?X "x")
-             (?. "-")
-             (?O "0")))))
+           (cl-case (char-after (point))
+                 (?X "x")
+                 (?. "-")
+                 (?O "0")))))
 
 (defun emacspeak-gomoku-show-current-row ()
   "Aurally display current row"
   (interactive)
-  (declare (special gomoku-board-width))
+  (cl-declare (special gomoku-board-width))
   (let ((row (gomoku-point-y))
         (values nil))
     (setq values
           (cl-loop for i from 1 to gomoku-board-width
-                collect 
-                (case (emacspeak-gomoku-cell-value row i)
-                  (0 "-")
-                  (1  "x")
-                  (6 "0"))))
+                   collect 
+                   (cl-case (emacspeak-gomoku-cell-value row i)
+                         (0 "-")
+                         (1  "x")
+                         (6 "0"))))
     (dtk-speak
      (apply 'concat values))))
 
 (defun emacspeak-gomoku-show-current-column ()
   "Aurally display current column"
   (interactive)
-  (declare (special gomoku-board-height))
+  (cl-declare (special gomoku-board-height))
   (let ((column (gomoku-point-x))
         (values nil))
     (setq values
           (cl-loop for i from 1 to gomoku-board-height
-                collect 
-                (case (emacspeak-gomoku-cell-value i column)
-                  (0 "-")
-                  (1  "x")
-                  (6 "0"))))
+                   collect 
+                   (cl-case (emacspeak-gomoku-cell-value i column)
+                         (0 "-")
+                         (1  "x")
+                         (6 "0"))))
     (dtk-speak
      (apply 'concat values))))
 
 (defun emacspeak-gomoku-show-current-positive-diagonal ()
   "Aurally display current positively sloped diagonal"
   (interactive)
-  (declare (special gomoku-board-height
+  (cl-declare (special gomoku-board-height
                     gomoku-board-width))
   (let ((row (gomoku-point-y))
         (column (gomoku-point-x))
@@ -135,19 +136,19 @@
             diag-start-y (+ 1 (- row column)))))
     (setq values
           (cl-loop for i from diag-start-y  to gomoku-board-height
-                and j from diag-start-x to gomoku-board-width 
-                collect
-                (case (emacspeak-gomoku-cell-value i j)
-                  (0 "-")
-                  (1  "x")
-                  (6 "0"))))
+                   and j from diag-start-x to gomoku-board-width 
+                   collect
+                   (cl-case (emacspeak-gomoku-cell-value i j)
+                         (0 "-")
+                         (1  "x")
+                         (6 "0"))))
     (dtk-speak
      (apply 'concat values))))
 
 (defun emacspeak-gomoku-show-current-negative-diagonal ()
   "Aurally display current negative sloped diagonal "
   (interactive)
-  (declare (special gomoku-board-height
+  (cl-declare (special gomoku-board-height
                     gomoku-board-width))
   (let ((row (gomoku-point-y))
         (column (gomoku-point-x))
@@ -169,19 +170,19 @@
             (- (+ row column) diag-start-x))))
     (setq values
           (cl-loop for i from diag-start-y  to gomoku-board-height
-                and j downfrom   diag-start-x  to 1 
-                collect
-                (case (emacspeak-gomoku-cell-value i j)
-                  (0 "-")
-                  (1  "x")
-                  (6 "0"))))
+                   and j downfrom   diag-start-x  to 1 
+                   collect
+                   (cl-case (emacspeak-gomoku-cell-value i j)
+                         (0 "-")
+                         (1  "x")
+                         (6 "0"))))
     (dtk-speak
      (apply 'concat values))))
 
 (defun emacspeak-gomoku-display-statistics ()
   "Display statistics from previous games"
   (interactive)
-  (declare (special gomoku-number-of-human-wins
+  (cl-declare (special gomoku-number-of-human-wins
                     gomoku-number-of-emacs-wins
                     gomoku-number-of-draws))
   (message (format "Wins %d losses %d%s"
@@ -194,8 +195,8 @@
 (defun emacspeak-gomoku-speak-emacs-previous-move ()
   "Speak emacs' previous move"
   (interactive)
-  (declare (special gomoku-game-history))
-  (let ((square (car (first gomoku-game-history))))
+  (cl-declare (special gomoku-game-history))
+  (let ((square (car (cl-first gomoku-game-history))))
     (message "I last played on square %s %s"
              (gomoku-index-to-y square)
              (gomoku-index-to-x square))))
@@ -203,8 +204,8 @@
 (defun emacspeak-gomoku-speak-humans-previous-move ()
   "Speak human' previous move"
   (interactive)
-  (declare (special gomoku-game-history))
-  (let ((square (car (second gomoku-game-history))))
+  (cl-declare (special gomoku-game-history))
+  (let ((square (car (cl-second gomoku-game-history))))
     (message "You last played on square %s %s"
              (gomoku-index-to-y square)
              (gomoku-index-to-x square))))
@@ -212,7 +213,7 @@
 (defun emacspeak-gomoku-speak-number-of-moves ()
   "Speak number of moves so far"
   (interactive)
-  (declare (special gomoku-number-of-moves))
+  (cl-declare (special gomoku-number-of-moves))
   (message "%s moves in this game"
            gomoku-number-of-moves))
 
@@ -328,7 +329,7 @@
 
 (defadvice gomoku-terminate-game (around emacspeak pre act comp)
   "Provide auditory feedback"
-  (declare (special emacspeak-last-message
+  (cl-declare (special emacspeak-last-message
                     gomoku-number-of-moves))
   (let((result (ad-get-arg 0)))
     ad-do-it
@@ -349,13 +350,13 @@
 
 (defun emacspeak-gomoku-setup-keys ()
   "Add additional keybindings"
-  (declare (special gomoku-mode-map))
+  (cl-declare (special gomoku-mode-map))
   (cl-loop for key in (where-is-internal 'backward-char (list gomoku-mode-map))
-        do
-        (define-key gomoku-mode-map key 'gomoku-move-left))
+           do
+           (define-key gomoku-mode-map key 'gomoku-move-left))
   (cl-loop for key in (where-is-internal 'forward-char (list gomoku-mode-map))
-        do
-        (define-key gomoku-mode-map key 'gomoku-move-right))
+           do
+           (define-key gomoku-mode-map key 'gomoku-move-right))
   (define-key gomoku-mode-map "\t"
     'emacspeak-gomoku-speak-emacs-previous-move)
   (define-key gomoku-mode-map "\M-\t"
@@ -390,7 +391,7 @@
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end: 
 
 ;;}}}

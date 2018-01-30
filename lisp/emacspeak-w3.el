@@ -52,6 +52,7 @@
 ;;{{{ requires
 
 ;;; Code:
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 (require 'emacspeak-webutils)
 (require 'emacspeak-we)
@@ -78,7 +79,7 @@
 (defun emacspeak-w3-show-http-headers ()
   "Show HTTP headers using lwp-request"
   (interactive)
-  (declare (special emacspeak-w3-lwp-request))
+  (cl-declare (special emacspeak-w3-lwp-request))
   (let ((url (if (eq major-mode 'w3-mode)
                  (or (w3-view-this-url 'no-show)
                      (url-view-url 'no-show))
@@ -101,7 +102,7 @@
 
 (defun emacspeak-w3-speak-mode-hook ()
   "Updated emacspeak hook for W3 mode."
-  (declare (special imenu-create-index-function
+  (cl-declare (special imenu-create-index-function
                     emacspeak-web-post-process-hook
                     emacspeak-w3-create-imenu-index))
   (set (make-local-variable 'voice-lock-mode) t)
@@ -120,7 +121,7 @@
 
 (defun emacspeak-w3-load-hook ()
   "Setup Emacspeak keys in W3 mode."
-  (declare (special w3-echo-link url-show-status
+  (cl-declare (special w3-echo-link url-show-status
                     emacspeak-w3-table-draw-border
                     emacspeak-w3-table-silent-border
                     w3-table-border-chars
@@ -225,7 +226,7 @@
 
 (defun emacspeak-w3-lynx-done-alert (process _state)
   "Alert user when lynx is done dumping the document"
-  (declare (special view-exit-action))
+  (cl-declare (special view-exit-action))
   (when (y-or-n-p
          "Lynx is done --switch to the results?")
     (pop-to-buffer (process-buffer process))
@@ -288,7 +289,7 @@ document is displayed in a separate buffer. "
 (defun emacspeak-w3-toggle-table-borders ()
   "Toggle drawing of W3 table borders"
   (interactive)
-  (declare (special w3-table-border-chars))
+  (cl-declare (special w3-table-border-chars))
   (setq emacspeak-w3-table-draw-border (not emacspeak-w3-table-draw-border))
   (cond
    (emacspeak-w3-table-draw-border
@@ -304,7 +305,7 @@ document is displayed in a separate buffer. "
 ;;;This should eventually be done via a DOM API
 
 (defun emacspeak-w3-html-stack () (get-text-property (point)
-                                                        'html-stack))
+                                                     'html-stack))
 
 (defun emacspeak-w3-get-onclick ()
   "Return onclick handler if any at point."
@@ -324,7 +325,7 @@ document is displayed in a separate buffer. "
 
 (defun emacspeak-w3-html-stack-top-element (&optional stack)
   (or stack (setq stack (emacspeak-w3-html-stack)))
-  (first (first stack)))
+  (cl-first (first stack)))
 
 (defun emacspeak-w3-next-parsed-item ()
   "Move to and speak next parsed item."
@@ -531,7 +532,7 @@ element. "
 ;;}}}
 ;;{{{ silence  w3 package
 
-(declaim (special url-http-version))
+(cl-declaim (special url-http-version))
 (setq url-http-version "1.0")
 
 (defadvice w3-fetch-callback
@@ -561,7 +562,7 @@ element. "
 (defun emacspeak-w3-customize-base-uri-pronunciation ()
   "Defines custom buffer local pronunciation for base URI."
   (interactive)
-  (declare (special emacspeak-w3-base-uri-pronunciation))
+  (cl-declare (special emacspeak-w3-base-uri-pronunciation))
   (let ((base-url (url-view-url 'no-show)))
     (when emacspeak-w3-base-uri-pronunciation
       (emacspeak-pronounce-add-buffer-local-dictionary-entry
@@ -625,8 +626,8 @@ If a rewrite rule is defined in the current buffer, we change
         (error "Not on a link."))
       (setq redirect
             (replace-regexp-in-string
-             (first emacspeak-we-url-rewrite-rule)
-             (second emacspeak-we-url-rewrite-rule)
+             (cl-first emacspeak-we-url-rewrite-rule)
+             (cl-second emacspeak-we-url-rewrite-rule)
              url))
       (push redirect minibuffer-history))))
 
@@ -666,7 +667,7 @@ If a rewrite rule is defined in the current buffer, we change
 
 (defun emacspeak-w3-tidy (&optional buff)
   "Use html tidy to clean up the HTML in the current buffer."
-  (declare (special emacspeak-w3-tidy-html
+  (cl-declare (special emacspeak-w3-tidy-html
                     emacspeak-w3-tidy-program emacspeak-w3-tidy-options))
   (when emacspeak-w3-tidy-html
     (save-excursion
@@ -742,17 +743,17 @@ HTML."
 
 ;;; fix mm-inline-types
 (require 'mm-decode)
-(declaim (special  mm-inline-media-tests))
+(cl-declaim (special  mm-inline-media-tests))
 (cl-loop for mm in
-      '("application/xml"
-        "application/xml+xhtml"
-        "text/xml")
-      do
-      (pushnew
-       (list mm
-             'mm-inline-text-html-render-with-w3
-             #'(lambda (&rest _args) mm-text-html-renderer))
-       mm-inline-media-tests))
+         '("application/xml"
+           "application/xml+xhtml"
+           "text/xml")
+         do
+         (pushnew
+          (list mm
+                'mm-inline-text-html-render-with-w3
+                #'(lambda (&rest _args) mm-text-html-renderer))
+          mm-inline-media-tests))
 
 ;;}}}
 ;;{{{ fix error in insert-char call for emacs 24
@@ -772,7 +773,7 @@ HTML."
 
 (defun emacspeak-w3-canonicalize-google-result-url (url)
   "Strip out the actual result URL from the redirect wrapper."
-  (declare (special emacspeak-websearch-google-use-https))
+  (cl-declare (special emacspeak-websearch-google-use-https))
   (url-unhex-string 
    (substring url
               (if emacspeak-websearch-google-use-https 29 28)
@@ -780,7 +781,7 @@ HTML."
 
 (defun emacspeak-w3-google-result-url-prefix ()
   "Return prefix of result urls."
-  (declare (special emacspeak-websearch-google-use-https))
+  (cl-declare (special emacspeak-websearch-google-use-https))
   (format "%s://www.google.com/url?q="
           (if emacspeak-websearch-google-use-https "https" "http")))
 ;;; speed up image handling:
@@ -806,7 +807,7 @@ HTML."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

@@ -1,5 +1,8 @@
-;;; Augment load path:  -*- lexical-binding: t; -*-
-(augment-load-path "vm/lisp" "vm")
+;;; vm-prepare.l :  -*- lexical-binding: nil; -*-
+(push (expand-file-name "vm/lisp/" emacs-personal-library) load-path)
+(autoload 'vm "vm" "vm" t)
+(autoload 'vm-visit-folder "vm" "vm" t)
+(global-set-key "\M-\C-v" 'vm-visit-folder)
 (defun make-local-hook (hook)
   "Make the hook HOOK local to the current buffer.
 The return value is HOOK.
@@ -29,20 +32,12 @@ Do not use `make-local-variable' to make a hook variable buffer-local."
     (make-local-variable hook)
     (set hook (list t)))
   hook)
-(load-library "vm-autoloads")
+(eval-after-load "vm"
 
-(global-set-key "\M-\C-v" 'vm-visit-folder)
-
-(defadvice vm-check-emacs-version(around work-in-20-emacs pre act com) t)
-
-(add-hook 'vm-quit-hook 'vm-expunge-folder)
+  `(progn
+     (load "vm-autoloads")
+(add-hook 'vm-quit-hook #'vm-expunge-folder)
 ;(global-set-key "\C-xm" 'vm-mail)
-(add-hook 'vm-mode-hook
-          #'(lambda nil
-             (and (featurep 'emacspeak)
-                  (define-key vm-mode-map '[delete]
-                    'dtk-toggle-punctuation-mode))))
- ;;}}}
 
 (setq vm-postponed-messages (expand-file-name "~/Mail/crash"))
 
@@ -69,3 +64,23 @@ Do not use `make-local-variable' to make a hook variable buffer-local."
     (message "Opening %s with Chrome" url)))
 
 (define-key vm-mode-map "C" 'vm-chromium)
+(define-key vm-mode-map "o" 'mspools-show)
+(load-library "mspools")
+))
+
+
+
+(eval-after-load
+    "mspools"
+  `(progn
+     (defun mspools-compute-size (file)
+       (let ((message-log-max nil)
+             (inhibit-message t)
+             (emacspeak-speak-messages nil)))
+         (read (shell-command-to-string (format "grep '^From ' %s | wc -l" file))))
+
+     (defun mspools-size-folder (spool)
+    "Return (SPOOL . SIZE ) iff SIZE of spool file is non-zero."
+    (let ((size (mspools-compute-size (expand-file-name  spool mspools-folder-directory))))
+      (unless (zerop size)
+        (cons spool size))))))

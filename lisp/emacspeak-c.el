@@ -49,6 +49,7 @@
 
 ;;; Code:
 
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 (require 'cc-mode)
 
@@ -303,14 +304,14 @@ and their meanings. ")
 (defun emacspeak-c-speak-semantics ()
   "Speak the C semantics of this line. "
   (interactive)
-  (declare (special emacspeak-c-syntactic-table))
+  (cl-declare (special emacspeak-c-syntactic-table))
   (let  ((semantics (mapcar 'car
                             (c-guess-basic-syntax)))
          (description ""))
     (setq description
           (mapconcat
-           (function (lambda (sem)
-                       (cdr (assq  sem emacspeak-c-syntactic-table))))
+           #'(lambda (sem)
+                       (cdr (assq  sem emacspeak-c-syntactic-table)))
            semantics
            " "))
     (condition-case nil
@@ -364,7 +365,7 @@ and their meanings. ")
  for f in
  '(
    c-previous-statement c-next-statement
-                        c-awk-beginning-of-defun c-awk-end-of-defunm)
+   c-awk-beginning-of-defun c-awk-end-of-defunm)
  do
  (eval
   `(defadvice ,f (after emacspeak pre act comp)
@@ -402,7 +403,7 @@ and their meanings. ")
  for f in
  '(
    c-indent-new-comment-line c-indent-line-or-region
-                             c-indent-exp c-fill-paragraph)
+   c-indent-exp c-fill-paragraph)
  do
  (eval
   `(defadvice ,f (after emacspeak pre act comp)
@@ -415,9 +416,9 @@ and their meanings. ")
  for f in
  '(
    c-toggle-auto-hungry-state c-toggle-auto-newline
-                              c-toggle-auto-state c-toggle-electric-state
-                              c-toggle-hungry-state c-toggle-parse-state-debug
-                              c-toggle-syntactic-indentation)
+   c-toggle-auto-state c-toggle-electric-state
+   c-toggle-hungry-state c-toggle-parse-state-debug
+   c-toggle-syntactic-indentation)
  do
  (eval
   `(defadvice ,f (after emacspeak pre act comp)
@@ -429,29 +430,29 @@ and their meanings. ")
 ;;}}}
 ;;{{{ Additional keybindings:
 
-(declaim (special c-mode-map
+(cl-declaim (special c-mode-map
                   c-mode-base-map))
-(add-hook 'c-mode-common-hook
-          (function (lambda ()
-                      (declare (special c-mode-map
-                                        c-mode-base-map))
-                      (define-key c-mode-map "\C-cs" 'emacspeak-c-speak-semantics)
-                      (define-key c-mode-map "\M-n" 'c-next-statement)
-                      (define-key c-mode-map "\M-p" 'c-previous-statement)
-                      (when (and  (boundp 'c-mode-base-map)
-                                  c-mode-base-map)
-                        (define-key c-mode-base-map
-                          "\M-\C-a" 'c-beginning-of-defun)
-                        (define-key c-mode-base-map "\M-\C-e" 'c-end-of-defun)
-                        (define-key c-mode-base-map "\C-cs" 'emacspeak-c-speak-semantics)
-                        (define-key c-mode-base-map "\M-n" 'c-next-statement)
-                        (define-key c-mode-base-map "\M-p"
-                          'c-previous-statement))
-                      (emacspeak-pronounce-toggle-use-of-dictionaries 'on)
-                      (or dtk-split-caps
-                          (dtk-toggle-split-caps))
-                      (or dtk-allcaps-beep
-                          (dtk-toggle-allcaps-beep)))))
+(add-hook
+ 'c-mode-common-hook
+ #'(lambda ()
+     (cl-declare (special c-mode-map c-mode-base-map))
+     (define-key c-mode-map "\C-cs" 'emacspeak-c-speak-semantics)
+     (define-key c-mode-map "\M-n" 'c-next-statement)
+     (define-key c-mode-map "\M-p" 'c-previous-statement)
+     (when (and  (boundp 'c-mode-base-map)
+                 c-mode-base-map)
+       (define-key c-mode-base-map
+         "\M-\C-a" 'c-beginning-of-defun)
+       (define-key c-mode-base-map "\M-\C-e" 'c-end-of-defun)
+       (define-key c-mode-base-map "\C-cs" 'emacspeak-c-speak-semantics)
+       (define-key c-mode-base-map "\M-n" 'c-next-statement)
+       (define-key c-mode-base-map "\M-p"
+         'c-previous-statement))
+     (emacspeak-pronounce-toggle-use-of-dictionaries 'on)
+     (or dtk-split-caps
+         (dtk-toggle-split-caps))
+     (or dtk-allcaps-beep
+         (dtk-toggle-allcaps-beep))))
 
 ;;}}}
 ;;{{{ personalities
@@ -467,7 +468,7 @@ and their meanings. ")
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

@@ -39,8 +39,8 @@
 ;;}}}
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(require 'cl)
-(declaim  (optimize  (safety 0) (speed 3)))
+(require 'cl-lib)
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'advice)
 (require 'dtk-speak)
 ;;{{{  Introduction:
@@ -74,7 +74,7 @@
    (not (get  sym 'emacspeak-checked-interactive))
    (not (eq 'byte-compile-obsolete (get sym 'byte-compile)))
    (functionp (indirect-function sym))
-   (stringp (second (interactive-form  sym)))))
+   (stringp (cl-second (interactive-form  sym)))))
 
 (defun emacspeak-fix-commands-that-use-interactive ()
   "Auto advises interactive commands to speak prompts."
@@ -96,18 +96,18 @@ Fix the function definition of sym to make its interactive form
 speak its prompts. This function needs to do very little work as
 of Emacs 21 since all interactive forms except `c' and `k' now
 use the minibuffer."
-  (declare (special emacspeak-fix-interactive-problematic-functions))
+  (cl-declare (special emacspeak-fix-interactive-problematic-functions))
   (let* ((prompts
           (split-string
-           (second (interactive-form  sym))
+           (cl-second (interactive-form  sym))
            "\n"))
-         (count (count-if 'ems-prompt-without-minibuffer-p  prompts)))
+         (count (cl-count-if 'ems-prompt-without-minibuffer-p  prompts)))
                                         ;memoize call
     (put sym 'emacspeak-checked-interactive t)
                                         ; advice if necessary
     (cond
      ((zerop count) t)                  ;do nothing
-     ((notany #'(lambda (s) (string-match "%s" s))
+     ((cl-notany #'(lambda (s) (string-match "%s" s))
               prompts)
                                         ; generate auto advice
       (put sym 'emacspeak-auto-advised t)
@@ -152,11 +152,12 @@ use the minibuffer."
   "Fix all commands loaded from a specified module."
   (interactive
    (list
-    (completing-read "Load library: "
+    (locate-library
+    (completing-read "Fix library: "
                      'locate-file-completion
-                     (cons load-path (get-load-suffixes)))))
+                     (cons load-path (get-load-suffixes))))))
   (dolist
-      (item (rest (assoc module load-history)))
+      (item (cl-rest (assoc module load-history)))
     (and (listp item)
          (eq 'defun (car item))
          (symbolp (cdr item))
@@ -176,20 +177,19 @@ emacspeak-fix-all-recent-commands to track load-history.")
 This command looks through `load-history' and fixes commands if necessary.
 Memoizes call in emacspeak-load-history-pointer to memoize this call. "
   (interactive)
-  (declare (special load-history emacspeak-load-history-pointer))
+  (cl-declare (special load-history emacspeak-load-history-pointer))
   (unless (eq emacspeak-load-history-pointer load-history)
-    (lexical-let ((lh load-history)
-                  (emacspeak-speak-messages nil))
+    (let ((lh load-history))
 ;;; cdr down lh till we hit emacspeak-load-history-pointer
-      (while (and lh
-                  (not (eq lh emacspeak-load-history-pointer)))
+                 (while (and lh
+                             (not (eq lh emacspeak-load-history-pointer)))
 ;;; fix commands in this module
-        (emacspeak-fix-commands-loaded-from lh)
-        (when (called-interactively-p 'interactive)
-          (message "Fixed commands in %s" (first (first lh))))
-        (setq lh (rest lh)))
+                   (emacspeak-fix-commands-loaded-from lh)
+                   (when (called-interactively-p 'interactive)
+                     (message "Fixed commands in %s" (cl-first (cl-first lh))))
+                   (setq lh (cl-rest lh)))
 ;;;memoize for future call
-      (setq emacspeak-load-history-pointer load-history))
+                 (setq emacspeak-load-history-pointer load-history))
     (when (called-interactively-p 'interactive)
       (message "Fixed recently defined  interactive commands")))
   t)
@@ -199,7 +199,7 @@ Memoizes call in emacspeak-load-history-pointer to memoize this call. "
 ;;{{{  end of file
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

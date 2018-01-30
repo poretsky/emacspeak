@@ -47,8 +47,8 @@
 ;;}}}
 ;;{{{  Required modules
 
-(require 'cl)
-(declaim  (optimize  (safety 0) (speed 3)))
+(require 'cl-lib)
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 (require 'sox-gen)
 
@@ -62,14 +62,11 @@
  do
  (eval
   `(defadvice ,f (after emacspeak pre act comp)
-         (when (ems-interactive-p)
-           (let ((dtk-stop-immediately nil))
-           (sox-multiwindow 1 2)
-           (dtk-speak (buffer-name (current-buffer)))
-           (emacspeak-tapestry-describe-tapestry 'full))))))
-
-
-
+     (when (ems-interactive-p)
+       (let ((dtk-stop-immediately nil))
+         (sox-multiwindow 1 2)
+         (dtk-speak (buffer-name (current-buffer)))
+         (emacspeak-tapestry-describe-tapestry 'full))))))
 
 ;;}}}
 (provide 'emacspeak-smart-window)

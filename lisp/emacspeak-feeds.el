@@ -47,13 +47,13 @@
 ;;{{{ required modules
 
 ;;; Code:
-(require 'cl)
-(declaim  (optimize  (safety 0) (speed 3)))
+(require 'cl-lib)
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 (require 'emacspeak-xslt)
 (require 'emacspeak-webutils)
 (require 'url)
-
+(require 'eww)
 (require 'browse-url)
 
 ;;}}}
@@ -90,13 +90,13 @@
 
 (defun emacspeak-feeds-cache-feeds ()
   "Cache feeds in emacspeak-feeds in a hash table."
-  (declare (special emacspeak-feeds))
+  (cl-declare (special emacspeak-feeds))
   (cl-loop
    for f in emacspeak-feeds
    do
-   (set-text-properties 0 (length (second f)) nil (second f))
+   (set-text-properties 0 (length (cl-second f)) nil (cl-second f))
    (puthash
-    (second f); strip props 
+    (cl-second f); strip props 
     f emacspeak-feeds-feeds-table)))
 
 (defcustom emacspeak-feeds
@@ -121,13 +121,13 @@
       (set-default
        sym
        (sort val #'(lambda (a b)
-                     (string-lessp (first a) (first b)))))
+                     (string-lessp (cl-first a) (cl-first b)))))
       (emacspeak-feeds-cache-feeds))
   :group 'emacspeak-feeds)
 
 (defun emacspeak-feeds-added-p (feed-url)
   "Check if this feed has been added before."
-  (declare (special emacspeak-feeds-feeds-table))
+  (cl-declare (special emacspeak-feeds-feeds-table))
   (gethash feed-url emacspeak-feeds-feeds-table))
 
 (defun emacspeak-feeds-add-feed (title url type)
@@ -137,14 +137,14 @@
     (read-from-minibuffer "Title: ")
     (read-from-minibuffer "URL: ")
     (ecase (read-char-exclusive "a Atom, o OPML, r RSS: ")
-      (?a 'atom)
-      (?o 'opml)
-      (?r 'rss))))
-  (declare (special emacspeak-feeds))
+           (?a 'atom)
+           (?o 'opml)
+           (?r 'rss))))
+  (cl-declare (special emacspeak-feeds))
   (let ((found (emacspeak-feeds-added-p url)))
     (cond
      (found
-      (message "Feed already present  as %s" (first found)))
+      (message "Feed already present  as %s" (cl-first found)))
      (t (push (list title url type) emacspeak-feeds)
         (let ((dtk-quiet t))
           (customize-save-variable 'emacspeak-feeds emacspeak-feeds))
@@ -159,7 +159,7 @@
   "Archive list of subscribed fees to personal resource directory.
 Archiving is useful when synchronizing feeds across multiple machines."
   (interactive)
-  (declare (special emacspeak-feeds-archive-file
+  (cl-declare (special emacspeak-feeds-archive-file
                     emacspeak-feeds))
   (let ((buffer (find-file-noselect emacspeak-feeds-archive-file))
         (print-level nil)
@@ -178,7 +178,7 @@ Archiving is useful when synchronizing feeds across multiple machines."
   "Restore list of subscribed fees from  personal resource directory.
 Archiving is useful when synchronizing feeds across multiple machines."
   (interactive)
-  (declare (special emacspeak-feeds-archive-file
+  (cl-declare (special emacspeak-feeds-archive-file
                     emacspeak-feeds))
   (unless (file-exists-p emacspeak-feeds-archive-file)
     (error "No archived feeds to restore. "))
@@ -189,8 +189,8 @@ Archiving is useful when synchronizing feeds across multiple machines."
       (setq feeds (read buffer)))
     (kill-buffer buffer)
     (cl-loop for f in feeds
-          do
-          (apply #'emacspeak-feeds-add-feed f))
+             do
+             (apply #'emacspeak-feeds-add-feed f))
     (when
         (y-or-n-p
          (format "After restoring %d feeds, we have a total of %d feeds. Save? "
@@ -198,12 +198,11 @@ Archiving is useful when synchronizing feeds across multiple machines."
       (customize-save-variable 'emacspeak-feeds emacspeak-feeds))))
 
 ;;;###autoload
-
 (defun emacspeak-feeds-fastload-feeds ()
   "Fast load list of feeds from archive.
 This directly  updates emacspeak-feeds from the archive, rather than adding those entries to the current set of subscribed feeds."
   (interactive)
-  (declare (special emacspeak-feeds-archive-file emacspeak-feeds))
+  (cl-declare (special emacspeak-feeds-archive-file emacspeak-feeds))
   (unless (file-exists-p emacspeak-feeds-archive-file)
     (error "No archived feeds to restore. "))
   (let ((buffer (find-file-noselect emacspeak-feeds-archive-file)))
@@ -219,47 +218,38 @@ This directly  updates emacspeak-feeds from the archive, rather than adding thos
 ;;{{{ display  feeds:
 
 (defun emacspeak-feeds-feed-display(feed-url style &optional speak)
-  "Fetch feed via Emacs and display using xsltproc."
-  (declare (special emacspeak-eww-buffer-hash))
-  (cond
-   ((and (eq browse-url-browser-function 'eww-browse-url)
-         (boundp 'emacspeak-eww-buffer-hash)
-         emacspeak-eww-buffer-hash
-         (gethash   feed-url emacspeak-eww-buffer-hash)
-         (buffer-live-p (gethash   feed-url emacspeak-eww-buffer-hash)))
-    (switch-to-buffer (gethash feed-url emacspeak-eww-buffer-hash))
-    (emacspeak-auditory-icon 'select-object)
-    (emacspeak-speak-rest-of-buffer))
-   (t
-    (let ((buffer (url-retrieve-synchronously feed-url))
-          (coding-system-for-read 'utf-8)
-          (coding-system-for-write 'utf-8)
-          (emacspeak-xslt-options nil))
-      (cond
-       ((null buffer) (message "Nothing to display."))
-       (t
-        (when speak (emacspeak-webutils-autospeak))
-        (add-hook
-         'emacspeak-web-post-process-hook
-         #'(lambda ()
-             (declare (special eww-current-url
-                               emacspeak-eww-feed
-                               emacspeak-eww-style))
-             (lexical-let ((u feed-url)
-                           (s style))
-               (setq eww-current-url u
-                     emacspeak-eww-feed t 
-                     emacspeak-eww-style s))))
-        (with-current-buffer buffer
-          (emacspeak-webutils-without-xsl
-           (goto-char (point-min))
-           (search-forward "\n\n")
-           (delete-region (point-min) (point))
-           (decode-coding-region (point-min) (point-max) 'utf-8)
-           (emacspeak-xslt-region
-            style (point-min) (point-max)
-            (list (cons "base" (format "\"'%s'\"" feed-url)))))
-          (browse-url-of-buffer))))))))
+  "Fetch feed asynchronously via Emacs and display using xsltproc."
+  (url-retrieve feed-url #'emacspeak-feeds-render (list feed-url  style  speak)))
+
+(defun emacspeak-feeds-render  (_status feed-url style   speak)
+  "Render the result of asynchronously retrieving feed-url."
+  (cl-declare (special  eww-data  eww-current-url
+                        emacspeak-eww-feed emacspeak-eww-style))
+  (let ((inhibit-read-only t)
+        (data-buffer (current-buffer))
+        (coding-system-for-read 'utf-8)
+        (coding-system-for-write 'utf-8)
+        (emacspeak-xslt-options nil))
+    (with-current-buffer data-buffer
+      (when speak (emacspeak-webutils-autospeak))
+      (add-hook
+       'emacspeak-web-post-process-hook
+       #'(lambda ()
+           (setq eww-current-url feed-url
+                 emacspeak-eww-feed t 
+                 emacspeak-eww-style style)
+           (plist-put eww-data :url feed-url)))
+      (goto-char (point-min))
+      (search-forward "\n\n")
+      (delete-region (point-min) (point))
+      (decode-coding-region (point-min) (point-max) 'utf-8)
+      (emacspeak-xslt-region
+       style (point-min) (point-max)
+       (list (cons "base" (format "\"'%s'\"" feed-url))))
+      (setq eww-current-url feed-url
+            emacspeak-eww-feed t 
+            emacspeak-eww-style style)
+      (emacspeak-webutils-without-xsl (browse-url-of-buffer)))))
 
 ;;;###autoload
 (defun emacspeak-feeds-rss-display (feed-url)
@@ -267,21 +257,31 @@ This directly  updates emacspeak-feeds from the archive, rather than adding thos
   (interactive
    (list
     (emacspeak-webutils-read-this-url)))
-  (declare (special emacspeak-rss-view-xsl))
+  (cl-declare (special emacspeak-rss-view-xsl))
   (emacspeak-feeds-feed-display feed-url emacspeak-rss-view-xsl 'speak))
+
 ;;;###autoload
 (defun emacspeak-feeds-opml-display (feed-url)
   "Display OPML feed."
   (interactive (list (emacspeak-webutils-read-this-url)))
-  (declare (special emacspeak-opml-view-xsl))
+  (cl-declare (special emacspeak-opml-view-xsl))
   (emacspeak-feeds-feed-display feed-url emacspeak-opml-view-xsl 'speak))
 
 ;;;###autoload
 (defun emacspeak-feeds-atom-display (feed-url)
   "Display ATOM feed."
   (interactive (list (emacspeak-webutils-read-this-url)))
-  (declare (special emacspeak-atom-view-xsl))
+  (cl-declare (special emacspeak-atom-view-xsl))
   (emacspeak-feeds-feed-display feed-url emacspeak-atom-view-xsl 'speak))
+
+;;}}}
+;;{{{ Validate Feed:
+
+(defun emacspeak-feeds-validate-feed (feed-url)
+  "Validate feed by attempting to fetch titles."
+  (unless (eq 'error (emacspeak-webutils-feed-titles feed-url))
+    (message "%s is valid" feed-url)
+    t))
 
 ;;}}}
 ;;{{{  view feed
@@ -290,8 +290,8 @@ This directly  updates emacspeak-feeds from the archive, rather than adding thos
 (defun emacspeak-feeds-browse-feed (feed &optional speak)
   "Display specified feed.
 Argument `feed' is a feed structure (label url type)."
-  (let ((uri (second feed))
-        (type  (third feed))
+  (let ((uri (cl-second feed))
+        (type  (cl-third feed))
         (style nil))
     (setq style
           (cond
@@ -307,11 +307,8 @@ Argument `feed' is a feed structure (label url type)."
   (interactive
    (list
     (let ((completion-ignore-case t))
-      (completing-read "Feed:" emacspeak-feeds
-                       nil 'must-match))))
-  (emacspeak-feeds-browse-feed
-   (assoc feed emacspeak-feeds)
-   'speak))
+      (completing-read "Feed:" emacspeak-feeds nil 'must-match))))
+  (emacspeak-feeds-browse-feed (assoc feed emacspeak-feeds) 'speak))
 
 ;;}}}
 ;;{{{ Finding Feeds:
@@ -338,15 +335,13 @@ Argument `feed' is a feed structure (label url type)."
       (emacspeak-feeds-rss-display url))
      (t (emacspeak-feeds-rss-display url)))))
 
-
-
 ;;}}}
 (provide 'emacspeak-feeds)
 ;;{{{ end of file
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

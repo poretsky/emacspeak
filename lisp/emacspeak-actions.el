@@ -37,9 +37,8 @@
 
 ;;}}}
 
-
-;;; Commentary:
 ;;{{{  Introduction:
+;;; Commentary:
 
 ;;; Define mode-specific  actions.
 ;;; Actions are defined by adding them to hook
@@ -49,8 +48,8 @@
 ;;{{{  required modules 
 
 ;;; Code:
-(require 'cl)
-(declaim  (optimize  (safety 0) (speed 3)))
+(require 'cl-lib)
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-sounds)
 (require 'emacspeak-speak)
 ;;}}}
@@ -93,7 +92,7 @@ emacspeak to speak the semantics of the line
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

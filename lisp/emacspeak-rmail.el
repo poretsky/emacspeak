@@ -43,6 +43,7 @@
 ;;; Code:
 ;;}}}
 ;;{{{ requires
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 (require 'desktop)
 (require 'rmailsort)
@@ -51,7 +52,7 @@
 ;;}}}
 ;;{{{  customizations:
 
-(declaim (special rmail-ignored-headers))
+(cl-declaim (special rmail-ignored-headers))
 (setq rmail-ignored-headers
       (concat "^X-\\|"
               "^Content-\\|"
@@ -224,7 +225,7 @@
 (defun emacspeak-rmail-summarize-current-message ()
   "Summarize current message"
   (interactive)
-  (declare (special rmail-current-message))
+  (cl-declare (special rmail-current-message))
   (emacspeak-rmail-summarize-message rmail-current-message))
 (defun  emacspeak-rmail-speak-current-message-labels ()
   "Speak labels of current message"
@@ -236,7 +237,7 @@
 ;;}}}
 ;;{{{  key bindings
 
-(declaim (special rmail-mode-map))
+(cl-declaim (special rmail-mode-map))
 (define-key rmail-mode-map "\C-m" 'emacspeak-rmail-summarize-current-message)
 (define-key rmail-mode-map "L" 'emacspeak-rmail-speak-current-message-labels)
 
@@ -246,7 +247,7 @@
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end: 
 
 ;;}}}

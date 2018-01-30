@@ -48,6 +48,7 @@
 
 ;;; Code:
 
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 (require 'browse-url)
 (require 'emacspeak-outline)
@@ -72,17 +73,17 @@
 ;;}}}
 ;;{{{ advice interactive commands
 (cl-loop for f in
-      '(muse-follow-name-at-point
-        muse-follow-name-at-point-other-window
-        muse-next-reference
-        muse-previous-reference)
-      do
-      (eval
-       `(defadvice   ,f (after emacspeak pre act comp)
-          "Provide auditory feedback."
-          (when (ems-interactive-p)
-            (emacspeak-auditory-icon 'large-movement)
-            (emacspeak-speak-line)))))
+         '(muse-follow-name-at-point
+           muse-follow-name-at-point-other-window
+           muse-next-reference
+           muse-previous-reference)
+         do
+         (eval
+          `(defadvice   ,f (after emacspeak pre act comp)
+             "Provide auditory feedback."
+             (when (ems-interactive-p)
+               (emacspeak-auditory-icon 'large-movement)
+               (emacspeak-speak-line)))))
 
 ;;}}}
 (provide 'emacspeak-muse)
@@ -90,7 +91,7 @@
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

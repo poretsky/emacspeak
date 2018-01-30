@@ -49,8 +49,8 @@
 
 ;;; Code:
 
-(require 'cl)
-(declaim  (optimize  (safety 0) (speed 3)))
+(require 'cl-lib)
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'custom)
 (require 'voice-setup)
 (require 'dtk-speak)
@@ -78,7 +78,7 @@
    (widget-inactive voice-lighten)
    ))
 
-(declaim (special widget-menu-minibuffer-flag))
+(cl-declaim (special widget-menu-minibuffer-flag))
 (setq  widget-menu-minibuffer-flag t)
 
 ;;}}}
@@ -99,7 +99,7 @@ Returns a string with appropriate personality."
 
 (defun emacspeak-widget-help-echo (w)
   "Return help-echo with appropriate personality."
-  (declare (special voice-animate))
+  (cl-declare (special voice-animate))
   (let ((inhibit-read-only t)
         (h (widget-get w :help-echo))
         (help nil))
@@ -568,10 +568,10 @@ Returns a string with appropriate personality."
 ;;}}}
 ;;{{{  activating widgets:
 ;;; forward declaration:
-
+(defvar emacspeak-we-url-executor)
 (defadvice widget-button-press (around emacspeak pre act comp)
   "Provide auditory feedback"
-  (declare (special emacspeak-webutils-url-at-point
+  (cl-declare (special emacspeak-webutils-url-at-point
                     emacspeak-we-url-executor))
   (let ((inhibit-read-only t)
         (widget (widget-at (ad-get-arg 0))))
@@ -581,7 +581,7 @@ Returns a string with appropriate personality."
             (old-position (point)))
         (cond
          ((and
-           (or (eq major-mode 'eww-mode)(eq major-mode 'w3-mode) (eq major-mode 'w3m-mode))
+           (or (eq major-mode 'eww-mode)(eq major-mode 'w3-mode) )
            emacspeak-webutils-url-at-point
            (funcall emacspeak-webutils-url-at-point)
            emacspeak-we-url-executor
@@ -611,8 +611,8 @@ widget before summarizing."
   (let ((widget (widget-at (point))))
     (when(and widget  level)
       (cl-loop for i from 1 to level
-            do
-            (setq widget (widget-get  widget :parent))))
+               do
+               (setq widget (widget-get  widget :parent))))
     (cond
      (widget (emacspeak-widget-summarize widget))
      (t (message "No widget under point")))))
@@ -632,7 +632,7 @@ widget before summarizing."
        ((= key ?.) nil)
        ((= key ?u)
         (if (numberp level)
-            (incf level)
+            (cl-incf level)
           (setq level 1)))
        ((= key ?d)
         (if (> level  0)
@@ -662,15 +662,15 @@ widget before summarizing."
 
 (defadvice widget-setup (after emacspeak pre act comp)
   "Update widget keymaps."
-  (declare (special emacspeak-prefix
+  (cl-declare (special emacspeak-prefix
                     widget-field-keymap widget-text-keymap))
   (cl-loop
    for map in
-   '(widget-keymap  widget-field-keymap widget-text-keymap)
+   '(widget-field-keymap widget-text-keymap)
    do
    (when  (keymapp map)
      (define-key map  emacspeak-prefix 'emacspeak-prefix-command)
-     (define-key map  "\C-e\C-e" 'widget-end-of-line)
+     (define-key map  (concat emacspeak-prefix emacspeak-prefix) 'widget-end-of-line)
      (define-key map "\M-h" 'emacspeak-widget-help)
      (define-key map "\M-p" 'emacspeak-widget-summarize-parent)
      (define-key map "\M-\C-m" 'emacspeak-widget-update-from-minibuffer))))
@@ -692,7 +692,7 @@ widget before summarizing."
     (widget-apply w :notify)
     (emacspeak-widget-summarize w)))
 
-(declaim (special widget-keymap
+(cl-declaim (special widget-keymap
                   widget-field-keymap
                   widget-text-keymap))
 
@@ -714,14 +714,14 @@ widget before summarizing."
 
 (defun emacspeak-widget-create-voice-selector ()
   "Create a suitable voice selector widget."
-  (declare (special dectalk-voice-table))
+  (cl-declare (special dectalk-voice-table))
   (let ((w
          (widget-create 'voice
                         :tag "voices")))
     (widget-put w :args 
                 (cl-loop for key being the hash-keys of dectalk-voice-table 
-                      collect
-                      (list 'personality :value key)))
+                         collect
+                         (list 'personality :value key)))
     w))
 
 ;;}}}
@@ -730,7 +730,7 @@ widget before summarizing."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end: 
 
 ;;}}}

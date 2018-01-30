@@ -45,6 +45,7 @@
 ;;{{{ required modules
 
 ;;; Code:
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 
 ;;}}}
@@ -59,16 +60,15 @@
 (defadvice kmacro-start-macro (before emacspeak pre act comp)
   "Provide auditory icon."
   (when  (ems-interactive-p)
-    (emacspeak-auditory-icon 'select-object)
+    (emacspeak-auditory-icon 'open-object)
     (message "Defining new kbd macro.")))
 
-(defadvice kmacro-start-macro-or-insert-counter (before
-                                                 emacspeak pre act comp)
+(defadvice kmacro-start-macro-or-insert-counter (before emacspeak pre act comp)
   "Provide auditory icon if new macro is being defined."
   (when (and (ems-interactive-p)
              (not  defining-kbd-macro)
              (not executing-kbd-macro))
-    (emacspeak-auditory-icon 'select-object)
+    (emacspeak-auditory-icon 'yank-object)
     (message "Defining new kbd macro.")))
 
 (defadvice kmacro-end-or-call-macro (before emacspeak pre act comp)
@@ -76,8 +76,9 @@
   (cond
    ((and (ems-interactive-p)
          defining-kbd-macro)
+    (emacspeak-auditory-icon 'close-object)
     (message "Finished defining kbd macro."))
-   (t(emacspeak-auditory-icon 'select-object)
+   (t(emacspeak-auditory-icon 'open-object)
      (message "Calling macro."))))
 
 (defadvice kmacro-end-or-call-macro-repeat (before emacspeak pre act comp)
@@ -95,11 +96,26 @@
   (when (ems-interactive-p)
     (emacspeak-auditory-icon 'open-object)
     (emacspeak-speak-mode-line)))
-(defadvice kmacro-call-ring-2nd-repeat (before emacspeak pre act
-                                               comp)
+
+(defadvice kmacro-call-ring-2nd-repeat (before emacspeak pre act comp)
   "Provide auditory feedback."
   (when (ems-interactive-p)
     (message "Calling  second macro from ring.")))
+
+
+
+(defadvice kmacro-call-macro (around emacspeak pre act comp)
+  "Speech-enabled by emacspeak."
+  (let ((emacspeak-speak-messages nil))
+    ad-do-it
+  ad-return-value))
+
+
+(defadvice call-last-kbd-macro (around emacspeak pre act comp)
+  "Speech-enabled by emacspeak."
+  (let ((emacspeak-speak-messages t))
+    ad-do-it
+    ad-return-value))
 
 ;;}}}
 (provide 'emacspeak-kmacro)
@@ -107,7 +123,7 @@
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

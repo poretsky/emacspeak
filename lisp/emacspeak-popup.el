@@ -47,8 +47,8 @@
 ;;}}}
 ;;{{{  Required modules
 
-(require 'cl)
-(declaim  (optimize  (safety 0) (speed 3)))
+(require 'cl-lib)
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 (eval-when-compile (require 'popup "popup" 'no-error))
 ;;}}}
@@ -70,7 +70,7 @@
 (defun emacspeak-popup-speak-item (popup)
   "Speak current item."
   (let ((msg (elt (popup-list popup) (popup-cursor popup))))
-  (message msg)))
+    (message msg)))
 
 (defadvice popup-menu-event-loop (around emacspeak pre act comp)
   "Provide auditory feedback."
@@ -115,7 +115,7 @@
 
 (eval-after-load
     "popup"
-  `(define-key popup-menu-keymap   emacspeak-prefix 'emacspeak-prefix-command ))
+  `(define-key popup-menu-keymap   emacspeak-prefix 'emacspeak-prefix-command))
 
 ;;}}}
 

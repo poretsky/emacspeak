@@ -1,6 +1,4 @@
 ;;; emacspeak-dismal.el --- Speech enable Dismal -- An Emacs Spreadsheet program  -*- lexical-binding: t; -*-
-;;; $Id$
-;;; $Author: tv.raman.tv $ 
 ;;; Description: spread sheet extension
 ;;; Keywords:emacspeak, audio interface to emacs spread sheets
 ;;{{{  LCD Archive entry: 
@@ -36,100 +34,34 @@
 ;;; the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
 
 ;;}}}
-
-;;{{{  Introduction
-;;; emacspeak-dismal.el --- Speech enable Dismal -- An Emacs Spreadsheet program
-;;; $Id$
-;;; $Author: tv.raman.tv $ 
-;;; Description: spread sheet extension
-;;; Keywords:emacspeak, audio interface to emacs spread sheets
-;;{{{  LCD Archive entry: 
-
-;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu
-;;; A speech interface to Emacs |
-;;; $Date: 2008-06-21 10:50:41 -0700 (Sat, 21 Jun 2008) $ |
-;;;  $Revision: 4532 $ | 
-;;; Location undetermined
-;;;
-
-;;}}}
-;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2017, T. V. Raman 
-;;; Copyright (c) 1995 by T. V. Raman  
-;;; All Rights Reserved. 
-;;;
-;;; This file is not part of GNU Emacs, but the same permissions apply.
-;;;
-;;; GNU Emacs is free software; you can redistribute it and/or modify
-;;; it under the terms of the GNU General Public License as published by
-;;; the Free Software Foundation; either version 2, or (at your option)
-;;; any later version.
-;;;
-;;; GNU Emacs is distributed in the hope that it will be useful,
-;;; but WITHOUT ANY WARRANTY; without even the implied warranty of
-;;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-;;; GNU General Public License for more details.
-;;;
-;;; You should have received a copy of the GNU General Public License
-;;; along with GNU Emacs; see the file COPYING.  If not, write to
-;;; the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
-
-;;}}}
-
-;;{{{  Introduction
-;;; Commentary:
-;;; emacspeak extensions to the dismal spreadsheet. 
-;;; Code:
-;;; Dismal can be found at ftp://cs.nyu.edu/pub/local/fox/dismal
-;;; emacspeak-dismal.el --- Speech enable Dismal -- An Emacs Spreadsheet program
-;;; $Id$
-;;; $Author: tv.raman.tv $ 
-;;; Description: spread sheet extension
-;;; Keywords:emacspeak, audio interface to emacs spread sheets
-;;{{{  LCD Archive entry: 
-
-;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu
-;;; A speech interface to Emacs |
-;;; $Date: 2008-06-21 10:50:41 -0700 (Sat, 21 Jun 2008) $ |
-;;;  $Revision: 4532 $ | 
-;;; Location undetermined
-;;;
-
-;;}}}
-;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2017, T. V. Raman 
-;;; Copyright (c) 1995 by T. V. Raman  
-;;; All Rights Reserved. 
-;;;
-;;; This file is not part of GNU Emacs, but the same permissions apply.
-;;;
-;;; GNU Emacs is free software; you can redistribute it and/or modify
-;;; it under the terms of the GNU General Public License as published by
-;;; the Free Software Foundation; either version 2, or (at your option)
-;;; any later version.
-;;;
-;;; GNU Emacs is distributed in the hope that it will be useful,
-;;; but WITHOUT ANY WARRANTY; without even the implied warranty of
-;;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-;;; GNU General Public License for more details.
-;;;
-;;; You should have received a copy of the GNU General Public License
-;;; along with GNU Emacs; see the file COPYING.  If not, write to
-;;; the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
-
-;;}}}
-
 ;;{{{  Introduction
 
 ;;; emacspeak extensions to the dismal spreadsheet. 
 ;;; Dismal can be found at ftp://cs.nyu.edu/pub/local/fox/dismal
 ;;; Code:
+
 ;;}}}
 ;;{{{  requires 
-(require 'cl)
+(require 'cl-lib)
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
+;;}}}
+;;{{{ Forward Decls:
+
+
+(declare-function dismal-get-val nil "dismal")
+(declare-function  dismal-convert-cellexpr-to-string nil "dismal")
+(declare-function 
+    dismal-get-exp nil "dismal")
+(declare-function  dismal-display-current-cell-expr nil "dismal")
+(declare-function  dis-forward-row nil "dismal")
+(declare-function 
+    dis-backward-row nil "dismal")
+(declare-function  dis-forward-column nil "dismal")
+(declare-function  dis-backward-column nil "dismal")
+(declare-function 
+    dis-recalculate-matrix nil "dismal")
+
 ;;}}}
 ;;{{{ custom
 
@@ -150,18 +82,18 @@
       (dismal-convert-cellexpr-to-string value)value)))
 
 (defun emacspeak-dismal-current-cell-value ()
-  (declare (special dismal-current-row dismal-current-col))
+  (cl-declare (special dismal-current-row dismal-current-col))
   (emacspeak-dismal-cell-value dismal-current-row dismal-current-col))
 
 ;;; return entry in col 0 of current row as a string:
 
 (defun emacspeak-dismal-current-row-header ()
-  (declare (special dismal-current-row))
+  (cl-declare (special dismal-current-row))
   (dismal-convert-cellexpr-to-string
    (dismal-get-exp dismal-current-row  0)))
 
 (defun emacspeak-dismal-current-col-header ()
-  (declare (special dismal-current-col))
+  (cl-declare (special dismal-current-col))
   (dismal-convert-cellexpr-to-string
    (dismal-get-exp 0  dismal-current-col)))
 
@@ -171,13 +103,13 @@
 (defun emacspeak-dismal-display-cell-expression ()
   "Display the expression in the message area"
   (interactive)
-  (declare (special dismal-current-row dismal-current-col))
+  (cl-declare (special dismal-current-row dismal-current-col))
   (dismal-display-current-cell-expr dismal-current-row dismal-current-col))
 
 (defun emacspeak-dismal-display-cell-value ()
   "Display the cell value in the message area"
   (interactive)
-  (declare (special dismal-current-cell))
+  (cl-declare (special dismal-current-cell))
   (message "%s = %s"
            dismal-current-cell
            (emacspeak-dismal-current-cell-value)))
@@ -186,7 +118,7 @@
   "Displays current cell along with its row header.
 The `row header' is the entry in column 0."
   (interactive)
-  (declare (special))
+  (cl-declare (special))
   (let ((row-head  (emacspeak-dismal-current-row-header))
         (value (emacspeak-dismal-current-cell-value)))
     (message "%s is %s"
@@ -259,7 +191,7 @@ The `column header' is the entry in row 0."
   "Summarizes a row using the specification in list
 emacspeak-dismal-row-summarizer-list"
   (interactive)
-  (declare (special emacspeak-dismal-row-summarizer-list
+  (cl-declare (special emacspeak-dismal-row-summarizer-list
                     emacspeak-dismal-value-personality
                     voice-lock-mode
                     dismal-current-row))
@@ -286,13 +218,13 @@ emacspeak-dismal-row-summarizer-list"
                                       value)
                   value)
                  ((and (listp token)
-                       (numberp (first token))
-                       (numberp (second token)))
+                       (numberp (cl-first token))
+                       (numberp (cl-second token)))
                   (setq value
                         (format "%s"
                                 (emacspeak-dismal-cell-value
-                                 (first token)
-                                 (second token))))
+                                 (cl-first token)
+                                 (cl-second token))))
                   (put-text-property 0   (length value)
                                      'personality emacspeak-dismal-value-personality 
                                      value)
@@ -306,7 +238,7 @@ emacspeak-dismal-row-summarizer-list"
   "Summarizes a col using the specification in list
 emacspeak-dismal-col-summarizer-list"
   (interactive)
-  (declare (special emacspeak-dismal-col-summarizer-list
+  (cl-declare (special emacspeak-dismal-col-summarizer-list
                     emacspeak-dismal-value-personality voice-lock-mode
                     dismal-current-col))
   (unless  (and  emacspeak-dismal-col-summarizer-list
@@ -332,13 +264,13 @@ emacspeak-dismal-col-summarizer-list"
                                      emacspeak-dismal-value-personality value)
                   value)
                  ((and (listp token)
-                       (numberp (first token))
-                       (numberp (second token)))
+                       (numberp (cl-first token))
+                       (numberp (cl-second token)))
                   (setq value
                         (format "%s"
                                 (emacspeak-dismal-cell-value
-                                 (first token)
-                                 (second token))))
+                                 (cl-first token)
+                                 (cl-second token))))
                   (put-text-property 0 (length value)
                                      'personality
                                      emacspeak-dismal-value-personality value)
@@ -352,7 +284,7 @@ emacspeak-dismal-col-summarizer-list"
   "Summarizes a sheet using the specification in list
 emacspeak-dismal-sheet-summarizer-list"
   (interactive)
-  (declare (special emacspeak-dismal-row-summarizer-list))
+  (cl-declare (special emacspeak-dismal-row-summarizer-list))
   (when emacspeak-dismal-sheet-summarizer-list
     (let ((emacspeak-speak-messages nil))
       (dis-recalculate-matrix))
@@ -363,11 +295,11 @@ emacspeak-dismal-sheet-summarizer-list"
          (cond
           ((stringp token) token)
           ((and (listp token)
-                (numberp (first token))
-                (numberp (second token)))
+                (numberp (cl-first token))
+                (numberp (cl-second token)))
            (emacspeak-dismal-cell-value
-            (first token)
-            (second token)))
+            (cl-first token)
+            (cl-second token)))
           (t  (format "%s" token)))))
       emacspeak-dismal-sheet-summarizer-list 
       " "))))
@@ -375,7 +307,7 @@ emacspeak-dismal-sheet-summarizer-list"
 (defun emacspeak-dismal-set-row-summarizer-list ()
   "Specify or reset row summarizer list."
   (interactive)
-  (declare (special emacspeak-dismal-col-summarizer-list))
+  (cl-declare (special emacspeak-dismal-col-summarizer-list))
   (setq emacspeak-dismal-row-summarizer-list
         (read-minibuffer
          "Specify summarizer as a list: "
@@ -385,7 +317,7 @@ emacspeak-dismal-sheet-summarizer-list"
 (defun emacspeak-dismal-set-col-summarizer-list ()
   "Specify or reset col summarizer list."
   (interactive)
-  (declare (special emacspeak-dismal-col-summarizer-list))
+  (cl-declare (special emacspeak-dismal-col-summarizer-list))
   (setq emacspeak-dismal-col-summarizer-list
         (read-minibuffer
          "Specify summarizer as a vector: "
@@ -395,7 +327,7 @@ emacspeak-dismal-sheet-summarizer-list"
 (defun emacspeak-dismal-set-sheet-summarizer-list ()
   "Specify or reset sheet summarizer list."
   (interactive)
-  (declare (special emacspeak-dismal-sheet-summarizer-list))
+  (cl-declare (special emacspeak-dismal-sheet-summarizer-list))
   (setq emacspeak-dismal-sheet-summarizer-list
         (read-minibuffer
          "Specify summarizer as a list: "
@@ -412,7 +344,7 @@ Checked by emacspeak specific dis-mode-hooks entry.")
 
 (add-hook 'dis-mode-hooks
           #'(lambda nil
-              (declare (special dismal-saved-variables dismal-map))
+              (cl-declare (special dismal-saved-variables dismal-map))
               (define-key dismal-map (concat emacspeak-prefix "e")
                 'dis-last-column)
               (define-key dismal-map emacspeak-prefix 'emacspeak-prefix-command)
@@ -428,7 +360,7 @@ Checked by emacspeak specific dis-mode-hooks entry.")
 (add-hook
  'dis-mode-hooks
  #'(lambda nil
-     (declare (special dismal-map emacspeak-prefix))
+     (cl-declare (special dismal-map emacspeak-prefix))
      (local-unset-key "\M-[")
      (local-unset-key emacspeak-prefix)
      (define-key dismal-map emacspeak-prefix 'emacspeak-prefix-command)
@@ -468,7 +400,7 @@ end up building a template page first."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end: 
 
 ;;}}}

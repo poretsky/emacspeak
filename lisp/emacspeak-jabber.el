@@ -50,6 +50,7 @@
 ;;}}}
 ;;{{{  Required modules
 
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 (require 'jabber "jabber" 'no-error)
 ;;}}}
@@ -62,7 +63,7 @@
    (jabber-chat-prompt-foreign  voice-brighten-medium)
    (jabber-chat-prompt-local    voice-smoothen-medium)
    (jabber-chat-prompt-system   voice-brighten-extra)
-   (jabber-chat-text-foreign    voice-brighten)
+   ;;;(jabber-chat-text-foreign    voice-lighten) we use default here 
    (jabber-chat-text-local      voice-smoothen)
    (jabber-rare-time-face       voice-animate-extra)
    (jabber-roster-user-away     voice-smoothen-extra)
@@ -92,8 +93,8 @@
  for f in
  '(
    image-type jabber-chat-with jabber-chat-with-jid-at-point
-              jabber-keepalive-do jabber-fsm-handle-sentinel jabber-xml-resolve-namespace-prefixes
-              jabber-process-roster jabber-keepalive-got-response)
+   jabber-keepalive-do jabber-fsm-handle-sentinel jabber-xml-resolve-namespace-prefixes
+   jabber-process-roster jabber-keepalive-got-response)
  do
  (eval
   `(defadvice ,f (around emacspeak pre act comp)
@@ -121,6 +122,7 @@
 
 ;;}}}
 ;;{{{ alerts
+
 (defcustom emacspeak-jabber-speak-presence-alerts nil
   "Set to T if you want to hear presence alerts."
   :type  'boolean
@@ -156,20 +158,18 @@
     (emacspeak-auditory-icon 'large-movement)
     (emacspeak-speak-line)))
 
-(defadvice jabber-presence-default-message (around emacspeak pre
-                                                   act comp)
-  "Allow emacspeak to control if the message is spoken."
-  (cond
-   (emacspeak-jabber-speak-presence-alerts ad-do-it)
-   (t
-    (ems-with-messages-silenced
-     ad-do-i)))
-  ad-return-value)
+(defun emacspeak-jabber-presence-default-message (&rest _ignore)
+  "Default presence alert used by Emacspeak.
+Silently drops alerts on the floor --- Google Talk is too chatty otherwise."
+nil)
+(setq
+ jabber-alert-presence-message-function
+ #'emacspeak-jabber-presence-default-message)
 
 ;;;this is what I use as my jabber alert function:
 (defun emacspeak-jabber-message-default-message (from buffer text)
   "Speak the message."
-  (declare (special jabber-message-alert-same-buffer))
+  (cl-declare (special jabber-message-alert-same-buffer))
   (when (or jabber-message-alert-same-buffer
             (not (memq (selected-window) (get-buffer-window-list buffer))))
     (emacspeak-auditory-icon 'progress)
@@ -185,7 +185,7 @@
 (defun emacspeak-jabber-popup-roster ()
   "Pop to Jabber roster."
   (interactive)
-  (declare (special jabber-roster-buffer jabber-connections))
+  (cl-declare (special jabber-roster-buffer jabber-connections))
   (unless jabber-connections  (call-interactively 'jabber-connect))
   (unless (buffer-live-p jabber-roster-buffer) (call-interactively 'jabber-display-roster))
   (pop-to-buffer jabber-roster-buffer)
@@ -214,9 +214,10 @@
   (emacspeak-auditory-icon 'task-done)
   (dtk-notify-say "Connected to jabber."))
 (add-hook 'jabber-post-connect-hook #'emacspeak-jabber-connected)
+
 ;;}}}
 ;;{{{ Pronunciations
-(declaim (special emacspeak-pronounce-internet-smileys-pronunciations))
+(cl-declaim (special emacspeak-pronounce-internet-smileys-pronunciations))
 (emacspeak-pronounce-augment-pronunciations 'jabber-chat-mode
                                             emacspeak-pronounce-internet-smileys-pronunciations)
 (emacspeak-pronounce-augment-pronunciations 'jabber-mode
@@ -224,64 +225,56 @@
 
 ;;}}}
 ;;{{{ Browse chat buffers:
-
-;;; Relies on jabber prompt pattern.
-;;; Search forward/back for "^[", check prompt face to determine
-;;; local/foreign, then speak  text in appropriate face.
-
-(defun emacspeak-jabber-chat-speak-this-message ()
-  "Speaks message starting on current line.
-Assumes point is at the front of the message.
-Returns a cons (start . end) that delimits the message."
-  (interactive)
-  (unless (eq major-mode 'jabber-chat-mode)
-    (error "Not in a Jabber chat buffer."))
-  (let ((start nil)
-        (end nil))
-    (save-excursion
-      (when (ems-interactive-p)
-        (unless (looking-at "^\\[")
-          (re-search-backward "^\\[" nil t)))
-      (setq start
-            (goto-char
-             (next-single-property-change (point) 'face)))
-      (setq end
-            (goto-char
-             (next-single-property-change (point) 'face)))
-      (emacspeak-speak-region start end))
-    (cons start end)))
+(defun emacspeak-jabber-chat-speak-this-message(&optional copy-as-kill )
+  "Speak chat message under point.
+With optional interactive prefix arg `copy-as-kill', copy it to
+the kill ring as well."
+  (interactive "P")
+  (let ((range (emacspeak-speak-get-text-range 'face)))
+    (when copy-as-kill (kill-new range))
+    (dtk-speak range)))
 
 (defun emacspeak-jabber-chat-next-message ()
-  "Move forward to and speak the next message in this chat
-session."
+  "Move forward to and speak the next message in this chat session."
   (interactive)
-  (unless (eq major-mode 'jabber-chat-mode)
-    (error "Not in a Jabber chat buffer."))
-  (re-search-forward "^\\["nil t)
-  (let ((extent (emacspeak-jabber-chat-speak-this-message)))
-    (emacspeak-auditory-icon 'large-movement)
-    (goto-char (cdr extent))))
+  (cl-assert  (eq major-mode 'jabber-chat-mode) nil  "Not in a Jabber chat buffer.")
+    (goto-char (next-single-property-change (point) 'face nil(point-max)))
+    (while (and (not (eobp))
+                (or (null (get-text-property (point) 'face))
+                 (get-text-property (point) 'field)))
+      (goto-char (next-single-property-change (point) 'face  nil  (point-max))))
+    (cond
+     ((eobp)
+        (message "On last message")
+        (emacspeak-auditory-icon 'warn-user))
+      (t(emacspeak-auditory-icon 'select-object)
+       (emacspeak-speak-text-range 'face))))
 
 (defun emacspeak-jabber-chat-previous-message ()
-  "Move backward to and speak the previous message in this chat
-session."
+  "Move backward to and speak the previous message in this chat session."
   (interactive)
-  (unless (eq major-mode 'jabber-chat-mode)
-    (error "Not in a Jabber chat buffer."))
-  (forward-line 0)
-  (re-search-backward "^\\["nil t)
-  (let ((extent (emacspeak-jabber-chat-speak-this-message)))
-    (emacspeak-auditory-icon 'large-movement)
-    (goto-char (car extent))))
+  (cl-assert (eq major-mode 'jabber-chat-mode) nil "Not in a Jabber chat buffer.")
+  (goto-char (previous-single-property-change (point) 'face nil  (point-min)))
+  (while  (and (not (bobp))
+               (or (null (get-text-property (point) 'face))
+                   (get-text-property (point) 'field)))
+    (goto-char (previous-single-property-change (point) 'face  nil  (point-min))))
+  (cond
+   ((bobp)
+    (message "On first message")
+    (emacspeak-auditory-icon 'warn-user))
+   (t(emacspeak-auditory-icon 'select-object)
+    (emacspeak-speak-text-range 'face))))
 
 (when (boundp 'jabber-chat-mode-map)
-  (cl-loop for k in
-        '(
-          ("M-n" emacspeak-jabber-chat-next-message)
-          ("M-p" emacspeak-jabber-chat-previous-message)
-          ("M-SPC " emacspeak-jabber-chat-speak-this-message))
-        do
-        (emacspeak-keymap-update  jabber-chat-mode-map k)))
+  (cl-loop
+   for k in
+   '(
+     ("M-n" emacspeak-jabber-chat-next-message)
+     ("M-p" emacspeak-jabber-chat-previous-message)
+     ("M-SPC " emacspeak-jabber-chat-speak-this-message))
+   do
+   (emacspeak-keymap-update  jabber-chat-mode-map k)))
 
 ;;}}}
 (provide 'emacspeak-jabber)
@@ -289,7 +282,7 @@ session."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

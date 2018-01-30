@@ -106,24 +106,8 @@ renderingBlacklist = ['*', '(', ')', '\n', '/']
 literalPunctuation = ["'", ","]
 
 # map voice short names to apple class names.
-voiceMap= {'alex':'com.apple.speech.synthesis.voice.Alex',
-           'victoria':'com.apple.speech.synthesis.voice.Victoria',
-           'vicki':'com.apple.speech.synthesis.voice.Vicki',
-           'ralf':'com.apple.speech.synthesis.voice.Ralph',
-           'kathy':'com.apple.speech.synthesis.voice.Kathy',
-           'junior':'com.apple.speech.synthesis.voice.Junior',
-           'fred':'com.apple.speech.synthesis.voice.Fred',
-           'tracy':'com.acapelagroup.AGix.voice.Tracy22k_HQ',
-           'daniel':'com.apple.speech.synthesis.voice.daniel.premium',
-           'emily':'com.apple.speech.synthesis.voice.emily.premium',
-           'fiona':'com.apple.speech.synthesis.voice.fiona.premium',
-           'karen':'com.apple.speech.synthesis.voice.karen.premium',
-           'lee':'com.apple.speech.synthesis.voice.lee.premium',
-           'moira':'com.apple.speech.synthesis.voice.moira.premium',
-           'sangeeta':'com.apple.speech.synthesis.voice.sangeeta.premium',
-           'tessa':'com.apple.speech.synthesis.voice.tessa.premium',
-           'tom':'com.apple.speech.synthesis.voice.tom.premium',
-           'bruce':'com.apple.speech.synthesis.voice.Bruce'}
+voiceMap = dict([(NSSpeechSynthesizer.attributesForVoice_(v)['VoiceName'].lower(), v) 
+                    for v in list(NSSpeechSynthesizer.availableVoices())])
 
 # A queue of either text or audio filenames waiting to be dispatched to NSSpeechSynthesizer.
 speechQueue = []
@@ -143,7 +127,9 @@ class ServerDelegate(NSObject):
 
   # NSSpeechSynthesizerDelegate implementation.
   def speechSynthesizer_didFinishSpeaking_(self, synthesizer, success):
-    processSpeechQueue()
+    global speechSynthesizer
+    if speechSynthesizer == synthesizer:
+      processSpeechQueue()
 
   def speechSynthesizer_didEncounterErrorAtIndex_ofString_message_(self, synthesizer, index, text, message):
     #writeDebugLog(2, "error encountered in synth: " + message + " at index " + str(index) + " of string '" + text + "'\n")
@@ -316,7 +302,15 @@ class _ProtocolHandler:
     parseContent(args)
 
   def handleStopSpeaking(self, args):
+    global speechSynthesizer
+    global speechDelegate
+
+    # Stop all speech on previous synth.
     speechSynthesizer.stopSpeaking()
+
+    speechSynthesizer = NSSpeechSynthesizer.alloc().init()
+    speechSynthesizer.setDelegate_(speechDelegate)
+
     textClipPlayer.stop()
     del(speechQueue[:])
 
@@ -560,9 +554,13 @@ def processSpeechQueue():
       writeDebugLog(4, "Voice change")
       voice = item[1]
       if voice in voiceMap:
-        speechSynthesizer.setVoice_(voiceMap[voice])
-        writeDebugLog(6, "set voice to " + voiceMap[voice])  
-        processSpeechQueue()
+        voice = voiceMap[voice]
+      else:
+        voice = NSSpeechSynthesizer.defaultVoice()
+
+      speechSynthesizer.setVoice_(voice)
+      writeDebugLog(6, "set voice to " + voice)
+      processSpeechQueue()
 
     # Custom embeds.
     elif item[0] == 'textclip':

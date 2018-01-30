@@ -39,9 +39,7 @@
 ;;}}}
 ;;{{{ Required modules 
 
-(require 'cl)
-(when (locate-library "cl-lib") (require 'cl-lib))
-(declaim  (optimize  (safety 0) (speed 3)))
+(require 'cl-lib)
 (require 'advice)
 (require 'emacspeak-load-path)
 (require 'voice-setup)
@@ -49,7 +47,8 @@
 (require 'emacspeak-pronounce)
 (require 'emacspeak-speak)
 (require 'emacspeak-keymap)
-(when (> emacs-major-version 24) (package-initialize))
+(eval-when-compile (when (> emacs-major-version 24) (package-initialize)))
+
 ;;}}}
 
 (provide  'emacspeak-preamble)
@@ -57,7 +56,7 @@
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end: 
 
 ;;}}}

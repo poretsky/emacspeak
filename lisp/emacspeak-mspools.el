@@ -40,6 +40,7 @@
 
 ;;{{{  Required modules
 
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 ;;}}}
 ;;{{{  Introduction
@@ -67,10 +68,10 @@
   (emacspeak-speak-line))
 ;;}}}
 ;;{{{ keymaps
-(declaim (special mspools-mode-map))
-(eval-when (load)
-  (require 'emacspeak-keymap)
-  )
+(cl-declaim (special mspools-mode-map))
+(cl-eval-when (load)
+           (require 'emacspeak-keymap)
+           )
 
 ;;}}}
 (provide 'emacspeak-mspools)
@@ -79,7 +80,7 @@
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end: 
 
 ;;}}}

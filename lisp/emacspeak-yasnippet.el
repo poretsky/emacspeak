@@ -40,15 +40,15 @@
 ;;{{{  introduction
 
 ;;; Commentary:
-;;; YASNIPPET ==  Template based editting using snippets.
+;;; YASNIPPET ==  Template based editing using snippets.
 
 ;;; Code:
 
 ;;}}}
 ;;{{{  Required modules
 
-(require 'cl)
-(declaim  (optimize  (safety 0) (speed 3)))
+(require 'cl-lib)
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 
 ;;}}}

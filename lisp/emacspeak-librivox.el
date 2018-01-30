@@ -67,8 +67,8 @@
 ;;}}}
 ;;{{{  Required modules
 
-(require 'cl)
-(declaim  (optimize  (safety 0) (speed 3)))
+(require 'cl-lib)
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 (require 'dom)
 (require 'emacspeak-webutils)
@@ -105,7 +105,7 @@
 
 (defun emacspeak-librivox-audiobooks-uri (pattern  offset)
   "Search URI for audiobooks."
-  (declare (special emacspeak-librivox-api-base))
+  (cl-declare (special emacspeak-librivox-api-base))
   (concat
    emacspeak-librivox-api-base
    (format "audiobooks?offset=%s&limit=%s&format=json&"
@@ -119,7 +119,7 @@
 
 (defun emacspeak-librivox-audiotracks-base (pattern)
   "Base URI for audiotracks."
-  (declare (special emacspeak-librivox-api-base))
+  (cl-declare (special emacspeak-librivox-api-base))
   (concat emacspeak-librivox-api-base "audiotracks?format=json&" pattern))
 
 ;;; Simple Authors API:
@@ -129,7 +129,7 @@
 
 (defun emacspeak-librivox-authors-base ()
   "Base URI for authors."
-  (declare (special emacspeak-librivox-api-base))
+  (cl-declare (special emacspeak-librivox-api-base))
   (concat emacspeak-librivox-api-base "authors"))
 
 ;;}}}
@@ -181,7 +181,7 @@ Argument `pattern' is of the form:
 `title=pattern' Search by title.
 ^all Browse books.
 Optional arg `offset' (default 0) is used for getting more results."
-  (declare (special  emacspeak-librivox-results-limit))
+  (cl-declare (special  emacspeak-librivox-results-limit))
   (or offset (setq offset 0))
   (let* ((title
           (format
@@ -200,7 +200,7 @@ Optional arg `offset' (default 0) is used for getting more results."
       (add-hook
        'emacspeak-web-post-process-hook
        #'(lambda ()
-           (declare (special emacspeak-we-url-executor))
+           (cl-declare (special emacspeak-we-url-executor))
            (setq emacspeak-we-url-executor 'emacspeak-librivox-play)))
       (with-temp-buffer
         (insert "<title>" title "</title>\n")
@@ -218,7 +218,7 @@ book.</p>")
            (format
             "Re-execute this command with an interactive prefix argument and
 specify offset %s to get more results."
-                   (+ offset emacspeak-librivox-results-limit))))
+            (+ offset emacspeak-librivox-results-limit))))
         (browse-url-of-buffer)))))
 
 (defvar emacspeak-librivox-genre-list
@@ -281,7 +281,7 @@ Optional prefix arg `offset' prompts for offset."
     (let ((completion-ignore-case t))
       (completing-read "Genre: " emacspeak-librivox-genre-list))
     current-prefix-arg))
-  (declare (special emacspeak-librivox-genre-list))
+  (cl-declare (special emacspeak-librivox-genre-list))
   (when offset (setq offset (read-number "Offset: ")))
   (emacspeak-librivox-search
    (format "genre=%s"
@@ -322,11 +322,11 @@ more results."
    (list
     (read-char "a: Author, t: Title,  p:Play, g:Genre, d: Browse Local")))
   (ecase search-type
-    (?d (dired (expand-file-name "librivox" emacspeak-resource-directory)))
-    (?a (call-interactively 'emacspeak-librivox-search-by-author))
-    (?p (call-interactively 'emacspeak-librivox-play))
-    (?t (call-interactively 'emacspeak-librivox-search-by-title))
-    (?g (call-interactively 'emacspeak-librivox-search-by-genre))))
+         (?d (dired (expand-file-name "librivox" emacspeak-resource-directory)))
+         (?a (call-interactively 'emacspeak-librivox-search-by-author))
+         (?p (call-interactively 'emacspeak-librivox-play))
+         (?t (call-interactively 'emacspeak-librivox-search-by-title))
+         (?g (call-interactively 'emacspeak-librivox-search-by-genre))))
 
 ;;}}}
 ;;{{{ Cache Playlists:
@@ -338,7 +338,7 @@ more results."
 
 (defun emacspeak-librivox-ensure-cache ()
   "Create LIBRIVOX cache directory if needed."
-  (declare (special emacspeak-librivox-local-cache))
+  (cl-declare (special emacspeak-librivox-local-cache))
   (unless (file-exists-p emacspeak-librivox-local-cache)
     (make-directory  emacspeak-librivox-local-cache 'parents)))
 
@@ -352,7 +352,7 @@ more results."
              (libxml-parse-xml-region (point-min) (point-max))
              'title)))
       (when title
-        (setq title (dom-text (first title)))
+        (setq title (dom-text (cl-first title)))
         (setq title (replace-regexp-in-string " +" "-" title)))
       (kill-buffer)
       (expand-file-name
@@ -367,7 +367,7 @@ more results."
   (interactive
    (list
     (emacspeak-webutils-read-this-url)))
-  (declare (special g-curl-program g-curl-common-options
+  (cl-declare (special g-curl-program g-curl-common-options
                     emacspeak-xslt-program))
   (let ((file  (make-temp-file "librivox" nil ".rss"))
         (m3u-file nil))
@@ -387,7 +387,7 @@ more results."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

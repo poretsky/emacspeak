@@ -43,17 +43,19 @@
 ;;; Code:
 ;;}}}
 ;;{{{ requires
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 
 ;;}}}
 ;;{{{  Setup view mode to work with emacspeak
 
 ;;; restore emacspeak keybindings:
-(declaim (special emacspeak-prefix))
-(add-hook 'view-mode-hook
-          (function (lambda ()
-                      (local-unset-key emacspeak-prefix)
-                      (emacspeak-view-setup-keys))))
+(cl-declaim (special emacspeak-prefix))
+(add-hook
+ 'view-mode-hook
+ #'(lambda ()
+     (local-unset-key emacspeak-prefix)
+     (emacspeak-view-setup-keys)))
 ;;; Generate automatic advise:
 
 ;;}}}
@@ -75,7 +77,7 @@
 
 (defadvice view-mode (after emacspeak pre act comp)
   "Announce what happened"
-  (declare (special view-mode-map))
+  (cl-declare (special view-mode-map))
   (when (ems-interactive-p)
     (emacspeak-auditory-icon 'open-object)
     (emacspeak-speak-load-directory-settings)
@@ -89,7 +91,7 @@
  for f in
  '(
    View-exit-and-edit View-kill-and-leave
-                      View-quit-all View-quit)
+   View-quit-all View-quit)
  do
  (eval
   `(defadvice ,f (after emacspeak pre act comp)
@@ -298,35 +300,35 @@ keybindings for view mode")
 
 (defun emacspeak-view-optimize-view-keys()
   "optimize keybindings for emacspeak in view mode"
-  (declare (special emacspeak-view-edit-commands
+  (cl-declare (special emacspeak-view-edit-commands
                     emacspeak-view-keys-optimized
                     view-mode-map emacspeak-keymap))
   (unless emacspeak-view-keys-optimized
     (setq emacspeak-view-keys-optimized t)
     (cl-loop for edit-command in emacspeak-view-edit-commands
-          do
-          (let ((edit-keys (where-is-internal edit-command (list view-mode-map))))
-            (cl-loop for key in edit-keys 
-                  do
-                  (let ((command (lookup-key emacspeak-keymap key)))
-                    (when command
-                      (define-key view-mode-map key command))))))
+             do
+             (let ((edit-keys (where-is-internal edit-command (list view-mode-map))))
+               (cl-loop for key in edit-keys 
+                        do
+                        (let ((command (lookup-key emacspeak-keymap key)))
+                          (when command
+                            (define-key view-mode-map key command))))))
     (cl-loop for k in
-          '(
-            ("[" backward-paragraph)
-            ("]" forward-paragraph)
-            )
-          do
-          (define-key view-mode-map (first k) (second k)))))
+             '(
+               ("[" backward-paragraph)
+               ("]" forward-paragraph)
+               )
+             do
+             (define-key view-mode-map (cl-first k) (cl-second k)))))
 
 (defun emacspeak-view-setup-keys()
   "Setup emacspeak convenience keys"
-  (declare (special view-mode-map))
+  (cl-declare (special view-mode-map))
   (cl-loop for i from 0 to 9
-        do
-        (define-key view-mode-map
-          (format "%s" i)
-          'emacspeak-speak-predefined-window))
+           do
+           (define-key view-mode-map
+             (format "%s" i)
+             'emacspeak-speak-predefined-window))
 ;;;convenience keys
   (define-key view-mode-map "\C-j"
     'emacspeak-hide-speak-block-sans-prefix)
@@ -353,7 +355,7 @@ keybindings for view mode")
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end: 
 
 ;;}}}

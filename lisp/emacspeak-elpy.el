@@ -48,8 +48,8 @@
 ;;}}}
 ;;{{{  Required modules
 
-(require 'cl)
-(declaim  (optimize  (safety 0) (speed 3)))
+(require 'cl-lib)
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 
 ;;}}}
@@ -59,13 +59,13 @@
  for f in
  '(
    elpy-autopep8-fix-code elpy-config elpy-check
-                          elpy-occur-definitions elpy-rgrep-symbol
-                          elpy-set-project-root elpy-set-project-variable
-                          elpy-set-test-runner
-                          elpy-shell-send-current-statement elpy-shell-send-region-or-buffer
-                          elpy-shell-switch-to-buffer elpy-shell-switch-to-shell
-                          elpy-use-cpython elpy-use-ipython
-                          elpy-importmagic-add-import elpy-importmagic-fixup)
+   elpy-occur-definitions elpy-rgrep-symbol
+   elpy-set-project-root elpy-set-project-variable
+   elpy-set-test-runner
+   elpy-shell-send-current-statement elpy-shell-send-region-or-buffer
+   elpy-shell-switch-to-buffer elpy-shell-switch-to-shell
+   elpy-use-cpython elpy-use-ipython
+   elpy-importmagic-add-import elpy-importmagic-fixup)
  do
  (eval
   `(defadvice ,f (after emacspeak pre act comp)

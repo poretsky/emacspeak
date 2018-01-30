@@ -40,6 +40,7 @@
 
 ;;{{{  Required modules
 
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 (require 'solitaire)
 ;;}}}
@@ -51,14 +52,14 @@
 ;;{{{  Communicate state
 
 (defun emacspeak-solitaire-current-row ()
-  (declare (special solitaire-start-y))
+  (cl-declare (special solitaire-start-y))
   (+ 1 (/ 
         (- (solitaire-current-line)
            solitaire-start-y)
         2)))
 
 (defun emacspeak-solitaire-current-column()
-  (declare (special solitaire-start-x))
+  (cl-declare (special solitaire-start-x))
   (let ((c (current-column)))
     (+ 1
        (/ (- c solitaire-start-x)
@@ -68,68 +69,76 @@
   "Speak coordinates of current position"
   (interactive)
   (dtk-speak
-   (format "%s at %s %s "
-           (case(char-after (point))
-             (?o "stone")
-             (?. "hole"))
-           (emacspeak-solitaire-current-row)
-           (emacspeak-solitaire-current-column))))
+         (format "%s at %s %s "
+                 (case(char-after (point))
+                   (?o "stone")
+                   (?. "hole"))
+                 (emacspeak-solitaire-current-row)
+                 (emacspeak-solitaire-current-column)))
+        (emacspeak-auditory-icon
+         (emacspeak-solitaire-cell-to-icon (format "%c" (following-char)))))
+    
+
+(defun emacspeak-solitaire-speak-stones ()
+  "Speak number of stones remaining."
+  (interactive)
+  (cl-declare (special solitaire-stones))
+  (dtk-speak (format "%d stones" solitaire-stones)))
 
 (defun emacspeak-solitaire-stone  () (dtk-tone 400 150))
 
 (defun emacspeak-solitaire-hole () (dtk-tone 800 100))
+(defun emacspeak-solitaire-speak-row ()
+  "Speak current row."
+  (interactive)
+  (emacspeak-speak-line))
+
+(defun emacspeak-solitaire-cell-to-icon (cell)
+  "Map Solitaire cell to auditory icon."
+  (cond
+   ((string= cell ".") 'close-object)
+   ((string= cell "o") 'item)))
 
 (defun emacspeak-solitaire-show-row ()
   "Audio format current row."
   (interactive)
-  (save-excursion
-    (beginning-of-line)
-    (skip-syntax-forward " ")
-    (let ((row (emacspeak-solitaire-current-row))
-          (count 1))
-      (while (not (eolp))
-        (case (char-after (point))
-          (?o (emacspeak-solitaire-stone))
-          (?. (emacspeak-solitaire-hole)))
-        (incf count)
-        (when (and (>= row 3)
-                   (<= row 5)
-                   (= 0 (% count 3)))
-          (dtk-silence 1))
-        (forward-char 1))
-      (skip-syntax-forward " "))
-    (dtk-force)))
+  (let ((cells
+         (split-string
+          (buffer-substring (line-beginning-position) (line-end-position)))))
+    (emacspeak-play-auditory-icon-list (mapcar #'emacspeak-solitaire-cell-to-icon cells))))
 
 (defun emacspeak-solitaire-show-column ()
   "Audio format current column."
   (interactive)
   (save-excursion
     (let ((row (emacspeak-solitaire-current-row))
-          (column (emacspeak-solitaire-current-column)))
-      (cl-loop for i  from 1 to(- row 1)
-            do
-            (solitaire-up))
-      (case (char-after (point))
-        (?o (emacspeak-solitaire-stone))
-        (?. (emacspeak-solitaire-hole)))
+          (column (emacspeak-solitaire-current-column))
+          (cells nil))
+;;; move to top row 
+      (cl-loop for i  from 1 to(- row 1) do (solitaire-up))
+      (cl-case (char-after (point))
+        (?o (push "o" cells))
+        (?. (push "." cells)))
       (cond
-       ((and (>= column 3)
-             (<= column 5))
-        (cl-loop for count from 2 to 7 
-              do
-              (when  (= count 3) (dtk-silence 10))
-              (when (= count 6) (dtk-silence 10))
-              (solitaire-down)
-              (case (char-after (point))
-                (?o (emacspeak-solitaire-stone))
-                (?. (emacspeak-solitaire-hole)))))
-       (t (cl-loop for count from 2 to 3
-                do
-                (solitaire-down)
-                (case (char-after (point))
-                  (?o (emacspeak-solitaire-stone))
-                  (?. (emacspeak-solitaire-hole)))))))
-    (dtk-force)))
+       ((and (>= column 3) (<= column 5))
+        (cl-loop
+         for count from 2 to 7 do
+         (solitaire-down)
+         (cl-case (char-after (point))
+           (?o (push "o" cells))
+           (?. (push "." cells)))))
+       (t
+        (cl-loop
+         for count from 2 to 3 do
+         (solitaire-down)
+         (cl-case (char-after (point))
+           (?o (push "o" cells))
+           (?. (push "." cells))))))
+      (setq cells (nreverse cells))
+      (emacspeak-play-auditory-icon-list (mapcar #'emacspeak-solitaire-cell-to-icon cells)))))
+      
+
+
 
 ;;}}}
 ;;{{{ advice commands
@@ -180,16 +189,10 @@
 
 (defadvice solitaire-move (after emacspeak pre act comp)
   "Provide auditory feedback"
-  (emacspeak-auditory-icon 'close-object)
+  (emacspeak-auditory-icon 'item)
   (emacspeak-solitaire-speak-coordinates))
 
-(defadvice solitaire-do-check (after emacspeak pre act comp)
-  "Provide enhanced feedback"
-  (dtk-speak
-   (format "%s stones left: %s"
-           solitaire-stones ad-return-value)))
-
-(defadvice solitaire (after emacspeak pre act comp)
+(defun emacspeak-solitaire-setup()
   "Emacspeak provides an auditory interface to the solitaire game.
 As you move you hear the coordinates and state of the current cell.
 Moving a stone produces an auditory icon.
@@ -203,12 +206,14 @@ Emacspeak specific commands:
                \\[emacspeak-solitaire-show-column] emacspeak-solitaire-show-column
 \\[emacspeak-solitaire-show-row]                emacspeak-solitaire-show-row
                \\[emacspeak-solitaire-speak-coordinates]  emacspeak-solitaire-speak-coordinates"
-  (when (ems-interactive-p)
-    (delete-other-windows)
-    (emacspeak-auditory-icon 'alarm)
+  (delete-other-windows)
+    (emacspeak-auditory-icon 'open-object)
     (emacspeak-solitaire-setup-keymap)
-    (emacspeak-solitaire-speak-coordinates)))
+    (message "Welcome to Solitaire"))
 
+(add-hook
+ 'solitaire-mode-hook
+ #'emacspeak-solitaire-setup)
 (defadvice solitaire-quit (after emacspeak pre act comp)
   "Provide auditory feedback"
   (when (ems-interactive-p)
@@ -220,8 +225,10 @@ Emacspeak specific commands:
 
 (defun emacspeak-solitaire-setup-keymap ()
   "Setup emacspeak keybindings for solitaire"
-  (declare (special solitaire-mode-map))
+  (cl-declare (special solitaire-mode-map))
+  (define-key solitaire-mode-map "/" 'emacspeak-solitaire-speak-stones)
   (define-key solitaire-mode-map "." 'emacspeak-solitaire-speak-coordinates)
+  (define-key solitaire-mode-map "R" 'emacspeak-solitaire-speak-row)
   (define-key solitaire-mode-map "r" 'emacspeak-solitaire-show-row)
   (define-key solitaire-mode-map "c" 'emacspeak-solitaire-show-column)
   (define-key solitaire-mode-map "f" 'solitaire-move-right)
@@ -240,7 +247,7 @@ Emacspeak specific commands:
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end: 
 
 ;;}}}

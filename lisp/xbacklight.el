@@ -38,8 +38,8 @@
 ;;}}}
 ;;{{{ required packages
 
-(eval-when-compile(require 'cl))
-(declaim  (optimize  (safety 0) (speed 3)))
+(require 'cl-lib)
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 
 ;;}}}
 ;;{{{  Variables:
@@ -119,7 +119,7 @@
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

@@ -48,7 +48,8 @@
 
 ;;}}}
 ;;{{{  Required modules
-(require 'cl)
+(require 'cl-lib)
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 (eval-when-compile
   (require 'python "python" 'no-error))
@@ -63,8 +64,8 @@
  for f in
  '(
    python-shell-send-region python-shell-send-defun
-                            python-shell-send-file   python-shell-send-buffer
-                            python-shell-send-string python-shell-send-string-no-output)
+   python-shell-send-file   python-shell-send-buffer
+   python-shell-send-string python-shell-send-string-no-output)
  do
  (eval
   `(defadvice ,f (after emacspeak pre act comp)
@@ -86,9 +87,9 @@
    ((ems-interactive-p)
     (let ((ws (= 32 (char-syntax (preceding-char)))))
       (dtk-tone 500 100 'force)
-         (unless ws (emacspeak-speak-this-char (preceding-char)))
-         ad-do-it
-         (when ws (dtk-notify-speak (format "Indent %s " (current-column))))))
+      (unless ws (emacspeak-speak-this-char (preceding-char)))
+      ad-do-it
+      (when ws (dtk-notify-speak (format "Indent %s " (current-column))))))
    (t ad-do-it))
   ad-return-value)
 
@@ -128,12 +129,12 @@
  for f in
  '(
    python-nav-up-list python-nav-if-name-main python-nav-forward-statement
-                      python-nav-forward-sexp-safe python-nav-forward-sexp python-nav-forward-defun
-                      python-nav-forward-block python-nav-end-of-statement python-nav-end-of-defun
-                      python-nav-end-of-block python-nav-beginning-of-statement python-nav-beginning-of-block
-                      python-nav-backward-up-list python-nav-backward-statement python-nav-backward-sexp-safe
-                      python-nav-backward-sexp python-nav-backward-defun python-nav-backward-block
-                      )
+   python-nav-forward-sexp-safe python-nav-forward-sexp python-nav-forward-defun
+   python-nav-forward-block python-nav-end-of-statement python-nav-end-of-defun
+   python-nav-end-of-block python-nav-beginning-of-statement python-nav-beginning-of-block
+   python-nav-backward-up-list python-nav-backward-statement python-nav-backward-sexp-safe
+   python-nav-backward-sexp python-nav-backward-defun python-nav-backward-block
+   )
  do
  (eval
   `(defadvice  ,f (after emacspeak pre act comp)
@@ -148,7 +149,7 @@
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
+;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

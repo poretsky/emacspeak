@@ -50,14 +50,14 @@
 ;;}}}
 ;;{{{  Required modules
 
-(require 'cl)
-(declaim  (optimize  (safety 0) (speed 3)))
+(require 'cl-lib)
+(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 (require '2048-game "2048-game" 'no-error)
 ;;}}}
 ;;{{{ Push And Pop states:
 
-(defstruct emacspeak-2048-game-state
+(cl-defstruct emacspeak-2048-game-state
   board score
   rows cols
   )
@@ -67,7 +67,7 @@
 (defun emacspeak-2048-push-state ()
   "Push current game state on stack."
   (interactive)
-  (declare (special emacspeak-2048-game-stack
+  (cl-declare (special emacspeak-2048-game-stack
                     *2048-board* *2048-score* *2048-rows* *2048-columns*))
   (push
    (make-emacspeak-2048-game-state
@@ -82,7 +82,7 @@
 (defun emacspeak-2048-pop-state ()
   "Reset state from stack."
   (interactive)
-  (declare (special emacspeak-2048-game-stack
+  (cl-declare (special emacspeak-2048-game-stack
                     *2048-board* *2048-score* *2048-rows* *2048-columns*))
   (cond
    ((null emacspeak-2048-game-stack) (error "No saved  states."))
@@ -107,7 +107,7 @@
          (format "Stack: %s New? "
                  (length emacspeak-2048-game-stack))
          (/ (length emacspeak-2048-game-stack) 2))))))
-  (declare (special emacspeak-2048-game-stack))
+  (cl-declare (special emacspeak-2048-game-stack))
   (setq emacspeak-2048-game-stack
         (butlast emacspeak-2048-game-stack
                  (- (length emacspeak-2048-game-stack) drop)))
@@ -128,7 +128,7 @@
 Optional interactive prefix arg prompts for a file.
 Note that the file is overwritten silently."
   (interactive "P")
-  (declare (special emacspeak-2048-game-file emacspeak-2048-game-stack))
+  (cl-declare (special emacspeak-2048-game-file emacspeak-2048-game-stack))
   (with-temp-buffer
     (let ((file
            (if prompt
@@ -153,7 +153,8 @@ Optional interactive prefix arg prompts for a filename."
            emacspeak-2048-game-file)))
     (load-file file)
     (cl-loop
-     for i in '(4096 8192 16384 32768) do
+     for i in
+     '(4096 8192 16384 32768 65536 131072) do
      (2048-init-tile i))
     (emacspeak-auditory-icon 'task-done)
     (message "Imported game %s." file)))
@@ -164,8 +165,8 @@ Optional interactive prefix arg prompts for a filename."
 (defun emacspeak-2048-add-row ()
   "Add a row  to the current board."
   (interactive)
-  (declare (special *2048-board* *2048-rows*))
-  (setq *2048-rows* (incf *2048-rows*))
+  (cl-declare (special *2048-board* *2048-rows*))
+  (setq *2048-rows* (cl-incf *2048-rows*))
   (let ((board (copy-sequence *2048-board*)))
     (setq *2048-board* (make-vector (* *2048-columns* *2048-rows*) 0))
     (cl-loop
@@ -177,7 +178,7 @@ Optional interactive prefix arg prompts for a filename."
 (defun emacspeak-2048-drop-row ()
   "Drop last  row  from  the current board."
   (interactive)
-  (declare (special *2048-board* *2048-rows*))
+  (cl-declare (special *2048-board* *2048-rows*))
   (setq *2048-rows* (1- *2048-rows*))
   (let ((board (copy-sequence *2048-board*)))
     (setq *2048-board* (make-vector (* *2048-columns* *2048-rows*) 0))
@@ -191,11 +192,11 @@ Optional interactive prefix arg prompts for a filename."
 (defun emacspeak-2048-add-column ()
   "Add a column  to the current board."
   (interactive)
-  (declare (special *2048-board* *2048-columns*))
+  (cl-declare (special *2048-board* *2048-columns*))
   (let ((board (copy-sequence *2048-board*))
         (index 0)
         (cols *2048-columns*))
-    (setq *2048-columns* (incf *2048-columns*))
+    (setq *2048-columns* (cl-incf *2048-columns*))
     (setq *2048-board* (make-vector (* *2048-columns* *2048-rows*) 0))
     (cl-loop
      for r from 0 to (1- *2048-rows*) do
@@ -207,9 +208,27 @@ Optional interactive prefix arg prompts for a filename."
             (aref board index)))
      (message "Added column."))))
 
+(defun emacspeak-2048-drop-column ()
+  "Drop last  row  from  the current board."
+  (interactive)
+  (cl-declare (special *2048-board* *2048-columns* *2048-columns*))
+  (let ((board (copy-sequence *2048-board*))
+        (bound 0))
+    (setq *2048-columns* (1- *2048-columns*))
+    (setq *2048-board* (make-vector (* *2048-columns* *2048-rows*) 0))
+    (cl-loop
+     for   i from 0 to (1- (length *2048-board*)) do
+     (cond
+      ((= bound *2048-columns*) (setq bound 0))
+      (t
+       (cl-incf bound)
+       (aset  *2048-board* i  (aref board i)))))
+    (2048-print-board))
+  (emacspeak-auditory-icon 'delete-object)
+  (message "Dropped column."))
 (defun emacspeak-2048-board-reset ()
   "Reset board to default size."
-  (declare (special *2048-rows* *2048-columns* *2048-board*))
+  (cl-declare (special *2048-rows* *2048-columns* *2048-board*))
   (setq *2048-rows* 4
         *2048-columns* 4))
 
@@ -219,19 +238,19 @@ Optional interactive prefix arg prompts for a filename."
 (defun emacspeak-2048-speak-board ()
   "Speak board."
   (interactive)
-  (declare (special *2048-board* *2048-columns*))
+  (cl-declare (special *2048-board* *2048-columns*))
   (dtk-speak-list (append *2048-board* nil) *2048-columns*))
 
 (defun emacspeak-2048-speak-transposed-board ()
   "Speak board column-wise."
   (interactive)
-  (declare (special *2048-board*      *2048-columns* *2048-rows*))
+  (cl-declare (special *2048-board*      *2048-columns* *2048-rows*))
   (dtk-speak-list
    (cl-loop for col from 0 to (- *2048-columns*  1)
-         collect
-         (cl-loop for row from 0 to (- *2048-rows*  1)
-               collect
-               (aref  *2048-board*  (+ col (* 4 row)))))
+            collect
+            (cl-loop for row from 0 to (- *2048-rows*  1)
+                     collect
+                     (aref  *2048-board*  (+ col (* 4 row)))))
    *2048-rows*))
 
 (cl-loop
@@ -257,7 +276,7 @@ Optional interactive prefix arg prompts for a filename."
 (defun emacspeak-2048-score ()
   "Show total on board."
   (interactive)
-  (declare (special *2048-score*))
+  (cl-declare (special *2048-score*))
   (message (format "Score: %d" *2048-score*)))
 
 ;;}}}
@@ -265,10 +284,11 @@ Optional interactive prefix arg prompts for a filename."
 
 (defun emacspeak-2048-setup ()
   "Emacspeak setup for 2048."
-  (declaim (special  2048-mode-map))
+  (cl-declaim (special  2048-mode-map))
   (voice-lock-mode -1)
   (define-key 2048-mode-map "#" 'emacspeak-2048-prune-stack)
   (define-key 2048-mode-map "D" 'emacspeak-2048-drop-row)
+  (define-key 2048-mode-map "d" 'emacspeak-2048-drop-column)
   (define-key 2048-mode-map "P" 'emacspeak-2048-prune-stack)
   (define-key 2048-mode-map "R" 'emacspeak-2048-add-row)
   (define-key 2048-mode-map "C" 'emacspeak-2048-add-column)
@@ -290,7 +310,7 @@ Optional interactive prefix arg prompts for a filename."
   (emacspeak-auditory-icon 'open-object)
   (emacspeak-pronounce-define-local-pronunciation "0" "o")
   (emacspeak-2048-speak-board))
-(declaim (special-display-p 2048-mode-hook))
+(cl-declaim (special-display-p 2048-mode-hook))
 (add-hook '2048-mode-hook 'emacspeak-2048-setup)
 ;;}}}
 ;;{{{ Counting moves:
@@ -304,7 +324,7 @@ Optional interactive prefix arg prompts for a filename."
  (eval
   `(defadvice ,f (after  count-moves pre act comp)
      "Count this move."
-     (incf emacspeak-2048-move-count))))
+     (cl-incf emacspeak-2048-move-count))))
 (defadvice 2048-game (before count-moves pre act comp)
   "Reset move count and board size."
   (setq emacspeak-2048-move-count 0)
@@ -316,7 +336,7 @@ Optional interactive prefix arg prompts for a filename."
 (defun emacspeak-2048-randomize-game (&optional count)
   "Puts game in a randomized new state."
   (interactive "nCount: ")
-  (declare (special *2048-board*))
+  (cl-declare (special *2048-board*))
   (cl-loop
    for i from 0 to 15 do
    (cond
