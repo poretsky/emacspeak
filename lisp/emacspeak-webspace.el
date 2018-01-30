@@ -1,5 +1,5 @@
 ;;; emacspeak-webspace.el --- Webspaces In Emacspeak
-;;; $Id: emacspeak-webspace.el 9336 2014-08-18 01:26:04Z tv.raman.tv $
+;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description: WebSpace provides smart updates from the Web.
 ;;; Keywords: Emacspeak, Audio Desktop webspace
@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{ Copyright:
-;;;Copyright (C) 1995 -- 2011, T. V. Raman
+;;;Copyright (C) 1995 -- 2015, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -64,7 +64,7 @@
 ;;; Define a derived-mode called WebSpace that is generally useful for hypetext display.
 ;;;###autoload
 (define-derived-mode emacspeak-webspace-mode special-mode
-  "Webspace Interaction"
+                     "Webspace Interaction"
   "Major mode for Webspace interaction.\n\n
 \\{emacspeak-webspace-mode-map}")
 
@@ -81,7 +81,9 @@
         ("?" search-backward)
         ("y" emacspeak-webspace-yank-link)
         ("n" forward-button)
-        ("p" backward-button))
+        ("p" backward-button)
+        ("f" forward-button)
+        ("b" backward-button))
       do
       (emacspeak-keymap-update emacspeak-webspace-mode-map k))
 
@@ -105,9 +107,11 @@
   (let ((button (button-at (point))))
     (cond
      (button (emacspeak-auditory-icon 'yank-object)
-             (kill-new
-              (or (second (button-get button 'feed))
-                  (button-get button 'link))))
+             (message "%s"
+                      (kill-new
+                       (or (second (button-get button 'feed))
+                           (button-get button 'link)
+                           (button-get button 'url)))))
      (t (error "No link under point")))))
 
 (defadvice gfeeds-view (around emacspeak pre act comp)
@@ -185,7 +189,8 @@ We use module gfeeds to efficiently fetch feed contents using the
          (last-update (get-text-property 0 'last-update feed))
          (gfeeds-freshness-internal
           (if last-update
-              emacspeak-webspace-headlines-period gfeeds-freshness-internal))
+              emacspeak-webspace-headlines-period
+            gfeeds-freshness-internal))
          (titles (emacspeak-webspace-fs-titles emacspeak-webspace-headlines)))
     (when                ; check if we need to add from this feed
         (or (null last-update)        ;  at most every half hour

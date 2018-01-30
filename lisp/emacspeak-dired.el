@@ -1,5 +1,5 @@
 ;;; emacspeak-dired.el --- Speech enable Dired Mode -- A powerful File Manager
-;;; $Id: emacspeak-dired.el 9092 2014-04-23 00:26:17Z tv.raman.tv $
+;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak extension to speech enable dired
 ;;; Keywords: Emacspeak, Dired, Spoken Output
@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2011, T. V. Raman
+;;;Copyright (C) 1995 -- 2015, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -49,6 +49,7 @@
 ;;{{{  required packages
 
 ;;; Code:
+(require 'cl)
 (require 'emacspeak-preamble)
 (require 'desktop)
 (require 'dired)
@@ -363,7 +364,7 @@ On a directory line, run du -s on the directory to speak its size."
   (define-key dired-mode-map "\C-t" 'emacspeak-dired-speak-symlink-target)
   (define-key dired-mode-map "\C-i" 'emacspeak-speak-next-field)
   (define-key dired-mode-map  "," 'emacspeak-speak-previous-field))
-(add-hook 'emacspeak-dired-initialize 'append)
+(add-hook 'dired-mode-hook  'emacspeak-dired-initialize 'append)
 
 ;;}}}
 (provide 'emacspeak-dired)

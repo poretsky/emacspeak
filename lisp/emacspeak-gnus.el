@@ -1,5 +1,5 @@
 ;;; emacspeak-gnus.el --- Speech enable GNUS -- Fluent spoken access to usenet
-;;; $Id: emacspeak-gnus.el 9336 2014-08-18 01:26:04Z tv.raman.tv $
+;;; $Id$
 ;;; $Author: tv.raman.tv $ 
 ;;; Description:  Emacspeak extension to speech enable Gnus
 ;;; Keywords: Emacspeak, Gnus, Advice, Spoken Output, News
@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2011, T. V. Raman 
+;;;Copyright (C) 1995 -- 2015, T. V. Raman 
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved. 
 ;;;
@@ -39,11 +39,11 @@
 
 ;;{{{  Introduction:
 
-;;; Commentary
+;;; Commentary:
 
-;;; This module advices gnus to speak. 
+;;; This module advises gnus to speak. 
 ;;; Updating support in 2014 (Emacspeak is nearly 20 years old)
-
+;;; Code:
 ;;}}}
 ;;{{{ requires
 (require 'cl)
@@ -666,9 +666,10 @@ Produce an auditory icon if possible."
 (defadvice gnus-summary-show-article (after emacspeak pre act)
   "Start speaking the article. "
   (when (ems-interactive-p )
-    (emacspeak-auditory-icon 'open-object)
-    (emacspeak-hide-all-blocks-in-buffer)
-    (emacspeak-gnus-speak-article-body)))
+    (with-current-buffer gnus-article-buffer
+      (emacspeak-auditory-icon 'open-object)
+      (emacspeak-hide-all-blocks-in-buffer)
+      (emacspeak-gnus-speak-article-body))))
 
 (defadvice gnus-summary-next-page (after emacspeak pre act)
   "Speak the next pageful "

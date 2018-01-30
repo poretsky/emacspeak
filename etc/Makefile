@@ -1,4 +1,4 @@
-# $Id: Makefile 8989 2014-04-06 23:57:46Z tv.raman.tv $
+# $Id$
 # $Author: tv.raman.tv $ 
 # Description:  Makefile for Emacspeak 
 # Keywords: Emacspeak, Dectalk, Makefile 

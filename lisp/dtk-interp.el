@@ -1,5 +1,5 @@
 ;;; dtk-interp.el --- Language specific (e.g. TCL) interface to speech server
-;;; $Id: dtk-interp.el 8468 2013-10-26 16:31:11Z tv.raman.tv $
+;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Interfacing to the speech server
 ;;; Keywords: TTS, Dectalk, Speech Server
@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;;Copyright (C) 1995 -- 2011, T. V. Raman
+;;;Copyright (C) 1995 -- 2015, T. V. Raman
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -39,19 +39,18 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;{{{ introduction
-
+;;; Commentary:
 ;;; All requests to the speech server are factored out into
 ;;; this module.
 ;;; These calls are declared here as defsubst so they are
 ;;; inlined by the byte compiler.
-;;; This preserves the same level of efficiency as before,
+;;; This  keeps the code efficient,
 ;;; but gives us the flexibility to call out to different
 ;;; speech servers.
 
+;;; Code:
 ;;}}}
 ;;{{{ requires
-
-;;;Code:
 
 (require 'cl)
 (declaim  (optimize  (safety 0) (speed 3)))
@@ -72,20 +71,15 @@
 
 (defmacro tts-with-punctuations (setting &rest body)
   "Safely set punctuation mode for duration of body form."
-  `(progn
-     (declare (special dtk-punctuation-mode))
-     (let    ((save-punctuation-mode dtk-punctuation-mode))
-       (unwind-protect
-           (progn
-             (unless (eq ,setting save-punctuation-mode)
-               (dtk-interp-set-punctuations ,setting)
-               (setq dtk-punctuation-mode ,setting))
-             ,@body
-             (dtk-force))
-         (unless (eq  ,setting  save-punctuation-mode)
-           (setq dtk-punctuation-mode save-punctuation-mode)
-           (dtk-interp-set-punctuations ,setting))
-         (dtk-force)))))
+  `(let    ((save-punctuation-mode dtk-punctuation-mode))
+     (unwind-protect
+         (unless (eq ,setting save-punctuation-mode)
+           (dtk-interp-set-punctuations ,setting)
+           (setq dtk-punctuation-mode ,setting))
+       ,@body
+       (unless (eq  ,setting  save-punctuation-mode)
+         (setq dtk-punctuation-mode save-punctuation-mode)
+         (dtk-interp-set-punctuations ,setting)))))
 
 ;;}}}
 ;;{{{ silence
@@ -111,9 +105,8 @@
 
 (defsubst dtk-interp-queue (text)
   (declare (special dtk-speaker-process))
-  (process-send-string dtk-speaker-process
-                       (format "q {%s }\n"
-                               text)))
+  (unless (string-match "^[\s]+$"  text)
+    (process-send-string dtk-speaker-process (format "q {%s }\n" text))))
 
 (defsubst dtk-interp-queue-code (code)
   (declare (special dtk-speaker-process))
@@ -130,29 +123,17 @@
 
 (defsubst dtk-interp-speak ()
   (declare (special dtk-speaker-process))
-  (process-send-string dtk-speaker-process
-                       "d\n"))
+  (process-send-string dtk-speaker-process "d\n"))
 
 ;;}}}
 ;;{{{ say
 
 (defsubst dtk-interp-say (string)
   (declare (special dtk-speaker-process))
-  (process-send-string dtk-speaker-process
-                       (format  "tts_say { %s}\n"
-                                string )))
+  (process-send-string dtk-speaker-process (format  "tts_say { %s}\n" string )))
 
 ;;}}}
-;;{{{ dispatch
 
-;;;synonym for above in current server:
-(defsubst dtk-interp-dispatch (string)
-  (declare (special dtk-speaker-process))
-  (process-send-string dtk-speaker-process
-                       (format  "tts_say { %s}\n"
-                                string )))
-
-;;}}}
 ;;{{{ stop
 
 (defsubst dtk-interp-stop ()
@@ -268,8 +249,8 @@
 (defsubst dtk-interp-set-punctuations(mode)
   (declare (special dtk-speaker-process))
   (process-send-string
-   dtk-speaker-process 
-   (format "tts_set_punctuations %s\n" mode)))
+   dtk-speaker-process
+   (format "tts_set_punctuations %s\nd\n" mode)))
 
 ;;}}}
 ;;{{{ reset
@@ -279,23 +260,6 @@
   (process-send-string dtk-speaker-process "tts_reset \n"))
 
 ;;}}}
-;;{{{ pause
-
-(defsubst dtk-interp-pause ()
-  (declare (special dtk-speaker-process))
-  (process-send-string dtk-speaker-process
-                       "tts_pause\n"))
-
-;;}}}
-;;{{{ resume
-
-(defsubst dtk-interp-resume ()
-  (declare (special dtk-speaker-process))
-  (process-send-string dtk-speaker-process
-                       "\n"))
-
-;;}}}
-
 (provide 'dtk-interp)
 ;;{{{  local variables
 

@@ -1,4 +1,4 @@
-@c $Id: tts.texi 5429 2008-01-03 04:24:37Z tv.raman.tv $
+@c $Id$
  
 
 @cindex tts

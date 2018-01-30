@@ -1,5 +1,5 @@
 ;;; emacspeak-rpm.el --- speech-enable RPM
-;;; $Id: emacspeak-rpm.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
+;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak extension to speech-enable RPM
 ;;; Keywords: Emacspeak, rpm, Red Hat Package Manager
@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (C) 1995 -- 2011, T. V. Raman<raman@cs.cornell.edu>
+;;; Copyright (C) 1995 -- 2015, T. V. Raman<raman@cs.cornell.edu>
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -106,7 +106,7 @@
 ;;}}}
 
 ;;; emacspeak-rpm.el --- search utilities
-;;; $Id: emacspeak-rpm.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
+;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak extension to make Web searching convenient
 ;;; Keywords: Emacspeak, WWW interaction
@@ -123,7 +123,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (C) 1995 -- 2011, T. V. Raman<raman@cs.cornell.edu>
+;;; Copyright (C) 1995 -- 2015, T. V. Raman<raman@cs.cornell.edu>
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.

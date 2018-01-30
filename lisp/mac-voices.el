@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;;Copyright (C) 1995 -- 2011, T. V. Raman 
+;;;Copyright (C) 1995 -- 2015, T. V. Raman 
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -42,8 +42,8 @@
 ;;{{{  Introduction:
 
 ;;; Commentary:
-;;; This module defines the various voices used in voice-lock mode.
-;;; This module is Apple Mac specific.
+;;; This module defines the various voices used in voice-lock mode by Mac TTS.
+
 ;;; Code:
 
 ;;}}}

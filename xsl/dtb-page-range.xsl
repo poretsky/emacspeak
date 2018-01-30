@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--$Id: dtb-page-range.xsl 6883 2011-02-23 16:41:15Z tv.raman.tv $
+<!--$Id$
 
 
 Description: Extract nodes in a specified page range from a

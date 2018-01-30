@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;;Copyright (C) 1995 -- 2011, T. V. Raman
+;;;Copyright (C) 1995 -- 2015, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -113,7 +113,7 @@
 ;;{{{ Librivox Mode:
 
 (define-derived-mode emacspeak-librivox-mode emacspeak-table-mode
-  "Librivox Library Of Free Audio Books"
+                     "Librivox Library Of Free Audio Books"
   "A Librivox front-end for the Emacspeak Audio Desktop."
   (progn
     (declare (special emacspeak-table-speak-row-filter))
@@ -131,7 +131,7 @@
         '(
           ("\C-m" emacspeak-librivox-open-rss)
           ("S" emacspeak-librivox-searcher)
-          ([C-return] emacspeak-librivox-play)
+          ("c-RET" emacspeak-librivox-play)
           ("P" emacspeak-librivox-play)
           ("u" emacspeak-librivox-open-url)
           ("F" emacspeak-librivox-fetch-catalog)

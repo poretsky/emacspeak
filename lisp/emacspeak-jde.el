@@ -1,5 +1,5 @@
 ;;; emacspeak-jde.el --- Speech enable JDE -- An integrated Java Development Environment
-;;; $Id: emacspeak-jde.el 8574 2013-11-24 02:01:07Z tv.raman.tv $
+;;; $Id$
 ;;; $Author: tv.raman.tv $ 
 ;;; Description: Auditory interface to JDE
 ;;; Keywords: Emacspeak, Speak, Spoken Output, Java
@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (c) 1995 -- 2011, T. V. Raman
+;;; Copyright (c) 1995 -- 2015, T. V. Raman
 ;;; All Rights Reserved. 
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -42,11 +42,11 @@
 (require 'emacspeak-preamble)
 ;;}}}
 ;;{{{  Introduction
-
+;;; Commentary:
 ;;;Speech enable Java IDE.
 ;;; The Java IDE --JDE-- can be found at 
 ;;;http://sunsite.auc.dk/jde/
-
+;;; Code:
 ;;}}}
 ;;{{{ voice lock 
 

@@ -1,5 +1,5 @@
 ;;; emacspeak-finder.el --- Generate a database of keywords and descriptions for all Emacspeak  packages
-;;; $Id: emacspeak-finder.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
+;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description: Auditory interface
 ;;; Keywords: Emacspeak, Finder
@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (c) 1995 -- 2011, T. V. Raman
+;;; Copyright (c) 1995 -- 2015, T. V. Raman
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -38,8 +38,11 @@
 ;;}}}
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;;; Commentary:
 ;;;Inspired by finder.el
 ;;; Not to be loaded at runtime.
+;;; Code:
+
 ;;{{{ requires
 (require 'cl)
 (require 'finder)
@@ -54,7 +57,7 @@
 
 (defvar emacspeak-finder-preamble
   (concat
-   ";;;$Id: emacspeak-finder.el 8146 2013-02-09 20:05:08Z tv.raman.tv $\n"
+   ";;;$Id$\n"
    ";;; emacspeak-finder-inf.el --- keyword-to-package mapping\n"
    ";; Keywords: help\n"
    ";;; Commentary:\n"

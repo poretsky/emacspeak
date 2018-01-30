@@ -1,5 +1,5 @@
 ;;; emacspeak-xslt.el --- Implements Emacspeak  xslt transform engine
-;;; $Id: emacspeak-xslt.el 8639 2013-12-06 00:00:17Z tv.raman.tv $
+;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description:  xslt transformation routines
 ;;; Keywords: Emacspeak,  Audio Desktop XSLT
@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2011, T. V. Raman
+;;;Copyright (C) 1995 -- 2015, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -39,18 +39,17 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;{{{  introduction
-
+;;; Commentary:
 ;;; libxml and libxsl are XML libraries for GNOME.
 ;;; xsltproc is a  xslt processor using libxsl
 ;;; this module defines routines for applying xsl transformations
 ;;; using xsltproc
-
+;;; Code:
 ;;}}}
 ;;{{{  Required modules
 
 (require 'emacspeak-preamble)
 (require 'emacspeak-webutils)
-
 ;;}}}
 ;;{{{  xslt Environment:
 
@@ -173,15 +172,6 @@ Region defaults to entire buffer."
     (set-buffer-multibyte t)
     (current-buffer)))
 
-;;; uses wget in a pipeline to avoid libxml2 bug:
-;;;###autoload
-(defcustom  emacspeak-xslt-use-wget-to-download nil
-  "Set to T if you want to avoid URL downloader bugs in libxml2.
-There is a bug that bites when using Yahoo Maps that wget can
-work around."
-  :group 'emacspeak-xslt
-  :type 'boolean)
-
 ;;;###autoload
 (defun emacspeak-xslt-url (xsl url &optional params no-comment)
   "Apply XSLT transformation to url
@@ -189,8 +179,6 @@ and return the results in a newly created buffer.
   This uses XSLT processor xsltproc available as
 part of the libxslt package."
   (declare (special emacspeak-xslt-program
-                    emacspeak-xslt-use-wget-to-download
-                    modification-flag
                     emacspeak-xslt-keep-errors))
   (let ((result (get-buffer-create " *xslt result*"))
         (command nil)
@@ -202,23 +190,14 @@ part of the libxslt package."
                                    (cdr pair)))
                        params
                        " "))))
-    (if emacspeak-xslt-use-wget-to-download
-        (setq command (format
-                       "wget -U mozilla -q -O - '%s' | %s %s    --html --novalid %s '%s' %s"
-                       url
-                       emacspeak-xslt-program
-                       (or parameters "")
-                       xsl "-"
-                       (unless emacspeak-xslt-keep-errors " 2>/dev/null ")))
-      (setq command
-            (format
-             "%s %s    --html --novalid %s '%s' %s"
-             emacspeak-xslt-program
-             (or parameters "")
-             xsl url
-             (unless emacspeak-xslt-keep-errors " 2>/dev/null "))))
-    (save-current-buffer
-      (set-buffer result)
+    (setq command
+          (format
+           "%s %s    --html --novalid %s '%s' %s"
+           emacspeak-xslt-program
+           (or parameters "")
+           xsl url
+           (unless emacspeak-xslt-keep-errors " 2>/dev/null ")))
+    (with-current-buffer result 
       (kill-all-local-variables)
       (erase-buffer)
       (setq buffer-undo-list t)
@@ -253,34 +232,22 @@ and return the results in a newly created buffer.
   This uses XSLT processor xsltproc available as
 part of the libxslt package."
   (declare (special emacspeak-xslt-program
-                    modification-flag emacspeak-xslt-use-wget-to-download
                     emacspeak-xslt-keep-errors))
   (let ((result (get-buffer-create " *xslt result*"))
         (command nil)
-        (parameters (when params
-                      (mapconcat
-                       #'(lambda (pair)
-                           (format "--param %s %s "
-                                   (car pair)
-                                   (cdr pair)))
-                       params
-                       " "))))
-    (if emacspeak-xslt-use-wget-to-download
-        (setq command
-              (format
-               "wget -q -O - '%s' | %s %s --novalid %s %s %s"
-               url
-               emacspeak-xslt-program
-               (or parameters "")
-               xsl "-"
-               (unless emacspeak-xslt-keep-errors " 2>/dev/null ")))
-      (setq command
-            (format
-             "%s %s --novalid %s '%s' %s"
-             emacspeak-xslt-program
-             (or parameters "")
-             xsl url
-             (unless emacspeak-xslt-keep-errors " 2>/dev/null "))))
+        (parameters
+         (when params
+           (mapconcat
+            #'(lambda (pair)
+                (format "--param %s %s " (car pair) (cdr pair)))
+            params " "))))
+    (setq command
+          (format
+           "%s %s --novalid %s '%s' %s"
+           emacspeak-xslt-program
+           (or parameters "")
+           xsl url
+           (unless emacspeak-xslt-keep-errors " 2>/dev/null ")))
     (save-current-buffer
       (set-buffer result)
       (kill-all-local-variables)
@@ -341,11 +308,10 @@ part of the libxslt package."
     (read-string "URL: " (browse-url-url-at-point))))
   (declare (special emacspeak-xslt-options
                     emacspeak-xslt-directory))
-  (emacspeak-webutils-with-xsl-environment
-   style
-   nil
-   emacspeak-xslt-options
-   (browse-url url)))
+  (add-to-list
+   'emacspeak-web-pre-process-hook
+   (emacspeak-webutils-make-xsl-transformer style))
+  (browse-url url))
 
 ;;;###autoload
 (defun emacspeak-xslt-view-xml (style url &optional unescape-charent)

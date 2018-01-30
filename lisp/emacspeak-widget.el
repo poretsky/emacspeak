@@ -1,5 +1,5 @@
 ;;; emacspeak-widget.el --- Speech enable Emacs' native GUI widget library
-;;; $Id: emacspeak-widget.el 9459 2014-09-22 02:03:04Z tv.raman.tv $
+;;; $Id$
 ;;; $Author: tv.raman.tv $ 
 ;;; Description: Emacspeak extensions to widgets
 ;;; Keywords:emacspeak, audio interface to emacs customized widgets
@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2011, T. V. Raman 
+;;;Copyright (C) 1995 -- 2015, T. V. Raman 
 ;;; Copyright (c) 1995 by T. V. Raman  
 ;;; All Rights Reserved. 
 ;;;
@@ -58,7 +58,7 @@
 (require 'wid-edit)
 (require 'emacspeak-speak)
 (require 'emacspeak-sounds)
-
+(require 'emacspeak-webutils)
 ;;}}}
 ;;{{{  Customize global behavior
 
@@ -703,8 +703,10 @@ widget before summarizing."
 ;;{{{ voice widgets 
 
 (define-widget 'voice  'menu-choice
+  "Widget for selecting a voice."
   :help-echo "Voice selector"
-  "Widget for selecting a voice.")
+  )
+
 (define-widget 'personality 'item
   "Individual voice in a voice selector.")
 ;;; We rely on dectalk-voice-table as our default voice table.

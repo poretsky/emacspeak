@@ -1,5 +1,5 @@
 ;;; emacspeak-eterm.el --- Speech enable eterm -- Emacs' terminal emulator  term.el
-;;; $Id: emacspeak-eterm.el 8534 2013-11-13 01:43:12Z tv.raman.tv $
+;;; $Id$
 ;;; $Author: tv.raman.tv $ 
 ;;; Description:  Emacspeak extension to speech enable eterm. 
 ;;; Keywords: Emacspeak, Eterm, Terminal emulation, Spoken Output
@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2011, T. V. Raman 
+;;;Copyright (C) 1995 -- 2015, T. V. Raman 
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved. 
 ;;;
@@ -168,11 +168,7 @@ Useful when eterm is in review mode.")
     (define-key term-raw-map
       (concat emacspeak-eterm-prefix emacspeak-eterm-prefix) 'emacspeak-eterm-maybe-send-raw)
     (define-key emacspeak-eterm-keymap emacspeak-eterm-raw-prefix
-      term-raw-map)
-;;; handle emacs 21 wierdness 
-    (local-unset-key "\eO")
-    (local-unset-key "\e[")
-    ))
+      term-raw-map)))
 
 ;;}}}
 ;;{{{  voice definitions  for eterm  highlight, underline etc
@@ -546,7 +542,7 @@ Use command \\[emacspeak-eterm-toggle-review].")
 
 (defun emacspeak-eterm-toggle-review ()
   "Toggle state of eterm review. 
-In review mode, you can move around the terminal and listen to the contnets 
+In review mode, you can move around the terminal and listen to the contents 
 without sending input to the terminal itself."
   (interactive)
   (declare (special emacspeak-eterm-review-p 

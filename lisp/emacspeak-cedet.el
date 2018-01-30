@@ -1,5 +1,5 @@
 ;;; emacspeak-cedet.el --- Speech enable CEDET
-;;; $Id: emacspeak-cedet.el 8309 2013-05-01 15:24:41Z tv.raman.tv $
+;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description: Auditory interface to CEDET
 ;;; Keywords: Emacspeak, Speak, Spoken Output, CEDET
@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (c) 1995 -- 2011, T. V. Raman
+;;; Copyright (c) 1995 -- 2015, T. V. Raman
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.

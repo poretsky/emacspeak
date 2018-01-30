@@ -1,5 +1,5 @@
 ;;; emacspeak-info.el --- Speech enable Info -- Emacs' online documentation viewer
-;;; $Id: emacspeak-info.el 8577 2013-11-25 16:34:15Z tv.raman.tv $
+;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Module for customizing Emacs info
 ;;; Keywords:emacspeak, audio interface to emacs
@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2011, T. V. Raman
+;;;Copyright (C) 1995 -- 2015, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -37,9 +37,9 @@
 
 ;;}}}
 ;;{{{ Introduction:
-
+;;; Commentary:
 ;;; This module extends and customizes the Emacs info reader.
-
+;;; Code:
 ;;}}}
 ;;{{{ requires
 (require 'emacspeak-preamble)
@@ -75,7 +75,7 @@
 ;;}}}
 ;;{{{ advice
 
-(defcustom  emacspeak-info-select-node-speak-chunk 'screenfull
+(defcustom  emacspeak-info-select-node-speak-chunk 'node
   "*Specifies how much of the selected node gets spoken.
 Possible values are:
 screenfull  -- speak the displayed screen
@@ -99,26 +99,21 @@ node -- speak the entire node."
   (let ((dtk-stop-immediately t ))
     (emacspeak-auditory-icon 'select-object)
     (cond
-     ((eq emacspeak-info-select-node-speak-chunk
-          'screenfull)
+     ((eq emacspeak-info-select-node-speak-chunk 'screenfull)
       (emacspeak-info-speak-current-window))
      ((eq emacspeak-info-select-node-speak-chunk 'node)
       (emacspeak-speak-buffer ))
      (t (emacspeak-speak-line)))))
-(loop for f in
-      '(info-display-manual Info-select-node)
-      do
-      (eval
-       `(defadvice ,f (after emacspeak pre act)
-          " Speak the selected node based on setting of
-emacspeak-info-select-node-speak-chunk"
-          (emacspeak-info-visit-node))))
 
-(defadvice info (after emacspeak pre act)
-  "Cue user that info is up."
-  (when (ems-interactive-p )
-    (emacspeak-auditory-icon 'help)
-    (emacspeak-speak-line)))
+(loop
+ for f in
+ '(info info-display-manual Info-select-node Info-goto-node info-emacs-manual)
+ do
+ (eval
+  `(defadvice ,f (after emacspeak pre act)
+     " Speak the selected node based on setting of
+emacspeak-info-select-node-speak-chunk"
+     (emacspeak-info-visit-node))))
 
 (defadvice Info-scroll-up (after emacspeak pre act)
   "Speak the screenful."
@@ -157,6 +152,22 @@ and then cue the next selected buffer."
   "Speak the line. "
   (when (ems-interactive-p )
     (emacspeak-speak-line)))
+;;;###autoload
+(defun emacspeak-info-wizard (node-spec )
+  "Read a node spec from the minibuffer and launch
+Info-goto-node.
+See documentation for command `Info-goto-node' for details on
+node-spec."
+  (interactive
+   (list
+    (let ((completion-ignore-case t))
+      (info-initialize)
+      (completing-read "Node: "
+                       (Info-build-node-completions
+                        (completing-read "File: " (info--manual-names nil)
+                                         nil t))))))
+  (Info-goto-node node-spec)
+  (emacspeak-info-visit-node))
 
 ;;}}}
 ;;{{{ Speak header line if hidden
@@ -186,17 +197,6 @@ and then cue the next selected buffer."
 ;;}}}
 ;;{{{ info wizard
 ;;;###autoload
-(defun emacspeak-info-wizard (node-spec )
-  "Read a node spec from the minibuffer and launch
-Info-goto-node.
-See documentation for command `Info-goto-node' for details on
-node-spec."
-  (interactive
-   (list
-    (read-from-minibuffer "Node: "
-                          "(")))
-  (Info-goto-node node-spec)
-  (emacspeak-info-visit-node))
 
 ;;}}}
 

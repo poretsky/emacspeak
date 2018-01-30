@@ -1,5 +1,5 @@
 ;;; emacspeak-etable.el --- Speech enable table.el
-;;; $Id: emacspeak-etable.el 8260 2013-03-28 15:21:49Z tv.raman.tv $
+;;; $Id$
 ;;; $Author: tv.raman.tv $ 
 ;;; DescriptionEmacspeak extensions for table.el
 ;;; Keywords:emacspeak, audio interface to emacs Tables
@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2011, T. V. Raman 
+;;;Copyright (C) 1995 -- 2015, T. V. Raman 
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved. 
 ;;;
@@ -38,10 +38,10 @@
 ;;}}}
 
 ;;{{{  Introduction:
-
+;;; Commentary:
 ;;; table.el provides rich table editing for emacs.
 ;;; this module speech-enables table.el
-
+;;; Code:
 ;;}}}
 ;;{{{ required modules 
 
@@ -63,7 +63,7 @@
           (define-key table-cell-map k '*table--cell-self-insert-command ))
     (loop for k in
           '(
-            ([(shift tab)] table-backward-cell)
+            ("S-TAB" table-backward-cell)
             ("\C-e." emacspeak-etable-speak-cell))
           do
           (emacspeak-keymap-update table-cell-map k))))

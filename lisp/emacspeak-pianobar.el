@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2011, T. V. Raman
+;;;Copyright (C) 1995 -- 2015, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -224,6 +224,8 @@ If electric mode is on, keystrokes invoke pianobar commands directly."
 ;;}}}
 
 (provide 'emacspeak-pianobar)
+;;; reload pianobar to fix our vol-change commands.
+(load-library "pianobar")
 ;;{{{ end of file
 
 ;;; local variables:

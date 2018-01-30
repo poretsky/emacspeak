@@ -1,5 +1,5 @@
 ;;; emacspeak-todo-mode.el --- speech-enable todo-mode
-;;; $Id: emacspeak-todo-mode.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
+;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description: todo-mode  for maintaining todo lists 
 ;;; Keywords: Emacspeak, todo-mode 
@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (c) 1995 -- 2011, T. V. Raman
+;;; Copyright (c) 1995 -- 2015, T. V. Raman
 ;;; All Rights Reserved. 
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -43,11 +43,11 @@
 (require 'emacspeak-preamble)
 ;;}}}
 ;;{{{ Introduction:
-
+;;; Commentary:
 ;;; todo-mode (part of Emacs 21) provides todo-lists that can be
 ;;; integrated with the Emacs calendar.
-;;; This module speech-enables tood-mode
-
+;;; This module speech-enables todo-mode
+;;; Code:
 ;;}}}
 ;;{{{  Advice interactive commands:
 

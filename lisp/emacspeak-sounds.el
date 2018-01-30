@@ -1,5 +1,5 @@
 ;;; emacspeak-sounds.el --- Defines Emacspeak auditory icons
-;;; $Id: emacspeak-sounds.el 9562 2014-11-15 17:13:41Z tv.raman.tv $
+;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Module for adding sound cues to emacspeak
 ;;; Keywords:emacspeak, audio interface to emacs, auditory icons
@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2011, T. V. Raman
+;;;Copyright (C) 1995 -- 2015, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -226,10 +226,8 @@ Do not set this by hand;
   (interactive
    (list
     (expand-file-name
-     (read-directory-name "Theme: "
-                          emacspeak-sounds-directory))))
-  (declare (special emacspeak-sounds-current-theme
-                    emacspeak-sounds-themes-table))
+     (read-directory-name "Theme: " emacspeak-sounds-directory))))
+  (declare (special emacspeak-sounds-current-theme emacspeak-sounds-themes-table))
   (setq theme (expand-file-name theme emacspeak-sounds-directory))
   (unless (file-directory-p theme)
     (setq theme  (file-name-directory theme)))
@@ -264,8 +262,7 @@ Do not set this by hand;
                                (emacspeak-get-sound-filename sound-name ))))
 
 ;;}}}
-;;{{{  native player (emacs 21)
-
+;;{{{  native player (
 ;;;###autoload
 (defun emacspeak-native-auditory-icon (sound-name)
   "Play auditory icon using native Emacs player."
@@ -281,8 +278,8 @@ Do not set this by hand;
   "Serve auditory icon SOUND-NAME."
   (declare (special dtk-speaker-process))
   (process-send-string dtk-speaker-process
-                         (format "p %s\n"
-                                 (emacspeak-get-sound-filename sound-name ))))
+                       (format "p %s\n"
+                               (emacspeak-get-sound-filename sound-name ))))
 
 ;;}}}
 ;;{{{  Play an icon
@@ -296,13 +293,26 @@ Do not set this by hand;
   "Produce auditory icon SOUND-NAME."
   (declare (special emacspeak-play-program emacspeak-play-args))
   (let ((process-connection-type nil))
-             (start-process
-              emacspeak-play-program nil emacspeak-play-program
-              emacspeak-play-args
-              (emacspeak-get-sound-filename sound-name)
-              "&")
-           (error
-            (message (error-message-string err)))))
+    (start-process
+     emacspeak-play-program nil emacspeak-play-program
+     emacspeak-play-args
+     (emacspeak-get-sound-filename sound-name)
+     "&")))
+
+;;;###autoload
+(defcustom emacspeak-soxplay-command 
+  (when(executable-find "play")
+    (format "%s -v 2 %%s  earwax &" (executable-find "play")))
+  "Name of play executable from SoX"
+  :group 'emacspeak-sounds
+  :type 'string)
+(defun emacspeak-soxplay-auditory-icon (sound-name)
+  "Produce auditory icon SOUND-NAME.
+This uses SoX play and is specifically for use with headphones."
+  (declare (special emacspeak-soxplay-command))
+  (let ((icon (emacspeak-get-sound-filename sound-name)))
+    (call-process shell-file-name nil nil nil shell-command-switch
+                  (format emacspeak-soxplay-command icon))))
 
 ;;}}}
 ;;{{{  setup play function
@@ -312,6 +322,7 @@ Do not set this by hand;
 play : Launches play-program to play.
 Serve: Send a command to the speech-server to play.
 Queue : Add auditory icon to speech queue.
+soxplay: Use sox to apply effect earwax for headphones.
 Native : Use Emacs' builtin sound support.
 Use Serve when working with remote speech servers."
   :group 'emacspeak-sounds
@@ -319,6 +330,7 @@ Use Serve when working with remote speech servers."
           (const emacspeak-play-auditory-icon)
           (const emacspeak-serve-auditory-icon)
           (const emacspeak-native-auditory-icon)
+          (const emacspeak-soxplay-auditory-icon)
           (const emacspeak-queue-auditory-icon)))
 
 ;;;###autoload

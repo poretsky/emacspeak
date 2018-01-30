@@ -1,5 +1,5 @@
 ;;; emacspeak-custom.el --- Speech enable interactive Emacs customization 
-;;; $Id: emacspeak-custom.el 9115 2014-04-30 16:12:41Z tv.raman.tv $
+;;; $Id$
 ;;; $Author: tv.raman.tv $ 
 ;;; Description: Auditory interface to custom
 ;;; Keywords: Emacspeak, Speak, Spoken Output, custom
@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (c) 1995 -- 2011, T. V. Raman
+;;; Copyright (c) 1995 -- 2015, T. V. Raman
 ;;; All Rights Reserved. 
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -41,15 +41,14 @@
 ;;{{{  Required modules
 
 (require 'emacspeak-preamble)
-(eval-when-compile (load-library "cus-edit")
-                   (provide 'cus-edit))
+(require 'cus-edit)
 ;;}}}
 ;;{{{  Introduction
-
+;;; Commentary:
 ;;;Advise custom to speak.
 ;;; most of the work is actually done by emacspeak-widget.el
 ;;; which speech-enables the widget libraries.
-
+;;; Code:
 ;;}}}
 
 ;;{{{ advice
@@ -207,11 +206,10 @@
 ;;}}}
 ;;{{{  custom navigation
 
-(defcustom emacspeak-custom-group-regexp
+(defvar emacspeak-custom-group-regexp
   "^/-"
-  "Pattern identifying start of custom group."
-  :type 'regexp
-  :group 'emacspeak-custom)
+  "Pattern identifying start of custom group.")
+
 ;;;###autoload
 (defun emacspeak-custom-goto-group ()
   "Jump to custom group when in a customization buffer."
@@ -224,11 +222,10 @@
     (emacspeak-auditory-icon 'large-movement)
     (emacspeak-speak-line)))
 
-(defcustom emacspeak-custom-toolbar-regexp
+(defvar emacspeak-custom-toolbar-regexp
   "^Operate on everything in this buffer:"
-  "Pattern that identifies toolbar section."
-  :type 'regexp
-  :group 'emacspeak-custom)
+  "Pattern that identifies toolbar section.")
+
 ;;;###autoload
 (defun emacspeak-custom-goto-toolbar ()
   "Jump to custom toolbar when in a customization buffer."

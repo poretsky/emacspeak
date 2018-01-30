@@ -1,5 +1,5 @@
 ;;; emacspeak-view.el --- Speech enable View mode -- Efficient browsing of read-only content
-;;; $Id: emacspeak-view.el 8260 2013-03-28 15:21:49Z tv.raman.tv $
+;;; $Id$
 ;;; $Author: tv.raman.tv $ 
 ;;; DescriptionEmacspeak extensions for view
 ;;; Keywords:emacspeak, audio interface to emacs, view-mode
@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2011, T. V. Raman 
+;;;Copyright (C) 1995 -- 2015, T. V. Raman 
 ;;; Copyright (c) 1996 by T. V. Raman 
 ;;; All Rights Reserved. 
 ;;;
@@ -38,9 +38,9 @@
 ;;}}}
 
 ;;{{{  Introduction:
-
+;;; Commentary:
 ;;; Provide additional advice to view-mode
-
+;;; Code:
 ;;}}}
 ;;{{{ requires
 (require 'emacspeak-preamble)
@@ -75,6 +75,7 @@
 
 (defadvice view-mode (after emacspeak pre act comp)
   "Announce what happened"
+  (declare (special view-mode-map))
   (when (ems-interactive-p )
     (emacspeak-auditory-icon 'open-object)
     (emacspeak-speak-load-directory-settings)
@@ -330,7 +331,6 @@ keybindings for view mode")
   (define-key view-mode-map "\M-p" 'outline-previous-visible-heading)
   (define-key view-mode-map " " 'scroll-up)
   (define-key view-mode-map "\d" 'scroll-down)
-  (define-key view-mode-map "P" 'dtk-pause)
   (define-key view-mode-map "R" 'dtk-resume)
   (define-key view-mode-map "S" 'dtk-stop)
   (define-key view-mode-map "t" 'emacspeak-view-line-to-top)

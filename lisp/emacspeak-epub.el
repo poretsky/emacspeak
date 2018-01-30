@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (C) 1999, 2011 T. V. Raman <raman@cs.cornell.edu>
+;;; Copyright (C) 1995 -- 2015, T. V. Raman
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -224,9 +224,10 @@
   (unless   (emacspeak-epub-p epub) (error "Invalid epub"))
   (let ((base (emacspeak-epub-base epub))
         (content nil)
+        (emacspeak-xslt-options "--nonet --novalid")
+        (emacspeak-we-xsl-p nil)
         (default-process-coding-system (cons 'utf-8 'utf-8))
-        (coding-system-for-read 'utf-8)
-        )
+        (coding-system-for-read 'utf-8))
     (unless (string-match (format "^%s" base) element)
       (setq element (concat base element)))
     (setq content (emacspeak-epub-get-contents epub element))
@@ -242,10 +243,9 @@
          (emacspeak-speak-rest-of-buffer))
      'at-end)
     (with-current-buffer content
-      (emacspeak-webutils-with-xsl-environment
-       style nil
-       "--nonet --novalid"; options
-       (browse-url-of-buffer)))))
+      (when style
+        (emacspeak-xslt-region style   (point-min) (point-max)))
+      (browse-url-of-buffer))))
 
 (defvar emacspeak-epub-files-command
   (format "%s -1 %%s | grep \.html*$ | sort" emacspeak-epub-zip-info)
@@ -666,9 +666,7 @@ Suitable for text searches."
                           (shell-quote-argument f)))
             (insert (shell-command-to-string command ))
             (goto-char (point-max)))
-                                        ;(eww-display-html  'utf-8 "")
-      )
-    (switch-to-buffer buffer)))
+      (browse-url-of-buffer))))
 
 (defvar emacspeak-epub-google-search-template
   "http://books.google.com/books/feeds/volumes?min-viewability=full&epub=epub&q=%s"
@@ -676,7 +674,7 @@ Suitable for text searches."
 
 ;;;###autoload
 (defun emacspeak-epub-google (query)
-  "Search for Epubs from Gooble Books."
+  "Search for Epubs from Google Books."
   (interactive "sGoogle Books Query: ")
   (declare (special emacspeak-epub-google-search-template))
   (emacspeak-feeds-atom-display
@@ -790,7 +788,7 @@ Optional interactive prefix arg author-first prints author at the
   (emacspeak-auditory-icon 'task-done))
 
 (define-derived-mode emacspeak-epub-mode special-mode
-  "EPub Interaction On The Emacspeak Audio Desktop"
+                     "EPub Interaction On The Emacspeak Audio Desktop"
   "An EPub Front-end.
 Letters do not insert themselves; instead, they are commands.
 \\<emacspeak-epub-mode-map>
@@ -814,12 +812,12 @@ Letters do not insert themselves; instead, they are commands.
         ("\C-a" emacspeak-epub-bookshelf-add-directory)
         ("\C-d" emacspeak-epub-bookshelf-remove-directory)
         ("\C-k" emacspeak-epub-delete)
-        ("\C-l" emacspeak-epub-bookshelf-redraw)
+        ("C-l" emacspeak-epub-bookshelf-redraw)
         ("\C-m" emacspeak-epub-open)
         ("\C-o" emacspeak-epub-bookshelf-open-epub)
         ("\C-x\C-q" emacspeak-epub-bookshelf-refresh)
         ("\C-x\C-s" emacspeak-epub-bookshelf-save)
-        ("\M-s" emacspeak-epub-bookshelf-save)
+        ("M-s" emacspeak-epub-bookshelf-save)
         ("a" emacspeak-epub-bookshelf-add-epub)
         ("b" emacspeak-epub-bookshelf-open)
         ("c" emacspeak-epub-bookshelf-clear)
@@ -832,7 +830,7 @@ Letters do not insert themselves; instead, they are commands.
         ("p" previous-line)
         ("r" emacspeak-epub-bookshelf-rename)
         ("t" emacspeak-epub-fulltext)
-        ([return] emacspeak-epub-open)
+        ("RET" emacspeak-epub-open)
         )
       do
       (emacspeak-keymap-update emacspeak-epub-mode-map k))
@@ -1072,7 +1070,7 @@ Searches for matches in both  Title and Author."
     (dtk-speak-and-echo  (format "Added %d books" (length results)))))
 
 (define-derived-mode emacspeak-calibre-mode special-mode
-  "Calibre Interaction On The Emacspeak Audio Desktop"
+                     "Calibre Interaction On The Emacspeak Audio Desktop"
   "A Calibre Front-end.
 Letters do not insert themselves; instead, they are commands.
 \\<emacspeak-calibre-mode-map>

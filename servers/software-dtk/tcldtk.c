@@ -1,4 +1,4 @@
-/*$Id: tcldtk.c 4029 2006-07-18 13:00:36Z raman $*/
+/*$Id$*/
 /* <copyright*/
 /**
  *Copyright (C) 1995 -- 2003, T. V. Raman 

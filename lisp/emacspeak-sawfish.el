@@ -1,5 +1,5 @@
 ;;; emacspeak-sawfish.el --- speech-enable sawfish mode
-;;; $Id: emacspeak-sawfish.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
+;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak extension to speech-enable
 ;;; sawfish mode
@@ -17,7 +17,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (C) 1995 -- 2011, T. V. Raman<raman@cs.cornell.edu>
+;;; Copyright (C) 1995 -- 2015, T. V. Raman<raman@cs.cornell.edu>
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -44,7 +44,7 @@
 (require 'emacspeak-preamble)
 ;;}}}
 ;;{{{  Introduction:
-
+;;; Commentary:
 ;;; Sawfish is a Gnome and KDE compliant window manager.
 ;;; It is the window manager I use and is fully configurable
 ;;; via Lisp.

@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (C) 1999, 2011 T. V. Raman <raman@cs.cornell.edu>
+;;; Copyright (C) 1995 -- 2015, T. V. Raman
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -90,10 +90,13 @@
 (defun emacspeak-feeds-cache-feeds ()
   "Cache feeds in emacspeak-feeds in a hash table."
   (declare (special emacspeak-feeds))
-    (loop
+  (loop
    for f in emacspeak-feeds
    do
-   (puthash (second f) f emacspeak-feeds-feeds-table)))
+   (set-text-properties 0 (length (second f)) nil (second f))
+   (puthash
+    (second f); strip props 
+    f emacspeak-feeds-feeds-table)))
 
 (defcustom emacspeak-feeds
   '(
@@ -118,9 +121,9 @@
        sym
        (sort val #'(lambda (a b)
                      (string-lessp (first a) (first b)))))
-       (emacspeak-feeds-cache-feeds))
+      (emacspeak-feeds-cache-feeds))
   :group 'emacspeak-feeds)
-   
+
 (defsubst emacspeak-feeds-added-p (feed-url)
   "Check if this feed has been added before."
   (declare (special emacspeak-feeds-feeds-table))
@@ -171,7 +174,7 @@ Archiving is useful when synchronizing feeds across multiple machines."
            emacspeak-feeds-archive-file))
 
 ;;;###autoload
-(defun emacspeak-feeds-restoere-feeds ()
+(defun emacspeak-feeds-restore-feeds ()
   "Restore list of subscribed fees from  personal resource directory.
 Archiving is useful when synchronizing feeds across multiple machines."
   (interactive)
@@ -324,7 +327,25 @@ Argument `feed' is a feed structure (label url type)."
 
 (define-button-type 'emacspeak-feeds-feed-button
   'follow-link t
-  'link nil)
+  'action 'emacspeak-feeds-feed-button-action 
+  'link nil ;site url 
+  'url nil; site url
+  )
+
+(defun emacspeak-feeds-feed-button-action (button)
+  "Open feed associated with this button."
+  (let ((url (button-get button 'url))
+        (link (button-get button 'link)))
+    (cond
+     ( (zerop (length url)) ; missing feed url 
+       (browse-url (button-get button 'link)))
+     ((string-match "atom" url)
+      (emacspeak-feeds-atom-display url))
+     ((string-match "blogspot" url)
+      (emacspeak-feeds-atom-display url))
+     ((string-match "rss" url)
+      (emacspeak-feeds-rss-display url))
+     (t (emacspeak-feeds-rss-display url)))))
 
 ;;;###autoload
 (defun emacspeak-feeds-find-feeds (query)
@@ -348,7 +369,8 @@ Argument `feed' is a feed structure (label url type)."
        (insert (format "%d\t" position))
        (insert-text-button
         (emacspeak-webutils-html-string (cdr (assoc 'title f)))
-        'link  (cdr (assoc 'url f))
+        'link  (cdr (assoc 'link f))
+        'url  (cdr (assoc 'url f))
         'type 'emacspeak-feeds-feed-button)
        (insert "\n")
        (setq start (point))

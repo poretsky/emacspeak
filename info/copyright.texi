@@ -1,4 +1,4 @@
-@c $Id: copyright.texi 5711 2008-08-02 18:04:49Z tv.raman.tv $
+@c $Id$
 @node Copyright
 @chapter Copyright
 

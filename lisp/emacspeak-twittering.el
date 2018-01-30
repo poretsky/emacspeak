@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2011, T. V. Raman
+;;;Copyright (C) 1995 -- 2015, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -47,7 +47,7 @@
 ;;; Note: As of Thu Sep  2 08:11:25 PDT 2010
 ;;; twit.el is broken.
 
-;;; Advices interactive functions to speak
+;;; Advises interactive functions to speak
 
 ;;}}}
 ;;{{{  Required modules
@@ -55,7 +55,7 @@
 (require 'cl)
 (declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
-
+(require 'twittering-mode "twittering-mode" 'no-error )
 ;;}}}
 ;;{{{ Map->Voice Mappings:
 
@@ -179,17 +179,12 @@
       '(twittering-get-and-render-timeline
         twittering-http-default-sentinel
         twittering-http-post-default-sentinel
-        twittering-retrieve-single-tweet-sentinel)
+        twittering-http-get-default-sentinel twittering-retrieve-single-tweet-sentinel)
       do
       (eval
        `(defadvice ,f  (around emacspeak pre act comp)
           "Silence spoken messages while twitter is updating."
-          (let ((emacspeak-speak-messages nil)) ad-do-it))))
-
-(defadvice twittering-http-get-default-sentinel (around emacspeak pre act comp)
-  "Silence spoken messages while twitter is updating."
-  (let ((emacspeak-speak-messages nil))
-    ad-do-it))
+          (ems-with-messages-silenced ad-do-it))))
 
 ;;}}}
 ;;{{{ additional interactive comand
@@ -205,11 +200,13 @@
             (goto-char (next-single-property-change (point) 'uri))))
     (setq  url (get-text-property (point)  'uri))
     (and url (browse-url url))))
-(declaim (special twittering-mode-map))
-(define-key twittering-mode-map "." 'emacspeak-twittering-jump-to-following-url)
-(define-key twittering-mode-map "," 'emacspeak-twittering-speak-this-tweet)
-(define-key twittering-mode-map "?" 'twittering-search)
 
+(when (boundp 'twittering-mode-map)
+  (declaim (special twittering-mode-map))
+  (define-key twittering-mode-map "." 'emacspeak-twittering-jump-to-following-url)
+  (define-key twittering-mode-map "," 'emacspeak-twittering-speak-this-tweet)
+  (define-key twittering-mode-map "?" 'twittering-search)
+  )
 ;;}}}
 (provide 'emacspeak-twittering)
 ;;{{{ end of file

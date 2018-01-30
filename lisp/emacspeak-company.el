@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2007, 2011, T. V. Raman
+;;;Copyright (C) 1995 -- 2015, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -43,7 +43,7 @@
 ;;; Commentary:
 ;;; COMPANY -mode: Complete Anything Support for emacs.
 ;;; This module provides an Emacspeak Company Front-end,
-;;; And advices the needed interactive commands in Company.
+;;; And advises the needed interactive commands in Company.
 
 ;;}}}
 ;;{{{  Required modules

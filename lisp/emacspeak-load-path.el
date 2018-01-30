@@ -1,5 +1,5 @@
 ;;; emacspeak-load-path.el -- Setup Emacs load-path for compiling Emacspeak
-;;; $Id: emacspeak-load-path.el 9336 2014-08-18 01:26:04Z tv.raman.tv $
+;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Sets up load-path for emacspeak compilation and installation
 ;;; Keywords: Emacspeak, Speech extension for Emacs
@@ -14,7 +14,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2011, T. V. Raman
+;;;Copyright (C) 1995 -- 2015, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -56,6 +56,8 @@
 
 ;;; Notes:
 ;;; This implementation below appears to work for 99% of emacspeak.
+;;; Updating  the advice on call-interactively to remember the state of our flag
+;;; catches cases where the minibuffer is called recursively.
 
 (defvar ems-called-interactively-p nil
   "Flag recording interactive calls.")
@@ -75,11 +77,12 @@ property 'emacspeak on the function."
     (put f 'emacspeak t))
    (t nil)))
 
-(defadvice call-interactively (before emacspeak  pre act comp)
+(defadvice call-interactively (around emacspeak  pre act comp)
   "Set emacspeak  interactive flag if there is an advice."
-  (let ((f  (ad-get-arg 0)))
-    (when (ems-record-interactive-p f)
-      (setq ems-called-interactively-p f))))
+  (let ((ems-called-interactively-p ems-called-interactively-p))
+    (when (ems-record-interactive-p (ad-get-arg 0))
+      (setq ems-called-interactively-p (ad-get-arg 0)))
+    ad-do-it))
 
 (defsubst ems-interactive-p ()
   "Check our interactive flag.

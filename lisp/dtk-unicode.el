@@ -6,7 +6,7 @@
 ;;; Using patch from Lukas.
 ;;
 ;; Author: Lukas Loehrer <loehrerl |at| gmx.net>
-;; Version: $Id: dtk-unicode.el 8910 2014-03-22 00:10:41Z tv.raman.tv $
+;; Version: $Id$
 ;; Keywords:  TTS, Unicode
 
 ;;}}}
@@ -22,7 +22,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2011, T. V. Raman
+;;;Copyright (C) 1995 -- 2015, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -175,28 +175,23 @@ A handler returns a non-nil value if the   replacement was successful, nil other
   (setq dtk-unicode-charset-filter-regexp (dtk-unicode-build-skip-regexp dtk-unicode-untouched-charsets)))
 
 (eval-and-compile
-  (if (> emacs-major-version 22)
-      (progn
-        (defmacro with-charset-priority (charsets &rest body)
-          "Execute BODY like `progn' with CHARSETS at the front of priority list.
+  (defmacro with-charset-priority (charsets &rest body)
+    "Execute BODY like `progn' with CHARSETS at the front of priority list.
 CHARSETS is a list of charsets.  See
 `set-charset-priority'.  This affects the implicit sorting of lists of
 charsets returned by operations such as `find-charset-region'."
-          (let ((current (make-symbol "current")))
-            `(let ((,current (charset-priority-list)))
-               (apply #'set-charset-priority ,charsets)
-               (unwind-protect
-                   (progn ,@body)
-                 (apply #'set-charset-priority ,current)))))
+    (let ((current (make-symbol "current")))
+      `(let ((,current (charset-priority-list)))
+         (apply #'set-charset-priority ,charsets)
+         (unwind-protect
+             (progn ,@body)
+           (apply #'set-charset-priority ,current)))))
 
-        (defun dtk-unicode-char-in-charsets-p  (char charsets)
-          "Return t if CHAR is a member of one in the charsets in CHARSETS."
-          (with-charset-priority charsets
-                                 (memq (char-charset char) charsets))))
-    ;; emacs-major-version <= 22
-    (defun dtk-unicode-char-in-charsets-p (char charsets)
-      "Return t if CHAR is a member of one in the charsets in CHARSETS."
-      (memq (char-charset char) charsets))))
+  (defun dtk-unicode-char-in-charsets-p  (char charsets)
+    "Return t if CHAR is a member of one in the charsets in CHARSETS."
+    (with-charset-priority charsets
+                           (memq (char-charset char) charsets)))
+  )
 
 (defsubst dtk-unicode-char-untouched-p (char)
   "Return t if char is a member of one of the charsets in dtk-unicode-untouched-charsets."

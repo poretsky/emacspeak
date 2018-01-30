@@ -1,5 +1,5 @@
 ;;; emacspeak-setup.el --- Setup Emacspeak environment --loaded to start Emacspeak
-;;; $Id: emacspeak-setup.el 9594 2014-11-26 01:17:48Z tv.raman.tv $
+;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description:  File for setting up and starting Emacspeak
 ;;; Keywords: Emacspeak, Setup, Spoken Output
@@ -15,7 +15,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;;Copyright (C) 1995 -- 2011, T. V. Raman
+;;;Copyright (C) 1995 -- 2015, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -98,32 +98,25 @@ pronunciation dictionaries are stored. ")
 
 ;;;###autoload
 (defconst emacspeak-codename
-  "NiceDog"
+  "AnswerDog"
   "Code name of present release.")
+;;;###autoload
+(defsubst emacspeak-setup-get-revision ()
+  "Get SHA checksum of current revision that is suitable for spoken output."
+  (let ((default-directory emacspeak-directory))
+    (if (and (executable-find "git")
+             (file-exists-p (expand-file-name ".git"  emacspeak-directory)))
+        (substring 
+         (shell-command-to-string  "git show HEAD | head -1 | cut -b 8- ")
+         0 6)
+      "")))
 
 ;;;###autoload
 (defconst emacspeak-version
   (format
-   "41.0 %s:  %s"
+   "42.0 %s:  %s"
    emacspeak-codename
-   (cond
-    ((file-exists-p emacspeak-readme-file)
-     (let ((buffer (find-file-noselect emacspeak-readme-file))
-           (revision nil))
-       (save-current-buffer
-         (set-buffer buffer)
-         (goto-char (point-min))
-         (setq revision
-               (format "Revision %s"
-                       (or
-                        (nth 2 (split-string
-                                (buffer-substring-no-properties
-                                 (line-beginning-position)
-                                 (line-end-position))))
-                        "unknown"))))
-       (kill-buffer buffer)
-       revision))
-    (t "")))
+   (emacspeak-setup-get-revision))
   "Version number for Emacspeak.")
 
 ;;}}}
@@ -169,10 +162,7 @@ pronunciation dictionaries are stored. ")
 ;;;###autoload
 (defun emacspeak-tts-startup-hook ()
   "Default hook function run after TTS is started."
-  (declare (special tts-default-speech-rate))
-  (tts-configure-synthesis-setup)
-  (dtk-set-rate tts-default-speech-rate t)
-  (dtk-interp-sync))
+  (tts-configure-synthesis-setup))
 
 (add-hook 'dtk-startup-hook 'emacspeak-tts-startup-hook)
 
@@ -183,8 +173,7 @@ pronunciation dictionaries are stored. ")
                     header-line-format
                     emacspeak-header-line-format))
   (when emacspeak-use-header-line
-    (setq header-line-format
-          emacspeak-header-line-format)))
+    (setq header-line-format emacspeak-header-line-format)))
 
 (defun emacspeak-tvr-startup-hook ()
   "Emacspeak startup hook that I use."

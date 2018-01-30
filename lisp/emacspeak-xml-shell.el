@@ -1,5 +1,5 @@
 ;;; emacspeak-xml-shell.el --- Implements a simple XML browser
-;;; $Id: emacspeak-xml-shell.el 8441 2013-10-23 00:59:13Z tv.raman.tv $
+;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Contains  xml-shell
 ;;; Keywords: Emacspeak,  Audio Desktop Xml-Shell
@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2011, T. V. Raman 
+;;;Copyright (C) 1995 -- 2015, T. V. Raman 
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -39,13 +39,13 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;{{{  introduction
-
+;;; Commentary:
 ;;; Use xmllint from package libxml2 to implement 
 ;;; an XML browser.
 ;;; Uses the interactive shell provided by xmllint to do the hard
 ;;; work.
 ;;; Results of traversal are transformed  using xsltproc from libxslt 
-
+;;; Code:
 ;;}}}
 ;;{{{  Required modules
 
@@ -79,7 +79,7 @@ customize the default to be xsh."
 ;;{{{ xml browse mode
 
 (define-derived-mode emacspeak-xml-shell-mode comint-mode 
-  "XML Shell "
+                     "XML Shell "
   "XML Shell\n\n
 Interactive XML browser.
 \\{emacspeak-xml-shell-mode-map}")

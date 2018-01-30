@@ -1,5 +1,5 @@
 ;;; gblogger.el ---  new Atom Blogger API client
-;;; $Id: gblogger.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
+;;; $Id$
 ;;; $Author:$
 ;;; Description:  ATOM Blogger API
 ;;; Keywords: g-client, Blogger Atom API
@@ -47,11 +47,11 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Commentary:
 ;;{{{  introduction
-
+;;; Commentary:
 ;;; Simple wrapper using Curl to post/edit Blogger.com Blogs
 ;;; posts are edited as XML
 ;;;nxml-mode is highly recommend and will be used if available.
-
+;;; Code:
 ;;;Usage:
 ;;; gblogger-blog -- Show feed of current user's blogs
 ;;; gblogger-new-entry -- Create a new post
@@ -185,7 +185,7 @@ from the server.")
 
 ;;;###autoload
 (defun gblogger-edit-entry (url)
-  "Retrieve entry and prepare it for editting.
+  "Retrieve entry and prepare it for editing.
 The retrieved entry is placed in a buffer ready for editing.
 `url' is the URL of the entry."
   (interactive
@@ -253,7 +253,7 @@ The retrieved entry is placed in a buffer ready for editing.
 
 ;;;###autoload
 (defun gblogger-add-label (label)
-  "Adds labels to gblogger entry being editted."
+  "Adds labels to gblogger entry being edited."
   (interactive "sLabel: ")
   (save-excursion
     (goto-char (point-min))

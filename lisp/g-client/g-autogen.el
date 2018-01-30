@@ -1,5 +1,5 @@
 ;;; g-autogen.el --- Generate autoloads for G
-;;; $Id: g-autogen.el 5798 2008-08-22 17:35:01Z tv.raman.tv $
+;;; $Id$
 ;;; $Author: raman $
 ;;; Description:  autoload Wizard for the G client
 ;;; Keywords: Google Services

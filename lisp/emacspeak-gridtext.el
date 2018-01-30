@@ -1,5 +1,5 @@
 ;;; emacspeak-gridtext.el --- Overlay Grids To filter columnar text
-;;; $Id: emacspeak-gridtext.el 9227 2014-06-01 20:12:06Z tv.raman.tv $
+;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak module for laying grids on text
 ;;; Keywords: Emacspeak, gridtext
@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (C) 1999, 2011 T. V. Raman <raman@cs.cornell.edu>
+;;; Copyright (C) 1995 -- 2015, T. V. Raman
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -44,7 +44,7 @@
 
 ;;; Emacspeak's table browsing mode allows one to
 ;;; efficiently access  content that is tabular in nature.
-;;; That module also provides functions for infering table
+;;; That module also provides functions for inferring table
 ;;; structure where possible.
 ;;; Often, such structure is hard to infer automatically
 ;;; --but might be known to the user 

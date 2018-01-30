@@ -1,5 +1,5 @@
 ;;; emacspeak-reftex.el --- speech enable reftex
-;;; $Id: emacspeak-reftex.el 8574 2013-11-24 02:01:07Z tv.raman.tv $
+;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak extension to speech enable
 ;;; reftex 
@@ -17,7 +17,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (C) 1995 -- 2011, T. V. Raman<raman@cs.cornell.edu>
+;;; Copyright (C) 1995 -- 2015, T. V. Raman<raman@cs.cornell.edu>
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.

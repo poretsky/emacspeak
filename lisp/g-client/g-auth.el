@@ -1,5 +1,5 @@
 ;;; g-auth.el --- Google Authentication Module
-;;;$Id: g-auth.el 8374 2013-07-27 19:33:27Z tv.raman.tv $
+;;;$Id$
 ;;; $Author: raman $
 ;;; Description:  Google Authentication Module
 ;;; Keywords: Google   Auth
@@ -48,10 +48,11 @@
 ;;; Commentary:
 ;;{{{  introduction
 
+;;; Commentary:
 ;;; Google Auth using Curl
 ;;; Implements an authentication component for use in Google
 ;;; Clients -- see http://code.google.com/apis/accounts/AuthForInstalledApps.html
-
+;;; Code:
 ;;; Steps:
 ;;; 0) Connect via https to
 ;;; https://www.google.com/accounts/ClientLogin?service=%s

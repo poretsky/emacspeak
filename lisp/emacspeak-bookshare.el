@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;;Copyright (C) 1995 -- 2011, T. V. Raman
+;;;Copyright (C) 1995 -- 2015, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -42,10 +42,13 @@
 ;;{{{  introduction
 
 ;;; Commentary:
-;;; BOOKSHARE == http://www.bookshare.org provides book access to print-disabled users.
+;;; BOOKSHARE == http://www.bookshare.org
+;;; provides book access to print-disabled users.
 ;;; It provides a simple Web  API http://developer.bookshare.org
 ;;; This module implements an Emacspeak Bookshare client.
 ;;; For now, users will need to get their own API key
+;;; This version needs Emacs with libxml2 support
+;;; You need Emacs 24.1 or higher.
 
 ;;; Code:
 ;;}}}
@@ -55,11 +58,12 @@
 (declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 (require 'dired)
+(require 'eww   nil 'noerror)
 (require 'browse-url)
 (require 'emacspeak-we)
 (require 'emacspeak-webutils)
 (require 'emacspeak-xslt)
-(require 'xml-parse)
+(require 'dom) ; Cloned from Emacs 25
 (require 'xml)
 (require 'derived)
 ;;}}}
@@ -68,9 +72,11 @@
 (defgroup emacspeak-bookshare nil
   "Bookshare Access on the Complete Audio Desktop."
   :group 'emacspeak)
-
+;;;###autoload
 (defcustom emacspeak-bookshare-api-key nil
-  "Web API  key for this application."
+  "Web API  key for this application.
+See http://developer.bookshare.org/docs for details on how to get
+  an API key. "
   :type
   '(choice :tag "Key: "
            (const :tag "Unspecified" nil)
@@ -83,6 +89,7 @@
                  (const :tag "None" nil)
                  (string :tag "Email"))
   :group 'emacspeak-bookshare)
+
 (defcustom emacspeak-bookshare-directory (expand-file-name "~/")
   "Customize this to the root of where books are organized."
   :type 'directory
@@ -114,29 +121,6 @@ This is used by the various Bookshare view commands to display
   :group 'emacspeak-bookshare)
 
 ;;}}}
-;;{{{ XML Compatibility:
-(unless (fboundp 'xml-substitute-numeric-entities)
-;;; cloned from xml.el in emacs 24
-  (defun xml-substitute-numeric-entities (string)
-    "Substitute SGML numeric entities by their respective utf characters.
-This function replaces numeric entities in the input STRING and
-returns the modified string.  For example \"&#42;\" gets replaced
-by \"*\"."
-    (if (and string (stringp string))
-        (let ((start 0))
-          (while (string-match "&#\\([0-9]+\\);" string start)
-            (condition-case nil
-                (setq string (replace-match
-                              (string (read (substring string
-                                                       (match-beginning 1)
-                                                       (match-end 1))))
-                              nil nil string))
-              (error nil))
-            (setq start (1+ (match-beginning 0))))
-          string)
-      nil)))
-
-;;}}}
 ;;{{{ Variables:
 
 (defvar emacspeak-bookshare-curl-program (executable-find "curl")
@@ -144,7 +128,9 @@ by \"*\"."
 
 (defvar emacspeak-bookshare-curl-common-options
   " --insecure "
-  "Common Curl options for Bookshare. Includes --insecure  as per Bookshare docs.")
+  "Common Curl options for Bookshare. Includes --insecure as per
+Bookshare docs."
+  )
 
 (defvar emacspeak-bookshare-api-base
   "https://api.bookshare.org"
@@ -152,10 +138,18 @@ by \"*\"."
 
 ;;}}}
 ;;{{{ Helpers:
+
+(defsubst emacspeak-bookshare-dom-clean-text (dom tag)
+  "Extract text from specified tag, and clean up entity references."
+  (xml-substitute-special
+   (xml-substitute-numeric-entities
+    (dom-text (dom-by-tag dom tag)))))
+
 (defsubst emacspeak-bookshare-assert ()
   "Error out if not in Bookshare mode."
   (unless (eq major-mode 'emacspeak-bookshare-mode)
     (error "Not in Bookshare Interaction.")))
+
 (defvar emacspeak-bookshare-md5-cached-token nil
   "Cache MD5 token for future use.")
 (defvar emacspeak-bookshare-password-cache nil
@@ -165,24 +159,26 @@ by \"*\"."
   "User password.
 Memoize token, and return token encoded using md5, and packaged
 with X-password HTTP header for use with Curl."
-  (declare (special emacspeak-bookshare-md5-cached-token emacspeak-bookshare-password-cache))
+  (declare (special emacspeak-bookshare-md5-cached-token
+                    emacspeak-bookshare-password-cache))
   (setq emacspeak-bookshare-password-cache
         (or  emacspeak-bookshare-password-cache
              (read-passwd
               (format "Bookshare password for %s: "
                       emacspeak-bookshare-user-id))))
-  (setq emacspeak-bookshare-md5-cached-token (md5 emacspeak-bookshare-password-cache))
+  (setq emacspeak-bookshare-md5-cached-token
+        (md5 emacspeak-bookshare-password-cache))
   (format "-H 'X-password: %s'" emacspeak-bookshare-md5-cached-token))
 
-(defsubst emacspeak-bookshare-rest-endpoint (operation operand &optional no-auth)
+(defsubst emacspeak-bookshare-rest-endpoint (operation operand &optional noauth)
   "Return  URL  end point for specified operation.
-Optional argument `no-auth' says no user auth needed."
+Optional argument `noauth' says no user auth needed."
   (declare (special emacspeak-bookshare-api-base emacspeak-bookshare-user-id))
   (format "%s/%s/%s/%s?api_key=%s"
           emacspeak-bookshare-api-base
           operation
           operand
-          (if no-auth
+          (if noauth
               ""
             (format "for/%s" emacspeak-bookshare-user-id))
           emacspeak-bookshare-api-key))
@@ -237,8 +233,6 @@ Argument id specifies content. Argument fmt = 0 for Braille, 1
   "Evaluate forms in a  ready to use temporary buffer."
   `(let ((buffer (get-buffer-create emacspeak-bookshare-scratch-buffer))
          (default-process-coding-system (cons 'utf-8 'utf-8))
-         (coding-system-for-read 'binary)
-         (coding-system-for-write 'binary)
          (buffer-undo-list t))
      (save-current-buffer
        (set-buffer buffer)
@@ -254,7 +248,8 @@ Argument id specifies content. Argument fmt = 0 for Braille, 1
                  nil shell-command-switch
                  command)
    (goto-char (point-min))
-   (read-xml)))
+   (libxml-parse-xml-region (point-min) (point-max))))
+
 (defvar emacspeak-bookshare-last-action-uri nil
   "Cache last API call URI.")
 
@@ -288,7 +283,7 @@ Optional argument 'no-auth says we dont need a user auth."
 (defsubst emacspeak-bookshare-generate-target (author title)
   "Generate a suitable filename target."
   (declare (special emacspeak-bookshare-downloads-directory))
-  (expand-file-name 
+  (expand-file-name
    (replace-regexp-in-string
     "[ _&\'\":()\;]+" "-"
     (format "%s-%s.zip" author title))
@@ -315,6 +310,8 @@ Optional argument 'no-auth says we dont need a user auth."
 (defvar emacspeak-bookshare-categories nil
   "Cached list of categories.")
 
+;;;temporary definition
+
 (defun emacspeak-bookshare-categories ()
   "Return memoized list of categories."
   (declare (special emacspeak-bookshare-categories))
@@ -323,18 +320,13 @@ Optional argument 'no-auth says we dont need a user auth."
    (setq
     emacspeak-bookshare-categories
     (let ((result
-           (emacspeak-bookshare-api-call
-            "reference/category/list" "" 'no-auth)))
-      (setq result (xml-tag-child result  "category"))
-      (setq result (xml-tag-child result "list"))
-      (setq result (xml-tag-children result))
-      (setq result
-            (remove-if-not
-             #'(lambda (c) (string= "result" (xml-tag-name c)))
-             result))
-      (loop for r in result
-            collect
-            (emacspeak-url-encode(cadr (second r))))))))
+           (dom-by-tag
+            (emacspeak-bookshare-api-call "reference/category/list" "" 'no-auth)
+            'result)))
+      (loop
+       for r in result collect
+       (emacspeak-url-encode (dom-text (dom-by-tag r  'name))))))))
+
 ;;;  Following actions return book metadata:
 
 (defsubst emacspeak-bookshare-isbn-search (query)
@@ -467,6 +459,7 @@ Optional interactive prefix arg prompts for a category to use as a filter."
 
 ;;}}}
 ;;{{{ Downloading Content:
+
 (defsubst emacspeak-bookshare-download-internal(url target)
   "Download content  to target location."
   (interactive)
@@ -494,9 +487,6 @@ Optional interactive prefix arg prompts for a category to use as a filter."
    target))
 
 ;;}}}
-;;{{{ Downloading Content:
-
-;;}}}
 ;;{{{ Actions Table:
 
 (defvar emacspeak-bookshare-action-table (make-hash-table :test #'equal)
@@ -514,7 +504,7 @@ Optional interactive prefix arg prompts for a category to use as a filter."
       (error "No handler defined for action %s" action)))
 
 (define-derived-mode emacspeak-bookshare-mode special-mode
-  "Bookshare Library Of Accessible Books And Periodicals"
+                     "Bookshare Library Of Accessible Books And Periodicals"
   "A Bookshare front-end for the Emacspeak desktop.
 
 The Emacspeak Bookshare front-end is launched by command
@@ -530,7 +520,7 @@ Search and download Bookshare material,
 Manage a local library of downloaded Bookshare content,
 And commands to easily read newer Daisy books from Bookshare.
 
-Here is a list of all emacspeak Bookshare commands along with their key-bindings:
+Here is a list of all emacspeak Bookshare commands  with their key-bindings:
 a Author Search
 A Author/Title Search
 t Title Search
@@ -550,33 +540,35 @@ b Browse
 
 (declaim (special emacspeak-bookshare-mode-map))
 
-(loop for a in
-      '(
-        ("+" emacspeak-bookshare-get-more-results)
-        ("P" emacspeak-bookshare-list-preferences)
-        ("S" emacspeak-bookshare-set-preference)
-        ("a" emacspeak-bookshare-author-search)
-        ("t" emacspeak-bookshare-title-search)
-        ("s" emacspeak-bookshare-fulltext-search)
-        (" " emacspeak-bookshare-action)
-        ("A" emacspeak-bookshare-title/author-search)
-        ("d" emacspeak-bookshare-since-search)
-        ("p" emacspeak-bookshare-browse-popular)
-        ("l" emacspeak-bookshare-browse-latest)
-        ("i" emacspeak-bookshare-isbn-search)
-        ("I" emacspeak-bookshare-id-search)
-        ("m" emacspeak-bookshare-periodical-list)
-        )
-      do
-      (progn
-        (emacspeak-bookshare-action-set (first a) (second a))
-        (define-key emacspeak-bookshare-mode-map (first a) 'emacspeak-bookshare-action)))
+(loop
+ for a in
+ '(
+   ("SPC" emacspeak-bookshare-action)
+   ("+" emacspeak-bookshare-get-more-results)
+   ("A" emacspeak-bookshare-title/author-search)
+   ("I" emacspeak-bookshare-id-search)
+   ("P" emacspeak-bookshare-list-preferences)
+   ("S" emacspeak-bookshare-set-preference)
+   ("a" emacspeak-bookshare-author-search)
+   ("d" emacspeak-bookshare-since-search)
+   ("i" emacspeak-bookshare-isbn-search)
+   ("l" emacspeak-bookshare-browse-latest)
+   ("m" emacspeak-bookshare-periodical-list)
+   ("p" emacspeak-bookshare-browse-popular)
+   ("s" emacspeak-bookshare-fulltext-search)
+   ("t" emacspeak-bookshare-title-search)
+   )
+ do
+ (progn
+   (emacspeak-bookshare-action-set (first a) (second a))
+   (define-key emacspeak-bookshare-mode-map (kbd (first a))
+     'emacspeak-bookshare-action)))
 
 ;;}}}
 ;;{{{ Bookshare XML  handlers:
 
 (defvar emacspeak-bookshare-handler-table
-  (make-hash-table :test #'equal)
+  (make-hash-table :test #'eq)
   "Table of handlers for processing  Bookshare response elements.")
 
 (defsubst emacspeak-bookshare-handler-set (element handler)
@@ -591,45 +583,34 @@ b Browse
     (if (fboundp handler) handler 'emacspeak-bookshare-recurse)))
 
 (defvar emacspeak-bookshare-response-elements
-  '("bookshare"
-    "version"
-    "metadata"
-    "messages"
-    "string"
-    "book"
-    "user"
-    "string" "downloads-remaining"
-    "id" "name" "value" "editable"
+  '(bookshare version metadata messages string
+              book user string downloads-remaining
+              id name value editable
+              periodical list page num-pages limit result)
+  "Bookshare response elements for which we have explicit handlers.")
 
-    "id" "name" "value" "editable"
-    "periodical"
-    "list"
-    "page"
-    "num-pages"
-    "limit"
-    "result")
-  "Bookshare response elements for which we have explicit
-  handlers.")
+(loop
+ for e in emacspeak-bookshare-response-elements
+ do
+ (emacspeak-bookshare-handler-set
+  e
+  (intern (format "emacspeak-bookshare-%s-handler" (symbol-name e)))))
 
-(loop for e in emacspeak-bookshare-response-elements
-      do
-      (emacspeak-bookshare-handler-set
-       e
-       (intern (format "emacspeak-bookshare-%s-handler" e))))
-
-(loop for container in
-      '("book" "list" "periodical" "user")
-      do
-      (eval
-       `(defun
-            ,(intern (format "emacspeak-bookshare-%s-handler" container))
-            (element)
-          "Process children silently."
-          (mapc #'emacspeak-bookshare-apply-handler (xml-tag-children element)))))
+(loop
+ for container in
+ '(book list periodical user)
+ do
+ (eval
+  `(defun
+       ,(intern (format "emacspeak-bookshare-%s-handler"
+                        (symbol-name container)))
+       (element)
+     "Process children silently."
+     (mapc #'emacspeak-bookshare-apply-handler (dom-children element)))))
 
 (defsubst emacspeak-bookshare-apply-handler (element)
   "Lookup and apply installed handler."
-  (let* ((tag (xml-tag-name element))
+  (let* ((tag (dom-tag element))
          (handler  (emacspeak-bookshare-handler-get tag)))
     (cond
      ((and handler (fboundp handler))
@@ -639,23 +620,23 @@ b Browse
 
 (defun emacspeak-bookshare-bookshare-handler (response)
   "Handle Bookshare response."
-  (unless (string-equal (xml-tag-name response) "bookshare")
+  (unless (eq (dom-tag response) 'bookshare)
     (error "Does not look like a Bookshare response."))
-  (mapc 'emacspeak-bookshare-apply-handler (xml-tag-children response)))
+  (mapc #'emacspeak-bookshare-apply-handler (dom-children response)))
 
 (defalias 'emacspeak-bookshare-version-handler 'ignore)
 
 (defun emacspeak-bookshare-recurse (tree)
   "Recurse down tree."
-  (insert (format "Begin %s:\n" (xml-tag-name tree)))
-  (mapc #'emacspeak-bookshare-apply-handler (xml-tag-children tree))
-  (insert (format "\nEnd %s\n" (xml-tag-name tree))))
+  (insert (format "Begin %s:\n" (dom-tag tree)))
+  (mapc #'emacspeak-bookshare-apply-handler (dom-children tree))
+  (insert (format "\nEnd %s\n" (dom-tag tree))))
 
 (defun emacspeak-bookshare-messages-handler (messages)
   "Handle messages element."
   (declare (special emacspeak-bookshare-last-action-uri))
   (let ((start (point)))
-    (mapc #'insert(rest  (xml-tag-child messages "string")))
+    (mapc #'insert(dom-text   (dom-child-by-tag messages 'string)))
     (insert "\t")
     (insert
      (mapconcat
@@ -669,51 +650,41 @@ b Browse
 
 (defun emacspeak-bookshare-page-handler (page)
   "Handle page element."
-  (insert (format "Page: %s\t" (second page))))
+  (insert (format "Page: %s\t" (dom-text page))))
 
 (defun emacspeak-bookshare-limit-handler (limit)
   "Handle limit element."
-  (insert (format "Limit: %s\t" (second limit))))
+  (insert (format "Limit: %s\t" (dom-text limit))))
 
 (defun emacspeak-bookshare-num-pages-handler (num-pages)
   "Handle num-pages element."
-  (insert (format "Num-Pages: %s\n" (second num-pages))))
+  (insert (format "Num-Pages: %s\n" (dom-text num-pages))))
 
 (defun emacspeak-bookshare-display-setting (result)
   "Display user setting result."
-  (mapc #'emacspeak-bookshare-apply-handler (xml-tag-children
-                                             result)))
+  (mapc #'emacspeak-bookshare-apply-handler (dom-children result)))
 
 (defun emacspeak-bookshare-result-handler (result)
   "Handle result element in Bookshare response."
   (insert "\n")
-  (let* ((children (xml-tag-children result))
-         (start (point))
-         (id (second (assoc "id" children)))
-         (title (second (assoc "title" children)))
-         (author (second (assoc "author" children)))
-         (directory nil)
-         (target nil)
-         (face nil)
-         (icon nil))
-    (cond
-     ((find-if
-       #'(lambda (e) (string= (car e) "editable"))
-       children) ; Handle user settings result:
-      (emacspeak-bookshare-display-setting result))
-     (t
-      (when title
-        (setq title
-              (xml-substitute-special
-               (xml-substitute-numeric-entities title))))
-      (when author
-        (setq author
-              (xml-substitute-special
-               (xml-substitute-numeric-entities author))))
-      (when (or author title)
+  (cond
+   ((dom-child-by-tag result 'editable) ;handle settings
+    (emacspeak-bookshare-display-setting result))
+   (t ;Book Result
+    (let ((start (point))
+          (id (dom-text (dom-child-by-tag result 'id)))
+          (title (emacspeak-bookshare-dom-clean-text result 'title))
+          (author (emacspeak-bookshare-dom-clean-text result 'author))
+          (directory nil)
+          (target nil)
+          (face nil)
+          (icon nil))
+      (unless ; We found a meaningful author or title
+          (and (zerop (length title)) (zerop (length author)))
         (setq
          directory (emacspeak-bookshare-generate-directory author title)
          target (emacspeak-bookshare-generate-target author title))
+                                        ;Render result with formatted properties
         (cond
          ((file-exists-p directory)
           (setq face 'highlight
@@ -729,76 +700,68 @@ b Browse
       (untabify start (point))
       (add-text-properties
        start (point)
-       (list 'author author 'title title 'id id
-             'directory directory
-             'target target
-             'face face
-             'auditory-icon icon))))))
+       (list
+        'author author 'title title 'id id
+        'directory directory 'target target
+        'face face 'auditory-icon icon))))))
 
 (defvar emacspeak-bookshare-metadata-filtered-elements
-  '("author"
-    "bookshare-id"
-    "brf"
-    "content-id"
-    "daisy"
-    "images"
-    "download-format"
-    "title")
+  '(author bookshare-id brf content-id
+           daisy images download-format title)
   "Elements in Bookshare Metadata that we filter.")
+
 (defvar emacspeak-bookshare-leaf-elements
-  (list "string" "downloads-remaining"
-        "id" "name" "value" "editable")
+  '(string downloads-remaining
+           id name value editable)
   "Leaf level elements, just print element name: children.")
 
-(loop for e in
-      emacspeak-bookshare-leaf-elements
-      do
-      (eval
-       `(defun
-            ,(intern (format "emacspeak-bookshare-%s-handler" e))
-            (element)
-          ,(format "Handle leaf-level element  %s. " e)
-          (insert (format "%s:\t" ,e))
-          (mapc #'insert (xml-tag-children  element))
-          (insert "\n"))))
+(loop
+ for e in
+ emacspeak-bookshare-leaf-elements
+ do
+ (eval
+  `(defun
+       ,(intern (format "emacspeak-bookshare-%s-handler" (symbol-name e)))
+       (element)
+     ,(format "Handle leaf-level element  %s. " e)
+     (insert (format "%s:\t" ,e))
+     (mapc #'insert (dom-children  element))
+     (insert "\n"))))
 
 (defun emacspeak-bookshare-metadata-handler (metadata)
   "Handle metadata element."
   (declare (special emacspeak-bookshare-metadata-filtered-elements))
-  (let*
-      ((children (xml-tag-children metadata))
-       (available
-        (remove-if-not
-         #'(lambda (c)
-             (string= (car c) "download-format"))
-         children))
-       (display
-        (remove-if
-         #'(lambda (c)
-             (member (car  c) emacspeak-bookshare-metadata-filtered-elements))
-         children)))
+  (let* ((children (dom-children metadata))
+         (available (dom-by-tag metadata 'download-format))
+         (display
+          (remove-if
+           #'(lambda (c)
+               (member (dom-tag c)
+                       emacspeak-bookshare-metadata-filtered-elements))
+           children)))
+    ;;; First render generic metadata items to display
     (mapc
      #'(lambda (child)
          (let ((start (point)))
-           (insert (format "%s: "
-                           (capitalize (first child))))
+           (insert
+            (format "%s: "
+                    (capitalize (symbol-name (dom-tag child)))))
            (put-text-property start (point)
                               'face 'highlight)
            (insert
             (format "%s\n"
                     (xml-substitute-special
                      (xml-substitute-numeric-entities
-                      (second child)))))
+                      (dom-text child)))))
            (fill-region-as-paragraph start (point))))
      (sort
       display
-      #'(lambda (a b ) (string-lessp (car a) (car b)))))
+      #'(lambda (a b )
+          (string-lessp (symbol-name (car a)) (symbol-name (car b))))))
+                                        ; Show availability:
     (insert
      (format "Available: %s"
-             (mapconcat
-              #'(lambda (a) (second a))
-              available
-              " ")))))
+             (mapconcat #'dom-text available " ")))))
 
 ;;}}}
 ;;{{{  Property Accessors:
@@ -825,12 +788,12 @@ b Browse
           ("v" emacspeak-bookshare-view)
           ("c" emacspeak-bookshare-toc-at-point)
           ("\C-m" emacspeak-bookshare-toc-at-point)
-          ("\M-n" emacspeak-bookshare-next-result)
-          ("\M-p" emacspeak-bookshare-previous-result)
+          ("M-n" emacspeak-bookshare-next-result)
+          ("M-p" emacspeak-bookshare-previous-result)
           ("["  backward-page)
           ("]" forward-page)
           ("b" emacspeak-bookshare-browse)
-          (" " emacspeak-bookshare-expand-at-point)
+          ("SPC" emacspeak-bookshare-expand-at-point)
           ("U" emacspeak-bookshare-unpack-at-point)
           ("V" emacspeak-bookshare-view-at-point)
           ("C" emacspeak-bookshare-fulltext)
@@ -858,7 +821,8 @@ b Browse
      ((buffer-live-p buffer)
       (switch-to-buffer buffer))
      (t
-      (with-current-buffer (get-buffer-create emacspeak-bookshare-interaction-buffer)
+      (with-current-buffer
+          (get-buffer-create emacspeak-bookshare-interaction-buffer)
         (erase-buffer)
         (setq buffer-undo-list t)
         (setq buffer-read-only t)
@@ -946,10 +910,10 @@ Target location is generated from author and title."
         (emacspeak-auditory-icon 'task-done)
         (message "Downloaded content to %s" target))
        (t
-        (let ((new-target (read-from-minibuffer "Retry with new target:" target)))
-          (if (zerop (emacspeak-bookshare-download-daisy id new-target))
-              (message "Downloaded to %s" new-target)
-            (error "Error downloading to %s" new-target)))))))))
+        (let ((new (read-from-minibuffer "Retry with new target:" target)))
+          (if (zerop (emacspeak-bookshare-download-daisy id new))
+              (message "Downloaded to %s" new)
+            (error "Error downloading to %s" new)))))))))
 
 (defun emacspeak-bookshare-download-brf-at-point ()
   "Download Braille version of book under point.
@@ -1009,9 +973,10 @@ Target location is generated from author and title."
 (defcustom emacspeak-bookshare-xslt
   "daisyTransform.xsl"
   "Name of bookshare  XSL transform."
-  :type '(choice :tag "Key: "
-                 (const :tag "Daisy transform from Bookshare"  "daisyTransform.xsl")
-                 (const :tag "Default HTML View" "default.xsl"))
+  :type
+  '(choice :tag "Key: "
+           (const :tag "Daisy transform from Bookshare"  "daisyTransform.xsl")
+           (const :tag "Default HTML View" "default.xsl"))
   :group 'emacspeak-bookshare)
 
 (defsubst emacspeak-bookshare-xslt (directory)
@@ -1146,7 +1111,8 @@ Make sure it's downloaded and unpacked first."
           (emacspeak-speak-messages nil)
           (read-file-name-completion-ignore-case t))
       (read-directory-name "Book: "
-                           (when (eq major-mode 'dired-mode) (dired-get-filename))
+                           (when (eq major-mode 'dired-mode)
+                             (dired-get-filename))
                            emacspeak-bookshare-directory))))
   (declare (special emacspeak-bookshare-directory))
   (let* ((xsl (emacspeak-bookshare-xslt directory)))
@@ -1163,7 +1129,8 @@ Make sure it's downloaded and unpacked first."
           (emacspeak-speak-messages nil)
           (read-file-name-completion-ignore-case t))
       (read-directory-name "Book: "
-                           (when (eq major-mode 'dired-mode) (dired-get-filename))
+                           (when (eq major-mode 'dired-mode)
+                             (dired-get-filename))
                            emacspeak-bookshare-directory))))
   (declare (special emacspeak-bookshare-directory))
   (let* ((xsl (emacspeak-bookshare-toc-xslt)))
@@ -1179,7 +1146,7 @@ Make sure it's downloaded and unpacked first."
 (defcustom emacspeak-bookshare-html-to-text-command
   "lynx -dump -stdin"
   "Command to convert html to text on stdin."
-  
+
   :type '(choice
           (const :tag "lynx"  "lynx -dump -stdin")
           (const "html2text" "html2text"))
@@ -1194,7 +1161,8 @@ Useful for fulltext search in a book."
               (emacspeak-speak-messages nil)
               (read-file-name-completion-ignore-case t))
           (read-directory-name "Book: "
-                               (when (eq major-mode 'dired-mode) (dired-get-filename))
+                               (when (eq major-mode 'dired-mode)
+                                 (dired-get-filename))
                                emacspeak-bookshare-directory)))))
   (declare (special emacspeak-xslt-program))
   (declare (special emacspeak-bookshare-html-to-text-command
@@ -1230,7 +1198,8 @@ Useful for fulltext search in a book."
               (emacspeak-speak-messages nil)
               (read-file-name-completion-ignore-case t))
           (read-directory-name "Book: "
-                               (when (eq major-mode 'dired-mode) (dired-get-filename))
+                               (when (eq major-mode 'dired-mode)
+                                 (dired-get-filename))
                                emacspeak-bookshare-directory)))))
   (declare (special emacspeak-xslt-program emacspeak-bookshare-directory))
   (unless (fboundp 'eww)
@@ -1249,7 +1218,7 @@ Useful for fulltext search in a book."
       (erase-buffer)
       (setq buffer-undo-list t)
       (shell-command command (current-buffer) nil)
-      (eww-display-html 'utf-8 (format "file://%s" directory))
+      (browse-url-of-buffer)
       (kill-buffer buffer))))
 
 (defun emacspeak-bookshare-sign-out ()

@@ -1,5 +1,5 @@
 ;;; emacspeak-auctex.el --- Speech enable AucTeX -- a powerful TeX/LaTeX authoring environment
-;;; $Id: emacspeak-auctex.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
+;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; DescriptionEmacspeak extensions for auctex-mode
 ;;; Keywords:emacspeak, audio interface to emacs AUCTEX
@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;;Copyright (C) 1995 -- 2011, T. V. Raman 
+;;;Copyright (C) 1995 -- 2015, T. V. Raman 
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved. 
 ;;;
@@ -41,9 +41,10 @@
 (require 'emacspeak-preamble)
 ;;}}}
 ;;{{{  Introduction:
-
-;;; Provide additional advice to auctex
-
+;;; Commentary:
+;;; Speech-enables the AucTeX package.
+;;; AucTeX, now available from ELPA, has been my authoring environment of choice for writing LaTeX since 1991.
+;;; Code:
 ;;}}}
 ;;{{{ voice locking:
 

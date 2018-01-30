@@ -1,5 +1,5 @@
 ;;; emacspeak-webutils.el --- Common Web Utilities For Emacspeak
-;;; $Id: emacspeak-webutils.el 9551 2014-11-13 19:49:00Z tv.raman.tv $
+;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak Webutils
 ;;; Keywords: Emacspeak, web
@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (C) 1999, 2011 T. V. Raman <raman@cs.cornell.edu>
+;;; Copyright (C) 1995 -- 2015, T. V. Raman
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -77,6 +77,7 @@
 
 ;;}}}
 ;;{{{ keymap: web-prefix
+;;;###autoload
 (define-prefix-command 'emacspeak-web-prefix)
 
 (declaim (special emacspeak-web-prefix))
@@ -91,26 +92,52 @@
       (emacspeak-keymap-update  emacspeak-web-prefix k))
 
 ;;}}}
+;;{{{ web-pre-process
+
+;;;###autoload
+(defvar emacspeak-web-pre-process-hook nil
+  "Pre-process hook -- to be used for XSL preprocessing etc.")
+
+(defsubst emacspeak-webutils-run-pre-process-hook (&rest ignore)
+  "Run web pre process hook."
+  (declare (special emacspeak-web-pre-process-hook))
+  (when     emacspeak-web-pre-process-hook
+    (condition-case nil
+        (let ((inhibit-read-only t))
+          (run-hooks  'emacspeak-web-pre-process-hook))
+      ((debug error)  (message "Caught error  in pre-process hook.")
+       (setq emacspeak-web-pre-process-hook nil)))
+    (setq emacspeak-web-pre-process-hook nil)))
+
+;;}}}
 ;;{{{ web-post-process
 
 ;;;###autoload
 (defvar emacspeak-web-post-process-hook nil
   "Set locally to a  site specific post processor.
 Note that the Web browser should reset this hook after using it.")
+
 (defsubst emacspeak-webutils-run-post-process-hook (&rest ignore)
   "Use web post process hook."
-  (declare (special emacspeak-web-post-process-hook))
+  (declare (special emacspeak-web-post-process-hook
+                    emacspeak-web-pre-process-hook))
+  (setq emacspeak-web-pre-process-hook nil) ;clear  pre-process hook
   (when     emacspeak-web-post-process-hook
     (condition-case nil
         (let ((inhibit-read-only t))
           (run-hooks  'emacspeak-web-post-process-hook))
       ((debug error)  (message "Caught error  in post-process hook.")
-              (setq emacspeak-web-post-process-hook nil)))
+       (setq emacspeak-web-post-process-hook nil)))
     (setq emacspeak-web-post-process-hook nil)))
 
 ;;}}}
 ;;{{{ Helpers:
-
+;;;###autoload 
+(defun emacspeak-webutils-make-xsl-transformer  (xsl &optional params)
+  "Return a function that can be attached to emacspeak-web-pre-process-hook to apply required xslt transform."
+  (eval
+   `#'(lambda ()
+        (emacspeak-xslt-region ,xsl (point) (point-max) ',params))))
 ;;;###autoload
 (defcustom emacspeak-webutils-charent-alist
   '(("&lt;" . "<")
@@ -202,9 +229,7 @@ or URL read from minibuffer."
   (declare (special emacspeak-webutils-url-at-point))
   (if (functionp  emacspeak-webutils-url-at-point)
       (funcall emacspeak-webutils-url-at-point)
-    (read-from-minibuffer "URL: "
-                          (or (browse-url-url-at-point)
-                              "http://"))))
+    (car (browse-url-interactive-arg "URL: "))))
 
 ;;;  Helper: rename result buffer
 (defsubst emacspeak-webutils-rename-buffer (key)
@@ -260,6 +285,9 @@ ARGS specifies additional arguments to SPEAKER if any."
                  'append))
      ,@body))
 
+(make-obsolete 'emacspeak-webutils-with-xsl-environment
+               "Use emacspeak-web-pre-process-hook to set up a  transformer function instead."
+               "42.0")
 (defmacro emacspeak-webutils-with-xsl-environment (style params options  &rest body)
   "Execute body with XSL turned on
 and xsl environment specified by style, params and options."
@@ -267,25 +295,19 @@ and xsl environment specified by style, params and options."
      (add-hook
       'emacspeak-web-post-process-hook
       (eval
-       `(function
-         (lambda ()
-           (declare (special emacspeak-we-xsl-p emacspeak-we-xsl-transform
-                             emacspeak-xslt-options emacspeak-we-xsl-params))
-           (setq emacspeak-we-xsl-p ,emacspeak-we-xsl-p
-                 emacspeak-xslt-options ,emacspeak-xslt-options
-                 emacspeak-we-xsl-transform ,emacspeak-we-xsl-transform
-                 emacspeak-we-xsl-params ,emacspeak-we-xsl-params))))
+       `#'(lambda ()
+            (declare (special emacspeak-we-xsl-p emacspeak-we-xsl-transform
+                              emacspeak-xslt-options emacspeak-we-xsl-params))
+            (setq emacspeak-we-xsl-p ,emacspeak-we-xsl-p
+                  emacspeak-xslt-options ,emacspeak-xslt-options
+                  emacspeak-we-xsl-transform ,emacspeak-we-xsl-transform
+                  emacspeak-we-xsl-params (quote ,emacspeak-we-xsl-params))))
       'append)
      (setq emacspeak-we-xsl-p t
            emacspeak-xslt-options ,options
            emacspeak-we-xsl-transform ,style
            emacspeak-we-xsl-params ,params)
-     (condition-case nil
-         (progn ,@body)
-       (error (setq emacspeak-we-xsl-p ,emacspeak-we-xsl-p
-                    emacspeak-xslt-options ,emacspeak-xslt-options
-                    emacspeak-we-xsl-transform ,emacspeak-we-xsl-transform
-                    emacspeak-we-xsl-params ,emacspeak-we-xsl-params)))))
+     ,@body))
 
 ;;}}}
 ;;{{{ variables
@@ -459,7 +481,8 @@ instances."
 ;;;###autoload
 (defun emacspeak-webutils-play-media-at-point (&optional  playlist-p)
   "Play media url under point.
-Optional interactive prefix arg `playlist-p' says to treat the link as a playlist. "
+Optional interactive prefix arg `playlist-p' says to treat the link as a playlist.
+ A second interactive prefix arg adds mplayer option -allow-dangerous-playlist-parsing"
   (interactive "P" )
   (let ((url
          (if emacspeak-webutils-url-at-point

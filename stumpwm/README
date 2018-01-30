@@ -1,0 +1,10 @@
+
+* Emacspeak support for StumpWM
+
+  - tts.lisp :: Interface to Emacspeak TTS  servers.
+  - stumpwmrc :: Code to insert into personal .stumpwmrc
+
+  
+# local variables:
+# mode:org
+# end:

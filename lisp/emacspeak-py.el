@@ -1,5 +1,5 @@
 ;;; emacspeak-python.el --- Speech enable Python development environment
-;;; $Id: emacspeak-py.el 9473 2014-10-06 16:20:32Z tv.raman.tv $
+;;; $Id$
 ;;; $Author: tv.raman.tv $ 
 ;;; Description: Auditory interface to python mode
 ;;; Keywords: Emacspeak, Speak, Spoken Output, python
@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (c) 1995 -- 2011, T. V. Raman
+;;; Copyright (c) 1995 -- 2015, T. V. Raman
 ;;; All Rights Reserved. 
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -48,9 +48,9 @@
 
 ;;}}}
 ;;{{{  Required modules
-
+(require 'cl)
 (require 'emacspeak-preamble)
-
+(require 'python-mode "python-mode" 'no-error)
 ;;}}}
 ;;{{{ Advice interactive commands:
 
@@ -148,7 +148,7 @@
 
 (defadvice py-newline-and-indent(after emacspeak pre act comp)
   "Speak line so we know current indentation"
-  (when t;(ems-interactive-p )
+  (when (ems-interactive-p )
     (dtk-speak-using-voice voice-annotate
                            (format
                             "indent %s"

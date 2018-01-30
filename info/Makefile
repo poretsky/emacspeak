@@ -1,4 +1,4 @@
-#$Id: Makefile 9452 2014-09-18 01:55:05Z tv.raman.tv $
+#$Id$
 SF_HOME= raman,emacspeak@web.sourceforge.net:/home/groups/e/em/emacspeak/htdocs
 HTML_FILES=$(shell find . -name '*.html' -print)
 TEXINDEX=texindex
@@ -17,29 +17,24 @@ info: emacspeak.texi introducing-emacspeak.texi turning-twenty.texi
 	$(MAKEINFO) emacspeak.texi
 	$(MAKEINFO) introducing-emacspeak.texi
 	$(MAKEINFO) turning-twenty.texi
-.PHONY: commands.texi 
 
-commands.texi: 
-	$(EMACS) -batch -q -l ../utils/document-commands.el
-	rm -f *.info* emacspeak.html
-	make
-	make htm
+.PHONY: docs.texi 
 
-options.texi:  
-	$(EMACS) -batch -q -l ../utils/document-commands.el
+docs.texi: 
+	$(EMACS) -batch -q -l ../utils/self-document.el -f self-document-all-modules
 
 install: emacspeak.info turning-twenty.info
 	if test  -x /sbin/install-info ; then \
-		install-info emacspeak.info /etc/info-dir; \
+		install-info *.info /etc/info-dir; \
 	fi
 	$(INSTALL)  -m 644 *.info* $(DESTDIR)$(infodir)
 
 uninstall:
 	if test  -e /sbin/install-info ; then \
-		install-info --delete $(infodir)/*.info /etc/info-dir; \
+		install-info --delete $(infodir)/emacspeak.info* /etc/info-dir; \
 	fi
-	rm -f $(infodir)/*.info*
-emacspeak.info: emacspeak.texi
+	rm -f $(infodir)/emacspeak.info*
+emacspeak.info: 
 	makeinfo --force -o emacspeak.info emacspeak.texi
 
 introducing-emacspeak.info: introducing-emacspeak.texi
@@ -53,7 +48,7 @@ emacspeak.dvi:		emacspeak.texi
 	rm -f 	emacspeak.cp  emacspeak.fn  emacspeak.ky  emacspeak.pg  emacspeak.tp  emacspeak.vr 	\
 		emacspeak.cps emacspeak.fns emacspeak.kys emacspeak.pgs emacspeak.tps emacspeak.vrs	\
 		emacspeak.log emacspeak.toc emacspeak.aux
-
+pdf: emacspeak.pdf
 
 emacspeak.pdf:		emacspeak.texi
 	$(PDFTEX) emacspeak.texi
@@ -67,8 +62,6 @@ emacspeak.pdf:		emacspeak.texi
 
 print: emacspeak.dvi
 	dvips emacspeak.dvi
-
-.phony: html
 
 htm: emacspeak.texi 
 	makeinfo -o html  --html  emacspeak.texi

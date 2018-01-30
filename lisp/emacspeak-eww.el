@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{ Copyright:
-;;;Copyright (C) 1995 -- 2007, 2011, T. V. Raman
+;;;Copyright (C) 1995 -- 2015, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -56,15 +56,10 @@
 (eval-when-compile (require 'eww "eww" 'no-error))
 
 (eval-when-compile (require 'emacspeak-feeds "emacspeak-feeds" 'no-error))
-
 (require 'emacspeak-preamble)
-
 (require 'emacspeak-we)
-
 (require 'emacspeak-webutils)
-
 (require 'emacspeak-google)
-
 (require 'xml)
 ;;}}}
 ;;{{{ Compatibility Helpers:
@@ -150,7 +145,7 @@
   (format "User-Agent: %s %s %s\r\n"
           "Mozilla/5.0 (X11; Linux x86_64)"
           "AppleWebKit/537.36 (KHTML, like Gecko)"
-          "Chrome/36.0.1964.2 Safari/537.36")
+          "Chrome/42.0.1964.2 Safari/537.36")
   "User Agent string that is  sent when masquerading is on."
   :type 'string
   :group 'emacspeak-eww)
@@ -192,7 +187,6 @@
   (loop
    for binding  in
    '(
-     ( "\C-t" emacspeak-google-command)
      ("'" emacspeak-speak-rest-of-buffer)
      ("*" eww-add-bookmark)
      ("," emacspeak-eww-previous-h)
@@ -205,11 +199,22 @@
      ("?" emacspeak-webutils-google-similar-to-this-page)
      ("A" eww-view-dom-having-attribute)
      ("C" eww-view-dom-having-class)
+     ("C-e" emacspeak-prefix-command)
+     ("C-o" emacspeak-feeds-opml-display)
      ("E" eww-view-dom-having-elements)
      ("G" emacspeak-google-command)
      ("I" eww-view-dom-having-id)
      ("J" emacspeak-eww-next-element-like-this)
      ("K" emacspeak-eww-previous-element-like-this)
+     ("M-SPC" emacspeak-eww-speak-this-element)
+     ("M-1" emacspeak-eww-previous-h1)
+     ("M-2" emacspeak-eww-previous-h2)
+     ("M-3" emacspeak-eww-previous-h3)
+     ("M-a" eww-view-dom-not-having-attribute)
+     ("M-c" eww-view-dom-not-having-class)
+     ("M-e" eww-view-dom-not-having-element-list)
+     ("M-i" eww-view-dom-not-having-id)
+     ("M-r" eww-view-dom-not-having-role)
      ("N" emacspeak-eww-next-element-from-history)
      ("O" emacspeak-eww-previous-li)
      ("P" emacspeak-eww-previous-element-from-history)
@@ -217,18 +222,8 @@
      ("R" eww-view-dom-having-role)
      ("T" emacspeak-eww-previous-table)
      ("[" emacspeak-eww-previous-p)
-     ("\;" emacspeak-webutils-play-media-at-point)
-     ("\C-e" emacspeak-prefix-command)
-     ("\M- " emacspeak-eww-speak-this-element)
-     ("\M-1" emacspeak-eww-previous-h1)
-     ("\M-2" emacspeak-eww-previous-h2)
-     ("\M-3" emacspeak-eww-previous-h3)
-     ("\M-a" eww-view-dom-not-having-attribute)
-     ("\M-c" eww-view-dom-not-having-class)
-     ("\M-e" eww-view-dom-not-having-element-list)
-     ("\M-i" eww-view-dom-not-having-id)
-     ("\M-r" eww-view-dom-not-having-role)
-     ("\d" emacspeak-eww-restore)
+     (";" emacspeak-webutils-play-media-at-point)
+     ("DEL" emacspeak-eww-restore)
      ("]" emacspeak-eww-next-p)
      ("b" shr-previous-link)
      ("e" emacspeak-we-xsl-map)
@@ -237,13 +232,19 @@
      ("n" emacspeak-eww-next-element)
      ("o" emacspeak-eww-next-li)
      ("p" emacspeak-eww-previous-element)
+     ("s" eww-readable)
      ("t" emacspeak-eww-next-table)
      )
    do
    (emacspeak-keymap-update eww-mode-map binding)))
 
 (when (boundp 'eww-mode-map) (emacspeak-eww-setup))
-
+;;; Use browse-url-new-window-flag
+(defadvice eww-browse-url (before emacspeak pre act comp)
+  "Respect `browse-url-new-window-flag'."
+  (interactive
+   (list url
+         (or new-window browse-url-new-window-flag))))
 ;;}}}
 ;;{{{ Map Faces To Voices:
 
@@ -285,23 +286,7 @@
 
 (make-variable-buffer-local 'emacspeak-eww-url-template)
 
-(defvar emacspeak-eww-buffer-hash (make-hash-table  :test #'equal )
-  "Table storing eww buffer handles hashed by URL.")
-
 ;;;Check cache if URL already open, otherwise cache.
-
-(defadvice eww (around emacspeak pre act comp)
-  "Check cache, if already open, switch to existing buffer.
-Otherwise proceed  and cache the buffer at the end of eww-render. "
-  (let* ((this-url (ad-get-arg 1))
-         (handle  (gethash  this-url emacspeak-eww-buffer-hash)))
-    (cond
-     ((and handle (buffer-live-p handle))
-      (switch-to-buffer handle))
-     (t                                ; proceed
-      (emacspeak-webutils-autospeak)
-      ad-do-it))
-    ad-return-value))
 
 (defadvice eww-reload (around emacspeak pre act comp)
   "Check buffer local settings for feed buffers.
@@ -360,31 +345,20 @@ Retain previously set punctuations  mode."
 
 (defun emacspeak-eww-after-render-hook ()
   "Setup Emacspeak for rendered buffer. "
-  (declare (special emacspeak-eww-cache-updated emacspeak-eww-buffer-hash))
   (let ((title (emacspeak-eww-current-title)))
-    (when emacspeak-eww-rename-result-buffer
-      (when (= 0 (length title)) (setq title "EWW: Untitled"))
-      (rename-buffer title 'unique)))
-  (puthash  (emacspeak-eww-current-url) (current-buffer)emacspeak-eww-buffer-hash)
-  (unless emacspeak-web-post-process-hook (emacspeak-speak-mode-line))
-  (emacspeak-webutils-run-post-process-hook)
-  (when (eq major-mode 'eww-mode)
-    (eww-update-header-line-format)))
+    (when (= 0 (length title)) (setq title "EWW: Untitled"))
+    (when emacspeak-eww-rename-result-buffer (rename-buffer title 'unique))
+    (cond
+     (emacspeak-web-post-process-hook (emacspeak-webutils-run-post-process-hook))
+     (t (emacspeak-speak-mode-line)))))
 
 (cond
- ((boundp  'eww-after-render-hook) ; emacs 25
-  ; temporary solution since eww-after-render-hook is called too early by EWW
-  (defadvice shr-insert-document (after emacspeak pre act comp)
-    (emacspeak-eww-after-render-hook))
-  )
+ ((boundp  'eww-after-render-hook)      ; emacs 25
+  (add-hook 'eww-after-render-hook 'emacspeak-eww-after-render-hook))
  (t
   (defadvice eww-render (after emacspeak pre act comp)
     "Setup Emacspeak for rendered buffer."
     (emacspeak-eww-after-render-hook))))
-    
-;;(when (symbolp 'eww-after-render-hook)
-  ;(add-hook 'eww-after-render-hook
-            ;'emacspeak-eww-after-render-hook)))
 
 (defadvice eww-add-bookmark (after emacspeak pre act comp)
   "Provide auditory feedback."
@@ -478,11 +452,15 @@ Retain previously set punctuations  mode."
 
 (defadvice eww-display-html (before emacspeak pre act comp)
   "Apply XSLT transform if requested."
+  (declare (special emacspeak-web-pre-process-hook))
   (let ((orig (point)))
-    (when (and emacspeak-we-xsl-p emacspeak-we-xsl-transform)
+    (cond
+     (emacspeak-web-pre-process-hook (emacspeak-webutils-run-pre-process-hook))
+     ((and emacspeak-we-xsl-p emacspeak-we-xsl-transform)
       (emacspeak-xslt-region
        emacspeak-we-xsl-transform (point) (point-max)
-       emacspeak-we-xsl-params))
+       emacspeak-we-xsl-params)
+      ))
     (goto-char orig)))
 
 ;;}}}
@@ -512,6 +490,16 @@ Retain previously set punctuations  mode."
           (put-text-property start end 'h 'eww-tag)))))))
 
 ;;}}}
+;;{{{ Advice readable
+(defadvice eww-readable (around emacspeak pre act comp)
+  "Speak contents."
+  (let ((inhibit-read-only t))
+    ad-do-it
+    (emacspeak-auditory-icon 'open-object)
+    (emacspeak-speak-buffer)))
+
+;;}}}
+
 ;;{{{  Customize image loading:
 
 (defcustom emacspeak-eww-silence-images t
@@ -1011,7 +999,7 @@ Otherwise, prompts if content at point is enclosed by multiple elements."
   (interactive
    (list
     (or (car emacspeak-eww-element-navigation-history)
-    (emacspeak-eww-read-tags-like-this "Read: "))))
+        (emacspeak-eww-read-tags-like-this "Read: "))))
   (let ((start (point)))
     (save-excursion
       (emacspeak-eww-next-element  element)

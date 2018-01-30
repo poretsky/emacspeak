@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2007, 2011, T. V. Raman
+;;;Copyright (C) 1995 -- 2015, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -50,7 +50,7 @@
 (require 'cl)
 (declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
-
+(require 'magit "magit" 'no-error)
 ;;}}}
 ;;{{{ Map voices to faces:
 (voice-setup-add-map
@@ -138,7 +138,7 @@
       ,(concat "Speech-enabled Key menu for " (symbol-name group))
       (dtk-speak
        (save-current-buffer
-         (set-buffer magit-key-mode-buf-name)
+         (set-buffer ,(format magit-key-mode-buf-name group))
          (buffer-string))))))
 ;;; load the magit-key-mode file so the above advice gets applied:
 
@@ -197,7 +197,7 @@
     (emacspeak-auditory-icon 'open-object)
     (emacspeak-speak-line)))
 
-(defadvice magit-quit-window (after emacspeak pre act  comp)
+(defadvice magit-mode-quit-window (after emacspeak pre act  comp)
   "Provide auditory feedback."
   (when (ems-interactive-p )
     (emacspeak-auditory-icon 'close-object)

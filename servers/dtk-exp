@@ -1,5 +1,5 @@
 #!/usr/bin/tclsh
-# $Id: dtk-exp 8578 2013-11-25 17:59:49Z tv.raman.tv $
+# $Id$
 # Description:  Interfacing to a Dectalk via TCL.
 # Keywords: Emacspeak, Dectalk, TCL
 # {{{ LCD Entry:
@@ -7,8 +7,8 @@
 # LCD Archive Entry:
 # emacspeak| T. V. Raman |raman@cs.cornell.edu
 # A speech interface to Emacs |
-# $Date: 2013-11-25 09:59:49 -0800 (Mon, 25 Nov 2013) $ |
-#  $Revision: 8578 $ |
+# $Date$ |
+#  $Revision$ |
 # Location undetermined
 #
 
@@ -162,6 +162,12 @@ proc s {} {
 
 proc t  {{pitch 440} {duration 50}} {
     global tts queue
+    global tts queue
+    if {$tts(beep)} { 
+        b $pitch $duration
+        return ""
+    }
+    #otherwise, use dtk builtin tones 
     set tone "\[:to $pitch $duration\]"
     set queue($tts(q_tail)) [list t $tone]
     incr tts(q_tail)
@@ -234,6 +240,7 @@ proc tts_reset {} {
         [:tsr off ]
         [:power interval 900 ]
         [:power sleep 900]
+        [:enable]
         [:np]
         Restoring sanity to the Dectalk Express.
         [:sync :power speak]
@@ -277,6 +284,10 @@ proc speech_task {} {
                 set text  [lindex $event 1]
                 puts -nonewline  $tts(write) "\[:i r 1 _.]$text\[_.] "
                 set retval [tts_get_acknowledgement ]
+            }
+            b {
+                lvarpop event 
+                eval beep $event
             }
             a {
                 set sound [lindex $event 1]
@@ -378,6 +389,7 @@ tts_initialize
 set tts(speech_rate)  225
 set tts(say_rate) [round \
                        [expr $tts(speech_rate) * $tts(char_factor)]]
+beep_initialize
 set tts(input) stdin
 if {[info exists server_p]} {
     set tts(input) sock0

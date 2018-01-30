@@ -1,5 +1,5 @@
 #!/usr/bin/perl -w
-#$Id: extract-table.pl 5842 2008-08-25 18:54:14Z tv.raman.tv $
+#$Id$
 # Accepts a URI and table spec
 #returns csv output on STDOUT 
 use strict;

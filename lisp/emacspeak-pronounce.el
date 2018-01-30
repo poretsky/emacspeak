@@ -1,5 +1,5 @@
 ;;; emacspeak-pronounce.el --- Implements Emacspeak pronunciation dictionaries
-;;; $Id: emacspeak-pronounce.el 9063 2014-04-15 02:43:51Z tv.raman.tv $
+;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description: Emacspeak pronunciation dictionaries
 ;;; Keywords:emacspeak, audio interface to emacs customized pronunciation
@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{ Copyright:
-;;;Copyright (C) 1995 -- 2011, T. V. Raman
+;;;Copyright (C) 1995 -- 2015, T. V. Raman
 ;;; Copyright (c) 1995 by T. V. Raman
 ;;; All Rights Reserved.
 ;;;
@@ -353,7 +353,7 @@ Optional argument FILENAME specifies the dictionary file."
 
 (make-variable-buffer-local ' emacspeak-pronounce-yank-word-point)
 ;;;###autoload
-(defsubst emacspeak-pronounce-yank-word ()
+(defun emacspeak-pronounce-yank-word ()
   "Yank word at point into minibuffer."
   (interactive)
   (declare (special emacspeak-pronounce-yank-word-point
@@ -813,7 +813,25 @@ specified pronunciation dictionary key."
       (and
        (= 40 (length sha))
        (string-match "[0-9a-f]+" sha))
-    (format "sha: %s " (substring sha 0 5))))
+    (format "sha: %s " (substring sha 0 6))))
+
+(defvar emacspeak-pronounce-uuid-pattern
+  (concat 
+   "[0-9a-f]\\{8\\}" "-"
+   "[0-9a-f]\\{4\\}" "-"
+   "[0-9a-f]\\{4\\}" "-"
+   "[0-9a-f]\\{4\\}" "-"
+   "[0-9a-f]\\{12\\}" )
+  "Regexp pattern that matches hex-encoded, human-readable UUID.")
+
+(defun emacspeak-pronounce-uuid (uuid)
+  "Return pronunciation for human-readable UUID."
+  (declare (special emacspeak-pronounce-uuid-pattern))
+  (when (and (= 36 (length uuid))
+             (string-match emacspeak-pronounce-uuid-pattern uuid))
+    (format "uid: %s..%s "
+            (substring uuid 0 2)
+            (substring uuid -2 nil))))
 
 ;;}}}
 

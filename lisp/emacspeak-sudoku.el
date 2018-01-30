@@ -1,5 +1,5 @@
 ;;; emacspeak-sudoku.el --- Play SuDoku 
-;;; $Id: emacspeak-sudoku.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
+;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description: Playing SuDoku ;;; Keywords: Emacspeak, sudoku
 ;;{{{  LCD Archive entry: 
@@ -15,7 +15,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (c) 1995 -- 2011, T. V. Raman
+;;; Copyright (c) 1995 -- 2015, T. V. Raman
 ;;; All Rights Reserved. 
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -49,8 +49,10 @@
 ;;}}}
 ;;{{{  Required modules
 ;;; Code:
+(require 'cl)
 (require 'emacspeak-preamble)
 (require 'stack-f)
+(require 'sudoku "sudoku" 'no-error)
 ;;}}}
 ;;{{{ Define additional speak commands:
 
@@ -427,8 +429,8 @@ See
         ("S" emacspeak-sudoku-speak-remaining-in-sub-square)
         ("C" emacspeak-sudoku-speak-remaining-in-column)
         ("?" emacspeak-sudoku-hint)
-        ([home] sudoku-move-point-leftmost)
-        ([end] sudoku-move-point-rightmost)
+        ("<home>" sudoku-move-point-leftmost)
+        ("<end>" sudoku-move-point-rightmost)
         ("a" sudoku-move-point-leftmost)
         ("e" sudoku-move-point-rightmost)
         ("b" sudoku-move-point-downmost)

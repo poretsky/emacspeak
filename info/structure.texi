@@ -1,6 +1,4 @@
-@c $Id: structure.texi 8256 2013-03-27 15:49:59Z tv.raman.tv $
-@node Structured Editing
-@section Structured Editing And Templates
+@c $Id$
 
 Editing documents based on the inherent structure present in the
 electronic encoding can be very efficient when using spoken

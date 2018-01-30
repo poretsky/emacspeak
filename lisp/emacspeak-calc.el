@@ -1,5 +1,5 @@
 ;;; emacspeak-calc.el --- Speech enable the Emacs Calculator -- a powerful symbolic algebra system
-;;; $Id: emacspeak-calc.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
+;;; $Id$
 ;;; $Author: tv.raman.tv $ 
 ;;; Description: 
 ;;; Keywords:
@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2011, T. V. Raman 
+;;;Copyright (C) 1995 -- 2015, T. V. Raman 
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved. 
 ;;;
@@ -38,13 +38,13 @@
 ;;}}}
 
 ;;{{{  Introduction:
-
+;;; Commentary:
 ;;; This module extends the Emacs Calculator.
 ;;; Extensions are minimal.
 ;;; We force a calc-load-everything,
 ;;; And use an after advice on this function
 ;;; To fix all of calc's interactive functions
-
+;;; Code:
 ;;}}}
 ;;{{{ required modules
 (require 'emacspeak-preamble)

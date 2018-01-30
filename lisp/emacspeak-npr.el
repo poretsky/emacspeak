@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;;Copyright (C) 1995 -- 2011, T. V. Raman
+;;;Copyright (C) 1995 -- 2015, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -43,8 +43,9 @@
 
 ;;; Commentary:
 ;;; NPR == http://wwwnpr.org National Public Radio in the US
-;;; It provides a simple Web  API http://www.npr.org/api/
+;;; It provides a simple Web  API http://www.npr.org/api/index
 ;;; This module implements an Emacspeak Npr client.
+;;; TODO: This module needs to be updated to the current NPR API (0.93) from the older 0.92
 
 ;;; For now, users will need to get their own API key
 
@@ -57,7 +58,6 @@
 (declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 (require 'emacspeak-webutils)
-(require 'xml-parse)
 (require 'xml)
 
 ;;}}}

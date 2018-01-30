@@ -1,6 +1,6 @@
 ;;; emacspeak/forms/aumix-rc.el --- maintain personal aumixrc
-;;;$Id: aumix-rc.el 341 2001-07-21 02:04:51Z raman $
-;;; $Author: raman $
+;;;$Id$
+;;; $Author$
 ;;; Description:  Emacspeak extension to speech enable  forms
 ;;; Keywords: forms
 ;;{{{  LCD Archive entry:
@@ -8,8 +8,8 @@
 ;;; LCD Archive Entry:
 ;;; emacspeak| T. V. Raman |raman@cs.cornell.edu
 ;;; A speech interface to Emacs |
-;;; $Date: 2001-07-20 19:04:51 -0700 (Fri, 20 Jul 2001) $ |
-;;;  $Revision: 341 $ |
+;;; $Date$ |
+;;;  $Revision$ |
 ;;; Location undetermined
 ;;;
 

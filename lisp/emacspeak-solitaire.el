@@ -1,5 +1,5 @@
 ;;; emacspeak-solitaire.el --- Speech enable Solitaire game
-;;; $Id: emacspeak-solitaire.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
+;;; $Id$
 ;;; $Author: tv.raman.tv $ 
 ;;; Description: Auditory interface to solitaire
 ;;; Keywords: Emacspeak, Speak, Spoken Output, solitaire
@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (c) 1995 -- 2011, T. V. Raman
+;;; Copyright (c) 1995 -- 2015, T. V. Raman
 ;;; All Rights Reserved. 
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -44,9 +44,9 @@
 (require 'solitaire)
 ;;}}}
 ;;{{{  Introduction 
-
+;;; Commentary:
 ;;; Auditory interface to solitaire
-
+;;; Code:
 ;;}}}
 ;;{{{  Communicate state
 
@@ -80,7 +80,7 @@
 (defsubst emacspeak-solitaire-hole () (dtk-tone 800 50 ))
 
 (defun emacspeak-solitaire-show-row ()
-  "Display current row auditorallly"
+  "Audio format current row."
   (interactive)
   (save-excursion
     (beginning-of-line )
@@ -101,7 +101,7 @@
     (dtk-force)))
 
 (defun emacspeak-solitaire-show-column ()
-  "Display current row auditorallly"
+  "Audio format current column."
   (interactive)
   (save-excursion
     (let ((row (emacspeak-solitaire-current-row))

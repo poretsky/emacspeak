@@ -1,5 +1,5 @@
 ;;; gfeeds.el --- Google Access To Feeds
-;;;$Id: gfeeds.el 9486 2014-10-10 21:44:04Z tv.raman.tv $
+;;;$Id$
 ;;; $Author: raman $
 ;;; Description:  AJAX Feeds -> Lisp
 ;;; Keywords: Google   AJAX Feeds API
@@ -45,10 +45,11 @@
 
 ;;}}}
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Commentary:
 ;;{{{  introduction
 
+;;; Commentary:
 ;;; Fast feed access from Google for use in Emacs
+;;; Code:
 
 ;;}}}
 ;;{{{  Required modules
@@ -226,6 +227,7 @@ Interactive prefix arg causes the feed url to be looked up given a Web site."
       (g-using-scratch
        (insert html)
        (browse-url-of-buffer))
+      (kill-new feed-url)
       (message "%s" feed-url)))))
 
 
@@ -241,7 +243,7 @@ Interactive prefix arg causes the feed url to be looked up given a Web site."
 
 ;;}}}
 ;;; gfeeds.el --- Google Feeds
-;;;$Id: gfeeds.el 9486 2014-10-10 21:44:04Z tv.raman.tv $
+;;;$Id$
 ;;; $Author: raman $
 ;;; Description:  AJAX Feeds -> Lisp
 ;;; Keywords: Google   AJAX API

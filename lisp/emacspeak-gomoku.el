@@ -1,5 +1,5 @@
 ;;; emacspeak-gomoku.el --- Speech enable the game of Gomoku
-;;; $Id: emacspeak-gomoku.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
+;;; $Id$
 ;;; $Author: tv.raman.tv $ 
 ;;; Description: Auditory interface to gomoku
 ;;; Keywords: Emacspeak, Speak, Spoken Output, gomoku
@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (c) 1995 -- 2011, T. V. Raman
+;;; Copyright (c) 1995 -- 2015, T. V. Raman
 ;;; All Rights Reserved. 
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -44,9 +44,9 @@
 (require 'gomoku)
 ;;}}}
 ;;{{{  Introduction 
-
+;;; Commentary:
 ;;; Auditory interface to gomoku
-
+;;; Code:
 ;;}}}
 ;;{{{ helper functions
 

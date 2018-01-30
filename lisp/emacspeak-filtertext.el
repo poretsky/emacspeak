@@ -1,5 +1,5 @@
 ;;; emacspeak-filtertext.el --- Utilities to filter text
-;;; $Id: emacspeak-filtertext.el 8534 2013-11-13 01:43:12Z tv.raman.tv $
+;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description:   Implement text filters 
 ;;; Keywords: Emacspeak, Audio Desktop
@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (C) 1995 -- 2011, T. V. Raman<raman@cs.cornell.edu>
+;;; Copyright (C) 1995 -- 2015, T. V. Raman<raman@cs.cornell.edu>
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -43,7 +43,7 @@
 (require 'emacspeak-preamble)
 ;;}}}
 ;;{{{  Introduction:
-
+;;; Commentary:
 ;;; It is often useful  to view the results of filtering
 ;;; large amounts of text.;;; Typically you do this with
 ;;; various combinations of grep and friends.
@@ -58,7 +58,7 @@
 ;;; unfiltered text
 ;;; D: Provides commands for saving results from
 ;;; intermediate filters.
-
+;;; Code:
 ;;}}}
 ;;{{{  structures 
 
@@ -77,7 +77,7 @@
 (make-variable-buffer-local 'emacspeak-filtertext-info)
 
 (define-derived-mode emacspeak-filtertext-mode text-mode 
-  "FilterText mode"
+                     "FilterText mode"
   "Major mode for FilterText interaction. \n\n
 \\{emacspeak-filtertext-mode-map}")
 (declare (special emacspeak-filtertext-mode-map))

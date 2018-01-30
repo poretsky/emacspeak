@@ -1,5 +1,5 @@
 ;;; emacspeak-ocr.el --- ocr Front-end for emacspeak desktop
-;;; $Id: emacspeak-ocr.el 8262 2013-03-28 15:52:57Z tv.raman.tv $
+;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak front-end for OCR
 ;;; Keywords: Emacspeak, ocr
@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (C) 1999, 2011 T. V. Raman <raman@cs.cornell.edu>
+;;; Copyright (C) 1995 -- 2015, T. V. Raman
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -226,7 +226,7 @@ will be placed."
 (declaim (special emacspeak-ocr-mode-map))
 
 (define-derived-mode emacspeak-ocr-mode text-mode 
-  "Major mode for document scanning and  OCR.\n"
+                     "Major mode for document scanning and  OCR.\n"
   " An OCR front-end for the Emacspeak desktop.
 
 Pre-requisites:

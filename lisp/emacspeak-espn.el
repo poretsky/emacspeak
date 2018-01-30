@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2007, 2011, T. V. Raman
+;;;Copyright (C) 1995 -- 2015, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -58,7 +58,8 @@
 ;;{{{ Customizations:
 
 (defgroup emacspeak-espn nil
-  "ESPN API Client.")
+  "ESPN API Client."
+  :group 'emacspeak)
 
 (defcustom emacspeak-espn-api-key nil
   "Web API  key for this application."
@@ -70,6 +71,7 @@
 
 ;;}}}
 ;;{{{ URL REST End-Points:
+
 (defvar emacspeak-espn-sports-url
   (format "http://api.espn.com/v1/sports?apikey=%s"
           emacspeak-espn-api-key)

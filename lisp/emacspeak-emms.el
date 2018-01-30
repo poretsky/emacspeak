@@ -1,5 +1,5 @@
 ;;; emacspeak-emms.el --- Speech-enable EMMS Multimedia UI
-;;; $Id: emacspeak-emms.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
+;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak extension to speech-enable EMMS
 ;;; Keywords: Emacspeak, Multimedia
@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (C) 1995--2004, 2011 T. V. Raman <raman@cs.cornell.edu>
+;;;Copyright (C) 1995 -- 2015, T. V. Raman
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.

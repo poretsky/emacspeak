@@ -1,5 +1,5 @@
 ;;; emacspeak-actions.el --- Emacspeak actions -- callbacks that can be associated with portions of a buffer
-;;; $Id: emacspeak-actions.el 8574 2013-11-24 02:01:07Z tv.raman.tv $
+;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Define emacspeak actions for various modes
 ;;; Keywords:emacspeak, audio interface to emacs actions
@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2011, T. V. Raman 
+;;;Copyright (C) 1995 -- 2015, T. V. Raman 
 ;;; Copyright (c) 1995 by T. V. Raman
 ;;; All Rights Reserved.
 ;;;

@@ -1,5 +1,5 @@
 ;;; emacspeak-dismal.el --- Speech enable Dismal -- An Emacs Spreadsheet program
-;;; $Id: emacspeak-dismal.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
+;;; $Id$
 ;;; $Author: tv.raman.tv $ 
 ;;; Description: spread sheet extension
 ;;; Keywords:emacspeak, audio interface to emacs spread sheets
@@ -15,7 +15,91 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2011, T. V. Raman 
+;;;Copyright (C) 1995 -- 2015, T. V. Raman 
+;;; Copyright (c) 1995 by T. V. Raman  
+;;; All Rights Reserved. 
+;;;
+;;; This file is not part of GNU Emacs, but the same permissions apply.
+;;;
+;;; GNU Emacs is free software; you can redistribute it and/or modify
+;;; it under the terms of the GNU General Public License as published by
+;;; the Free Software Foundation; either version 2, or (at your option)
+;;; any later version.
+;;;
+;;; GNU Emacs is distributed in the hope that it will be useful,
+;;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;;; GNU General Public License for more details.
+;;;
+;;; You should have received a copy of the GNU General Public License
+;;; along with GNU Emacs; see the file COPYING.  If not, write to
+;;; the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+
+;;}}}
+
+;;{{{  Introduction
+;;; emacspeak-dismal.el --- Speech enable Dismal -- An Emacs Spreadsheet program
+;;; $Id$
+;;; $Author: tv.raman.tv $ 
+;;; Description: spread sheet extension
+;;; Keywords:emacspeak, audio interface to emacs spread sheets
+;;{{{  LCD Archive entry: 
+
+;;; LCD Archive Entry:
+;;; emacspeak| T. V. Raman |raman@cs.cornell.edu
+;;; A speech interface to Emacs |
+;;; $Date: 2008-06-21 10:50:41 -0700 (Sat, 21 Jun 2008) $ |
+;;;  $Revision: 4532 $ | 
+;;; Location undetermined
+;;;
+
+;;}}}
+;;{{{  Copyright:
+;;;Copyright (C) 1995 -- 2015, T. V. Raman 
+;;; Copyright (c) 1995 by T. V. Raman  
+;;; All Rights Reserved. 
+;;;
+;;; This file is not part of GNU Emacs, but the same permissions apply.
+;;;
+;;; GNU Emacs is free software; you can redistribute it and/or modify
+;;; it under the terms of the GNU General Public License as published by
+;;; the Free Software Foundation; either version 2, or (at your option)
+;;; any later version.
+;;;
+;;; GNU Emacs is distributed in the hope that it will be useful,
+;;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;;; GNU General Public License for more details.
+;;;
+;;; You should have received a copy of the GNU General Public License
+;;; along with GNU Emacs; see the file COPYING.  If not, write to
+;;; the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+
+;;}}}
+
+;;{{{  Introduction
+;;; Commentary:
+;;; emacspeak extensions to the dismal spreadsheet. 
+;;; Code:
+;;; Dismal can be found at ftp://cs.nyu.edu/pub/local/fox/dismal
+;;; emacspeak-dismal.el --- Speech enable Dismal -- An Emacs Spreadsheet program
+;;; $Id$
+;;; $Author: tv.raman.tv $ 
+;;; Description: spread sheet extension
+;;; Keywords:emacspeak, audio interface to emacs spread sheets
+;;{{{  LCD Archive entry: 
+
+;;; LCD Archive Entry:
+;;; emacspeak| T. V. Raman |raman@cs.cornell.edu
+;;; A speech interface to Emacs |
+;;; $Date: 2008-06-21 10:50:41 -0700 (Sat, 21 Jun 2008) $ |
+;;;  $Revision: 4532 $ | 
+;;; Location undetermined
+;;;
+
+;;}}}
+;;{{{  Copyright:
+;;;Copyright (C) 1995 -- 2015, T. V. Raman 
 ;;; Copyright (c) 1995 by T. V. Raman  
 ;;; All Rights Reserved. 
 ;;;
@@ -41,7 +125,7 @@
 
 ;;; emacspeak extensions to the dismal spreadsheet. 
 ;;; Dismal can be found at ftp://cs.nyu.edu/pub/local/fox/dismal
-
+;;; Code:
 ;;}}}
 ;;{{{  requires 
 (require 'cl)
@@ -331,51 +415,39 @@ emacspeak-dismal-sheet-summarizer-list"
 Checked by emacspeak specific dis-mode-hooks entry.")
 
 (add-hook 'dis-mode-hooks
-          (function
-           (lambda nil
-             (declare (special dismal-saved-variables))
-             (unless emacspeak-dismal-already-customized-dismal
-               (setq emacspeak-dismal-already-customized-dismal t)
-               (push 'emacspeak-dismal-sheet-summarizer-list
-                     dismal-saved-variables)
-               (push 'emacspeak-dismal-row-summarizer-list
-                     dismal-saved-variables)
-               (push 'emacspeak-dismal-col-summarizer-list
-                     dismal-saved-variables)))))
+          #'(lambda nil
+              (declare (special dismal-saved-variables dismal-mode-map))
+              (define-key dismal-map (concat emacspeak-prefix "e")
+                'dis-last-column)
+              (define-key dismal-mode-map emacspeak-prefix 'emacspeak-prefix-command)
+              (unless emacspeak-dismal-already-customized-dismal
+                (setq emacspeak-dismal-already-customized-dismal t)
+                (push 'emacspeak-dismal-sheet-summarizer-list
+                      dismal-saved-variables)
+                (push 'emacspeak-dismal-row-summarizer-list
+                      dismal-saved-variables)
+                (push 'emacspeak-dismal-col-summarizer-list
+                      dismal-saved-variables))))
 
-(declaim (special dismal-map))
-(eval-when (load))
-
-;;; this assumes emacspeak-prefix is C-e
-;;; and function-key-prefix is M-[
-(add-hook 'dis-mode-hooks
-          (function
-           (lambda nil
-             (declare (special dismal-map emacspeak-prefix))
-             (local-unset-key "\M-[")
-             (local-unset-key emacspeak-prefix)
-             (define-key dismal-map (concat emacspeak-prefix "e")
-               'dis-last-column)
-             (define-key dismal-map  "," 'emacspeak-dismal-display-cell-expression)
-             (define-key dismal-map  "."
-               'emacspeak-dismal-display-cell-value)
-             (define-key dismal-map "R"
-               'emacspeak-dismal-display-cell-with-row-header)
-             (define-key dismal-map "S"
-               'emacspeak-dismal-sheet-summarize)
-             (define-key dismal-map "C"
-               'emacspeak-dismal-display-cell-with-col-header)
-             (define-key dismal-map "\M-m"
-               'emacspeak-dismal-row-summarize)
-             (define-key dismal-map '[up]
-               'emacspeak-dismal-backward-row-and-summarize)
-             (define-key dismal-map '[down]
-               'emacspeak-dismal-forward-row-and-summarize)
-             (define-key dismal-map '[left]
-               'emacspeak-dismal-backward-col-and-summarize)
-             (define-key dismal-map '[right]
-               'emacspeak-dismal-forward-col-and-summarize)
-             )))
+(add-hook
+ 'dis-mode-hooks
+ #'(lambda nil
+     (declare (special dismal-map emacspeak-prefix))
+     (local-unset-key "\M-[")
+     (local-unset-key emacspeak-prefix)
+     (define-key dismal-mode-map emacspeak-prefix 'emacspeak-prefix-command)
+     (define-key dismal-map (concat emacspeak-prefix "e")
+       'dis-last-column)
+     (define-key dismal-map  "," 'emacspeak-dismal-display-cell-expression)
+     (define-key dismal-map  "." 'emacspeak-dismal-display-cell-value)
+     (define-key dismal-map "R" 'emacspeak-dismal-display-cell-with-row-header)
+     (define-key dismal-map "S" 'emacspeak-dismal-sheet-summarize)
+     (define-key dismal-map "C" 'emacspeak-dismal-display-cell-with-col-header)
+     (define-key dismal-map "\M-m" 'emacspeak-dismal-row-summarize)
+     (define-key dismal-map '[up] 'emacspeak-dismal-backward-row-and-summarize)
+     (define-key dismal-map '[down] 'emacspeak-dismal-forward-row-and-summarize)
+     (define-key dismal-map '[left] 'emacspeak-dismal-backward-col-and-summarize)
+     (define-key dismal-map '[right] 'emacspeak-dismal-forward-col-and-summarize)))
 
 ;;}}}
 ;;{{{  Advice some commands. 

@@ -1,5 +1,5 @@
 ;;; emacspeak-find-func.el --- Speech enable emacs' code finder
-;;; $Id: emacspeak-find-func.el 9305 2014-08-09 15:58:40Z tv.raman.tv $
+;;; $Id$
 ;;; $Author: tv.raman.tv $ 
 ;;; Description:  Emacspeak extension to speech enable find-func
 ;;; Keywords: Emacspeak, find-func
@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2011, T. V. Raman 
+;;;Copyright (C) 1995 -- 2015, T. V. Raman 
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved. 
 ;;;
@@ -63,7 +63,7 @@
       (eval
        `(defadvice ,f  (after emacspeak pre act comp)
           "Speak current line"
-          (when t ; (ems-interactive-p )
+          (when  (ems-interactive-p )
             (emacspeak-auditory-icon 'open-object)
             (emacspeak-dtk-sync)
             (dtk-speak

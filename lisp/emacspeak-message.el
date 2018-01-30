@@ -1,5 +1,5 @@
 ;;; emacspeak-message.el --- Speech enable Message -- Used to compose news postings and replies
-;;; $Id: emacspeak-message.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
+;;; $Id$
 ;;; $Author: tv.raman.tv $ 
 ;;; Description: Emacspeak extensions for posting
 ;;; Keywords:emacspeak, audio interface to emacs posting messages
@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2011, T. V. Raman 
+;;;Copyright (C) 1995 -- 2015, T. V. Raman 
 ;;; Copyright (c) 1995 by T. V. Raman  
 ;;; All Rights Reserved. 
 ;;;
@@ -38,9 +38,9 @@
 ;;}}}
 
 ;;{{{  Introduction
-
+;;; Commentary:
 ;;; advice for posting message commands
-
+;;; Code:
 ;;}}}
 ;;{{{ requires
 (require 'emacspeak-preamble)
@@ -66,16 +66,6 @@
 
 (voice-setup-add-map
  '(
-   (message-cited-text-face voice-bolden)        ;; pre-emacs22
-   (message-header-cc-face voice-bolden)         ;; pre-emacs22
-   (message-header-name-face voice-animate)      ;; pre-emacs22
-   (message-header-newsgroups-face voice-bolden) ;; pre-emacs22
-   (message-header-other-face voice-bolden)      ;; pre-emacs22
-   (message-header-subject-face voice-bolden)    ;; pre-emacs22
-   (message-header-to-face voice-bolden)         ;; pre-emacs22
-   (message-header-xheader-face voice-bolden)    ;; pre-emacs22
-   (message-mml-face voice-brighten)             ;; pre-emacs22
-   (message-separator-face voice-bolden-extra)   ;; pre-emacs22
 
    (message-cited-text voice-bolden)
    (message-header-cc voice-bolden)

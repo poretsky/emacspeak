@@ -1,5 +1,5 @@
 ;;; emacspeak-eperiodic.el --- Speech-enable Periodic Table
-;;; $Id: emacspeak-eperiodic.el 9459 2014-09-22 02:03:04Z tv.raman.tv $
+;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak speech-enabler for Periodic Table
 ;;; Keywords: Emacspeak, periodic  Table
@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (C) 1999, 2011 T. V. Raman <raman@cs.cornell.edu>
+;;; Copyright (C) 1995 -- 2015, T. V. Raman
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -39,11 +39,11 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;{{{  Introduction:
-
+;;; Commentary:
 ;;; eperiodic produces an interactive periodic table of elements
 ;;; and can be found at 
 ;;; http://vegemite.chem.nottingham.ac.uk/~matt/emacs/eperiodic.el
-
+;;; Code:
 ;;}}}
 ;;{{{ required modules
 
@@ -118,11 +118,14 @@
   (emacspeak-speak-line)
   (emacspeak-auditory-icon 'large-movement))
 (declaim (special eperiodic-mode-map))
-(define-key eperiodic-mode-map " " 'emacspeak-eperiodic-speak-current-element)
-(define-key  eperiodic-mode-map "x" 'emacspeak-eperiodic-goto-property-section)
-(define-key eperiodic-mode-map "n" 'emacspeak-eperiodic-next-line)
-(define-key eperiodic-mode-map "p" 'emacspeak-eperiodic-previous-line)
-(define-key eperiodic-mode-map "l" 'emacspeak-eperiodic-play-description)
+(when (boundp 'eperiodic-mode-map)
+  (define-key eperiodic-mode-map " " 'emacspeak-eperiodic-speak-current-element)
+  (define-key  eperiodic-mode-map "x" 'emacspeak-eperiodic-goto-property-section)
+  (define-key eperiodic-mode-map "n" 'emacspeak-eperiodic-next-line)
+  (define-key eperiodic-mode-map "p" 'emacspeak-eperiodic-previous-line)
+  (define-key eperiodic-mode-map "l"
+    'emacspeak-eperiodic-play-description)
+  )
 ;;}}}
 ;;{{{  listen off the web:
 (defcustom emacspeak-eperiodic-media-location 
@@ -147,7 +150,7 @@
 
 (defadvice eperiodic-find-element (after emacspeak pre act comp)
   "Provide auditory feedback."
-  (when  t ;(ems-interactive-p )
+  (when  (ems-interactive-p )
     (emacspeak-eperiodic-speak-current-element)
     (emacspeak-auditory-icon 'large-movement)))
 

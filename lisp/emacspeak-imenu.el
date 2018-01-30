@@ -1,5 +1,5 @@
 ;;; emacspeak-imenu.el --- Speech enable Imenu -- produce buffer-specific table of contents
-;;; $Id: emacspeak-imenu.el 9419 2014-09-13 15:49:10Z tv.raman.tv $
+;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description: Auditory interface buffer indices
 ;;; Keywords: Emacspeak, Speak, Spoken Output, indices
@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (c) 1995 -- 2011, T. V. Raman
+;;; Copyright (c) 1995 -- 2015, T. V. Raman
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -45,9 +45,9 @@
 (require 'imenu)
 ;;}}}
 ;;{{{  Introduction
-
+;;; Commentary:
 ;;; Speech enable imenu and provide other useful navigation commands.
-
+;;; Code:
 ;;}}}
 ;;{{{  variables
 
@@ -95,36 +95,14 @@
 
 (defadvice imenu (after emacspeak pre act comp)
   "Provide auditory feedback"
-  (when t ;(ems-interactive-p )
-    (emacspeak-speak-line)))
-
-(defadvice imenu-go-find-at-position (around emacspeak pre act comp)
-  "Provide auditory feedback"
-  (cond
-   ((ems-interactive-p )
-    (push-mark)
-    ad-do-it
-    (emacspeak-auditory-icon 'large-movement)
-    (ems-set-personality-temporarily (point) (1+ (point))
-                                     voice-animate
-                                     (emacspeak-speak-line)))
-   (t ad-do-it))
-  ad-return-value)
-
-(defadvice imenu-go--back (after emacspeak pre act comp)
-  "Provide auditory feedback"
   (when (ems-interactive-p )
-    (emacspeak-auditory-icon 'large-movement)
-    (ems-set-personality-temporarily (point) (1+ (point))
-                                     voice-animate
-                                     (emacspeak-speak-line))))
+    (emacspeak-speak-line)))
 
 ;;}}}
 ;;{{{  Navigation
-(defcustom emacspeak-imenu-autospeak nil
-  "Speak contents of sections automatically if set."
-  :type 'boolean
-  :group 'emacspeak-imenu)
+
+(defvar emacspeak-imenu-autospeak nil
+  "Speak contents of sections automatically if set.")
 
 ;;;###autoload
 (defun emacspeak-imenu-goto-next-index-position ()
@@ -136,6 +114,7 @@
   (let ((position (point))
         (guess 0)
         (target (point-max)))
+    (unless imenu--index-alist (imenu--make-index-alist 'no-error))
     (unless emacspeak-imenu-flattened-index-alist
       (setq emacspeak-imenu-flattened-index-alist
             (emacspeak-imenu-flatten-index-alist
@@ -171,6 +150,7 @@
   (let ((position (point))
         (guess 0)
         (target (point-min)))
+    (unless imenu--index-alist (imenu--make-index-alist 'no-error))
     (unless emacspeak-imenu-flattened-index-alist
       (setq emacspeak-imenu-flattened-index-alist
             (emacspeak-imenu-flatten-index-alist
@@ -207,10 +187,14 @@
 
 ;;}}}
 ;;{{{ bind keys
-(define-key emacspeak-keymap "\M-i" 'imenu)
-(define-key emacspeak-keymap  "\M-p" 'emacspeak-imenu-goto-previous-index-position)
-(define-key emacspeak-keymap "\M-n" 'emacspeak-imenu-goto-next-index-position)
-(define-key emacspeak-keymap "\M- " 'emacspeak-imenu-speak-this-section)
+
+(defun emacspeak-imenu-setup-keys ()
+  "Set up imenu keys"
+  (define-key emacspeak-keymap "\M-i" 'imenu)
+  (define-key emacspeak-keymap  "\M-p" 'emacspeak-imenu-goto-previous-index-position)
+  (define-key emacspeak-keymap "\M-n" 'emacspeak-imenu-goto-next-index-position)
+  (define-key emacspeak-keymap "\M- " 'emacspeak-imenu-speak-this-section))
+(emacspeak-imenu-setup-keys)
 
 ;;}}}
 ;;{{{ customize settings

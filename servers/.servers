@@ -1,4 +1,4 @@
-#$Id: .servers 9270 2014-07-26 00:49:10Z tv.raman.tv $
+#$Id$
 cloud 
 cloud-dtk
 cloud-outloud
@@ -16,4 +16,8 @@ espeak
 ssh-32-outloud
 mac
 plain
-log-server
+log-plain
+log-dtk
+log-espeak
+log-mac
+log-outloud

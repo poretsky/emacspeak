@@ -1,4 +1,4 @@
-<!--$Id: mlb-alerts.xsl 6018 2008-11-04 19:52:11Z tv.raman.tv $-->
+<!--$Id$-->
 <!--Description: MLB Alerts.-->
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   version="1.0">

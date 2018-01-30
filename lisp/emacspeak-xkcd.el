@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2007, 2011, T. V. Raman
+;;;Copyright (C) 1995 -- 2015, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -54,6 +54,15 @@
 (require 'emacspeak-preamble)
 
 ;;}}}
+;;{{{ Fix error when loading images on the console:
+(defadvice xkcd-insert-image (around emacspeak pre act comp)
+  "no-Op on console"
+  (cond
+   ((not window-system) t)
+   (t ad-do-it)))
+
+;;}}}
+
 ;;; Eventually move this to the emacs-xkcd package if possible.
 
 (defvar xkcd-transcript nil
@@ -62,6 +71,7 @@
 ;;; Content downloaded by the time this is called.
 (defsubst emacspeak-xkcd-get-current-transcript ()
   "Cache current transcript."
+  (declare (special xkcd-cur))
   (setq 
    xkcd-transcript 
    (cdr 
@@ -82,6 +92,14 @@
     (emacspeak-auditory-icon 'open-object)
     (emacspeak-speak-buffer)))
 
+(defun emacspeak-xkcd-open-explanation-browser ()
+  "Open explanation of current xkcd in default browser"
+  (interactive)
+  (declare (special xkcd-cur))
+  (browse-url (concat "http://www.explainxkcd.com/wiki/index.php/"
+                      (number-to-string xkcd-cur))))
+(when (boundp 'xkcd-mode-map)
+  (define-key xkcd-mode-map "e" 'emacspeak-xkcd-open-explanation-browser))
 (provide 'emacspeak-xkcd)
 ;;{{{ end of file
 

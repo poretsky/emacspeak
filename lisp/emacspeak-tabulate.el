@@ -1,5 +1,5 @@
 ;;; emacspeak-tabulate.el --- Interpret tabulated information as a table
-;;; $Id: emacspeak-tabulate.el 9336 2014-08-18 01:26:04Z tv.raman.tv $
+;;; $Id$
 ;;; $Author: tv.raman.tv $ 
 ;;; Description:  Utility to help emacspeak identify tabulated information
 ;;; Keywords: Emacspeak, Tabulated Data,  Visual layout gives structure
@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2011, T. V. Raman 
+;;;Copyright (C) 1995 -- 2015, T. V. Raman 
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved. 
 ;;;
@@ -39,9 +39,10 @@
 
 
 ;;{{{  Introduction:
+;;; Commentary:
 ;;; This module is a simple table recognizer.
 ;;; Can recognize the columns in tabulated output, e.g. ps, ls output
-
+;;; Code:
 ;;}}}
 ;;{{{ requires
 (require 'emacspeak-preamble)

@@ -1,5 +1,5 @@
 ;;; emacspeak-ecb.el --- speech-enable Emacs Class Browser
-;;; $Id: emacspeak-ecb.el 8574 2013-11-24 02:01:07Z tv.raman.tv $
+;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak module for speech-enabling Emacs
 ;;; Class Browser
@@ -17,7 +17,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (C) 1999, 2011 T. V. Raman <raman@cs.cornell.edu>
+;;; Copyright (C) 1995 -- 2015, T. V. Raman
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -44,10 +44,10 @@
 (require 'emacspeak-preamble)
 ;;}}}
 ;;{{{  Introduction:
-
+;;; Commentary:
 ;;; The ECB is an Emacs Class Browser.
 ;;; This module speech-enables ECB
-
+;;; Code:
 ;;}}}
 ;;{{{  advice interactive commands
 

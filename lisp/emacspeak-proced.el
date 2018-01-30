@@ -1,5 +1,5 @@
 ;;; emacspeak-proced.el --- Speech-enable PROCED Task Manager
-;;; $Id: emacspeak-proced.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
+;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Speech-enable PROCED A Task manager for Emacs
 ;;; Keywords: Emacspeak,  Audio Desktop proced Task Manager
@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2011, T. V. Raman
+;;;Copyright (C) 1995 -- 2015, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;

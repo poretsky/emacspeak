@@ -1,5 +1,5 @@
 ;;; voice-setup.el --- Setup voices for voice-lock
-;;; $Id: voice-setup.el 9465 2014-10-01 18:42:15Z tv.raman.tv $
+;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Voice lock mode for Emacspeak
 ;;{{{  LCD Archive entry:
@@ -14,7 +14,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;;Copyright (C) 1995 -- 2011, T. V. Raman
+;;;Copyright (C) 1995 -- 2015, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -221,9 +221,10 @@
 
 (defun voice-setup-add-map (fv-alist )
   "Sets up face to voice mapping given in fv-alist."
-  (loop for fv in fv-alist
-        do
-        (voice-setup-map-face (first fv) (second fv))))
+  (loop
+   for fv in fv-alist
+   do
+   (voice-setup-map-face (first fv) (second fv))))
 
 ;;}}}
 ;;{{{  special form defvoice

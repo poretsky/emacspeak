@@ -1347,7 +1347,7 @@ First, the @file{/usr/local/bin/emacspeak-eflite} script.
 ## use EFLITE
 
 ## based on
-#$Id: introducing-emacspeak.texi 8268 2013-03-29 00:54:48Z tv.raman.tv $
+#$Id$
 # with minor changes, 2006 Mar 18
 
 if [ -f $HOME/.emacs ]
@@ -1396,7 +1396,7 @@ Second, the @file{/usr/local/bin/emacspeak-espeakf} script:
 ## use ESPEAKF
 
 ## based on
-#$Id: introducing-emacspeak.texi 8268 2013-03-29 00:54:48Z tv.raman.tv $
+#$Id$
 # with minor changes, 2006 Mar 18
 
 if [ -f $HOME/.emacs ]

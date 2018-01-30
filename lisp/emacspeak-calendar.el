@@ -1,5 +1,5 @@
 ;;; emacspeak-calendar.el --- Speech enable Emacs Calendar -- maintain a diary and appointments
-;;; $Id: emacspeak-calendar.el 9540 2014-11-11 22:09:50Z tv.raman.tv $
+;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak extensions to speech enable the calendar.
 ;;; Keywords: Emacspeak, Calendar, Spoken Output
@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2011, T. V. Raman
+;;;Copyright (C) 1995 -- 2015, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -37,11 +37,11 @@
 
 ;;}}}
 ;;{{{  Introduction:
-
+;;; Commentary:
 ;;; This module speech enables the Emacs Calendar.
 ;;; Speech enabling is not the same as speaking the screen:
-;;; This is an excellent example of this.
-
+;;; This is an excellent example of the advantages of speech-enabled  interaction.
+;;; Code:
 ;;}}}
 ;;{{{ required modules
 ;;; Code:
@@ -112,8 +112,6 @@
     (emacspeak-auditory-icon 'mark-object)
     (emacspeak-calendar-speak-date)))
 
-(add-hook 'calendar-mode-hook
-          'gcal-emacs-calendar-setup)
 (add-hook 'calendar-mode-hook
           'emacspeak-calendar-setup)
 
@@ -432,8 +430,7 @@
          (if (= (point-min) (point-max))
              (message  "No appointments are currently displayed")
            (dtk-speak (buffer-string )))))
-     (t (message "You have no appointments "))))
-  (emacspeak-dtk-sync))
+     (t (dtk-speak-and-echo "You have no appointments ")))))
 
 ;;}}}
 

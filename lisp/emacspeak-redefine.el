@@ -1,5 +1,5 @@
 ;;; emacspeak-redefine.el --- Redefines some key Emacs builtins to speak
-;;; $Id: emacspeak-redefine.el 8631 2013-12-03 01:16:14Z tv.raman.tv $
+;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak's redefinition of some key functions.
 ;;; Emacspeak does most of its work by advising other functions to speak.
@@ -17,7 +17,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2011, T. V. Raman
+;;;Copyright (C) 1995 -- 2015, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -41,7 +41,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;{{{  Introduction:
-
+;;; Commentary:
 ;;; This module redefines a few vital functions,
 ;;; since advising them won't help.
 ;;; Convention used:
@@ -52,7 +52,7 @@
 ;;; In the case of backward-char, forward-char, and self-insert-command
 ;;; mere redefinition of the function will not do:
 ;;; We will need to bind the new functions explicitly to the keys.
-
+;;; Code:
 ;;}}}
 ;;{{{ requires
 (require 'emacspeak-preamble)
@@ -135,7 +135,7 @@ eech flushes as you type."
           (emacspeak-speak-word)))
        (emacspeak-character-echo
         (emacspeak-speak-this-char (preceding-char)))))))
-(when (= 24 emacs-major-version)  
+(when (<= 24 emacs-major-version)  
   (add-hook 'post-self-insert-hook
             'emacspeak-post-self-insert-hook)
   (unless (boundp 'command-error-function)
@@ -195,7 +195,7 @@ eech flushes as you type."
 rather than through their function cell.
 They have to be redefined and rebound to make them talk in versions older than Emacs 24. " )
 
-(unless (= 24 emacs-major-version)
+(unless (<=   24 emacs-major-version)
   (push 'backward-char emacspeak-functions-that-bypass-function-cell)
   (push 'forward-char emacspeak-functions-that-bypass-function-cell)
   (push 'self-insert-command emacspeak-functions-that-bypass-function-cell))

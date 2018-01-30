@@ -1,5 +1,5 @@
 ;;; g-load-path.el -- Setup Emacs load-path for compiling grep
-;;; $Id: g-load-path.el 5798 2008-08-22 17:35:01Z tv.raman.tv $
+;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Sets up load-path for g-client compilation
 ;;; Keywords: g-client, Google services  for Emacs

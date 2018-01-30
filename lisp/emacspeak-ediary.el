@@ -1,5 +1,5 @@
 ;;; emacspeak-ediary.el --- Speech-enable ediary
-;;; $Id: emacspeak-ediary.el 8260 2013-03-28 15:21:49Z tv.raman.tv $
+;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak speech-enabler for ediary 
 ;;; Keywords: Emacspeak, diary
@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (C) 1999, 2011 T. V. Raman <raman@cs.cornell.edu>
+;;; Copyright (C) 1995 -- 2015, T. V. Raman
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -39,10 +39,10 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;{{{  Introduction:
-
+;;; Commentary:
 ;;; ediary is a special mode for editing your.diary file.
 ;;; This module speech-enables ediary
-
+;;; Code:
 ;;}}}
 ;;{{{ required modules
 

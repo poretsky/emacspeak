@@ -1,5 +1,5 @@
 ;;; g-utils.el --- Google Client Utilities
-;;;$Id: g-utils.el 9098 2014-04-25 15:16:35Z tv.raman.tv $
+;;;$Id$
 ;;; $Author: raman $
 ;;; Description:  Google Client utilities
 ;;; Keywords: Google   Atom API, Google Services
@@ -45,12 +45,12 @@
 
 ;;}}}
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Commentary:
-;;{{{  introduction
 
+;;{{{  introduction
+;;; Commentary:
 ;;; Common Code  e.g. helper functions.
 ;;; Used by modules like gphoto, gblogger etc.
-
+;;; Code:
 ;;}}}
 ;;{{{  Required modules
 

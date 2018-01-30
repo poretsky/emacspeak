@@ -1,6 +1,6 @@
 ;;; emacspeak-bbdb.el --- Speech enable BBDB -- a powerful address manager
 
-;;; $Id: emacspeak-bbdb.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
+;;; $Id$
 ;;; $Author: tv.raman.tv $ 
 ;;; DescriptionEmacspeak extensions for bbdb 
 ;;; Keywords:emacspeak, audio interface to emacs bbdb 
@@ -16,7 +16,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2011, T. V. Raman 
+;;;Copyright (C) 1995 -- 2015, T. V. Raman 
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved. 
 ;;;
@@ -42,9 +42,10 @@
 (require 'emacspeak-preamble)
 ;;}}}
 ;;{{{  Introduction:
-
-;;; Provide additional advice to bbdb
-
+;;; Commentary:
+;;; Speech-enables BBDB.
+;;; I have used BBDB to manage email address and contact information since 1991.
+;;; Code:
 ;;}}}
 ;;{{{ personalities 
 

@@ -1,5 +1,5 @@
 ;;; emacspeak-fix-interactive.el --- Tools to make  Emacs' builtin prompts   speak
-;;; $Id: emacspeak-fix-interactive.el 8500 2013-11-02 01:54:49Z tv.raman.tv $
+;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description: Fixes functions that use interactive to prompt for args.
 ;;; Approach suggested by hans@cs.buffalo.edu
@@ -16,7 +16,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2011, T. V. Raman
+;;;Copyright (C) 1995 -- 2015, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -44,25 +44,17 @@
 (require 'advice)
 (require 'dtk-speak)
 ;;{{{  Introduction:
-
+;;; Commentary:
 ;;; Emacs commands that use the 'interactive spec
 ;;; to read interactive arguments are a problem for Emacspeak.
 ;;;  This is because the prompting for the arguments is done from C
 ;;; See (callint.c) in the Emacs sources.
-;;; Advicing the various input functions,
+;;; Advising the various input functions,
 ;;; e.g. read-file-name therefore will not help.
 ;;; This module defines a function that solves this problem.
 ;;; emacspeak-fix-commands-that-use-interactive needs to be called
 ;;; To speech enable such functions.
-
-;;; XEmacs update:
-;;; XEmacs does (interactive) better--
-;;; in its case most of the code letters to interactive
-;;; make it back to the elisp layer.
-;;; The exception to this appear to be the code letters for
-;;; reading characters and key sequences
-;;; i.e. "c" and "k"
-
+;;; Code:
 ;;}}}
 ;;{{{  functions that are  fixed.
 
@@ -86,7 +78,7 @@
    (stringp (second (interactive-form  sym)))))
 
 (defun emacspeak-fix-commands-that-use-interactive ()
-  "Auto advices interactive commands to speak prompts."
+  "Auto advises interactive commands to speak prompts."
   (mapatoms 'emacspeak-fix-interactive-command-if-necessary ))
 
 ;;}}}
@@ -105,8 +97,7 @@ Fix the function definition of sym to make its interactive form
 speak its prompts. This function needs to do very little work as
 of Emacs 21 since all interactive forms except `c' and `k' now
 use the minibuffer."
-  (declare (special
-            emacspeak-fix-interactive-problematic-functions))
+  (declare (special emacspeak-fix-interactive-problematic-functions))
   (let* ((prompts
           (split-string
            (second (interactive-form  sym ))
@@ -149,7 +140,7 @@ use the minibuffer."
   t)
 
 ;;; inline function for use from other modules:
-
+;;;###autoload
 (defun  emacspeak-fix-interactive-command-if-necessary (command)
   "Fix command if necessary."
   (when (emacspeak-should-i-fix-interactive-p  command)
@@ -187,11 +178,10 @@ emacspeak-fix-all-recent-commands to track load-history.")
 This command looks through `load-history' and fixes commands if necessary.
 Memoizes call in emacspeak-load-history-pointer to memoize this call. "
   (interactive)
-  (declare (special load-history
-                    emacspeak-load-history-pointer))
+  (declare (special load-history emacspeak-load-history-pointer))
   (unless (eq emacspeak-load-history-pointer load-history)
-    (let ((lh load-history)
-          (emacspeak-speak-messages nil))
+    (lexical-let ((lh load-history)
+                  (emacspeak-speak-messages nil))
 ;;; cdr down lh till we hit emacspeak-load-history-pointer
       (while (and lh
                   (not (eq lh emacspeak-load-history-pointer)))

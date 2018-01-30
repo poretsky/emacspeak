@@ -1,5 +1,5 @@
 ;;; emacspeak-we.el --- Transform Web Pages Using XSLT
-;;; $Id: emacspeak-we.el 9590 2014-11-25 00:09:14Z tv.raman.tv $
+;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Edit/Transform Web Pages using XSLT
 ;;; Keywords: Emacspeak,  Audio Desktop Web, XSLT
@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2011, T. V. Raman
+;;;Copyright (C) 1995 -- 2015, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -59,6 +59,7 @@
 (require 'cl)
 (declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
+
 (require 'emacspeak-xslt)
 (require 'emacspeak-webutils)
 
@@ -176,11 +177,10 @@ Nil means no transform is used. "
   "Apply specified transformation to current Web page."
   (interactive (list (emacspeak-xslt-read)))
   (emacspeak-webutils-browser-check)
-  (emacspeak-webutils-with-xsl-environment
-   xsl
-   nil
-   emacspeak-xslt-options
-   (browse-url (funcall emacspeak-webutils-current-url))))
+  (add-to-list
+   'emacspeak-web-pre-process-hook
+   (emacspeak-webutils-make-xsl-transformer  xsl))
+  (browse-url (funcall emacspeak-webutils-current-url)))
 
 ;;;###autoload
 (defun emacspeak-we-xslt-select (xsl)
@@ -266,14 +266,13 @@ from Web page -- default is the current page being viewed."
     current-prefix-arg))
   (declare (special emacspeak-we-xsl-filter
                     emacspeak-we-filters-rename-buffer))
-  (let ((params (emacspeak-xslt-params-from-xpath  path url)))
+  (lexical-let ((params (emacspeak-xslt-params-from-xpath  path url)))
     (when emacspeak-we-filters-rename-buffer(emacspeak-webutils-rename-buffer (format "Filtered %s" path)))
     (when speak (emacspeak-webutils-autospeak))
-    (emacspeak-webutils-with-xsl-environment
-     emacspeak-we-xsl-filter
-     params
-     emacspeak-xslt-options             ;options
-     (browse-url url))))
+    (add-to-list
+     'emacspeak-web-pre-process-hook
+     (emacspeak-webutils-make-xsl-transformer emacspeak-we-xsl-filter params))
+    (browse-url url)))
 
 ;;;###autoload
 (defun emacspeak-we-xslt-junk (path    url &optional speak)
@@ -284,15 +283,13 @@ from Web page -- default is the current page being viewed."
     (emacspeak-webutils-read-url)
     (ems-interactive-p )))
   (declare (special emacspeak-we-xsl-junk ))
-  (let ((params (emacspeak-xslt-params-from-xpath  path url)))
-    (emacspeak-webutils-rename-buffer
-     (format "Filtered %s" path))
+  (lexical-let ((params (emacspeak-xslt-params-from-xpath  path url)))
+    (emacspeak-webutils-rename-buffer (format "Filtered %s" path))
     (when speak (emacspeak-webutils-autospeak))
-    (emacspeak-webutils-with-xsl-environment
-     emacspeak-we-xsl-junk
-     params
-     emacspeak-xslt-options
-     (browse-url url))))
+    (add-to-list
+     'emacspeak-web-pre-process-hook
+     (emacspeak-webutils-make-xsl-transformer emacspeak-we-xsl-junk params))
+    (browse-url url)))
 
 (defcustom emacspeak-we-media-stream-suffixes
   (list
@@ -547,11 +544,10 @@ Tables are specified by containing  match pattern
     (add-hook
      'emacspeak-web-post-process-hook
      (eval
-      `(function
-        (lambda nil
-          (declare (special  emacspeak-we-buffer-class-cache))
-          (setq emacspeak-we-buffer-class-cache
-                ',(copy-sequence values))))))
+      `#'(lambda nil
+           (declare (special  emacspeak-we-buffer-class-cache))
+           (setq emacspeak-we-buffer-class-cache
+                 ',(copy-sequence values)))))
     (kill-buffer content)))
 
 (defvar emacspeak-we-buffer-id-cache nil
@@ -573,11 +569,10 @@ Tables are specified by containing  match pattern
     (add-hook
      'emacspeak-web-post-process-hook
      (eval
-      `(function
-        (lambda nil
-          (declare (special  emacspeak-we-buffer-id-cache))
-          (setq emacspeak-we-buffer-id-cache
-                ',(copy-sequence values))))))
+      `#'(lambda nil
+           (declare (special  emacspeak-we-buffer-id-cache))
+           (setq emacspeak-we-buffer-id-cache
+                 ',(copy-sequence values)))))
     (kill-buffer content)))
 
 (defvar emacspeak-we-buffer-role-cache nil
@@ -599,11 +594,10 @@ Tables are specified by containing  match pattern
     (add-hook
      'emacspeak-web-post-process-hook
      (eval
-      `(function
-        (lambda nil
-          (declare (special  emacspeak-we-buffer-role-cache))
-          (setq emacspeak-we-buffer-role-cache
-                ',(copy-sequence values))))))
+      `#'(lambda nil
+           (declare (special  emacspeak-we-buffer-role-cache))
+           (setq emacspeak-we-buffer-role-cache
+                 ',(copy-sequence values)))))
     (kill-buffer content)))
 
 ;;;###autoload
@@ -768,12 +762,12 @@ separate buffer. Interactive use provides list of id values as completion. "
     (emacspeak-we-get-id-list)
     (emacspeak-webutils-read-url)
     current-prefix-arg))
-  (let ((filter
-         (mapconcat
-          #'(lambda  (c)
-              (format "(@id=\"%s\")" c))
-          ids
-          " or ")))
+  (lexical-let ((filter
+                 (mapconcat
+                  #'(lambda  (c)
+                      (format "(@id=\"%s\")" c))
+                  ids
+                  " or ")))
     (emacspeak-we-xslt-filter
      (format "//*[%s]" filter)
      url
@@ -911,6 +905,13 @@ specifies the page to extract contents  from."
 
 ;;}}}
 ;;{{{ xpath  filter
+;;;###autoload
+(defcustom emacspeak-we-recent-xpath-filter
+  "//p|//ol|//ul|//dl|//h1|//h2|//h3|//h4|//h5|//h6|//blockquote|//div"
+  "Caches most recently used xpath filter.
+Can be customized to set up initial default."
+  :type 'string
+  :group 'emacspeak-we)
 
 (defvar emacspeak-we-xpath-filter-history 
   (list
@@ -926,13 +927,7 @@ specifies the page to extract contents  from."
 urls.")
 
 (make-variable-buffer-local 'emacspeak-we-xpath-filter)
-;;;###autoload
-(defcustom emacspeak-we-recent-xpath-filter
-  "//p|//ol|//ul|//dl|//h1|//h2|//h3|//h4|//h5|//h6|//blockquote|//div"
-  "Caches most recently used xpath filter.
-Can be customized to set up initial default."
-  :type 'string
-  :group 'emacspeak-we)
+
 ;;;###autoload
 (defcustom emacspeak-we-paragraphs-xpath-filter
   "//p"
@@ -1109,39 +1104,37 @@ and provide a completion list of applicable  property values. Filter document by
 (loop for binding in
       '(
         ("C" emacspeak-we-extract-by-class-list)
+        ("C-c" emacspeak-we-junk-by-class-list)
+        ("C-f" emacspeak-we-count-matches)
+        ("C-p" emacspeak-we-xpath-junk-and-follow)
+        ("C-t" emacspeak-we-count-tables)
+        ("C-x" emacspeak-we-count-nested-tables)
         ("D" emacspeak-we-junk-by-class-list)
-        ("w" emacspeak-we-extract-by-property)
+        ("I" emacspeak-we-extract-by-id-list)
         ("M" emacspeak-we-extract-tables-by-match-list)
         ("P" emacspeak-we-follow-and-extract-main)
-        ("r" emacspeak-we-extract-by-role)
-        ("R" emacspeak-we-extract-media-streams)
+        ("S" emacspeak-we-style-filter)
         ("T" emacspeak-we-extract-tables-by-position-list)
         ("X" emacspeak-we-extract-nested-table-list)
-        ("\C-c" emacspeak-we-junk-by-class-list)
-        ("\C-f" emacspeak-we-count-matches)
-        ("\C-p" emacspeak-we-xpath-junk-and-follow)
-        ("\C-t" emacspeak-we-count-tables)
-        ("\C-x" emacspeak-we-count-nested-tables)
         ("a" emacspeak-we-xslt-apply)
+        ("b" emacspeak-we-follow-and-filter-by-id)
         ("c" emacspeak-we-extract-by-class)
         ("d" emacspeak-we-junk-by-class)
         ("e" emacspeak-we-url-expand-and-execute)
         ("f" emacspeak-we-xslt-filter)
         ("i" emacspeak-we-extract-by-id)
-        ("I" emacspeak-we-extract-by-id-list)
         ("j" emacspeak-we-xslt-junk)
         ("k" emacspeak-we-toggle-xsl-keep-result)
         ("m" emacspeak-we-extract-table-by-match)
         ("o" emacspeak-we-xsl-toggle)
         ("p" emacspeak-we-xpath-filter-and-follow)
-        ("v" emacspeak-we-class-filter-and-follow-link)
-        
-        ("S" emacspeak-we-style-filter)
+        ("r" emacspeak-we-extract-by-role)
         ("s" emacspeak-we-xslt-select)
         ("t" emacspeak-we-extract-table-by-position)
         ("u" emacspeak-we-extract-matching-urls)
+        ("v" emacspeak-we-class-filter-and-follow-link)
+        ("w" emacspeak-we-extract-by-property)
         ("x" emacspeak-we-extract-nested-table)
-        ("b" emacspeak-we-follow-and-filter-by-id)
         ("y" emacspeak-we-class-filter-and-follow)
         )
       do
@@ -1159,8 +1152,7 @@ and provide a completion list of applicable  property values. Filter document by
  (eval
   `(defadvice   ,f (around emacspeak pre act comp)
      "Silence messages while this function executes"
-     (let ((emacspeak-speak-messages nil))
-       ad-do-it))))
+     (ems-with-messages-silenced ad-do-it))))
 
 ;;}}}
 (provide 'emacspeak-we)

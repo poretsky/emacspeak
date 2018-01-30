@@ -1,5 +1,5 @@
 ;;; emacspeak-enriched.el --- Audio Formatting for Emacs' WYSIWYG RichText  mode
-;;; $Id: emacspeak-enriched.el 9489 2014-10-17 00:27:14Z tv.raman.tv $
+;;; $Id$
 ;;; $Author: tv.raman.tv $ 
 ;;; Description: Emacspeak module to speak voiceify rich text
 ;;; Keywords:emacspeak, audio interface to emacs rich text
@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2011, T. V. Raman 
+;;;Copyright (C) 1995 -- 2015, T. V. Raman 
 ;;; Copyright (c) 1995 by T. V. Raman  
 ;;; All Rights Reserved. 
 ;;;
@@ -38,9 +38,9 @@
 ;;}}}
 
 ;;{{{  Introduction
-
+;;; Commentary:
 ;;; emacspeak extensions to voiceify rich  text.
-
+;;; Code:
 ;;}}}
 ;;{{{ required modules
 (require 'emacspeak-preamble)
@@ -119,9 +119,7 @@ Useful in voiceifying rich text."
 
 (defadvice enriched-mode (after emacspeak pre act comp)
   "Map faces to voices. "
-  (cond
-   (enriched-mode
-    (emacspeak-enriched-voiceify-faces (point-min) (point-max))))
+  (emacspeak-enriched-voiceify-faces (point-min) (point-max))
   ad-return-value)
 
 ;;}}}

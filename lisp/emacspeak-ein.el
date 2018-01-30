@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2007, 2011, T. V. Raman
+;;;Copyright (C) 1995 -- 2015, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -219,12 +219,13 @@
 
 ;;}}}
 ;;{{{ Bind additional interactive commands
-(loop for k in
-      '(
-        ("\C-c." emacspeak-ein-speak-current-cell)
-        )
-      do
-      (emacspeak-keymap-update ein:notebook-mode-map k))
+(when (boundp 'ein:notebook-mode-map)
+  (loop for k in
+        '(
+          ("\C-c." emacspeak-ein-speak-current-cell)
+          )
+        do
+        (emacspeak-keymap-update ein:notebook-mode-map k)))
 
 ;;}}}
 (provide 'emacspeak-ein)

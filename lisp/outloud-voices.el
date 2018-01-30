@@ -1,5 +1,5 @@
 ;;; outloud-voices.el --- Define various device independent voices in terms of OutLoud tags
-;;; $Id: outloud-voices.el 8312 2013-05-01 16:03:33Z tv.raman.tv $
+;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Module to set up Eloquent voices and personalities
 ;;; Keywords: Voice, Personality, IBM ViaVoice Outloud
@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;;Copyright (C) 1995 -- 2011, T. V. Raman 
+;;;Copyright (C) 1995 -- 2015, T. V. Raman 
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.

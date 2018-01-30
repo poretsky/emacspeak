@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2011, T. V. Raman
+;;;Copyright (C) 1995 -- 2015, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -124,7 +124,7 @@ This variable is buffer-local.")
               (mapconcat #'identity settings ",")))))
 (defvar emacspeak-google-toolbelt-names  nil
   "Cache of available toolbelt names.")
-
+(make-variable-buffer-local 'emacspeak-google-toolbelt-names)
 (defun emacspeak-google-toolbelt ()
   "Returns buffer-local toolbelt or a a newly initialized toolbelt."
   (declare (special emacspeak-google-toolbelt ))
@@ -150,7 +150,7 @@ This variable is buffer-local.")
          :type 'tbs)
 ;;; Duration restrict for video
         (make-emacspeak-google-tool
-         :name "duration"
+         :name "video-duration"
          :param "dur"
          :range '("m" "s" "l")
          :default "m"
@@ -182,12 +182,21 @@ This variable is buffer-local.")
          :type 'tbm)
 ;;; discussions/forums
         (make-emacspeak-google-tool
-         :name "discussions"
+         :name "group-discussions"
          :param "dsc"
          :range '(0 1)
          :default 0
          :value 0
          :type 'tbm)
+        ;;;In-Depth Article
+        (make-emacspeak-google-tool
+         :name "in-depth"
+         :param "ida"
+         :range '(0 1)
+         :default 0
+         :value 0
+         :type 'tbs)
+
 ;;; Blog mode
         (make-emacspeak-google-tool
          :name "blog"
@@ -447,10 +456,6 @@ This variable is buffer-local.")
                (or emacspeak-google-query
                    (gweb-google-autocomplete))))))))
 
-(defvar emacspeak-google-toolbelt-names nil
-  "Cache of tool names.")
-(make-variable-buffer-local 'emacspeak-google-toolbelt-names)
-
 (defsubst emacspeak-google-toolbelt-names ()
   "Return memoized cache of names."
   (declare (special emacspeak-google-toolbelt-names))
@@ -474,7 +479,8 @@ This variable is buffer-local.")
     (format  "emacspeak-google-toolbelt-change-%s"
              (completing-read
               "Toolbelt: "
-              (emacspeak-google-toolbelt-names))))))
+              (emacspeak-google-toolbelt-names)
+              nil t)))))
 
 (defun emacspeak-google-show-toolbelt()
   "Reload search page with toolbelt showing."
@@ -512,18 +518,19 @@ This variable is buffer-local.")
 (define-prefix-command  'emacspeak-google-command
   'emacspeak-google-keymap)
 
-(loop for k in
-      '(
-        ("." emacspeak-google-toolbelt-change)("." emacspeak-google-toolbelt-change)
-        ("A" emacspeak-google-sign-in)
-        ("a" emacspeak-google-sign-out)
-        ("c" emacspeak-webutils-google-extract-from-cache)
-        ("g" emacspeak-websearch-google)
-        ("l" emacspeak-webutils-google-who-links-to-this-page)
-        ("s" emacspeak-webutils-google-similar-to-this-page)
-        )
-      do
-      (emacspeak-keymap-update emacspeak-google-keymap k))
+(loop
+ for k in
+ '(
+   ("." emacspeak-google-toolbelt-change)("." emacspeak-google-toolbelt-change)
+   ("A" emacspeak-google-sign-in)
+   ("a" emacspeak-google-sign-out)
+   ("c" emacspeak-webutils-google-extract-from-cache)
+   ("g" emacspeak-websearch-google)
+   ("l" emacspeak-webutils-google-who-links-to-this-page)
+   ("s" emacspeak-webutils-google-similar-to-this-page)
+   )
+ do
+ (emacspeak-keymap-update emacspeak-google-keymap k))
 
 ;;}}}
 ;;{{{ Advice GMaps:

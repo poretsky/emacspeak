@@ -1,4 +1,4 @@
-@c $Id: announce.texi 4047 2006-08-11 19:11:17Z tv.raman.tv $
+@c $Id$
 
 @node Announce
 @chapter Announcing Emacspeak Manual 2nd Edition As An Open Source Project

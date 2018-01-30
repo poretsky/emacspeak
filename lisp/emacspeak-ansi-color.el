@@ -1,5 +1,5 @@
 ;;; emacspeak-ansi-color.el --- Speech-enable ansi-color terminal
-;;; $Id: emacspeak-ansi-color.el 8243 2013-03-19 15:32:44Z tv.raman.tv $
+;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak module for ansi-color
 ;;; Keywords: Emacspeak, ansi-color
@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (C) 1999, 2011 T. V. Raman <raman@cs.cornell.edu>
+;;; Copyright (C) 1995 -- 2015, T. V. Raman
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.

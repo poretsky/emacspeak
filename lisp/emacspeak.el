@@ -1,5 +1,5 @@
 ;;; emacspeak.el --- Emacspeak -- The Complete Audio Desktop
-;;; $Id: emacspeak.el 9454 2014-09-19 16:03:28Z tv.raman.tv $
+;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak: A speech interface to Emacs
 ;;; Keywords: Emacspeak, Speech, Dectalk,
@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2011, T. V. Raman
+;;;Copyright (C) 1995 -- 2015, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -53,17 +53,16 @@
 (require 'cl)
 (declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
-(require 'dtk-speak)
 (require 'emacspeak-sounds)
-
+(require 'emacspeak-fix-interactive)
 ;;}}}
 ;;{{{ autoloads
-
-(load-library "emacspeak-loaddefs")
-(load-library "emacspeak-cus-load")
-(load-library "g-loaddefs")
-(load-library "g-client/g-cus-load")
-
+(unless noninteractive
+  (load-library "emacspeak-loaddefs")
+  (load-library "emacspeak-cus-load")
+  (load-library "g-loaddefs")
+  (load-library "g-client/g-cus-load")
+  )
 ;;}}}
 ;;{{{  Customize groups
 
@@ -145,7 +144,6 @@ speech-enabling extensions."
 (emacspeak-do-package-setup "apt-sources" 'emacspeak-apt-sources)
 (emacspeak-do-package-setup "apt-utils" 'emacspeak-apt-utils)
 (emacspeak-do-package-setup "arc-mode" 'emacspeak-arc)
-(emacspeak-do-package-setup "babel" 'emacspeak-babel )
 (emacspeak-do-package-setup "bbdb" 'emacspeak-bbdb )
 (emacspeak-do-package-setup "bibtex" 'emacspeak-bibtex)
 (emacspeak-do-package-setup "bookmark" 'emacspeak-bookmark)
@@ -169,12 +167,10 @@ speech-enabling extensions."
 (emacspeak-do-package-setup "ecb" 'emacspeak-ecb)
 (emacspeak-do-package-setup "ein" 'emacspeak-ein)
 (emacspeak-do-package-setup "cus-edit" 'emacspeak-custom)
-(emacspeak-do-package-setup "damlite" 'emacspeak-damlite)
 (emacspeak-do-package-setup "desktop" 'emacspeak-desktop )
 (emacspeak-do-package-setup "diff-mode" 'emacspeak-diff-mode )
 (emacspeak-do-package-setup "dired" 'emacspeak-dired )
 (emacspeak-do-package-setup "dismal" 'emacspeak-dismal)
-(emacspeak-do-package-setup "dictation" 'emacspeak-dictation)
 (emacspeak-do-package-setup "dictionary" 'emacspeak-dictionary)
 (emacspeak-do-package-setup "dmacro" 'emacspeak-dmacro)
 (emacspeak-do-package-setup "doctor" 'emacspeak-entertain)
@@ -190,6 +186,7 @@ speech-enabling extensions."
 (emacspeak-do-package-setup "ess" 'emacspeak-ess)
 (emacspeak-do-package-setup "eclim" 'emacspeak-eclim)
 (emacspeak-do-package-setup "eww" 'emacspeak-eww)
+(emacspeak-do-package-setup "elfeed" 'emacspeak-elfeed)
 (emacspeak-do-package-setup "enriched" 'emacspeak-enriched)
 (emacspeak-do-package-setup "facemenu" 'emacspeak-facemenu)
 (emacspeak-do-package-setup "find-dired" 'emacspeak-find-dired)
@@ -214,7 +211,6 @@ speech-enabling extensions."
 (emacspeak-do-package-setup "ido" 'emacspeak-ido)
 (emacspeak-do-package-setup "info" 'emacspeak-info)
 (emacspeak-do-package-setup "ispell" 'emacspeak-ispell)
-(emacspeak-do-package-setup "iswi" 'emacspeak-iswitchb)
 (emacspeak-do-package-setup "jabber" 'emacspeak-jabber)
 (emacspeak-do-package-setup "jde" 'emacspeak-jde)
 (emacspeak-do-package-setup "js2" 'emacspeak-js2)
@@ -224,6 +220,7 @@ speech-enabling extensions."
 (emacspeak-do-package-setup "kmacro" 'emacspeak-kmacro)
 (emacspeak-do-package-setup "magit" 'emacspeak-magit)
 (emacspeak-do-package-setup "make-mode" 'emacspeak-make-mode)
+(emacspeak-do-package-setup "markdown-mode" 'emacspeak-markdown)
 (emacspeak-do-package-setup "man" 'emacspeak-man)
 (emacspeak-do-package-setup "message" 'emacspeak-message)
 (emacspeak-do-package-setup "meta-mode" 'emacspeak-metapost)
@@ -240,9 +237,8 @@ speech-enabling extensions."
 (emacspeak-do-package-setup "outline" 'emacspeak-outline)
 (emacspeak-do-package-setup "perl-mode" 'emacspeak-perl)
 (emacspeak-do-package-setup "php-mode" 'emacspeak-php-mode)
-(emacspeak-do-package-setup "pcl-cvs" 'emacspeak-pcl-cvs)
+(emacspeak-do-package-setup "package"'emacspeak-package)
 (emacspeak-do-package-setup "pcvs" 'emacspeak-pcl-cvs)
-(emacspeak-do-package-setup "psgml" 'emacspeak-psgml)
 (emacspeak-do-package-setup "python" 'emacspeak-python)
 (emacspeak-do-package-setup "python-mode" 'emacspeak-py)
 (emacspeak-do-package-setup "re-builder" 'emacspeak-re-builder)
@@ -260,15 +256,12 @@ speech-enabling extensions."
 (emacspeak-do-package-setup "sql" 'emacspeak-sql)
 (emacspeak-do-package-setup "supercite" 'emacspeak-supercite)
 (emacspeak-do-package-setup "sudoku" 'emacspeak-sudoku)
-(emacspeak-do-package-setup "swbuff" 'emacspeak-swbuff)
 (emacspeak-do-package-setup "table" 'emacspeak-etable)
 (emacspeak-do-package-setup "tar-mode" 'emacspeak-tar)
 (emacspeak-do-package-setup "tcl" 'emacspeak-tcl)
 (emacspeak-do-package-setup "tdtd" 'emacspeak-tdtd)
-(emacspeak-do-package-setup "xslide" 'emacspeak-xslide)
-(emacspeak-do-package-setup "xslt-process" 'emacspeak-xslt-process)
+(emacspeak-do-package-setup "xref" 'emacspeak-xref)
 (emacspeak-do-package-setup "tempo" 'emacspeak-tempo)
-(emacspeak-do-package-setup "tnt" 'emacspeak-tnt)
 (emacspeak-do-package-setup "term" 'emacspeak-eterm )
 (emacspeak-do-package-setup "eudc" 'emacspeak-eudc )
 (emacspeak-do-package-setup "tetris" 'emacspeak-tetris)
@@ -297,8 +290,8 @@ speech-enabling extensions."
 ;;{{{  Submit bugs
 
 (defconst emacspeak-bug-address
-  "raman@cs.cornell.edu"
-  "Address of the maintainer of this package.")
+  "emacspeak@cs.vassar.edu"
+  "Address for bug reports and questions.")
 
 (defun emacspeak-submit-bug ()
   "Function to submit a bug to the programs maintainer."
@@ -370,7 +363,7 @@ sets punctuation mode to all, activates the dictionary and turns on split caps."
    (list
     'prog-mode-hook'c-mode-common-hook
     'conf-unix-mode-hook
-    'prolog-mode-hook
+    'prolog-mode-hook 'markdown-mode-hook
     'lisp-mode-hook
     'emacs-lisp-mode-hook
     'lisp-interaction-mode-hook
@@ -462,6 +455,7 @@ functions for details.   "
   (require 'emacspeak-redefine)
   (require 'emacspeak-replace)
   (require 'emacspeak-advice)
+  (require 'emacspeak-info)
   (emacspeak-play-startup-icon)
   (emacspeak-sounds-define-theme-if-necessary emacspeak-sounds-default-theme)
   (when emacspeak-pronounce-load-pronunciations-on-startup

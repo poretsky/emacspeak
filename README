@@ -1,5 +1,5 @@
-Emacspeak  Revision 9596M
-Distribution created by raman on raman-glaptop
+Emacspeak  Revision 01b3dc8d8a73749ed687c20f067dc6013170f375
+Distribution created by raman on retriever.mtv.corp.google.com
 Unpack the  distribution And type make config 
 Then type make
 See the Makefile for details. 

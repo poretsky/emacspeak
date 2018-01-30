@@ -1,5 +1,5 @@
 \input texinfo
-@c$Id: emacspeak.texi 8248 2013-03-23 15:57:10Z tv.raman.tv $
+@c$Id$
 @setfilename./emacspeak.info 
 @settitle Emacspeak User's Manual --2nd Edition.
 @dircategory Accessibility
@@ -19,7 +19,7 @@
      
      @page
      @vskip 0pt plus 1filll
-     Copyright @copyright{} 1994--2013 T. V. Raman. All Rights Reserved.
+     Copyright @copyright{} 1994--2015 T. V. Raman. All Rights Reserved.
 
 
 Permission is granted to make and distribute verbatim copies of this
@@ -42,8 +42,8 @@ notice are preserved on all copies.
 @include online-help.texi
 @include packages.texi
 @include eterm.texi
-@include commands.texi
-@include options.texi
+          @include docs.texi
+
 @include tts-server.texi
 @include acknowledge.texi
 @c trailer

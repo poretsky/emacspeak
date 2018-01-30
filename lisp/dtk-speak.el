@@ -1,5 +1,5 @@
 ;;; dtk-speak.el --- Provides Emacs Lisp interface to speech server
-;;;$Id: dtk-speak.el 9269 2014-07-25 20:52:29Z tv.raman.tv $
+;;;$Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacs interface to TTS
 ;;; Keywords: Dectalk Emacs Elisp
@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2011, T. V. Raman
+;;;Copyright (C) 1995 -- 2015, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -611,13 +611,11 @@ Argument COMPLEMENT  is the complement of separator."
 (defsubst dtk-speak-using-voice (voice text)
   "Use voice VOICE to speak text TEXT."
   (declare (special tts-voice-reset-code dtk-quiet))
-                                        ; ensure text is a  string
-  (unless (stringp text) (setq text (format "%s" text)))
-  (unless (or (eq 'inaudible voice )
-              dtk-quiet
-              (null text)
-              (string-equal  text "")
+  (unless (or (eq 'inaudible voice ) dtk-quiet
+              (null text) (string-equal  text "")
               (and (listp voice) (memq 'inaudible voice)))
+;;; ensure text is a  string
+    (unless (stringp text) (setq text (format "%s" text)))
     (dtk-interp-queue-code
      (cond
       ((symbolp voice)
@@ -704,10 +702,7 @@ Arguments START and END specify region to speak."
    (t (dtk-interp-queue (buffer-substring start end  )))))
 
                                         ;Force the speech.
-(defsubst dtk-force ()
-  "Cause server to process all queued requests."
-  (declare (special dtk-speaker-process))
-  (dtk-interp-speak))
+(defalias 'dtk-force 'dtk-interp-speak)
 
                                         ;Write out the string to the tts via TCLSH.
                                         ;No quoting is done, if want to quote the text, see dtk-speak
@@ -718,13 +713,12 @@ Arguments START and END specify region to speak."
                     dtk-quiet))
   (unless dtk-quiet
     (when dtk-speak-server-initialized
-      (dtk-interp-dispatch string ))))
+      (dtk-interp-say string ))))
 
 ;;;###autoload
 (defsubst dtk-stop ()
   "Stop speech now."
   (interactive)
-  (declare (special dtk-speaker-process))
   (dtk-interp-stop))
 
 (defsubst dtk-reset-default-voice()
@@ -801,10 +795,11 @@ Argument OUTPUT is the newly arrived output."
               (called-interactively-p 'interactive)
             (interactive-p))
         (emacspeak-auditory-icon (if ,switch 'on 'off))
-        (message "Turned %s %s  %s."
+        (dtk-speak-and-echo
+         (format "Turned %s %s  %s."
                  (if ,switch "on" "off" )
                  ',switch
-                 (if prefix "" " locally"))))))
+                 (if prefix "" " locally")))))))
 
 ;;}}}
 ;;{{{  sending commands
@@ -932,14 +927,6 @@ value, and then set the current local value to the result.
 Note that allcaps-beep is a very useful thing when programming.
 However it is irritating to have it on when reading documents.")
 
-(ems-generate-switcher 'dtk-toggle-debug
-                       'dtk-debug
-                       "Toggle state of the debug FLAG.
-When debugging is on, you can switch to the buffer
-*speaker* to examine the output from the process
-that talks to the speech device by using command \\[tts-show-debug-buffer].
-Note: *speaker* is a hidden buffer, ie it has a leading space in its name.")
-
 ;;;###autoload
 (defun dtk-set-punctuations  (mode &optional prefix )
   "Set punctuation mode to MODE.
@@ -1015,55 +1002,6 @@ Typically used after the Dectalk has been power   cycled."
   "Speak version."
   (interactive)
   (dtk-interp-say-version))
-
-;;}}}
-;;{{{  pause and resume
-(defvar dtk-paused nil
-  "Records if speech has been paused.")
-
-;;;###autoload
-(defun dtk-pause ()
-  "Temporarily pause / resume speech."
-  (interactive)
-  (declare (special dtk-paused))
-  (cond
-   ((not dtk-paused)
-    (dtk-interp-pause)
-    (setq dtk-paused t)
-    (emacspeak-auditory-icon 'button))
-   (t
-    (setq dtk-paused nil)
-    (dtk-interp-resume))))
-
-;;;###autoload
-(defcustom dtk-resume-should-toggle t
-  "*T means `dtk-resume' acts as a toggle."
-  :type 'boolean
-  :group 'tts)
-
-;;;###autoload
-(defun dtk-resume ()
-  "Resume paused speech.
-This command resumes  speech that has been suspended by executing
-command `dtk-pause' bound to \\[dtk-pause].
-If speech has not been paused,
-and option `dtk-resume-should-toggle' is set,
- then this command will pause ongoing speech."
-  (interactive)
-  (declare (special dtk-speaker-process
-                    dtk-resume-should-toggle
-                    dtk-paused))
-  (cond
-   ((and dtk-resume-should-toggle
-         (not dtk-paused))
-    (dtk-pause))
-   ((and (not dtk-paused)
-         (not dtk-resume-should-toggle))
-    (dtk-speak "No speech to resume."))
-
-   (t (dtk-interp-resume)
-      (emacspeak-auditory-icon 'button)
-      (setq dtk-paused nil))))
 
 ;;}}}
 ;;{{{  Internal variables:
@@ -1538,21 +1476,20 @@ This is setup on a per engine basis.")
   (cond
                                         ;viavoice outloud family 
    ((string-match "outloud" tts-name) (outloud-configure-tts))
-                                        ;all dectalks
-   ((string-match "dtk-" tts-name) (dectalk-configure-tts))
+;;;all dectalks
+   ((string-match "dtk" tts-name) (dectalk-configure-tts))
    ((string-match "^multispeech$" tts-name) (multispeech-configure-tts))
-                                        ;exact match
-   ((string-match "^mac$" tts-name) (mac-configure-tts))
-                                        ; exact match
-   ((string-match "^espeak$" tts-name) (espeak-configure-tts))
+   ((string-match "mac$" tts-name) (mac-configure-tts))
+   ((string-match "espeak$" tts-name) (espeak-configure-tts))
    ((string-match "^eflite$" tts-name) (flite-configure-tts))
-   ((string-match "^log-server$" tts-name) t) ; use previous configuration
-                                        ; generic configure
+;;; generic configure
    (t (plain-configure-tts)))
+  (dtk-interp-sync)
   (when
       (or 
        (string-match "^ssh" tts-name)   ;remote server
-       (string-match "^cloud" tts-name))
+       (string-match "^cloud" tts-name) ; cloud 
+       (string-match "^log" tts-name))
     (setq emacspeak-auditory-icon-function 'emacspeak-serve-auditory-icon))
   (load-library "voice-setup")
   (setq tts-voice-reset-code (tts-get-voice-command tts-default-voice)))
@@ -1563,9 +1500,9 @@ This is setup on a per engine basis.")
 ;;;###autoload
 (defun dtk-select-server (program &optional device)
   "Select a speech server interactively.
-Argument PROGRAM specifies the speech server program. When called
-interactively, The selected server is started
-immediately. Optional arg device sets up environment variable
+When called interactively, restarts speech server.
+Argument PROGRAM specifies the speech server program. 
+ Optional arg device sets up environment variable
 ALSA_DEFAULT to specified device before starting the server."
   (interactive
    (list
@@ -1587,7 +1524,7 @@ ALSA_DEFAULT to specified device before starting the server."
     (when (file-exists-p (expand-file-name ssh-server emacspeak-servers-directory))
       (setq emacspeak-ssh-tts-server ssh-server)
       (setq-default emacspeak-ssh-tts-server ssh-server))
-    (when (ems-interactive-p )
+    (when (called-interactively-p  'interactive)
       (dtk-initialize))))
 
 (defcustom tts-device-list (list "default")
@@ -1618,37 +1555,6 @@ Optional interactive prefix arg restarts current TTS server."
       (setenv "ALSA_DEFAULT" tts-device)
       (message "ALSA_DEFAULT: %s" tts-device)
       (when current-prefix-arg (tts-restart))))))
-
-(defvar dtk-async-server-process nil
-  "Process handle to async server.")
-
-;;;###autoload
-(defun dtk-async-server (program)
-  "Select and start an async  speech server interactively.
-Async servers allow external programs like self-voicing Web browsers to use
-the Emacspeak TTS server abstraction.
-Argument PROGRAM specifies the speech server program."
-  (interactive
-   (list
-    (completing-read
-     "Select speech server:"
-     (or dtk-servers-alist
-         (tts-setup-servers-alist))
-     nil
-     t  )))
-  (declare (special    dtk-servers-alist
-                       dtk-async-server-process emacspeak-servers-directory ))
-  (when (and
-         dtk-async-server-process
-         (eq 'run (process-status dtk-async-server-process)))
-    (kill-process dtk-async-server-process))
-  (setq dtk-async-server-process
-        (start-process
-         "AsyncTTS"
-         "*AsyncTTS*"
-         (executable-find "python")
-         (expand-file-name "python/HTTPSpeaker.py" emacspeak-servers-directory)
-         program)))
 
 ;;;###autoload
 (defvar dtk-local-server-process nil
@@ -1684,7 +1590,9 @@ Port  defaults to  dtk-local-server-port"
      (or dtk-servers-alist
          (tts-setup-servers-alist))
      nil
-     t  )))
+     t
+     nil nil 
+     dtk-program)))
   (declare (special    dtk-servers-alist dtk-local-server-port
                        dtk-local-server-process emacspeak-servers-directory ))
   (when (and
@@ -1702,28 +1610,20 @@ Port  defaults to  dtk-local-server-port"
 ;;}}}
 ;;{{{  initialize the speech process
 
-(defvar dtk-debug nil
-  "Set this to t if you want to debug the synthesizer server.")
-(make-variable-buffer-local 'dtk-debug)
-
 (defvar dtk-speak-server-initialized nil
   "Records if the server is initialized.")
 
-(defvar tts-debug-buffer " *speaker*"
-  "Buffer holding speech server debug output.")
-
 (defun  dtk-initialize ()
   "Initialize speech system."
-  (declare (special dtk-program tts-debug-buffer 
-                    dtk-speaker-process  dtk-debug
-                    dtk-speak-server-initialized
+  (declare (special dtk-program  
+                    dtk-speaker-process dtk-speak-server-initialized
                     dtk-startup-hook emacspeak-servers-directory))
   (let ((new-process nil)
         (process-connection-type  nil))
     (setq new-process
           (apply 'start-process
                  "speaker"
-                 (and dtk-debug tts-debug-buffer)
+                 nil
                  (expand-file-name dtk-program emacspeak-servers-directory)
                  dtk-program-args))
     (setq dtk-speak-server-initialized
@@ -1751,11 +1651,6 @@ Port  defaults to  dtk-local-server-port"
   (dtk-initialize ))
 
 ;;;###autoload
-(defun tts-show-debug-buffer ()
-  "Select TTS debugging buffer."
-  (interactive)
-  (declare (special tts-debug-buffer))
-  (switch-to-buffer tts-debug-buffer))
 
 ;;}}}
 ;;{{{  interactively select how text is split:
@@ -1820,27 +1715,27 @@ only speak upto the first ctrl-m."
                     dtk-split-caps
                     emacspeak-pronounce-pronunciation-table
                     selective-display ))
-                                        ; ensure text is a  string
+;;; ensure text is a  string
   (unless (stringp text) (setq text (format "%s" text)))
-                                        ; ensure  the process  is live
+;;; ensure  the process  is live
   (unless (or (eq 'run (process-status dtk-speaker-process ))
               (eq 'open (process-status dtk-speaker-process )))
     (dtk-initialize))
-                                        ; If you dont want me to talk,
-                                        ;or my server is not
-                                        ;running, I will remain silent.
-                                        ; Do nothing if text is ""
+;;; If you dont want me to talk,or my server is not running, 
+;;; I will remain silent.
+;;; I also do nothing if text is nil or ""
   (unless
-      (or dtk-quiet (null text)
-          (string-equal text "") (not dtk-speak-server-initialized))
-                                        ; flush previous speech if asked to
+      (or dtk-quiet (not dtk-speak-server-initialized)
+          (null text) (zerop (length text)))
+;;; flush previous speech if asked to
     (when dtk-stop-immediately (dtk-stop ))
     (dtk-interp-sync)
     (when selective-display
       (let ((ctrl-m (string-match "\015" text )))
         (and ctrl-m (setq text (substring  text 0 ctrl-m ))
              (emacspeak-auditory-icon 'ellipses))))
-    (let ((inhibit-point-motion-hooks t)
+    (let ((inhibit-point-motion-hooks t) ;snapshot relevant state
+          (inhibit-read-only t)
           (deactivate-mark nil)
           (invisibility-spec buffer-invisibility-spec)
           (syntax-table (syntax-table ))
@@ -1860,33 +1755,30 @@ only speak upto the first ctrl-m."
           (mode dtk-punctuation-mode)
           (split-caps dtk-split-caps)
           (voice-lock voice-lock-mode ))
-      (save-current-buffer
-        (set-buffer dtk-scratch-buffer )
+      (with-current-buffer dtk-scratch-buffer
         (setq buffer-undo-list t)
-        (let ((inhibit-read-only t))
-          (erase-buffer)
-                                        ; inherit environment
-          (setq buffer-invisibility-spec invisibility-spec
-                dtk-chunk-separator-syntax inherit-chunk-separator-syntax
-                dtk-speaker-process inherit-speaker-process
-                dtk-speech-rate speech-rate
-                emacspeak-use-auditory-icons use-auditory-icons
-                dtk-punctuation-mode mode
-                dtk-split-caps split-caps
-                dtk-speak-nonprinting-chars
-                inherit-speak-nonprinting-chars
-                tts-strip-octals inherit-strip-octals
-                voice-lock-mode voice-lock)
-          (set-syntax-table syntax-table )
-          (set-buffer-multibyte inherit-enable-multibyte-characters)
-          (insert  text)
-          (delete-invisible-text)
-          (when pronunciation-table
-            (tts-apply-pronunciations
-             pronunciation-table))
-          (dtk-unicode-replace-chars mode)
-          (dtk-handle-repeating-patterns mode)
-          (dtk-quote mode))
+        (erase-buffer)
+;;; inherit environment
+        (setq buffer-invisibility-spec invisibility-spec
+              dtk-chunk-separator-syntax inherit-chunk-separator-syntax
+              dtk-speaker-process inherit-speaker-process
+              dtk-speech-rate speech-rate
+              emacspeak-use-auditory-icons use-auditory-icons
+              dtk-punctuation-mode mode
+              dtk-split-caps split-caps
+              dtk-speak-nonprinting-chars
+              inherit-speak-nonprinting-chars
+              tts-strip-octals inherit-strip-octals
+              voice-lock-mode voice-lock)
+        (set-syntax-table syntax-table )
+        (set-buffer-multibyte inherit-enable-multibyte-characters)
+        (insert  text)
+        (delete-invisible-text)
+        (when pronunciation-table
+          (tts-apply-pronunciations pronunciation-table))
+        (dtk-unicode-replace-chars mode)
+        (dtk-handle-repeating-patterns mode)
+        (dtk-quote mode)
         (goto-char (point-min))
         (skip-syntax-forward inherit-chunk-separator-syntax)
         (while (and (not (eobp))

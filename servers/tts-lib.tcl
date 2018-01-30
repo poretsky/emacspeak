@@ -1,11 +1,11 @@
-#$Id: tts-lib.tcl 8076 2013-01-18 01:38:22Z tv.raman.tv $
+#$Id$
 # {{{ LCD Entry: 
 #x
 # LCD Archive Entry:
 # emacspeak| T. V. Raman |raman@cs.cornell.edu
 # A speech interface to Emacs |
-# $Date: 2013-01-17 17:38:22 -0800 (Thu, 17 Jan 2013) $ |
-#  $Revision: 8076 $ | 
+# $Date$ |
+#  $Revision$ | 
 # Location undetermined
 #
 
@@ -67,7 +67,7 @@ proc queue_length {} {
 proc queue_clear {} {
     global tts queue
     if {$tts(debug)} {
-    puts -nonewline  $tts(write) "$tts(q_head) e\013"
+    puts -nonewline  $tts(write) "$tts(q_head) \013"
     }
     if {[info exists q]} unset q
     set queue(-1) "" 
@@ -108,9 +108,9 @@ proc n {instrument note length {target 0} {step 5}} {
 
 
 #queue a beep 
-proc b {{pitch 523} {length 100} {repeat 1} {duration 50}} {
+proc b {{pitch 523} {length 100}} {
     global queue tts 
-    set queue($tts(q_tail)) [list b $pitch $length $repeat $duration]
+    set queue($tts(q_tail)) [list b $pitch $length]
     incr tts(q_tail)
     return ""
 }
@@ -204,16 +204,18 @@ proc p {sound} {
 
 proc beep_initialize {} {
     global tts
-    if {[file executable /usr/bin/beep]} {
+    if {[file executable /usr/bin/sox]} {
+        puts stderr "Using SoX"
         set tts(beep) 1
     }
 }
 
-proc beep {{freq 523} {length 100} {repeat 1} {delay 10}} {
+proc beep {{freq 523} {length 100}} {
     global tts
     if {[info exists tts(beep)]
         && $tts(beep) == 1}  {
-        exec beep -f $freq -l $length -r $repeat -d $delay &
+        set l  [expr $length / 1000.0]
+        exec play -q -n synth $l sin $freq &
     }
 }
 
@@ -223,6 +225,7 @@ proc beep {{freq 523} {length 100} {repeat 1} {delay 10}} {
 proc tts_selftest {} {
      loop i 1 10 {
      q "This is test $i. "
+         t [expr 440 +10*$i]
      }
      d
 }

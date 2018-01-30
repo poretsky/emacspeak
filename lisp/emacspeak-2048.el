@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2007, 2011, T. V. Raman
+;;;Copyright (C) 1995 -- 2015, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -66,7 +66,8 @@
 (defun emacspeak-2048-push-state ()
   "Push current game state on stack."
   (interactive)
-  (declare (special emacspeak-2048-game-stack))
+  (declare (special emacspeak-2048-game-stack
+                    *2048-board* *2048-score* *2048-rows* *2048-columns*))
   (push
    (make-emacspeak-2048-game-state
     :board (copy-sequence *2048-board*)
@@ -80,7 +81,8 @@
 (defun emacspeak-2048-pop-state ()
   "Reset state from stack."
   (interactive)
-  (declare (special emacspeak-2048-game-stack))
+  (declare (special emacspeak-2048-game-stack
+                    *2048-board* *2048-score* *2048-rows* *2048-columns*))
   (cond
    ((null emacspeak-2048-game-stack) (error "No saved  states."))
    (t
@@ -149,7 +151,7 @@
   (define-key 2048-mode-map "/" 'emacspeak-2048-speak-transposed-board)
   (define-key 2048-mode-map  "="'emacspeak-2048-score)
   (define-key 2048-mode-map  "R"'emacspeak-2048-randomize-game)
-  (define-key 2048-mode-map  [?\C- ] 'emacspeak-2048-score)
+  (define-key 2048-mode-map  (kbd "C-SPC") 'emacspeak-2048-score)
   (define-key 2048-mode-map "g" '2048-game)
   (dtk-set-rate 
    (+ dtk-speech-rate-base
@@ -183,6 +185,7 @@
 (defun emacspeak-2048-randomize-game (&optional count)
   "Puts game in a randomized new state."
   (interactive "nCount: ")
+  (declare (special *2048-board*))
   (loop
    for i from 0 to 15 do
    (cond

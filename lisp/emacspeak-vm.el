@@ -1,5 +1,5 @@
 ;;; emacspeak-vm.el --- Speech enable VM -- A powerful mail agent (and the one I use)
-;;; $Id: emacspeak-vm.el 9502 2014-10-25 16:19:16Z tv.raman.tv $
+;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak extension to speech enhance vm
 ;;; Keywords: Emacspeak, VM, Email, Spoken Output, Voice annotations
@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;;Copyright (C) 1995 -- 2011, T. V. Raman
+;;;Copyright (C) 1995 -- 2015, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -39,13 +39,15 @@
 ;;}}}
 
 ;;{{{  Introduction:
+
+;;; Commentary:
 ;;; This module extends the mail reader vm.
 ;;; Uses voice locking for message headers and cited messages
-
+;;; Code:
 ;;}}}
 ;;{{{ requires
 (require 'emacspeak-preamble)
-
+(require  'vm "vm" 'no-error)
 ;;}}}
 ;;{{{ voice locking:
 
@@ -161,24 +163,18 @@ s(defun emacspeak-vm-yank-header ()
 
 (defun emacspeak-vm-summarize-message ()
   "Summarize the current vm message. "
-  (declare (special vm-message-pointer
-                    smtpmail-local-domain
-                    emacspeak-vm-headers-strip-octals
-                    emacspeak-vm-user-full-name emacspeak-vm-user-login-name))
+  (declare (special vm-message-pointer smtpmail-local-domain
+                    emacspeak-vm-headers-strip-octals))
   (when vm-message-pointer
     (let*  ((message (car vm-message-pointer ))
             (number (emacspeak-vm-number-of  message))
-            (from
-             (or (vm-su-full-name message) (vm-su-from message )))
+            (from (or (vm-su-full-name message) (vm-su-from message )))
             (subject (vm-su-subject message ))
-            (to
-             (or (vm-su-to-names message) (vm-su-to message )))
+            (to (or (vm-su-to-names message) (vm-su-to message )))
             (self-p
-             (or (string-match emacspeak-vm-user-full-name to)
-                 (string-match  (user-login-name) to)
-                 (string-match (format "%s@%s" (user-login-name)
-                                       smtpmail-local-domain)
-                               to)))
+             (or (string-match user-mail-address to)
+                 (string-match (user-full-name) to)
+                 (string-match  (user-login-name) to)))
             (lines (vm-su-line-count message)))
       (dtk-speak
        (vm-decode-mime-encoded-words-in-string
@@ -194,11 +190,11 @@ s(defun emacspeak-vm-yank-header ()
       (cond
        ((and self-p
              (= 0 self-p)                    ) ;mail to me and others
-        (emacspeak-auditory-icon 'item))
+        (emacspeak-auditory-icon 'select-object))
        (self-p                       ;mail to others including me
         (emacspeak-auditory-icon 'mark-object))
        (t                       ;got it because of a mailing list
-        (emacspeak-auditory-icon 'select-object ))))))
+        (emacspeak-auditory-icon 'item ))))))
 
 (defun emacspeak-vm-speak-labels ()
   "Speak a message's labels"
@@ -285,20 +281,6 @@ Then speak the screenful. "
   (interactive)
   (emacspeak-execute-repeatedly 'forward-paragraph ))
 
-(declaim (special vm-mode-map))
-(eval-when (load)
-  (load-library "vm-vars")
-  )
-
-(declaim (special vm-mode-map))
-(define-key vm-mode-map "\M-\C-m" 'widget-button-press)
-(define-key vm-mode-map "y" 'emacspeak-vm-yank-header)
-(define-key vm-mode-map "\M-\t" 'emacspeak-vm-next-button)
-(define-key vm-mode-map  "j" 'emacspeak-hide-or-expose-all-blocks)
-(define-key vm-mode-map  "\M-g" 'vm-goto-message)
-(define-key vm-mode-map "J" 'vm-discard-cached-data)
-(define-key vm-mode-map "." 'emacspeak-vm-browse-message)
-(define-key vm-mode-map "'" 'emacspeak-speak-rest-of-buffer)
 ;;}}}
 ;;{{{  deleting and killing
 
@@ -395,17 +377,26 @@ Then speak the screenful. "
 
 ;;}}}
 ;;{{{  Keybindings:
-(declaim  (special vm-mode-map
-                   global-map
-                   emacspeak-prefix
-                   emacspeak-keymap))
-(define-key vm-mode-map "\M-c" 'emacspeak-vm-catch-up-all-messages)
-(define-key vm-mode-map "\M-j" 'emacspeak-vm-locate-subject-line)
-(define-key vm-mode-map "," 'emacspeak-vm-speak-message)
-(define-key vm-mode-map "\M-l" 'emacspeak-vm-speak-labels)
-(define-key vm-mode-map
-  (concat emacspeak-prefix "m")
-  'emacspeak-vm-mode-line)
+(when (boundp 'vm-mode-map)
+  (declaim  (special
+             vm-mode-map
+             global-map emacspeak-prefix emacspeak-keymap))  
+  (define-key vm-mode-map "\M-\C-m" 'widget-button-press)
+  (define-key vm-mode-map "y" 'emacspeak-vm-yank-header)
+  (define-key vm-mode-map "\M-\t" 'emacspeak-vm-next-button)
+  (define-key vm-mode-map  "j" 'emacspeak-hide-or-expose-all-blocks)
+  (define-key vm-mode-map  "\M-g" 'vm-goto-message)
+  (define-key vm-mode-map "J" 'vm-discard-cached-data)
+  (define-key vm-mode-map "." 'emacspeak-vm-browse-message)
+  (define-key vm-mode-map "'" 'emacspeak-speak-rest-of-buffer)
+  (define-key vm-mode-map "\M-c" 'emacspeak-vm-catch-up-all-messages)
+  (define-key vm-mode-map "\M-j" 'emacspeak-vm-locate-subject-line)
+  (define-key vm-mode-map "," 'emacspeak-vm-speak-message)
+  (define-key vm-mode-map "\M-l" 'emacspeak-vm-speak-labels)
+  (define-key vm-mode-map
+    (concat emacspeak-prefix "m")
+    'emacspeak-vm-mode-line)
+  )
 ;;}}}
 ;;{{{ advise searching:
 (defadvice vm-isearch-forward (around emacspeak pre act comp)
@@ -667,15 +658,15 @@ text using wvText."
   :type 'string
   :group 'emacspeak-vm)
 
-(defsubst emacspeak-vm-add-mime-convertor (convertor)
-  "Helper to add a convertor specification."
+(defun emacspeak-vm-add-mime-converter (converter)
+  "Helper to add a converter specification."
   (declare (special vm-mime-type-converter-alist))
   (unless
       (find-if
        #'(lambda  (i)
-           (string-equal (car i) (car convertor)))
+           (string-equal (car i) (car converter)))
        vm-mime-type-converter-alist)
-    (push   convertor
+    (push   converter
             vm-mime-type-converter-alist)))
 
 (defun emacspeak-vm-customize-mime-settings ()
@@ -695,17 +686,17 @@ text using wvText."
                     emacspeak-vm-xls2html
                     emacspeak-vm-doc2text
                     emacspeak-vm-cal2text))
-  (emacspeak-vm-add-mime-convertor
+  (emacspeak-vm-add-mime-converter
    (list "text/calendar" "text/plain" emacspeak-vm-cal2text))
-  (emacspeak-vm-add-mime-convertor
+  (emacspeak-vm-add-mime-converter
    (list "application/pdf" "text/plain"
          emacspeak-vm-pdf2text))
-  (emacspeak-vm-add-mime-convertor
+  (emacspeak-vm-add-mime-converter
    (list "application/vnd.ms-excel" "text/html"
          emacspeak-vm-xls2html))
-  (emacspeak-vm-add-mime-convertor
+  (emacspeak-vm-add-mime-converter
    (list "application/vnd.ms-powerpoint" "text/html" emacspeak-vm-ppt2html))
-  (emacspeak-vm-add-mime-convertor
+  (emacspeak-vm-add-mime-converter
    (list "application/msword" "text/plain" emacspeak-vm-doc2text))
   (setq vm-preview-lines nil
         vm-infer-mime-types t
@@ -717,7 +708,7 @@ text using wvText."
         vm-mime-base64-decoder-program "base64-decode")
   t)
 
-(when emacspeak-vm-customize-mime-settings
+(when (and (featurep 'vm )emacspeak-vm-customize-mime-settings)
   (emacspeak-vm-customize-mime-settings))
 
 ;;}}}

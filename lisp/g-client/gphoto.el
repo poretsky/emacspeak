@@ -1,5 +1,5 @@
 ;;; g-photo.el ---  Google  Picasa Client
-;;;$Id: gphoto.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
+;;;$Id$
 ;;; $Author: raman $
 ;;; Description:   Client  For Accessing Picasa (Photo Albums)
 ;;; Keywords: Google   Atom API
@@ -45,12 +45,12 @@
 
 ;;}}}
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Commentary:
-;;{{{  introduction
 
+;;{{{  introduction
+;;; Commentary:
 ;;; Emacs client for accessing Picasa --- Google Photo Albums
 ;;; See  http://code.google.com/apis/picasaweb/overview.html
-
+;;; Code:
 ;;}}}
 ;;{{{  Required modules
 

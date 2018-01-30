@@ -1,5 +1,5 @@
 ;;; emacspeak-tcl.el --- Speech enable TCL development environment
-;;; $Id: emacspeak-tcl.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
+;;; $Id$
 ;;; $Author: tv.raman.tv $ 
 ;;; DescriptionEmacspeak extensions for tcl-mode
 ;;; Keywords:emacspeak, audio interface to emacs tcl
@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2011, T. V. Raman 
+;;;Copyright (C) 1995 -- 2015, T. V. Raman 
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved. 
 ;;;
@@ -38,9 +38,9 @@
 ;;}}}
 
 ;;{{{  Introduction:
-
+;;; Commentary:
 ;;; Provide additional advice to tcl-mode 
-
+;;; Code:
 ;;}}}
 ;;{{{ requires
 (require 'emacspeak-preamble)
@@ -119,27 +119,21 @@ is a Tcl expression, and the last argument is Tcl commands.")
 
 ;;}}}
 ;;{{{  Advice electric insertion to talk:
-(unless (and (boundp 'post-self-insert-hook)
-             post-self-insert-hook
-             (memq 'emacspeak-post-self-insert-hook post-self-insert-hook))
-  (defadvice tcl-electric-hash (after emacspeak pre act comp )
-    "Speak what you inserted."
-    (when (ems-interactive-p )
-      (emacspeak-speak-this-char last-input-event))))
-(unless (and (boundp 'post-self-insert-hook)
-             post-self-insert-hook
-             (memq 'emacspeak-post-self-insert-hook post-self-insert-hook))
-  (defadvice tcl-electric-char (after emacspeak pre act comp )
-    "Speak what you inserted."
-    (when (ems-interactive-p )
-      (emacspeak-speak-this-char last-input-event))))
-(unless (and (boundp 'post-self-insert-hook)
-             post-self-insert-hook
-             (memq 'emacspeak-post-self-insert-hook post-self-insert-hook))
-  (defadvice tcl-electric-brace (after emacspeak pre act comp )
-    "Speak what you inserted."
-    (when (ems-interactive-p )
-      (emacspeak-speak-this-char last-input-event))))
+
+(defadvice tcl-electric-hash (after emacspeak pre act comp )
+  "Speak what you inserted."
+  (when (ems-interactive-p )
+    (emacspeak-speak-this-char last-input-event)))
+
+(defadvice tcl-electric-char (after emacspeak pre act comp )
+  "Speak what you inserted."
+  (when (ems-interactive-p )
+    (emacspeak-speak-this-char last-input-event)))
+
+(defadvice tcl-electric-brace (after emacspeak pre act comp )
+  "Speak what you inserted."
+  (when (ems-interactive-p )
+    (emacspeak-speak-this-char last-input-event)))
 
 ;;}}}
 ;;{{{  Actions in the tcl mode buffer:

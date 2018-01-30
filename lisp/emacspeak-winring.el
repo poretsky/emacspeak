@@ -1,5 +1,5 @@
 ;;; emacspeak-winring.el --- Speech enable WinRing -- Manage multiple Emacs window configurations
-;;; $Id: emacspeak-winring.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
+;;; $Id$
 ;;; $Author: tv.raman.tv $ 
 ;;; Description: Auditory interface to winring
 ;;; Keywords: Emacspeak, Speak, Spoken Output, winring
@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (c) 1995 -- 2011, T. V. Raman
+;;; Copyright (c) 1995 -- 2015, T. V. Raman
 ;;; All Rights Reserved. 
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -43,13 +43,13 @@
 (require 'emacspeak-preamble)
 ;;}}}
 ;;{{{  Introduction
-
+;;; Commentary:
 ;;; window configurations in emacs are very useful 
 ;;; you can display the same file in different windows,
-;;;and have diffrent portions of the file displayed.
+;;;and have different  portions of the file displayed.
 ;;; winring allows you to manage window configurations,
 ;;; and this module speech-enables it.
-
+;;; Code:
 ;;}}}
 ;;{{{ Advice commands
 

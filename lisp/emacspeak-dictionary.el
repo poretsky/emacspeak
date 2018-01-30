@@ -1,5 +1,5 @@
 ;;; emacspeak-dictionary.el --- speech-enable dictionaries 
-;;; $Id: emacspeak-dictionary.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
+;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description:   Speech enable dictionary mode
 ;;; Keywords: Emacspeak, Audio Desktop
@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (C) 1995 -- 2011, T. V. Raman<raman@cs.cornell.edu>
+;;; Copyright (C) 1995 -- 2015, T. V. Raman<raman@cs.cornell.edu>
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -43,10 +43,10 @@
 (require 'emacspeak-preamble)
 ;;}}}
 ;;{{{  Introduction:
-
+;;; Commentary:
 ;;; Speech-enables emacs client for accessing dictionary
 ;;; server at dict.org:2628
-
+;;; Code:
 ;;}}}
 ;;{{{ Advice interactive commands to speak.
 (defadvice dictionary (after emacspeak pre act comp)

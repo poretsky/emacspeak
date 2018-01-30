@@ -1,5 +1,5 @@
 ;;; emacspeak-ses.el --- Speech-enable ses spread-sheet
-;;; $Id: emacspeak-ses.el 8461 2013-10-26 00:37:32Z tv.raman.tv $
+;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak front-end for SES 
 ;;; Keywords: Emacspeak, ses 
@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (C) 1999, 2011 T. V. Raman <raman@cs.cornell.edu>
+;;; Copyright (C) 1995 -- 2015, T. V. Raman
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.

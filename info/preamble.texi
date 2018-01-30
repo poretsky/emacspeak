@@ -1,4 +1,4 @@
-@c $Id: preamble.texi 8272 2013-03-29 15:39:21Z tv.raman.tv $
+@c $Id$
 
 @node Top
 @top Emacspeak
@@ -20,8 +20,7 @@ The manual is divided into the following chapters.
 * Using Online Help: Using Online Help.
 * Emacs Packages:  Emacs Packages.
 * Running Terminal Based Applications: Running Terminal Based Applications.
-* Emacspeak Commands:  Emacspeak Commands.
-* Emacspeak Customizations:  Emacspeak Customizations.
+* Emacspeak Commands And Options:  Emacspeak Commands And Options.
 * TTS Servers:  TTS Servers.
 * Acknowledgments: Acknowledgments.
 

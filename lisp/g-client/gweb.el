@@ -1,5 +1,5 @@
 ;;; gweb.el --- Google Search
-;;;$Id: gweb.el 9016 2014-04-09 01:03:10Z tv.raman.tv $
+;;;$Id$
 ;;; $Author: raman $
 ;;; Description:  AJAX Search -> Lisp
 ;;; Keywords: Google   AJAX API
@@ -45,13 +45,13 @@
 
 ;;}}}
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Commentary:
-;;{{{  introduction
 
+;;{{{  introduction
+;;; Commentary:
 ;;; Provide Google services --- such as search, search-based completion etc.
 ;;; For use from within Emacs tools.
 ;;; This is meant to be fast and efficient --- and uses WebAPIs as opposed to HTML  scraping.
-
+;;; Code:
 ;;}}}
 ;;{{{  Required modules
 
@@ -108,11 +108,10 @@
   "Get completion list from Google Suggest."
   (declare (special gweb-suggest-url))
   (unless (> (length input) 0) (setq input minibuffer-default))
+  (unless corpus (setq corpus "psy"))
   (g-using-scratch
    (let ((js nil)
-         (url
-          (format gweb-suggest-url (or corpus "psy")
-                  (g-url-encode input))))
+         (url (format gweb-suggest-url corpus (g-url-encode input))))
      (call-process
       g-curl-program
       nil t nil
@@ -124,7 +123,10 @@
            collect
            (replace-regexp-in-string
             "</?b>" ""
-            (aref e 0))))))
+            ;;; note: psy is different:
+            (if (string= corpus "psy")
+                (aref e 0)
+              e))))))
 
 (defvar gweb-google-suggest-metadata
   '(metadata .
@@ -222,7 +224,7 @@ Uses specified corpus for prompting and suggest selection."
       (error "No  suggest handler for corpus %s" corpus))
     (setq query
           (completing-read
-           corpus
+           (format "%s: " corpus)
            completer                   ; collection
            nil nil                     ; predicate required-match
            word                        ; initial input

@@ -2,7 +2,7 @@
 ;;; Copyright (C) 1991, 1993, 1994, 1995, 1997, 2011 Kyle E. Jones 
 ;;;
 
-;;;$Id: tapestry.el 7378 2011-11-10 17:34:32Z tv.raman.tv $
+;;;$Id$
 ;;; This program is free software; you can redistribute it and/or modify
 ;;; it under the terms of the GNU General Public License as published by
 ;;; the Free Software Foundation; either version 1, or (at your option)

@@ -1,5 +1,5 @@
 ;;; emacspeak-rpm-spec.el --- Speech enable rpm spec editor
-;;; $Id: emacspeak-rpm-spec.el 8146 2013-02-09 20:05:08Z tv.raman.tv $
+;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description: Controlling mplayer from emacs 
 ;;; Keywords: Emacspeak, rpm-spec streaming media 
@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (c) 1995 -- 2011, T. V. Raman
+;;; Copyright (c) 1995 -- 2015, T. V. Raman
 ;;; All Rights Reserved. 
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -43,9 +43,9 @@
 (require 'emacspeak-preamble)
 ;;}}}
 ;;{{{ Introduction:
-
+;;; Commentary:
 ;;; speech-enable rpm-spec-mode --part of Emacs 21 on RH 7.3
-
+;;; Code:
 ;;}}}
 ;;{{{ Advice insertion commands:
 

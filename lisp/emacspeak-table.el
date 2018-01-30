@@ -1,5 +1,5 @@
 ;;; emacspeak-table.el --- Implements data model for table browsing
-;;; $Id: emacspeak-table.el 8276 2013-03-30 15:19:30Z tv.raman.tv $
+;;; $Id$
 ;;; $Author: tv.raman.tv $ 
 ;;; Description: Emacspeak table handling module
 ;;; Keywords:emacspeak, audio interface to emacs tables are structured
@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2011, T. V. Raman 
+;;;Copyright (C) 1995 -- 2015, T. V. Raman 
 ;;; Copyright (c) 1995 by T. V. Raman  
 ;;; All Rights Reserved. 
 ;;;
@@ -38,10 +38,10 @@
 ;;}}}
 
 ;;{{{  Introduction
-
+;;; Commentary:
 ;;; Implements a module that provides a high level interface to
 ;;; tabulated information.
-
+;;; Code:
 ;;}}}
 ;;{{{ requires
 (require 'emacspeak-preamble)

@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<!--$Id: auto-atom-discover.xsl 6018 2008-11-04 19:52:11Z tv.raman.tv $-->
+<!--$Id$-->
 
 <!--
 Author: T. V. Raman <raman@cs.cornell.edu>

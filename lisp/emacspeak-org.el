@@ -1,5 +1,5 @@
 ;;; emacspeak-org.el --- Speech-enable org
-;;; $Id: emacspeak-org.el 9387 2014-09-08 14:13:20Z tv.raman.tv $
+;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak front-end for ORG
 ;;; Keywords: Emacspeak, org
@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (C) 1999, 2011 T. V. Raman <raman@cs.cornell.edu>
+;;; Copyright (C) 1995 -- 2015, T. V. Raman
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -130,27 +130,29 @@
 ;;}}}
 ;;{{{ Structure Navigation:
 
-(loop for f in
-      '(org-mark-ring-goto org-mark-ring-push
-                           org-forward-heading-same-level org-backward-heading-same-level
-                           org-next-link org-previous-link org-open-at-point
-                           org-goto  org-goto-ret
-                           org-goto-left org-goto-right
-                           org-goto-quit
-                           org-next-item org-previous-item
-                           org-metaleft org-metaright org-metaup org-metadown
-                           org-meta-return
-                           org-shiftmetaleft org-shiftmetaright org-shiftmetaup org-shiftmetadown
-                           org-mark-element org-mark-subtree
-                           org-agenda-forward-block org-agenda-backward-block
-                           )
-      do
-      (eval
-       `(defadvice ,f(after emacspeak pre act comp)
-          "Provide spoken feedback."
-          (when (ems-interactive-p )
-            (emacspeak-speak-line)
-            (emacspeak-auditory-icon 'large-movement)))))
+(loop 
+ for f in
+ '(org-mark-ring-goto org-mark-ring-push
+                      org-next-visible-heading org-previous-visible-heading
+                      org-forward-heading-same-level org-backward-heading-same-level
+                      org-next-link org-previous-link org-open-at-point
+                      org-goto  org-goto-ret
+                      org-goto-left org-goto-right
+                      org-goto-quit
+                      org-next-item org-previous-item
+                      org-metaleft org-metaright org-metaup org-metadown
+                      org-meta-return
+                      org-shiftmetaleft org-shiftmetaright org-shiftmetaup org-shiftmetadown
+                      org-mark-element org-mark-subtree
+                      org-agenda-forward-block org-agenda-backward-block
+                      )
+ do
+ (eval
+  `(defadvice ,f(after emacspeak pre act comp)
+     "Provide spoken feedback."
+     (when (ems-interactive-p )
+       (emacspeak-speak-line)
+       (emacspeak-auditory-icon 'large-movement)))))
 
 (defadvice org-cycle-list-bullet (after emacspeak pre act comp)
   "Provide spoken feedback."
@@ -307,7 +309,7 @@
       (eval
        `(defadvice ,f (after emacspeak pre act comp)
           "Provide auditory feedback."
-          (when t ;(ems-interactive-p )
+          (when (ems-interactive-p )
             (emacspeak-auditory-icon 'select-object)
             (emacspeak-speak-line)))))
 
@@ -380,27 +382,25 @@
   (declare (special  org-mode-map))
   (loop for k in
         '(
-          ([(meta return)] org-meta-return)
-          ([(meta up)] org-metaup)
-          ([(meta down)] org-metadown)
-          ([(meta left)] org-metaleft)
-          ([(shift right)] org-shiftright)
-          ([(meta right)] org-metaright)
-          ([(shift tab)]    org-shifttab)
-          ([(shift up)] org-shiftup)
-          ([(shift down)] org-shiftdown)
-          ([(shift left)] org-shiftleft)
-          ([(shift right)] org-shiftright)
-          ([(meta shift return)] org-insert-todo-heading)
-          ([(meta shift down)] org-shiftmetadown)
-          ([(meta shift up)] org-shiftmetaup)
-          ([(meta shift left)] org-shiftmetaleft)
-          ([(meta shift right)] org-shiftmetaright)
-          ([(meta shift return)] org-insert-todo-heading)
-          ("\C-e" emacspeak-prefix-command)
-          ("\C-j" org-insert-heading)
-          ("\M-n" org-next-item)
-          ("\M-p" org-previous-item)
+          ("C-e" emacspeak-prefix-command)
+          ("C-j" org-insert-heading)
+          ("M-<down>" org-metadown)
+          ("M-<left>"  org-metaleft)
+          ("M-<right>" org-metaright)
+          ("M-<up>" org-metaup)
+          ("M-RET" org-meta-return)
+          ("M-S-<down>" org-shiftmetadown)
+          ("M-S-<left>" org-shiftmetaleft)
+          ("M-S-<right>" org-shiftmetaright)
+          ("M-S-<up>" org-shiftmetaup)
+          ("M-S-RET" org-insert-todo-heading)
+          ("M-n" org-next-item)
+          ("M-p" org-previous-item)
+          ("S-<down>" org-shiftdown)
+          ("S-<left>" org-shiftleft)
+          ("S-<right>" org-shiftright)
+          ("S-<up>" org-shiftup)
+          ("S-TAB" org-shifttab)
           )
         do
         (emacspeak-keymap-update  org-mode-map k))

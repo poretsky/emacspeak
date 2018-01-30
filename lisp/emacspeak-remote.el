@@ -1,5 +1,5 @@
 ;;; emacspeak-remote.el --- Enables running remote Emacspeak sessions
-;;; $Id: emacspeak-remote.el 9269 2014-07-25 20:52:29Z tv.raman.tv $
+;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description: Auditory interface to remote speech server
 ;;; Keywords: Emacspeak, Speak, Spoken Output, remote server
@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (c) 1995 -- 2011, T. V. Raman
+;;; Copyright (c) 1995 -- 2015, T. V. Raman
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -42,11 +42,11 @@
 (require 'emacspeak-preamble)
 ;;}}}
 ;;{{{  Introduction
-
+;;; Commentary:
 ;;; In a running emacspeak session,
 ;;;nuke the running server and start talking to a remote speech server,
 ;;;after prompting for host and port
-
+;;; Code:
 ;;}}}
 ;;{{{  User customizations
 ;;;###autoload

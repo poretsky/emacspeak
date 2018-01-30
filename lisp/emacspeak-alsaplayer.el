@@ -1,5 +1,5 @@
 ;;; emacspeak-alsaplayer.el --- Control alsaplayer from Emacs
-;;; $Id: emacspeak-alsaplayer.el 9258 2014-06-26 15:26:44Z tv.raman.tv $
+;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description: Controlling alsaplayer from emacs 
 ;;; Keywords: Emacspeak, alsaplayer
@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (c) 1995 -- 2011, T. V. Raman
+;;; Copyright (c) 1995 -- 2015, T. V. Raman
 ;;; All Rights Reserved. 
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -80,7 +80,7 @@ grep path:")))
      (t "New Session"))))
 
 (define-derived-mode emacspeak-alsaplayer-mode special-mode 
-  "Alsaplayer Interaction"
+                     "Alsaplayer Interaction"
   "Major mode for alsaplayer interaction. \n\n
 \\{emacspeak-alsaplayer-mode-map}"
   (setq header-line-format '((:eval
@@ -196,6 +196,8 @@ Optional second arg watch-pattern specifies line of output to
               (string-match "\\(audio\\)\\|\\(mp3\\)" (expand-file-name default-directory))
               default-directory
             emacspeak-alsaplayer-media-directory))))))
+  (declare (special emacspeak-media-directory-regexp
+                    ido-work-directory-list))
   (emacspeak-alsaplayer-send-command
    (format "--enqueue %s"
            (shell-quote-wildcard-pattern
@@ -596,8 +598,8 @@ As the default, use current position."
         ("m" emacspeak-alsaplayer-mark-position)
         ("M" emacspeak-alsaplayer-amark-add)
         ("J" emacspeak-alsaplayer-amark-jump)
-        ("\M-s" emacspeak-amark-save)
-        ("\M-l" emacspeak-amark-load)
+        ("M-s" emacspeak-amark-save)
+        ("M-l" emacspeak-amark-load)
         ("w" emacspeak-alsaplayer-where)
         ("x" emacspeak-alsaplayer-clip)
         ("." emacspeak-alsaplayer-forward-10-seconds)
@@ -618,7 +620,7 @@ As the default, use current position."
          emacspeak-alsaplayer-seek)
         ("j" emacspeak-alsaplayer-jump)
         ("l" emacspeak-alsaplayer-launch)
-        (" "
+        ("SPC"
          emacspeak-alsaplayer-pause)
         ("n"
          emacspeak-alsaplayer-next)
@@ -665,4 +667,3 @@ emacspeak-silence-hook."
 ;;; end: 
 
 ;;}}}
-

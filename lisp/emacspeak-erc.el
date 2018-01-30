@@ -1,5 +1,5 @@
 ;;; emacspeak-erc.el --- speech-enable erc irc client
-;;; $Id: emacspeak-erc.el 8534 2013-11-13 01:43:12Z tv.raman.tv $
+;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak module for speech-enabling erc.el
 ;;; Keywords: Emacspeak, erc
@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (C) 1999, 2011 T. V. Raman <raman@cs.cornell.edu>
+;;; Copyright (C) 1995 -- 2015, T. V. Raman
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.

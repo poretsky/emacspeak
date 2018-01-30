@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2007, 2011, T. V. Raman
+;;;Copyright (C) 1995 -- 2015, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -95,7 +95,7 @@ Argument duration --- default is 1ms --- specifies duration of each step."
   (setq duration  (number-to-string duration))
   (when (arrayp  data) (setq data (append data nil)))
   (setq data (mapcar #'number-to-string data))
-  (apply 'call-process "tones" nil t nil duration data))
+  (apply 'call-process  "tones" nil t nil  duration data))
 
 ;;}}}
 ;;{{{ Sample Tests:

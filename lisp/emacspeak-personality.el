@@ -1,5 +1,5 @@
 ;;; emacspeak-personality.el ---Emacspeak's new personality interface
-;;; $Id: emacspeak-personality.el 8742 2013-12-28 16:52:30Z tv.raman.tv $
+;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Voice lock implementation
 ;;; Keywords: Emacspeak,  Spoken Output, audio formatting
@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2011, T. V. Raman
+;;;Copyright (C) 1995 -- 2015, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -376,9 +376,9 @@ displayed in the messages area."
         (put-text-property start end
                            'personality nil object)))))
 
-;;; deactivate these for now
-(ad-deactivate 'remove-list-of-text-properties)
-(ad-deactivate 'remove-text-properties)
+;;; deactivate these for js2-mode:
+                                        ;(ad-deactivate 'remove-list-of-text-properties)
+                                        ;(ad-deactivate 'remove-text-properties)
 
 ;;}}}
 ;;{{{ advice overlay-put
