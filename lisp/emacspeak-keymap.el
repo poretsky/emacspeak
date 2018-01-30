@@ -70,10 +70,10 @@
   (loop
    for binding in bindings
    do
-   (define-key keymap (kbd (car binding)) (cdr binding))))
+   (define-key keymap (kbd (first binding)) (second binding)))) 
 
 (define-widget 'ems-interactive-command 'restricted-sexp
-  "An interactive command."
+  "An interactive command  or keymap that can be bound to a key."
   :completions
   (apply-partially #'completion-table-with-predicate
                    obarray 'emacspeak-keymap-command-p 'strict)
@@ -92,13 +92,12 @@
   :value 'ignore
   :tag "Interactive Command")
 
-;;;###autoload
-
 ;;}}}
 ;;{{{  variables:
 
 (defvar emacspeak-prefix (kbd "C-e")
   "Default prefix key used for emacspeak. ")
+
 ;;;###autoload
 (defvar emacspeak-keymap nil
   "Primary keymap used by emacspeak. ")
@@ -106,18 +105,21 @@
 (defvar emacspeak-dtk-submap nil
   "Submap used for DTK commands. ")
 
+(defvar emacspeak-table-submap nil
+  "Submap used for table  commands. ")
+
 ;;}}}
 ;;{{{   Binding keymap and submap
 
 (define-prefix-command 'emacspeak-prefix-command 'emacspeak-keymap )
+(define-prefix-command  'emacspeak-dtk-submap-command 'emacspeak-dtk-submap )
+(define-prefix-command  'emacspeak-table-submap-command 'emacspeak-table-submap )
 
-(define-prefix-command  'emacspeak-dtk-submap-command
-  'emacspeak-dtk-submap )
 (global-set-key emacspeak-prefix 'emacspeak-prefix-command)
-
 (define-key emacspeak-keymap "d"  'emacspeak-dtk-submap-command)
+(define-key emacspeak-keymap (kbd "C-t")  'emacspeak-table-submap-command)
 
-;;; fix what we just broke:-
+;;; fix what we just broke:-)
 (define-key emacspeak-keymap "e" 'end-of-line)
 (define-key emacspeak-keymap (kbd "C-e") 'end-of-line)
 
@@ -144,173 +146,190 @@
         ("C-r" info-display-manual)
         ("SPC" customize-group)
         ("TAB" emacspeak-info-wizard)
+        ("," emacspeak-wizards-color-at-point)
+        ("p" list-packages)
         )
       do
       (emacspeak-keymap-update help-map binding))
 
 ;;; emacspeak-keymap bindings:
-(loop for binding in
-      '(
-        (  "C-a" emacspeak-toggle-auditory-icons )
-        ( "M-f" emacspeak-frame-label-or-switch-to-labelled-frame )
-        ("!" emacspeak-speak-run-shell-command)
-        ("#" emacspeak-gridtext)
-        ("%" emacspeak-speak-current-percentage)
-        ("&" emacspeak-wizards-shell-command-on-current-file)
-        ("'" emacspeak-pianobar )
-        ("(" emacspeak-audio-setup)
-        (")" emacspeak-sounds-select-theme)
-        ("," emacspeak-speak-browse-buffer )
-        ("." emacspeak-speak-current-field)
-        ("/" emacspeak-speak-this-buffer-other-window-display)
-        (":" emacspeak-m-player-shuffle)
-        (";" emacspeak-multimedia)
-        ("<" emacspeak-speak-previous-field)
-        ("<(deletechar>" emacspeak-ssh-tts-restart)
-        ("<C-<left>" emacspeak-select-this-buffer-previous-display)
-        ("<C-<right>" emacspeak-select-this-buffer-next-display)
-        ("<delete>" emacspeak-ssh-tts-restart)
-        ("<down>" emacspeak-read-next-line)
-        ("<f11>" emacspeak-wizards-shell-toggle)
-        ("<f1>" emacspeak-learn-emacs-mode)
-        ("<insert>" emacspeak-emergency-tts-restart)
-        ("<left>" emacspeak-speak-this-buffer-previous-display)
-        ("<right>" emacspeak-speak-this-buffer-next-display)
-        ("<up>"  emacspeak-read-previous-line)
-        ("=" emacspeak-speak-current-column)
-        (">"  emacspeak-speak-next-field)
-        ("?" emacspeak-websearch-dispatch )
-        ("@" emacspeak-speak-message-at-time)
-        ("A" emacspeak-appt-repeat-announcement)
-        ("B" emacspeak-speak-buffer-interactively)
-        ("C" emacspeak-customize)
-        ("C-@" emacspeak-speak-current-mark )
-        ("C-b" emacspeak-bookshare)
-        ("C-c" emacspeak-clipboard-copy)
-        ("C-d" emacspeak-toggle-show-point)
-        ("C-i" emacspeak-table-display-table-in-region)
-        ("C-j" emacspeak-hide-speak-block-sans-prefix)
-        ("C-l" emacspeak-speak-line-number)
-        ("C-m"  emacspeak-speak-continuously)
-        ("C-n" emacspeak-speak-next-window )
-        ("C-o" emacspeak-ocr )
-        ("C-p" emacspeak-speak-previous-window)
-        ("C-q" emacspeak-toggle-comint-autospeak)
-        ("C-s" tts-restart )
-        ("C-t" emacspeak-table-find-file)
-        ("C-u" emacspeak-feeds-browse)
-        ("C-v" view-mode)
-        ("C-w" emacspeak-speak-window-information)
-        ("C-y" emacspeak-clipboard-paste)
-        ("DEL" cd-tool)
-        ("F" emacspeak-view-emacspeak-faq)
-        ("I"  emacspeak-speak-show-active-network-interfaces)
-        ("L" emacspeak-speak-line-interactively)
-        ("M" emacspeak-speak-minor-mode-line)
-        ("M-%" emacspeak-goto-percent)
-        ("M-;" emacspeak-webutils-play-media-at-point )
-        ("M-C-@" emacspeak-speak-spaces-at-point)
-        ("M-C-b" emacspeak-submit-bug )
-        ("M-C-k" kill-emacs)
-        ("M-a" emacspeak-set-auditory-icon-player)
-        ("M-b" emacspeak-speak-other-buffer)
-        ("M-c" emacspeak-copy-current-file)
-        ("M-d" emacspeak-pronounce-dispatch)
-        ("M-h" emacspeak-speak-hostname)
-        ("M-l" emacspeak-link-current-file)
-        ("M-m" emacspeak-toggle-mail-alert)
-        ("M-q" voice-setup-toggle-silence-personality)
-        ("M-r" emacspeak-remote-connect-to-server)
-        ("M-s" emacspeak-symlink-current-file)
-        ("M-t" emacspeak-tapestry-describe-tapestry)
-        ("M-u" emacspeak-feeds-add-feed)
-        ("M-v" emacspeak-show-personality-at-point)
-        ("M-w" emacspeak-toggle-which-function)
-        ("N" emacspeak-view-emacspeak-news)
-        ("P" emacspeak-speak-paragraph-interactively)
-        ("R" emacspeak-speak-rectangle)
-        ("SPC" emacspeak-speak-header-line)
-        ("T" emacspeak-view-emacspeak-tips )
-        ("U" emacspeak-websearch-usenet)
-        ("V" emacspeak-speak-version)
-        ("W" emacspeak-tapestry-select-window-by-name)
-        ("[" emacspeak-speak-page)
-        ("\"" emacspeak-speak-sexp-interactively)
-        ("\\" emacspeak-toggle-speak-line-invert-filter)
-        ("]" emacspeak-speak-page-interactively)
-        ("^" emacspeak-filtertext)
-        ("a" emacspeak-speak-message-again )
-        ("b" emacspeak-speak-buffer)
-        ("c" emacspeak-speak-char)
-        ("f" emacspeak-speak-buffer-filename )
-        ("g" emacspeak-epub)
-        ("h" emacspeak-speak-help)
-        ("i" emacspeak-tabulate-region)
-        ("j" emacspeak-hide-or-expose-block)
-        ("k" emacspeak-speak-current-kill )
-        ("l" emacspeak-speak-line)
-        ("m" emacspeak-speak-mode-line)
-        ("n" emacspeak-speak-rest-of-buffer)
-        ("o" emacspeak-toggle-comint-output-monitor)
-        ("p" emacspeak-speak-paragraph)
-        ("q" emacspeak-toggle-speak-messages)
-        ("r" emacspeak-speak-region)
-        ("s" dtk-stop)
-        ("t" emacspeak-speak-time )
-        ("u" emacspeak-url-template-fetch)
-        ("v" view-register)
-        ("w" emacspeak-speak-word)
-        ("{" emacspeak-speak-paragraph)
-        ("|" emacspeak-speak-line-set-column-filter)
-        )
-      do
-      (emacspeak-keymap-update emacspeak-keymap binding))
+(loop
+ for binding in
+ '(
+   (  "C-a" emacspeak-toggle-auditory-icons )
+   ( "M-f" emacspeak-frame-label-or-switch-to-labelled-frame )
+   ("!" emacspeak-speak-run-shell-command)
+   ("#" emacspeak-gridtext)
+   ("%" emacspeak-speak-current-percentage)
+   ("&" emacspeak-wizards-shell-command-on-current-file)
+   ("'" emacspeak-pianobar )
+   ("(" emacspeak-audio-setup)
+   (")" emacspeak-sounds-select-theme)
+   ("," emacspeak-speak-browse-buffer )
+   ("." emacspeak-speak-current-field)
+   ("/" emacspeak-speak-this-buffer-other-window-display)
+   (":" emacspeak-m-player-shuffle)
+   (";" emacspeak-multimedia)
+   ("<" emacspeak-speak-previous-field)
+   ("<(deletechar>" emacspeak-ssh-tts-restart)
+   ("<C-<left>" emacspeak-select-this-buffer-previous-display)
+   ("<C-<right>" emacspeak-select-this-buffer-next-display)
+   ("<delete>" emacspeak-ssh-tts-restart)
+   ("<down>" emacspeak-read-next-line)
+   ("<f11>" emacspeak-wizards-shell-toggle)
+   ("<f1>" emacspeak-learn-emacs-mode)
+   ("<insert>" emacspeak-emergency-tts-restart)
+   ("<left>" emacspeak-speak-this-buffer-previous-display)
+   ("<right>" emacspeak-speak-this-buffer-next-display)
+   ("<up>"  emacspeak-read-previous-line)
+   ("=" emacspeak-speak-current-column)
+   (">"  emacspeak-speak-next-field)
+   ("?" emacspeak-websearch-dispatch )
+   ("@" emacspeak-speak-message-at-time)
+   ("A" emacspeak-appt-repeat-announcement)
+   ("B" emacspeak-speak-buffer-interactively)
+   ("C" emacspeak-customize)
+   ("C-@" emacspeak-speak-current-mark )
+   ("C-SPC" emacspeak-speak-current-mark )
+   ("C-b" emacspeak-bookshare)
+   ("C-c" emacspeak-clipboard-copy)
+   ("C-d" emacspeak-toggle-show-point)
+   ("C-i" emacspeak-table-display-table-in-region)
+   ("C-j" emacspeak-hide-speak-block-sans-prefix)
+   ("C-l" emacspeak-speak-line-number)
+   ("C-m"  emacspeak-speak-continuously)
+   ("C-n" emacspeak-speak-next-window )
+   ("C-o" emacspeak-ocr )
+   ("C-p" emacspeak-speak-previous-window)
+   ("C-q" emacspeak-toggle-comint-autospeak)
+   ("C-s" tts-restart )
+   ("C-u" emacspeak-feeds-browse)
+   ("C-v" view-mode)
+   ("C-w" emacspeak-speak-window-information)
+   ("C-y" emacspeak-clipboard-paste)
+   ("DEL" cd-tool)
+   ("I"  emacspeak-speak-show-active-network-interfaces)
+   ("L" emacspeak-speak-line-interactively)
+   ("M" emacspeak-speak-minor-mode-line)
+   ("M-%" emacspeak-goto-percent)
+   ("M-;" emacspeak-webutils-play-media-at-point )
+   ("M-C-@" emacspeak-speak-spaces-at-point)
+   ("M-C-SPC" emacspeak-speak-spaces-at-point)
+   ("M-C-b" emacspeak-submit-bug )
+   ("M-C-k" kill-emacs)
+   ("M-a" emacspeak-set-auditory-icon-player)
+   ("M-b" emacspeak-speak-other-buffer)
+   ("M-c" emacspeak-copy-current-file)
+   ("M-d" emacspeak-pronounce-dispatch)
+   ("M-h" emacspeak-speak-hostname)
+   ("M-l" emacspeak-link-current-file)
+   ("M-m" emacspeak-toggle-mail-alert)
+   ("M-q" voice-setup-toggle-silence-personality)
+   ("M-r" emacspeak-remote-connect-to-server)
+   ("M-s" emacspeak-symlink-current-file)
+   ("M-t" emacspeak-tapestry-describe-tapestry)
+   ("M-u" emacspeak-feeds-add-feed)
+   ("M-P" emacspeak-show-property-at-point)
+   ("M-v" emacspeak-show-personality-at-point)
+   ("M-w" emacspeak-toggle-which-function)
+   ("N" emacspeak-view-emacspeak-news)
+   ("P" emacspeak-speak-paragraph-interactively)
+   ("R" emacspeak-speak-rectangle)
+   ("SPC" emacspeak-speak-header-line)
+   ("T" emacspeak-view-emacspeak-tips )
+   ("V" emacspeak-speak-version)
+   ("W" emacspeak-tapestry-select-window-by-name)
+   ("[" emacspeak-speak-page)
+   ("\"" emacspeak-speak-sexp-interactively)
+   ("\\" emacspeak-toggle-speak-line-invert-filter)
+   ("]" emacspeak-speak-page-interactively)
+   ("^" emacspeak-filtertext)
+   ("a" emacspeak-speak-message-again )
+   ("b" emacspeak-speak-buffer)
+   ("c" emacspeak-speak-char)
+   ("f" emacspeak-speak-buffer-filename )
+   ("g" emacspeak-epub)
+   ("h" emacspeak-speak-help)
+   ("i" emacspeak-tabulate-region)
+   ("j" emacspeak-hide-or-expose-block)
+   ("k" emacspeak-speak-current-kill )
+   ("l" emacspeak-speak-line)
+   ("m" emacspeak-speak-mode-line)
+   ("n" emacspeak-speak-rest-of-buffer)
+   ("o" emacspeak-toggle-comint-output-monitor)
+   ("p" emacspeak-speak-paragraph)
+   ("q" emacspeak-toggle-speak-messages)
+   ("r" emacspeak-speak-region)
+   ("s" dtk-stop)
+   ("t" emacspeak-speak-time )
+   ("u" emacspeak-url-template-fetch)
+   ("v" view-register)
+   ("w" emacspeak-speak-word)
+   ("{" emacspeak-speak-paragraph)
+   ("|" emacspeak-speak-line-set-column-filter)
+   ("." dtk-notify-stop)
+   )
+ do
+ (emacspeak-keymap-update emacspeak-keymap binding))
 
 (dotimes (i 10)
   (define-key emacspeak-keymap   (format "%s" i )
     'emacspeak-speak-predefined-window ))
 
-(loop for binding in
-      '(
-        ("," dtk-toggle-punctuation-mode)
-        ("C" dtk-toggle-allcaps-beep)
-        ("L" dtk-local-server)
-        ("N" dtk-set-next-language)
-        ("P" dtk-set-previous-language)
-        ("R" dtk-reset-state)
-        ("S" dtk-set-language)
-        ("SPC" dtk-toggle-splitting-on-white-space)
-        ("V" tts-speak-version)
-        ("\C-d" dectalk)
-        ("\C-e" espeak)
-        ("\C-m" dtk-set-chunk-separator-syntax)
-        ("\C-o" outloud)
-        ("\C-v" outloud-32)
-        ("a" dtk-add-cleanup-pattern)
-        ("c" dtk-toggle-capitalization)
-        ("d" dtk-select-server)
-        ("f" dtk-set-character-scale)
-        ("i" emacspeak-toggle-audio-indentation )
-        ("k" emacspeak-toggle-character-echo)
-        ("l" emacspeak-toggle-line-echo)
-        ("m"emacspeak-speak-set-mode-punctuations)
-        ("n" dtk-toggle-speak-nonprinting-chars)
-        ("o" dtk-toggle-strip-octals)
-        ("p" dtk-set-punctuations)
-        ("q" dtk-toggle-quiet )
-        ("r" dtk-set-rate)
-        ("s" dtk-toggle-split-caps)
-        ("t" emacspeak-dial-dtk)
-        ("v" voice-lock-mode)
-        ("w" emacspeak-toggle-word-echo)
-        ("z" emacspeak-zap-tts)
-        )
-      do
-      (emacspeak-keymap-update emacspeak-dtk-submap binding))
+(loop
+ for binding in
+ '(
+   ("," dtk-toggle-punctuation-mode)
+   ("C" dtk-toggle-allcaps-beep)
+   ("L" dtk-local-server)
+   ("N" dtk-set-next-language)
+   ("P" dtk-set-previous-language)
+   ("R" dtk-reset-state)
+   ("S" dtk-set-language)
+   ("SPC" dtk-toggle-splitting-on-white-space)
+   ("V" tts-speak-version)
+   ("\C-c" dtk-cloud)
+   ("\C-d" dectalk)
+   ("\C-e" espeak)
+   ("\C-m" dtk-set-chunk-separator-syntax)
+   ("\C-o" outloud)
+   ("\C-v" outloud-32)
+   ("a" dtk-add-cleanup-pattern)
+   ("c" dtk-toggle-capitalization)
+   ("d" dtk-select-server)
+   ("f" dtk-set-character-scale)
+   ("i" emacspeak-toggle-audio-indentation )
+   ("k" emacspeak-toggle-character-echo)
+   ("l" emacspeak-toggle-line-echo)
+   ("m"emacspeak-speak-set-mode-punctuations)
+   ("n" dtk-toggle-speak-nonprinting-chars)
+   ("o" dtk-toggle-strip-octals)
+   ("p" dtk-set-punctuations)
+   ("q" dtk-toggle-quiet )
+   ("r" dtk-set-rate)
+   ("s" dtk-toggle-split-caps)
+   ("t" emacspeak-dial-dtk)
+   ("v" voice-lock-mode)
+   ("w" emacspeak-toggle-word-echo)
+   ("z" emacspeak-zap-tts)
+   ("C-n" dtk-notify-initialize)
+   ("C-s" dtk-notify-shutdown)
+   )
+ do
+ (emacspeak-keymap-update emacspeak-dtk-submap binding))
 
 (dotimes (i 10)
   (define-key emacspeak-dtk-submap
     (format "%s" i )   'dtk-set-predefined-speech-rate ))
+
+(loop
+ for binding in
+ '(
+   ("f" emacspeak-table-find-file)
+   ("," emacspeak-table-find-csv-file)
+   )
+ do
+ (emacspeak-keymap-update emacspeak-table-submap binding))
 
 ;;; Put these in the global map:
 (global-set-key [(shift left)] 'previous-buffer)
@@ -326,7 +345,8 @@
 (global-set-key  [27 prior]  'emacspeak-owindow-scroll-down)
 (global-set-key  [27 next]  'emacspeak-owindow-scroll-up)
 (global-set-key  [27 select]  'emacspeak-owindow-speak-line)
-(define-key esc-map "\M-:" 'emacspeak-wizards-show-eval-result)
+:(define-key esc-map "\M-:" 'emacspeak-wizards-show-eval-result)
+
 ;;}}}
 ;;{{{ emacspeak under X windows
 
@@ -338,6 +358,7 @@
 ;;; I use the Windows key.
 (global-set-key '[silence] 'emacspeak-silence)
 (global-set-key '[search] 'emacspeak-search)
+
 ;;}}}
 ;;{{{ Interactively switching the emacspeak-prefix
 ;;;###autoload
@@ -361,6 +382,7 @@ relief."
 
 ;;}}}
 ;;{{{  removing emacspeak-self-insert-command in non-edit modes.
+
 ;;;###autoload
 (defun emacspeak-keymap-remove-emacspeak-edit-commands
     (keymap)
@@ -404,7 +426,7 @@ interactive command that the key sequence executes."
   :group 'emacspeak
   :type '(repeat
           :tag "Emacspeak Personal Keymap"
-          (cons
+          (list
            :tag "Key Binding"
            (key-sequence :tag "Key")
            (ems-interactive-command :tag "Command")))
@@ -416,7 +438,7 @@ interactive command that the key sequence executes."
                          #'(lambda (a b) (string-lessp (car a) (car b)))))))
 
 (define-key  emacspeak-keymap "x" 'emacspeak-personal-keymap)
-(define-key  emacspeak-keymap "\C-x" 'emacspeak-personal-ctlx-keymap)
+
 ;;}}}
 ;;{{{ Create personal ctl-x map 
 
@@ -443,7 +465,7 @@ interactive command that the key sequence executes."
   :group 'emacspeak
   :type '(repeat
           :tag "Emacspeak Personal-Ctlx Keymap"
-          (cons
+          (list
            :tag "Key Binding"
            (key-sequence :tag "Key")
            (ems-interactive-command :tag "Command")))
@@ -453,6 +475,8 @@ interactive command that the key sequence executes."
                         (sort
                          val
                          #'(lambda (a b) (string-lessp (car a) (car b)))))))
+
+(define-key  emacspeak-keymap "\C-x" 'emacspeak-personal-ctlx-keymap)
 
 ;;}}}
 ;;{{{ Create a super keymap that users can put personal commands
@@ -486,7 +510,7 @@ interactive command that the key sequence executes."
   :group 'emacspeak
   :type '(repeat
           :tag "Emacspeak Super Keymap"
-          (cons
+          (list
            :tag "Key Binding"
            (key-sequence :tag "Key")
            (ems-interactive-command :tag "Command")))
@@ -534,7 +558,7 @@ interactive command that the key sequence executes."
   :group 'emacspeak
   :type '(repeat
           :tag "Emacspeak Alt Keymap"
-          (cons
+          (list
            :tag "Key Binding"
            (key-sequence :tag "Key")
            (ems-interactive-command :tag "Command")))
@@ -581,7 +605,7 @@ interactive command that the key sequence executes."
   :group 'emacspeak
   :type '(repeat
           :tag "Emacspeak Hyper Keys"
-          (cons
+          (list
            :tag "Key Binding"
            (key-sequence :tag "Key")
            (ems-interactive-command :tag "Command")))
@@ -591,13 +615,56 @@ interactive command that the key sequence executes."
                         (sort
                          val
                          #'(lambda (a b) (string-lessp (car a) (car b)))))))
-
+(global-set-key (kbd "C-&") 'emacspeak-launch-application)
 (global-set-key "\C-x@h"
                 'emacspeak-hyper-keymap)
 (define-key emacspeak-hyper-keymap " " 'emacspeak-webspace)
 ;;}}}
-(provide 'emacspeak-keymap)
+;;{{{ Keymaps <-> Org (text) Files :
 
+
+;;; This makes it easy to consolidate personal bindings across machines.
+;;; It also protects against custom losing settings due to Custom accidents.
+;;;
+
+(defun emacspeak-keymap-bindings-from-org (variable filename)
+  "Load bindings from a specified file."
+  (interactive "vVariable: \nfFilename: ")
+  (let ((bindings nil))
+    (with-temp-buffer
+      "org-to-map"
+      (insert-file filename)
+      (goto-char (point-min))
+      (while (not (eobp))
+        (let ((fields
+               (split-string
+                (buffer-substring-no-properties
+                 (line-beginning-position) (line-end-position))
+                " " 'omit-nulls)))
+          (push
+           (list (first fields) (intern (second fields)))
+           bindings))
+        (forward-line 1)))
+    (setq bindings (nreverse (copy-sequence bindings)))
+    (set variable  bindings )
+    (customize-save-variable variable bindings  )))
+
+(defun emacspeak-keymap-bindings-to-org (variable filename)
+  "Persists mapping to org file."
+  (interactive "vVariable: \nfFilename: ")
+  (let ((buffer (find-file-noselect  filename)))
+    (with-current-buffer
+      buffer
+      (goto-char (point-max))
+      (loop
+       for binding  in (symbol-value variable) do
+       (insert (format "%s %s\n" (first binding) (second binding ))))
+      (save-buffer buffer))
+    (switch-to-buffer buffer)))
+      
+                 
+;;}}}
+(provide 'emacspeak-keymap)
 ;;{{{  emacs local variables
 
 ;;; local variables:

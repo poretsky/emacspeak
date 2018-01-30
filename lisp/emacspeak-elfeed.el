@@ -51,7 +51,7 @@
 (require 'cl)
 (declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
-
+(require 'elfeed "elfeed" 'no-match)
 ;;}}}
 ;;{{{ Map Faces to voices
 
@@ -59,6 +59,7 @@
  '(
    (elfeed-search-date-face  voice-smoothen)
    (elfeed-search-title-face voice-bolden)
+   (elfeed-search-unread-title-face voice-bolden-medium)
    (elfeed-search-feed-face voice-animate)
    (elfeed-search-tag-face voice-lighten)))
 
@@ -125,14 +126,15 @@
   "Speak entry at point."
   (interactive)
   (let* ((e (emacspeak-elfeed-entry-at-point))
-         (title (elfeed-entry-title e))
-         (tags (elfeed-entry-tags e)))
-    (dtk-speak title)
-                                        ;(when (memq 'unread tags) (emacspeak-auditory-icon 'unmodified-object))
-    (when (memq 'read tags) (emacspeak-auditory-icon 'modified-object))
-    (when (memq 'seen  tags) (emacspeak-auditory-icon 'mark-object))
-    (emacspeak-auditory-icon 'item)
-    (elfeed-tag e 'seen)))
+         (title (and e (elfeed-entry-title e)))
+         (tags (and e (elfeed-entry-tags e))))
+    (unless e (message "No entry here"))
+    (when title
+      (dtk-speak (propertize title 'personality voice-brighten))
+      (when (memq 'read tags) (emacspeak-auditory-icon 'modified-object))
+      (when (memq 'seen  tags) (emacspeak-auditory-icon 'mark-object))
+      (emacspeak-auditory-icon 'item)
+      (elfeed-tag e 'seen))))
 
 ;;}}}
 ;;{{{ Define additional interactive commands:
@@ -160,10 +162,34 @@
             (emacspeak-we-xslt-filter emacspeak-we-recent-xpath-filter link 'speak))
      (t (message "No link under point.")))))
 
+(defun emacspeak-elfeed-w3-filter-entry-at-point ()
+  "Display current article after filtering using W3.
+Work-around for async fetch bug in EWW."
+  (interactive)
+  (declare (special emacspeak-we-recent-xpath-filter))
+  (let* ((browse-url-browser-function 'browse-url-w3)
+         (entry (emacspeak-elfeed-entry-at-point))
+         (link(elfeed-entry-link entry)))
+    (cond
+     (entry (elfeed-untag  entry 'unread)
+            (emacspeak-we-xslt-filter emacspeak-we-recent-xpath-filter link 'speak))
+     (t (message "No link under point.")))))
+
 (defun emacspeak-elfeed-eww-entry-at-point ()
   "Display current article in EWW."
   (interactive)
   (let* ((entry (emacspeak-elfeed-entry-at-point))
+         (link(elfeed-entry-link entry)))
+    (cond
+     (entry (elfeed-untag  entry 'unread)
+            (eww link))
+     (t (message "No link under point.")))))
+
+(defun emacspeak-elfeed-w3-entry-at-point ()
+  "Display current article in W3."
+  (interactive)
+  (let* ((browse-url-browser-function #'browse-url-w3)
+         (entry (emacspeak-elfeed-entry-at-point))
          (link(elfeed-entry-link entry)))
     (cond
      (entry (elfeed-untag  entry 'unread)
@@ -188,12 +214,14 @@
 (defadvice elfeed-search-mode (after emacspeak pre act comp)
   "Set up Emacspeak commands."
   (declare (special elfeed-search-mode-map goal-column))
-  (setq goal-column 11) ; place point on entry title
+  (setq goal-column 11)                 ; place point on entry title
   (define-key elfeed-search-mode-map "n" 'emacspeak-elfeed-next-entry)
   (define-key elfeed-search-mode-map "p" 'emacspeak-elfeed-previous-entry)
   (define-key elfeed-search-mode-map "." 'emacspeak-elfeed-filter-entry-at-point)
   (define-key elfeed-search-mode-map "e" 'emacspeak-elfeed-eww-entry-at-point)
-  (define-key elfeed-search-mode-map " "'emacspeak-elfeed-speak-entry-at-point))
+  (define-key elfeed-search-mode-map " "'emacspeak-elfeed-speak-entry-at-point)
+  (define-key elfeed-search-mode-map "W" 'emacspeak-elfeed-w3-entry-at-point)
+  (define-key elfeed-search-mode-map "w" 'emacspeak-elfeed-w3-filter-entry-at-point))
 
 ;;}}}
 (provide 'emacspeak-elfeed)

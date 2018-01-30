@@ -1,4 +1,5 @@
-;;; emacspeak-vm.el --- Speech enable VM -- A powerful mail agent (and the one I use)
+;;; emacspeak-vm.el --- Speech enable VM -- A powerful mail agent
+;;;(and the one I use)
 ;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak extension to speech enhance vm
@@ -57,24 +58,21 @@
   :group 'vm
   :prefix "emacspeak-vm-")
 
-(defcustom emacspeak-vm-voice-lock-messages nil
+(defcustom emacspeak-vm-voice-loc nil
   "Set this to T if you want messages automatically voice locked.
 Note that some badly formed mime messages  cause trouble."
   :type 'boolean
   :group 'emacspeak-vm)
 
-(add-hook 'vm-mode-hook
-          'emacspeak-vm-mode-setup)
+(add-hook 'vm-mode-hook 'emacspeak-vm-mode-setup)
 
 (defun emacspeak-vm-mode-setup ()
   "Setup function placed on vm-mode-hook by Emacspeak."
-  (declare (special  dtk-punctuation-mode emacspeak-vm-voice-lock-messages
-                     dtk-allcaps-beep))
+  (declare (special  dtk-punctuation-mode dtk-allcaps-beep))
   (setq dtk-punctuation-mode 'all)
   (when dtk-allcaps-beep
     (dtk-toggle-allcaps-beep))
-  (emacspeak-dtk-sync)
-  (when emacspeak-vm-voice-lock-messages))
+  (emacspeak-dtk-sync) )
 
 ;;}}}
 ;;{{{ inline helpers
@@ -178,22 +176,29 @@ s(defun emacspeak-vm-yank-header ()
             (lines (vm-su-line-count message)))
       (dtk-speak
        (vm-decode-mime-encoded-words-in-string
-        (format "%s %s %s   %s %s "
-                number
-                (or from "")
-                (if subject (format "on %s" subject) "")
-                (if (and to (< (length to) 80))
-                    (format "to %s" to) "")
-                (if lines (format "%s lines" lines) ""))))
+        (concat
+         number
+         (if from
+             (propertize from   'personality voice-brighten)
+           "")
+         (if subject
+             (propertize subject 'personality voice-lighten)
+           " ")
+         (if (and to (< (length to) 80))
+             (concat
+              (propertize " to " 'personality voice-smoothen)
+              (propertize  to 'personality voice-annotate))
+           "")
+         (if lines (format "%s lines" lines) ""))))
       (goto-char (point-min))
       (search-forward  (format "%c%c" 10 10) nil)
       (cond
        ((and self-p
              (= 0 self-p)                    ) ;mail to me and others
         (emacspeak-auditory-icon 'select-object))
-       (self-p                       ;mail to others including me
+       (self-p                          ;mail to others including me
         (emacspeak-auditory-icon 'mark-object))
-       (t                       ;got it because of a mailing list
+       (t                            ;got it because of a mailing list
         (emacspeak-auditory-icon 'item ))))))
 
 (defun emacspeak-vm-speak-labels ()
@@ -241,8 +246,7 @@ s(defun emacspeak-vm-yank-header ()
 ;;}}}
 ;;{{{  Moving between messages
 
-(add-hook 'vm-select-message-hook
-          'emacspeak-vm-summarize-message)
+(add-hook 'vm-select-message-hook 'emacspeak-vm-summarize-message)
 
 ;;}}}
 ;;{{{  Scrolling messages:
@@ -380,7 +384,7 @@ Then speak the screenful. "
 (when (boundp 'vm-mode-map)
   (declaim  (special
              vm-mode-map
-             global-map emacspeak-prefix emacspeak-keymap))  
+             global-map emacspeak-prefix emacspeak-keymap))
   (define-key vm-mode-map "\M-\C-m" 'widget-button-press)
   (define-key vm-mode-map "y" 'emacspeak-vm-yank-header)
   (define-key vm-mode-map "\M-\t" 'emacspeak-vm-next-button)
@@ -478,34 +482,35 @@ Leave point at front of decoded attachment."
 (add-hook 'vm-presentation-mode-hook
           #'(lambda nil
               (emacspeak-pronounce-refresh-pronunciations)))
-(declaim (special emacspeak-pronounce-internet-smileys-pronunciations))
-(loop for hook in
-      (list 'mail-mode-hook
-            'vm-presentation-mode-hook)
-      do
-      (add-hook hook 'emacspeak-pronounce-refresh-pronunciations
-                'append ))
 
-(loop for mode in
-      '(vm-presentation-mode
-        mail-mode)
-      do
-      (emacspeak-pronounce-augment-pronunciations mode
-                                                  emacspeak-pronounce-internet-smileys-pronunciations)
-      (emacspeak-pronounce-add-dictionary-entry mode
-                                                emacspeak-speak-embedded-url-pattern
-                                                (cons 're-search-forward
-                                                      #'(lambda
-                                                          (url) "
-      Link ")))
-      (emacspeak-pronounce-add-dictionary-entry mode
-                                                emacspeak-speak-rfc-3339-datetime-pattern
-                                                (cons 're-search-forward
-                                                      'emacspeak-speak-decode-rfc-3339-datetime))
-      (emacspeak-pronounce-add-dictionary-entry mode
-                                                emacspeak-speak-iso-datetime-pattern
-                                                (cons 're-search-forward
-                                                      'emacspeak-speak-decode-iso-datetime)))
+(declaim (special emacspeak-pronounce-internet-smileys-pronunciations))
+(loop
+ for hook in
+ '(mail-mode-hook vm-presentation-mode-hook)
+ do
+ (add-hook hook 'emacspeak-pronounce-refresh-pronunciations 'append ))
+
+(loop
+ for mode in
+ '(vm-presentation-mode mail-mode)
+ do
+ (emacspeak-pronounce-augment-pronunciations
+  mode
+  emacspeak-pronounce-internet-smileys-pronunciations)
+ (emacspeak-pronounce-add-dictionary-entry
+  mode
+  emacspeak-speak-embedded-url-pattern
+  (cons
+   're-search-forward
+   #'(lambda (url) " Link ")))
+ (emacspeak-pronounce-add-dictionary-entry
+  mode
+  emacspeak-speak-rfc-3339-datetime-pattern
+  (cons 're-search-forward 'emacspeak-speak-decode-rfc-3339-datetime))
+ (emacspeak-pronounce-add-dictionary-entry
+  mode
+  emacspeak-speak-iso-datetime-pattern
+  (cons 're-search-forward 'emacspeak-speak-decode-iso-datetime)))
 
 ;;}}}
 ;;{{{ advice button motion
@@ -546,7 +551,9 @@ If N is negative, move backward instead."
       (when (and backward (not (get-text-property (point) 'w3-hyperlink-info)))
         (goto-char (funcall function (point) 'w3-hyperlink-info nil limit)))
       ;; Skip past intangible buttons.
-      (when (get-text-property (point) 'intangible)
+      (when
+          (or (get-text-property (point) 'intangible)
+              (get-text-property (point) 'cursorintangible))
         (incf n))
       (decf n))
     (unless (zerop n)
@@ -557,6 +564,34 @@ If N is negative, move backward instead."
 ;;{{{ saving mime attachment under point
 
 ;;}}}
+;;{{{ Voice Lock:
+
+(when (locate-library "u-vm-color")
+  (require 'u-vm-color)
+  (voice-setup-add-map
+   '(
+     (u-vm-color-author-face voice-brighten)
+     (u-vm-color-citation-1-face voice-smoothen)
+     (u-vm-color-citation-2-face voice-smoothen-extra)
+     (u-vm-color-date-face voice-monotone-medium)
+     (u-vm-color-header-face voice-bolden-medium)
+     (u-vm-color-recipient-face voice-annotate)
+     (u-vm-color-signature-face voice-smoothen)
+     (u-vm-color-spamassassin-face voice-monotone)
+     (u-vm-color-subject-face voice-lighten)
+     (u-vm-color-time-face voice-monotone)
+     (u-vm-color-user-face voice-animate)
+
+     )
+   )
+  (add-hook 'vm-showing-message-hook #'u-vm-color-fontify-buffer)
+  (add-hook 'vm-presentation-mode-hook #'u-vm-color-fontify-buffer)
+  (add-hook 'vm-summary-mode-hook #'u-vm-color-summary-mode)
+  (add-hook 'vm-select-message-hook #'u-vm-color-fontify-buffer)
+  )
+
+;;}}}
+
 ;;{{{ configure and customize vm
 
 ;;; This is how I customize VM
@@ -587,8 +622,7 @@ Emacspeak."
             vm-delete-after-saving
             vm-url-browser
             vm-confirm-new-folders
-            vm-move-after-deleting
-            emacspeak-vm-voice-lock-messages))
+            vm-move-after-deleting))
   (setq vm-mime-charset-converter-alist
         '(
           ("utf-8" "iso-8859-1" "iconv -f utf-8 -t iso-8859-1")
@@ -611,8 +645,7 @@ Emacspeak."
         vm-delete-after-saving t
         vm-url-browser 'browse-url
         vm-confirm-new-folders t
-        vm-move-after-deleting nil
-        emacspeak-vm-voice-lock-messages t)
+        vm-move-after-deleting nil)
   t)
 
 (when emacspeak-vm-use-raman-settings
@@ -703,7 +736,8 @@ text using wvText."
         vm-mime-decode-for-preview nil
         vm-auto-decode-mime-messages t
         vm-auto-displayed-mime-content-type-exceptions '("text/html")
-        vm-mime-attachment-save-directory (expand-file-name "~/Mail/attachments/")
+        vm-mime-attachment-save-directory
+        (expand-file-name "~/Mail/attachments/")
         vm-mime-base64-encoder-program "base64-encode"
         vm-mime-base64-decoder-program "base64-decode")
   t)

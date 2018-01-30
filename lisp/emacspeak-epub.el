@@ -62,7 +62,7 @@
 (require 'emacspeak-webutils)
 (require 'emacspeak-xslt)
 (require 'derived)
-
+(require 'locate)
 ;;}}}
 ;;{{{  Customizations, Variables:
 
@@ -116,7 +116,8 @@
 (defsubst emacspeak-epub-do-toc (file)
   "Return location of .ncx file within epub archive."
   (declare (special emacspeak-epub-toc-command))
-  (let ((result (shell-command-to-string (format emacspeak-epub-toc-command file ))))
+  (let ((result
+         (shell-command-to-string (format emacspeak-epub-toc-command  file))))
     (cond
      ((= 0 (length result)) nil)
      (t (substring result 0 -1)))))
@@ -194,11 +195,11 @@
     buffer))
 
 (defvar emacspeak-epub-metadata-xsl
-  (expand-file-name "epub-metadata.xsl" emacspeak-xslt-directory)
+  (emacspeak-xslt-get "epub-metadata.xsl")
   "XSL to extract Author/Title information.")
 
 (defvar emacspeak-epub-opf-xsl
-  (expand-file-name "epub-opf.xsl" emacspeak-xslt-directory)
+  (emacspeak-xslt-get "epub-opf.xsl")
   "XSL to extract Author/Title information from content.opf.")
 
 (defsubst emacspeak-epub-get-metadata (epub)
@@ -218,6 +219,8 @@
   "EPub associated with current buffer.")
 
 (make-variable-buffer-local 'emacspeak-epub-this-epub)
+(declare-function w3-fetch  "w3" (url))
+(declare-function w3-download-url  "w3" (url &optional file-name))
 
 (defun emacspeak-epub-browse-content (epub element fragment &optional style )
   "Browse content in specified element of EPub."
@@ -225,9 +228,7 @@
   (let ((base (emacspeak-epub-base epub))
         (content nil)
         (emacspeak-xslt-options "--nonet --novalid")
-        (emacspeak-we-xsl-p nil)
-        (default-process-coding-system (cons 'utf-8 'utf-8))
-        (coding-system-for-read 'utf-8))
+        (emacspeak-we-xsl-p nil))
     (unless (string-match (format "^%s" base) element)
       (setq element (concat base element)))
     (setq content (emacspeak-epub-get-contents epub element))
@@ -285,7 +286,7 @@ Useful if table of contents in toc.ncx is empty."
        'at-end)
       (browse-url-of-buffer))))
 
-(defvar epub-toc-xsl (expand-file-name "epub-toc.xsl" emacspeak-xslt-directory)
+(defvar epub-toc-xsl (emacspeak-xslt-get "epub-toc.xsl")
   "XSL to process .ncx file.")
 
 (defun emacspeak-epub-browse-toc (epub)
@@ -637,6 +638,8 @@ Suitable for text searches."
     (switch-to-buffer buffer)
     (emacspeak-speak-mode-line)
     (emacspeak-auditory-icon 'open-object)))
+
+;;;###autoload
 (defun emacspeak-epub-eww (epub-file)
   "Display entire book  using EWW from EPub in a buffer.
 Suitable for text searches."
@@ -825,6 +828,7 @@ Letters do not insert themselves; instead, they are commands.
         ("e" emacspeak-epub-eww)
         ("f" emacspeak-epub-browse-files)
         ("g" emacspeak-epub-google)
+        ("l" emacspeak-epub-locate-epubs)
         ("n" next-line)
         ("o" emacspeak-epub-open)
         ("p" previous-line)
@@ -1095,9 +1099,6 @@ Letters do not insert themselves; instead, they are commands.
 (declaim (special emacspeak-calibre-mode-map))
 (define-key emacspeak-calibre-mode-map [Return] 'emacspeak-epub-calibre-dired-at-point )
 
-(declaim (special emacspeak-calibre-mode-map))
-(define-key emacspeak-calibre-mode-map [Return] 'emacspeak-epub-calibre-dired-at-point)
-(define-key emacspeak-calibre-mode-map "\C-m" 'emacspeak-epub-calibre-dired-at-point)
 (defun emacspeak-epub-calibre-results ()
   "Show most recent Calibre search results."
   (interactive)
@@ -1131,6 +1132,14 @@ Letters do not insert themselves; instead, they are commands.
     (emacspeak-speak-line)))
 
 ;;}}}
+;;{{{ Locate epub using Locate:
+(defun emacspeak-epub-locate-epubs (pattern)
+  "Locate epub files using locate."  (interactive "sSearch Pattern: ")
+  (let ((locate-make-command-line #'(lambda (s) (list locate-command "-i" s))))
+    (funcall-interactively #'locate-with-filter pattern ".epub$")))
+
+;;}}}
+
 (provide 'emacspeak-epub)
 ;;{{{ end of file
 

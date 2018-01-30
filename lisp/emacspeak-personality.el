@@ -41,6 +41,24 @@
 ;;{{{  Introduction:
 
 ;;; Commentary:
+;;; Implementation Notes From 2015:
+
+;;; Setting emacspeak-personality-voiceify-faces to nil (none via
+;;; customize interface) now results in dtk-speak falling back to the
+;;; face->voice mapping defined via voice-setup for the face at
+;;; point. What this means:
+;;;
+;;; 1. You always get voice-locking except
+;;; when you set voice-lock-mode to nil.
+;;;
+;;; 2. The advice on
+;;; put-text-property and friends become a no-op and we still get
+;;; voice-locking.
+;;;
+;;; 3. Eventually this will become the default behavior
+;;; for voice-locking.
+
+;;; Implementation Notes from 2002.
 
 ;;; This module defines a personality interface for implementing voice
 ;;; lock via font lock.
@@ -227,47 +245,41 @@ Preserve other existing personality properties on the text range."
 ;;}}}
 ;;{{{ advice put-text-personality
 
-(defcustom emacspeak-personality-voiceify-faces
-  'emacspeak-personality-put
+(defcustom emacspeak-personality-voiceify-faces nil
   "Determines how and if we voiceify faces.
 
-None means that  faces are not mapped to voices.
+All means   faces are  mapped directly to voices -- this is the default
+
 Prepend means that the corresponding personality is prepended to the
 existing personalities on the text.
 
 Append means place corresponding personality at the end.
-Simple means that voiceification is not cumulative --this is the default."
+
+Simple means that voiceification is not cumulative."
   :type '(choice :tag "Face Voiceification"
-                 (const :tag "None" nil)
+                 (const :tag "All" nil)
                  (const :tag "Simple" emacspeak-personality-put)
                  (const :tag "Prepend" emacspeak-personality-prepend)
                  (const :tag "Append" emacspeak-personality-append))
   :group 'emacspeak-personality)
 
-(defcustom emacspeak-personality-show-unmapped-faces nil
-  "If set, faces that dont have a corresponding personality are
-displayed in the messages area."
-  :type 'boolean
-  :group 'emacspeak-personality)
-
-(defvar emacspeak-personality-unmapped-faces (make-hash-table)
-  "Records faces that we have not yet mapped to personalities.")
 ;;; Helper: Get face->voice mapping
-
+;;;###autoload
 (defun ems-get-voice-for-face (value)
   "Compute face->voice mapping."
-  (let ((voice nil))
-    (condition-case nil
-        (cond
-         ((symbolp value)
-          (setq voice (voice-setup-get-voice-for-face value)))
-         ((ems-plain-cons-p value)) ;;pass on plain cons
-         ( (listp value)
-           (setq voice
-                 (delq nil
-                       (mapcar   #'voice-setup-get-voice-for-face value)))))
-      (error nil))
-    voice))
+  (when value 
+    (let ((voice nil))
+      (condition-case nil
+          (cond
+           ((symbolp value)
+            (setq voice (voice-setup-get-voice-for-face value)))
+           ((ems-plain-cons-p value)) ;;pass on plain cons
+           ( (listp value)
+             (setq voice
+                   (delq nil
+                         (mapcar   #'voice-setup-get-voice-for-face value)))))
+        (error nil))
+      voice)))
 
 (defadvice put-text-property (after emacspeak-personality  pre act)
   "Used by emacspeak to augment font lock."
@@ -355,7 +367,7 @@ displayed in the messages area."
 
 (defadvice remove-text-properties (before emacspeak-personality pre act comp)
   "Undo any voiceification if needed."
-  (when voice-lock-mode
+  (when (and voice-lock-mode emacspeak-personality-voiceify-faces)
     (let  ((start (ad-get-arg 0))
            (end (ad-get-arg 1))
            (props (ad-get-arg 2))
@@ -366,7 +378,7 @@ displayed in the messages area."
 
 (defadvice remove-list-of-text-properties (before emacspeak-personality pre act comp)
   "Undo any voiceification if needed."
-  (when voice-lock-mode
+  (when (and voice-lock-mode emacspeak-personality-voiceify-faces)
     (let  ((start (ad-get-arg 0))
            (end (ad-get-arg 1))
            (props (ad-get-arg 2))
@@ -375,10 +387,6 @@ displayed in the messages area."
                  (emacspeak-personality-plist-face-p props)) ;;; simple minded for now
         (put-text-property start end
                            'personality nil object)))))
-
-;;; deactivate these for js2-mode:
-                                        ;(ad-deactivate 'remove-list-of-text-properties)
-                                        ;(ad-deactivate 'remove-text-properties)
 
 ;;}}}
 ;;{{{ advice overlay-put

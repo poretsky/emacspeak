@@ -59,6 +59,8 @@ proc tts_set_speech_rate {rate} {
     global tts
     set factor $tts(char_factor) 
     set tts(speech_rate) $rate
+    set tts(say_rate) [round \
+                           [expr $tts(speech_rate) * $factor ]]
     say "`vs$rate "
     service
     return ""
@@ -88,8 +90,8 @@ proc tts_say {text} {
 
 proc l {text} {
     global tts
-    set r $tts(speech_rate)
-    set prefix "`v1 `vs$r "
+    set f  $tts(say_rate)
+    set prefix "`v1 `vs$f "
     if {[regexp  {[A-Z]} $text]} {
         set prefix "$prefix `vb80"
     }
@@ -139,10 +141,7 @@ proc t  {{pitch 440} {duration 50}} {
 }
 
 proc sh  {{duration 50}} {
-    global tts queue 
-    set silence "`p$duration "
-    set queue($tts(q_tail)) [list t $silence]
-    incr tts(q_tail)
+    c " `p$duration "
     service
     return ""
 }
@@ -368,12 +367,10 @@ proc speech_task {} {
             s {
                 set text [clean [lindex $event 1]]
                 synth "$prefix $text"
-                set retval [service]
             }
             c {
                 set text  [lindex $event 1]
                 synth " $text"
-                set retval [service]
             }
             a {
                 set sound [lindex $event 1]
@@ -472,6 +469,8 @@ fconfigure stdin -encoding utf-8
 #initialize outloud 
 tts_initialize
 set tts(speech_rate)  75
+set tts(say_rate)  90 
+
 beep_initialize
 set tts(input) stdin
 if {[info exists server_p]} {

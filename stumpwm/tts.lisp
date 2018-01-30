@@ -73,7 +73,10 @@
   "Open a TTS session."
   (setq *tts-process*
         (sb-ext:run-program
-         *tts-engine* nil :wait nil  :input :stream)))
+         *tts-engine* nil :wait nil  :input :stream))
+  (let ((i (sb-ext:process-input *tts-process*)))
+    (write-line (format nil "tts_set_punctuations all") i)
+    (force-output i)))
 
 (defun tts-close ()
   "Close a TTS session."
@@ -96,7 +99,7 @@
                 (sb-ext:process-alive-p *tts-process*))
     (tts-open))
   (let ((i (sb-ext:process-input *tts-process*)))
-    (write-line (format nil "q {~s}" text) i)
+    (write-line (format nil "q {~a}" text) i)
     (force-output i)))
 
 (defun tts-force ()
@@ -122,7 +125,16 @@
     (when *tts-stop-immediately*
       (write-line "s"  i)
       (force-output i))
-    (write-line (format nil "q ~s\;d" text) i)
+    (write-line (format nil "q ~a\;d" text) i)
+    (force-output i)))
+
+(defun tts-serve-icon (filename)
+  "Serve auditory icon  in filename."
+  (unless (and  *tts-process*
+                (sb-ext:process-alive-p *tts-process*))
+    (tts-open))
+  (let ((i (sb-ext:process-input *tts-process*)))
+    (write-line (format nil "a ~a\;d" filename) i)
     (force-output i)))
 
 (defun tts-say (text)
@@ -134,7 +146,7 @@
     (when *tts-stop-immediately*
       (write-line "s"  i)
       (force-output i))
-    (write-line (format nil "tts_say  ~s" text) i)
+    (write-line (format nil "tts_say  ~a" text) i)
     (force-output i)))
 
 (defun tts-speak-list (lines)
@@ -149,7 +161,7 @@
                 (sb-ext:process-alive-p *tts-process*))
     (tts-open))
   (let ((i (sb-ext:process-input *tts-process*)))
-    (write-line (format nil "l ~s" text) i)
+    (write-line (format nil "l ~a" text) i)
     (force-output i)))
 
 ;;; }

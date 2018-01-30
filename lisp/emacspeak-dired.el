@@ -76,12 +76,10 @@
   "Speak the dired line intelligently."
   (declare (special emacspeak-speak-last-spoken-word-position))
   (let ((filename (dired-get-filename 'no-dir  t ))
-        (personality (get-text-property (point) 'personality)))
+        (personality (dtk-get-style)))
     (cond
      (filename
-      (put-text-property  0  (length filename)
-                          'personality personality filename )
-      (dtk-speak filename)
+      (dtk-speak (propertize filename 'personality personality))
       (setq emacspeak-speak-last-spoken-word-position (point)))
      (t (emacspeak-speak-line )))))
 
@@ -209,7 +207,7 @@ Assumes that `dired-listing-switches' contains  -l"
                       "modified at"
                       "name")))
     (save-excursion
-      (beginning-of-line)
+      (forward-line 0)
       (skip-syntax-forward " ")
       (while (and fields
                   (not (eolp)))
@@ -285,8 +283,7 @@ On a directory line, run du -s on the directory to speak its size."
      ((and filename
            (file-directory-p filename))
       (emacspeak-auditory-icon 'progress)
-      (emacspeak-shell-command (format "du -s \'%s\'"
-                                       filename )))
+      (emacspeak-shell-command (format "du -s \"%s\"" filename )))
      (filename
       (setq size (nth 7 (file-attributes filename )))
                                         ; check for ange-ftp
@@ -355,6 +352,9 @@ On a directory line, run du -s on the directory to speak its size."
 (defun emacspeak-dired-setup-keys ()
   "Add emacspeak keys to dired."
   (declare (special dired-mode-map ))
+  (define-key dired-mode-map "E" 'emacspeak-dired-epub-eww)
+  (define-key dired-mode-map (kbd "C-RET") 'emacspeak-dired-open-this-file)
+  (define-key dired-mode-map [C-return] 'emacspeak-dired-open-this-file)
   (define-key dired-mode-map "'" 'emacspeak-dired-show-file-type)
   (define-key  dired-mode-map "/" 'emacspeak-dired-speak-file-permissions)
   (define-key  dired-mode-map ";" 'emacspeak-dired-speak-header-line)
@@ -367,6 +367,80 @@ On a directory line, run du -s on the directory to speak its size."
 (add-hook 'dired-mode-hook  'emacspeak-dired-initialize 'append)
 
 ;;}}}
+;;{{{ Advice locate:
+(loop
+ for f in
+ '(locate locate-with-filter)
+ do
+ (eval
+  `(defadvice ,f (after emacspeak pre act comp)
+     "Provide auditory feedback."
+     (when (ems-interactive-p)
+       (emacspeak-speak-line)
+       (emacspeak-auditory-icon 'open-object)))))
+(load-library "locate")
+(declaim (special locate-mode-map))
+(define-key locate-mode-map  [C-return] 'emacspeak-dired-open-this-file)
+;;}}}
+;;{{{ Context-sensitive openers:
+
+(defun emacspeak-dired-play-this-media ()
+  "Plays media on current line."
+  (funcall-interactively #'emacspeak-m-player (dired-get-filename)))
+
+(defconst emacspeak-dired-opener-table
+  `(("\\.epub$"  emacspeak-dired-epub-eww)
+    ("\\.html" emacspeak-dired-eww-open )
+    ("\\.htm" emacspeak-dired-eww-open )
+    ("\\.pdf" emacspeak-dired-pdf-open)
+    ("\\.csv" emacspeak-dired-csv-open)
+    (,emacspeak-media-extensions emacspeak-dired-play-this-media))
+  "Association of filename extension patterns to Emacspeak handlers.")
+
+(defun emacspeak-dired-open-this-file  ()
+  "Smart dired opener. Invokes appropriate Emacspeak handler on  current file in DirEd."
+  (interactive)
+  (let* ((f (dired-get-filename nil t))
+         (ext (file-name-extension f))
+         (handler nil))
+    (unless f (error "No file here."))
+    (unless ext (error "This entry has no extension."))
+    (setq handler
+          (second
+           (find
+            (format ".%s" ext)
+            emacspeak-dired-opener-table
+            :key #'car                  ; extract pattern from entry 
+            :test #'(lambda (e pattern) (string-match  pattern e)))))
+    (cond
+     ((and handler (fboundp handler))
+      (emacspeak-auditory-icon 'task-done)
+      (funcall-interactively handler))
+     (t (error  "No known handler")))))
+
+(defun emacspeak-dired-eww-open ()
+  "Open HTML file on current dired line."
+  (interactive)
+  (funcall-interactively #'eww-open-file (dired-get-filename)))
+
+(defun emacspeak-dired-pdf-open ()
+  "Open PDF file on current dired line."
+  (interactive)
+  (funcall-interactively #'emacspeak-wizards-pdf-open (dired-get-filename current-prefix-arg)))
+(defun emacspeak-dired-epub-eww ()
+  "Open epub on current line  in EWW"
+  (interactive)
+  (funcall-interactively #'emacspeak-epub-eww (shell-quote-argument(dired-get-filename)))
+  (emacspeak-auditory-icon 'open-object))
+
+(defun emacspeak-dired-csv-open ()
+  "Open CSV file on current dired line."
+  (interactive)
+  (funcall-interactively #'emacspeak-table-find-csv-file (dired-get-filename current-prefix-arg)))
+
+
+;;}}}
+
 (provide 'emacspeak-dired)
 ;;{{{ emacs local variables
 

@@ -91,8 +91,8 @@
 (eval-when-compile (require 'easy-mmode))
 (require 'custom)
 (require 'acss-structure)
+(require 'tts)
 (require 'outloud-voices)
-(require 'multispeech-voices)
 (require 'mac-voices)
 (require 'espeak-voices)
 (require 'dectalk-voices)
@@ -106,35 +106,21 @@
 
 ;;}}}
 ;;{{{  helper for voice custom items:
+(unless (fboundp 'tts-list-voices)
+  (fset 'tts-list-voices #'dectalk-list-voices))
 
-(defalias 'tts-list-voices 'dectalk-list-voices)
 (defun voice-setup-custom-menu ()
   "Return a choice widget used in selecting voices."
-  (let ((v (tts-list-voices))
-        (menu nil))
-    (setq menu
-          (mapcar
-           #'(lambda (voice)
-               (list 'const voice))
-           v))
-    (setq menu
-          (cons
-           (list 'symbol :tag "Other")
-           menu))
-    (cons 'choice menu)))
+  `(choice
+    (symbol :tag "Other")
+    ,@(mapcar 
+       #'(lambda (voice)(list 'const voice))
+       (tts-list-voices))))
 
-(defun voice-setup-read-personality (&optional prompt)
-  "Read name of a pre-defined personality using completion."
-  (let ((table (mapcar
-                #'(lambda (v)
-                    (cons
-                     (format "%s" v)
-                     (format "%s" v)))
-                (tts-list-voices))))
-    (read
-     (completing-read
-      (or prompt "Personality: ")
-      table))))
+(defsubst voice-setup-read-personality (&optional prompt)
+   "Read name of a pre-defined personality using completion."
+   (read (completing-read (or prompt "Personality: ")
+                          (tts-list-voices))))
 
 ;;}}}
 ;;{{{ map faces to voices
@@ -424,10 +410,13 @@ punctuations.")
  '(
    (shr-link voice-bolden)
    (bold voice-bolden)
-   (variable-pitch voice-animate)
+                                        ;(variable-pitch voice-animate) ; this is often the default
    (bold-italic voice-bolden-and-animate)
    (button voice-bolden)
    (link voice-bolden)
+   (link-visited voice-bolden-medium)
+   (success voice-bolden)
+   (error voice-animate)
    (warning voice-bolden-and-animate)
    (fixed-pitch voice-monotone)
    (font-lock-builtin-face voice-bolden)
@@ -489,21 +478,18 @@ punctuations.")
       (turn-off-voice-lock)
     (turn-on-voice-lock))
   (when (ems-interactive-p )
-    (let ((state (if voice-lock-mode 'on 'off)))
-      (when (ems-interactive-p )
-        (emacspeak-auditory-icon state)))))
+    (emacspeak-auditory-icon (if voice-lock-mode 'on 'off))))
 
 ;;;###autoload
 (defvar global-voice-lock-mode t
   "Global value of voice-lock-mode.")
 
-(when (string-match "24" emacs-version)
-  (define-globalized-minor-mode global-voice-lock-mode
-    voice-lock-mode turn-on-voice-lock
-    :initialize 'custom-initialize-delay
-    :init-value (not (or noninteractive emacs-basic-display))
-    :group 'voice-lock
-    :version "24.1"))
+(define-globalized-minor-mode global-voice-lock-mode
+  voice-lock-mode turn-on-voice-lock
+  :initialize 'custom-initialize-delay
+  :init-value (not (or noninteractive emacs-basic-display))
+  :group 'voice-lock
+  :version "24.1")
 
 ;; Install ourselves:
 (declaim (special text-property-default-nonsticky))

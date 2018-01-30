@@ -72,18 +72,18 @@
 (defadvice ido-exhibit (after emacspeak pre act comp)
   "Speak first of the displayed matches."
   (when (and ido-matches
-             (sit-for 0.3))
-    (emacspeak-auditory-icon 'progress))
-  (dtk-speak
-   (concat 
-    (car ido-matches)
-    (format " %d choices: " (length ido-matches))
-    (minibuffer-contents)
-    (if(or (null ido-current-directory)
-           (string-equal ido-current-directory emacspeak-ido-cache-current-directory))
-        " "
-      (format "In directory: %s"
-              ido-current-directory)))))
+             (sit-for 0.5))
+    (emacspeak-auditory-icon 'progress)
+    (dtk-speak
+     (concat 
+      (car ido-matches)
+      (format " %d choices: " (length ido-matches))
+      (minibuffer-contents)
+      (if(or (null ido-current-directory)
+             (string-equal ido-current-directory emacspeak-ido-cache-current-directory))
+          " "
+        (format "In directory: %s"
+                ido-current-directory))))))
 
 ;;}}}
 ;;{{{ speech-enable interactive commands:
@@ -201,6 +201,11 @@ The default value of 12 is too high for using ido effectively with speech. "
      (car (last ido-matches)))))
 
 (defadvice ido-kill-buffer-at-head (after emacspeak pre act comp)
+  "Provide auditory icon."
+  (when (ems-interactive-p )
+    (emacspeak-auditory-icon 'close-object)))
+
+(defadvice ido-bury-buffer-at-head (after emacspeak pre act comp)
   "Provide auditory icon."
   (when (ems-interactive-p )
     (emacspeak-auditory-icon 'close-object)))

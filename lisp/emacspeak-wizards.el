@@ -65,6 +65,10 @@
 (require 'emacspeak-webutils)
 (require 'emacspeak-we)
 (require 'emacspeak-xslt)
+(eval-when-compile
+  (require 'calendar)
+  (require 'solar)
+  (require 'gmaps))
 ;;}}}
 ;;{{{ custom
 
@@ -486,7 +490,9 @@ To leave, press \\[keyboard-quit]."
     (while continue
       (call-interactively 'describe-key-briefly)
       (sit-for 1)
-      (when (= last-input-event 7) (setq continue nil )))
+      (when (and (numberp last-input-event)
+                 (= last-input-event 7))
+        (setq continue nil )))
     (message "Leaving learn mode ")))
 
 ;;}}}
@@ -869,24 +875,26 @@ personal customizations."
   "Show value of property personality (and possibly face)
 at point."
   (interactive )
-  (let ((p (get-char-property (point) 'personality))
-        (f (get-text-property (point) 'face))
+  (let ((f (or (get-text-property (point) 'font-lock-face)
+               (get-text-property (point) 'face)))
         (o
          (delq nil
                (mapcar
                 #'(lambda (overlay)
-                    (overlay-get overlay 'face))
+                    (or (overlay-get overlay 'font-lock-face)
+                        (overlay-get overlay 'face)))
                 (overlays-at (point))))))
-    (message "Personality %s Face %s %s" p f
+    (message "Personality %s Face %s %s"
+             (dtk-get-style)f
              (if o
-                 o
+                 (format "Overlay Face: %s" o)
                " "))))
 
 ;;;###autoload
 (defun emacspeak-show-property-at-point (&optional property )
   "Show value of PROPERTY at point.
 If optional arg property is not supplied, read it interactively.
-Provides completion based on properties that are of interest.
+Provides completion based on properties at point.
 If no property is set, show a message and exit."
   (interactive
    (let
@@ -897,15 +905,16 @@ If no property is set, show a message and exit."
        (list (car properties )))
       (properties
        (list
-        (intern
-         (completing-read  "Display property: "
-                           emacspeak-property-table ))))
+        (intern 
+         (completing-read
+          "Display property: "
+          (loop  for p in properties  and i from 0 if (evenp i) collect p)))))
       (t (message "No property set at point ")
          nil))))
-  (declare (special emacspeak-property-table))
   (if property
-      (message"%s"
-              (get-text-property (point) property ))))
+      (kill-new
+       (message"%s"
+              (get-text-property (point) property )))))
 
 ;;}}}
 ;;{{{  moving across blank lines
@@ -1154,17 +1163,6 @@ Extracted content is sent to STDOUT."
 
 ;;}}}
 ;;{{{ view url:
-
-;;;###autoload
-(defun emacspeak-wizards-view-url ()
-  "Open a new buffer containing the contents of URL."
-  (interactive)
-  (let* ((default (thing-at-point-url-at-point))
-         (url (read-from-minibuffer "URL: " default)))
-    (switch-to-buffer (url-retrieve-synchronously url))
-    (rename-buffer url t)
-    (cond ((search-forward "<?xml" nil t) (xml-mode))
-          ((search-forward "<html" nil t) (html-mode)))))
 
 ;;}}}
 ;;{{{ annotation wizard
@@ -1500,69 +1498,6 @@ visiting the DVI file."
 (emacspeak-wizards-augment-auto-mode-alist
  "\\.dvi$"
  'emacspeak-wizards-dvi-mode)
-
-;;}}}
-;;{{{ Stock quotes  Portfolio
-(defcustom emacspeak-wizards-quote-command
-  (expand-file-name "quotes.pl"
-                    emacspeak-etc-directory)
-  "Command for pulling up detailed stock quotes.
-this requires Perl module Finance::YahooQuote."
-  :type 'file
-  :group 'emacspeak-wizards)
-(defcustom emacspeak-wizards-quote-row-filter
-  '(1 " closed at " 2
-      "giving it a P/E ratio of " 16
-      " and a market cap of " 20 "at earning of " 15 " per share. "
-      "The intra-day range was " 13
-      ", and the 52 week range is " 14 ". ")
-  "Format used to filter rows."
-  :type '(repeat
-          (choice :tag "Entry"
-                  (integer :tag "Column Number:")
-                  (string :tag "Text: ")))
-  :group 'emacspeak-wizards)
-
-(defcustom emacspeak-wizards-personal-portfolio ""
-  "Set this to the stock tickers you want to check.
-Tickers are separated by white-space and are sorted in lexical
-order with duplicates removed."
-  :type 'string
-  :group 'emacspeak-wizards
-  :initialize  'custom-initialize-reset
-  :set
-  #'(lambda (sym val)
-      (set-default
-       sym
-       (mapconcat
-        #'identity
-        (remove-duplicates
-         (sort (split-string val)#'string-lessp) :test #'string=)
-        "\n"))))
-
-;;;###autoload
-(defun emacspeak-wizards-portfolio-quotes ()
-  "Bring up detailed stock quotes for portfolio specified by
-emacspeak-wizards-personal-portfolio."
-  (interactive)
-  (declare (special emacspeak-wizards-personal-portfolio emacspeak-table-speak-element
-                    emacspeak-wizards-quote-command emacspeak-wizards-quote-row-filter))
-  (when  (get-buffer "Portfolio") (kill-buffer  (get-buffer "Portfolio")))
-  (let ((temp-file (make-temp-file  "quotes" nil ".csv")))
-    (shell-command
-     (format
-      "echo '%s' | perl %s > %s"
-      emacspeak-wizards-personal-portfolio
-      emacspeak-wizards-quote-command temp-file))
-    (emacspeak-table-find-csv-file temp-file)
-    (setq emacspeak-table-speak-row-filter emacspeak-wizards-quote-row-filter
-          emacspeak-table-speak-element 'emacspeak-table-speak-row-filtered)
-    (setq tab-width 12)
-
-    (rename-buffer "Portfolio" 'unique)
-    (goto-char (point-min))
-    (call-interactively 'emacspeak-table-next-row)
-    (delete-file temp-file)))
 
 ;;}}}
 ;;{{{ find wizard
@@ -1942,8 +1877,10 @@ Use with caution."
 ;;}}}
 ;;{{{ VC viewer
 (defcustom emacspeak-wizards-vc-viewer-command
-  "sudo setterm -dump %s -file %s"
-  "Command line for dumping out virtual console."
+  "setterm -dump %s -file %s"
+  "Command line for dumping out virtual console.
+Make sure you have access to /dev/vcs* by adding yourself to the appropriate group.
+On Ubuntu and Debian this is group `tty'."
   :type 'string
   :group 'emacspeak-wizards)
 
@@ -2174,14 +2111,10 @@ Interactive  arguments specify filename pattern and search pattern."
 ;;;###autoload
 (defun emacspeak-wizards-voice-sampler (personality)
   "Read a personality  and apply it to the current line."
-  (interactive
-   (list
-    (voice-setup-read-personality)))
-  (put-text-property (line-beginning-position)
-                     (line-end-position)
-                     'personality
-                     personality
-                     (emacspeak-speak-line)))
+  (interactive (list (voice-setup-read-personality)))
+  (put-text-property (line-beginning-position) (line-end-position)
+                     'personality personality)
+                     (emacspeak-speak-line))
 
 ;;;###autoload
 (defun emacspeak-wizards-generate-voice-sampler  (step)
@@ -2398,7 +2331,6 @@ This is for use in conjunction with bash to allow multiple emacs
 (defun emacspeak-wizards-switch-shell (direction)
   "Switch to next/previous shell buffer.
 Direction specifies previous/next."
-  (interactive "d")
   (let* ((shells (emacspeak-wizards-get-shells))
          (target nil))
     (cond
@@ -2602,25 +2534,42 @@ Default is to add autoload cookies to current file."
 
 ;;}}}
 ;;{{{  Buffer Cycling:
+(defun emacspeak-wizards-buffer-cycle-previous (mode)
+  "Return previous  buffer in cycle order having same major mode as `mode'."
+  (catch 'loop
+    (dolist (buf   (reverse (cdr (buffer-list (selected-frame)))))
+      (when (with-current-buffer buf (eq mode major-mode))
+        (throw 'loop buf)))))
 
 (defun emacspeak-wizards-buffer-cycle-next (mode)
   "Return next buffer in cycle order having same major mode as `mode'."
   (catch 'loop
     (dolist (buf  (cdr (buffer-list (selected-frame))))
-      (when (with-current-buffer buf (derived-mode-p mode))
+      (when (with-current-buffer buf (eq mode major-mode))
         (throw 'loop buf)))))
+;;;###autoload 
+(defun emacspeak-wizards-cycle-to-previous-buffer()
+  "Cycles to previous buffer having same mode."
+  (interactive)
+  (let ((prev (emacspeak-wizards-buffer-cycle-previous major-mode)))
+    (cond
+     (prev 
+      (switch-to-buffer prev)
+      (emacspeak-auditory-icon 'select-object)
+      (emacspeak-speak-mode-line))
+     (t (error "No previous buffer in mode %s" major-mode)))))
 
+;;;###autoload
 (defun emacspeak-wizards-cycle-to-next-buffer()
   "Cycles to next buffer having same mode."
   (interactive)
   (let ((next (emacspeak-wizards-buffer-cycle-next major-mode)))
-    (when (and next (derived-mode-p major-mode)) (bury-buffer))
     (cond
-     (next (switch-to-buffer next)
+     (next (bury-buffer)
+           (switch-to-buffer next)
            (emacspeak-auditory-icon 'select-object)
            (emacspeak-speak-mode-line))
-     (t
-      (error "No next buffer in mode %s" major-mode)))))
+     (t (error "No next buffer in mode %s" major-mode)))))
 
 ;;}}}
 ;;{{{ Start or switch to term:
@@ -2876,18 +2825,72 @@ Lang is obtained from property `lang' on string, or  via an interactive prompt."
   (let ((name   "RadioTime Search"))
     (emacspeak-url-template-open (emacspeak-url-template-get name))))
 ;;}}}
-;;{{{ yahoo Quotes:
+;;{{{ Generic YQL Implementation:
 
+(defvar yql-public-base
+  (concat 
+   "http://query.yahooapis.com/v1/public/yql?"
+   "format=json"
+   "&q=")
+  "REST end-point for YQL public APIs that returns JSON." )
 
-(defconst emacspeak-wizards-yq-base
+(defun yql-filter (headers result-row)
+  "Filter out fields we dont care about."
+  (remove-if-not
+   #'(lambda  (r) (memq (car r) headers))
+   result-row))
+
+(defun yql-result-row (headers result-row)
+  "Takes a list corresponding to a result, and returns a vector sorted per headers."
+  (let ((row (make-vector (length result-row) nil)))
+    (loop
+     for h across headers
+     and index from 0 do
+     (aset row index (cdr (assoc h result-row))))
+    row))
+
+(defun yql-table (header-row tokens)
+  "Turn result list from YQL into an Emacspeak  table."
+  (let ((table (make-vector (1+ (length tokens)) nil))
+        (results (emacspeak-wizards-yq-results tokens)))
+    (aset table 0 header-row)
+    (loop
+     for r in results
+     and index from 1 do
+     (aset  table index (yql-result-row header-row r)))
+    (emacspeak-table-make-table table)))
+
+;;}}}
+;;{{{ YQL: Stock Quotes
+
+;;;###autoload
+(defcustom emacspeak-wizards-personal-portfolio "goog aapl fb amzn"
+  "Set this to the stock tickers you want to check.
+Default is GAFA. Tickers are separated by white-space and are automatically sorted in lexical
+order with duplicates removed  when saving."
+  :type 'string
+  :group 'emacspeak-wizards
+  :initialize  'custom-initialize-reset
+  :set
+  #'(lambda (sym val)
+      (set-default
+       sym
+       (mapconcat
+        #'identity
+        (remove-duplicates
+         (sort (split-string val)#'string-lessp) :test #'string=)
+        "\n"))))
+
+(defvar emacspeak-wizards-yq-base
   (concat
    "http://query.yahooapis.com/v1/public/yql?"
-   "&env=http%3A%2F%2Fdatatables.org%2Falltables.env&format=json"
+   "&env=http%3A%2F%2Fdatatables.org%2Falltables.env"
+   "&format=json"
    "&q=")
   "REST-end-point for Yahoo Quotes API.")
 
 (defun emacspeak-wizards-yq-query (symbols)
-  "Return select query  for specified list of symbols."
+  "Return YQL select statement for specified list of symbols."
   (let ((qt "select * from yahoo.finance.quotes where symbol in (\"%s\")")
         (tickers-string (mapconcat #'identity  symbols "\",\"")))
     (emacspeak-url-encode (format qt tickers-string))))
@@ -2895,7 +2898,7 @@ Lang is obtained from property `lang' on string, or  via an interactive prompt."
 (defun emacspeak-wizards-yq-url (symbols)
   "Return query url."
   (declare (special emacspeak-wizards-yq-base))
-  (concat emacspeak-wizards-yq-base (emacspeak-wizards-yq-query symbols)))
+  (concat emacspeak-wizards-yq-base (emacspeak-wizards-yq-query symbols))) ;
 
 (defconst emacspeak-wizards-yq-headers
   '(symbol Ask
@@ -2951,8 +2954,9 @@ Lang is obtained from property `lang' on string, or  via an interactive prompt."
   "Only keep fields we care about."
   (declare (special emacspeak-wizards-yq-headers))
   (remove-if-not
-   #'(lambda  (q) (member (car q) emacspeak-wizards-yq-headers))
+   #'(lambda  (q) (memq (car q) emacspeak-wizards-yq-headers))
    r))
+
 (defun emacspeak-wizards-yq-get-quotes (symbols)
   "Return results from yahoo."
   (g-json-lookup
@@ -2966,14 +2970,14 @@ Lang is obtained from property `lang' on string, or  via an interactive prompt."
 (defun emacspeak-wizards-yq-results (symbols)
   "Get results from json response.
 Returns a list of lists, one list per ticker."
-   ;;;; keep fields we care about for each result
   (let ((results (emacspeak-wizards-yq-get-quotes symbols)))
-  (cond
-   ((= 1 (length symbols)) ;wrap singleton in a list 
-    (list (emacspeak-wizards-yq-filter  results)))
-  (t
-   (loop for r across results
-   collect (emacspeak-wizards-yq-filter r))))))
+    ;;; keep fields we care about for each result
+    (cond
+     ((= 1 (length symbols)) ;wrap singleton in a list
+      (list (emacspeak-wizards-yq-filter  results)))
+     (t
+      (loop for r across results
+            collect (emacspeak-wizards-yq-filter r))))))
 
 (defun emacspeak-wizards-yq-result-row (r)
   "Takes a list corresponding to a quote, and returns a vector sorted per headers."
@@ -2982,36 +2986,163 @@ Returns a list of lists, one list per ticker."
     (loop
      for h in emacspeak-wizards-yq-headers
      and index from 0 do
-     (aset row index
-           (cdr (assoc h r))))
+     (aset row index (cdr (assoc h r))))
     row))
 
+(defvar emacspeak-wizards-yq-headers-row
+  (apply 'vector (mapcar #'symbol-name emacspeak-wizards-yq-headers))
+  "Vector to use as header row.")
+
 (defun emacspeak-wizards-yq-table (symbols)
-  "Turn result list from YQL into a table."
-  (declaim (special emacspeak-wizards-yq-headers))
+  "Turn result list from YQL into an Emacspeak  table."
+  (declare (special emacspeak-wizards-yq-headers
+                    emacspeak-wizards-yq-headers-row))
   (let ((table (make-vector (1+ (length symbols)) nil))
         (results (emacspeak-wizards-yq-results symbols)))
-    (aset table 0 (apply 'vector
-                         (mapcar #'symbol-name emacspeak-wizards-yq-headers)))
+    (aset table 0 emacspeak-wizards-yq-headers-row)
     (loop
      for r in results
      and index from 1 do
-     (aset  table index
-            (emacspeak-wizards-yq-result-row r)))
-        (emacspeak-table-make-table table)))
+     (aset  table index (emacspeak-wizards-yq-result-row r)))
+    (emacspeak-table-make-table table)))
 
+(defcustom emacspeak-wizards-yql-quotes-row-filter
+  '(31 " ask  " 1
+       " trading between   " 13  " and  " 14  " with volume " 43 
+       " PE is "37
+       " for a market cap of " 17 "at earning of " 9 " per share "
+       "the 52 week range is " 44 )
+  "Template used to audio-format  rows."
+  :type '(repeat
+          (choice :tag "Entry"
+                  (integer :tag "Column Number:")
+                  (string :tag "Text: ")))
+  :group 'emacspeak-wizards)
+;;;###autload
+(defun emacspeak-wizards-yql-lookup (symbols)
+  "Lookup quotes for specified stock symbols.
+Symbols are separated by whitespace."
+  (interactive "sStock Symbols: ")
+  (let ((tickers (split-string symbols))
+        (buff "Stock Quotes"))
+    (when  (get-buffer "*YQL*") (kill-buffer  (get-buffer "*YQL*")))
+    (emacspeak-table-prepare-table-buffer
+     (emacspeak-wizards-yq-table tickers)
+     (get-buffer-create buff))
+    (setq emacspeak-table-speak-row-filter emacspeak-wizards-yql-quotes-row-filter
+          emacspeak-table-speak-element 'emacspeak-table-speak-row-filtered)
+    (rename-buffer buff 'unique)
+    (goto-char (point-min))
+    (switch-to-buffer buff)
+    (setq tab-width 2)
+    (setq header-line-format
+          (format "Stock Quotes At %s"
+                  (format-time-string emacspeak-speak-time-format-string)))
+    (call-interactively 'emacspeak-table-next-row)))
+
+;;;###autoload
 (defun emacspeak-wizards-yql-quotes ()
   "Display quotes using YQL API.
-Symbols are taken from emacspeak-wizards-personal-portfolio."
+Symbols are taken from `emacspeak-wizards-personal-portfolio'."
   (interactive)
   (declare (special emacspeak-wizards-personal-portfolio))
   (unless emacspeak-wizards-personal-portfolio (error "Customize emacspeak-wizards-personal-portfolio first"))
-  (let ((tickers (split-string emacspeak-wizards-personal-portfolio)))
+  (emacspeak-wizards-yql-lookup emacspeak-wizards-personal-portfolio))
+
+;;;###autoload
+
+;;}}}
+;;{{{ YQL: Weather
+
+(defconst emacspeak-wizards-yql-weather-base
+  "http://query.yahooapis.com/v1/public/yql?q=select+*+from+weather.forecast+where+location%%3D%s&format=json"
+  "REST End-Point for weather by zip-code.")
+
+(defun emacspeak-wizards-yql-weather-url (zip)
+  "Return end-point for retrieving weather forecast."
+  (declare (special emacspeak-wizards-yql-weather-base ))
+  (format emacspeak-wizards-yql-weather-base zip))
+
+(defun emacspeak-wizards-yql-weather-results (zip)
+  "Get weather results."
+  (g-json-lookup
+   "query.results.channel.item.forecast"
+   (g-json-get-result
+    (format
+     "%s  %s '%s'"
+     g-curl-program g-curl-common-options
+     (emacspeak-wizards-yql-weather-url zip)))))
+
+(defvar emacspeak-wizards-yql-weather-header-row
+  '[day date low high text]
+  "Vector used as table header row.")
+
+(defun emacspeak-wizards-yql-weather-row (result)
+  "Convert result list into a sorted row."
+  (declare (special emacspeak-wizards-yql-weather-header-row))
+  (let ((row (make-vector (length emacspeak-wizards-yql-weather-header-row) nil)))
+    (loop
+     for h across emacspeak-wizards-yql-weather-header-row
+     and index from 0 do
+     (aset row index (cdr(assoc h result))))
+    row))
+
+(defcustom emacspeak-wizards-yql-weather-filter
+  '(0 1 4  2 "-" 3)
+  "Template used to audio-format  weather."
+  :type '(repeat
+          (choice :tag "Entry"
+                  (integer :tag "Column Number:")
+                  (string :tag "Text: ")))
+  :group 'emacspeak-wizards)
+
+(defun emacspeak-wizards-yql-weather (zip)
+  "Display weather forecast table."
+  (interactive
+   (list
+    (read-from-minibuffer "State/City:"
+                          emacspeak-url-template-weather-city-state)))
+  (declare (special emacspeak-wizards-yql-weather-header-row
+                    emacspeak-url-template-weather-city-stateemacspeak-wizards-yql-weather-filter))
+  (let* ((buff (format "*Weather %s*" zip))
+         (result (emacspeak-wizards-yql-weather-results zip))
+         (table (make-vector (1+ (length result)) nil)))
+    (aset table  0 emacspeak-wizards-yql-weather-header-row)
+    (loop
+     for  r across result
+     and i from 1 do
+     (aset table i (emacspeak-wizards-yql-weather-row  r)))
     (emacspeak-table-prepare-table-buffer
-     (emacspeak-wizards-yq-table tickers)
-     (get-buffer-create "*YQL*"))
-    (switch-to-buffer "*YQL*")))
-    
+     (emacspeak-table-make-table table)
+     (get-buffer-create buff))
+    (goto-char (point-min))
+    (setq emacspeak-table-speak-row-filter emacspeak-wizards-yql-weather-filter
+          emacspeak-table-speak-element 'emacspeak-table-speak-row-filtered)
+    (switch-to-buffer buff)
+    (setq tab-width 2)
+    (call-interactively 'emacspeak-table-next-row)))
+
+;;}}}
+;;{{{ Color at point:
+;;;###autoload
+(defun emacspeak-wizards-color-at-point()
+  "Echo foreground/background color at point."
+  (interactive)
+  (message "%s on %s"
+           (foreground-color-at-point) (background-color-at-point)))
+
+;;}}}
+;;{{{ Utility: Read from a pipe helper:
+
+;;; For use from etc/emacs-pipe.pl
+;;; Above can be used as a printer command in XTerm
+;;;###autoload
+(defun emacspeak-wizards-pipe ()
+  "convenience function"
+  (pop-to-buffer (get-buffer-create " *piped*"))
+  (emacspeak-auditory-icon 'open-object)
+  (emacspeak-speak-mode-line))
+
 ;;}}}
 (provide 'emacspeak-wizards)
 ;;{{{ end of file

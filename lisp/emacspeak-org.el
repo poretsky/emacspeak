@@ -52,8 +52,8 @@
 ;;{{{ required modules
 
 (require 'emacspeak-preamble)
-                                        ;(require 'emacspeak-redefine)
-
+(require 'org "org" 'no-error)
+(require 'org-table "org-table" 'no-error)
 ;;}}}
 ;;{{{ voice locking:
 
@@ -130,11 +130,15 @@
 ;;}}}
 ;;{{{ Structure Navigation:
 
-(loop 
+(loop
  for f in
- '(org-mark-ring-goto org-mark-ring-push
+ '(
+   org-mark-ring-goto org-mark-ring-push
                       org-next-visible-heading org-previous-visible-heading
                       org-forward-heading-same-level org-backward-heading-same-level
+                      org-backward-sentence org-forward-sentence
+                      org-backward-element org-forward-element
+                      org-backward-paragraph org-forward-paragraph
                       org-next-link org-previous-link org-open-at-point
                       org-goto  org-goto-ret
                       org-goto-left org-goto-right
@@ -160,19 +164,20 @@
     (emacspeak-auditory-icon 'select-object)
     (emacspeak-speak-line)))
 
-(loop for f in
-      '(org-cycle org-shifttab)
-      do
-      (eval
-       `(defadvice ,f(after emacspeak pre act comp)
-          "Provide auditory feedback."
-          (when (ems-interactive-p )
-            (cond
-             ((org-at-table-p 'any)
-              (emacspeak-org-table-speak-current-element))
-             (t
-              (emacspeak-speak-line)
-              (emacspeak-auditory-icon 'select-object)))))))xrjp
+(loop
+ for f in
+ '(org-cycle org-shifttab)
+ do
+ (eval
+  `(defadvice ,f(after emacspeak pre act comp)
+     "Provide auditory feedback."
+     (when (ems-interactive-p )
+       (cond
+        ((org-at-table-p 'any)
+         (emacspeak-org-table-speak-current-element))
+        (t
+         (emacspeak-speak-line)
+         (emacspeak-auditory-icon 'select-object)))))))
 
 (defadvice org-overview (after emacspeak pre act comp)
   "Provide auditory feedback."
@@ -197,22 +202,22 @@
 ;;}}}
 ;;{{{ Header insertion and relocation
 
-(loop for f in
-      '(
-        org-insert-heading org-insert-todo-heading
-                           org-insert-subheading org-insert-todo-subheading
-                           org-promote-subtree org-demote-subtree
-                           org-do-promote org-do-demote
-                           org-move-subtree-up org-move-subtree-down
-                           org-convert-to-odd-levels org-convert-to-oddeven-levels
-                           )
-      do
-      (eval
-       `(defadvice ,f(after emacspeak pre act comp)
-          "Provide spoken feedback."
-          (when (ems-interactive-p )
-            (emacspeak-speak-line)
-            (emacspeak-auditory-icon 'open-object)))))
+(loop
+ for f in
+ '(
+   org-insert-heading org-insert-todo-heading
+                      org-promote-subtree org-demote-subtree
+                      org-do-promote org-do-demote
+                      org-move-subtree-up org-move-subtree-down
+                      org-convert-to-odd-levels org-convert-to-oddeven-levels
+                      )
+ do
+ (eval
+  `(defadvice ,f(after emacspeak pre act comp)
+     "Provide spoken feedback."
+     (when (ems-interactive-p )
+       (emacspeak-speak-line)
+       (emacspeak-auditory-icon 'open-object)))))
 
 ;;}}}
 ;;{{{ cut and paste:
@@ -252,16 +257,17 @@
 ;;}}}
 ;;{{{ toggles:
 
-(loop for f in
-      '(
-        org-toggle-archive-tag org-toggle-comment)
-      do
-      (eval
-       `(defadvice ,f (after emacspeak pre act comp)
-          "Provide spoken feedback."
-          (when (ems-interactive-p )
-            (emacspeak-auditory-icon 'button)
-            (emacspeak-speak-line)))))
+(loop
+ for f in
+ '(
+   org-toggle-archive-tag org-toggle-comment)
+ do
+ (eval
+  `(defadvice ,f (after emacspeak pre act comp)
+     "Provide spoken feedback."
+     (when (ems-interactive-p )
+       (emacspeak-auditory-icon 'button)
+       (emacspeak-speak-line)))))
 
 ;;}}}
 ;;{{{ ToDo:
@@ -299,40 +305,42 @@
 
 ;;; AGENDA NAVIGATION
 
-(loop for f in
-      '(
-        org-agenda-next-date-line org-agenda-previous-date-line
-                                  org-agenda-next-line org-agenda-previous-line
-                                  org-agenda-goto-today
-                                  )
-      do
-      (eval
-       `(defadvice ,f (after emacspeak pre act comp)
-          "Provide auditory feedback."
-          (when (ems-interactive-p )
-            (emacspeak-auditory-icon 'select-object)
-            (emacspeak-speak-line)))))
+(loop
+ for f in
+ '(
+   org-agenda-next-date-line org-agenda-previous-date-line
+                             org-agenda-next-line org-agenda-previous-line
+                             org-agenda-goto-today
+                             )
+ do
+ (eval
+  `(defadvice ,f (after emacspeak pre act comp)
+     "Provide auditory feedback."
+     (when (ems-interactive-p )
+       (emacspeak-auditory-icon 'select-object)
+       (emacspeak-speak-line)))))
 
-(loop for f in
-      '(
-        org-agenda-quit org-agenda-exit)
-      do
-      (eval
-       `(defadvice ,f (after emacspeak pre act comp)
-          "Provide auditory feedback."
-          (when (ems-interactive-p )
-            (emacspeak-auditory-icon 'close-object)
-            (emacspeak-speak-mode-line)))))
-(loop for f in
-      '(
-        org-agenda-goto org-agenda-show org-agenda-switch-to)
-      do
-      (eval
-       `(defadvice ,f (after emacspeak pre act comp)
-          "Provide auditory feedback."
-          (when (ems-interactive-p )
-            (emacspeak-auditory-icon 'open-object)
-            (emacspeak-speak-line)))))
+(loop
+ for f in
+ '(org-agenda-quit org-agenda-exit)
+ do
+ (eval
+  `(defadvice ,f (after emacspeak pre act comp)
+     "Provide auditory feedback."
+     (when (ems-interactive-p )
+       (emacspeak-auditory-icon 'close-object)
+       (emacspeak-speak-mode-line)))))
+
+(loop
+ for f in
+ '(org-agenda-goto org-agenda-show org-agenda-switch-to)
+ do
+ (eval
+  `(defadvice ,f (after emacspeak pre act comp)
+     "Provide auditory feedback."
+     (when (ems-interactive-p )
+       (emacspeak-auditory-icon 'open-object)
+       (emacspeak-speak-line)))))
 
 (defadvice org-agenda (after emacspeak pre act comp)
   "Provide spoken feedback."
@@ -348,6 +356,7 @@
 
 (defadvice orgtbl-mode (after emacspeak pre act comp)
   "Provide auditory feedback."
+  (declare (special orgtbl-mode))
   (when (ems-interactive-p )
     (emacspeak-auditory-icon
      (if orgtbl-mode 'on 'off))
@@ -355,27 +364,7 @@
              (if orgtbl-mode 'on 'off))))
 
 ;;}}}
-;;{{{ import/export:
-;;; Work In Progress:
-;;; Need to be able to use Emacspeak keys within the dispatcher.
-
-                                        ;(defadvice org-export--dispatch-action (around emacspeak (prompt allowed-keys entries options first-key expertp)  pre act comp)
-                                        ;"Enable Emacspeak keys."
-                                        ;(ad-set-argument '(prompt allowed-keys entries options first-key expertp) 1  (pushnew  5 (ad-get-arg 1)))
-                                        ;ad-do-it)
-
-;;}}}
-;;{{{ org-goto fixup:
-
-(loop for f in
-      '(org-metadown org-metaup org-metaleft org-metaright)
-      do
-      (eval
-       `(defadvice ,f(after emacspeak pre act comp)
-          "Provide spoken feedback."
-          (when (ems-interactive-p )
-            (emacspeak-speak-line)
-            (emacspeak-auditory-icon 'yank-object)))))
+;;{{{ Keymap update:
 
 (defun emacspeak-org-update-keys ()
   "Update keys in org mode."
@@ -394,17 +383,16 @@
           ("M-S-<right>" org-shiftmetaright)
           ("M-S-<up>" org-shiftmetaup)
           ("M-S-RET" org-insert-todo-heading)
+          ("S-RET" org-table-previous-row)
           ("M-n" org-next-item)
           ("M-p" org-previous-item)
           ("S-<down>" org-shiftdown)
           ("S-<left>" org-shiftleft)
           ("S-<right>" org-shiftright)
           ("S-<up>" org-shiftup)
-          ("S-TAB" org-shifttab)
-          )
+          ("S-TAB" org-shifttab))
         do
-        (emacspeak-keymap-update  org-mode-map k))
-  )
+        (emacspeak-keymap-update  org-mode-map k)))
 
 (add-hook 'org-mode-hook 'emacspeak-org-update-keys)
 
@@ -420,13 +408,6 @@
     ad-do-it)
    (t ad-do-it))
   ad-return-value)
-
-(defadvice org-force-self-insert (after emacspeak pre act comp)
-  "speak char that was inserted."
-  (when (and emacspeak-character-echo
-             (ems-interactive-p  ))
-    (dtk-stop)
-    (emacspeak-speak-this-char last-input-event )))
 
 (defadvice org-delete-char (around emacspeak pre act)
   "Speak character you're deleting."
@@ -476,25 +457,19 @@
 
 ;;}}}
 ;;{{{ fix misc commands:
-(defadvice org-end-of-line (after emacspeak pre act comp)
-  "Provide auditory feedback."
-  (when (ems-interactive-p )
-    (dtk-stop)
-    (emacspeak-auditory-icon 'select-object)))
 
-(loop for f in
-      '(
-        org-occur org-next-link org-previous-link
-                  org-beginning-of-item
-                  org-beginning-of-item-list
-                  org-back-to-heading
-                  org-insert-heading org-insert-todo-heading)
-      do
-      (eval
-       `(defadvice ,f (around emacspeak pre act comp)
-          "Avoid outline errors bubbling up."
-
-          (ems-with-errors-silenced ad-do-it))))
+(loop
+ for f in
+ '(
+   org-occur
+   org-beginning-of-line org-end-of-line
+   org-beginning-of-item org-beginning-of-item-list)
+ do
+ (eval
+  `(defadvice ,f (after emacspeak pre act comp)
+     "Provide auditory feedback."
+     (when (ems-interactive-p) (emacspeak-speak-line)
+           (emacspeak-auditory-icon 'select-object)))))
 
 ;;}}}
 ;;{{{ global input wizard
@@ -543,15 +518,122 @@
 (defun emacspeak-org-table-speak-current-element ()
   "echoes current table element"
   (interactive)
-  (dtk-speak-and-echo (org-table-get-field)))
+  (let ((field (org-table-get-field)))
+    (cond
+     ((string-match "^ *$" field) (dtk-speak "space"))
+     (t (dtk-speak-and-echo field)))))
+
+;;;###autoload
+(defun emacspeak-org-table-speak-column-header ()
+  "echoes column header"
+  (interactive)
+  (dtk-speak-and-echo
+   (propertize (org-table-get 1 nil) 'face 'bold)))
+
+;;;###autoload
+(defun emacspeak-org-table-speak-row-header ()
+  "echoes row header"
+  (interactive)
+  (dtk-speak-and-echo
+   (propertize (org-table-get nil 1 ) 'face 'italic)))
+
+;;;###autoload
+(defun emacspeak-org-table-speak-coordinates ()
+  "echoes coordinates"
+  (interactive)
+  (dtk-speak-and-echo
+   (concat "row " (number-to-string (org-table-current-line))
+           ", column " (number-to-string (org-table-current-column)))))
+
+;;;###autoload
+(defun emacspeak-org-table-speak-both-headers-and-element ()
+  "echoes both row and col headers."
+  (interactive)
+  (dtk-speak-and-echo
+   (concat
+    (propertize (org-table-get nil 1) 'face 'italic)
+    " "
+    (propertize (org-table-get  1 nil) 'face 'bold) " "
+    (org-table-get-field))))
+
+;;;###autoload
+(defun emacspeak-org-table-speak-row-header-and-element ()
+  "echoes row header and element"
+  (interactive)
+  (dtk-speak-and-echo
+   (concat
+    (propertize (org-table-get nil 1) 'face 'italic)
+    " "
+    (org-table-get-field))))
+
+;;;###autoload
+(defun emacspeak-org-table-speak-column-header-and-element ()
+  "echoes col header and element"
+  (interactive)
+  (dtk-speak-and-echo
+   (concat
+    (propertize (org-table-get  1 nil) 'face 'bold)
+    " "
+    (org-table-get-field))))
+
 (loop
  for f in
- '(org-table-next-field org-table-previous-field)
+ '(org-table-next-field org-table-previous-field
+                        org-table-next-row org-table-previous-row)
  do
  (eval
   `(defadvice ,f  (after emacspeak pre act comp)
      "Provide auditory feedback."
      (emacspeak-org-table-speak-current-element))))
+
+;;}}}
+;;{{{ Additional table function:
+
+ ;;;###autoload
+(unless (fboundp 'org-table-previous-row)
+  (defun org-table-previous-row ()
+    "Go to the previous row (same column) in the current table.
+Before doing so, re-align the table if necessary."
+    (interactive)
+    (org-table-maybe-eval-formula)
+    (org-table-maybe-recalculate-line)
+    (if (or (looking-at "[ \t]*$")
+            (save-excursion (skip-chars-backward " \t") (bolp)))
+        (newline)
+      (if (and org-table-automatic-realign
+               org-table-may-need-update)
+          (org-table-align))
+      (let ((col (org-table-current-column)))
+        (beginning-of-line 0)
+        (when (or (not (org-at-table-p)) (org-at-table-hline-p))
+          (beginning-of-line 1))
+        (org-table-goto-column col)
+        (skip-chars-backward "^|\n\r")
+        (if (looking-at " ") (forward-char 1))))))
+
+;;}}}
+;;{{{ EWW Integration:
+;;;###autoload
+(defun emacspeak-org-capture-link ()
+  "Capture hyperlink to current context.
+To use this command, first  do `customize-variable' `org-capture-template'
+and assign  letter `h' to a template that creates the hyperlink on capture."
+  (interactive)
+  (org-store-link nil)
+  (org-capture nil "h"))
+
+(defun org-eww-store-link ()
+  "Store a link to a EWW buffer."
+  (when (eq major-mode 'eww-mode)
+    (org-store-link-props
+     :type "eww"
+     :link   (emacspeak-eww-current-url)
+     :url (eww-current-url)
+     :description (emacspeak-eww-current-title))))
+(add-hook
+ 'org-load-hook
+ #'(lambda nil
+     (push #'org-eww-store-link org-store-link-functions)))
 
 ;;}}}
 (provide 'emacspeak-org)

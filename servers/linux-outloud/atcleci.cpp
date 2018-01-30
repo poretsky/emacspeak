@@ -64,8 +64,10 @@
 #include <sys/time.h>
 #include <dlfcn.h>
 #include <alloca.h>
-
+#define ALSA_PCM_NEW_HW_PARAMS_API
+#define ALSA_PCM_NEW_SW_PARAMS_API
 #include <alsa/asoundlib.h>
+
 #include <tcl.h>
 #include "langswitch.h"
 
@@ -347,7 +349,7 @@ int alsa_init() {
     device = "default";
   }
   size_t chunk_bytes = 0;
-  if ((err = snd_pcm_open(&AHandle, device, SND_PCM_STREAM_PLAYBACK, 0)) < 0) {
+  if ((err = snd_pcm_open(&AHandle, device, SND_PCM_STREAM_PLAYBACK, 0 /* blocking */)) < 0) {
     fprintf(stderr, "Playback open error: %s\n", snd_strerror(err));
     exit(1);
   }
@@ -606,7 +608,7 @@ set tts(last_index) $x}");
 //>
 //<playTTS
 
-int playTTS(int count) {
+int playTTS(size_t count) {
   pcm_write(waveBuffer, count);
   return eciDataProcessed;
 }
@@ -813,10 +815,9 @@ int SetLanguage(ClientData eciHandle, Tcl_Interp *interp, int objc,
   int aIndex;
   const char *code = getAnnotation(interp, &aIndex);
   if (code) {
-    int rc;
     char buffer[ANNOTATION_MAX_SIZE];
     snprintf(buffer, ANNOTATION_MAX_SIZE, "`l%s", code);
-    rc = _eciAddText(eciHandle, buffer);
+    _eciAddText(eciHandle, buffer);
   }
   return TCL_OK;
 }

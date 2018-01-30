@@ -138,7 +138,7 @@ STRING is the token's text."
         (case-fold-search nil)
         token-table not-token-table)
     (save-excursion
-      (beginning-of-line)
+      (forward-line 0)
       (catch 'done
         (setq not-token-table emacspeak-hide-prefix-not-token-table)
         (while not-token-table
@@ -211,6 +211,7 @@ Returns t if a block was found and hidden."
           (with-silent-modifications
             (add-text-properties start (point)
                                  (list 'invisible t
+                                       'cursor-intangible t
                                        'intangible t))
             (add-text-properties begin (point)
                                  (list 'emacspeak-hide-block-prefix (nth 2  prefix)
@@ -235,7 +236,7 @@ Returns t if a block was found and hidden."
         (end nil)
         (block-name (get-text-property (point) 'emacspeak-hidden-block)))
     (save-excursion
-      (beginning-of-line)
+      (forward-line 0)
       (cond
        (block-name
         (setq start (point))
@@ -250,6 +251,7 @@ Returns t if a block was found and hidden."
           (add-text-properties start end
                                (list 'invisible nil
                                      'intangible nil
+                                     'cursor-intangible nil
                                      'personality nil)))
         (message "Exposed %s block containing %s lines"
                  block-name
@@ -333,7 +335,7 @@ blocks in current buffer to be hidden or exposed."
   (interactive "P")
   (save-excursion
     (dtk-stop)
-    (beginning-of-line)
+    (forward-line 0)
     (cond
      (prefix                            ;work on entire buffer
       (let ((block (next-single-property-change (point-min)
@@ -381,7 +383,7 @@ and when you have heard enough navigate easily  to move past the block."
         (end nil)
         (block-prefix (get-text-property (point) 'emacspeak-hide-block-prefix)))
     (save-excursion
-      (beginning-of-line)
+      (forward-line 0)
       (cond
        (block-prefix
         (setq start (point))

@@ -93,14 +93,15 @@ given name, it is updated with path and position."
   (interactive "fPath\nsName\nnPosition")
   (declare (special emacspeak-amark-list))
   (let ((amark (emacspeak-amark-find name)))
-    (cond
-     (amark                             ; exists, reposition
-      (setf (emacspeak-amark-path amark) path
-            (emacspeak-amark-position amark) position))
-     (t 
-      (push
-       (make-emacspeak-amark :path path :name name :position position )
-       emacspeak-amark-list)))))
+    (when (and path (not (zerop (length path))))
+      (cond
+       (amark                             ; exists, reposition
+        (setf (emacspeak-amark-path amark) path
+              (emacspeak-amark-position amark) position))
+       (t 
+        (push
+         (make-emacspeak-amark :path path :name name :position position )
+         emacspeak-amark-list))))))
 
 (defvar emacspeak-amark-file ".amarks.el"
   "Name of file used to save AMarks.")
@@ -116,7 +117,7 @@ given name, it is updated with path and position."
       (setq buffer-undo-list t)
       (erase-buffer)
       (prin1  l (current-buffer)) 
-      (save-buffer buff)
+      (save-buffer)
       (kill-buffer buff)
       (message "Saved AMarks in %s" emacspeak-amark-file)
       (emacspeak-auditory-icon 'save-object))))

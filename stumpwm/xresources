@@ -1,0 +1,29 @@
+Emacs*font:	-adobe-Utopia-normal-normal-normal-*-*-*-*-*-*-0-iso10646-1
+Emacs.FontBackend:	xft,x
+Emacs.menuBar:	off
+Emacs.toolBar:	off
+Emacs.verticalScrollBars:	off
+
+XTerm*Background:	black
+XTerm*Foreground:	white
+XTerm*VT100.translations:	#override \n\
+ Ctrl <Key>semicolon: string(0x18) string("@h") \n\
+ Ctrl <Key>comma: string(0x18) string("@a") \n\
+ Ctrl <Key>period: string(0x18) string("@s") \n\
+ Ctrl <Key>apostrophe: string(0x18) string("@s") \n\
+ Shift <Key>Return: string(0x18) string("@s") string(0x0d)\n\
+ Ctrl <Key>Return: print-everything()\n\
+ Ctrl Shift <Key>space:    insert-selection(CLIPBOARD) 
+
+XTerm*eightBitInput:	false
+XTerm*faceName:	xft:Inconsolata:pixelsize=14
+XTerm*metaSendsEscape:	true
+
+! emacs-pipe.pl is under emacspeak/etc in the Emacspeak Git Repository
+XTerm.*.printerCommand:     /usr/local/bin/emacs-pipe.pl
+XTerm.*.printAttributes: 0
+Xft*antialias:	true
+Xft*dpi:	96
+Xft*hinting:	true
+Xft*hintstyle:	hintfull
+Xft*rgba:	rgb

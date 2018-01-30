@@ -42,12 +42,21 @@
 ;;{{{  introduction
 
 ;;; Commentary:
-;;; NPR == http://wwwnpr.org National Public Radio in the US
-;;; It provides a simple Web  API http://www.npr.org/api/index
+;;; NPR == http://www.npr.org National Public Radio in the US.
+;;; It provides a simple Web  API documented at http://www.npr.org/api/index.
 ;;; This module implements an Emacspeak Npr client.
-;;; TODO: This module needs to be updated to the current NPR API (0.93) from the older 0.92
+;;; Users will need to get their own API key.
+;;;
+;;; Entry Points:
 
-;;; For now, users will need to get their own API key
+;;; Command: emacspeak-npr-play-program
+;;; --- Play current or past program with completion for program name.
+;;;
+;;; emacspeak-npr-listing
+;;; --- List NPR programs, blogs, etc with completion.
+;;; Streams can be played from within the displayed listing.
+;;;
+;;; In all cases, streams are played using module emacspeak-m-player.
 
 ;;; Code:
 
@@ -57,6 +66,7 @@
 (require 'cl)
 (declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
+(require 'g-utils)
 (require 'emacspeak-webutils)
 (require 'xml)
 
@@ -75,22 +85,11 @@
            (string :tag "API Key: "))
   :group 'emacspeak-npr)
 
-(defcustom emacspeak-npr-user-id nil
-  "Npr user Id."
-  :type '(choice :tag "Npr User id"
-                 (const :tag "None" nil)
-                 (string :tag "Email"))
-  :group 'emacspeak-npr)
+(defvar emacspeak-npr-user-id nil
+  "Npr user Id. Not used at present")
 
 ;;}}}
 ;;{{{ Variables:
-
-(defvar emacspeak-npr-curl-program (executable-find "curl")
-  "Curl executable.")
-
-(defvar emacspeak-npr-curl-common-options
-  " --silent "
-  "Common Curl options for Npr. ")
 
 (defvar emacspeak-npr-api-base
   "http://api.npr.org"
@@ -110,56 +109,21 @@
 (defvar emacspeak-npr-scratch-buffer " *Npr Scratch* "
   "Scratch buffer for Npr operations.")
 
-(defmacro emacspeak-npr-using-scratch(&rest body)
-  "Evaluate forms in a  ready to use temporary buffer."
-  `(let ((buffer (get-buffer-create emacspeak-npr-scratch-buffer))
-         (default-process-coding-system (cons 'utf-8 'utf-8))
-         (coding-system-for-read 'binary)
-         (coding-system-for-write 'binary)
-         (buffer-undo-list t))
-     (save-excursion
-       (set-buffer buffer)
-       (kill-all-local-variables)
-       (erase-buffer)
-       (progn ,@body))))
-
 (defsubst emacspeak-npr-get-xml (command)
   "Run command and return its output."
   (declare (special shell-file-name shell-command-switch))
-  (emacspeak-npr-using-scratch
+  (g-using-scratch
    (call-process shell-file-name nil t
                  nil shell-command-switch
                  command)
    (buffer-string)))
 
-(defsubst emacspeak-npr-get-result (command)
-  "Run command and return its parsed XML output."
-  (declare (special shell-file-name shell-command-switch))
-  (emacspeak-npr-using-scratch
-   (call-process shell-file-name nil t
-                 nil shell-command-switch
-                 command)
-   (goto-char (point-min))
-   (read-xml)))
-
 (defvar emacspeak-npr-last-action-uri nil
   "Cache last API call URI.")
 
-(defun emacspeak-npr-api-call (operation operand)
-  "Make a Npr API  call and get the result."
-  (declare (special emacspeak-npr-last-action-uri))
-  (setq emacspeak-npr-last-action-uri
-        (emacspeak-npr-rest-endpoint operation operand))
-  (emacspeak-npr-get-result
-   (format
-    "%s %s '%s'  2>/dev/null"
-    emacspeak-npr-curl-program
-    emacspeak-npr-curl-common-options
-    emacspeak-npr-last-action-uri)))
 ;;;###autoload
 (defun emacspeak-npr-view (operation operand)
   "View results as Atom."
-  (interactive "sOperation:\nsOperands")
   (let* ((url
           (emacspeak-npr-rest-endpoint
            operation
@@ -170,7 +134,7 @@
 ;;}}}
 ;;{{{ program index
 
-;;; Found using documentation at 
+;;; Found using documentation at
 ;;; http://www.npr.org/api/inputReference.php
 ;;; All Programs : http://api.npr.org/list?id=3004
 
@@ -190,33 +154,164 @@ Generated from http://www.npr.org/api/inputReference.php")
 (defsubst emacspeak-npr-get-listing-key ()
   "Prompt for and return listing key."
   (let* ((completion-ignore-case t)
-         (label(completing-read "Listing: " emacspeak-npr-listing-table)))
+         (label (completing-read "List: " emacspeak-npr-listing-table nil t)))
     (cdr (assoc label emacspeak-npr-listing-table))))
 
-(defun emacspeak-npr-listing-url-executor (url)
-  "Special executor for use in NPR  listings."
-  (interactive "sURL: ")
+(defun emacspeak-npr-listing-url-executor (url &optional get-date)
+  "Special executor for use in NPR  listings.
+Optional prefix arg prompts for date."
+  (interactive "sURL: \nP")
+  (emacspeak-webutils-autospeak)
+  (emacspeak-feeds-atom-display
+   (emacspeak-npr-rest-endpoint
+    "query"
+    (format
+     "id=%s&output=atom%s"
+     (file-name-nondirectory url)
+     (if get-date
+         (concat "&date=" (emacspeak-speak-year-month-date))
+       "")))))
+
+(defun emacspeak-npr-search (query)
+  "Search NPR"
+  (interactive "sTerm: ")
   (emacspeak-feeds-atom-display
    (emacspeak-npr-rest-endpoint "query"
-                                (format "id=%s&output=atom"
-                                        (file-name-nondirectory url)))))
+                                (format"searchTerm=%s&output=Atom" query))))
 
-;;;###autoload    
-(defun emacspeak-npr-listing ()
-  "Display specified listing."
-  (interactive)
-  (let ((key (emacspeak-npr-get-listing-key)))
-    (add-hook
-     'emacspeak-web-post-process-hook
-     #'(lambda ()
-         (declare (special emacspeak-we-url-executor))
-         (setq emacspeak-we-url-executor
-               'emacspeak-npr-listing-url-executor)
-         (emacspeak-speak-buffer)))
-    (emacspeak-xslt-view-xml
-     (expand-file-name "npr-list.xsl" emacspeak-xslt-directory)
-     (emacspeak-npr-rest-endpoint "list"
-                                  (format "id=%s&output=atom" key)))))
+;;;###autoload
+(defun emacspeak-npr-listing (&optional search)
+  "Display specified listing.
+Interactive prefix arg prompts for search."
+  (interactive "P")
+  (cond
+   (search (call-interactively #'emacspeak-npr-search))
+   (t
+    (let ((key (emacspeak-npr-get-listing-key)))
+      (add-hook
+       'emacspeak-web-post-process-hook
+       #'(lambda ()
+           (declare (special emacspeak-we-url-executor))
+           (setq emacspeak-we-url-executor
+                 'emacspeak-npr-listing-url-executor)
+           (emacspeak-speak-buffer)))
+      (emacspeak-xslt-view-xml
+       (emacspeak-xslt-get  "npr-list.xsl")
+       (emacspeak-npr-rest-endpoint "list"
+                                    (format "id=%s&output=atom" key)))))))
+
+;;}}}
+;;{{{ Cache Playlists:
+
+(defcustom emacspeak-npr-local-cache
+  (expand-file-name "npr" emacspeak-resource-directory)
+  "Location where we cache NPR playlists."
+  :type 'directory
+  :group 'emacspeak-npr)
+
+(defsubst emacspeak-npr-ensure-cache ()
+  "Create NPR cache directory if needed."
+  (declare (special emacspeak-npr-local-cache))
+  (unless (file-exists-p emacspeak-npr-local-cache)
+    (make-directory  emacspeak-npr-local-cache 'parents)))
+(defsubst emacspeak-npr-pid-to-program (pid)
+  "Return program name for pid."
+  (declare (special emacspeak-npr-program-table))
+  (first
+   (find pid emacspeak-npr-program-table :key #'second :test #'string-equal)))
+
+(defun emacspeak-npr-make-file-name (pid &optional date)
+  "Return  filename used to cache playlist for specified program, date pair."
+  (declare (special  emacspeak-npr-local-cache))
+  (emacspeak-npr-ensure-cache)
+  (if date
+      (setq date (replace-regexp-in-string "/" "-" date))
+    (setq date (format-time-string  "%Y-%m-%d")))
+  (expand-file-name
+   (format "%s-%s.m3u" (emacspeak-npr-pid-to-program pid) date)
+   emacspeak-npr-local-cache))
+
+;;}}}
+;;{{{ Play Programs Directly:
+
+(defvar emacspeak-npr-program-table nil
+  "Cache mapping NPR program names to program ids.")
+
+(defun emacspeak-npr-refresh-program-table (&optional force)
+  "Refresh program table cache if needed."
+  (interactive "P")
+  (declare (special emacspeak-npr-program-table))
+  (when (or (null emacspeak-npr-program-table) force)
+    (let* ((url
+            (emacspeak-npr-rest-endpoint
+             "list"
+             (format "id=%s&output=json"
+                     (cdr (assoc "Programs" emacspeak-npr-listing-table)))))
+           (json
+            (g-json-get 'item
+                        (g-json-get-result
+                         (format  "%s %s '%s'"
+                                  g-curl-program g-curl-common-options url)))))
+      (loop
+       for p  across json do
+       (push
+        (list
+         (g-json-lookup "title.$text"  p)
+         (g-json-get 'id p))
+        emacspeak-npr-program-table)))))
+
+(defsubst emacspeak-npr-read-program-id ()
+  "Interactively read program id with completion."
+  (declare (special emacspeak-npr-program-table))
+  (or emacspeak-npr-program-table (emacspeak-npr-refresh-program-table))
+  (let ((completion-ignore-case t))
+    (cadr
+     (assoc
+      (completing-read
+       "NPR Program: "
+       emacspeak-npr-program-table nil t)
+      emacspeak-npr-program-table))))
+
+(defun emacspeak-npr-get-mp3-from-story (s)
+  "Follow one level of indirection to get an mp3 URL to use in an m3u file."
+  (let* ((mp3 "audio.[0].format.mp3.[0].$text")
+         (url (g-json-path-lookup mp3 s)))
+    (shell-command-to-string (format "curl --silent '%s'" url))))
+
+;;;###autoload
+(defun emacspeak-npr-play-program (pid &optional get-date)
+  "Play specified NPR program.
+Optional interactive prefix arg prompts for a date."
+  (interactive (list (emacspeak-npr-read-program-id) current-prefix-arg))
+  (let* ((emacspeak-speak-messages nil)
+         (mp4 "audio.[0].format.mp4.$text")
+         (date (and get-date (emacspeak-speak-read-date-year/month/date)))
+         (url
+          (emacspeak-npr-rest-endpoint
+           "query"
+           (format "id=%s&output=json%s"
+                   pid
+                   (if date (concat "&date=" date) ""))))
+         (listing nil)
+         (m3u (emacspeak-npr-make-file-name pid date)))
+    (unless (file-exists-p m3u)
+      (dtk-speak-and-echo
+       (format "Getting %s for %s"
+               (emacspeak-npr-pid-to-program pid)(or date  "today")))
+      (with-current-buffer (find-file m3u)
+        (setq listing
+              (g-json-get-result
+               (format "%s %s  '%s'"
+                       g-curl-program  g-curl-common-options url)))
+        (loop
+         for s across  (g-json-lookup "list.story" listing) do
+         (insert (format "%s\n"
+                         (or (g-json-path-lookup mp4 s)
+                             (emacspeak-npr-get-mp3-from-story s)
+                             ";;; No usable media link"))))
+        (save-buffer)
+        (kill-buffer)))
+    (emacspeak-m-player m3u 'playlist)))
 
 ;;}}}
 (provide 'emacspeak-npr)

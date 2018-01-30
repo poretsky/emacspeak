@@ -138,7 +138,7 @@ CP=cp
 # source files to distribute
 ID = README
 STUMPWM=stumpwm
-TABLE_SAMPLES=etc/tables/*.tab etc/tables/*.dat etc/tables/*.html
+TABLE_SAMPLES=etc/tables/*.tab 
 FORMS =etc/forms/*.el
 MEDIA=media
 ECI=servers/linux-outloud
@@ -151,13 +151,13 @@ servers/software-dtk/Makefile
 OUTLOUD=${ECI}/eci.ini \
 ${ECI}/*.h \
 ${ECI}/*.cpp \
-${ECI}/VIAVOICE ${ECI}/ALSA ${ECI}/asoundrc \
+${ECI}/ALSA ${ECI}/asoundrc \
 ${ECI}/Makefile
 
 NEWS = etc/NEWS*  etc/COPYRIGHT \
 etc/remote.txt etc/applications.html   etc/tips.html
-SOUNDS=sounds/default-8k sounds/emacspeak.mp3 \
-sounds/cartoon-22k-mono sounds/chimes-stereo  sounds/3d
+SOUNDS=sounds/classic sounds/emacspeak.mp3 \
+sounds/chimes  sounds/3d
 
 TCL_PROGRAMS = servers/.servers \
 servers/dtk-exp  servers/ssh-dtk-exp\
@@ -167,8 +167,8 @@ servers/mac \
 servers/outloud  servers/ssh-outloud servers/32-outloud \
 servers/tts-lib.tcl \
 servers/cloud* servers/log* servers/speech-server
-ELISP = lisp/*.el \
-lisp/g-client \
+PHANTOM=phantom/*.js
+ELISP = lisp/*.el lisp/g-client \
 lisp/Makefile
 TEMPLATES = etc/emacspeak.sh.def etc/Makefile
 MISC=etc/extract-table.pl etc/last-log.pl \
@@ -177,11 +177,11 @@ etc/xls2html etc/ppt2html  \
 etc/ocr-client.pl \
 etc/emacspeak.xpm etc/emacspeak.jpg
 
-INFO = info/Makefile info/*.texi info/add-css.pl
-XSL=xsl
-DISTFILES =${ELISP}  ${TEMPLATES}     $(TCL_PROGRAMS) ${XSL} \
+INFO = info/Makefile info/*.texi 
+XSL=xsl 
+DISTFILES =${ELISP}  ${TEMPLATES}     ${TCL_PROGRAMS} ${XSL} \
 ${OUTLOUD} ${DTKTTS} ${ESPEAK} \
-${STUMPWM} ${INFO}  ${NEWS} ${MISC} Makefile
+${PHANTOM} ${STUMPWM} ${INFO}  ${NEWS} ${MISC} Makefile
 
 # }}}
 # {{{  User level targets emacspeak info 
@@ -214,7 +214,8 @@ README: force
 
 force:
 
-EXCLUDES=--exclude='.git' --exclude='*.o' --exclude='*.so' --exclude='*/.libs'
+EXCLUDES= --exclude='.git' \
+--exclude='*.elc' --exclude='*.o' --exclude='*.so' --exclude='*/.libs'
 
 tar:
 	make ${ID}
@@ -239,47 +240,50 @@ config:
 
 install:
 	$(MAKE) config 
-	  $(INSTALL)  -d $(DESTDIR)$(libparentdir)
-	  $(INSTALL) -d $(DESTDIR)$(libdir)
-	  $(INSTALL) -d $(DESTDIR)$(libdir)/lisp
-	$(INSTALL) -d $(DESTDIR)$(libdir)/lisp/g-client
-	$(INSTALL) -d $(DESTDIR)$(libdir)/etc
-	$(INSTALL) -d $(DESTDIR)$(libdir)/xsl
-	$(INSTALL) -m 0644  ${ID} $(DESTDIR)$(libdir)
-	  $(INSTALL) -m 0644  lisp/*.el lisp/*.elc  $(DESTDIR)$(libdir)/lisp
-	$(INSTALL) -m 0644  lisp/g-client/*.el    $(DESTDIR)$(libdir)/lisp/g-client
-	$(INSTALL) -m 0644  lisp/g-client/*.elc    $(DESTDIR)$(libdir)/lisp/g-client
-	$(INSTALL) -m 0644  lisp/g-client/*.xsl    $(DESTDIR)$(libdir)/lisp/g-client
-	$(INSTALL) -m 0644  xsl/*.xsl    $(DESTDIR)$(libdir)/xsl
-	$(INSTALL) -d $(DESTDIR)$(libdir)/sounds
-	$(INSTALL) -d $(DESTDIR)$(libdir)/servers
-	$(INSTALL) -d $(DESTDIR)$(libdir)/servers/linux-outloud
-	$(INSTALL)  -m 755 ${OUTLOUD}  $(DESTDIR)$(libdir)/servers/linux-outloud
-	$(INSTALL) -d $(DESTDIR)$(libdir)/servers/linux-espeak
-	$(INSTALL)  -m 755 ${ESPEAK}  $(DESTDIR)$(libdir)/servers/linux-espeak
-	$(INSTALL) -d $(DESTDIR)$(libdir)/servers/software-dtk
-	$(INSTALL)  -m 755 ${DTKTTS}  $(DESTDIR)$(libdir)/servers/software-dtk
-	$(INSTALL)  -m 755 ${TCL_PROGRAMS}  $(DESTDIR)$(libdir)/servers
-	$(INSTALL) -m 0644   ${NEWS}   $(DESTDIR)$(libdir)/etc
-	cp   ${MISC}   $(DESTDIR)$(libdir)/etc
-	$(CP) -r $(SOUNDS) $(DESTDIR)$(libdir)/sounds
-	chmod -R go+rX  $(DESTDIR)$(libdir)/sounds
-	$(CP) -r $(MEDIA) $(DESTDIR)$(libdir)
-	chmod -R go+rX  $(DESTDIR)$(libdir)/media
-	$(CP) -r $(STUMPWM) $(DESTDIR)$(libdir)
-	chmod -R go+rX  $(DESTDIR)$(libdir)/stumpwm	
-	$(INSTALL) -d $(DESTDIR)$(libdir)/etc/forms
-	$(INSTALL)  -m 0644 $(FORMS) $(DESTDIR)$(libdir)/etc/forms
-	$(INSTALL) -d $(DESTDIR)$(libdir)/etc/tables
-	$(INSTALL)  -m 0644 $(TABLE_SAMPLES) $(DESTDIR)$(libdir)/etc/tables
-	$(INSTALL) -d $(DESTDIR)$(bindir)
-	$(INSTALL) -m 0755  etc/emacspeak.sh $(DESTDIR)$(bindir)/emacspeak
-	$(INSTALL) -d $(DESTDIR)$(infodir)
+	  $(INSTALL)  -d $(libparentdir)
+	  $(INSTALL) -d $(libdir)
+	  $(INSTALL) -d $(libdir)/lisp
+	$(INSTALL) -d $(libdir)/lisp/g-client
+	$(INSTALL) -d $(libdir)/etc
+	$(INSTALL) -d $(libdir)/xsl
+	$(INSTALL) -m 0644  ${ID} $(libdir)
+	  $(INSTALL) -m 0644  lisp/*.el lisp/*.elc  $(libdir)/lisp
+	$(INSTALL) -m 0644  lisp/g-client/*.el    $(libdir)/lisp/g-client
+	$(INSTALL) -m 0644  lisp/g-client/*.elc    $(libdir)/lisp/g-client
+	$(INSTALL) -m 0644  lisp/g-client/*.xsl    $(libdir)/lisp/g-client
+	$(INSTALL) -m 0644  xsl/*.xsl    $(libdir)/xsl
+	$(INSTALL) -d $(libdir)/sounds
+	$(INSTALL) -d $(libdir)/phantom
+	$(CP) -r $(PHANTOM) $(libdir)/phantom
+	$(INSTALL) -d $(libdir)/servers
+	$(INSTALL) -d $(libdir)/servers/linux-outloud
+	$(INSTALL)  -m 755 ${OUTLOUD}  $(libdir)/servers/linux-outloud
+	$(INSTALL) -d $(libdir)/servers/linux-espeak
+	$(INSTALL)  -m 755 ${ESPEAK}  $(libdir)/servers/linux-espeak
+	$(INSTALL) -d $(libdir)/servers/software-dtk
+	$(INSTALL)  -m 755 ${DTKTTS}  $(libdir)/servers/software-dtk
+	$(INSTALL)  -m 755 ${TCL_PROGRAMS}  $(libdir)/servers
+	$(INSTALL) -m 0644   ${NEWS}   $(libdir)/etc
+	cp   ${MISC}   $(libdir)/etc
+	$(CP) -r $(SOUNDS) $(libdir)/sounds
+	chmod -R go+rX  $(libdir)/sounds
+	$(CP) -r $(MEDIA) $(libdir)
+	chmod -R go+rX  $(libdir)/media
+	$(CP) -r $(STUMPWM) $(libdir)
+	chmod -R go+rX  $(libdir)/stumpwm	
+	$(INSTALL) -d $(libdir)/etc/forms
+	$(INSTALL)  -m 0644 $(FORMS) $(libdir)/etc/forms
+	$(INSTALL) -d $(libdir)/etc/tables
+	$(INSTALL)  -m 0644 $(TABLE_SAMPLES) $(libdir)/etc/tables
+	$(INSTALL) -d $(bindir)
+	$(INSTALL) -m 0755  etc/emacspeak.sh $(bindir)/emacspeak
+	$(INSTALL) -d $(infodir)
 	cd info; \
-	$(MAKE) install DESTDIR="$(DESTDIR)" infodir="$(infodir)"
+	$(MAKE) install  infodir="$(infodir)"
 
 uninstall:
 	rm -rf $(infodir)/emacspeak.info* $(bindir)/emacspeak $(libdir)
+	cd info && make uninstall infodir=${infodir}
 # }}}
 # {{{  complete build
 
@@ -304,7 +308,7 @@ clean:
 # {{{ labeling releases
 
 #label  releases when ready
-LABEL=
+LABEL=#version number
 MSG="Releasing ${LABEL}"
 release: #supply LABEL=NN.NN
 	git tag -a  ${LABEL} -m "Tagging release with ${LABEL}"

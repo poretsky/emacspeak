@@ -192,14 +192,11 @@
 (defun emacspeak-twittering-jump-to-following-url ()
   "Move to and open closest URI  following point."
   (interactive)
-  (let ((moved t)
-        (url nil))
+  (let ((moved t))
     (while (and moved
-                (not (looking-at "http")))
-      (setq moved
-            (goto-char (next-single-property-change (point) 'uri))))
-    (setq  url (get-text-property (point)  'uri))
-    (and url (browse-url url))))
+                (not (looking-at "http://")))
+      (setq moved (goto-char (next-single-property-change (point) 'uri))))
+    (browse-url-at-point)))
 
 (when (boundp 'twittering-mode-map)
   (declaim (special twittering-mode-map))

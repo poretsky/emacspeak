@@ -279,7 +279,7 @@ dont-url-encode if true then url arguments are not url-encoded "
  #'(lambda (url)
      (emacspeak-webutils-autospeak)
      (emacspeak-xslt-view-xml
-      (expand-file-name "bbc-iplayer.xsl" emacspeak-xslt-directory) url))
+      (emacspeak-xslt-get "bbc-iplayer.xsl" ) url))
  'dont-url-encode)
 
 (emacspeak-url-template-define
@@ -293,7 +293,7 @@ dont-url-encode if true then url arguments are not url-encoded "
  #'(lambda (url)
      (emacspeak-webutils-autospeak)
      (emacspeak-xslt-view-xml
-      (expand-file-name "bbc-iplayer.xsl" emacspeak-xslt-directory) url))
+      (emacspeak-xslt-get "bbc-iplayer.xsl") url))
  'dont-url-encode)
 
 ;;}}}
@@ -306,7 +306,7 @@ dont-url-encode if true then url arguments are not url-encoded "
  "Display interactive BBC Program Guide."
  #'(lambda (url)
      (emacspeak-xslt-view-xml
-      (expand-file-name "bbc-ppg.xsl" emacspeak-xslt-directory) url )))
+      (emacspeak-xslt-get "bbc-ppg.xsl") url )))
 (emacspeak-url-template-define
  "BBC Podcast Directory"
  "http://www.bbc.co.uk/podcasts.opml"
@@ -344,8 +344,7 @@ dont-url-encode if true then url arguments are not url-encoded "
 (defun emacspeak-url-template-setup-content-filter ()
   "Set up content filter in displayed page."
   (declare (special emacspeak-we-xpath-filter emacspeak-we-paragraphs-xpath-filter))
-  (setq emacspeak-we-xpath-filter
-        emacspeak-we-paragraphs-xpath-filter))
+  (setq emacspeak-we-xpath-filter emacspeak-we-paragraphs-xpath-filter))
 
 ;;}}}
 ;;{{{ webmaster tools
@@ -389,32 +388,6 @@ dont-url-encode if true then url arguments are not url-encoded "
  "Perform patent search via Google"
  #'(lambda (url)
      (emacspeak-we-extract-by-id "center_col" url 'speak)))
-
-;;}}}
-;;{{{ YouTube:
-(emacspeak-url-template-define
- "YouTube Results"
- "http://gdata.youtube.com/feeds/api/videos?vq=%s"
- (list
-  #'(lambda ()
-      (gweb-google-autocomplete-with-corpus "youtube")))
- #'(lambda ()
-     (declare (special emacspeak-we-url-executor))
-     (setq emacspeak-we-url-executor
-           'emacspeak-m-player-youtube-player))
- "YouTube Search Via Feeds"
- #'emacspeak-feeds-atom-display)
-
-(emacspeak-url-template-define
- "Recent YouTube Results"
- "http://gdata.youtube.com/feeds/api/videos?vq=%s&orderby=updated"
- (list "YouTube:")
- #'(lambda ()
-     (declare (special emacspeak-we-url-executor))
-     (setq emacspeak-we-url-executor
-           'emacspeak-m-player-youtube-player))
- "YouTube Search Via Feeds"
- #'emacspeak-feeds-atom-display)
 
 ;;}}}
 ;;{{{ google finance
@@ -528,8 +501,7 @@ from English to German")
  #'(lambda (url)
      (let ((buffer
             (emacspeak-xslt-xml-url
-             (expand-file-name "opml.xsl"
-                               emacspeak-xslt-directory)
+             (emacspeak-xslt-get "opml.xsl")
              url )))
        (save-current-buffer
          (set-buffer buffer)
@@ -844,7 +816,7 @@ name of the list.")
  "Show MLB Scorecard."
  #'(lambda (url)
      (emacspeak-xslt-view-xml
-      (expand-file-name "mlb-scorecard.xsl" emacspeak-xslt-directory)
+      (emacspeak-xslt-get "mlb-scorecard.xsl")
       url)))
 
 (emacspeak-url-template-define
@@ -1151,6 +1123,45 @@ See http://www.cbsradio.com/streaming/index.html for a list of CBS stations that
      (setq emacspeak-we-url-executor 'emacspeak-feeds-opml-display))
  "RadioTime Search."
  #'emacspeak-feeds-opml-display)
+
+;;}}}
+;;{{{ OpenLibrary 
+
+(emacspeak-url-template-define
+ "OpenLibrary"
+ "https://openlibrary.org/search?subject_facet=Accessible+book&q=%s&has_fulltext=true"
+ (list "Query: ")
+ nil
+ "Open Library Search")
+
+;;}}}
+;;{{{ GoLang.org:
+(defvar emacspeak-url-template-go-base 
+"http://golang.org/"
+"Base REST end-point for Golang.org")
+
+(emacspeak-url-template-define
+ "GoLang Browse"
+ (concat emacspeak-url-template-go-base "pkg")
+ nil
+ 'emacspeak-speak-buffer
+ "Browse GoLang package documentation.")
+
+(emacspeak-url-template-define
+ "GoLang Lookup"
+ (concat emacspeak-url-template-go-base "pkg/%s")
+ (list "Go Package: ")
+ 'emacspeak-speak-buffer
+ "Lookup GoLang package documentation.")
+
+(emacspeak-url-template-define
+ "GoLang Search"
+ (concat emacspeak-url-template-go-base "search?q=%s")
+ (list "Go Package: ")
+ 'emacspeak-speak-buffer
+ "Search GoLang package documentation.")
+ 
+
 
 ;;}}}
 ;;{{{ Interactive commands

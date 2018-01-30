@@ -1,7 +1,6 @@
 ;;; emacspeak-info.el --- Speech enable Info -- Emacs' online documentation viewer
-;;; $Id$
 ;;; $Author: tv.raman.tv $
-;;; Description:  Module for customizing Emacs info
+;;; Description:  Speech-enable Emacs Info Reader.
 ;;; Keywords:emacspeak, audio interface to emacs
 ;;{{{  LCD Archive entry:
 
@@ -37,26 +36,24 @@
 
 ;;}}}
 ;;{{{ Introduction:
+
 ;;; Commentary:
-;;; This module extends and customizes the Emacs info reader.
+
+;;; This module speech-enables the Emacs Info Reader.
 ;;; Code:
+
 ;;}}}
 ;;{{{ requires
+
 (require 'emacspeak-preamble)
 (require 'info)
-;;}}}
-;;{{{  Variables:
-
-(defvar Info-voiceify t
-  "*Non-nil enables highlighting and voices in Info nodes.")
-
-(defvar Info-voiceify-maximum-menu-size 30000
-  "*Maximum size of menu to voiceify if `Info-voiceify' is non-nil.")
 
 ;;}}}
 ;;{{{  Voices
+
 (voice-setup-add-map
  '(
+   (Info-quoted voice-lighten)
    (info-index-match 'voice-bolden-medium)
    (info-title-1 voice-bolden-extra)
    (info-title-2 voice-bolden-medium)
@@ -64,13 +61,12 @@
    (info-title-4 voice-lighten)
    (info-header-node voice-smoothen)
    (info-header-xref voice-brighten)
-   (info-menu-5 voice-lighten)
    (info-menu-header voice-bolden-medium)
    (info-node voice-monotone)
    (info-xref voice-animate-extra)
    (info-menu-star voice-brighten)
-   (info-xref-visited voice-animate-medium)
-   ))
+   (info-menu-header voice-bolden)
+   (info-xref-visited voice-animate-medium)))
 
 ;;}}}
 ;;{{{ advice
@@ -96,24 +92,38 @@ node -- speak the entire node."
 (defun emacspeak-info-visit-node()
   "Apply requested action upon visiting a node."
   (declare (special emacspeak-info-select-node-speak-chunk))
-  (let ((dtk-stop-immediately t ))
-    (emacspeak-auditory-icon 'select-object)
-    (cond
-     ((eq emacspeak-info-select-node-speak-chunk 'screenfull)
-      (emacspeak-info-speak-current-window))
-     ((eq emacspeak-info-select-node-speak-chunk 'node)
-      (emacspeak-speak-buffer ))
-     (t (emacspeak-speak-line)))))
+  (emacspeak-auditory-icon 'select-object)
+  (cond
+   ((eq emacspeak-info-select-node-speak-chunk 'screenfull)
+    (emacspeak-info-speak-current-window))
+   ((eq emacspeak-info-select-node-speak-chunk 'node)
+    (emacspeak-speak-buffer ))
+   (t (emacspeak-speak-line))))
 
 (loop
  for f in
- '(info info-display-manual Info-select-node Info-goto-node info-emacs-manual)
+ '(info info-display-manual Info-select-node
+        Info-follow-reference Info-goto-node info-emacs-manual
+        Info-top-node Info-menu-last-node  Info-final-node Info-up
+        Info-goto-emacs-key-command-node Info-goto-emacs-command-node
+        Info-history Info-virtual-index Info-directory Info-help
+        Info-nth-menu-item
+        Info-menu Info-follow-nearest-node
+        Info-history-back Info-history-forward
+        Info-backward-node Info-forward-node
+        Info-next Info-prev )
  do
  (eval
   `(defadvice ,f (after emacspeak pre act)
      " Speak the selected node based on setting of
 emacspeak-info-select-node-speak-chunk"
-     (emacspeak-info-visit-node))))
+     (when (ems-interactive-p) (emacspeak-info-visit-node)))))
+
+(defadvice Info-search (after emacspeak pre act comp)
+  "Provide auditory feedback."
+  (when (ems-interactive-p)
+    (emacspeak-auditory-icon 'search-hit)
+    (emacspeak-speak-line)))
 
 (defadvice Info-scroll-up (after emacspeak pre act)
   "Speak the screenful."
@@ -152,6 +162,7 @@ and then cue the next selected buffer."
   "Speak the line. "
   (when (ems-interactive-p )
     (emacspeak-speak-line)))
+
 ;;;###autoload
 (defun emacspeak-info-wizard (node-spec )
   "Read a node spec from the minibuffer and launch
@@ -187,19 +198,13 @@ node-spec."
              (emacspeak-speak-line))))))
 
 ;;}}}
-;;{{{  Emacs 21
-
-;;}}}
 ;;{{{ keymaps
+
 (declaim (special Info-mode-map))
 (define-key Info-mode-map "T" 'emacspeak-info-speak-header)
 (define-key Info-mode-map "'" 'emacspeak-speak-rest-of-buffer)
-;;}}}
-;;{{{ info wizard
-;;;###autoload
 
 ;;}}}
-
 (provide  'emacspeak-info)
 ;;{{{  emacs local variables
 

@@ -175,10 +175,7 @@ proc t  {{pitch 440} {duration 50}} {
 }
 
 proc sh  {{duration 50}} {
-    global tts queue
-    set silence "\[_<$duration>\]"
-    set queue($tts(q_tail)) [list t $silence]
-    incr tts(q_tail)
+    c "  \[_<$duration>\] "
     return ""
 }
 
@@ -264,7 +261,7 @@ proc speech_task {} {
     set mode  $tts(punctuations)
     set r $tts(speech_rate)
     set length [queue_length]
-    puts -nonewline  $tts(write) "\[:sa c]\[:ra $r]\[:pu $mode]"
+    puts -nonewline  $tts(write) "\[:sa c]\[:ra $r]\[:pu $mode]\013"
     tts_gobble_acknowledgements
     loop index 0 $length {
         set event   [queue_remove]
@@ -272,17 +269,17 @@ proc speech_task {} {
         switch  -exact -- $event_type {
             s {
                 set text [clean [lindex $event 1]]
-                puts -nonewline  $tts(write) "\[:i r $index] $text\[_.]\013"
+                puts -nonewline  $tts(write) "\[:i r $index] $text\013"
                 set retval [tts_get_acknowledgement ]
             }
             c {
                 set text  [lindex $event 1]
-                puts -nonewline  $tts(write) " $text\[_.]\013"
+                puts -nonewline  $tts(write) " $text\[_.]"
                 set retval ""
             }
             t {
                 set text  [lindex $event 1]
-                puts -nonewline  $tts(write) "\[:i r 1 _.]$text\[_.] "
+                puts -nonewline  $tts(write) "\[:tone $text]\[_.] "
                 set retval [tts_get_acknowledgement ]
             }
             b {
@@ -296,6 +293,8 @@ proc speech_task {} {
         }
         if {$tts(talking?) == 0} {break;}
     }
+    puts -nonewline  $tts(write) "\013"
+    
     set tts(talking?) 0
     tts_gobble_acknowledgements
     return ""

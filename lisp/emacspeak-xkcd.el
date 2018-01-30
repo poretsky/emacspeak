@@ -52,7 +52,8 @@
 (require 'cl)
 (declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
-
+(require 'json)
+(require 'emacs-xkcd "emacs-xkcd" 'no-error)
 ;;}}}
 ;;{{{ Fix error when loading images on the console:
 (defadvice xkcd-insert-image (around emacspeak pre act comp)

@@ -51,11 +51,30 @@
 (require 'cl)
 (declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
-(eval-when-compile
-  (require 'package "package" 'no-error))
-
+(eval-when-compile (require 'package "package" 'no-error))
+(require 'calendar)
 ;;}}}
-;;{{{ Additional Commands 
+;;{{{ Map Faces:
+
+(voice-setup-add-map
+ '(
+   (package-help-section-name voice-lighten)
+   (package-name voice-bolden)
+   (package-description voice-monotone)
+   (package-status-built-in voice-monotone-medium)
+   (package-status-external voice-animate)
+   (package-status-available voice-annotate)
+   (package-status-new voice-brighten)
+   (package-status-held voice-monotone)
+   (package-status-disabled voice-smoothen)
+   (package-status-installed voice-lighten-extra)
+   (package-status-dependency voice-monotone-medium)
+   (package-status-unsigned voice-animate-extra)
+   (package-status-incompat voice-animate-extra)
+   (package-status-avail-obso voice-monotone)
+   ))
+;;}}}
+;;{{{ Additional Commands
 
 (defun emacspeak-package-summarize-line ()
   "Succinct Summary."
@@ -106,13 +125,28 @@
 ;;}}}
 ;;{{{ Managing packages:
 
+(defadvice package-menu-describe-package (after emacspeak pre act comp)
+  "Speak displayed description."
+  (when  (ems-interactive-p )
+    (emacspeak-auditory-icon 'help)
+    (emacspeak-speak-help )))
+
 (defadvice package-menu-execute(around emacspeak pre act comp)
   "Silence messages while installing packages. "
   (ems-with-messages-silenced ad-do-it))
 
-(defadvice package-menu--perform-transaction (around emacspeak pre act comp)
-  "Silence messages."
-  (ems-with-messages-silenced ad-do-it))
+(loop
+ for f in
+ '(
+   package-menu-mark-delete package-menu-mark-install package-show-package-list
+                            package-menu-mark-unmark package-menu-backup-unmark)
+ do
+ (eval
+  `(defadvice ,f (after emacspeak pre act com)
+     "Provide auditory feedback."
+     (when (ems-interactive-p)
+       (emacspeak-speak-line)
+       (emacspeak-auditory-icon 'mark-object)))))
 
 ;;}}}
 (provide 'emacspeak-package)

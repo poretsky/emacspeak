@@ -102,9 +102,9 @@ a rewrite rule even if one is already defined."
 
 (make-variable-buffer-local 'emacspeak-we-url-executor)
 
-(defun emacspeak-we-url-expand-and-execute ()
+(defun emacspeak-we-url-expand-and-execute (&optional prefix)
   "Applies buffer-specific URL expander/executor function."
-  (interactive)
+  (interactive "P")
   (declare (special emacspeak-we-url-executor))
   (emacspeak-webutils-browser-check)
   (let ((url (funcall emacspeak-webutils-url-at-point)))
@@ -112,7 +112,9 @@ a rewrite rule even if one is already defined."
     (cond
      ((and (boundp 'emacspeak-we-url-executor)
            (fboundp emacspeak-we-url-executor))
-      (funcall emacspeak-we-url-executor url))
+      (if prefix
+          (funcall emacspeak-we-url-executor url prefix)
+        (funcall emacspeak-we-url-executor url)))
      (t
       (setq emacspeak-we-url-executor
             (intern
@@ -149,9 +151,10 @@ a rewrite rule even if one is already defined."
   :group 'emacspeak-we)
 
 ;;;###autoload
-(defcustom emacspeak-we-xsl-transform nil
+(defcustom emacspeak-we-xsl-transform
+  (emacspeak-xslt-get "sort-tables.xsl")
   "Specifies transform to use before displaying a page.
-Nil means no transform is used. "
+Default is to apply sort-tables."
   :type  '(choice
            (file :tag "XSL")
            (const :tag "none" nil))
@@ -1065,7 +1068,7 @@ used as well."
 
 ;;}}}
 ;;{{{ Property filter
-
+(declare-function emacspeak-w3-html-stack "emacspeak-w3" nil)
 ;;;###autoload
 (defun emacspeak-we-extract-by-property (url &optional speak)
   "Interactively prompt for an HTML property, e.g. id or class,
@@ -1145,14 +1148,17 @@ and provide a completion list of applicable  property values. Filter document by
 
 (loop
  for f in
- '(url-write-global-history url-history-save-history
+ '(
+   url-write-global-history url-history-save-history
                             url-http-chunked-encoding-after-change-function url-cookie-handle-set-cookie
+                            url-retrieve-internal
                             url-lazy-message url-cookie-write-file)
  do
  (eval
   `(defadvice   ,f (around emacspeak pre act comp)
      "Silence messages while this function executes"
-     (ems-with-messages-silenced ad-do-it))))
+     (let ((url-show-status nil))
+       (ems-with-messages-silenced ad-do-it)))))
 
 ;;}}}
 (provide 'emacspeak-we)

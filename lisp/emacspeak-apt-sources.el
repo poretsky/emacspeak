@@ -40,6 +40,7 @@
 ;;{{{ required modules
 
 (require 'emacspeak-preamble)
+(require 'apt-sources nil 'no-error)
 ;;}}}
 ;;{{{  Introduction:
 
@@ -53,7 +54,6 @@
 ;;}}}
 ;;{{{  Required modules
 (require 'emacspeak-preamble)
-(require 'arc-mode)
 ;;}}}
 ;;{{{ Advice interactive commands to speak.
 

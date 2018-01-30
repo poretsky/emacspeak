@@ -272,7 +272,7 @@ class _ProtocolHandler:
 
     # Used to extract protocol id and args from a raw message.
     self.protocolRePattern = (
-      r"((?P<blockId>[a-z\-]*) {(?P<blockArg>[\s\S]*))|((?P<spaceId>[a-z_]*) (?P<spaceArg>[\s\S]*))|(?P<id>[a-z_]*)")
+      r"((?P<blockId>[a-z_]*) {(?P<blockArg>[\s\S]*)})|((?P<spaceId>[a-z_]*) (?P<spaceArg>[\s\S]*))|(?P<id>[a-z_]*)")
     # Used to detect multiple dispatches during processing of one chunk set.
     self.isProcessing = False
 
@@ -349,7 +349,9 @@ class _ProtocolHandler:
 
   def handleTtsSay(self, args):
     self.handleStopSpeaking(None)
-    speechSynthesizer.startSpeakingString_('[[rate %i]] %s' % (ttsState['sayRate'], args))
+    speechSynthesizer.startSpeakingString_(
+      '[[rate %i]] %s' % (ttsState['sayRate'],
+                          args.replace('[*]','[[slnc 50 ]]')))
 
   def handleTtsSelftest(self, args):
     samples = ["phaser 0.8 0.74 3.0 0.4 0.5 -t",

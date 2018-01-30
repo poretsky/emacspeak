@@ -52,6 +52,7 @@
 (require 'cl)
 (declaim  (optimize  (safety 0) (speed 3)))
 (require 'acss-structure)
+(require 'tts)
 
 ;;}}}
 ;;{{{  voice table
@@ -81,9 +82,7 @@ COMMAND-STRING to the TTS engine."
 
 (defsubst mac-get-voice-command (name)
   "Retrieve command string for  voice NAME."
-  (declare (special dtk-speech-rate))
-  (concat 
-   (mac-get-voice-command-internal name)))
+  (mac-get-voice-command-internal name))
 
 (defsubst mac-voice-defined-p (name)
   "Check if there is a voice named NAME defined."
@@ -385,19 +384,34 @@ and TABLE gives the values along that dimension."
 ;;;###autoload
 (defun mac-configure-tts ()
   "Configure TTS environment to use mac  family of synthesizers."
-  (declare (special tts-default-speech-rate
-                    mac-default-speech-rate
-                    dtk-speaker-process))
+  (declare (special tts-default-speech-rate mac-default-speech-rate))
   (fset 'tts-list-voices'mac-list-voices)
   (fset 'tts-voice-defined-p 'mac-voice-defined-p)
   (fset 'tts-get-voice-command 'mac-get-voice-command)
   (fset 'tts-define-voice-from-speech-style 'mac-define-voice-from-speech-style)
   (setq tts-default-speech-rate mac-default-speech-rate)
-  (set-default 'tts-default-speech-rate
-               mac-default-speech-rate)
-  (dtk-unicode-update-untouched-charsets '(ascii latin-iso8859-1 latin-iso8859-15 latin-iso8859-9 eight-bit-graphic)))
+  (set-default 'tts-default-speech-rate mac-default-speech-rate)
+  (dtk-unicode-update-untouched-charsets
+   '(ascii latin-iso8859-1 latin-iso8859-15 latin-iso8859-9 eight-bit-graphic)))
 
 ;;}}}
+;;{{{ tts-env for Mac:
+;;;###autoload
+(defun mac-make-tts-env  ()
+  "Constructs a TTS environment for Mac."
+  (declare (special mac-default-speech-rate))
+  (make-tts-env
+   :name :mac :default-voice 'paul
+   :default-speech-rate mac-default-speech-rate
+   :list-voices #'mac-list-voices
+   :acss-voice-defined-p #'mac-voice-defined-p
+   :get-acss-voice-command #'mac-get-voice-command
+   :define-voice-from-acss #'mac-define-voice-from-speech-style
+   :speech-rate-base 100 :speech-rate-step 10))
+
+(tts-env-set :mac  (mac-make-tts-env))
+
+;;}}}        
 (provide 'mac-voices)
 ;;{{{  emacs local variables
 

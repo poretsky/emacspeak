@@ -1,9 +1,13 @@
 #!/bin/sh
-xmodmap $HOME/.Xmodmap
+setxkbmap -option ctrl:nocaps
+xmodmap $HOME/.xmodmap 
 xrdb -merge $HOME/.Xresources &
-xautolock -time 30 -locker  "i3lock -b" & 
-
-xterm &
+xautolock -detectsleep -time 30  -locker  "$HOME/bin/xlock" & 
+emacs  -title Emacs &
+#xterm  -title Retriever &
 export LISP=sbcl
-exec ck-launch-session /usr/bin/stumpwm
+${HOME}/bin/export_x_info &
 
+dbus-launch --exit-with-session /usr/local/bin/stumpwm
+#dbus-launch --exit-with-session emacs 
+# exec gnome-session

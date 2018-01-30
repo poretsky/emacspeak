@@ -58,8 +58,7 @@
 
 (defun emacspeak-ansi-color-to-voice (face-spec)
   "Return a voice corresponding to specified face-spec."
-  (declare (special ansi-color-names-vector
-                    ansi-color-faces-vector))
+  (declare (special ansi-color-names-vector ansi-color-faces-vector))
   (condition-case nil
       (let* ((voice-name nil)
              (style (cadr face-spec))
@@ -72,30 +71,26 @@
              (style nil)
              (color-parameter nil)
              (style-parameter nil))
-        (setq voice-name
-              (intern (format "emacspeak-ansi-color-%s-%s"
-                              (if color color "default")
-                              (if style style "default"))))
-        (unless (tts-voice-defined-p voice-name)
-          (setq style (make-acss ))
-          (setq style-parameter
-                (if style-index
-                    (+ 1 style-index)
-                  1))
-          (setq color-parameter
-                (if color-index
-                    (+ 1 color-index)
-                  1))
-          (setf (acss-average-pitch style) color-parameter)
-          (setf (acss-pitch-range style) color-parameter)
-          (setf (acss-richness style) color-parameter)
-          (setf (acss-stress style) color-parameter)
-          (tts-define-voice-from-speech-style voice-name style))
+        (setq style (make-acss ))
+        (setq style-parameter
+              (if style-index
+                  (+ 1 style-index)
+                1))
+        (setq color-parameter
+              (if color-index
+                  (+ 1 color-index)
+                1))
+        (setf (acss-average-pitch style) color-parameter)
+        (setf (acss-pitch-range style) color-parameter)
+        (setf (acss-richness style) color-parameter)
+        (setf (acss-stress style) color-parameter)
+        (setq voice-name (acss-personality-from-speech-style  style))
         voice-name)
     (error nil)))
 
 (defadvice ansi-color-set-extent-face (after emacspeak pre act comp)
   "Apply aural properties."
+  (declare (special emacspeak-personality-voiceify-faces))
   (let* ((extent (ad-get-arg 0))
          (face (ad-get-arg 1))
          (start (overlay-start extent))

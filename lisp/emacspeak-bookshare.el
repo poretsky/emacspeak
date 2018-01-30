@@ -58,7 +58,7 @@
 (declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 (require 'dired)
-(require 'eww   nil 'noerror)
+(require 'eww   "eww" 'noerror)
 (require 'browse-url)
 (require 'emacspeak-we)
 (require 'emacspeak-webutils)
@@ -90,13 +90,13 @@ See http://developer.bookshare.org/docs for details on how to get
                  (string :tag "Email"))
   :group 'emacspeak-bookshare)
 
-(defcustom emacspeak-bookshare-directory (expand-file-name "~/")
+(defcustom emacspeak-bookshare-directory (expand-file-name "~/books/book-share")
   "Customize this to the root of where books are organized."
   :type 'directory
   :group 'emacspeak-bookshare)
 
 (defcustom emacspeak-bookshare-downloads-directory
-  (expand-file-name "~/" emacspeak-bookshare-directory)
+  (expand-file-name "downloads/" emacspeak-bookshare-directory)
   "Customize this to the root of where books are organized."
   :type 'directory
   :group 'emacspeak-bookshare)
@@ -369,9 +369,10 @@ Interactive prefix arg filters search by category."
    ((null category)                     ; plain search
     (emacspeak-bookshare-api-call "book/searchFTS/author" query))
    (t                                   ; filter using category:
-    (let ((filter
-           (completing-read "Category: "
-                            (emacspeak-bookshare-categories))))
+    (let* ((completion-ignore-case  t)
+           (filter
+            (completing-read "Category: "
+                             (emacspeak-bookshare-categories))))
       (emacspeak-bookshare-api-call
        "book/searchFTS/author"
        (format "%s/category/%s"
@@ -389,9 +390,10 @@ Interactive prefix arg filters search by category."
    ((null category)                     ; plain search
     (emacspeak-bookshare-api-call "book/searchFTS/title" query))
    (t                                   ; filter using category:
-    (let ((filter
-           (completing-read "Category: "
-                            (emacspeak-bookshare-categories))))
+    (let* ((completion-ignore-case t)
+           (filter
+            (completing-read "Category: "
+                             (emacspeak-bookshare-categories))))
       (emacspeak-bookshare-api-call
        "book/searchFTS/title"
        (format "%s/category/%s"
@@ -412,15 +414,16 @@ Interactive prefix arg filters search by category."
 Optional interactive prefix arg filters by category."
   (interactive
    (list
-    (read-from-minibuffer "Date:MMDDYYYY ")
+    (read-from-minibuffer "Date:MmDdYyYy")
     current-prefix-arg))
   (cond
    ((null category)                     ; plain search
     (emacspeak-bookshare-api-call "book/search/since" query))
    (t                                   ; filter using category:
-    (let ((filter
-           (completing-read "Category: "
-                            (emacspeak-bookshare-categories))))
+    (let* ((completion-ignore-case t)
+           (filter
+            (completing-read "Category: "
+                             (emacspeak-bookshare-categories))))
       (emacspeak-bookshare-api-call
        "book/search/since"
        (format "%s/category/%s"
@@ -439,9 +442,10 @@ Optional interactive prefix arg prompts for a category to use as a filter."
    ((null category)                     ; plain search
     (emacspeak-bookshare-api-call "book/browse/popular" ""))
    (t                                   ; filter using category:
-    (let ((filter
-           (completing-read "Category: "
-                            (emacspeak-bookshare-categories))))
+    (let* ((completion-ignore-case t)
+           (filter
+            (completing-read "Category: "
+                             (emacspeak-bookshare-categories))))
       (emacspeak-bookshare-api-call
        "book/browse/popular"
        (format "category/%s" filter))))      ))
@@ -766,6 +770,22 @@ b Browse
 ;;}}}
 ;;{{{  Property Accessors:
 
+;;{{{ Generate Declarations:
+;; (loop
+;;  for p in
+;;  '(author title id metadata target directory)
+;;  do
+;;  (declare-function (format "emacspeak-bookshare-get-%s"  p) "emacspeak-bookshare" nil))
+
+(declare-function emacspeak-bookshare-get-author    "emacspeak-bookshare" nil)
+
+(declare-function emacspeak-bookshare-get-title    "emacspeak-bookshare" nil)
+(declare-function emacspeak-bookshare-get-id    "emacspeak-bookshare" nil)
+(declare-function emacspeak-bookshare-get-metadata    "emacspeak-bookshare" nil)
+(declare-function emacspeak-bookshare-get-target    "emacspeak-bookshare" nil)
+(declare-function emacspeak-bookshare-get-directory    "emacspeak-bookshare" nil)
+
+;; ;;}}}
 (loop for p in
       '(author title id metadata target directory)
       do
@@ -957,7 +977,7 @@ Target location is generated from author and title."
     (when (file-exists-p directory) (error "Already unpacked."))
     (make-directory directory 'parents)
     (shell-command
-     (format "cd %s; unzip -P %s %s"
+     (format "cd \"%s\"; unzip -P %s %s"
              directory
              (or emacspeak-bookshare-password-cache
                  (read-passwd
@@ -1091,7 +1111,7 @@ Make sure it's downloaded and unpacked first."
          (end (read-from-minibuffer "End Page: "))
          (result
           (emacspeak-xslt-xml-url
-           (expand-file-name "dtb-page-range.xsl" emacspeak-xslt-directory)
+           (emacspeak-xslt-get "dtb-page-range.xsl")
            (substring url 7)
            (list
             (cons "start" (format "'%s'" start ))

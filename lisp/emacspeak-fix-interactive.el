@@ -67,7 +67,6 @@
 ;;;###autoload
 (defsubst emacspeak-should-i-fix-interactive-p  (sym)
   "Predicate to test if this function should be fixed. "
-  (declare (special emacspeak-commands-dont-fix-regexp))
   (and
    (not (string-match emacspeak-commands-dont-fix-regexp
                       (symbol-name sym)))
@@ -164,8 +163,7 @@ use the minibuffer."
          (not (eq 'byte-compile-obsolete
                   (get (cdr item) 'byte-compile)))
          (commandp (cdr item))
-         (emacspeak-fix-interactive-command-if-necessary (cdr
-                                                          item))))
+         (emacspeak-fix-interactive-command-if-necessary (cdr item))))
   (when (ems-interactive-p )
     (message "Fixed interactive commands defined in module %s" module)))
 

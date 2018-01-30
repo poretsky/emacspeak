@@ -58,8 +58,10 @@
 
 ;;}}}
 ;;{{{ Forward Declarations:
+(defvar emacspeak-websearch-curl-program
+  (executable-find "curl")
+  "Curl executable.")
 
-(defvar emacspeak-xslt-directory)
 (defvar emacspeak-wizards-personal-portfolio)
 
 (declare-function gweb-google-autocomplete (&optional prompt))
@@ -182,44 +184,6 @@ When using supported browsers,  this interface attempts to speak the most releva
 ;;}}}
 ;;{{{ websearch utilities
 
-;;{{{ display form
-
-(emacspeak-websearch-set-searcher 'display-form
-                                  'emacspeak-websearch-display-form)
-
-(emacspeak-websearch-set-key ?/ 'display-form)
-
-(defun emacspeak-websearch-display-form (form-markup)
-  "Display form specified by form-markup."
-  (interactive
-   (list
-    (let ((emacspeak-speak-messages nil))
-      (emacspeak-pronounce-define-local-pronunciation
-       (expand-file-name "xml-forms"
-                         emacspeak-lisp-directory)
-       " xml forms ")
-      (read-file-name "Display Form: "
-                      (expand-file-name "xml-forms/" emacspeak-lisp-directory)))))
-  (declare (special emacspeak-we-xsl-p
-                    emacspeak-web-post-process-hook
-                    emacspeak-lisp-directory))
-  (let ((buffer (get-buffer-create " *search-form*"))
-        (emacspeak-we-xsl-p nil))
-    (save-excursion
-      (set-buffer buffer)
-      (erase-buffer)
-      (kill-all-local-variables)
-      (insert-file-contents  form-markup)
-      (add-hook 'emacspeak-web-post-process-hook
-                #'(lambda ()
-                    (goto-char (point-min))
-                    (widget-forward 1)
-                    (emacspeak-auditory-icon 'open-object)
-                    (emacspeak-widget-summarize (widget-at (point)))))
-      (browse-url-of-buffer)
-      (kill-buffer buffer))))
-
-;;}}}
 ;;{{{ Computer Science Bibliography
 
 (emacspeak-websearch-set-searcher 'biblio
@@ -306,7 +270,7 @@ When using supported browsers,  this interface attempts to speak the most releva
 (emacspeak-websearch-set-key ?f 'foldoc)
 
 (defvar emacspeak-websearch-foldoc-uri
-  "http://wombat.doc.ic.ac.uk/foldoc/"
+  "http://foldoc.org/"
   "*URI for launching a FolDoc  search.")
 
 ;;;###autoload
@@ -489,24 +453,6 @@ Optional second arg as-html processes the results as HTML rather than data."
                                         "&words="
                                         (emacspeak-url-encode query))))
 
-(defvar emacspeak-websearch-freshmeat-search-uri
-  "http://www.freshmeat.net/search?q="
-  "URI for searching Freshmeat site. ")
-
-;;;###autoload
-(defun emacspeak-websearch-freshmeat-search (query)
-  "Search Freshmeat  Site. "
-  (interactive
-   (list
-    (emacspeak-websearch-read-query "Search Freshmeat  for: ")))
-  (declare (special emacspeak-websearch-freshmeat-search-uri))
-  (browse-url
-   (concat emacspeak-websearch-freshmeat-search-uri
-           (emacspeak-url-encode query)))
-  (emacspeak-webutils-post-process
-   "search results"
-   'emacspeak-speak-line))
-
 (defvar emacspeak-websearch-ctan-search-uri
   "http://www.ctan.org/tools/filesearch?action=/search/&filename="
   "URI for searching CTAN archives for tex and latex utilities. ")
@@ -544,27 +490,9 @@ Optional second arg as-html processes the results as HTML rather than data."
   (emacspeak-webutils-post-process
    query
    'emacspeak-speak-line))
-(defvar emacspeak-websearch-swik-search-uri
-  "http://www.swik.net/project/"
-  "URI for locating project communities via swik.")
-
-;;;###autoload
-(defun emacspeak-websearch-swik-search (query)
-  "Search swik software community site."
-  (interactive
-   (list
-    (emacspeak-websearch-read-query
-     "SWIK Query:")))
-  (declare (special emacspeak-websearch-swik-search-uri))
-  (browse-url
-   (concat emacspeak-websearch-swik-search-uri
-           (emacspeak-url-encode query)))
-  (emacspeak-webutils-post-process
-   query
-   'emacspeak-speak-line))
 
 (defvar emacspeak-websearch-software-sites
-  "f FreshMeat p Perl s SourceForge t TEX cap S SWIK"
+  "p Perl s SourceForge t TEX cap"
   "Sites searched for open source software. ")
 
 ;;; top level dispatcher for searching source locations
@@ -576,11 +504,9 @@ Optional second arg as-html processes the results as HTML rather than data."
   (let ((site
          (read-char emacspeak-websearch-software-sites)))
     (case site
-      (?f (call-interactively 'emacspeak-websearch-freshmeat-search))
       (?p (call-interactively 'emacspeak-websearch-cpan-search))
       (?s (call-interactively 'emacspeak-websearch-sourceforge-search))
       (?t (call-interactively 'emacspeak-websearch-ctan-search))
-      (?S (call-interactively 'emacspeak-websearch-swik-search))
       (otherwise (message emacspeak-websearch-software-sites )))))
 
 ;;}}}

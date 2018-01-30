@@ -42,8 +42,9 @@
 ;;{{{  introduction
 
 ;;; Commentary:
-;;; LIBRIVOX == http://wwwlibrivox.org Free Audio Books
-;;; It provides a simple Web  API http://wiki.librivox.org/index.php/LibriVoxAPI
+;;; LIBRIVOX == http://www.librivox.org Free Audio Books
+;;; API Info: https://librivox.org/api/info
+;;; It provides a simple Web  API
 ;;; This module implements an Emacspeak Librivox client.
 
 ;;; Code:
@@ -54,251 +55,231 @@
 (require 'cl)
 (declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
-(require 'emacspeak-table-ui)
-(require 'derived)
+(require 'dom)
+(require 'emacspeak-webutils)
+(require 'g-utils)
 
-;;}}}
-;;{{{ Customizations
-
-(defgroup emacspeak-librivox nil
-  "Librivox Access on the Complete Audio Desktop."
-  :group 'emacspeak)
-
-(defcustom emacspeak-librivox-directory
-  (expand-file-name "librivox"
-                    emacspeak-resource-directory)
-  "Location where we cache  librivox data.")
-
-(defvar emacspeak-librivox-catalog-location
-  (expand-file-name "catalog.csv" emacspeak-librivox-directory)
-  "Location where we cache the Librivox catalog.")
 ;;}}}
 ;;{{{ Variables:
 
-(defvar emacspeak-librivox-curl-program (executable-find "curl")
-  "Curl executable.")
-
-(defvar emacspeak-librivox-curl-common-options
-  " --silent "
-  "Common Curl options for Librivox. ")
-
-(defvar emacspeak-librivox-api-base
-  "http://librivox.org/newcatalog/"
-  "Base REST end-point for Librivox API  access.")
 (defvar emacspeak-librivox-buffer-name
   "*Librivox Interaction*"
   "Name of Librivox interaction buffer.")
 
 ;;}}}
-;;{{{ Helpers:
+;;{{{ API:
 
-(defun emacspeak-librivox-fetch-catalog ()
-  "Fetch catalog to our cache location."
-  (interactive)
-  (declare (special emacspeak-librivox-api-base
-                    emacspeak-librivox-catalog-location))
-  (let ((dir  (file-name-directory emacspeak-librivox-catalog-location)))
-    (unless (file-exists-p dir)
-      (make-directory dir 'parents)))
-  (shell-command
-   (format "%s %s %s > %s 2>/dev/null"
-           emacspeak-librivox-curl-program
-           emacspeak-librivox-curl-common-options
-           "https://catalog.librivox.org/csv.php"
-           emacspeak-librivox-catalog-location))
-  (emacspeak-auditory-icon 'task-done))
+(defvar emacspeak-librivox-api-base
+  "https://librivox.org/api/feed/"
+  "Base REST end-point for Librivox API  access.")
+
+;;; audiobooks:
+;;; Params from API Documentation:
+
+;; * id - fetches a single record
+;; * since - takes a UNIX timestamp; returns all projects cataloged since that time
+;; * author - all records by that author last name
+;; * title - all matching titles
+;; * genre - all projects of the matching genre
+;; * extended - =1 will return the full set of data about the project
+;; * limit (default is 50)
+;;   * offset
+
+(defsubst emacspeak-librivox-audiobooks-uri (pattern)
+  "Search URI for audiobooks."
+  (declare (special emacspeak-librivox-api-base))
+  (concat emacspeak-librivox-api-base "audiobooks?format=json&" pattern))
+
+;;; Audio Tracks API:
+;;; Params:
+;; * id - of track itself
+;; * project_id - all tracks for project
+
+(defsubst emacspeak-librivox-audiotracks-base (pattern)
+  "Base URI for audiotracks."
+  (declare (special emacspeak-librivox-api-base))
+  (concat emacspeak-librivox-api-base "audiotracks?format=json&" pattern))
+
+;;; Simple Authors API:
+;;; Params:
+;; * id - of author
+;; * last_name - exact match
+
+(defsubst emacspeak-librivox-authors-base ()
+  "Base URI for authors."
+  (declare (special emacspeak-librivox-api-base))
+  (concat emacspeak-librivox-api-base "authors"))
+
+;;}}}
+;;{{{ Search Commands:
+
+(defsubst emacspeak-librivox-display-author (author)
+  "Display single author."
+  (insert
+   (format "%s, " (g-json-get 'last_name author))
+   (format "%s " (g-json-get 'first_name author))
+   (format "(%s -- %s \n" (g-json-get 'dob author) (g-json-get 'dod author))
+   "<br/>"))
+
+(defun emacspeak-librivox-display-authors (authors)
+  "Display authors."
+  (insert "\n\n<p>\n")
+  (cond
+   ((= (length authors)1)
+    (emacspeak-librivox-display-author (aref authors 0)))
+   (t
+    (loop
+     for a across authors
+     do
+     (emacspeak-librivox-display-author a))))
+  (insert "</p>\n\n"))
+
+(defun emacspeak-librivox-display-book (book position)
+  "Render book results."
+  (let ((title (g-json-get 'title book))
+        (rss (g-json-get 'url_rss book))
+        (zip (g-json-get 'url_zip_file book))
+        (text (g-json-get 'url_text_source book))
+        (time (g-json-get 'totaltime book))
+        (desc (g-json-get 'description book)))
+    (insert  (format "<h2>%s. %s</h2>\n\n" position title))
+    (insert "<table><tr>\n")
+    (when rss (insert (format "<td><a href='%s'>Listen (RSS)</a></td>\n" rss)))
+    (when zip (insert (format "<td><a href='%s'>Download</a></td>\n" zip)))
+    (when text (insert (format "<td><a href='%s'>Full Text</a></td>\n" text)))
+    (when time (insert (format "<td>Time: %s</td>\n" time)))
+    (insert "</tr></table>\n\n")
+    (emacspeak-librivox-display-authors (g-json-get 'authors book))
+    (when desc (insert "<p>" desc "</p>\n\n"))))
+
+(defun emacspeak-librivox-search (pattern &optional page-title)
+  "Search for books.
+Argument `pattern' is of the form:
+`author=pattern' Search by author.
+`title=pattern' Search by title.
+^all Browse books.
+Optional arg `page-title' specifies page title."
+  (or page-title (setq page-title pattern))
+  (let* ((url
+          (emacspeak-librivox-audiobooks-uri
+           pattern))
+         (result (g-json-get-result
+                  (format
+                   "%s  %s '%s'"
+                   g-curl-program g-curl-common-options url)))
+         (books (g-json-get 'books result)))
+    (unless books (message "No results."))
+    (emacspeak-auditory-icon 'task-done)
+    (when books
+      (with-temp-buffer
+        (insert "<title>" page-title "</title>\n")
+        (insert "<h1>" page-title "</h1>\n")
+        (loop
+         for b across books
+         and i from 1
+         do
+         (emacspeak-librivox-display-book b i))
+        (browse-url-of-buffer)))))
+;;;###autoload
+(defun emacspeak-librivox-search-by-genre (genre)
+  "Search by genre.
+Both exact and partial matches for `genre'."
+  (interactive "sGenre: ")
+  (emacspeak-librivox-search
+   (format "genre=%s"
+           (emacspeak-url-encode genre))
+   (format "Search For Genre: %s" genre)))
+
+;;;###autoload
+(defun emacspeak-librivox-search-by-author (author)
+  "Search by author.
+Both exact and partial matches for `author'."
+  (interactive "sAuthor: ")
+  (emacspeak-librivox-search
+   (format "author=%s"
+           (emacspeak-url-encode author))
+   (format "Search For Author: %s" author)))
+
+;;;###autoload
+(defun emacspeak-librivox-search-by-title (title)
+  "Search by title.
+Both exact and partial matches for `title'."
+  (interactive "sTitle: ")
+  (emacspeak-librivox-search
+   (format "title=%s"
+           (emacspeak-url-encode title))
+   (format "Search For Title: %s" title)))
+
+;;}}}
+;;{{{ Top-Level Dispatch:
+
+;;;###autoload
+(defun emacspeak-librivox (search-type)
+  "Launch a Librivox Search."
+  (interactive
+   (list
+    (read-char "a: Author, t: Title,  p:Play, g:Genre")))
+  (ecase search-type
+    (?a (call-interactively 'emacspeak-librivox-search-by-author))
+    (?p (call-interactively 'emacspeak-librivox-play))
+    (?t (call-interactively 'emacspeak-librivox-search-by-title))
+    (?g (call-interactively 'emacspeak-librivox-search-by-genre))))
+
+;;}}}
+;;{{{ Cache Playlists:
+(defcustom emacspeak-librivox-local-cache
+  (expand-file-name "librivox" emacspeak-resource-directory)
+  "Location where we cache LIBRIVOX playlists."
+  :type 'directory
+  :group 'emacspeak-librivox)
+
+(defsubst emacspeak-librivox-ensure-cache ()
+  "Create LIBRIVOX cache directory if needed."
+  (declare (special emacspeak-librivox-local-cache))
+  (unless (file-exists-p emacspeak-librivox-local-cache)
+    (make-directory  emacspeak-librivox-local-cache 'parents)))
+
+(defun emacspeak-librivox-get-m3u-name (rss)
+  "Parse RSS from temporary location to create a real file name."
+  (emacspeak-librivox-ensure-cache)
+  (assert  (file-exists-p rss) nil "RSS file not found.")
+  (with-current-buffer (find-file rss)
+    (let* ((title
+            (dom-by-tag
+             (libxml-parse-xml-region (point-min) (point-max))
+             'title)))
+      (when title
+        (setq title (dom-text (first title )))
+        (setq title (replace-regexp-in-string " +" "-" title)))
+      (kill-buffer)
+      (expand-file-name
+       (format "%s.m3u" (or title "Untitled"))
+       emacspeak-librivox-local-cache))))
+
+;;}}}
+;;{{{ Play Librivox Streams:
+;;;###autoload
+(defun emacspeak-librivox-play (rss-url)
+  "Play book stream"
+  (interactive
+   (list
+    (emacspeak-webutils-read-this-url)))
+  (declare (special g-curl-program g-curl-common-options
+                    emacspeak-xslt-program))
+  (let ((file  (make-temp-file "librivox" nil ".rss"))
+        (m3u-file nil))
+    (shell-command
+     (format "%s %s %s > %s"
+             g-curl-program g-curl-common-options rss-url file))
+    (setq m3u-file (emacspeak-librivox-get-m3u-name file))
+    (shell-command
+     (format "%s %s %s > \"%s\""
+             emacspeak-xslt-program (emacspeak-xslt-get "rss2m3u.xsl")
+             file m3u-file))
+    (emacspeak-m-player m3u-file 'playlist)))
 
 ;;}}}
 (provide 'emacspeak-librivox)
-;;{{{ Librivox Mode:
-
-(define-derived-mode emacspeak-librivox-mode emacspeak-table-mode
-                     "Librivox Library Of Free Audio Books"
-  "A Librivox front-end for the Emacspeak Audio Desktop."
-  (progn
-    (declare (special emacspeak-table-speak-row-filter))
-    (setq tab-width 12)
-    (setq emacspeak-table-speak-row-filter
-          '(0 " by " 5))))
-
-(define-prefix-command 'emacspeak-librivox-searcher)
-
-(defun emacspeak-librivox-setup-keys ()
-  "Set up Librivox keys."
-  (declare (special emacspeak-librivox-mode-map
-                    emacspeak-librivox-searcher))
-  (loop for binding in
-        '(
-          ("\C-m" emacspeak-librivox-open-rss)
-          ("S" emacspeak-librivox-searcher)
-          ("c-RET" emacspeak-librivox-play)
-          ("P" emacspeak-librivox-play)
-          ("u" emacspeak-librivox-open-url)
-          ("F" emacspeak-librivox-fetch-catalog)
-          )
-        do
-        (emacspeak-keymap-update emacspeak-librivox-mode-map  binding))
-  (loop for key in
-        '(
-          ("a" emacspeak-librivox-search-author)
-          ("t" emacspeak-librivox-search-title)
-          ("g" emacspeak-librivox-search-genre))
-        do
-        (emacspeak-keymap-update emacspeak-librivox-searcher key)))
-
-(emacspeak-librivox-setup-keys)
-;;;###autoload
-(defun emacspeak-librivox ()
-  "Librivox Library Of Free Audio Books."
-  (interactive)
-  (declare (special emacspeak-librivox-buffer-name
-                    emacspeak-librivox-catalog-location))
-  (let ((inhibit-read-only t))
-    (unless (file-exists-p emacspeak-librivox-catalog-location)
-      (message "Retrieving Librivox catalog, might take a minute.")
-      (emacspeak-librivox-fetch-catalog))
-    (unless (file-exists-p emacspeak-librivox-catalog-location)
-      (error "Cannot find Librivox Catalog."))
-    (cond
-     ((null (get-buffer emacspeak-librivox-buffer-name))
-      (emacspeak-table-find-csv-file
-       emacspeak-librivox-catalog-location)
-      (rename-buffer emacspeak-librivox-buffer-name)
-      (emacspeak-librivox-mode))
-     (t (switch-to-buffer emacspeak-librivox-buffer-name)))
-    (emacspeak-auditory-icon 'open-object)
-    (message "Librivox Interaction")))
-
-;;}}}
-;;{{{ User Actions:
-(defvar  emacspeak-librivox-fields
-  '(
-    ("ProjectName" . 0)
-    ("LibrivoxURL" . 1)
-    ("RssURL" . 2)
-    ("Category" . 3)
-    ("Genre" . 4)
-    ("Author1" . 5)
-    ("Author2" . 6)
-    ("Author3" . 7)
-    ("Author4" . 8)
-    ("Translator" . 9)
-    ("Language" . 10)
-    ("Type" . 11))
-  "Association list of Librivox Catalog fields.")
-
-(defsubst emacspeak-librivox-field-position (name)
-  "Return column for specified field."
-  (declare (special emacspeak-librivox-fields))
-  (cdr (assoc name  emacspeak-librivox-fields)))
-
-;;;###autoload
-(defun emacspeak-librivox-open-rss ()
-  "Open RSS  link for current Librivox book."
-  (interactive)
-  (declare (special emacspeak-table))
-  (unless
-      (and (eq major-mode 'emacspeak-librivox-mode)
-           (boundp 'emacspeak-table)
-           emacspeak-table)
-    (error "Not in a valid Emacspeak table."))
-  (let ((rss (emacspeak-table-this-element
-              emacspeak-table
-              (emacspeak-table-current-row emacspeak-table)
-              (emacspeak-librivox-field-position "RssURL"))))
-    (emacspeak-feeds-rss-display rss)))
-
-;;;###autoload
-(defun emacspeak-librivox-open-url ()
-  "Open Librivox URL  for current Librivox book."
-  (interactive)
-  (declare (special emacspeak-table))
-  (unless
-      (and (eq major-mode 'emacspeak-librivox-mode)
-           (boundp 'emacspeak-table)
-           emacspeak-table)
-    (error "Not in a valid Emacspeak table."))
-  (let ((url (emacspeak-table-this-element
-              emacspeak-table
-              (emacspeak-table-current-row emacspeak-table)
-              (emacspeak-librivox-field-position "LibrivoxURL"))))
-    (browse-url url)))
-
-(defsubst emacspeak-librivox-m3u-filename (rss)
-  "Construct M3U  filename given the RSS URL."
-  (expand-file-name
-   (format  "%s.m3u"
-            (substring
-             (file-name-nondirectory rss)
-             0 -4))
-   emacspeak-librivox-directory))
-
-;;;###autoload
-(defun emacspeak-librivox-play ()
-  "Play current book as a playlist."
-  (interactive)
-  (declare (special emacspeak-table emacspeak-xslt-program
-                    emacspeak-librivox-directory))
-  (unless (and (eq major-mode 'emacspeak-librivox-mode)
-               (boundp 'emacspeak-table)
-               emacspeak-table)
-    (error "Not in a valid Emacspeak table."))
-  (let* ((rss (emacspeak-table-this-element
-               emacspeak-table
-               (emacspeak-table-current-row emacspeak-table)
-               (emacspeak-librivox-field-position "RssURL")))
-         (m3u-file (emacspeak-librivox-m3u-filename rss)))
-    (unless (file-exists-p m3u-file)
-      (message "Retrieving playlist.")
-      (shell-command
-       (format
-        "%s %s %s > %s"
-        emacspeak-xslt-program
-        (expand-file-name "rss2m3u.xsl" emacspeak-xslt-directory)
-        rss
-        m3u-file))
-      (emacspeak-auditory-icon 'task-done))
-    (message "Playing book.")
-    (emacspeak-auditory-icon 'progress)
-    (emacspeak-m-player m3u-file 'playlist)))
-
-;;;###autoload
-
-(defun emacspeak-librivox-search-author (pattern)
-  "Search in catalog for Author 1."
-  (interactive "sAuthor 1")
-  (declare (special emacspeak-table))
-  (let*((column (emacspeak-librivox-field-position "Author1"))
-        (row
-         (emacspeak-table-find-match-in-column
-          emacspeak-table column pattern 'string-match)))
-    (emacspeak-table-goto row column)
-    (call-interactively  emacspeak-table-speak-element)))
-;;;###autoload
-(defun emacspeak-librivox-search-title (pattern)
-  "Search in catalog for title."
-  (interactive "sTitle")
-  (declare (special emacspeak-table))
-  (let*((column (emacspeak-librivox-field-position "ProjectName"))
-        (row
-         (emacspeak-table-find-match-in-column
-          emacspeak-table column pattern 'string-match)))
-    (emacspeak-table-goto row column)
-    (call-interactively  emacspeak-table-speak-element)))
-
-;;;###autoload
-(defun emacspeak-librivox-search-genre (pattern)
-  "Search in catalog for genre."
-  (interactive "sGenre")
-  (declare (special emacspeak-table))
-  (let*((column (emacspeak-librivox-field-position "ProjectName"))
-        (row
-         (emacspeak-table-find-match-in-column
-          emacspeak-table column pattern 'string-match)))
-    (emacspeak-table-goto row column)
-    (call-interactively  emacspeak-table-speak-element)))
-
-;;}}}
 ;;{{{ end of file
 
 ;;; local variables:

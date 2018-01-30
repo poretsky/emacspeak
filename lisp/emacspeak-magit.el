@@ -50,34 +50,53 @@
 (require 'cl)
 (declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
+
 (require 'magit "magit" 'no-error)
+
 ;;}}}
 ;;{{{ Map voices to faces:
 (voice-setup-add-map
  '(
-   ( magit-header voice-bolden)
-   ( magit-section-title voice-annotate)
    ( magit-branch voice-lighten)
+   ( magit-diff-add voice-animate-extra)
+   ( magit-diff-del voice-animate-extra)
    ( magit-diff-file-header voice-animate)
    ( magit-diff-hunk-header voice-animate-medium)
-   ( magit-diff-add voice-animate-extra)
    ( magit-diff-none voice-monotone)
-   ( magit-diff-del voice-animate-extra)
-   ( magit-log-graph voice-monotone)
-   ( magit-log-sha1 voice-monotone)
-   ( magit-log-message voice-monotone)
    ( magit-item-highlight voice-brighten)
    ( magit-item-mark voice-lighten-extra)
-   ( magit-log-tag-label voice-annotate)
-   ( magit-log-head-label-bisect-good voice-bolden)
+   ( magit-log-graph voice-monotone)
    ( magit-log-head-label-bisect-bad voice-smoothen)
+   ( magit-log-head-label-bisect-good voice-bolden)
+   ( magit-log-head-label-default voice-monotone)
+   ( magit-log-head-label-local voice-lighten)
+   ( magit-log-head-label-patches voice-bolden)
    ( magit-log-head-label-remote voice-bolden)
    ( magit-log-head-label-tags voice-animate)
-   ( magit-log-head-label-patches voice-bolden)
-   ( magit-whitespace-warning-face voice-monotone)
-   ( magit-log-head-label-local voice-lighten)
-   ( magit-log-head-label-default voice-monotone)
-   ( magit-menu-selected-option voice-animate)))
+   ( magit-log-message voice-monotone)
+   ( magit-log-sha1 voice-monotone)
+   ( magit-log-tag-label voice-annotate)
+   (magit-branch-local voice-brighten)
+   (magit-branch-remote voice-lighten)
+   (magit-diff-added-highlight voice-animate)
+   (magit-diff-base-highlight voice-animate)
+   (magit-diff-context-highlight voice-brighten)
+   (magit-diff-context-highlight voice-lighten)
+   (magit-diff-file-heading-highlight voice-bolden-extra)
+   (magit-diff-hunk-heading voice-bolden)
+   (magit-diff-hunk-heading-highlight voice-brighten)
+   (magit-diff-removed-highlight voice-smoothen)
+   (magit-dimmed voice-smoothen)
+   (magit-hash voice-animate)
+   (magit-header-line voice-bolden)
+   (magit-popup-heading voice-bolden)
+   (magit-popup-key voice-lighten)
+   (magit-section-heading voice-bolden)
+   (magit-section-highlight voice-animate)
+   (magit-section-secondary-heading voice-bolden-medium)
+   (magit-tag voice-animate)
+   )
+ )
 
 ;;}}}
 ;;{{{ Pronunciations in Magit:
@@ -110,39 +129,39 @@
        (t (emacspeak-auditory-icon 'open-object)))
       (emacspeak-speak-line))))
 
-(loop for f in
-      '(
-        magit-ignore-file magit-ignore-item
-                          magit-stage-item magit-stash
-                          magit-ignore-item-locally
-                          magit-goto-next-section magit-goto-previous-section
-                          magit-goto-parent-section magit-goto-line
-                          magit-goto-section magit-goto-section-at-path)
-      do
-      (eval
-       `(defadvice ,f (after emacspeak pre act comp)
-          "Provide auditory feedback"
-          (when (ems-interactive-p )
-            (emacspeak-auditory-icon 'large-movement)
-            (emacspeak-speak-line)))))
+(loop
+ for f in
+ '(
+   magit-section-forward magit-section-backward
+                         magit-ignore-file magit-ignore-item
+                         magit-stash
+                         magit-unstage magit-unstage-all magit-unstage-file
+                         magit-stage magit-stage-file  magit-stage-modified
+                         magit-ignore-item-locally
+                         magit-goto-next-section magit-goto-previous-section
+                         magit-goto-parent-section magit-goto-line
+                         magit-goto-section magit-goto-section-at-path)
+ do
+ (eval
+  `(defadvice ,f (after emacspeak pre act comp)
+     "Provide auditory feedback"
+     (when (ems-interactive-p )
+       (emacspeak-auditory-icon 'large-movement)
+       (emacspeak-speak-line)))))
 
 ;;}}}
 ;;{{{ Advice generator to advice generated  commands:
 
-(defadvice  magit-key-mode-generate (after emacspeak pre act comp)
-  "Advice  the key-group menu for GROUP"
-  (let ((group (ad-get-arg 0))))
-  (eval
-   `(defadvice ,(intern (concat "magit-key-mode-popup-" (symbol-name group))) 
-        (after emacspeak  pre act comp)
-      ,(concat "Speech-enabled Key menu for " (symbol-name group))
-      (dtk-speak
-       (save-current-buffer
-         (set-buffer ,(format magit-key-mode-buf-name group))
-         (buffer-string))))))
-;;; load the magit-key-mode file so the above advice gets applied:
+(defadvice magit-invoke-popup (after emacspeak pre act comp)
+  "Speech-enable  magit-popup."
+  (emacspeak-auditory-icon 'open-object)
+  (emacspeak-speak-buffer))
 
-(load-library "magit-key-mode")
+(defadvice magit-invoke-popup-option (after emacspeak pre act comp)
+  "Provide auditory feedback."
+  (when (ems-interactive-p)
+    (emacspeak-auditory-icon 'close-object)
+    (emacspeak-speak-line)))
 
 ;;}}}
 ;;{{{ Advice hide/show commands:
@@ -196,12 +215,16 @@
   (when (ems-interactive-p )
     (emacspeak-auditory-icon 'open-object)
     (emacspeak-speak-line)))
-
-(defadvice magit-mode-quit-window (after emacspeak pre act  comp)
-  "Provide auditory feedback."
-  (when (ems-interactive-p )
-    (emacspeak-auditory-icon 'close-object)
-    (emacspeak-speak-line)))
+(loop
+ for f in
+ '(magit-mode-quit-window magit-mode-bury-buffer magit-log-bury-buffer)
+ do
+ (eval
+  `(defadvice ,f (after emacspeak pre act  comp)
+     "Provide auditory feedback."
+     (when (ems-interactive-p )
+       (emacspeak-auditory-icon 'close-object)
+       (emacspeak-speak-mode-line)))))
 
 (defadvice magit-refresh-all (after emacspeak pre act comp)
   "Provide auditory feedback."
@@ -232,66 +255,11 @@
     (emacspeak-speak-line)))
 
 ;;}}}
-;;{{{ Setting Command Options:
+;;{{{ Advise process-sentinel:
 
-(defadvice magit-key-mode-add-option (after emacspeak pre act comp) 
-  "Provide auditory feedback."
-  (let ((for-group (ad-get-arg 0))
-        (option-name (ad-get-arg 1)))
-    (cond
-     ((not (member option-name magit-key-mode-current-options))
-      (message "Removed %s for %s" option-name for-group)
-      (emacspeak-auditory-icon 'delete-object))
-     (t (message "Added %s for %s" option-name for-group)
-        (emacspeak-auditory-icon 'select-object)))))
-
-(defadvice magit-key-mode-exec-at-point (after emacspeak pre act comp)
-  "Provide auditory feedback."
-  (when (ems-interactive-p )
-    (emacspeak-auditory-icon 'button)))
-
-(defadvice magit-key-mode-kill-buffer (after emacspeak pre act
-                                             comp)
-  "Provide auditory feedback."
-  (when (ems-interactive-p )
-    (emacspeak-auditory-icon 'close-object)
-    (emacspeak-speak-mode-line)))
-(defsubst emacspeak-magit-key-mode-header-line ()
-  "Currently set options and args for use in header-line."
-  (declare (special magit-key-mode-current-options magit-key-mode-current-args))
-  (let ((options
-         (mapconcat
-          #'identity
-          magit-key-mode-current-options
-          " "))
-        (args
-         (mapconcat
-          #'identity
-          (loop for k being the hash-keys of magit-key-mode-current-args
-                collect
-                (format "%s %s"
-                        k (gethash k magit-key-mode-current-args)))
-          " ")))
-    (format "%s %s" options args)))    
-
-(defadvice magit-key-mode-add-argument (after emacspeak pre act comp)
-  "Speak header line where we accumulate and reflect current state."
-  (emacspeak-speak-header-line))
-(defadvice magit-key-mode-command (after emacspeak pre act comp)
-  "Provide auditory feedback."
-  (emacspeak-auditory-icon 'button)
-  (emacspeak-speak-line))
-(defadvice magit-visit-item (after emacspeak pre act comp)
-  "Provide auditory feedback."
-  (when (ems-interactive-p )
-    (emacspeak-speak-line)
-    (emacspeak-auditory-icon 'open-object)))
-
-(defadvice magit-key-mode(after emacspeak pre act comp)
-  "Provide auditory icon."
-  (setq header-line-format
-        '(:eval (emacspeak-magit-key-mode-header-line)))
-  (emacspeak-auditory-icon 'open-object))
+(defadvice magit-process-finish(after emacspeak pre act comp)
+  "Produce auditory icon."
+  (emacspeak-auditory-icon 'task-done))
 
 ;;}}}
 (provide 'emacspeak-magit)
