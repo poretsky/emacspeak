@@ -134,17 +134,38 @@
   "Records current directory of media being played.
 This is set to nil when playing Internet  streams.")
 
+(defsubst ems--seconds-string-to-duration (sec)
+  "Return seconds formatted as time if valid, otherwise return as is."
+  (let ((v (car  (read-from-string sec))))
+    (cond
+     ((and (numberp v) (not (cl-minusp v)))
+      (format-seconds "%.2h:%.2m:%.2s%z" v))
+     (t sec))))
+
+(defsubst ems--duration-to-seconds (d)
+  "Convert hh:mm:ss to seconds."
+  (let ((v (mapcar #'car (mapcar #'read-from-string (split-string d ":")))))
+    (+
+     (* 3600 (cl-first v))
+     (* 60 (cl-second v))
+     (cl-third v))))
+
 (defun emacspeak-m-player-mode-line ()
   "Meaningful mode-line for *M-Player* buffers."
   (cl-declare (special emacspeak-m-player-process))
   (cond
    ((eq 'run (process-status emacspeak-m-player-process))
-    (let ((info (emacspeak-m-player-get-position)))
+    (let ((info (emacspeak-m-player-get-position))
+          (dtk-split-caps t))
       (when info 
         (put-text-property 0 (length (cl-first info))
                            'personality 'voice-smoothen (cl-first info) )
-        (dtk-speak-and-echo
-         (concat (cl-first info) ":" (cl-second info))))))
+        (dtk-notify-speak
+         (concat
+          (cl-second info) " : "
+          (ems--seconds-string-to-duration (cl-first info))
+          " of "
+          (ems--seconds-string-to-duration (cl-third info)))))))
    (t (message "Process MPlayer not running."))))
 
 (defun emacspeak-m-player-speak-mode-line ()
@@ -603,23 +624,24 @@ necessary."
 ;;{{{ commands
 
 (defun emacspeak-m-player-get-position ()
-  "Return list suitable to use as an amark. --- see emacspeak-amark.el."
+  "Return list suitable to use as an amark. --- see emacspeak-amark.el.
+Return value is of the form (position filename length)."
   (cl-declare (special emacspeak-m-player-process))
   (with-current-buffer (process-buffer emacspeak-m-player-process)
-    ;;; dispatch command twice to avoid flakiness in mplayer
-    (emacspeak-m-player-dispatch "get_time_pos\nget_file_name\n")
-    (emacspeak-m-player-dispatch "get_time_pos\nget_file_name\n")
-    (let* ((output  (buffer-substring-no-properties (point-min) (point-max)))
+;;; dispatch command twice to avoid flakiness in mplayer
+    (emacspeak-m-player-dispatch "get_time_pos\nget_file_name\nget_time_length\n")
+    (let* ((output (emacspeak-m-player-dispatch "get_time_pos\nget_file_name\nget_time_length\n") )
            (lines (split-string output "\n" 'omit-nulls))
            (fields
             (cl-loop
              for l in lines
              collect (cl-second (split-string l "=")))))
       (list
-       (format "%s" (cl-first fields))     ; position
+       (format "%s" (cl-first fields))  ; position
        (if (cl-second fields)
            (substring (cl-second  fields) 1 -1)
-         "")))))
+         "")
+       (format "%s" (cl-third fields))))))
 
 (defun emacspeak-m-player-current-filename ()
   "Return filename of currently playing track."
@@ -665,8 +687,9 @@ This affects pitch."
 (defun emacspeak-m-player-play-tracks-jump (step)
   "Move within the play tree."
   (interactive"nSkip Tracks:")
-  (emacspeak-m-player-dispatch
-   (format "pt_step %d" step)))
+  (unless (zerop step)
+    (emacspeak-m-player-dispatch
+     (format "pt_step %d" step))))
 
 (defun emacspeak-m-player-previous-track ()
   "Move to previous track."
@@ -695,12 +718,14 @@ This affects pitch."
    (format "alt_src_step %s" step)))
 
 (defun emacspeak-m-player-seek-relative (offset)
-  "Seek  by offset into stream from current position."
+  "Seek  by offset into stream from current position.
+Time offset can be specified as a number of seconds, or as HH:MM:SS."
   (interactive
    (list
     (read-from-minibuffer "Offset: ")))
-  (emacspeak-m-player-dispatch
-   (format "seek %s" offset)))
+  (when (string-match ":" offset)
+(setq offset (ems--duration-to-seconds offset)))
+  (emacspeak-m-player-dispatch (format "seek %s" offset)))
 
 (defun emacspeak-m-player-seek-percentage (pos)
   "Seek  to absolute specified pos in percent."
@@ -711,12 +736,14 @@ This affects pitch."
    (format "seek %s 1" pos)))
 
 (defun emacspeak-m-player-seek-absolute (pos)
-  "Seek  to absolute specified pos in seconds."
+  "Seek  to absolute specified pos in seconds.
+The time position can also be specified as HH:MM:SS."
   (interactive
    (list
     (read-from-minibuffer "Seek to pos in seconds: ")))
-  (emacspeak-m-player-dispatch
-   (format "seek %s 2" pos)))
+  (when (string-match ":" pos)
+    (setq pos (ems--duration-to-seconds pos)))
+  (emacspeak-m-player-dispatch (format "seek %s 2" pos)))
 
 (defun emacspeak-m-player-beginning-of-track()
   "Move to beginning of track."
@@ -1699,9 +1726,8 @@ Optional interactive prefix arg prompts for name to use for  player."
          "*Persisted-M-Player*")
        'unique))
     (when (called-interactively-p 'interactive)
-      (emacspeak-auditory-icon 'close-object)
-      (message
-       "persisted current process. You can now start another player."))))
+      (emacspeak-auditory-icon 'task-done)
+      (dtk-notify-say "persisted current process. You can now start another player."))))
 
 (defun emacspeak-m-player-restore-process ()
   "Restore emacspeak-m-player-process from current buffer.
@@ -1710,7 +1736,9 @@ Check first if current buffer is in emacspeak-m-player-mode."
   (cl-declare (special emacspeak-m-player-process))
   (unless (eq major-mode 'emacspeak-m-player-mode)
     (error "This is not an MPlayer buffer."))
-  (let ((proc (get-buffer-process (current-buffer))))
+  (let ((proc
+         (or (get-buffer-process (current-buffer))
+             emacspeak-m-player-process)))
     (cond
      ((process-live-p proc)
       (setq emacspeak-m-player-process proc)
@@ -1839,3 +1867,4 @@ Check first if current buffer is in emacspeak-m-player-mode."
 ;;; end:
 
 ;;}}}
+pushd ~/

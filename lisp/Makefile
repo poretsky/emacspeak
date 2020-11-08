@@ -37,7 +37,7 @@
 
 # }}}
 # {{{make rules
-
+.POSIX:
 # what emacs is called on your system
 EMACS = emacs
 SRC=".."
@@ -113,6 +113,7 @@ emacspeak-calculator.elc \
 emacspeak-calendar.elc \
 emacspeak-cedet.elc \
 emacspeak-checkdoc.elc \
+emacspeak-chess.elc \
 emacspeak-ciel.elc \
 emacspeak-cider.elc \
 emacspeak-clojure.elc \
@@ -276,6 +277,7 @@ emacspeak-typo.elc \
 emacspeak-url-template.elc \
 emacspeak-vdiff.elc \
 emacspeak-view.elc \
+emacspeak-vuiet.elc \
 emacspeak-vlc.elc \
 emacspeak-vm.elc \
 emacspeak-wdired.elc \
@@ -393,6 +395,7 @@ emacspeak-calculator.elc: emacspeak-calculator.el  dtk-speak.elc voice-setup.elc
 emacspeak-calendar.elc: emacspeak-calendar.el dtk-speak.el
 emacspeak-cedet.elc: emacspeak-cedet.el dtk-speak.elc voice-setup.elc
 emacspeak-checkdoc.elc: emacspeak-checkdoc.el dtk-speak.elc voice-setup.elc
+emacspeak-chess.elc: emacspeak-chess.el dtk-speak.elc voice-setup.elc
 emacspeak-compile.elc: emacspeak-compile.el  dtk-speak.elc
 emacspeak-company.elc: emacspeak-company.el dtk-speak.elc
 emacspeak-cperl.elc: emacspeak-cperl.el dtk-speak.elc voice-setup.elc
@@ -569,6 +572,7 @@ emacspeak-twittering.elc: emacspeak-twittering.el dtk-speak.elc voice-setup.elc
 emacspeak-typo.elc: emacspeak-typo.el dtk-speak.elc 
 emacspeak-url-template.elc: emacspeak-url-template.el emacspeak-webutils.elc emacspeak-we.elc
 emacspeak-vdiff.elc: emacspeak-vdiff.el dtk-speak.elc voice-setup.elc
+emacspeak-vuiet.elc: emacspeak-vuiet.el dtk-speak.elc voice-setup.elc
 emacspeak-view.elc: emacspeak-view.el dtk-speak.elc voice-setup.elc
 emacspeak-vlc.elc: emacspeak-vlc.el dtk-speak.elc
 emacspeak-vm.elc: emacspeak-vm.el dtk-speak.elc voice-setup.elc

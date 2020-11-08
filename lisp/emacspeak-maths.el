@@ -105,12 +105,13 @@
 
 (defcustom emacspeak-maths-inferior-program
   (cond
-   ((executable-find "node") (executable-find "node"))
    ((and (locate-library "nvm")
          (nvm--installed-versions))
     (let ((v (car (sort (mapcar #'car (nvm--installed-versions)) #'string>))))
       (nvm-use v)
-      (executable-find "node"))) 
+      (executable-find "node")))
+   ;;; The fallback below  --- /usr/bin/node e.g. on Ubuntu/Debian  is old.
+   ((executable-find "node") (executable-find "node")) 
    (t  nil))
   "Location of `node' executable.  Make sure the environment in which
 Emacs is launched finds the right installation of node.  M-x
@@ -252,8 +253,15 @@ Expected: ((acss) string)."
 
 (defun emacspeak-maths-handle-error (contents)
   "Display error message."
-  (message "%s" contents))
-
+  (let ((msg (car contents)))
+    (dtk-notify-say
+     (cond
+      ((string= "38" msg) "Top of tree")
+      ((string= "39" msg) "Last Node at this level")
+      ((string= "40" msg) "Bottom of tree")
+      ((string= "37" msg) "First node at this level")
+      (t msg)))))
+  
 (defun emacspeak-maths-handle-parse-error (contents)
   "Display parse-error message."
   (message "%s" contents))
@@ -264,6 +272,7 @@ Expected: ((acss) string)."
 
 ;;}}}
 ;;{{{ Map Handlers:
+
 (cl-loop
  for f in
  '(exp pause text error welcome parse-error)
@@ -305,7 +314,7 @@ left for next run."
               (while (not (eobp))
 ;;; Parse one complete chunk
                 (setq result (emacspeak-maths-read-output))
-;;; Todo: reverse later depending on how we use it.
+;;; Todo: perhaps accumulate instead of just using recent
                 (setf (emacspeak-maths-result emacspeak-maths) result)
                 (skip-syntax-forward " >")
                 (delete-region start (point))
@@ -360,6 +369,19 @@ left for next run."
   (when (called-interactively-p 'interactive)
     (message "Shutdown Maths server and client.")))
 
+
+(defun emacspeak-maths-flush-output ()
+  "Flush client buffer if things go out of sync."
+  (interactive)
+  (cl-declare (special emacspeak-maths))
+  (when
+      (process-live-p (emacspeak-maths-client-process emacspeak-maths))
+    (with-current-buffer
+        (process-buffer (emacspeak-maths-client-process emacspeak-maths))
+      (erase-buffer)))
+  (when (called-interactively-p 'interactive)
+    (message "Flushed client buffer.")))
+
 (defun emacspeak-maths-ensure-server ()
   "Start up Maths Server bridge if not already running."
   (cl-declare (special emacspeak-maths))
@@ -378,6 +400,7 @@ left for next run."
 
 ;;}}}
 ;;{{{ Navigators:
+
 (declare-function calc-kill "calc-yank" (flag no-delete))
 ;;; Guess expression from Calc:
 (defun emacspeak-maths-guess-calc ()
@@ -449,22 +472,27 @@ Set calc-language to tex to use this feature."
   "Examine current mode, text around point etc. to guess Math content to read."
   (cl-declare (special emacspeak-maths))
   (unless emacspeak-maths (emacspeak-maths-start))
-  (setf(emacspeak-maths-input emacspeak-maths)
-       (cond
-        ((eq major-mode 'calc-mode)
-         (emacspeak-maths-guess-calc))
-        ((eq major-mode 'sage-shell:sage-mode)
-         (emacspeak-maths-guess-sage))
-        ((and (memq major-mode '(tex-mode plain-tex-mode latex-mode ams-tex-mode))
-              (featurep 'texmathp))
-         (emacspeak-maths-guess-tex))
-        ((and
-          (eq major-mode 'eww-mode)
-          (not
-           (string-equal
-            (get-text-property (point) 'shr-alt)
-            "No image under point")))
-         (get-text-property (point) 'shr-alt)))))
+  (setf
+   (emacspeak-maths-input emacspeak-maths)
+   (cond
+    ((eq major-mode 'calc-mode)
+     (emacspeak-maths-guess-calc))
+    ((eq major-mode 'sage-shell:sage-mode)
+     (emacspeak-maths-guess-sage))
+    ((and (memq major-mode '(tex-mode plain-tex-mode latex-mode ams-tex-mode))
+          (featurep 'texmathp))
+     (emacspeak-maths-guess-tex))
+    ((and
+      (eq major-mode 'eww-mode)
+      (not
+       (string-equal
+        (get-text-property (point) 'shr-alt)
+        "No image under point")))
+     (get-text-property (point) 'shr-alt))
+    (t
+     (read-from-minibuffer
+      "Maths: " nil nil nil nil
+      (when mark-active (buffer-substring (region-beginning)(region-end))))))))
 
 ;;;###autoload
 (defun emacspeak-maths-enter-guess ()
@@ -472,35 +500,21 @@ Set calc-language to tex to use this feature."
 Guess is based on context."
   (interactive)
   (cl-declare (special emacspeak-maths))
+  (emacspeak-maths-ensure-server)        
   (emacspeak-maths-guess-input)         ;guess based on context
-  (emacspeak-maths-ensure-server)
   (process-send-string
    (emacspeak-maths-client-process emacspeak-maths)
-   (format "enter: %s"
-           (or
-            (emacspeak-maths-input emacspeak-maths)
-            (read-from-minibuffer
-             "Maths: "
-             nil nil nil nil
-             (when mark-active
-               (buffer-substring (region-beginning)(region-end))))))))
+   (format "enter: %s" (emacspeak-maths-input emacspeak-maths))))
 
 ;;;###autoload
 (defun emacspeak-maths-enter (latex)
   "Send a LaTeX expression to Maths server.
-Tries to guess default based on context.
-Uses guessed default if user enters an empty string."
-  (interactive
-   (list
-    (progn
-      (emacspeak-maths-guess-input)     ;guess based on context
-      (read-from-minibuffer "LaTeX: "
-                            nil nil nil nil
-                            (emacspeak-maths-input emacspeak-maths)))))
+Tries to guess default based on context. "
+  (interactive (list (emacspeak-maths-guess-input)))
   (cl-declare (special emacspeak-maths))
   (emacspeak-maths-ensure-server)
-  (when (string= "" latex)
-    (setq latex (emacspeak-maths-input emacspeak-maths)))
+  (when (or (null latex) (string= "" latex))
+    (setq latex (read-from-minibuffer "Enter expression:")))
   (setf (emacspeak-maths-input emacspeak-maths) latex)
   (process-send-string
    (emacspeak-maths-client-process emacspeak-maths)
@@ -512,7 +526,7 @@ Uses guessed default if user enters an empty string."
  do
  (eval
   `(defun ,(intern (format "emacspeak-maths-%s" move)) ()
-     ,(format "Move %s in current Math expression." move)
+     ,(format "Move %s in current Math expression. (auto-generated)" move)
      (interactive)
      (cl-declare (special emacspeak-maths))
      (process-send-string

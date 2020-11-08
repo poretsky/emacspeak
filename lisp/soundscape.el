@@ -314,6 +314,7 @@ See  \\{soundscape-default-theme} for details."
     ("BlopEchoes"  (elfeed-search-mode))
     ("Bonfire" (calendar-mode diary-mode))
     ("BuddhaLoop" (comint-mode))
+    ("BuddhaLoop" (chess-display-mode))
     ("RandomLoop" nil)
     ("LoopStew" (lisp-interaction-mode))
     ("Cavern" (prog-mode))
@@ -335,6 +336,7 @@ See  \\{soundscape-default-theme} for details."
     ("Still" (text-mode view-mode))
     ("BuddhaLoop" (org-mode))
     ("SurfWaves"  (eww-mode))
+    
     ("TonkSpace" (tabulated-list-mode))
     ("WaterFlow"  (dired-mode))
     )
@@ -369,7 +371,7 @@ Optional interactive prefix arg `prompt-mode' prompts for the mode."
 ;;{{{ Soundscape Remote Control
 
 (defvar soundscape--remote
-  (make-temp-name "/tmp/soundscape")
+  (make-temp-name (expand-file-name  "soundscape" temporary-file-directory))
   "Name of Unix Domain socket used to control Soundscape.")
 
 (defun soundscape-sentinel (proc _state)

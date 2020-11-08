@@ -166,6 +166,7 @@ that implements the speech-enabling extensions for `package' (a string)."
 (emacspeak-do-package-setup "cc-mode" 'emacspeak-c)
 (emacspeak-do-package-setup "semantic" 'emacspeak-cedet)
 (emacspeak-do-package-setup "checkdoc" 'emacspeak-checkdoc)
+(emacspeak-do-package-setup "chess" 'emacspeak-chess)
 (emacspeak-do-package-setup "cider" 'emacspeak-cider)
 (emacspeak-do-package-setup "clojure" 'emacspeak-clojure)
 (emacspeak-do-package-setup "cmuscheme" 'emacspeak-cmuscheme)
@@ -176,6 +177,7 @@ that implements the speech-enabling extensions for `package' (a string)."
 (emacspeak-do-package-setup "dumb-jump" 'emacspeak-dumb-jump)
 (emacspeak-do-package-setup "ecb" 'emacspeak-ecb)
 (emacspeak-do-package-setup "ein" 'emacspeak-ein)
+(emacspeak-do-package-setup "ein-notebook" 'emacspeak-ein)
 (emacspeak-do-package-setup "cus-edit" 'emacspeak-custom)
 (emacspeak-do-package-setup "deadgrep" 'emacspeak-deadgrep)
 (emacspeak-do-package-setup "debugger" 'emacspeak-debugger)
@@ -323,7 +325,7 @@ that implements the speech-enabling extensions for `package' (a string)."
 (emacspeak-do-package-setup "typo" 'emacspeak-typo)
 (emacspeak-do-package-setup "vdiff" 'emacspeak-vdiff)
 (emacspeak-do-package-setup "view" 'emacspeak-view)
-(emacspeak-do-package-setup "view-pr" 'emacspeak-view-process)
+(emacspeak-do-package-setup "vuiet" 'emacspeak-vuiet)
 (emacspeak-do-package-setup "vm" 'emacspeak-vm)
 (emacspeak-do-package-setup "wdired" 'emacspeak-wdired)
 (emacspeak-do-package-setup "cus-edit" 'emacspeak-custom)
@@ -432,10 +434,11 @@ caps."
 ;;{{{ Emacspeak:
 
 (defcustom emacspeak-play-emacspeak-startup-icon
-  (executable-find emacspeak-m-player-program)
+  t
   "If set to T, emacspeak plays its icon as it launches."
   :type 'boolean
   :group 'emacspeak)
+
 (defsubst emacspeak-play-startup-icon ()
   "Play startup icon if requested."
   (cl-declare (special emacspeak-play-emacspeak-startup-icon))

@@ -1749,10 +1749,10 @@ Ubuntu and Debian this is group `tty'."
   :type 'string
   :group 'emacspeak-wizards)
 
-(define-derived-mode emacspeak-wizards-vc-viewer-mode fundamental-mode
+(define-derived-mode emacspeak-wizards-vc-view-mode special-mode
   "VC Viewer  Interaction"
   "Major mode for interactively viewing virtual console contents.\n\n
-\\{emacspeak-wizards-vc-viewer-mode-map}")
+\\{emacspeak-wizards-vc-view-mode-map}")
 
 (defvar emacspeak-wizards-vc-console nil
   "Buffer local value specifying console we are viewing.")
@@ -1783,7 +1783,7 @@ Ubuntu and Debian this is group `tty'."
        (format "vc-%s.dump" console)
        temporary-file-directory))
      (set-buffer-modified-p nil)
-     (emacspeak-wizards-vc-viewer-mode)
+     (emacspeak-wizards-vc-view-mode)
      (setq emacspeak-wizards-vc-console console)
      (goto-char (point-min))
      (when (called-interactively-p 'interactive) (emacspeak-speak-line)))))
@@ -1794,7 +1794,7 @@ Ubuntu and Debian this is group `tty'."
   (interactive)
   (cl-declare (special emacspeak-wizards-vc-console))
   (unless (eq major-mode
-              'emacspeak-wizards-vc-viewer-mode)
+              'emacspeak-wizards-vc-view-mode)
     (error "Not viewing a virtual console."))
   (let ((console emacspeak-wizards-vc-console)
         (command
@@ -1816,7 +1816,7 @@ Ubuntu and Debian this is group `tty'."
       temporary-file-directory))
     (set-buffer-modified-p nil)
     (goto-char orig)
-    (emacspeak-wizards-vc-viewer-mode)
+    (emacspeak-wizards-vc-view-mode)
     (setq emacspeak-wizards-vc-console console)
     (when (called-interactively-p 'interactive)
       (emacspeak-speak-line))))
@@ -1830,9 +1830,9 @@ Ubuntu and Debian this is group `tty'."
   (emacspeak-speak-line)
   (emacspeak-auditory-icon 'open-object))
 
-(cl-declaim (special emacspeak-wizards-vc-viewer-mode-map))
+(cl-declaim (special emacspeak-wizards-vc-view-mode-map))
 
-(define-key emacspeak-wizards-vc-viewer-mode-map
+(define-key emacspeak-wizards-vc-view-mode-map
   "\C-l" 'emacspeak-wizards-vc-viewer-refresh)
 
 ;;}}}
@@ -2903,7 +2903,7 @@ mapped to voices."
            (process-live-p (get-buffer-process buffer)))))))
   (rename-buffer "*Media Player Buffers*" 'unique)
   (emacspeak-auditory-icon 'open-object)
-  (emacspeak-speak-mode-line))
+  (emacspeak-speak-line))
 
 ;;;###autoload
 (defun emacspeak-wizards-eww-buffer-list ()
@@ -3375,8 +3375,9 @@ Caches results locally in `emacspeak-wizards-iex-portfolio-file'."
            (split-string emacspeak-wizards-personal-portfolio) ","))
          (url (emacspeak-wizards-iex-uri  "stock/market/batch" symbols)))
     (shell-command
-     (format "%s -s -D /tmp/iex-headers -o %s '%s'"
-             g-curl-program emacspeak-wizards-iex-portfolio-file url))
+     (format "%s -s -D %s/iex-headers -o %s '%s'"
+             g-curl-program temporary-file-directory
+             emacspeak-wizards-iex-portfolio-file url))
     (setq emacspeak-wizards-iex-cache (ems--json-read-file emacspeak-wizards-iex-portfolio-file))))
 
 (defun emacspeak-wizards-iex-show-metadata ()
@@ -4066,7 +4067,7 @@ q: Quit color wheel, after copying current hex value to kill-ring."
 (defun emacspeak-wizards-customize-saved (pattern)
   "Customize saved options matching `pattern'.  This command enables
 updating custom settings for a specific package or group of packages."
-  (interactive "sFilter Regex: ")
+  (interactive "sFilter Pattrern: ")
   (let ((found nil))
     (mapatoms (lambda (symbol)
                 (and (string-match pattern (symbol-name symbol))
@@ -4123,6 +4124,7 @@ Location is a Lat/Lng pair retrieved from Google Maps API."
   (let* ((buffer (get-buffer-create "*NOAA Weather*"))
          (inhibit-read-only t)
          (date nil)
+         (fmt "%A  %H:%M %h %d")
          (start (point-min))
          (address
           (if (and ask (= 16 (car ask)))
@@ -4135,9 +4137,12 @@ Location is a Lat/Lng pair retrieved from Google Maps API."
       (erase-buffer)
       (org-mode)
       (setq header-line-format (format "NOAA Weather For %s" address))
-      (insert (format "* Weather Forecast For %s\n\n" address))
 ;;; produce Daily forecast
       (let-alist (g-json-from-url (ems--noaa-url geo))
+        (insert
+         (format "* Forecast At %s For %s\n\n"
+                 (ems--noaa-time fmt .properties.updated)
+                 address))
         (cl-loop
          for p across .properties.periods do
          (let-alist p
@@ -4146,14 +4151,12 @@ Location is a Lat/Lng pair retrieved from Google Maps API."
              "** Forecast For %s: %s\n\n%s\n\n"
              .name .shortForecast .detailedForecast)))
          (fill-region start (point)))
-        (insert
-         (format "\nUpdated at %s\n"
-                 (ems--noaa-time "%c" .properties.updated))))
+        )
       (let-alist ;;; Now produce hourly forecast
           (g-json-from-url (concat (ems--noaa-url geo) "/hourly"))
         (insert
          (format "\n* Hourly Forecast:Updated At %s \n"
-                 (ems--noaa-time "%c" .properties.updated)))
+                 (ems--noaa-time fmt .properties.updated)))
         (cl-loop
          for p across .properties.periods do
          (let-alist p
@@ -4351,7 +4354,21 @@ external package."
            emacspeak-wizards-media-pipe midi-file)))
 
 ;;}}}
-   
+;;{{{FreeGeoIP:
+
+(defun emacspeak-wizards-free-geo-ip (&optional reverse-geocode)
+  "Return list consisting of city and region_name.
+Optional interactive prefix arg reverse-geocodes using Google Maps."
+  (interactive "P")
+  (let-alist
+      (g-json-from-url "https://freegeoip.app/json")
+    (if reverse-geocode
+        (dtk-speak
+         (gmaps-reverse-geocode
+          `((lat . ,.latitude) (lng . ,.longitude ))))
+      (dtk-speak-list (list  .city .region_name)))))
+
+;;}}}
 (provide 'emacspeak-wizards)
 ;;{{{ end of file
 

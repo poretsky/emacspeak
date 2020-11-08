@@ -50,25 +50,31 @@
 
 ;;; Note that on newer versions of Emacs, loading this module will
 ;;; attempt to automatically install package hydra if it is not found.
+;;; @subsection Using Hydras
+;;; See the high-level documentation for the Hydra package by executing
+;;; @kbd {C-h C-j } hydra @kbd{RET}.
+;;; The documentation in this section uses the same terminology as
+;;; shown in the hydra package documentation.
 
 ;;; @subsection Implemented Muggles
 
 ;;;@itemize
-;;; @item Brightness: <print> Control display brightness using xbacklight.
-;;; @item View-Mode: <C-c v> Temporarily behave like view-mode.
-;;; @item Navigate: <s-n> Navigate with ease.
-;;;@item  org-mode structure nav: <C-c C-SPC> Structure navigation  for org-mode.
-;;;@item  org-mode tables: <C-c t> Table UI for org-mode tables.
-;;;@item m-player: <s-m> Emacspeak-M-Player Commands
-;;;@item m-player: <s-;> Emacspeak-M-Player muggle
-;;;@item pianobar: <s-'> Emacspeak-M-pianobar Commands
+;;; @item Brightness: @kbd{print} Control display brightness using xbacklight.
+;;; @item View-Mode: @kbd{C-c v} Temporarily behave like view-mode.
+;;; @item Navigate: @kbd{s-n} Navigate with ease.
+;;;@item  org-mode structure nav: @kbd{C-c C-SPC} Structure navigation  for org-mode.
+;;;@item  org-mode tables: @kbd{C-c t} Table UI for org-mode tables.
+;;;@item m-player: @kbd{s-m} Emacspeak-M-Player Commands
+;;;@item m-player: @kbd{s-;} Emacspeak-M-Player muggle
+;;;@item pianobar: @kbd{s-'} Emacspeak-M-pianobar Commands
 ;;; @item hideshow: C-c h Provide HideShow bindings.
 ;;; @item origami: C-c / Origami   bindings.
-;;; @item toggle-option:  <C-c o> Single binding for toggling options.
+;;; @item toggle-option:  @kbd{C-c o} Single binding for toggling options.
 ;;; @item outliner: <C-c .> Bindings from outline-minor-mode.
 ;;;@item Info-Summary: <?> in Info Info Summary Muggle
-;;; @item Repeatable-Yank: <C-y> Smart yank
-;;; @item SmartParens: <C-c ,> Smart Parens 
+;;; @item Repeatable-Yank: @kbd{C-y} Smart yank
+;;; @item SmartParens: @kbd{C-c ,} Smart Parens
+;;; @item Vuiet Explorer: @kbd{C-; v} Vuiet Music Explorer and Player
 ;;;@end itemize
 
 ;;; Emacspeak automatically speaks Hydra hints when displayed.
@@ -93,6 +99,7 @@
 (require 'emacspeak-maths nil 'no-error)
 (require 'org)
 (require 'origami "origami" 'no-error)
+(require 'vuiet "vuiet" 'no-error)
 (require 'smartparens "smartparens" 'no-error)
 (require 'browse-kill-ring "browse-kill-ring" 'no-error)
 (require 'hydra "hydra" 'no-error)
@@ -160,14 +167,17 @@ Argument `k-map' is a symbol  that names a keymap."
 (global-set-key
  (kbd "<print>")
  (defhydra emacspeak-muggles-brightness
-   (:body-pre (emacspeak-hydra-body-pre "Brightness")
-              :timeout 0.5
-              :pre emacspeak-hydra-pre
-              :post emacspeak-hydra-post)
+   (:body-pre
+    (progn
+      (when hydra-is-helpful (emacspeak-hydra-toggle-talkative))
+      (emacspeak-hydra-body-pre "brightness"))
+    :hint nil
+    :pre emacspeak-hydra-pre :post emacspeak-hydra-post)
    "Brightness "
    ("?" (emacspeak-hydra-self-help "emacspeak-muggles-brightness") "Help")
    ("s" xbacklight-set "set")
    ("g" xbacklight-get "Get")
+   ("t" emacspeak-hydra-toggle-talkative)
    ("<print>" xbacklight-black "black")
    ("0" xbacklight-black "black")
    ("1" xbacklight-white  "white")
@@ -289,7 +299,6 @@ Argument `k-map' is a symbol  that names a keymap."
  (kbd "s-;")
  (defhydra emacspeak-muggles-m-player
    (:body-pre (emacspeak-hydra-body-pre "Media Player")
-              :timeout 0.5
               :pre emacspeak-hydra-pre :post emacspeak-hydra-post)
    (";" emacspeak-m-player)
    ("+" emacspeak-m-player-volume-up)
@@ -667,7 +676,7 @@ Info-mode:
    ("SPC" emacspeak-maths-enter "enter")
    ("a" emacspeak-maths-speak-alt "Alt Text")
    ("d" emacspeak-maths-depth "Depth")
-                                        ;("r" emacspeak-maths-root "Root")
+   ("r" emacspeak-maths-root "Root")
    ("<up>" emacspeak-maths-up "Up")
    ("<down>" emacspeak-maths-down"down")
    ("<left>" emacspeak-maths-left "left")
@@ -757,6 +766,39 @@ Also generates global keybindings if any."
       (insert "\n(provide \'emacspeak-muggles-autoloads)\n")
       (save-buffer))
     (message "Generated autoloads for muggles.")))
+
+;;}}}
+;;{{{Vuiet:
+(declare-function emacspeak-vuiet-track-info "emacspeak-vuiet" nil)
+
+(global-set-key
+ (kbd "C-; v")
+ (defhydra emacspeak-muggles-vuiet
+   (:body-pre
+    (progn
+      (when hydra-is-helpful (emacspeak-hydra-toggle-talkative))
+      (emacspeak-hydra-body-pre "Vuiet  Explorer"))
+    :pre emacspeak-hydra-pre :post emacspeak-hydra-post)
+   (";" vuiet-playing-track-lyrics)
+   ("=" vuiet-player-volume-inc)
+   ("-" vuiet-player-volume-dec)
+   ("A" vuiet-play-artist-loved-tracks)
+   ("'" vuiet-play-loved-tracks)
+   ("," vuiet-seek-backward)
+   ("." vuiet-seek-forward)
+   ("C-s" vuiet-artist-info-search)
+   ("L" vuiet-playing-artist-lastfm-page)
+   ("SPC" vuiet-play-pause)
+   ("a" vuiet-artist-info)
+   ("i" emacspeak-vuiet-track-info)
+   ("l" vuiet-love-track)
+   ("n" vuiet-next)
+   ("p" vuiet-play-artist)
+   ("r" vuiet-replay)
+   ("s" vuiet-stop)
+   ("t" vuiet-play-track)
+   ("u" vuiet-unlove-track)
+   ))
 
 ;;}}}
 (provide 'emacspeak-muggles)

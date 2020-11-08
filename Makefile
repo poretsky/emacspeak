@@ -35,7 +35,7 @@
 
 # }}}
 # {{{ Configuration
-
+.POSIX:
 MAKE=make
 MAKEFLAGS=--no-print-directory
 prefix = /usr
@@ -101,7 +101,7 @@ q:
 	@cd	 tvr && make  --no-print-directory
 
 qq:
-	make -s -j q 2>&1 |grep -v Loading 
+	make -s q 2>&1 |grep -v Loading 
 
 # }}}
 # {{{  user level target-- clean

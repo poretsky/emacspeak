@@ -528,10 +528,10 @@ Argument MODE  specifies the current pronunciation mode."
       (setq personality (dtk-get-style (match-beginning 0)))
       (setq replacement
             (if (eq 'all mode)
-                (format " aw %s %s"
-                        (/ (- (match-end 0) (match-beginning 0)) len)
-                        (if (string-equal " " pattern)
-                            " space " string))
+                (format
+                 " aw %s %s"
+                 (/ (- (match-end 0) (match-beginning 0)) len)
+                 (if (string-equal " " string) " space " string))
               ""))
       (replace-match replacement nil t)
       (setq start (- (point) (length replacement)))
@@ -753,7 +753,7 @@ Arguments START and END specify region to speak."
           (dtk-interp-silence (get-text-property start 'pause) nil)))))))
 
 ;;;Force the speech.
-(defalias 'dtk-force 'dtk-interp-speak)
+(cl--defalias 'dtk-force 'dtk-interp-speak)
 
 ;;;Write out the string to the tts via TCL.
 ;;; No quoting is done,
@@ -805,10 +805,8 @@ will say ``aw fifteen dot'' when speaking the string
           (delete
            (read-from-minibuffer "Specify repeating pattern to delete: ")
            dtk-cleanup-repeats)))
-   (t (setq dtk-cleanup-repeats
-            (cons
-             (read-from-minibuffer "Specify repeating pattern: ")
-             dtk-cleanup-repeats)))))
+   (t 
+    (cl-pushnew (read-from-minibuffer "Specify repeating pattern: ") dtk-cleanup-repeats))))
 
 ;;}}}
 ;;{{{  Controlling how we produce  output
@@ -1517,7 +1515,7 @@ available TTS servers.")
 ;;{{{  interactively selecting the server:
 
 ;;; will be reset on a per TTS engine basis.
-(defalias 'tts-get-voice-command 'dectalk-get-voice-command)
+(fset 'tts-get-voice-command 'dectalk-get-voice-command)
 
 (defun tts-voice-reset-code ()
   "Return voice reset code."
@@ -1857,10 +1855,10 @@ only speak upto the first ctrl-m."
         (dtk-interp-sync)
         (insert text)
         (dtk--delete-invisible-text)
+        (dtk-handle-repeating-patterns mode)
         (when pronunciation-table
           (tts-apply-pronunciations pronunciation-table))
         (dtk-unicode-replace-chars mode)
-        (dtk-handle-repeating-patterns mode)
         (dtk-quote mode)
         (goto-char (point-min))
         (skip-syntax-forward " ")       ;skip leading whitespace
@@ -1939,12 +1937,13 @@ inserted.  Otherwise it is a number that specifies grouping"
            (setq count 1)
            (pop group)
            (if p
-               (insert (propertize "," 'personality p))
+               (insert (propertize ", " 'personality p))
              (insert ", ")))
           (t (cl-incf count)
              (insert " ")))))
       (setq contents (buffer-string)))
-    (tts-with-punctuations 'some (dtk-speak contents))))
+    (tts-with-punctuations 'some (dtk-speak contents))
+    t))
 
 (defun dtk-letter (letter)
   "Speak a LETTER."

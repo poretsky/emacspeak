@@ -190,7 +190,8 @@ With interactive prefix arg `copy-as-kill', copy it to kill ring as well."
              (ems-with-messages-silenced ad-do-it))))
 
 ;;}}}
-;;{{{ additional interactive comand
+;;{{{ additional interactive commands:
+
 (defvar emacspeak-twittering-protocol-identifier
   (regexp-opt '("http://" "https://"))
   "Match http or https")
@@ -209,8 +210,44 @@ With interactive prefix arg `copy-as-kill', copy it to kill ring as well."
   (cl-declaim (special twittering-mode-map))
   (define-key twittering-mode-map "." 'emacspeak-twittering-jump-to-following-url)
   (define-key twittering-mode-map "," 'emacspeak-twittering-speak-this-tweet)
-  (define-key twittering-mode-map "?" 'twittering-search)
-  )
+  (define-key twittering-mode-map "?" 'twittering-search))
+
+;;}}}
+;;{{{Download: twarc
+(defun emacspeak-twittering-twarc (&optional whose)
+  "Download data using credentials  for signed-in user.
+Interactive prefix arg `whose' prompts for a username whose
+timeline we download. "
+  (interactive "P")
+  (cl-declare (special 
+               twittering-oauth-consumer-key 
+               twittering-oauth-consumer-secret 
+               twittering-oauth-access-token-alist))
+  (cl-assert  (executable-find "twarc") t "twarc not installed.")
+  (let  ((whose
+          (cond
+           (whose (read-from-minibuffer "Whose data are we
+downloading:"))
+           (t 
+            (cdr  (assoc "screen_name" twittering-oauth-access-token-alist))))))
+    (shell-command
+     (format
+      "%s \
+--consumer_key %s \
+--consumer_secret %s \
+--access_token %s \
+--access_token_secret %s \
+ timeline %s > %s.json &"
+      (executable-find "twarc")
+      twittering-oauth-consumer-key
+      twittering-oauth-consumer-secret
+      (cdr  (assoc "oauth_token" twittering-oauth-access-token-alist))
+      (cdr  (assoc "oauth_token_secret"
+                   twittering-oauth-access-token-alist))
+      whose whose))
+    (message "downloading data in the background.")))
+
+
 ;;}}}
 (provide 'emacspeak-twittering)
 ;;{{{ end of file
