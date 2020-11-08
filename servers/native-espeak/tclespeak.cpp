@@ -38,16 +38,12 @@
 //<includes
 
 #include <assert.h>
-#include <espeak/speak_lib.h>
+#include <espeak-ng/speak_lib.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/time.h>
 #include <tcl.h>
 #include <string>
-#ifndef ESPEAK_API_REVISION
-#define ESPEAK_API_REVISION 1
-#endif
-
 #include <set>
 #include <string>
 #include <vector>
@@ -91,20 +87,15 @@ void TclEspeakFree(ClientData handle) { espeak_Terminate(); }
 //<Tclespeak_init
 
 int Tclespeak_Init(Tcl_Interp *interp) {
-  int rc;
   void *handle = NULL;
-
   //<setup package, create tts handle
 
   if (Tcl_PkgProvide(interp, PACKAGENAME, PACKAGEVERSION) != TCL_OK) {
     Tcl_AppendResult(interp, "Error loading ", PACKAGENAME, NULL);
     return TCL_ERROR;
   }
-#if ESPEAK_API_REVISION == 1
-  espeak_Initialize(AUDIO_OUTPUT_PLAYBACK, 512, NULL);
-#else
-  espeak_Initialize(AUDIO_OUTPUT_PLAYBACK, 512, NULL, 0);
-#endif
+espeak_Initialize(AUDIO_OUTPUT_PLAYBACK, 512, NULL, 0);
+
 
   //>
   //<register tcl commands
@@ -133,14 +124,6 @@ int Tclespeak_Init(Tcl_Interp *interp) {
   //>
 
   initLanguage(interp);
-
-  //<set up index processing
-
-  rc = Tcl_Eval(interp,
-                "proc index x {global tts; \
-set tts(last_index) $x}");
-
-  //>
   return TCL_OK;
 }
 
@@ -237,40 +220,8 @@ static bool closeTags(string input, string &output) {
 
 int Say(ClientData handle, Tcl_Interp *interp, int objc,
         Tcl_Obj *CONST objv[]) {
-  int i, rc, index, length;
+  int i;
   for (i = 1; i < objc; i++) {
-    // if string begins with -, assume it is an index value
-    char *txt = Tcl_GetStringFromObj(objv[i], &length);
-    if (Tcl_StringMatch(txt, "-reset")) {
-      // TBD
-      // 	  espeakReset (handle);
-      // 	  if ((espeakSetParam (handle, espeakInputType, 1) == -1)
-      // 	      || (espeakSetParam (handle, espeakSynthMode, 1) == -1)
-      // 	      || (espeakSetParam (handle, espeakSampleRate, 1) == -1))
-      // 	    {
-      // 	      Tcl_AppendResult (interp, "Could not re-initialized tts",
-      // NULL);
-      // 	      return TCL_ERROR;
-      // 	    }
-    } else if (Tcl_StringMatch(txt, "-index")) {
-      i++;
-      if (i == objc) {
-        Tcl_AppendResult(interp, "missing index parameter", TCL_STATIC);
-        return TCL_ERROR;
-      }
-      rc = Tcl_GetIntFromObj(interp, objv[i], &index);
-      if (rc != TCL_OK) return rc;
-      // TBD
-      // 	  rc = espeakInsertIndex (handle, index);
-      // 	  if (!rc)
-      // 	    {
-      // 	      Tcl_AppendResult (interp, "Could not insert index",
-      // TCL_STATIC);
-      // 	      return TCL_ERROR;
-      // 	    }
-    } else {
-      // TBD: need a forthcoming eSpeak service (a deffered espeak_Synth).
-
       char *a_text = (char *)Tcl_GetStringFromObj(objv[i], NULL);
       if (a_text) {
         string a_begin_ssml = a_text;
@@ -282,19 +233,7 @@ int Say(ClientData handle, Tcl_Interp *interp, int objc,
           espeak_Synth(a_ssml.c_str(), a_ssml.length() + 1, 0, POS_CHARACTER, 0,
                        espeakCHARS_UTF8 | espeakSSML, &unique_identifier, NULL);
         }
-        // TBD:: EE_BUFFER_FULL?
       }
-    }
-  }
-  // TBD
-  if (Tcl_StringMatch(Tcl_GetStringFromObj(objv[0], NULL), "synth")) {
-    // TBD: need a forthcoming eSpeak service.
-    //       rc = espeakSynthesize (handle);
-    //       if (!rc)
-    // 	{
-    // 	  Tcl_SetResult (interp, "Internal tts synth error", TCL_STATIC);
-    // 	  return TCL_ERROR;
-    // 	}
   }
   return TCL_OK;
 }

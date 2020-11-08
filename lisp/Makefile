@@ -90,6 +90,7 @@ emacspeak-table.elc \
 emacspeak-table-ui.elc \
 emacspeak-tabulate.elc \
 amixer.elc \
+emacspeak-abc-mode.elc \
 emacspeak-add-log.elc \
 emacspeak-amark.elc \
 emacspeak-analog.elc \
@@ -121,11 +122,14 @@ emacspeak-company.elc \
 emacspeak-cperl.elc \
 emacspeak-custom.elc \
 emacspeak-dbus.elc \
+emacspeak-deadgrep.elc \
+emacspeak-debugger.elc \
 emacspeak-dictionary.elc \
 emacspeak-desktop.elc \
 emacspeak-diff-mode.elc \
 emacspeak-dired.elc \
 emacspeak-dismal.elc \
+emacspeak-dumb-jump.elc \
 emacspeak-epub.elc \
 emacspeak-ecb.elc \
 emacspeak-ein.elc \
@@ -206,6 +210,7 @@ emacspeak-mspools.elc \
 emacspeak-navi-mode.elc \
 emacspeak-net-utils.elc \
 emacspeak-newsticker.elc \
+emacspeak-nov.elc \
 emacspeak-ocr.elc \
 emacspeak-org.elc \
 emacspeak-origami.elc \
@@ -253,6 +258,7 @@ emacspeak-sql.elc \
 emacspeak-supercite.elc \
 emacspeak-sudoku.elc \
 emacspeak-etable.elc \
+emacspeak-tab-bar.elc \
 emacspeak-tapestry.elc \
 emacspeak-tar.elc \
 emacspeak-tcl.elc \
@@ -300,7 +306,7 @@ OBJECTS = $(TTS_OBJECTS) $(SPEAK_OBJECTS) $(CORE_OBJECTS)  $(ADDON_OBJECTS)
 # {{{  User level targets all
 
 all: $(OBJECTS)
-	cd g-client; $(MAKE)
+	cd g-client; $(MAKE) --no-print-directory
 
 muggles: emacspeak-muggles.elc emacspeak-muggles-autoloads.el
 
@@ -360,6 +366,7 @@ cd-tool.elc: cd-tool.el
 nm.elc: nm.el
 amixer.elc: amixer.el
 emacspeak-actions.elc: emacspeak-actions.el
+emacspeak-abc-mode.elc: emacspeak-abc-mode.el dtk-speak.elc 
 emacspeak-add-log.elc: emacspeak-add-log.el dtk-speak.elc voice-setup.elc
 emacspeak-advice.elc: emacspeak-advice.el dtk-speak.elc voice-setup.elc
 emacspeak-analog.elc: emacspeak-analog.el dtk-speak.elc voice-setup.elc
@@ -392,7 +399,9 @@ emacspeak-cperl.elc: emacspeak-cperl.el dtk-speak.elc voice-setup.elc
 emacspeak-custom.elc: emacspeak-custom.el dtk-speak.elc voice-setup.elc
 emacspeak-cyclebuffer.elc: emacspeak-cyclebuffer.el dtk-speak.elc
 emacspeak-epub.elc: emacspeak-epub.el dtk-speak.elc voice-setup.elc
-emacspeak-dbus.elc: emacspeak-dbus.el dtk-speak.elc nm.elc 
+emacspeak-dbus.elc: emacspeak-dbus.el dtk-speak.elc nm.elc
+emacspeak-deadgrep.elc: emacspeak-deadgrep.el dtk-speak.elc
+emacspeak-debugger.elc: emacspeak-debugger.el dtk-speak.elc
 emacspeak-desktop.elc: emacspeak-desktop.el dtk-speak.elc voice-setup.elc
 emacspeak-dictionary.elc: emacspeak-dictionary.el dtk-speak.elc voice-setup.elc
 emacspeak-diff-mode.elc: emacspeak-diff-mode.el dtk-speak.elc voice-setup.elc
@@ -482,7 +491,8 @@ emacspeak-mspools.elc: emacspeak-mspools.el dtk-speak.elc voice-setup.elc
 emacspeak-muggles.elc: emacspeak-muggles.el dtk-speak.elc
 emacspeak-navi-mode.elc: emacspeak-navi-mode.el dtk-speak.elc voice-setup.elc
 emacspeak-net-utils.elc: emacspeak-net-utils.el dtk-speak.elc voice-setup.elc
-emacspeak-newsticker.elc: emacspeak-newsticker.el dtk-speak.elc voice-setup.elc
+emacspeak-newsticker.elc: emacspeak-newsticker.el dtk-speak.elc
+emacspeak-nov.elc: emacspeak-nov.el dtk-speak.elc voice-setup.elc
 emacspeak-npr.elc: emacspeak-npr.el dtk-speak.elc voice-setup.elc
 emacspeak-nxml.elc: emacspeak-nxml.el dtk-speak.elc voice-setup.elc
 emacspeak-org.elc: emacspeak-org.el dtk-speak.elc voice-setup.elc
@@ -542,6 +552,7 @@ emacspeak-table.elc
 emacspeak-table.elc: emacspeak-table.el
 emacspeak-tabulate.elc: emacspeak-tabulate.el dtk-speak.elc voice-setup.elc
 emacspeak-etable.elc: emacspeak-etable.el dtk-speak.elc
+emacspeak-tab-bar.elc: emacspeak-tab-bar.el dtk-speak.elc voice-setup.elc
 emacspeak-tapestry.elc: emacspeak-tapestry.el dtk-speak.elc voice-setup.elc
 emacspeak-tar.elc: emacspeak-tar.el dtk-speak.elc voice-setup.elc
 emacspeak-tcl.elc: emacspeak-tcl.el dtk-speak.elc voice-setup.elc

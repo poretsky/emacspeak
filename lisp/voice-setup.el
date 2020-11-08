@@ -458,6 +458,8 @@ command \\[customize-variable] on <personality>-settings. "
    (font-lock-preprocessor-face voice-monotone-medium)
    (shadow voice-monotone-medium)
    (file-name-shadow voice-monotone-medium)
+   (fringe voice-monotone-medium)
+   (secondary-selection voice-lighten-medium)
    (font-lock-string-face voice-lighten-extra)
    (font-lock-type-face voice-smoothen)
    (font-lock-variable-name-face voice-bolden-extra)
@@ -646,7 +648,6 @@ these are available via minibuffer history."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

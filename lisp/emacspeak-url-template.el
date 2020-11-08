@@ -234,72 +234,6 @@ dont-url-encode if true then url arguments are not url-encoded "
       url)))
 
 ;;}}}
-;;{{{ BBC iPlayer
-;;; converter is here:
-;;; http://www.iplayerconverter.co.uk/convert.aspx
-;;;Conversion: http://www.iplayerconverter.co.uk/convert.aspx?pid=%s
-;;; This used to work, but now gives a 403:
-;;; "http://www.iplayerconverter.co.uk/pid/%s/r/stream.aspx"
-;;; So now we need to open a Web page and click a link (sad)
-
-(defvar emacspeak-url-template-iplayer-converter
-  "http://www.iplayerconverter.co.uk/convert.aspx?pid=%s"
-  "Template for generating persistent realplayer URL for iplayer content.")
-
-(defun emacspeak-url-template-iplayer-player (cid)
-  "Take a cid particle, and opens player page."
-  (cl-declare (special emacspeak-url-template-iplayer-converter))
-  (add-hook
-   'emacspeak-web-post-process-hook
-   #'(lambda nil
-       (cond
-        ((search-forward "mms:" nil t)
-         (emacspeak-webutils-play-media-at-point)
-         (bury-buffer))
-        (t (message "Could not find media link."))))
-   'at-end)
-  (browse-url
-   (format emacspeak-url-template-iplayer-converter (substring cid 4))))
-
-;;; See http://www.bbc.co.uk/programmes/developers
-;;; for how to obtain xml schedules
-(emacspeak-url-template-define
- "BBC iPlayer"
- "http://www.bbc.co.uk/%s/programmes/schedules/%s%s.xml"
- (list
-  "Station: "
-  #'(lambda ()
-      (let ((outlet (read-from-minibuffer "Outlet: ")))
-        (cond
-         ((= 0 (length outlet)) outlet)
-         (t (concat outlet "/")))))
-  'emacspeak-speak-read-date-year/month/date)
- #'(lambda ()
-     (cl-declare (special emacspeak-we-url-executor))
-     (setq emacspeak-we-url-executor
-           'emacspeak-url-template-iplayer-player))
- "BBC iPlayer"
- #'(lambda (url)
-     (emacspeak-webutils-autospeak)
-     (emacspeak-xslt-view-xml
-      (emacspeak-xslt-get "bbc-iplayer.xsl") url))
- 'dont-url-encode)
-
-(emacspeak-url-template-define
- "BBC Genre Using IPlayer"
- "http://www.bbc.co.uk/radio/programmes/genres/%s/schedules.xml"
- (list "Genre/Genre/Genre: ")
- #'(lambda ()
-     (cl-declare (special emacspeak-we-url-executor))
-     (setq emacspeak-we-url-executor 'emacspeak-url-template-iplayer-player))
- "BBC iPlayer Genre"
- #'(lambda (url)
-     (emacspeak-webutils-autospeak)
-     (emacspeak-xslt-view-xml
-      (emacspeak-xslt-get "bbc-iplayer.xsl") url))
- 'dont-url-encode)
-
-;;}}}
 ;;{{{ Guardian Feed Directory:
 (emacspeak-url-template-define
  "Guardian RSS Feeds Directory"
@@ -319,7 +253,7 @@ dont-url-encode if true then url arguments are not url-encoded "
  #'emacspeak-feeds-opml-display)
 
 (emacspeak-url-template-define
- "BBC Program Guide"
+ "BBC Program Guide (not maintained)"
  "http://downloads.bbc.co.uk/podcasts/ppg.xml"
  nil nil
  "Display interactive BBC Program Guide."
@@ -348,9 +282,8 @@ dont-url-encode if true then url arguments are not url-encoded "
 ;;{{{ google image search:
 
 (emacspeak-url-template-define
-
  "Google Image Search"
- "http://www.google.com/search?gbv=1&bih=&biw=&source=hp&hl=en&tbm=isch&btnG=Search+Images&q=%s"
+ "http://www.google.com/search?gbv=1&bih=&biw=&hl=en&tbm=isch&btnG=Search+Images&q=%s"
  (list "Search:")
  nil
  "Google Image Search"
@@ -366,16 +299,6 @@ dont-url-encode if true then url arguments are not url-encoded "
  nil nil
  "Google Trends"
  #'emacspeak-feeds-rss-display)
-
-
-
-(emacspeak-url-template-define
- "Google Related Trends"
- "https://www.google.com/trends/fetchComponent?hl=en-US&q=%s&geo=US&cid=RISING_QUERIES_0_0"
- (list "Comma Separated Keywords: ")
- nil
- "Display Related Query Trends."
- nil 'dont-escape)
 
 ;;}}}
 ;;{{{ utils:
@@ -410,6 +333,33 @@ dont-url-encode if true then url arguments are not url-encoded "
  nil
  "Logout from Google to do an anonymous search.")
 
+;;}}}
+;;{{{Basic Google:
+
+(emacspeak-url-template-define
+ "Google Basic"
+ "https://www.google.com/search?num=25&gbv=1&q=%s"
+ (list "Google: ")
+ #'(lambda nil
+     (search-forward "Search Tools")
+     (forward-line 1)
+     (emacspeak-auditory-icon 'open-object)
+     (emacspeak-speak-rest-of-buffer))
+ "Light-weight Google search.")
+
+;;; forward declaration:
+(defvar gweb-my-zip nil)
+(emacspeak-url-template-define
+ "Google Weather"
+ (format "https://www.google.com/search?num=25&gbv=1&q=weather+%s"
+         gweb-my-zip)
+ nil
+ #'(lambda nil
+     (search-forward "Search Tools")
+     (forward-line 1)
+     (emacspeak-auditory-icon 'open-object)
+     (emacspeak-speak-rest-of-buffer))
+ "Light-weight Google search.")
 ;;}}}
 ;;{{{ Calendar Mobile:
 
@@ -469,18 +419,6 @@ dont-url-encode if true then url arguments are not url-encoded "
 ;;}}}
 ;;{{{ google translation service
 
-(emacspeak-url-template-define
- "Multilingual dictionary via Google."
- "https://translate.google.com/translate_dict?q=%s&sa=N&hl=en&langpair=%s"
- (list
-  "Word: "
-  "Translate from|To:")
- nil
- "Translate word using Google.
-Source and target languages
-are specified as two-letter language codes, e.g. en|de translates
-from English to German")
-
 ;;}}}
 ;;{{{ dictionary.com:
 (emacspeak-url-template-define
@@ -537,14 +475,14 @@ from English to German")
 
 (defun emacspeak-url-template-google-atom-news-display (feed-url)
   "View Google Atom news feed pulled using Curl."
-  (cl-declare (special g-atom-view-xsl
+  (cl-declare (special emacspeak-atom-view-xsl
                        g-curl-program g-curl-common-options))
   (emacspeak-webutils-autospeak)
   (g-display-result
    (format
     "%s %s    '%s' 2>/dev/null"
     g-curl-program g-curl-common-options feed-url)
-   g-atom-view-xsl))
+   emacspeak-atom-view-xsl))
 
 (emacspeak-url-template-define
  "Google News Search"
@@ -552,46 +490,6 @@ from English to German")
  (list #'gweb-news-autocomplete)
  nil
  "Search Google news."
- #'emacspeak-url-template-google-atom-news-display)
-
-(defvar emacspeak-url-template--google-news-categories
-  '(
-    ("World".  "w")
-    ("U.S.".  "n")
-    ("Elections".  "el")
-    ("Business".  "b")
-    ("Technology".  "tc")
-    ("Entertainment".  "e")
-    ("Sports".  "s")
-    ("Science" .  "snc")
-    ("Health".  "m")
-    ("Spotlight"  . "ir"))
-  "Completion table for reading news category.")
-(emacspeak-url-template-define
- "Google Category News"
- "https://news.google.com/news?hl=en&topic=%s&output=atom"
- (list
-  #'(lambda ()
-      (let* ((completion-ignore-case t)
-             (topic
-              (completing-read
-               "Category: "
-               emacspeak-url-template--google-news-categories
-               nil 'must-match)))
-        (cdr (assoc topic emacspeak-url-template--google-news-categories)))))
- nil
- "Google News By Category."
- #'emacspeak-url-template-google-atom-news-display)
-
-(emacspeak-url-template-define
- "Google Regional News"
- "https://news.google.com/news?hl=en&pz=1&geo=%s&output=atom"
- (list
-  #'(lambda ()
-      (read-from-minibuffer "City/Zip: "
-                            (bound-and-true-p gweb-my-zip))))
- nil
- "Google News By Region."
  #'emacspeak-url-template-google-atom-news-display)
 
 (defvar emacspeak-url-template-google-transcoder-url
@@ -728,7 +626,6 @@ name of the list.")
       emacspeak-we-url-executor 'emacspeak-url-template-cnn-content))
  "News Headlines From CNN"
  #'emacspeak-feeds-rss-display)
-
 
 (emacspeak-url-template-define
  "Money Headlines From CNN"
@@ -1029,17 +926,6 @@ JSON is retrieved from `url'."
 ;;{{{ weather underground
 
 (emacspeak-url-template-define
- "rss weather from wunderground"
- "http://www.wunderground.com/auto/rss_full/%s.xml?units=both"
- (list
-  #'(lambda nil
-      (read-from-minibuffer "State/City:"
-                            (bound-and-true-p  gweb-my-zip))))
- nil
- "Pull RSS weather feed for specified state/city."
- #'emacspeak-feeds-rss-display)
-
-(emacspeak-url-template-define
  "Weather forecast from Weather Underground"
  "http://mobile.wunderground.com/cgi-bin/findweather/getForecast?query=%s"
  (list
@@ -1300,8 +1186,7 @@ Optional interactive prefix arg displays documentation for specified resource."
     (setq name
           (completing-read
            "Resource: "
-           (sort (hash-table-keys  emacspeak-url-template-table)
-                 #'string-lessp)
+           (hash-table-keys  emacspeak-url-template-table)
            nil
            'must-match))
     (cond
@@ -1353,9 +1238,7 @@ Each URL template carries out the following steps:
 @item Set up the resulting resource with appropriate
  customizations.
 @end itemize
-
-As an example, the URL template for weather forecasts
-prompts for a location and speaks the forecast. \n\n"
+"
       (mapconcat #'key-description
                  (where-is-internal
                   'emacspeak-url-template-fetch)
@@ -1585,12 +1468,28 @@ template."
        (emacspeak-feeds-atom-display (concat url ".rss")))))
 
 (emacspeak-url-template-define
- "RedditBy Topic."
+ "Reddit Search."
+ "https://www.reddit.com/search.rss?q=%s&sort=new&t=all"
+ (list "Reddit Search:")
+ nil
+ "Reddit Search Results Feed."
+ #'emacspeak-feeds-atom-display)
+
+(emacspeak-url-template-define
+ "Reddit By Topic."
  "https://www.reddit.com/r/%s/.rss"
  (list "Topic:")
  nil
  "Open RSS Feed for Reddit Topic."
  #'emacspeak-feeds-atom-display)
+
+(emacspeak-url-template-define
+ "Reddit Front Page."
+ "https://www.reddit.com/.rss"
+ nil
+ nil
+ "Open  Feed for Reddit  Front Page."
+ #'emacspeak-feeds-atom-display) 
 
 ;;}}}
 ;;{{{Youtube News:
@@ -1614,7 +1513,7 @@ template."
   :group 'emacspeak-url-template)
 
 (defcustom emacspeak-url-template-currency-list
-  "EUR,INR,GBP"
+  "EUR,INR,GBP,USD,CAD"
   "List of currencies for which we request rates by default."
   :type 'string
   :group 'emacspeak-url-template)
@@ -1697,7 +1596,6 @@ Builds up alist of codes if needed the first time."
      #'emacspeak-speak-buffer
      "Open CIA World Fact Book For Specified Country.")
 
-
 (emacspeak-url-template-define
  "CIA Leaders Of The World"
  "https://www.cia.gov/library/publications/resources/world-leaders-1/%s.html"
@@ -1716,7 +1614,6 @@ Builds up alist of codes if needed the first time."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

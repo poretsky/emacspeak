@@ -77,8 +77,8 @@
 (require 'cl-lib)
 (cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
+(require 'amixer)
 (eval-when-compile
-  (require 'amixer)
   (require 'sox-gen)
   (require 'derived)
   (require 'dbus))
@@ -407,7 +407,6 @@ already disabled."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

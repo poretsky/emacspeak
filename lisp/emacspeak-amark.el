@@ -107,7 +107,7 @@ given name, it is updated with path and position."
   "Name of file used to save AMarks.")
 
 (defun emacspeak-amark-save ()
-  "Save buffer-local AMarks in current directory."
+  "Save buffer-local AMarks in  directory of currently playing resource."
   (interactive)
   (cl-declare (special  emacspeak-amark-file))
   (let ((l  emacspeak-amark-list)
@@ -118,23 +118,21 @@ given name, it is updated with path and position."
       (erase-buffer)
       (prin1  l (current-buffer)) 
       (save-buffer)
+      (message "Saved AMarks in %s" (buffer-file-name))
       (kill-buffer buff)
-      (message "Saved AMarks in %s" emacspeak-amark-file)
       (emacspeak-auditory-icon 'save-object))))
 
-(defun emacspeak-amark-load ()
-  "Locate AMarks file from current directory, and load it."
-  (interactive)
+(defun emacspeak-amark-load (&optional dir)
+  "Locate AMarks file from `dir' current  directory is default, and load it."
   (cl-declare (special emacspeak-amark-list
                        emacspeak-amark-file))
+  (or dir (setq dir default-directory))
   (let ((buff nil)
         (l nil)
         (where
-         (locate-dominating-file default-directory emacspeak-amark-file)))
+         (locate-dominating-file dir emacspeak-amark-file)))
     (cond
-     ((null where)
-      (when (called-interactively-p 'interactive)
-        (message "No AMarks found.")))
+     ((null where))
      (t (setq buff
               (find-file-noselect (expand-file-name emacspeak-amark-file where)))
         (save-current-buffer
@@ -142,10 +140,7 @@ given name, it is updated with path and position."
           (goto-char (point-min))
           (setq l (read buff))
           (kill-buffer buff))
-        (setq emacspeak-amark-list l)
-        (when (called-interactively-p 'interactive)
-          (emacspeak-auditory-icon 'open-object)
-          (message "Loaded AMarks from %s" where))))))
+        (setq emacspeak-amark-list l)))))
 
 ;;}}}
 (provide  'emacspeak-amark)
@@ -153,7 +148,6 @@ given name, it is updated with path and position."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

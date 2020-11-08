@@ -179,7 +179,7 @@
    ("$" emacspeak-shell-command)
    ("%" emacspeak-speak-current-percentage)
    ("&" emacspeak-wizards-shell-command-on-current-file)
-   ("'" emacspeak-speak-sexp)
+   ("\"" emacspeak-speak-sexp)
    ("(" emacspeak-audio-setup)
    (")" emacspeak-sounds-select-theme)
    ("," emacspeak-speak-skim-buffer)
@@ -189,8 +189,8 @@
    (";" emacspeak-multimedia)
    ("<" emacspeak-speak-previous-field)
    ("<(deletechar>" emacspeak-ssh-tts-restart)
-   ("<C-<left>" emacspeak-select-this-buffer-previous-display)
-   ("<C-<right>" emacspeak-select-this-buffer-next-display)
+   ("C-<left>" emacspeak-select-this-buffer-previous-display)
+   ("C-<right>" emacspeak-select-this-buffer-next-display)
    ("<delete>" emacspeak-ssh-tts-restart)
    ("<down>" emacspeak-read-next-line)
    ("<f11>" emacspeak-wizards-shell-toggle)
@@ -260,7 +260,7 @@
    ("V" emacspeak-speak-version)
    ("W" emacspeak-tapestry-select-window-by-name)
    ("[" emacspeak-speak-page)
-   ("\"" emacspeak-pianobar)
+   ("'" emacspeak-pianobar)
    ("\\" emacspeak-toggle-speak-line-invert-filter)
    ("]" emacspeak-speak-page-interactively)
    ("^" emacspeak-filtertext)
@@ -440,8 +440,10 @@ relief."
     ("." emacspeak-wizards-shell-directory-reset)
     ("," emacspeak-wizards-shell-directory-set)
     ("=" emacspeak-wizards-find-longest-line-in-region)
+    ("a" emacspeak-wizards-alpha-vantage-quotes)
     ("b" battery)
     ("C" emacspeak-wizards-colors)
+    ("d" deadgrep)
     ("c" emacspeak-wizards-color-wheel)
     ("e" emacspeak-we-xsl-map)
     ("h" emacspeak-wizards-how-many-matches)
@@ -717,7 +719,6 @@ command that the key sequence executes."
     ("s" emacspeak-wizards-shell)
     ("t" twit)
     ("u" list-unicode-display)
-    ("v" vdiff-magit-popup)
     ("w" emacspeak-wizards-noaa-weather)
     ("y" yas-expand))
   "*Specifies hyper key bindings for the audio desktop. Emacs can
@@ -824,7 +825,6 @@ interactive command that the key sequence executes."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

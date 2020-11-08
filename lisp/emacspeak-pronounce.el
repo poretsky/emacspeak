@@ -107,7 +107,11 @@ Values are alists containing string.pronunciation pairs.")
   "Add dictionary entry.
 This adds pronunciation pair
 STRING.PRONUNCIATION to the dictionary.
-Argument KEY specifies a dictionary key e.g. directory, mode etc."
+Argument KEY specifies a dictionary key e.g. directory, mode etc.
+Pronunciation can be a string or a cons-pair.
+If it is a string, that string is the new pronunciation.
+A cons-pair of the form (matcher . func) results  in 
+the match  being passed to the func which returns  the new pronunciation."
   (cl-declare (special emacspeak-pronounce-dictionaries))
   (let* ((dict (emacspeak-pronounce-get-dictionary key))
          (entry (and dict (assoc string dict))))
@@ -574,6 +578,9 @@ See http://www.charm.net/~kmarsh/smiley.html. "
   :group 'emacspeak-pronounce)
 
 ;;}}}
+;;{{{Text Mode Entries:
+
+;;}}}
 ;;{{{ xml namespace uri's
 
 (defcustom emacspeak-pronounce-common-xml-namespace-uri-pronunciations
@@ -731,7 +738,10 @@ specified pronunciation dictionary key."
 ;;}}}
 ;;{{{ Helpers: pronouncers
 
-;;{{{ dates
+;;{{{ dates and numbers
+(defvar emacspeak-pronounce-number-pattern
+  "[0-9]+\\.?[0-9]+%?"
+  "Pattern that matches  nnnn.nnnn")
 
 (defvar emacspeak-pronounce-date-mm-dd-yyyy-pattern
   "[0-9]\\{2\\}-[0-9]\\{2\\}-[0-9]\\{2\\}\\([0-9]\\{2\\}\\)?"
@@ -835,7 +845,6 @@ specified pronunciation dictionary key."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

@@ -51,6 +51,8 @@
 ;;; @item popup:Use  up and down arrows to move through  corrections.
 ;;; @item helm: A helm interface for picking amongst  corrections.
 ;;; @end itemize
+;;; See documentation for package flyspell-correct for additional
+;;; details.
 ;;;
 ;;; Use Customization emacspeak-flyspell-correct to pick
 ;;; between ido, popup and helm.
@@ -147,7 +149,6 @@ fly spell checking."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

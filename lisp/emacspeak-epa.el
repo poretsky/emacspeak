@@ -86,10 +86,12 @@
    )
  do
  (eval
-  `(defadvice ,f (after emacspeak pre act comp)
+  `(defadvice ,f (around emacspeak pre act comp)
      "Provide auditory feedback. "
-     (when (ems-interactive-p)
-       (emacspeak-auditory-icon 'task-done)))))
+     (ems-with-messages-silenced
+         ad-do-it
+         (when (ems-interactive-p)
+           (emacspeak-auditory-icon 'task-done))))))
 
 (add-hook
  'epa-key-list-mode-hook
@@ -152,7 +154,6 @@
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

@@ -5,45 +5,34 @@ Emacspeak News --History Of User-Visible Changes
 Author: T. V. Raman <tv.raman.tv@gmail.com>
 
 
-* Emacspeak 50 -- Emacspeak 50 User Visible Changes
+* Emacspeak 51 -- Emacspeak 51 User Visible Changes
 This version requires Emacs-26.1 or later.
 
-** Bookshare
+** Speech-Enable Deadgrep
 
-Load emacspeak's directory-specific settings when opening Bookshare
-books using EWW.
+Module ~emacspeak-deadgrep~ speech-enables ~deadgrep~, a front-end for
+using ~ripgrep~.
 
-** Speech-Enable IEdit
+** Speech-Enabled Nov.el 
 
-Module ~emacspeak-iedit~ speech-enables package ~iedit~ for editing
-multiple occurrences.
+Module ~emacspeak-nov~ speech-enables ~nov.el~, an EPub reader for
+Emacs.
 
-** ESpeak
+** Stock Quotes From IEXCloud 
 
-The ESpeak server now builds on the Mac as well as Linux;
-consequently,  directory ~linux-espeak~ has been renamed to ~native-espeak~.
+The stock quote wizard now uses the IEXCloud API, and needs an API key
+from IEXCloud.
 
-** Forge Support
+** Speech-Enabled Emacs Debugger
 
-Module ~emacspeak-forge~ speech-enables package ~forge~, a magit
-companion for working with Git Forges like  Github and Gitlab.
-
-** Speech-Enable Transient 
-
-Transient is a new Hydra equivalent used by ~Magit~. Module
-~emacspeak-transient~ speech-enables ~transient~.
-
-** Navi-Mode
-
-Module ~emacspeak-navi-mode.el~ speech-enables ~navi-mode~.
+Finally:-) Shows how rarely one needs to debug ELisp:-)
 
 
-** EWW And Smart Tabs 
+** Speech-Enable Package ~dumb-jump~
 
-Module ~emacspeak-eww~ implements /Smart Tabs/ for EWW, these let you
-persist and open  a URL with a single key-stroke. See command
-_emacspeak-eww-smart-tabs_ for usage instructions.
+Module ~emacspeak-dumb-jump~ speech-enables package ~dumb-jump~ for
+code navigation.
 
-** Github Explorer 
+** Speech-Enable Tabs 
 
-Module ~emacspeak-gh-explorer~ speech-enables package ~github-explorer~.
+Speech-enable ~tab-bar~ as found in Emacs  27.
