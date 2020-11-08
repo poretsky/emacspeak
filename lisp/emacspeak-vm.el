@@ -161,7 +161,7 @@ Note that some badly formed mime messages  cause trouble."
                 (?u url)
                 (?t to))))
       (when header (kill-new header))
-      (message "%s" header)))
+      (dtk-speak-and-echo  (format  "%s" header))))
    (t (error "No current message."))))
 
 (defcustom emacspeak-vm-headers-strip-octals t
@@ -536,6 +536,12 @@ Leave point at front of decoded attachment."
 
 ;;}}}
 ;;{{{  misc
+
+(defadvice vm (around emacspeak pre act comp)
+  "Silence chatter."
+  (let ((emacspeak-speak-messages nil))
+    ad-do-it
+    (emacspeak-vm-mode-line)))
 
 (defadvice vm-count-messages-in-file (around emacspeak-fix pre act comp)
   (ad-set-arg 1 'quiet)

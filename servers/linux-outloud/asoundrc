@@ -206,7 +206,7 @@ pcm.soft_left {
     type plug
     slave.pcm {
         type route
-        slave.pcm "media"
+        slave.pcm "default"
         ttable {
             0.0 =  0.35
             0.1 = 0.03
@@ -229,7 +229,7 @@ pcm.tts_mono_right {
     type plug
     slave.pcm {
         type route
-        slave.pcm "media"
+        slave.pcm "media" 
         ttable {
             0.0 =  0.03
             0.1 = 1

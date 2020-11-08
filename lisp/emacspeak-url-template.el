@@ -54,7 +54,8 @@
 
 ;;}}}
 ;;{{{ required modules
-
+(require 'cl-lib)
+(eval-when-compile (require 'subr-x))
 (cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 (require 'emacspeak-webutils)
@@ -62,8 +63,7 @@
 (require 'g-utils)
 (require 'emacspeak-we)
 (require 'emacspeak-xslt)
-(eval-when-compile
-  (require 'calendar))
+(eval-when-compile (require 'calendar))
 ;;}}}
 ;;{{{ structures
 
@@ -190,19 +190,9 @@ dont-url-encode if true then url arguments are not url-encoded "
       (kill-buffer buffer))))
 
 ;;}}}
-;;{{{Youtube News:
-(declare-function eww-display-dom-by-element "emacspeak-eww" (tag))
-(declare-function eww-display-dom-by-class "emacspeak-eww" (class))
-
-(emacspeak-url-template-define
- "Youtube News"
- "https://www.youtube.com/news?disable_polymer=1"
- nil
- #'(lambda nil (eww-display-dom-by-element 'h3))
- "News Headlines From Youtube")
-
 ;;; template resources
 ;;{{{ fedex, UPS
+
 (emacspeak-url-template-define
  "fedex packages"
  "http://www.fedex.com/cgi-bin/tracking?link=6&pv=ja&action=track&ftc_3=null&template_type=ftc&language=english&last_action=track&ascend_header=1&cntry_code=us&initial=x&mps=y&ascend_header=1&cntry_code=us&initial=x&tracknumber_list=%s"
@@ -377,13 +367,7 @@ dont-url-encode if true then url arguments are not url-encoded "
  "Google Trends"
  #'emacspeak-feeds-rss-display)
 
-(emacspeak-url-template-define
- "Google Trends Compared"
- "https://www.google.com/trends/fetchComponent?hl=en-US&q=%s&geo=US&cid=RISING_QUERIES_0_0"
- (list "Comma Separated Keywords: ")
- nil
- "Display comparative trends."
- nil 'dont-escape)
+
 
 (emacspeak-url-template-define
  "Google Related Trends"
@@ -509,7 +493,7 @@ from English to German")
  "Dictionary Lookup"
  #'(lambda (url)
      (emacspeak-webutils-without-xsl
-      (browse-url url))))
+         (browse-url url))))
 
 ;;}}}
 ;;{{{ NY Times
@@ -628,13 +612,6 @@ from English to German")
 ;;}}}
 ;;{{{ Google Structured Data Parser:
 
-(emacspeak-url-template-define
- "Structured Data Extractor"
- "https://search.google.com/structured-data/testing-tool/u/0/?url=%s"
- (list "URL: ")
- nil
- "Extract/Validate Structured Data.")
-
 ;;}}}
 ;;{{{ Google Archive Search
 
@@ -665,13 +642,13 @@ from English to German")
 ;;}}}
 ;;{{{ yahoo daily news
 (emacspeak-url-template-define
- "Yahoo RSS Feeds"
+ "Yahoo RSSNews"
  "http://news.yahoo.com/rss"
  nil
  #'(lambda ()
      (emacspeak-pronounce-add-buffer-local-dictionary-entry
       "http://rss.news.yahoo.com/rss/" ""))
- "List Yahoo RSS Feeds."
+ "News  From Yahoo As RSS."
  #'emacspeak-feeds-rss-display)
 
 ;;}}}
@@ -723,21 +700,56 @@ name of the list.")
  nil
  nil
  "List CNN Podcast media links.")
+(defun emacspeak-url-template-cnn-content (url)
+  "Extract CNN content."
+  (emacspeak-we-extract-by-class
+   "zn-body__paragraph" url 'speak))
 
 (emacspeak-url-template-define
  "CNN Content"
  "http://www.cnn.com/us"
  nil
- nil
+ #'(lambda nil
+     (cl-declare (special emacspeak-we-url-executor))
+     (eww-display-dom-by-element 'h3)
+     (setq
+      emacspeak-we-url-executor 'emacspeak-url-template-cnn-content))
  "Filter down to CNN content area."
  #'(lambda (url)
      (emacspeak-we-extract-by-class "column" url 'speak)))
 
 (emacspeak-url-template-define
+ "CNN Headlines"
+ "http://rss.cnn.com/rss/cnn_latest.rss"
+ nil
+ #'(lambda nil
+     (cl-declare (special emacspeak-we-url-executor))
+     (setq
+      emacspeak-we-url-executor 'emacspeak-url-template-cnn-content))
+ "News Headlines From CNN"
+ #'emacspeak-feeds-rss-display)
+
+
+(emacspeak-url-template-define
+ "Money Headlines From CNN"
+ "https://money.cnn.com"
+ nil
+ #'(lambda nil
+     (cl-declare (special emacspeak-we-url-executor))
+     (eww-display-dom-by-element 'h3)
+     (setq
+      emacspeak-we-url-executor 'emacspeak-url-template-cnn-content))
+ "Money Headlines From CNN")
+
+(emacspeak-url-template-define
  "world CNN Content"
  "http://www.cnn.com/world"
  nil
- nil
+ #'(lambda nil
+     (cl-declare (special emacspeak-we-url-executor))
+     (eww-display-dom-by-element 'h3)
+     (setq
+      emacspeak-we-url-executor 'emacspeak-url-template-cnn-content))
  "Filter down to CNN content area."
  #'(lambda (url)
      (emacspeak-we-extract-by-class "column" url 'speak)))
@@ -746,11 +758,14 @@ name of the list.")
  "CNN Market Data "
  "http://money.cnn.com/markets/data/"
  nil
- nil
- "CNN Money"
+ #'(lambda nil
+     (cl-declare (special emacspeak-we-url-executor))
+     (setq
+      emacspeak-we-url-executor 'emacspeak-url-template-cnn-content))
+ "Market data filtered from CNN Money"
  #'(lambda (url)
      (emacspeak-we-extract-by-role
-      "main" ;"wsod_marketsOverview"
+      "main" 
       url 'speak)))
 
 ;;}}}
@@ -1025,25 +1040,18 @@ JSON is retrieved from `url'."
  #'emacspeak-feeds-rss-display)
 
 (emacspeak-url-template-define
- "Weather Light From Wunderground"
- "https://braille.wunderground.com/cgi-bin/findweather/hdfForecast?brand=braille&query=%s"
- (list
-  #'(lambda nil
-      (read-from-minibuffer "State/City:"
-                            (bound-and-true-p  gweb-my-zip))))
- #'emacspeak-speak-buffer
- "Light weight weather forecast"
- #'browse-url)
-
-(emacspeak-url-template-define
  "Weather forecast from Weather Underground"
  "http://mobile.wunderground.com/cgi-bin/findweather/getForecast?query=%s"
  (list
-  #'(lambda () (read-from-minibuffer "Zip: "
-                                     (bound-and-true-p  gweb-my-zip))))
- 'emacspeak-speak-buffer
- "Weather forecast from weather underground mobile."
- )
+  #'(lambda ()
+      (read-from-minibuffer "Zip: "
+                            (bound-and-true-p gweb-my-zip))))
+ #'(lambda ()
+     (with-demoted-errors
+         (eww-display-dom-by-class "city-body"))
+     (goto-char (point-min))
+     (emacspeak-speak-buffer))
+ "Weather forecast from weather underground mobile.")
 
 ;;}}}
 ;;{{{ airport conditions:
@@ -1287,12 +1295,15 @@ before completing the request.
 Optional interactive prefix arg displays documentation for specified resource."
   (interactive "P")
   (let ((completion-ignore-case t)
+        (case-fold-search  t)
         (name nil))
     (setq name
-          (completing-read "Resource: "
-                           emacspeak-url-template-table
-                           nil
-                           'must-match))
+          (completing-read
+           "Resource: "
+           (sort (hash-table-keys  emacspeak-url-template-table)
+                 #'string-lessp)
+           nil
+           'must-match))
     (cond
      (documentation (emacspeak-url-template-help-internal name))
      (t
@@ -1349,19 +1360,21 @@ prompts for a location and speaks the forecast. \n\n"
                  (where-is-internal
                   'emacspeak-url-template-fetch)
                  " ")))
-    (let
-        ((keys
+    (let*
+        ((case-fold-search  t)
+         (keys
           (sort
            (cl-loop for k being the hash-keys of emacspeak-url-template-table collect k)
            'string-lessp)))
+      (insert "@enumerate \n\n")
       (cl-loop
        for key in keys do
        (insert
-        (format "@b{%s}\n\n" key))
+        (format "@item @b{%s}\n\n" key))
        (insert
         (emacspeak-url-template-documentation
-         (emacspeak-url-template-get key)))
-       (insert "\n\n")))))
+         (emacspeak-url-template-get key))))
+      (insert "\n\n@end enumerate\n\n"))))
 
 ;;}}}
 ;;{{{ wikiData:
@@ -1415,7 +1428,7 @@ Returns a cons cell where the car is email, and the cdr is password."
   (unless emacspeak-url-template-nls-authenticated
     (let* ((token (emacspeak-url-template-nls-auth-info))
            (boundary (mml-compute-boundary nil))
-           (values 
+           (values
             (list
              (cons "url_return" nil)
              (cons "submit" nil)
@@ -1425,7 +1438,7 @@ Returns a cons cell where the car is email, and the cdr is password."
            (url-request-extra-headers
             (list
              (cons "Content-Type"
-                   (concat "multipart/form-data; boundary=" boundary))))       
+                   (concat "multipart/form-data; boundary=" boundary))))
            (url-request-data
             (mm-url-encode-www-form-urlencoded values)))
       (setq emacspeak-url-template-nls-authenticated t)
@@ -1493,13 +1506,23 @@ template."
 ;;}}}
 ;;{{{ Washington Post
 
+(defun emacspeak-url-template-wapost-content (url)
+  "Extract article content from WApost."
+  (emacspeak-we-extract-by-class
+   "article-body content-format-ans "
+   url 'speak))
+
 (emacspeak-url-template-define
  "Washington Post"
  "https://www.washingtonpost.com/"
- nil nil
+ nil
+ #'(lambda nil
+     (cl-declare (special emacspeak-we-url-executor))
+     (setq emacspeak-we-url-executor
+           'emacspeak-url-template-wapost-content))
  "Washington Post Contents"
  #'(lambda (url)
-     (emacspeak-we-extract-by-class-list 
+     (emacspeak-we-extract-by-class-list
       '("headline xx-small highlight-style bulleted text-align-inherit " "headline normal normal-style text-align-inherit "
         "no-skin flex-item flex-stack normal-air text-align-left wrap-text equalize-height-target"
         "headline " "blurb normal normal-style ")
@@ -1507,7 +1530,7 @@ template."
       'speak)))
 
 ;;}}}
-;;{{{ ArchWiki 
+;;{{{ ArchWiki
 
 (emacspeak-url-template-define
  "ArchWiki Search"
@@ -1517,8 +1540,6 @@ template."
      (emacspeak-eww-next-h)
      (emacspeak-speak-rest-of-buffer))
  "Search Linux ArchWiki")
-
-;;}}}
 
 ;;}}}
 ;;{{{Air Quality Index:
@@ -1547,7 +1568,11 @@ template."
  "" nil nil
  "Open RSS Feed for Reddit URL under point."
  #'(lambda (_url)
-     (let* ((u (shr-url-at-point nil))
+     (let* ((u
+             (or
+              (shr-url-at-point nil)
+              (browse-url-url-at-point)
+              (read-from-minibuffer "URL:")))
             (url
              (if (string-prefix-p (emacspeak-google-result-url-prefix) u)
                  (emacspeak-google-canonicalize-result-url u)
@@ -1566,6 +1591,124 @@ template."
  nil
  "Open RSS Feed for Reddit Topic."
  #'emacspeak-feeds-atom-display)
+
+;;}}}
+;;{{{Youtube News:
+
+(declare-function eww-display-dom-by-element "emacspeak-eww" (tag))
+(declare-function eww-display-dom-by-class "emacspeak-eww" (class))
+
+(emacspeak-url-template-define
+ "Youtube News"
+ "https://www.youtube.com/news?disable_polymer=1"
+ nil
+ #'(lambda nil (eww-display-dom-by-element 'h3))
+ "News Headlines From Youtube")
+
+;;}}}
+;;{{{Currency Conversion:
+(defcustom emacspeak-url-template-currency-base
+  "USD"
+  "Currency to use as the base when doing currency conversion."
+  :type 'string
+  :group 'emacspeak-url-template)
+
+(defcustom emacspeak-url-template-currency-list
+  "EUR,INR,GBP"
+  "List of currencies for which we request rates by default."
+  :type 'string
+  :group 'emacspeak-url-template)
+
+(defun ems--exchange-rates-to-org (url)
+  "Display retrieved rates as an org buffer."
+  (let-alist (g-json-from-url url)
+    (let ((buffer
+           (get-buffer-create
+            (format "* Currency Rates In  %s On %s" .base .date)))
+          (inhibit-read-only  t))
+      (with-current-buffer buffer
+        (erase-buffer)
+        (cl-loop
+         for r in .rates do
+         (insert
+          (format "%s %.2f\n" (car r) (cdr r))))
+        (goto-char (point-min))
+        (setq buffer-read-only t))
+      (pop-to-buffer buffer)
+      (emacspeak-auditory-icon 'open-object)
+      (emacspeak-speak-buffer))))
+
+(emacspeak-url-template-define
+ "Currency Converter"
+ "https://api.exchangeratesapi.io/latest?base=%s&symbols=%s"
+ (list
+  #'(lambda nil
+      (cl-declare (special emacspeak-url-template-currency-base))
+      (upcase
+       (read-from-minibuffer "Base:" emacspeak-url-template-currency-base)))
+  #'(lambda nil
+      (cl-declare (special emacspeak-url-template-currency-list))
+      (upcase
+       (read-from-minibuffer "Currencies:" emacspeak-url-template-currency-list))))
+ nil
+ "Currency Converter. Currencies can be a comma-separated list of
+codes."
+ #'ems--exchange-rates-to-org)
+
+;;}}}
+;;{{{CIA World Fact Book:
+
+(defvar ems--wfb-cc-codes nil
+  "Association list  ofWorld Fact Book Country Codes.")
+
+(defun ems--xsl-wfb-cc ()
+  "Get WFB CC Codes using XSLT."
+  (cl-declare (special ems--wfb-cc-codes))
+  (let ((u "https://www.cia.gov/library/publications/the-world-factbook/"))
+    (setq
+     ems--wfb-cc-codes
+     (read (emacspeak-xslt-url (emacspeak-xslt-get "wfb-cc.xsl") u)))))
+
+(declare-function dom-from-url "dom-addons" (url))
+
+(defun ems--el-wfb-cc ()
+  "Get WFB CC Codes using Elisp."
+  (cl-declare (special ems--wfb-cc-codes))
+  (let ((u "https://www.cia.gov/library/publications/the-world-factbook/"))
+    (setq
+     ems--wfb-cc-codes
+     (cl-loop
+      for  o in (dom-by-tag (dom-from-url u) 'option)
+      when (dom-attr o 'data-place-code )
+      collect
+      (cons (string-trim (dom-text o)) (dom-attr o 'data-place-code ))))))
+
+(defun ems--read-wfb-cc-code ()
+  "Return 2-letter country code using completing-read.
+Builds up alist of codes if needed the first time."
+  (cl-declare (special ems--wfb-cc-codes))
+  (unless ems--wfb-cc-codes (ems--el-wfb-cc))
+  (cdr (assoc (completing-read "Country:"ems--wfb-cc-codes) ems--wfb-cc-codes)))
+
+(emacspeak-url-template-define
+ "CIA World Fact Book"
+ "https://www.cia.gov/library/publications/resources/the-world-factbook/geos/print_%s.html"
+ (list #'(lambda nil (ems--read-wfb-cc-code)))
+     #'emacspeak-speak-buffer
+     "Open CIA World Fact Book For Specified Country.")
+
+
+(emacspeak-url-template-define
+ "CIA Leaders Of The World"
+ "https://www.cia.gov/library/publications/resources/world-leaders-1/%s.html"
+ (list #'(lambda nil
+           (upcase (ems--read-wfb-cc-code))))
+ #'(lambda nil
+     (search-forward "Last Update")
+     (goto-char (line-end-position))
+     (forward-line 1)
+     (emacspeak-speak-rest-of-buffer))
+     "Open CIA World Leaders  For Specified Country.")
 
 ;;}}}
 (provide 'emacspeak-url-template)

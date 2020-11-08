@@ -5,38 +5,45 @@ Emacspeak News --History Of User-Visible Changes
 Author: T. V. Raman <tv.raman.tv@gmail.com>
 
 
-* Emacspeak 49 -- Emacspeak 49 User Visible Changes
+* Emacspeak 50 -- Emacspeak 50 User Visible Changes
 This version requires Emacs-26.1 or later.
-** Speech-Enables Sage Interaction 
 
-Module ~emacspeak-sage~ speech-enables package ~sage-shell-mode~.
+** Bookshare
 
-** Updated Folding Support
+Load emacspeak's directory-specific settings when opening Bookshare
+books using EWW.
 
-Module ~emacspeak-folding~ has been updated to support package
-~folding~ from Melpa.
-The old version of ~folding~ is now no longer supported --- that
-version dated back to the early 90's.
+** Speech-Enable IEdit
+
+Module ~emacspeak-iedit~ speech-enables package ~iedit~ for editing
+multiple occurrences.
+
+** ESpeak
+
+The ESpeak server now builds on the Mac as well as Linux;
+consequently,  directory ~linux-espeak~ has been renamed to ~native-espeak~.
+
+** Forge Support
+
+Module ~emacspeak-forge~ speech-enables package ~forge~, a magit
+companion for working with Git Forges like  Github and Gitlab.
+
+** Speech-Enable Transient 
+
+Transient is a new Hydra equivalent used by ~Magit~. Module
+~emacspeak-transient~ speech-enables ~transient~.
+
+** Navi-Mode
+
+Module ~emacspeak-navi-mode.el~ speech-enables ~navi-mode~.
 
 
-** Speech-Enable Package Lispy For Rapid Lisp Editing 
+** EWW And Smart Tabs 
 
-Module ~emacspeak-lispy~ speech-enables package ~lispy~ available on Melpa.
-** Updated Bookshare Support 
+Module ~emacspeak-eww~ implements /Smart Tabs/ for EWW, these let you
+persist and open  a URL with a single key-stroke. See command
+_emacspeak-eww-smart-tabs_ for usage instructions.
 
-Bookshare support has been updated to cover additional download
-formats. The module  now supports Emacs' ~auth-source~ integration for
-managing passwords.
+** Github Explorer 
 
-** Updated Magit Support
-
-Module  emacspeak-magit has been updated for the latest Magit release.
-** Improved DBus Support 
-
-Module emacspeak-dbus now implements handlers for many more System
-DBus events.
-
-** Updated EWW Support
-
-Module emacspeak-eww has been updated with many more EWW enhancements.
-
+Module ~emacspeak-gh-explorer~ speech-enables package ~github-explorer~.

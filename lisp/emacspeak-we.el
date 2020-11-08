@@ -108,9 +108,9 @@ a rewrite rule even if one is already defined."
   (emacspeak-webutils-browser-check)
   (let ((url (funcall emacspeak-webutils-url-at-point)))
     (unless url (error "Not on a link."))
+    (emacspeak-auditory-icon 'button)
     (cond
-     ((and (boundp 'emacspeak-we-url-executor)
-           (fboundp emacspeak-we-url-executor))
+     ((functionp emacspeak-we-url-executor)
       (if prefix
           (funcall emacspeak-we-url-executor url prefix)
         (funcall emacspeak-we-url-executor url)))
@@ -121,8 +121,7 @@ a rewrite rule even if one is already defined."
               "Executor function: "
               obarray 'fboundp t
               "emacspeak-" nil)))
-      (if (and (boundp 'emacspeak-we-url-executor)
-               (fboundp emacspeak-we-url-executor))
+      (if (functionp emacspeak-we-url-executor)
           (funcall emacspeak-we-url-executor url)
         (error "Invalid executor %s"
                emacspeak-we-url-executor))))))
@@ -143,7 +142,7 @@ a rewrite rule even if one is already defined."
   "Emacspeak WebEdit"
   :group 'emacspeak)
 
-;;;###autoload
+
 (defcustom emacspeak-we-xsl-p nil
   "T means we apply XSL before displaying HTML."
   :type 'boolean
@@ -167,7 +166,7 @@ Default is to apply sort-tables."
 ;;; need to be set at top-level since the page-rendering code is
 ;;; called asynchronously.
 
-;;;###autoload
+
 (defcustom emacspeak-we-cleanup-bogus-quotes t
   "Clean up bogus Unicode chars for magic quotes."
   :type 'boolean
@@ -336,7 +335,7 @@ operate on current web page when in a browser buffer; otherwise
   (interactive
    (list
     (emacspeak-webutils-read-url)
-    (called-interactively-p 'interactive)))
+    (or (called-interactively-p 'interactive) current-prefix-arg)))
   (cl-declare (special emacspeak-we-media-stream-suffixes))
   (let ((filter "//a[%s]")
         (predicate
@@ -359,7 +358,7 @@ operate on current web page when in a browser buffer; otherwise
   (interactive
    (list
     (emacspeak-webutils-read-url)
-    (called-interactively-p 'interactive)))
+    (or (called-interactively-p 'interactive) current-prefix-arg)))
   (let ((filter "//a[contains(@href,\"print\")]"))
     (emacspeak-we-xslt-filter filter url speak)))
 
@@ -368,7 +367,7 @@ operate on current web page when in a browser buffer; otherwise
   "Follow URL, then extract role=main."
   (interactive
    (list
-    (called-interactively-p 'interactive)))
+    (or (called-interactively-p 'interactive) current-prefix-arg)))
   (emacspeak-we-extract-by-role "main"
                                 (funcall emacspeak-webutils-url-at-point) speak))
 
@@ -405,7 +404,7 @@ spoken automatically."
    (list
     (read-from-minibuffer "Table Index: ")
     (emacspeak-webutils-read-url)
-    (called-interactively-p 'interactive)))
+    (or (called-interactively-p 'interactive) current-prefix-arg)))
   (emacspeak-we-xslt-filter
    (format "(//table//table)[%s]" index)
    url speak))
@@ -452,7 +451,7 @@ Empty value finishes the list."
    (list
     (emacspeak-we-get-table-list)
     (emacspeak-webutils-read-url)
-    (called-interactively-p 'interactive)))
+    (or (called-interactively-p 'interactive) current-prefix-arg)))
   (let ((filter
          (mapconcat
           #'(lambda  (i)
@@ -470,7 +469,7 @@ Default is to extract from current page."
    (list
     (read-from-minibuffer "Extract Table: ")
     (emacspeak-webutils-read-url)
-    current-prefix-arg))
+    (or (called-interactively-p 'interactive) current-prefix-arg)))
   (emacspeak-we-xslt-filter
    (format "/descendant::table[%s]"
            pos)
@@ -486,7 +485,7 @@ Tables are specified by their position in the list
    (list
     (emacspeak-we-get-table-list)
     (emacspeak-webutils-read-url)
-    current-prefix-arg))
+    (or (called-interactively-p 'interactive) current-prefix-arg)))
   (let ((filter
          (mapconcat
           #'(lambda  (i)
@@ -507,7 +506,7 @@ Tables are specified by their position in the list
    (list
     (read-from-minibuffer "Tables Matching: ")
     (emacspeak-webutils-read-url)
-    current-prefix-arg))
+    (or (called-interactively-p 'interactive) current-prefix-arg)))
   (emacspeak-we-xslt-filter
    (format "(/descendant::table[contains(., \"%s\")])[last()]"
            match)
@@ -525,7 +524,7 @@ Tables are specified by containing  match pattern
    (list
     (emacspeak-we-get-table-match-list)
     (emacspeak-webutils-read-url)
-    current-prefix-arg))
+    (or (called-interactively-p 'interactive) current-prefix-arg)))
   (let ((filter
          (mapconcat
           #'(lambda  (i)
@@ -626,12 +625,22 @@ buffer. Interactive use provides list of class values as completion."
     (completing-read "Class: "
                      emacspeak-we-buffer-class-cache)
     (emacspeak-webutils-read-url)
-    current-prefix-arg))
+    (or (called-interactively-p 'interactive) current-prefix-arg)))
   (let ((filter (format "//*[contains(@class,\"%s\")]" class)))
-    (emacspeak-we-xslt-filter filter
+  (emacspeak-we-xslt-filter filter
                               url
                               (or (called-interactively-p 'interactive)
                                   speak))))
+
+
+;;;###autoload
+(defun emacspeak-we-extract-speakable (url &optional speak)
+  "Extract elements having class`speakable' from HTML. "
+  (interactive
+   (list
+    (emacspeak-webutils-read-url)
+    (or (called-interactively-p 'interactive) current-prefix-arg)))
+  (emacspeak-we-extract-by-class "speakable" url speak))
 
 (defun emacspeak-we-extract-by-role (role    url &optional speak)
   "Extract elements having specified role attribute from HTML. Extracts
@@ -642,7 +651,7 @@ buffer. Interactive use provides list of role values as completion."
     (completing-read "Role: "
                      emacspeak-we-buffer-role-cache)
     (emacspeak-webutils-read-url)
-    current-prefix-arg))
+    (or (called-interactively-p 'interactive) current-prefix-arg)))
   (let ((filter (format "//*[contains(@role,\"%s\")]" role)))
     (emacspeak-we-xslt-filter filter
                               url
@@ -714,7 +723,7 @@ values as completion. "
     (let ((completion-ignore-case t))
       (emacspeak-we-css-get-class-list))
     (emacspeak-webutils-read-url)
-    current-prefix-arg))
+    (or (called-interactively-p 'interactive) current-prefix-arg)))
   (let ((filter
          (mapconcat
           #'(lambda  (c)
@@ -761,7 +770,7 @@ Interactive use provides list of id values as completion."
       (completing-read "Id: "
                        emacspeak-we-buffer-id-cache))
     (emacspeak-webutils-read-url)
-    current-prefix-arg))
+    (or (called-interactively-p 'interactive) current-prefix-arg)))
   (emacspeak-we-xslt-filter
    (format "//*[@id=\"%s\"]"
            id)
@@ -777,7 +786,7 @@ separate buffer. Interactive use provides list of id values as completion. "
    (list
     (emacspeak-we-get-id-list)
     (emacspeak-webutils-read-url)
-    current-prefix-arg))
+    (or (called-interactively-p 'interactive) current-prefix-arg)))
   (let ((filter
          (mapconcat
           #'(lambda  (c)
@@ -802,7 +811,7 @@ Interactive use provides list of id values as completion."
       (completing-read "Id: "
                        emacspeak-we-buffer-id-cache))
     (emacspeak-webutils-read-url)
-    current-prefix-arg))
+    (or (called-interactively-p 'interactive) current-prefix-arg)))
   (emacspeak-we-xslt-filter
    (format "//*[@id=\"%s\"]//text()"
            id)
@@ -818,7 +827,7 @@ separate buffer. Interactive use provides list of id values as completion. "
    (list
     (emacspeak-we-get-id-list)
     (emacspeak-webutils-read-url)
-    current-prefix-arg))
+    (or (called-interactively-p 'interactive) current-prefix-arg)))
   (let ((filter
          (mapconcat
           #'(lambda  (c)
@@ -1121,6 +1130,7 @@ used as well."
                                         ;("w" emacspeak-we-extract-by-property)
            ("x" emacspeak-we-extract-nested-table)
            ("y" emacspeak-we-class-filter-and-follow)
+           ("z" emacspeak-we-extract-speakable)
            )
          do
          (emacspeak-keymap-update emacspeak-we-xsl-map binding))

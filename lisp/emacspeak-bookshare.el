@@ -124,7 +124,7 @@ See http://developer.bookshare.org/docs for details on how to get
 (defvar emacspeak-bookshare-downloads-directory
   (expand-file-name "downloads/" emacspeak-bookshare-directory)
   "Directory where archives are saved on download.")
-;;;###autoload
+
 (defcustom emacspeak-bookshare-browser-function
   'eww-browse-url
   "Function to display Bookshare Book content in a WWW browser.
@@ -405,7 +405,7 @@ Optional argument 'no-auth says we dont need a user auth."
 Interactive prefix arg filters search by category."
   (interactive
    (list
-    (url-encode-url
+    (url-hexify-string
      (read-from-minibuffer "author: "))
     current-prefix-arg))
   (cond
@@ -426,7 +426,7 @@ Interactive prefix arg filters search by category."
 Interactive prefix arg filters search by category."
   (interactive
    (list
-    (url-encode-url
+    (url-hexify-string
      (read-from-minibuffer "Title: "))
     current-prefix-arg))
   (cond
@@ -643,7 +643,7 @@ b Browse
     (if (fboundp handler) handler 'emacspeak-bookshare-recurse)))
 
 (defvar emacspeak-bookshare-response-elements
-  '(bookshare version metadata messages string status-code
+  '(bookshare debugInfo  version metadata messages string status-code
               book user string downloads-remaining
               id name value editable
               periodical list page num-pages limit result)
@@ -685,6 +685,7 @@ b Browse
   (mapc #'emacspeak-bookshare-apply-handler (dom-children response)))
 
 (defalias 'emacspeak-bookshare-version-handler 'ignore)
+(defalias 'emacspeak-bookshare-debugInfo-handler 'ignore)
 
 (defun emacspeak-bookshare-recurse (tree)
   "Recurse down tree."
@@ -1116,7 +1117,7 @@ Target location is generated from author and title."
                 'auditory-icon 'item))
     (message "Unpacked content.")))
 
-;;;###autoload
+
 (defcustom emacspeak-bookshare-xslt
   "daisyTransform.xsl"
   "Name of bookshare  XSL transform."
@@ -1289,7 +1290,7 @@ Make sure it's downloaded and unpacked first."
     (emacspeak-xslt-view-file
      xsl
      (cl-first (directory-files directory 'full ".xml")))))
-;;;###autoload
+
 (defcustom emacspeak-bookshare-html-to-text-command
   "lynx -dump -stdin"
   "Command to convert html to text on stdin."
@@ -1351,11 +1352,12 @@ Useful for fulltext search in a book."
                                  (dired-get-filename))
                                emacspeak-bookshare-directory)))))
   (cl-declare (special emacspeak-xslt-program emacspeak-bookshare-directory
-                       emacspeak-bookshare-this-book))
+                       emacspeak-speak-directory-settings emacspeak-bookshare-this-book))
   (unless (fboundp 'eww)
     (error "Your Emacs doesn't have EWW."))
-  (let ((gc-cons-threshold 8000000)
+  (let ((gc-cons-threshold (max 8000000 gc-cons-threshold))
         (xsl (emacspeak-bookshare-xslt directory))
+          (locals (locate-dominating-file directory emacspeak-speak-directory-settings))
         (buffer (get-buffer-create "Full Text"))
         (command nil)
         (inhibit-read-only t))
@@ -1369,10 +1371,13 @@ Useful for fulltext search in a book."
       (erase-buffer)
       (setq buffer-undo-list t)
       (shell-command command (current-buffer) nil)
+      (when locals 
+      (setq locals (expand-file-name  emacspeak-speak-directory-settings locals)))
       (add-hook
        'emacspeak-web-post-process-hook
        #'(lambda nil
            (setq emacspeak-bookshare-this-book directory)
+           (when (and locals (file-exists-p locals))(load locals))
            (emacspeak-auditory-icon 'open-object)
            (emacspeak-speak-mode-line)))
       (browse-url-of-buffer)

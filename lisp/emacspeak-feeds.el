@@ -106,7 +106,8 @@
     ("BBC News"  "http://www.bbc.co.uk/syndication/feeds/news/ukfs_news/front_page/rss091.xml"  rss)
     ("CNet Tech News"  "http://feeds.feedburner.com/cnet/tcoc"  rss)
     )
-  "Table of RSS/Atom feeds."
+  "Table of RSS/Atom feeds.
+The feed list is persisted to file saved-feeds on exit."
   :type '(repeat
           (list :tag "Feed"
                 (string :tag "Title")
@@ -124,6 +125,16 @@
                      (string-lessp (cl-first a) (cl-first b)))))
       (emacspeak-feeds-cache-feeds))
   :group 'emacspeak-feeds)
+
+
+(add-hook
+ 'kill-emacs-hook
+ #'(lambda nil
+     (when (bound-and-true-p emacspeak-feeds)
+       (emacspeak--persist-variable
+        'emacspeak-feeds
+        (expand-file-name "saved-feeds"
+                          emacspeak-resource-directory)))))
 
 (defun emacspeak-feeds-added-p (feed-url)
   "Check if this feed has been added before."
@@ -148,7 +159,8 @@
      (t (push (list title url type) emacspeak-feeds)
         (let ((dtk-quiet t))
           (customize-save-variable 'emacspeak-feeds emacspeak-feeds))
-        (message "Added feed as %s" title)))))
+        (ems-with-messages-silenced
+            (message "Added feed as %s" title))))))
 
 (defvar emacspeak-feeds-archive-file
   (expand-file-name "feeds.el" emacspeak-resource-directory)

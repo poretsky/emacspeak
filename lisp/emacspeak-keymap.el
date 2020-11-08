@@ -182,7 +182,7 @@
    ("'" emacspeak-speak-sexp)
    ("(" emacspeak-audio-setup)
    (")" emacspeak-sounds-select-theme)
-   ("," emacspeak-speak-browse-buffer)
+   ("," emacspeak-speak-skim-buffer)
    ("." emacspeak-speak-current-field)
    ("/" emacspeak-speak-this-buffer-other-window-display)
    (":" emacspeak-m-player-shuffle)
@@ -569,7 +569,8 @@ interactive command that the key sequence executes."
     ("l" emacspeak-m-player-locate-media)
     ("m" emacspeak-wizards-view-buffers-filtered-by-this-mode)
     ("p" proced)
-    ("R" emacspeak-webspace-feed-reader))
+    ("R" emacspeak-webspace-feed-reader)
+    ("w" define-word))
   "*Specifies super key bindings for the audio desktop. You can
 turn the right `windows menu' keys on your Linux PC keyboard into
 a `super' key on Linux by having it emit the sequence `C-x@s'.
@@ -618,6 +619,7 @@ interactive command that the key sequence executes."
 (defcustom emacspeak-alt-keys 
   '(
     ("," emacspeak-eldoc-speak-doc)
+    ("SPC" emacspeak-eww-smart-tabs)
     ("a" emacspeak-feeds-atom-display)
     ("b" sox-binaural)
     ("c" emacspeak-wizards-view-buffers-filtered-by-this-mode)
@@ -697,7 +699,7 @@ command that the key sequence executes."
     ("a" emacspeak-wizards-term)
     ("b" eww-list-buffers)
     ("c" browse-url-chrome)
-    ("d" magit-dispatch-popup)
+    ("d" magit-dispatch)
     ("e" gmaps)
     ("F" rg-dwim)
     ("f" rg)
@@ -714,9 +716,10 @@ command that the key sequence executes."
     ("r" org-capture)
     ("s" emacspeak-wizards-shell)
     ("t" twit)
-    ("u" emacspeak-url-template-fetch)
+    ("u" list-unicode-display)
     ("v" vdiff-magit-popup)
-    ("w" emacspeak-wizards-quick-weather))
+    ("w" emacspeak-wizards-noaa-weather)
+    ("y" yas-expand))
   "*Specifies hyper key bindings for the audio desktop. Emacs can
 use the `hyper' key as a modifier key. You can turn the `windows'
 keys on your Linux PC keyboard into a `hyper' key on Linux by

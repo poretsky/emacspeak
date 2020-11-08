@@ -229,7 +229,7 @@
 ;;; @item C-a
 ;;; @command{emacspeak-feeds-atom-display}
 ;;; Display link under point as an @code{ATOM} feed.
-;;; item y
+;;; @item y
 ;;; @command{emacspeak-m-player-youtube-player}
 ;;; Play link under point as a Youtube stream.
 ;;; @end table
@@ -399,7 +399,7 @@
 (require 'cl-lib)
 (require 'pp)
 (eval-when-compile(require 'subr-x))
-(eval-when-compile (require 'eww "eww" 'no-error))
+(require 'eww  )
 (require 'dom)
 (require 'dom-addons)
 (eval-when-compile (require 'emacspeak-feeds "emacspeak-feeds" 'no-error))
@@ -509,7 +509,7 @@ are available are cued by an auditory icon on the header line."
       emacspeak-webutils-document-title #'emacspeak-eww-current-title
       emacspeak-webutils-url-at-point
       #'(lambda ()
-          (let ((url (get-text-property (point) 'help-echo)))
+          (let ((url (shr-url-at-point nil)))
             (cond
              ((and url
                    (stringp url)
@@ -533,10 +533,9 @@ are available are cued by an auditory icon on the header line."
   (emacspeak-auditory-icon (if emacspeak-eww-masquerade 'on 'off)))
 
 (defcustom  emacspeak-eww-masquerade-as
-  (format "User-Agent: %s %s %s\r\n"
-          "Mozilla/5.0 (X11; Linux i686 (x86_64)) "
-          "AppleWebKit/537.36 (KHTML, like Gecko) "
-          "Chrome/62.0.2785.8-1 Safari/537.36")
+  (format "User-Agent: %s\r\n"
+          "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3724.8 Safari/537.36"
+          )
   "User Agent string that is  sent when masquerading is on."
   :type 'string
   :group 'emacspeak-eww)
@@ -845,8 +844,7 @@ Retain previously set punctuations  mode."
   (emacspeak-auditory-icon 'button)
   (cond
    ((and (ems-interactive-p)
-         (boundp 'emacspeak-we-url-executor)
-         (fboundp emacspeak-we-url-executor)
+         (functionp emacspeak-we-url-executor)
          (y-or-n-p "Use custom executor? "))
     (let ((url (get-text-property (point) 'shr-url)))
       (unless url (error "No URL  under point"))
@@ -968,9 +966,10 @@ Retain previously set punctuations  mode."
 
 (defun eww-update-cache (dom)
   "Update element, role, class and id cache."
-  (cl-declare (special eww-element-cache eww-id-cache
-                       eww-property-cache eww-itemprop-cache
-                       eww-role-cache eww-class-cache emacspeak-eww-cache-updated))
+  (cl-declare (special
+               eww-element-cache eww-id-cache
+               eww-property-cache eww-itemprop-cache
+               eww-role-cache eww-class-cache emacspeak-eww-cache-updated))
   (when (listp dom)                     ; build cache
     (let ((id (dom-attr dom 'id))
           (class (dom-attr dom 'class))
@@ -980,7 +979,10 @@ Retain previously set punctuations  mode."
           (el (symbol-name (dom-tag dom)))
           (children (dom-children dom)))
       (when id (cl-pushnew id eww-id-cache :test #'string=))
-      (when class (cl-pushnew class eww-class-cache :test #'string=))
+      (when class
+        (let ((classes (split-string class " ")))
+          (cl-loop for c in classes do
+                   (cl-pushnew c eww-class-cache :test #'string=))))
       (when itemprop (cl-pushnew itemprop eww-itemprop-cache :test #'string=))
       (when role (cl-pushnew role eww-role-cache :test #'string=))
       (when property (cl-pushnew property eww-property-cache :test #'string=))
@@ -2007,18 +2009,9 @@ interactive prefix arg `delete', delete that mark instead."
   "Save Emacspeak EWW marks."
   (interactive)
   (cl-declare (special emacspeak-eww-marks-file emacspeak-eww-marks))
-  (let ((buffer (find-file-noselect emacspeak-eww-marks-file))
-        (print-length nil)
-        (print-level nil))
-    (with-current-buffer buffer
-      (erase-buffer)
-      (insert  ";;; Auto-generated.\n\n")
-      (insert "(setq emacspeak-eww-marks \n")
-      (pp emacspeak-eww-marks (current-buffer))
-      (insert ") ;;; set hash table\n\n")
-      (save-buffer))
-    (message "Saved Emacspeak EWW  marks.")
-    (emacspeak-auditory-icon 'save-object)))
+  (emacspeak--persist-variable 'emacspeak-eww-marks
+                               (expand-file-name "eww-marks"
+                                                 emacspeak-resource-directory)))
 
 (defvar emacspeak-eww-save-marks-timer nil
   "Idle timer for saving EWW marks.")
@@ -2066,6 +2059,82 @@ Warning: Running shell script cbox through this fails mysteriously."
         (cmd (completing-read "Shell Command: " emacspeak-eww-url-shell-commands)))
     (shell-command (format "%s '%s'" cmd url))
     (emacspeak-auditory-icon 'task-done)))
+;;}}}
+;;{{{Smart Tabs:
+
+(defvar emacspeak-eww-smart-tabs
+  (make-hash-table :test #'eq)
+  "Cache of  URL->Tabs mappings.")
+
+(defsubst emacspeak-eww-smart-tabs-put (key url)
+  " Add a  `URL'tou our smart tabs cache. "
+  (cl-declare (special emacspeak-eww-smart-tabs))
+  (puthash key url emacspeak-eww-smart-tabs))
+
+(defsubst emacspeak-eww-smart-tabs-get (key)
+  "Retrieve URL stored in `KEY'"
+  (cl-declare (special emacspeak-eww-smart-tabs))
+  (gethash key  emacspeak-eww-smart-tabs))
+
+;;;###autoload
+(defun emacspeak-eww-smart-tabs-add (char url )
+  "Add a URL to the specified location in smart tabs."
+  (interactive
+   (list
+    (read-char-exclusive "Tab:")
+    (read-from-minibuffer "URL:")))
+  (cl-declare (special emacspeak-eww-smart-tabs))
+  (emacspeak-eww-smart-tabs-put char url)
+  (emacspeak-auditory-icon 'close-object))
+
+
+;;;###autoload
+(defun emacspeak-eww-smart-tabs (char &optional define)
+  "Open URL in EWW keyed by  `char'.
+To associate a URL with a char, use this command
+with an interactive prefix arg. "
+  (interactive
+   (list
+    (read-char-exclusive "Tab:")
+    current-prefix-arg))
+  (cl-declare (special emacspeak-eww-smart-tabs))
+  (unless
+      (and
+       (bound-and-true-p emacspeak-eww-smart-tabs)
+       (not (hash-table-empty-p emacspeak-eww-smart-tabs)))
+    (emacspeak-eww-smart-tabs-load))
+  (when define
+    (emacspeak-eww-smart-tabs-add char (read-from-minibuffer "URL:")))
+  (let ((url (emacspeak-eww-smart-tabs-get char)))
+    (cl-assert (stringp url) t "No URL stored in this location.")
+    (emacspeak-auditory-icon 'button)
+    (eww url)))
+
+;;;###autoload
+(defun emacspeak-eww-smart-tabs-save ()
+  "Save our smart tabs to a file for reloading."
+  (interactive)
+  (when
+      (and 
+       (bound-and-true-p emacspeak-eww-smart-tabs)
+       (not (hash-table-empty-p emacspeak-eww-smart-tabs)))
+    (emacspeak--persist-variable
+     'emacspeak-eww-smart-tabs
+     (expand-file-name "smart-eww-tabs" emacspeak-resource-directory))))
+
+(add-hook
+ 'kill-emacs-hook
+ #'emacspeak-eww-smart-tabs-save)
+
+;;;###autoload
+(defun emacspeak-eww-smart-tabs-load ()
+  "Load our smart tabsfrom a file."
+  (interactive)
+  (cl-declare (special emacspeak-resource-directory))
+  (when (file-exists-p (expand-file-name "smart-eww-tabs" emacspeak-resource-directory))
+    (load-file
+     (expand-file-name "smart-eww-tabs" emacspeak-resource-directory))))
+
 ;;}}}
 (provide 'emacspeak-eww)
 ;;{{{ end of file

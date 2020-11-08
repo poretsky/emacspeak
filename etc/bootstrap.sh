@@ -8,7 +8,7 @@
 #  Prerequisites: espeak, libespeak libespeak-dev
 # libespeak-ng-libespeak-dev libespeak-ng-dev espeak-ng-espeak
 # Downloads,  builds and runs specified version.
-latest=48.0
+latest=49.0
 v=$1
 
 if [ ! -n "$1" ]
@@ -28,7 +28,7 @@ fi
 # Build it:
 cd "emacspeak-${v}"
 make config && make
-(cd servers/linux-espeak &&  make )
+(cd servers/native-espeak &&  make )
 #Run out of this directory.
 # Default to using  espeak unless DTK_PROGRAM is set.
 #

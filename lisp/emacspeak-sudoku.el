@@ -129,7 +129,7 @@ s   Sub-square Distribution.
   (cl-declare (special current-board))
   (dtk-speak-list
    (cl-loop for s from 0 to 8
-            collect  (count 0 (sudoku-subsquare current-board s)))
+            collect  (cl-count 0 (sudoku-subsquare current-board s)))
    3))
 
 (defun emacspeak-sudoku-speak-current-cell-coordinates ()
@@ -205,7 +205,7 @@ s   Sub-square Distribution.
   (cl-declare (special current-board))
   (let ((cell (sudoku-get-cell-from-point (point))))
     (dtk-speak
-     (count 0
+     (cl-count 0
             (sudoku-row current-board (cl-second cell))))))
 
 (defun emacspeak-sudoku-speak-remaining-in-column ()
@@ -214,7 +214,7 @@ s   Sub-square Distribution.
   (cl-declare (special current-board))
   (let ((cell (sudoku-get-cell-from-point (point))))
     (dtk-speak
-     (count 0
+     (cl-count 0
             (sudoku-column current-board  (cl-first cell))))))
 
 (defun emacspeak-sudoku-speak-remaining-in-sub-square ()
@@ -223,7 +223,7 @@ s   Sub-square Distribution.
   (cl-declare (special current-board))
   (let ((cell (sudoku-get-cell-from-point (point))))
     (dtk-speak
-     (count 0
+     (cl-count 0
             (sudoku-subsquare current-board
                               (emacspeak-sudoku-cell-sub-square cell))))))
 (defun emacspeak-sudoku-how-many-remaining ()

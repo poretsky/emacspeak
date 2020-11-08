@@ -601,7 +601,7 @@ the words that were capitalized."
 ;;}}}
 ;;{{{ advice tabify:
 
-;;;###autoload
+
 (defcustom emacspeak-untabify-fixes-non-breaking-space t
   "Advice untabify to change non-breaking space chars to space."
   :type 'boolean
@@ -752,7 +752,7 @@ icon."
                emacspeak-last-message (ansi-color-apply m))
          ;; so we really need to speak it
          (tts-with-punctuations 'all
-                                (dtk-notify-speak m 'dont-log)))
+           (dtk-notify-speak m 'dont-log)))
        ad-return-value))))
 
 (defadvice display-message-or-buffer (after emacspeak pre act comp)
@@ -820,13 +820,13 @@ icon."
 
 ;;{{{ advising signal
 
-;;;###autoload
+
 (defcustom emacspeak-speak-errors t
   "Specifies if error messages are cued."
   :type 'boolean
   :group 'emacspeak-speak)
 
-;;;###autoload
+
 (defvar emacspeak-speak-signals t
   "Specifies if signalled messages are cued.")
 
@@ -1312,7 +1312,8 @@ icon."
 (defadvice comint-send-input (after emacspeak pre act comp)
   "Flush any ongoing speech."
   (when (ems-interactive-p)
-    (dtk-stop)))
+    (dtk-stop)
+    (emacspeak-auditory-icon 'button)))
 
 (defadvice comint-previous-prompt (after emacspeak pre act comp)
   "Provide spoken feedback."
@@ -2594,6 +2595,11 @@ Produce auditory icons if possible."
      (when (ems-interactive-p)
        (emacspeak-speak-line)
        (emacspeak-auditory-icon 'large-movement)))))
+(defadvice occur-mode-display-occurrence (after emacspeak pre act comp)
+  "Provide auditory feedback."
+  (when (ems-interactive-p)
+    (emacspeak-auditory-icon 'open-object)
+    (message "Displayed occurrence in other window")))
 
 ;;}}}
 ;;{{{ abbrev mode advice
@@ -2987,6 +2993,47 @@ Produce auditory icons if possible."
   (when (ems-interactive-p)
     (emacspeak-auditory-icon 'open-object)
     (emacspeak-speak-mode-line)))
+
+;;}}}
+;;{{{list-timers:
+
+(defadvice list-timers (after emacspeak pre act comp)
+  "Provide auditory feedback."
+  (when (ems-interactive-p)
+    (emacspeak-auditory-icon 'open-object)
+    (emacspeak-speak-line)))
+
+
+;;}}}
+;;{{{find-library:
+
+(defadvice find-library (after emacspeak pre act comp)
+  "Provide auditory feedback."
+  (when (ems-interactive-p)
+    (emacspeak-auditory-icon 'open-object)
+    (emacspeak-speak-mode-line)))
+
+;;}}}
+;;{{{lv-message:
+
+(defvar lv-emacspeak-cache nil
+  "Emacspeak's private cache of the last lv message.")
+
+(voice-setup-set-voice-for-face 'lv-separator  'inaudible)
+
+(defadvice lv-message (after emacspeak pre act comp)
+  "Provide auditory feedback."
+  (cl-declare (special lv-emacspeak-cache))
+  (emacspeak-auditory-icon 'help)
+  (with-current-buffer (window-buffer (lv-window))
+    (setq lv-emacspeak-cache (buffer-substring (point-min) (point-max)))
+    (emacspeak-speak-buffer)))
+
+
+(defadvice lv-delete-window (after emacspeak pre act comp)
+  "Provide auditory feedback."
+  (dtk-stop)
+  (emacspeak-auditory-icon 'delete-object))
 
 ;;}}}
 (provide 'emacspeak-advice)

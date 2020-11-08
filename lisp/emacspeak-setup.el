@@ -137,7 +137,7 @@ such as pronunciation dictionaries are stored. ")
       (load-source-file-function  nil))
   (load (expand-file-name "emacspeak.elc" emacspeak-lisp-directory)))
 
-;;;###autoload
+
 (defcustom dtk-startup-hook
   '(emacspeak-tts-startup-hook emacspeak-tts-notify-hook)
   "List of hooks to be run after starting up the speech server.
@@ -152,7 +152,7 @@ hook."
   (cl-declare (special dtk-program))
   (tts-configure-synthesis-setup dtk-program))
 
-;;;###autoload
+
 (defcustom tts-notification-device
   (cl-first (split-string (shell-command-to-string  "aplay -L 2>/dev/null | grep mono")))
   "Virtual ALSA device to use for notifications stream."
@@ -180,10 +180,9 @@ hook."
 (defun emacspeak-tts-notify-hook ()
   "Starts up a notification stream if current synth supports  multiple invocations.
 TTS engine should use ALSA for this to be usable."
-  (cl-declare (special dtk-program dtk-notify-process
-                       emacspeak-tts-use-notify-stream))
+  (cl-declare (special dtk-program dtk-notify-process))
   (when (process-live-p dtk-notify-process) (delete-process dtk-notify-process))
-  (when (and emacspeak-tts-use-notify-stream (emacspeak-tts-multistream-p dtk-program))
+  (when (emacspeak-tts-multistream-p dtk-program)
     (dtk-notify-initialize)))
 
 ;;;###autoload
@@ -198,7 +197,7 @@ TTS engine should use ALSA for this to be usable."
   "This function turns off visual line mode globally.
 It's placed by default on customizable option `emacspeak-startup-hook'."
   (global-visual-line-mode -1))
-;;;###autoload
+
 (defcustom emacspeak-startup-hook
   '(emacspeak-setup-header-line emacspeak-turn-off-visual-line-mode)
   "Hook run after Emacspeak is started."

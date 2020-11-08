@@ -95,7 +95,7 @@ mac for MAC TTS (default on Mac)")
   "Text To Speech (TTS) customizations for the Emacspeak audio desktop."
   :group 'emacspeak
   :prefix "dtk-")
-;;;###autoload
+
 (defcustom tts-strip-octals nil
   "Set to T to strip all octal chars before speaking.
 Particularly useful for web browsing."
@@ -104,13 +104,13 @@ Particularly useful for web browsing."
   :group 'tts)
 (make-variable-buffer-local 'tts-strip-octals)
 
-;;;###autoload
+
 (defcustom dtk-speech-rate-base
   (if (string-match "dtk" dtk-program) 180 50)
   "*Value of lowest tolerable speech rate."
   :type 'integer
   :group 'tts)
-;;;###autoload
+
 (defcustom dtk-speech-rate-step
   (if (string-match "dtk" dtk-program) 50 8)
   "*Value of speech rate increment.
@@ -131,10 +131,10 @@ See command `dtk-toggle-quiet' bound to \\[dtk-toggle-quiet].")
 Do not set this variable by hand, use command  `dtk-toggle-split-caps'
  bound to \\[dtk-toggle-split-caps].")
 (make-variable-buffer-local 'dtk-split-caps)
-;;;###autoload
-(defcustom dtk-cleanup-patterns
+
+(defcustom dtk-cleanup-repeats
   (list
-   "." "_" "-" "=" "/" "+" "*" ":" ";" "%"
+   ". " "." "_" "-" "=" "/" "+" "*" ":" ";" "%"
    "\\/" "/\\" "{" "}" "~" "$" ")" "#" "<>")
   "List of repeating patterns to clean up.
 You can use  command  `dtk-add-cleanup-pattern'
@@ -298,28 +298,15 @@ Modifies text and point in buffer."
 
 ;;}}}
 ;;{{{  Helpers to handle invisible text:
-
-(defun text-visible-p (pos)
-  (not (invisible-p pos)))
-(unless (fboundp 'invisible-p)
-;;; defined in simple.el in Emacs 23.
-  (defun invisible-p (pos)
-    "Check if text is invisible. Emacspeak helper."
-    (cl-declare (special buffer-invisibility-spec))
-    (let ((prop (get-text-property pos 'invisible)))
-      (if (eq buffer-invisibility-spec t)
-          prop
-        (or (memq prop buffer-invisibility-spec)
-            (assq prop buffer-invisibility-spec)))))) ;;; needed before Emacs 23.
-
-(defun skip-invisible-forward ()
+ 
+(defun dtk--skip-invisible-forward ()
   (while (and (not (eobp))
               (invisible-p (point)))
     (goto-char
      (next-single-property-change (point) 'invisible
                                   (current-buffer) (point-max)))))
 
-(defun skip-invisible-backward ()
+(defun dtk--skip-invisible-backward ()
   "Move backwards over invisible text."
   (while (and (not (bobp))
               (invisible-p (point)))
@@ -327,14 +314,14 @@ Modifies text and point in buffer."
      (previous-single-property-change (point) 'invisible
                                       (current-buffer) (point-min)))))
 
-(defun delete-invisible-text ()
+(defun dtk--delete-invisible-text ()
   "Delete invisible text."
   (goto-char (point-min))
   (let ((start (point)))
     (while (not (eobp))
       (cond
        ((invisible-p (point))
-        (skip-invisible-forward)
+        (dtk--skip-invisible-forward)
         (delete-region start (point))
         (setq start (point)))
        (t (goto-char
@@ -356,7 +343,7 @@ Optional argument FORCE  flushes the command to the speech server."
       (dtk-interp-silence duration
                           (if force "\nd" "")))))
 
-;;;###autoload
+
 (defcustom dtk-use-tones t
   "Allow tones to be turned off."
   :type 'boolean
@@ -488,7 +475,7 @@ specifies the current pronunciation mode --- See
       (while (re-search-forward dtk-bracket-regexp nil t)
         (replace-match " " nil t))))))
 
-;;;###autoload
+
 (defcustom dtk-speak-nonprinting-chars nil
   "*Option that specifies handling of non-printing chars.
 Non nil value means non printing characters  should be
@@ -558,12 +545,12 @@ Argument MODE  specifies the current pronunciation mode."
     (goto-char (point-min))))
 
 (defun dtk-handle-repeating-patterns (mode)
-  (cl-declare (special dtk-cleanup-patterns))
+  (cl-declare (special dtk-cleanup-repeats))
   (goto-char (point-min))
   (mapc
    #'(lambda (str)
        (dtk-replace-duplicates str mode))
-   dtk-cleanup-patterns))
+   dtk-cleanup-repeats))
 
 (defvar dtk-null-char (format "%c" 0)
   "Null char.")
@@ -637,8 +624,8 @@ Argument COMPLEMENT  is the complement of separator."
 
 (defun dtk-speak-using-voice (voice text)
   "Use voice VOICE to speak text TEXT."
-  (cl-declare (special dtk-quiet tts-default-voice))
-  (unless (or (eq 'inaudible voice) dtk-quiet
+  (cl-declare (special  tts-default-voice))
+  (unless (or (eq 'inaudible voice) 
               (null text) (string-equal text "")
               (and (listp voice) (memq 'inaudible voice)))
 ;;; ensure text is a  string
@@ -815,17 +802,17 @@ will say ``aw fifteen dot'' when speaking the string
 ``...............'' instead of ``period period period period
 ''"
   (interactive "P")
-  (cl-declare (special dtk-cleanup-patterns))
+  (cl-declare (special dtk-cleanup-repeats))
   (cond
    (delete
-    (setq dtk-cleanup-patterns
+    (setq dtk-cleanup-repeats
           (delete
            (read-from-minibuffer "Specify repeating pattern to delete: ")
-           dtk-cleanup-patterns)))
-   (t (setq dtk-cleanup-patterns
+           dtk-cleanup-repeats)))
+   (t (setq dtk-cleanup-repeats
             (cons
              (read-from-minibuffer "Specify repeating pattern: ")
-             dtk-cleanup-patterns)))))
+             dtk-cleanup-repeats)))))
 
 ;;}}}
 ;;{{{  Controlling how we produce  output
@@ -1568,7 +1555,7 @@ available TTS servers.")
 
 (defvar tts-device "default"
   "Name of current sound device in use.")
-;;;###autoload
+
 (defcustom dtk-cloud-server "cloud-outloud"
   "Set this to your preferred cloud TTS server."
   :type '(string
@@ -1617,10 +1604,13 @@ ALSA_DEFAULT to specified device before starting the server."
 (defun dtk-cloud ()
   "Select preferred Cloud TTS server."
   (interactive)
-  (cl-declare (special dtk-cloud-server))
+  (cl-declare (special dtk-cloud-server
+                       emacspeak-tts-use-notify-stream))
   (dtk-select-server dtk-cloud-server)
   (dtk-initialize)
-  (when (emacspeak-tts-multistream-p dtk-cloud-server) (dtk-notify-initialize)))
+  (when (emacspeak-tts-multistream-p dtk-cloud-server)
+    (dtk-notify-initialize)
+    (setq emacspeak-tts-use-notify-stream t)))
 
 (defcustom tts-device-list (list "default")
   "List of ALSA sound devices  we can use."
@@ -1655,13 +1645,9 @@ Optional interactive prefix arg restarts current TTS server."
 (defvar dtk-local-server-process nil
   "Local server process.")
 
-;;;###autoload
-(defcustom dtk-speech-server-program "speech-server"
-  "Local speech server script."
-  :type '(choice :tag "Local Server"
-                 (const :tag "32 Bit" "32-speech-server")
-                 (const :tag "Default" "speech-server"))
-  :group 'dtk)
+
+(defvar dtk-speech-server-program "speech-server"
+  "Local speech server script.")
 (defvar dtk-local-server-port "2222"
   "Port where we run our local server.")
 ;;;###autoload
@@ -1875,7 +1861,7 @@ only speak upto the first ctrl-m."
         (set-buffer-multibyte inherit-enable-multibyte-characters)
         (dtk-interp-sync)
         (insert text)
-        (delete-invisible-text)
+        (dtk--delete-invisible-text)
         (when pronunciation-table
           (tts-apply-pronunciations pronunciation-table))
         (dtk-unicode-replace-chars mode)
@@ -2026,7 +2012,8 @@ Applies func to text with dtk-speaker-process bound to the  notification stream.
 ;;;###autoload
 (defun dtk-notify-speak (text &optional dont-log)
   "Speak text on notification stream.
-Fall back to dtk-speak if notification stream not available."
+Fall back to dtk-speak if notification stream not available.
+Notification is logged in the notifications buffer unless `dont-log' is T. "
   (cl-declare (special dtk-speaker-process emacspeak-last-message))
   (unless dont-log (emacspeak-log-notification text))
   (setq emacspeak-last-message text)
@@ -2053,6 +2040,14 @@ Fall back to dtk-speak if notification stream not available."
    ((dtk-notify-process)                ; we have a live notifier
     (dtk-notify-apply #'dtk-letter letter))
    (t (dtk-letter letter))))
+
+;;;###autoload
+(defun dtk-notify-icon (icon)
+  "Play icon  on notification stream. "
+  (cond
+   ((dtk-notify-process)                ; we have a live notifier
+    (dtk-notify-apply #'emacspeak-auditory-icon icon))))
+
 ;;; Forward Declaration
 (defvar tts-notification-device)
 

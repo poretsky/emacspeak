@@ -866,7 +866,7 @@ Signals end of buffer."
                                  voice-annotate skipped))
             (emacspeak-auditory-icon 'select-object)
             (dtk-speak
-             (concat skipped (ems-this-line))))))
+             (concat skipped (ems--this-line))))))
       (modify-syntax-entry 10 (format "%c" save-syntax)))))
 ;;;###autoload
 (defun emacspeak-skip-blank-lines-backward ()
@@ -899,7 +899,7 @@ Signals beginning  of buffer."
                                  voice-annotate skipped))
             (emacspeak-auditory-icon 'select-object)
             (dtk-speak
-             (concat skipped (ems-this-line))))))
+             (concat skipped (ems--this-line))))))
       (modify-syntax-entry 10 (format "%c" save-syntax)))))
 
 ;;}}}
@@ -1271,14 +1271,14 @@ Optional interactive prefix arg ask-pwd prompts for password."
    (list
     (let ((completion-ignored-extensions nil))
       (expand-file-name
-       (read-file-name "PDF File: "
-                       nil default-directory
-                       t nil
-                       #'(lambda (name)
-                           (string-match ".pdf$" name)))))
+       (read-file-name
+        "PDF File: "
+        nil default-directory
+        t nil)))
     current-prefix-arg))
   (cl-declare (special emacspeak-wizards-pdf-to-text-options
                        emacspeak-wizards-pdf-to-text-program))
+  (cl-assert (string-match ".pdf$"filename) t "Not a PDF file.")
   (let ((passwd (when ask-pwd (read-passwd "User Password:")))
         (output-buffer
          (format "%s"
@@ -2360,7 +2360,7 @@ of the source buffer."
   (cl-declare (special emacspeak-wizards-project-shells))
   (unless emacspeak-wizards-project-shells (shell))
   (cl-loop
-   for pair in emacspeak-wizards-project-shells do
+   for pair in (reverse emacspeak-wizards-project-shells) do
    (let ((name (cl-first pair))
          (dir (cl-second pair)))
      (ems--shell-pushd-if-needed dir (shell name))
@@ -3336,10 +3336,20 @@ access to the various functions provided by alpha-vantage."
 (defvar emacspeak-wizards-iex-base
   "https://api.iextrading.com/1.0"
   "Rest End-Point For iex Stock API.")
+(defun ems--json-read-file (filename)
+  "Use native json implementation if available to read json file."
+  (cond
+   ((fboundp 'json-parse-string)
+    (with-current-buffer (find-file-noselect filename)
+      (goto-char (point-min))
+      (prog1
+          (json-parse-buffer :object-type 'alist)
+        (kill-buffer ))))
+   (t (json-read-file filename))))
 
 (defvar emacspeak-wizards-iex-cache
   (when (file-exists-p emacspeak-wizards-iex-portfolio-file)
-    (json-read-file emacspeak-wizards-iex-portfolio-file))
+    (ems--json-read-file emacspeak-wizards-iex-portfolio-file))
   "Cache retrieved data to save API calls.")
 
 (defun emacspeak-wizards-iex-uri (symbols)
@@ -3365,7 +3375,7 @@ Caches results locally in `emacspeak-wizards-iex-portfolio-file'."
     (shell-command
      (format "%s -s -o %s '%s'"
              g-curl-program emacspeak-wizards-iex-portfolio-file url))
-    (setq emacspeak-wizards-iex-cache (json-read-file emacspeak-wizards-iex-portfolio-file))))
+    (setq emacspeak-wizards-iex-cache (ems--json-read-file emacspeak-wizards-iex-portfolio-file))))
 
 ;;;###autoload
 (defun emacspeak-wizards-iex-show-price (symbol)
@@ -3633,7 +3643,7 @@ Optional interactive prefix arg shows  unprocessed results."
     (with-current-buffer buffer
       (erase-buffer)
       (special-mode)
-      (orgstruct-mode)
+      (org-mode)
       (insert (format "* Standings: %s\n\n" date))
       (cond
        (raw
@@ -4046,7 +4056,7 @@ updating custom settings for a specific package or group of packages."
 
 (defun ems--noaa-url (&optional geo)
   "Return NOAA Weather API REST end-point for specified lat/long.
-Location is a Lat/Lng pair retrieved from Googke Maps API."
+Location is a Lat/Lng pair retrieved from Google Maps API."
   (cl-declare (special gweb-my-address))
   (cl-assert (or geo gweb-my-address) nil "Location not specified.")
   (unless geo (setq geo (gmaps-address-geocode gweb-my-address)))

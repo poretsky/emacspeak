@@ -80,13 +80,13 @@
 ;;}}}
 ;;{{{ This line:
 
-(defun ems-this-line ()
+(defsubst ems--this-line ()
   "Return current line as string."
   (buffer-substring (line-beginning-position) (line-end-position)))
 
 ;;}}}
 ;;{{{ Helper: voicify string
-(defun ems-voiceify-string (string personality)
+(defsubst ems-voiceify-string (string personality)
   "Apply personality PERSONALITY to STRING."
   (put-text-property 0 (length string)
                      'personality personality string))
@@ -111,7 +111,6 @@
 ;;}}}
 ;;{{{  line, Word and Character echo
 
-;;;###autoload
 (defcustom emacspeak-line-echo nil
   "If t, then emacspeak echoes lines as you type.
 You can use \\[emacspeak-toggle-line-echo] to set this
@@ -124,7 +123,7 @@ option."
                        "Toggle state of  Emacspeak  line echo.
 Interactive PREFIX arg means toggle  the global default value, and then set the
 current local  value to the result.")
-;;;###autoload
+
 (defcustom emacspeak-word-echo t
   "If t, then emacspeak echoes words as you type.
 You can use \\[emacspeak-toggle-word-echo] to toggle this
@@ -137,7 +136,7 @@ option."
                        "Toggle state of  Emacspeak  word echo.
 Interactive PREFIX arg means toggle  the global default value, and then set the
 current local  value to the result.")
-;;;###autoload
+
 (defcustom emacspeak-character-echo t
   "If t, then emacspeak echoes characters  as you type.
 You can
@@ -522,7 +521,7 @@ Value returned is compatible with `encode-time'."
 ;;}}}
 ;;{{{  url link pattern:
 
-;;;###autoload
+
 (defcustom emacspeak-speak-embedded-url-pattern
   "<https?:[^ \t]*>"
   "Pattern to recognize embedded URLs."
@@ -741,7 +740,7 @@ current local  value to the result.")
 (defun emacspeak-speak-persist-filter-entry (k v)
   (insert
    (format
-    "(cl-puthash
+    "(puthash
 (intern \"%s\")
 '%s
 emacspeak-speak-filter-table)\n" k v)))
@@ -771,17 +770,9 @@ emacspeak-speak-filter-table)\n" k v)))
   "Persist emacspeak filter settings for future sessions."
   (cl-declare (special emacspeak-speak-filter-persistent-store
                        emacspeak-speak-filter-table))
-  (let ((print-level nil)
-        (print-length nil)
-        (buffer (find-file-noselect
-                 emacspeak-speak-filter-persistent-store)))
-    (save-current-buffer
-      (set-buffer buffer)
-      (erase-buffer)
-      (maphash 'emacspeak-speak-persist-filter-entry
-               emacspeak-speak-filter-table)
-      (save-buffer)
-      (kill-buffer buffer))))
+  (emacspeak--persist-variable
+   'emacspeak-speak-filter-table
+   emacspeak-speak-filter-persistent-store))
 
 (defun emacspeak-speak-load-filter-settings ()
   "Load emacspeak filter settings."
@@ -919,7 +910,7 @@ with auditory icon `more'.  These can then be spoken using command
   (interactive "P")
   (cl-declare (special voice-animate voice-indent linum-mode
                        dtk-stop-immediately dtk-punctuation-mode
-                       dtk-cleanup-patterns
+                       dtk-cleanup-repeats
                        emacspeak-speak-line-invert-filter emacspeak-speak-blank-line-regexp
                        emacspeak-speak-maximum-line-length emacspeak-show-point
                        emacspeak-decoration-rule emacspeak-horizontal-rule
@@ -927,14 +918,15 @@ with auditory icon `more'.  These can then be spoken using command
   (when (listp arg) (setq arg (car arg)))
   (when dtk-stop-immediately (dtk-stop))
   (let ((inhibit-field-text-motion t)
-        (dtk-cleanup-patterns
+        (dtk-cleanup-repeats
          (cond
           ((and emacspeak-show-point
                 (= ?\) (char-syntax (following-char)))))
-          (t dtk-cleanup-patterns)))
+          (t dtk-cleanup-repeats)))
         (inhibit-read-only t)
         (inhibit-point-motion-hooks t)
         (inhibit-modification-hooks t)
+        (icon (get-char-property (point) 'auditory-icon))
         (before (get-char-property (point) 'before-string))
         (after (get-char-property (point) 'after-string))
         (display (get-char-property (point) 'display))
@@ -955,8 +947,7 @@ with auditory icon `more'.  These can then be spoken using command
      ((null arg))
      ((> arg 0) (setq start orig))
      (t (setq end orig)))
-    (when (get-char-property start 'auditory-icon)
-      (emacspeak-auditory-icon (get-char-property (point) 'auditory-icon)))
+    (when icon (emacspeak-auditory-icon icon))
     (when emacspeak-show-point
       (emacspeak-auditory-icon
        (cond
@@ -1936,7 +1927,7 @@ The result is put in the kill ring for convenience."
 ;;}}}
 ;;{{{ Speak header-line
 
-;;;###autoload
+
 (defcustom emacspeak-use-header-line t
   "Use default header line defined  by Emacspeak for buffers that
 dont customize the header."
@@ -2133,7 +2124,7 @@ Seconds value is also placed in the kill-ring."
     result))
 
 (defvar emacspeak-codename
-  (propertize "WiseDog" 'face 'bold)
+  (propertize "SageDog" 'face 'bold)
   "Code name of present release.")
 
 (defun emacspeak-setup-get-revision ()
@@ -2147,7 +2138,7 @@ Seconds value is also placed in the kill-ring."
       "")))
 
 (defvar emacspeak-version
-  (concat "49.0  " emacspeak-codename)
+  (concat "50.0  " emacspeak-codename)
   "Version number for Emacspeak.")
 
 ;;;###autoload
@@ -2298,7 +2289,7 @@ by a change in voice personality."
       (goto-char pos)
       (ems-set-personality-temporarily
        pos (1+ pos) voice-animate
-       (setq line (ems-this-line))))
+       (setq line (ems--this-line))))
     (dtk-speak
      (concat context line))))
 
@@ -2313,22 +2304,20 @@ personality."
   (let ((start (dtk-previous-style-change (point)))
         (end (dtk-next-style-change (point))))
     (emacspeak-speak-region
-     (or start (point-min))
-     (or end (point-max)))))
+     (if  start (1+ start) (point-min))
+     (or  end  (point-max)))))
 
 ;;;###autoload
 (defun emacspeak-speak-next-personality-chunk ()
   "Moves to the front of next chunk having current personality.
 Speak that chunk after moving."
   (interactive)
-  (let ((personality (dtk-get-style))
-        (this-end (dtk-next-style-change (point) (point-max)))
+  (let ((this-end (dtk-next-style-change (point) (point-max)))
         (next-start nil))
     (cond
      ((and (< this-end (point-max))
            (setq next-start
-                 (text-property-any this-end (point-max)
-                                    'personality personality)))
+                 (dtk-next-style-change this-end (point-max))))
       (goto-char next-start)
       (forward-char 1)
       (emacspeak-speak-this-personality-chunk))
@@ -2394,21 +2383,21 @@ Speak that chunk after moving."
     (emacspeak-auditory-icon 'large-movement)))
 
 ;;}}}
-;;{{{ speaking Face chunks
+;;{{{ speaking face   chunks
 
 ;;;###autoload
 (defun emacspeak-speak-this-face-chunk ()
   "Speak chunk of text around point that has current face."
   (interactive)
-  (let ((start (previous-char-property-change (point)))
-        (end (next-char-property-change (point))))
+  (let ((start (previous-single-property-change (point) 'face))
+        (end (next-single-property-change (point) 'face )))
     (emacspeak-speak-region
-     (or start (point-min))
+     (if  start (1+ start) (point-min))
      (or end (point-max)))))
 
 ;;;###autoload
 (defun emacspeak-speak-next-face-chunk ()
-  "Moves to the front of next chunk having current face.
+  "Moves to the front of next chunk having current style.
 Speak that chunk after moving."
   (interactive)
   (let ((face (get-text-property (point) 'face))
@@ -2416,12 +2405,10 @@ Speak that chunk after moving."
         (next-start nil))
     (cond
      ((and (< this-end (point-max))
-           (setq next-start
-                 (text-property-any this-end (point-max)
-                                    'face face)))
+           (setq next-start (next-single-property-change this-end 'face)))
       (goto-char next-start)
-      (forward-char 1)
-      (emacspeak-speak-this-face-chunk))
+      (when (eq face  (get-text-property (point) 'face))
+        (emacspeak-speak-this-face-chunk)))
      (t (message "No more chunks with current face.")))))
 
 ;;;###autoload
@@ -2429,21 +2416,20 @@ Speak that chunk after moving."
   "Moves to the front of previous chunk having current face.
 Speak that chunk after moving."
   (interactive)
-  (let ((face (get-char-property (point) 'face))
-        (this-start (previous-char-property-change (point)))
-        (next-end nil))
+  (let ((face (get-text-property (point) 'face))
+        (this-start (previous-single-property-change (point)  'face))
+        (prev-end nil))
     (cond
      ((and (> this-start (point-min))
-           (setq next-end
-                 (ems-backwards-text-property-any (1- this-start) (point-min)
-                                                  'face face)))
-      (goto-char next-end)
-      (backward-char 1)
-      (emacspeak-speak-this-face-chunk))
+           (setq prev-end
+                 (previous-single-property-change (1- this-start) 'face)))
+      (goto-char prev-end)
+      (when (eq face (get-text-property (point) 'face))
+        (emacspeak-speak-this-face-chunk)))
      (t (error "No previous  chunks with current face.")))))
 
 ;;}}}
-;;{{{  Execute command repeatedly, browse
+;;{{{  Execute command repeatedly,
 
 ;;;###autoload
 (defun emacspeak-execute-repeatedly (command)
@@ -2478,16 +2464,16 @@ etc.  Speaking commences at current buffer position.  Pressing
 was spoken.  Any other key continues to speak the buffer."
   (interactive)
   (let ((command
-         (key-binding (read-key-sequence "Press key sequence to repeat: "))))
+         (key-binding (read-key-sequence "Press navigation key to repeat: "))))
     (unless command (error "You specified an invalid key sequence.  "))
     (emacspeak-execute-repeatedly command)))
 
 ;;;###autoload
-(defun emacspeak-speak-browse-buffer (&optional browse)
-  "Browse current buffer.
-Default is to speak chunk having current personality.
+(defun      emacspeak-speak-browse-buffer-by-style (&optional browse)
+  "Browse current buffer by style.
+Default is to speak chunk having current style.
 Interactive prefix arg `browse'  repeatedly browses  through
-  chunks having same personality as the current text chunk."
+  chunks having same style as the current text chunk."
   (interactive "P")
   (cond
    (browse
@@ -2495,40 +2481,14 @@ Interactive prefix arg `browse'  repeatedly browses  through
      'emacspeak-speak-next-personality-chunk))
    (t (emacspeak-speak-this-personality-chunk))))
 
-(defvar emacspeak-read-line-by-line-quotient 10
-  "Determines behavior of emacspeak-read-line-by-line.")
 ;;}}}
 ;;{{{  skimming
-
-;;;###autoload
-(defun emacspeak-speak-skim-paragraph ()
-  "Skim paragraph.
-Skimming a paragraph results in the speech speeding up after
-the first clause.
-Speech is scaled by the value of dtk-speak-skim-scale"
-  (interactive)
-  (save-excursion
-    (let ((inhibit-point-motion-hooks t)
-          (start nil)
-          (end nil))
-      (forward-paragraph 1)
-      (setq end (point))
-      (backward-paragraph 1)
-      (setq start (point))
-      (dtk-speak (buffer-substring start end)))))
-
-;;;###autoload
-(defun emacspeak-speak-skim-next-paragraph ()
-  "Skim next paragraph."
-  (interactive)
-  (forward-paragraph 1)
-  (emacspeak-speak-skim-paragraph))
 
 ;;;###autoload
 (defun emacspeak-speak-skim-buffer ()
   "Skim the current buffer  a paragraph at a time."
   (interactive)
-  (emacspeak-execute-repeatedly 'emacspeak-speak-skim-next-paragraph))
+  (emacspeak-execute-repeatedly 'forward-paragraph))
 
 ;;}}}
 ;;{{{ comint
@@ -2709,7 +2669,7 @@ if `emacspeak-speak-message-again-should-copy-to-kill-ring' is set."
       (emacspeak-speak-line)
       (when (and (called-interactively-p 'interactive)
                  emacspeak-speak-message-again-should-copy-to-kill-ring)
-        (kill-new (ems-this-line)))))))
+        (kill-new (ems--this-line)))))))
 
 (defun emacspeak-announce (announcement)
   "Speak the ANNOUNCEMENT, if possible.
@@ -3484,7 +3444,7 @@ settings? "))
 
 ;;}}}
 ;;{{{ silence:
-;;;###autoload
+
 (defcustom emacspeak-silence-hook nil
   "Functions run after emacspeak-silence is called."
   :type '(repeat function)
@@ -3688,6 +3648,29 @@ This command  is designed for use in a windowing environment like X."
   (emacspeak-auditory-icon 'help)
   (with-current-buffer (window-buffer (selected-window))
     (emacspeak-speak-mode-line)))
+
+;;}}}
+
+;;{{{Utility: Persist variable to a file:
+(defun emacspeak--persist-variable (var file)
+  "Persist variable  `var' to file `FILE'.
+Arranges for `VAR' to be restored when `file' is loaded."
+  (interactive)
+  (when (and (not noninteractive) (boundp var))
+    (let ((buffer (find-file-noselect file))
+          (print-length nil)
+          (print-level nil))
+      (with-current-buffer buffer
+        (erase-buffer)
+        (insert ";;; Auto-generated.\n\n")
+        (insert (format "(setq %s \n" var))
+        (if (listp (symbol-value var)) (insert "'"))
+        (pp (symbol-value var) (current-buffer))
+        (insert (format ") ;;; set%s\n\n" var))
+        (save-buffer))
+
+      (emacspeak-auditory-icon 'save-object)
+      (message "Saved %s." var))))
 
 ;;}}}
 (provide 'emacspeak-speak)

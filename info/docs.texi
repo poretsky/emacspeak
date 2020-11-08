@@ -4,7 +4,7 @@
 
 @include intro-docs.texi
 
-This chapter documents a total of 1234 commands and 894 options.
+This chapter documents a total of 1232 commands and 912 options.
 
 @menu
 * acss-structure::CSS -- Cascaded Speech Style structure.
@@ -26,7 +26,6 @@ This chapter documents a total of 1234 commands and 894 options.
 * emacspeak-apt-sources::speech-enable APT's sources.list file editor.
 * emacspeak-arc::Speech enable archive-mode -- a  Emacs interface to zip and friends.
 * emacspeak-auctex::Speech enable AucTeX -- a powerful TeX/LaTeX authoring environment.
-* emacspeak-aumix::Configure audio device settings.
 * emacspeak-bbc::Speech-enabled  BBC client.
 * emacspeak-bbdb::Speech enable BBDB -- a powerful address manager.
 * emacspeak-bibtex::Speech enable bibtex -- Supports maintaining bibliographies in bibtex format.
@@ -86,10 +85,12 @@ This chapter documents a total of 1234 commands and 894 options.
 * emacspeak-flycheck::Speech-enable FLYCHECK.
 * emacspeak-flyspell::Speech enable flyspell.
 * emacspeak-folding::Speech enable Folding Mode -- enables structured editing.
+* emacspeak-forge::Speech-enable FORGE.
 * emacspeak-forms::Speech enable Emacs' forms mode  -- provides  a convenient database interface.
 * emacspeak-ftf::Speech-enable find-things-fast.
 * emacspeak-geiser::Speech-enable GEISER.
 * emacspeak-generic::Speech enable  generic modes.
+* emacspeak-gh-explorer::Speech-enable GH-EXPLORER.
 * emacspeak-gnuplot::speech-enable gnuplot mode.
 * emacspeak-gnus::Speech enable GNUS -- Fluent spoken access to imap, usenet.
 * emacspeak-go-mode::Speech-enable GO-MODE.
@@ -104,6 +105,7 @@ This chapter documents a total of 1234 commands and 894 options.
 * emacspeak-hydra::Speech-Enable hydra.
 * emacspeak-ibuffer::speech-enable ibuffer buffer selection.
 * emacspeak-ido::speech-enable ido.
+* emacspeak-iedit::Speech-enable IEDIT.
 * emacspeak-imenu::Speech enable Imenu -- produce buffer-specific table of contents.
 * emacspeak-indium::Speech-enable INDIUM, A Javascript IDE.
 * emacspeak-info::Speech enable Info -- Emacs' online documentation viewer.
@@ -132,6 +134,7 @@ This chapter documents a total of 1234 commands and 894 options.
 * emacspeak-mspools::Speech enable MSpools -- Monitor multiple mail drops.
 * emacspeak-muggles::Convenience Hydras For The Emacspeak Desktop.
 * emacspeak-muse::Speech-enable Muse.
+* emacspeak-navi-mode::Speech-enable NAVI-MODE.
 * emacspeak-net-utils::Speech enable net-utils.
 * emacspeak-newsticker::Speech-enable newsticker.
 * emacspeak-npr::Speech-enabled  NPR client.
@@ -139,7 +142,7 @@ This chapter documents a total of 1234 commands and 894 options.
 * emacspeak-ocr::ocr Front-end for emacspeak desktop.
 * emacspeak-org::Speech-enable org.
 * emacspeak-origami::Speech-enable ORIGAMI.
-* emacspeak-outline::Speech enable Outline --   Browsing  Structured Documents.
+* emacspeak-outline::
 * emacspeak-package::Speech-enable PACKAGE.
 * emacspeak-paradox::Speech-enable PARADOX.
 * emacspeak-perl::Speech enable Perl Mode.
@@ -196,6 +199,7 @@ This chapter documents a total of 1234 commands and 894 options.
 * emacspeak-threes::Speech-enable THREES.
 * emacspeak-tide::Speech-enable TIDE.
 * emacspeak-todo-mode::speech-enable todo-mode.
+* emacspeak-transient::Speech-enable TRANSIENT.
 * emacspeak-twittering::Speech-enable Twittering-mode.
 * emacspeak-typo::Speech-enable TYPO.
 * emacspeak-url-template::Create library of URI templates.
@@ -1057,7 +1061,7 @@ Speak version.
 
 @subsection dtk-speak Options
 
-@defvar {User Option} dtk-cleanup-patterns
+@defvar {User Option} dtk-cleanup-repeats
 List of repeating patterns to clean up.
 You can use  command  ‘dtk-add-cleanup-pattern’
  bound to C-e d a  to add more patterns.
@@ -1099,11 +1103,6 @@ it seems some accented characters in certain contexts.
 This determines step size used when setting speech rate via command
 ‘dtk-set-predefined-speech-rate’.  Formula used is
 dtk-speech-rate-base  +  dtk-speech-rate-step*level.
-
-@end defvar
-
-@defvar {User Option} dtk-speech-server-program
-Local speech server script.
 
 @end defvar
 
@@ -1253,7 +1252,7 @@ $		emacspeak-shell-command
 '		emacspeak-speak-sexp
 (		emacspeak-audio-setup
 )		emacspeak-sounds-select-theme
-,		emacspeak-speak-browse-buffer
+,		emacspeak-speak-skim-buffer
 .		dtk-notify-stop
 /		emacspeak-speak-this-buffer-other-window-display
 0 .. 9		emacspeak-speak-predefined-window
@@ -1484,6 +1483,7 @@ x e u		emacspeak-we-extract-matching-urls
 x e v		emacspeak-we-class-filter-and-follow-link
 x e x		emacspeak-we-extract-nested-table
 x e y		emacspeak-we-class-filter-and-follow
+x e z		emacspeak-we-extract-speakable
 
 C-t M-<		emacspeak-table-goto-top
 C-t M->		emacspeak-table-goto-bottom
@@ -1513,7 +1513,7 @@ N		emacspeak-npr-listing
 a		emacspeak-wizards-term
 b		eww-list-buffers
 c		browse-url-chrome
-d		magit-dispatch-popup
+d		magit-dispatch
 e		gmaps
 f		rg
 g		gnus
@@ -1529,9 +1529,10 @@ p		emacspeak-wizards-pdf-open
 r		org-capture
 s		emacspeak-wizards-shell
 t		twit
-u		emacspeak-url-template-fetch
+u		list-unicode-display
 v		vdiff-magit-popup
-w		emacspeak-wizards-quick-weather
+w		emacspeak-wizards-noaa-weather
+y		yas-expand
 
 SPC SPC		emacspeak-webspace-headlines-browse
 SPC h		emacspeak-webspace-headlines
@@ -1566,6 +1567,7 @@ r		soundscape-restart
 s		soundscape
 t		soundscape-toggle
 u		soundscape-update-mood
+w		define-word
 
 .
 
@@ -1573,6 +1575,7 @@ Press C-, to access keybindings in emacspeak-alt-keymap:
 key             binding
 ---             -------
 
+SPC		emacspeak-eww-smart-tabs
 ,		emacspeak-eldoc-speak-doc
 a		emacspeak-feeds-atom-display
 b		sox-binaural
@@ -2253,78 +2256,6 @@ This personality uses  voice-smoothen whose  effect can be changed globally by c
 
 @defvar {User Option} voice-error
 Personality used for error
-This personality uses  voice-animate whose  effect can be changed globally by customizing voice-animate-settings.
-
-@end defvar
-
-@defvar {User Option} voice-eshell-ls-archive
-Personality used for eshell-ls-archive
-This personality uses  voice-lighten-extra whose  effect can be changed globally by customizing voice-lighten-extra-settings.
-
-@end defvar
-
-@defvar {User Option} voice-eshell-ls-backup
-Personality used for eshell-ls-backup
-This personality uses  voice-monotone-medium whose  effect can be changed globally by customizing voice-monotone-medium-settings.
-
-@end defvar
-
-@defvar {User Option} voice-eshell-ls-clutter
-Personality used for eshell-ls-clutter
-This personality uses  voice-smoothen-extra whose  effect can be changed globally by customizing voice-smoothen-extra-settings.
-
-@end defvar
-
-@defvar {User Option} voice-eshell-ls-directory
-Personality used for eshell-ls-directory
-This personality uses  voice-bolden whose  effect can be changed globally by customizing voice-bolden-settings.
-
-@end defvar
-
-@defvar {User Option} voice-eshell-ls-executable
-Personality used for eshell-ls-executable
-This personality uses  voice-animate-extra whose  effect can be changed globally by customizing voice-animate-extra-settings.
-
-@end defvar
-
-@defvar {User Option} voice-eshell-ls-missing
-Personality used for eshell-ls-missing
-This personality uses  voice-brighten whose  effect can be changed globally by customizing voice-brighten-settings.
-
-@end defvar
-
-@defvar {User Option} voice-eshell-ls-product
-Personality used for eshell-ls-product
-This personality uses  voice-lighten-medium whose  effect can be changed globally by customizing voice-lighten-medium-settings.
-
-@end defvar
-
-@defvar {User Option} voice-eshell-ls-readonly
-Personality used for eshell-ls-readonly
-This personality uses  voice-monotone whose  effect can be changed globally by customizing voice-monotone-settings.
-
-@end defvar
-
-@defvar {User Option} voice-eshell-ls-special
-Personality used for eshell-ls-special
-This personality uses  voice-lighten-extra whose  effect can be changed globally by customizing voice-lighten-extra-settings.
-
-@end defvar
-
-@defvar {User Option} voice-eshell-ls-symlink
-Personality used for eshell-ls-symlink
-This personality uses  voice-smoothen whose  effect can be changed globally by customizing voice-smoothen-settings.
-
-@end defvar
-
-@defvar {User Option} voice-eshell-ls-unreadable
-Personality used for eshell-ls-unreadable
-This personality uses  voice-monotone-medium whose  effect can be changed globally by customizing voice-monotone-medium-settings.
-
-@end defvar
-
-@defvar {User Option} voice-eshell-prompt
-Personality used for eshell-prompt
 This personality uses  voice-animate whose  effect can be changed globally by customizing voice-animate-settings.
 
 @end defvar
@@ -4395,108 +4326,6 @@ Speak the size of the file on current line
 Speech-enables the AucTeX package.
 AucTeX, now available from ELPA, has been my authoring environment of choice for writing LaTeX since 1991.
 
-@node emacspeak-aumix
-@section emacspeak-aumix
-
-Provides an AUI to setting up the auditory display via AUMIX
-This module is presently Linux specific
-
-@subsection emacspeak-aumix Commands
-
-@subsubsection emacspeak-aumix
-@deffn {Command} emacspeak-aumix   
-@findex emacspeak-aumix
-
-@format
-Setup output parameters of the auditory display.
- Launch this tool while you have auditory output on
-multiple channels playing so you can
-adjust the settings to your preference.  Hit q to quit when
-you are done.
-@end format
-@end deffn
-
-@subsubsection emacspeak-aumix-edit
-@deffn {Command} emacspeak-aumix-edit   
-@findex emacspeak-aumix-edit
-
-@format
-Edit aumix settings interactively. 
-Run command M-x emacspeak-aumix-reset
-after saving the settings to have them take effect.
-@end format
-@end deffn
-
-@subsubsection emacspeak-aumix-reset
-@deffn {Command} emacspeak-aumix-reset   
-@findex emacspeak-aumix-reset
-
-@format
-Reset to default audio settings.
-@end format
-@end deffn
-
-@subsubsection emacspeak-aumix-volume-decrease
-@deffn {Command} emacspeak-aumix-volume-decrease  (&optional gain)
-@findex emacspeak-aumix-volume-decrease
-
-@format
-Decrease overall volume. 
-
-(fn &optional GAIN)
-@end format
-@end deffn
-
-@subsubsection emacspeak-aumix-volume-increase
-@deffn {Command} emacspeak-aumix-volume-increase  (&optional gain)
-@findex emacspeak-aumix-volume-increase
-
-@format
-Increase overall volume. 
-
-(fn &optional GAIN)
-@end format
-@end deffn
-
-@subsubsection emacspeak-aumix-wave-decrease
-@deffn {Command} emacspeak-aumix-wave-decrease  (&optional gain)
-@findex emacspeak-aumix-wave-decrease
-
-@format
-Decrease volume of wave output. 
-
-(fn &optional GAIN)
-@end format
-@end deffn
-
-@subsubsection emacspeak-aumix-wave-increase
-@deffn {Command} emacspeak-aumix-wave-increase  (&optional gain)
-@findex emacspeak-aumix-wave-increase
-
-@format
-Increase volume of wave output. 
-
-(fn &optional GAIN)
-@end format
-@end deffn
-
-@subsection emacspeak-aumix Options
-
-@defvar {User Option} emacspeak-alsactl-program
-ALSA sound controller used to restore settings.
-
-@end defvar
-
-@defvar {User Option} emacspeak-aumix-reset-options
-*Option to pass to aumix for resetting to default values.
-
-@end defvar
-
-@defvar {User Option} emacspeak-aumix-settings-file
-*Name of file containing personal aumix settings.
-
-@end defvar
-
 @node emacspeak-bbc
 @section emacspeak-bbc
 
@@ -4721,6 +4550,18 @@ Browse popular books.
 Optional interactive prefix arg prompts for a category to use as a filter.
 
 (fn &optional CATEGORY)
+@end format
+@end deffn
+
+@subsubsection emacspeak-bookshare-debugInfo-handler
+@deffn {Command} emacspeak-bookshare-debugInfo-handler  (&rest ignore)
+@findex emacspeak-bookshare-debugInfo-handler
+
+@format
+Do nothing and return nil.
+This function accepts any number of arguments, but ignores them.
+
+(fn &rest IGNORE)
 @end format
 @end deffn
 
@@ -6917,6 +6758,78 @@ personalities.
 
 @end defvar
 
+@defvar {User Option} voice-eshell-ls-archive
+Personality used for eshell-ls-archive
+This personality uses  voice-lighten-extra whose  effect can be changed globally by customizing voice-lighten-extra-settings.
+
+@end defvar
+
+@defvar {User Option} voice-eshell-ls-backup
+Personality used for eshell-ls-backup
+This personality uses  voice-monotone-medium whose  effect can be changed globally by customizing voice-monotone-medium-settings.
+
+@end defvar
+
+@defvar {User Option} voice-eshell-ls-clutter
+Personality used for eshell-ls-clutter
+This personality uses  voice-smoothen-extra whose  effect can be changed globally by customizing voice-smoothen-extra-settings.
+
+@end defvar
+
+@defvar {User Option} voice-eshell-ls-directory
+Personality used for eshell-ls-directory
+This personality uses  voice-bolden whose  effect can be changed globally by customizing voice-bolden-settings.
+
+@end defvar
+
+@defvar {User Option} voice-eshell-ls-executable
+Personality used for eshell-ls-executable
+This personality uses  voice-animate-extra whose  effect can be changed globally by customizing voice-animate-extra-settings.
+
+@end defvar
+
+@defvar {User Option} voice-eshell-ls-missing
+Personality used for eshell-ls-missing
+This personality uses  voice-brighten whose  effect can be changed globally by customizing voice-brighten-settings.
+
+@end defvar
+
+@defvar {User Option} voice-eshell-ls-product
+Personality used for eshell-ls-product
+This personality uses  voice-lighten-medium whose  effect can be changed globally by customizing voice-lighten-medium-settings.
+
+@end defvar
+
+@defvar {User Option} voice-eshell-ls-readonly
+Personality used for eshell-ls-readonly
+This personality uses  voice-monotone whose  effect can be changed globally by customizing voice-monotone-settings.
+
+@end defvar
+
+@defvar {User Option} voice-eshell-ls-special
+Personality used for eshell-ls-special
+This personality uses  voice-lighten-extra whose  effect can be changed globally by customizing voice-lighten-extra-settings.
+
+@end defvar
+
+@defvar {User Option} voice-eshell-ls-symlink
+Personality used for eshell-ls-symlink
+This personality uses  voice-smoothen whose  effect can be changed globally by customizing voice-smoothen-settings.
+
+@end defvar
+
+@defvar {User Option} voice-eshell-ls-unreadable
+Personality used for eshell-ls-unreadable
+This personality uses  voice-monotone-medium whose  effect can be changed globally by customizing voice-monotone-medium-settings.
+
+@end defvar
+
+@defvar {User Option} voice-eshell-prompt
+Personality used for eshell-prompt
+This personality uses  voice-animate whose  effect can be changed globally by customizing voice-animate-settings.
+
+@end defvar
+
 @node emacspeak-ess
 @section emacspeak-ess
 
@@ -7703,7 +7616,7 @@ Display link under point as an @code{RSS} feed.
 @item C-a
 @command{emacspeak-feeds-atom-display}
 Display link under point as an @code{ATOM} feed.
-item y
+@item y
 @command{emacspeak-m-player-youtube-player}
 Play link under point as a Youtube stream.
 @end table
@@ -8389,6 +8302,55 @@ Warning: Running shell script cbox through this fails mysteriously.
 @end format
 @end deffn
 
+@subsubsection emacspeak-eww-smart-tabs
+@deffn {Command} emacspeak-eww-smart-tabs  (char &optional define)
+@table @kbd
+@item C-, SPC
+@kindex C-, SPC
+@item C-x @@ a SPC
+@kindex C-x @@ a SPC
+@end table
+
+@findex emacspeak-eww-smart-tabs
+
+@format
+Open URL in EWW keyed by  ‘char’.
+To associate a URL with a char, use this command
+with an interactive prefix arg. 
+
+(fn CHAR &optional DEFINE)
+@end format
+@end deffn
+
+@subsubsection emacspeak-eww-smart-tabs-add
+@deffn {Command} emacspeak-eww-smart-tabs-add  (char url)
+@findex emacspeak-eww-smart-tabs-add
+
+@format
+Add a URL to the specified location in smart tabs.
+
+(fn CHAR URL)
+@end format
+@end deffn
+
+@subsubsection emacspeak-eww-smart-tabs-load
+@deffn {Command} emacspeak-eww-smart-tabs-load   
+@findex emacspeak-eww-smart-tabs-load
+
+@format
+Load our smart tabsfrom a file.
+@end format
+@end deffn
+
+@subsubsection emacspeak-eww-smart-tabs-save
+@deffn {Command} emacspeak-eww-smart-tabs-save   
+@findex emacspeak-eww-smart-tabs-save
+
+@format
+Save our smart tabs to a file for reloading.
+@end format
+@end deffn
+
 @subsubsection emacspeak-eww-speak-this-element
 @deffn {Command} emacspeak-eww-speak-this-element  (element)
 @findex emacspeak-eww-speak-this-element
@@ -8588,6 +8550,7 @@ XSL stylesheet used for viewing Atom Feeds.
 
 @defvar {User Option} emacspeak-feeds
 Table of RSS/Atom feeds.
+The feed list is persisted to file saved-feeds on exit.
 
 @end defvar
 
@@ -8816,6 +8779,56 @@ emacs 19 comes with similar packages, e.g. allout.el
 This module defines some advice forms that make folding mode a pleasure to use.
 Think of a fold as a container.
 
+@node emacspeak-forge
+@section emacspeak-forge
+
+FORGE ==  Work with Github, Gitlab etc from inside magit.
+This module speech-enables magit/forge.
+
+@subsection emacspeak-forge Options
+
+@defvar {User Option} voice-forge-post-author
+Personality used for forge-post-author
+This personality uses  voice-lighten whose  effect can be changed globally by customizing voice-lighten-settings.
+
+@end defvar
+
+@defvar {User Option} voice-forge-post-date
+Personality used for forge-post-date
+This personality uses  voice-monotone whose  effect can be changed globally by customizing voice-monotone-settings.
+
+@end defvar
+
+@defvar {User Option} voice-forge-topic-closed
+Personality used for forge-topic-closed
+This personality uses  voice-smoothen whose  effect can be changed globally by customizing voice-smoothen-settings.
+
+@end defvar
+
+@defvar {User Option} voice-forge-topic-merged
+Personality used for forge-topic-merged
+This personality uses  voice-brighten whose  effect can be changed globally by customizing voice-brighten-settings.
+
+@end defvar
+
+@defvar {User Option} voice-forge-topic-open
+Personality used for forge-topic-open
+This personality uses  voice-bolden whose  effect can be changed globally by customizing voice-bolden-settings.
+
+@end defvar
+
+@defvar {User Option} voice-forge-topic-unmerged
+Personality used for forge-topic-unmerged
+This personality uses  voice-animate whose  effect can be changed globally by customizing voice-animate-settings.
+
+@end defvar
+
+@defvar {User Option} voice-forge-topic-unread
+Personality used for forge-topic-unread
+This personality uses  voice-highlight whose  effect can be changed globally by customizing voice-highlight-settings.
+
+@end defvar
+
 @node emacspeak-forms
 @section emacspeak-forms
 
@@ -8914,6 +8927,32 @@ This module speech-enables generic.el so that modes
 defined using  define-generic-mode get voice locking
 support. Examples include apache-generic-mode and
 friends defined in generic-x.el
+
+@node emacspeak-gh-explorer
+@section emacspeak-gh-explorer
+
+GH-EXPLORER ==  GitHub Explorer 
+This module speech-enables Github Explorer.
+
+@subsection emacspeak-gh-explorer Commands
+
+@subsubsection emacspeak-gh-explorer-next
+@deffn {Command} emacspeak-gh-explorer-next   
+@findex emacspeak-gh-explorer-next
+
+@format
+Move forward and speak current entry.
+@end format
+@end deffn
+
+@subsubsection emacspeak-gh-explorer-previous
+@deffn {Command} emacspeak-gh-explorer-previous   
+@findex emacspeak-gh-explorer-previous
+
+@format
+Moveback and speak current entry.
+@end format
+@end deffn
 
 @node emacspeak-gnuplot
 @section emacspeak-gnuplot
@@ -9682,6 +9721,26 @@ the entire list.
 
 @defvar {User Option} emacspeak-ido-typing-delay
 How long we wait before speaking completions.
+
+@end defvar
+
+@node emacspeak-iedit
+@section emacspeak-iedit
+
+IEDIT ==  Edit multiple regions
+This module speech-enables iedit.
+
+@subsection emacspeak-iedit Options
+
+@defvar {User Option} voice-iedit-occurrence
+Personality used for iedit-occurrence
+This personality uses  voice-lock-overlay-1 whose  effect can be changed globally by customizing voice-lock-overlay-1-settings.
+
+@end defvar
+
+@defvar {User Option} voice-iedit-read-only-occurrence
+Personality used for iedit-read-only-occurrence
+This personality uses  voice-monotone whose  effect can be changed globally by customizing voice-monotone-settings.
 
 @end defvar
 
@@ -13115,6 +13174,11 @@ This personality uses  voice-bolden-extra whose  effect can be changed globally 
 
 @end defvar
 
+@node emacspeak-navi-mode
+@section emacspeak-navi-mode
+
+NAVI-MODE ==  Remote control for buffer navigation
+
 @node emacspeak-net-utils
 @section emacspeak-net-utils
 
@@ -15343,6 +15407,18 @@ Choose the completion at point.
 @end format
 @end deffn
 
+@subsubsection emacspeak--persist-variable
+@deffn {Command} emacspeak--persist-variable  (var file)
+@findex emacspeak--persist-variable
+
+@format
+Persist variable  ‘var’ to file ‘FILE’.
+Arranges for ‘VAR’ to be restored when ‘file’ is loaded.
+
+(fn VAR FILE)
+@end format
+@end deffn
+
 @subsubsection emacspeak-blink-matching-open
 @deffn {Command} emacspeak-blink-matching-open   
 @findex emacspeak-blink-matching-open
@@ -15698,22 +15774,15 @@ Speak extent delimited by point and last character typed.
 @end format
 @end deffn
 
-@subsubsection emacspeak-speak-browse-buffer
-@deffn {Command} emacspeak-speak-browse-buffer  (&optional browse)
-@table @kbd
-@item C-e ,
-@kindex C-e ,
-@item <fn> ,
-@kindex <fn> ,
-@end table
-
-@findex emacspeak-speak-browse-buffer
+@subsubsection emacspeak-speak-browse-buffer-by-style
+@deffn {Command} emacspeak-speak-browse-buffer-by-style  (&optional browse)
+@findex emacspeak-speak-browse-buffer-by-style
 
 @format
-Browse current buffer.
-Default is to speak chunk having current personality.
+Browse current buffer by style.
+Default is to speak chunk having current style.
 Interactive prefix arg ‘browse’  repeatedly browses  through
-  chunks having same personality as the current text chunk.
+  chunks having same style as the current text chunk.
 
 (fn &optional BROWSE)
 @end format
@@ -16282,7 +16351,7 @@ Interactive prefix arg speaks buffer info.
 @findex emacspeak-speak-next-face-chunk
 
 @format
-Moves to the front of next chunk having current face.
+Moves to the front of next chunk having current style.
 Speak that chunk after moving.
 @end format
 @end deffn
@@ -16775,31 +16844,17 @@ also copied to the kill ring for convenient yanking.
 
 @subsubsection emacspeak-speak-skim-buffer
 @deffn {Command} emacspeak-speak-skim-buffer   
+@table @kbd
+@item C-e ,
+@kindex C-e ,
+@item <fn> ,
+@kindex <fn> ,
+@end table
+
 @findex emacspeak-speak-skim-buffer
 
 @format
 Skim the current buffer  a paragraph at a time.
-@end format
-@end deffn
-
-@subsubsection emacspeak-speak-skim-next-paragraph
-@deffn {Command} emacspeak-speak-skim-next-paragraph   
-@findex emacspeak-speak-skim-next-paragraph
-
-@format
-Skim next paragraph.
-@end format
-@end deffn
-
-@subsubsection emacspeak-speak-skim-paragraph
-@deffn {Command} emacspeak-speak-skim-paragraph   
-@findex emacspeak-speak-skim-paragraph
-
-@format
-Skim paragraph.
-Skimming a paragraph results in the speech speeding up after
-the first clause.
-Speech is scaled by the value of dtk-speak-skim-scale
 @end format
 @end deffn
 
@@ -19025,6 +19080,132 @@ todo-mode (part of Emacs 21) provides todo-lists that can be
 integrated with the Emacs calendar.
 This module speech-enables todo-mode
 
+@node emacspeak-transient
+@section emacspeak-transient
+
+TRANSIENT ==  Transient commands --- used by magit and friends.
+This module speech-enables transient.
+
+@subsection Introduction
+
+Package Transient is similar to package Hydra in the sense that it can
+be used to create a sequence of chained/hierarchical commands that are
+invoked via a sequence of keys. It is used by Magit for dispatching to
+the various Git commands.
+Speech-enabling package Transient results in the various interactive
+commands producing auditory feedback. Transient
+shows an ephemeral window with the currently available commands,
+Emacspeak speech-enables transient--show to speak that content.
+
+Finally, this module defines a new minor mode called
+transient-emacspeak  that  enables  interactive browsing of the
+contents displayed temporarily. Note that without this
+functionality, learning complex packages like Magit would be difficult
+because  the list of available commands (potentially very long) gets
+spoken in its entirety by the advice on transient--show.
+
+@subsection Browsing Contents Of transient--show
+
+When executing a command defined via Transient --- e.g. command
+Magit-dispatch and friends, press @kbd {C-z} (transient-suspend) to
+temporarily suspend   the currently active transient. Emacspeak now
+displays a  *transient-emacspeak* buffer that displays the contents of the
+most recently displayed transient choices. Pressing @kbd {C-c} resumes
+the transient; Pressing @kbd{C-q} quits the transient.
+
+@subsection emacspeak-transient Commands
+
+@subsubsection emacspeak-transient-mode
+@deffn {Command} emacspeak-transient-mode   
+@findex emacspeak-transient-mode
+
+@format
+emacspeak integration with Transient.
+
+In addition to any hooks its parent mode ‘special-mode’ might have run,
+this mode runs the hook ‘emacspeak-transient-mode-hook’, as the final or penultimate step
+during initialization.
+
+key             binding
+---             -------
+
+@end format
+@end deffn
+
+@subsection emacspeak-transient Options
+
+@defvar {User Option} voice-transient-argument
+Personality used for transient-argument
+This personality uses  voice-animate whose  effect can be changed globally by customizing voice-animate-settings.
+
+@end defvar
+
+@defvar {User Option} voice-transient-disabled-suffix
+Personality used for transient-disabled-suffix
+This personality uses  voice-smoothen whose  effect can be changed globally by customizing voice-smoothen-settings.
+
+@end defvar
+
+@defvar {User Option} voice-transient-enabled-suffix
+Personality used for transient-enabled-suffix
+This personality uses  voice-brighten whose  effect can be changed globally by customizing voice-brighten-settings.
+
+@end defvar
+
+@defvar {User Option} voice-transient-heading
+Personality used for transient-heading
+This personality uses  voice-bolden whose  effect can be changed globally by customizing voice-bolden-settings.
+
+@end defvar
+
+@defvar {User Option} voice-transient-inactive-argument
+Personality used for transient-inactive-argument
+This personality uses  voice-smoothen-extra whose  effect can be changed globally by customizing voice-smoothen-extra-settings.
+
+@end defvar
+
+@defvar {User Option} voice-transient-inactive-value
+Personality used for transient-inactive-value
+This personality uses  voice-smoothen-extra whose  effect can be changed globally by customizing voice-smoothen-extra-settings.
+
+@end defvar
+
+@defvar {User Option} voice-transient-key
+Personality used for transient-key
+This personality uses  voice-highlight whose  effect can be changed globally by customizing voice-highlight-settings.
+
+@end defvar
+
+@defvar {User Option} voice-transient-mismatched-key
+Personality used for transient-mismatched-key
+This personality uses  voice-monotone whose  effect can be changed globally by customizing voice-monotone-settings.
+
+@end defvar
+
+@defvar {User Option} voice-transient-nonstandard-key
+Personality used for transient-nonstandard-key
+This personality uses  voice-monotone whose  effect can be changed globally by customizing voice-monotone-settings.
+
+@end defvar
+
+@defvar {User Option} voice-transient-unreachable
+Personality used for transient-unreachable
+This personality uses  voice-monotone whose  effect can be changed globally by customizing voice-monotone-settings.
+
+@end defvar
+
+@defvar {User Option} voice-transient-unreachable-key
+Personality used for transient-unreachable-key
+This personality uses  voice-monotone whose  effect can be changed globally by customizing voice-monotone-settings.
+
+@end defvar
+
+@defvar {User Option} voice-transient-value
+Personality used for transient-value
+This personality uses  voice-brighten whose  effect can be changed globally by customizing voice-brighten-settings.
+
+@end defvar
+
 @node emacspeak-twittering
 @section emacspeak-twittering
 
@@ -19084,12 +19265,8 @@ that are presently defined.
 @table @kbd
 @item C-e u
 @kindex C-e u
-@item C-; u
-@kindex C-; u
 @item <fn> u
 @kindex <fn> u
-@item C-x @@ h u
-@kindex C-x @@ h u
 @end table
 
 @findex emacspeak-url-template-fetch
@@ -19148,6 +19325,18 @@ Save out url templates.
 (fn FILE)
 @end format
 @end deffn
+
+@subsection emacspeak-url-template Options
+
+@defvar {User Option} emacspeak-url-template-currency-base
+Currency to use as the base when doing currency conversion.
+
+@end defvar
+
+@defvar {User Option} emacspeak-url-template-currency-list
+List of currencies for which we request rates by default.
+
+@end defvar
 
 @node emacspeak-vdiff
 @section emacspeak-vdiff
@@ -19882,6 +20071,24 @@ operate on current web page when in a browser buffer; otherwise
 @end format
 @end deffn
 
+@subsubsection emacspeak-we-extract-speakable
+@deffn {Command} emacspeak-we-extract-speakable  (url &optional speak)
+@table @kbd
+@item C-e x e z
+@kindex C-e x e z
+@item <fn> x e z
+@kindex <fn> x e z
+@end table
+
+@findex emacspeak-we-extract-speakable
+
+@format
+Extract elements having class‘speakable’ from HTML. 
+
+(fn URL &optional SPEAK)
+@end format
+@end deffn
+
 @subsubsection emacspeak-we-extract-table-by-match
 @deffn {Command} emacspeak-we-extract-table-by-match  (match url &optional speak)
 @table @kbd
@@ -20390,17 +20597,6 @@ When using supported browsers,  this interface attempts to speak the most releva
 @end format
 @end deffn
 
-@subsubsection emacspeak-websearch-exchange-rate-converter
-@deffn {Command} emacspeak-websearch-exchange-rate-converter  (conversion-spec)
-@findex emacspeak-websearch-exchange-rate-converter
-
-@format
-Currency converter.
-
-(fn CONVERSION-SPEC)
-@end format
-@end deffn
-
 @subsubsection emacspeak-websearch-foldoc-search
 @deffn {Command} emacspeak-websearch-foldoc-search  (query)
 @findex emacspeak-websearch-foldoc-search
@@ -20583,17 +20779,6 @@ Search SourceForge Site.
 @end format
 @end deffn
 
-@subsubsection emacspeak-websearch-weather
-@deffn {Command} emacspeak-websearch-weather  (query)
-@findex emacspeak-websearch-weather
-
-@format
-Get weather forecast for specified zip code.
-
-(fn QUERY)
-@end format
-@end deffn
-
 @subsubsection emacspeak-websearch-wikipedia-search
 @deffn {Command} emacspeak-websearch-wikipedia-search  (query)
 @findex emacspeak-websearch-wikipedia-search
@@ -20613,17 +20798,6 @@ Search Wikipedia using Google.
 Perform an Yahoo  search
 
 (fn QUERY)
-@end format
-@end deffn
-
-@subsubsection emacspeak-websearch-yahoo-exchange-rate-converter
-@deffn {Command} emacspeak-websearch-yahoo-exchange-rate-converter  (conversion-spec)
-@findex emacspeak-websearch-yahoo-exchange-rate-converter
-
-@format
-Currency converter.
-
-(fn CONVERSION-SPEC)
 @end format
 @end deffn
 
@@ -20659,11 +20833,6 @@ Number of results to return from google search.
 
 @defvar {User Option} emacspeak-websearch-google-options
 Additional options to pass to Google e.g. &xx=yy...
-
-@end defvar
-
-@defvar {User Option} emacspeak-websearch-google-use-https
-Specify whether we use secure connections for Google search.
 
 @end defvar
 
@@ -22542,10 +22711,14 @@ Switch to next shell.
 @subsubsection emacspeak-wizards-noaa-weather
 @deffn {Command} emacspeak-wizards-noaa-weather  (&optional ask)
 @table @kbd
+@item C-; w
+@kindex C-; w
 @item C-e x w
 @kindex C-e x w
 @item <fn> x w
 @kindex <fn> x w
+@item C-x @@ h w
+@kindex C-x @@ h w
 @end table
 
 @findex emacspeak-wizards-noaa-weather
@@ -22665,13 +22838,6 @@ Switch to previous shell.
 
 @subsubsection emacspeak-wizards-quick-weather
 @deffn {Command} emacspeak-wizards-quick-weather   
-@table @kbd
-@item C-; w
-@kindex C-; w
-@item C-x @@ h w
-@kindex C-x @@ h w
-@end table
-
 @findex emacspeak-wizards-quick-weather
 
 @format
@@ -24164,7 +24330,7 @@ Walking directions from Google Maps.
 
 @subsection gmaps Options
 
-@defvar {User Option} gmaps-places-key
+@defvar {User Option} gmaps-api-key
 Places API  key --- goto  https://code.google.com/apis/console to get one.
 
 @end defvar
@@ -25468,11 +25634,11 @@ Step-size used when incrementing and decrementing brightness.
 @node URL Templates 
 @section URL Templates
 
-This section documents a total of 85 URL Templates.
+This section documents a total of 87 URL Templates.
 
 All of these URL templates can be invoked via command
  @kbd{M-x emacspeak-url-template-fetch} normally bound to
- @kbd{C-e u C-; u <fn> u C-x @ h u}.
+ @kbd{C-e u <fn> u}.
 This command prompts for the name of the template, and completion
  is available via Emacs' minibuffer completion.
 Each URL template carries out the following steps:
@@ -25486,359 +25652,200 @@ Each URL template carries out the following steps:
 As an example, the URL template for weather forecasts
 prompts for a location and speaks the forecast. 
 
-@b{AQI: Air Quality Index}
+@enumerate 
 
-Return Air Quality for specified zip-code
+@item @b{AQI: Air Quality Index}
 
-@b{Air Traffic Control}
+Return Air Quality for specified zip-code@item @b{Air Traffic Control}
 
-Find live streams for Air Traffic Control.
+Find live streams for Air Traffic Control.@item @b{Airport conditions}
 
-@b{Airport conditions}
+Display airport conditions from the FAA.@item @b{Amazon Product Details By ASIN}
 
-Display airport conditions from the FAA.
+Retrieve product details from Amazon by either ISBN or ASIN.@item @b{Anonymize Google Search}
 
-@b{Amazon Product Details By ASIN}
+Logout from Google to do an anonymous search.@item @b{ArchWiki Search}
 
-Retrieve product details from Amazon by either ISBN or ASIN.
+Search Linux ArchWiki@item @b{BBC Genre Using IPlayer}
 
-@b{Anonymize Google Search}
+BBC iPlayer Genre@item @b{BBC Podcast Directory}
 
-Logout from Google to do an anonymous search.
+BBC PodCast Directory@item @b{BBC Program Guide}
 
-@b{ArchWiki Search}
+Display interactive BBC Program Guide.@item @b{BBC World News Summary}
 
-Search Linux ArchWiki
+BBC World News Summary@item @b{BBC iPlayer}
 
-@b{BBC Genre Using IPlayer}
+BBC iPlayer@item @b{Baseball Box Scores}
 
-BBC iPlayer Genre
+Display baseball Play By Play.@item @b{Baseball Game Details}
 
-@b{BBC Podcast Directory}
+Display baseball Play By Play.@item @b{Baseball Game Index}
 
-BBC PodCast Directory
+Display baseball Play By Play.@item @b{Baseball Highlights}
 
-@b{BBC Program Guide}
+Display baseball Video Highlights.@item @b{Baseball scores}
 
-Display interactive BBC Program Guide.
+Display baseball scores.@item @b{Bing News}
 
-@b{BBC World News Summary}
+Bing News results as RSS feed.@item @b{Bing Search}
 
-BBC World News Summary
+Bing results as RSS feed.@item @b{Bloomberg Stock  Lookup}
 
-@b{BBC iPlayer}
+Lookup Stock Quote information on Bloomberg. Ticker is of the form goog:us@item @b{CIA Leaders Of The World}
 
-BBC iPlayer
+Open CIA World Leaders  For Specified Country.@item @b{CIA World Fact Book}
 
-@b{Baseball Box Scores}
+Open CIA World Fact Book For Specified Country.@item @b{CNN Content}
 
-Display baseball Play By Play.
+Filter down to CNN content area.@item @b{CNN Headlines}
 
-@b{Baseball Game Details}
+News Headlines From CNN@item @b{CNN Market Data }
 
-Display baseball Play By Play.
+Market data filtered from CNN Money@item @b{CNN PodCasts}
 
-@b{Baseball Game Index}
+List CNN Podcast media links.@item @b{Currency Converter}
 
-Display baseball Play By Play.
+Currency Converter. Currencies can be a comma-separated list of
+codes.@item @b{Dictionary Lookup}
 
-@b{Baseball Highlights}
+Dictionary Lookup@item @b{EmacsWiki Search}
 
-Display baseball Video Highlights.
+EmacsWiki Search@item @b{Finance Google Search}
 
-@b{Baseball scores}
+Display content from Google Finance.@item @b{FreeSound}
 
-Display baseball scores.
-
-@b{Bing News}
-
-Bing News results as RSS feed.
-
-@b{Bing Search}
-
-Bing results as RSS feed.
-
-@b{Bloomberg Stock  Lookup}
-
-Lookup Stock Quote information on Bloomberg. Ticker is of the form goog:us
-
-@b{CNN Content}
-
-Filter down to CNN content area.
-
-@b{CNN Market Data }
-
-CNN Money
-
-@b{CNN PodCasts}
-
-List CNN Podcast media links.
-
-@b{Dictionary Lookup}
-
-Dictionary Lookup
-
-@b{EmacsWiki Search}
-
-EmacsWiki Search
-
-@b{Finance Google Search}
-
-Display content from Google Finance.
-
-@b{FreeSound}
-
-Search FreeSound.
-
-@b{GitHub Code Search}
+Search FreeSound.@item @b{GitHub Code Search}
 
 GitHub Code Search.
 Query can include filters such as:
 
 <term>: Query Term.
 extension:<ext> Filter by file extension
--filename:<pattern> Filter out files matching pattern.
+-filename:<pattern> Filter out files matching pattern.@item @b{GitHub Search}
 
-@b{GitHub Search}
+Perform a GitHub Search.@item @b{GoLang Browse}
 
-Perform a GitHub Search.
+Browse GoLang package documentation.@item @b{GoLang Lookup}
 
-@b{GoLang Browse}
+Lookup GoLang package documentation.@item @b{GoLang Search}
 
-Browse GoLang package documentation.
+Search GoLang package documentation.@item @b{Google Category News}
 
-@b{GoLang Lookup}
+Google News By Category.@item @b{Google Image Search}
 
-Lookup GoLang package documentation.
+Google Image Search@item @b{Google News Search}
 
-@b{GoLang Search}
+Search Google news.@item @b{Google Regional News}
 
-Search GoLang package documentation.
+Google News By Region.@item @b{Google Related Trends}
 
-@b{Google Category News}
+Display Related Query Trends.@item @b{Google Scholar}
 
-Google News By Category.
+Google Scholar Search@item @b{Google Transcoder}
 
-@b{Google Image Search}
+Transcode site via Google.@item @b{Google Trends}
 
-Google Image Search
+Google Trends@item @b{Google Webmaster Page Analysis}
 
-@b{Google News Search}
+Page Analysis From Google Webmaster tools.@item @b{Guardian RSS Feeds Directory}
 
-Search Google news.
+Guardian Feeds  Directory@item @b{MLB Scorecard}
 
-@b{Google Regional News}
+Show MLB Scorecard.@item @b{MLB standings}
 
-Google News By Region.
+Display MLB standings.@item @b{Money Headlines From CNN}
 
-@b{Google Related Trends}
-
-Display Related Query Trends.
-
-@b{Google Scholar}
-
-Google Scholar Search
-
-@b{Google Transcoder}
-
-Transcode site via Google.
-
-@b{Google Trends}
-
-Google Trends
-
-@b{Google Trends Compared}
-
-Display comparative trends.
-
-@b{Google Webmaster Page Analysis}
-
-Page Analysis From Google Webmaster tools.
-
-@b{Guardian RSS Feeds Directory}
-
-Guardian Feeds  Directory
-
-@b{MLB Scorecard}
-
-Show MLB Scorecard.
-
-@b{MLB standings}
-
-Display MLB standings.
-
-@b{Multilingual dictionary via Google.}
+Money Headlines From CNN@item @b{Multilingual dictionary via Google.}
 
 Translate word using Google.
 Source and target languages
 are specified as two-letter language codes, e.g. en|de translates
-from English to German
+from English to German@item @b{NBA  standings}
 
-@b{NBA  standings}
-
-Display NBA standings.
-
-@b{NLS Bard Popular}
+Display NBA standings.@item @b{NLS Bard Popular}
 
 NLS Bard Catalog: Most Popular. Login once before using this
-template.
-
-@b{NLS Bard Recent}
+template.@item @b{NLS Bard Recent}
 
 NLS Bard Catalog: Recently Added. Login once before using this
-template.
+template.@item @b{NLS Bard Search}
 
-@b{NLS Bard Search}
+Search NLS Bard Catalog. Login once before using this template.@item @b{NY Times Mobile}
 
-Search NLS Bard Catalog. Login once before using this template.
+NYTimes Mobile Site@item @b{NY Times RSS Feeds}
 
-@b{NY Times Mobile}
+Display browsable list of NY Times RSS Feeds.@item @b{Old Time Radio}
 
-NYTimes Mobile Site
+This months Old Time Radio Programming@item @b{OpenLibrary}
 
-@b{NY Times RSS Feeds}
+Open Library Search@item @b{Patent Search From Google}
 
-Display browsable list of NY Times RSS Feeds.
+Perform patent search via Google@item @b{PodCast CNet}
 
-@b{Old Time Radio}
+Play Podcast from CNET@item @b{RadioTime Browser}
 
-This months Old Time Radio Programming
+RadioTime Entry point.@item @b{RadioTime Categories}
 
-@b{OpenLibrary}
+RadioTime Categories .@item @b{RadioTime Search}
 
-Open Library Search
+RadioTime Search.@item @b{Reddit At Point.}
 
-@b{Patent Search From Google}
+Open RSS Feed for Reddit URL under point.@item @b{RedditBy Topic.}
 
-Perform patent search via Google
+Open RSS Feed for Reddit Topic.@item @b{Seeking Alpha Stock Search}
 
-@b{PodCast CNet}
+Seeking Alpha search.@item @b{Sign in to Google}
 
-Play Podcast from CNET
-
-@b{RadioTime Browser}
-
-RadioTime Entry point.
-
-@b{RadioTime Categories}
-
-RadioTime Categories .
-
-@b{RadioTime Search}
-
-RadioTime Search.
-
-@b{Reddit At Point.}
-
-Open RSS Feed for Reddit URL under point.
-
-@b{RedditBy Topic.}
-
-Open RSS Feed for Reddit Topic.
-
-@b{Seeking Alpha Stock Search}
-
-Seeking Alpha search.
-
-@b{Sign in to Google}
-
-Login to Google.
-
-@b{StreamWorld Radio}
+Login to Google.@item @b{StreamWorld Radio}
 
 Play radio stream.
 Example: kcbsFM.
-Format is stationid+AM/FM.
+Format is stationid+AM/FM.@item @b{Tech News From CNet}
 
-@b{Structured Data Extractor}
+Display tech news from CNET@item @b{Times Of India}
 
-Extract/Validate Structured Data.
+Retrieve Times Of India.@item @b{TuneIn Radio}
 
-@b{Tech News From CNet}
+Translate StreamId to playable stream.@item @b{UPS Packages}
 
-Display tech news from CNET
+Display package tracking information from UPS.@item @b{Washington Post}
 
-@b{Times Of India}
+Washington Post Contents@item @b{Weather forecast from Weather Underground}
 
-Retrieve Times Of India.
+Weather forecast from weather underground mobile.@item @b{Wiki Data Search}
 
-@b{TuneIn Radio}
+Search WikiData.@item @b{WordNet Search}
 
-Translate StreamId to playable stream.
+Look up term in WordNet.@item @b{Yahoo RSSNews}
 
-@b{UPS Packages}
+News  From Yahoo As RSS.@item @b{Youtube News}
 
-Display package tracking information from UPS.
+News Headlines From Youtube@item @b{fedex packages}
 
-@b{Washington Post}
+Display package tracking information from Fedex.@item @b{html Google News Search}
 
-Washington Post Contents
+Search Google news.@item @b{html5IRC}
 
-@b{Weather Light From Wunderground}
+Show HTML5 IRC log.@item @b{rss weather from wunderground}
 
-Light weight weather forecast
+Pull RSS weather feed for specified state/city.@item @b{sourceforge Download}
 
-@b{Weather forecast from Weather Underground}
+Download specified file.@item @b{sourceforge browse mirrors}
 
-Weather forecast from weather underground mobile.
+Retrieve download page at Sourceforge for specified project.@item @b{sourceforge project}
 
-@b{Wiki Data Search}
-
-Search WikiData.
-
-@b{WordNet Search}
-
-Look up term in WordNet.
-
-@b{Yahoo RSS Feeds}
-
-List Yahoo RSS Feeds.
-
-@b{Youtube News}
-
-News Headlines From Youtube
-
-@b{fedex packages}
-
-Display package tracking information from Fedex.
-
-@b{html Google News Search}
-
-Search Google news.
-
-@b{html5IRC}
-
-Show HTML5 IRC log.
-
-@b{rss weather from wunderground}
-
-Pull RSS weather feed for specified state/city.
-
-@b{sourceforge Download}
-
-Download specified file.
-
-@b{sourceforge browse mirrors}
-
-Retrieve download page at Sourceforge for specified project.
-
-@b{sourceforge project}
-
-Open specified project page at SourceForge.
-
-@b{w3c IRC Logs}
+Open specified project page at SourceForge.@item @b{w3c IRC Logs}
 
 Use this to pull up the
 archived logs from the W3C IRC. You need to know the exact
-name of the channel.
-
-@b{w3c Lists}
+name of the channel.@item @b{w3c Lists}
 
 Use this to pull up the
 archived mail from the W3C list. You need to know the exact
-name of the list.
-
-@b{world CNN Content}
+name of the list.@item @b{world CNN Content}
 
 Filter down to CNN content area.
+
+@end enumerate
 

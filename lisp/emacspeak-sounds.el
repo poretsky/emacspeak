@@ -87,9 +87,9 @@ use `emacspeak-toggle-auditory-icons' bound to
   (interactive "P")
   (cond
    ((executable-find "amixer")
+    (emacspeak-auditory-icon 'close-object)
     (funcall-interactively #'amixer prefix))
-   (t (funcall-interactively #'emacspeak-aumix)))
-  (emacspeak-auditory-icon 'close-object))
+   (t (error "amixer not found."))))
 
 ;;}}}
 ;;{{{  Setup sound themes
@@ -116,14 +116,14 @@ use `emacspeak-toggle-auditory-icons' bound to
   "Emacspeak auditory icons."
   :group 'emacspeak)
 
-;;;###autoload
+
 (defcustom emacspeak-sounds-default-theme
   (expand-file-name "pan-chimes/" emacspeak-sounds-directory)
   "Default theme for auditory icons. "
   :type '(directory :tag "Sound Theme Directory")
   :group 'emacspeak-sounds)
 
-;;;###autoload
+
 (defcustom emacspeak-play-program
   (cond
    ((getenv "EMACSPEAK_PLAY_PROGRAM")
@@ -232,7 +232,7 @@ Do not set this by hand;
 ;;}}}
 ;;{{{  Play an icon
 
-;;;###autoload
+
 (defcustom emacspeak-play-args "-q"
   "Set this to nil if using paplay from pulseaudio."
   :type '(choice (string :tag "Arguments" "-q")
@@ -241,8 +241,10 @@ Do not set this by hand;
 
 (defun emacspeak-play-auditory-icon (sound-name)
   "Produce auditory icon SOUND-NAME."
-  (cl-declare (special emacspeak-play-program emacspeak-play-args))
-  (let ((process-connection-type nil))
+  (cl-declare (special emacspeak-play-program emacspeak-play-args
+                       emacspeak-sounds-directory))
+  (let ((process-connection-type nil)
+        (default-directory emacspeak-sounds-directory))
     (if emacspeak-play-args
         (start-process
          emacspeak-play-program nil emacspeak-play-program
@@ -255,7 +257,7 @@ Do not set this by hand;
 (defvar emacspeak-sox (executable-find "sox")
   "Name of SoX executable.")
 
-;;;###autoload
+
 (defcustom emacspeak-soxplay-command 
   (when(executable-find "play")
     (format "%s -v 1.2 %%s  earwax &" (executable-find "play")))
@@ -279,9 +281,11 @@ This uses SoX play and is specifically for use with headphones."
 
 (defun emacspeak-play-auditory-icon-list (icon-list)
   "Play list of icons."
-  (cl-declare (special emacspeak-play-program))
-  (apply #'start-process "APlay" nil emacspeak-play-program
-         (mapcar #'emacspeak-get-sound-filename icon-list)))
+  (cl-declare (special emacspeak-play-program
+                       emacspeak-sounds-directory))
+  (let ((default-directory  emacspeak-sounds-directory))
+    (apply #'start-process "APlay" nil emacspeak-play-program
+           (mapcar #'emacspeak-get-sound-filename icon-list))))
 
 ;;}}}
 ;;{{{  setup play function
@@ -321,7 +325,6 @@ Optional interactive PREFIX arg toggles global value."
   (interactive "P")
   (cl-declare (special emacspeak-use-auditory-icons
                        dtk-program emacspeak-auditory-icon-function))
-  (require 'emacspeak-aumix)
   (cond
    (prefix
     (setq  emacspeak-use-auditory-icons

@@ -96,16 +96,12 @@ Also turn on hydra-is-helpful if it was turned off."
 ;;; We use plain messages:
 
 (setq hydra-head-format "%s "
-      hydra-lv nil)
+      hydra-hint-display-type nil
+      hydra-hint-display-type #'message)
 
 (defun emacspeak-hydra-self-help (name)
   "Speak hint for specified Hydra."
   (message (eval (symbol-value (intern (format "%s/hint" name))))))
-
-;;}}}
-;;{{{ hydra-ox:
-
-(when (locate-library "hydra-ox")(require 'hydra-ox))
 
 ;;}}}
 (provide 'emacspeak-hydra)

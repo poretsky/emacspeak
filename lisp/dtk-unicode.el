@@ -66,7 +66,7 @@
   "Customization group for dtk-unicode."
   :group 'emacspeak
   :prefix "dtk-unicode-")
-;;;###autoload
+
 (defcustom dtk-unicode-character-replacement-alist
   '(
     (? . "-")                       ; START OF GUARDED AREA
@@ -79,12 +79,13 @@
     (?” . "\"")                         ; RIGHT DOUBLE QUOTATION MARK
     (?⋆ . "*")                          ; STAR OPERATOR
     (?­ . "-")                          ; soft-hyphen
-    (?‘ . " backquote  ")               ; LEFT SINGLE QUOTATION MARK
+    (?‘ . "`")                          ; LEFT SINGLE QUOTATION MARK
     (?’ . "'")                          ; right SINGLE QUOTATION MARK
-    (?‐ . "hyphen")                     ; hyphenm
+    (?‐ . "-")                          ; hyphenm
     (?– . " -- ")                       ; n-dash
     (?— . " --- ")                      ; m-dash
     (?  . " ")                          ; hair space
+    (?  . " ") ; thin space
     (?― . "----")                       ; horizontal bar
     (?‖ . "||")                         ; vertical bar
     (?… . "...")                        ; ellipses
@@ -103,7 +104,7 @@
           :key-type (character :tag "character")
           :value-type (string :tag "replacement")))
 
-;;;###autoload
+
 (defcustom dtk-unicode-process-utf8 t
   "Turn this off when working with TTS  engines that handle UTF8
 themselves, e.g., when using an Asian language."
@@ -304,23 +305,25 @@ Does nothing for unibyte buffers."
   (cl-declare (special dtk-unicode-process-utf8))
   (when dtk-unicode-process-utf8
     (let ((inhibit-read-only t))
-      (goto-char (point-min))
-      (while (re-search-forward dtk-unicode-charset-filter-regexp nil t)
-        (let* ((pos (match-beginning 0))
-               (char (char-after pos))
-               (replacement
-                (save-match-data
-                  (if (and (eq mode 'none) (dtk-unicode-char-punctuation-p char))
-                      " "
-                    (run-hook-with-args-until-success 'dtk-unicode-handlers char)))))
-          (when replacement
-            (let ((props (text-properties-at pos)))
-              (replace-match replacement t t nil)
-              (when props
-                (set-text-properties pos (point) props))
-              (add-text-properties
-               pos (point)
-               '(personality voice-animate)))))))))
+      (save-excursion
+        (goto-char (point-min))
+        (while (re-search-forward dtk-unicode-charset-filter-regexp nil t)
+          (let* ((pos (match-beginning 0))
+                 (char (char-after pos))
+                 (props (text-properties-at pos))
+                 (replacement
+                  (save-match-data
+                    (if (and
+                         (memq mode '(some none))
+                         (dtk-unicode-char-punctuation-p char))
+                        " "
+                      (run-hook-with-args-until-success 'dtk-unicode-handlers char)))))
+            (replace-match replacement t t nil)
+            (when props
+              (set-text-properties pos (point) props))))))))
+
+;;}}}
+(provide 'dtk-unicode)
 
 ;;}}}
 (provide 'dtk-unicode)

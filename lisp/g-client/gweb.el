@@ -85,44 +85,31 @@
   "Flag that records  Google Suggest in progress.")
 ;;; This is dynamically scoped:
 (defvar flx-ido-mode)
-(defvar gweb-completion-corpus "psy"
-  "Corpus to use for completion. Let-bind this for using a different corpus.")
+(defvar gweb-completion-corpus ""
+  "Corpus to use for completion. Let-bind this for using a different
+  corpus.
+Default == Web Search.
+yt == Youtube .
+n == News.")
 
 ;;}}}
 ;;{{{ google suggest helper:
 
-(defvar gweb-search-suggest-url
-  "http://clients1.google.com/complete/search?json=t&nohtml=t&nolabels=t&client=%s&q=%s"
-  "URL  that gets suggestions from Google as JSON.")
-
-(defvar gweb-g-suggest-url 
+(defvar gweb-g-suggest-url
   "http://suggestqueries.google.com/complete/search?ds=%s&q=%s&client=chrome"
-  "Query Suggest: Youtube: yt, News: n")
+  "Query Suggest: ds param is empty for Search, Youtube: yt, News: n")
 
 (defun gweb-suggest (input &optional corpus)
   "Get completion list from Google Suggest."
-  (cl-declare (special gweb-search-suggest-url
-                    gweb-completion-corpus
-                    gweb-g-suggest-url))
+  (cl-declare (special gweb-completion-corpus gweb-g-suggest-url))
   (unless corpus (setq corpus gweb-completion-corpus))
-  (when input 
-    (let* ((url
-            (format
-             (cond
-              ((string= corpus "psy") gweb-search-suggest-url)
-              (t gweb-g-suggest-url))
-             corpus
-             (g-url-encode input)))
+  (when input
+    (let* ((url (format gweb-g-suggest-url corpus (g-url-encode input)))
            (js (g-json-from-url url)))
-      (setq js  (aref js 1))
+      (setq js (aref js 1))
       (cl-loop
        for e across js collect
-       (replace-regexp-in-string
-        "</?b>" ""
-;;; note: psy is different:
-        (if (string= corpus "psy")
-            (aref e 0)
-          e))))))
+       (replace-regexp-in-string "</?b>" "" e)))))
 
 (defvar gweb-google-suggest-metadata
   '(metadata .
@@ -149,6 +136,7 @@
         (complete-with-action action
                               (gweb-suggest string gweb-completion-corpus)
                               string predicate))))))
+
 (defvar ido-max-prospects)
 
 (defun gweb--autocomplete-helper (&optional prompt)
@@ -172,7 +160,7 @@ Uses corpus found in gweb-completion-corpus"
 
 (defun gweb-google-autocomplete (&optional prompt)
   "Autocomplete using Google Search corpus."
-  (let ((gweb-completion-corpus "psy"))
+  (let ((gweb-completion-corpus ""))
     (gweb--autocomplete-helper (or prompt "Google: "))))
 
 (defun gweb-youtube-autocomplete (&optional prompt)
@@ -195,9 +183,6 @@ Uses corpus found in gweb-completion-corpus"
       (t ad-do-it))
      (emacspeak-speak-word)
      ad-return-value)))
-
-
-
 
 ;;}}}
 (provide 'gweb)

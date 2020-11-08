@@ -112,28 +112,32 @@
 
 ;;}}}
 ;;{{{Apply Personality:
-
-;;;###autoload
+;;; Both functions below handle property changes in a "other" buffer correctly.
 (defun emacspeak-personality-add (start end voice &optional object)
-  "Apply personality VOICE to specified region,
+  "Apply personality VOICE to specified region in object,
 over-writing any current personality settings."
-  (with-silent-modifications
-    (when
-        (and
-         (integerp start) (integerp end)
-         (not (= start end)))
-      (put-text-property start end 'personality voice object))))
+  (when
+      (and
+       (integerp start) (integerp end)
+       (not (= start end)))
+    (with-current-buffer
+        (if (bufferp object) object (current-buffer))
+      (with-silent-modifications
+        (put-text-property start end 'personality voice object)))))
 
 (defun emacspeak-personality-remove  (start end voice &optional object)
-  "Remove specified personality VOICE from text bounded by start and end. "
+  "Remove specified personality VOICE from text bounded by start and
+end in object. "
   (when
       (and
        voice
        (integerp start) (integerp end)
        (not (= start end))
        (eq voice (get-text-property start 'personality object)))
-    (with-silent-modifications
-      (put-text-property start end 'personality nil object))))
+      (with-current-buffer
+          (if (bufferp object) object (current-buffer))
+        (with-silent-modifications
+          (put-text-property start end 'personality nil object)))))
 
 ;;}}}
 ;;{{{ advice overlays
@@ -141,59 +145,88 @@ over-writing any current personality settings."
 (defvar ems--voiceify-overlays #'emacspeak-personality-add
   "Determines how and if we voiceify overlays. ")
 
+;;; Needed for  outline support:
+(defadvice remove-overlays (around emacspeak pre act comp)
+  "Clean up properties mirrored from overlays."
+  (let ((ems--voiceify-overlays  nil)
+        (beg (or (ad-get-arg 0) (point-min)))
+        (end (or (ad-get-arg 1) (point-max)))
+        (name (ad-get-arg 2)))
+    (with-silent-modifications          ; ignores value for now 
+      (put-text-property beg end name nil))
+    ad-do-it))
+
 (defadvice delete-overlay (before emacspeak-personality  pre act)
-  "Used by emacspeak to augment font lock."
+  "Used by emacspeak to augment voice lock."
   (when ems--voiceify-overlays
     (let* ((o (ad-get-arg 0))
            (buffer (overlay-buffer o))
            (start (overlay-start o))
            (end (overlay-end o))
-           (voice (dtk-get-voice-for-face (overlay-get o 'face))))
-      (when (and  voice buffer)
+           (voice (dtk-get-voice-for-face (overlay-get o 'face)))
+           (invisible (overlay-get o 'invisible)))
+      (when  (and  voice buffer)
         (with-current-buffer buffer
           (save-restriction
             (widen)
-            (emacspeak-personality-remove start end voice)))))))
+            (emacspeak-personality-remove start end voice buffer))))
+      (when  invisible
+        (with-silent-modifications
+          (put-text-property start end 'invisible nil))))))
 
 (defadvice overlay-put (after emacspeak-personality pre act)
-  "Used by emacspeak to augment font lock."
-  (when ems--voiceify-overlays
-    (let ((overlay (ad-get-arg 0))
-          (prop (ad-get-arg 1))
-          (value (ad-get-arg 2))
-          (voice nil))
-      (when
-          (and
-           (or (eq prop 'face)
-               (eq prop 'font-lock-face)
-               (and (eq prop 'category) (get value 'face)))
-           (integerp (overlay-start overlay))
-           (integerp (overlay-end overlay)))
-        (and (eq prop 'category) (setq value (get value 'face)))
+  "Used by emacspeak to augment voice lock."
+  (when (and (overlay-buffer (ad-get-arg 0)) ems--voiceify-overlays)
+    (let* ((overlay (ad-get-arg 0))
+           (prop (ad-get-arg 1))
+           (value (ad-get-arg 2))
+           (start (overlay-start overlay))
+           (end (overlay-end overlay))
+           (voice nil))
+      (cond
+       ((and
+         (or (eq prop 'face)
+             (eq prop 'font-lock-face)
+             (and (eq prop 'category) (get value 'face)))
+         (integerp start) (integerp end))
+        (when (eq prop 'category) (setq value (get value 'face)))
         (setq voice (dtk-get-voice-for-face value))
         (when voice
-          (with-current-buffer (overlay-buffer overlay)
             (funcall
              ems--voiceify-overlays
-             (overlay-start overlay) (overlay-end overlay)
-             voice (overlay-buffer overlay))))))))
+             start end voice (overlay-buffer overlay))))
+       ((eq prop 'invisible)
+        (with-current-buffer (overlay-buffer overlay)
+          (with-silent-modifications
+            (put-text-property start end 'invisible (or value nil)))))))))
 
 (defadvice move-overlay (before emacspeak-personality pre act)
-  "Used by emacspeak to augment font lock."
+  "Used by emacspeak to augment voice lock."
   (when ems--voiceify-overlays
-    (let* ((overlay (ad-get-arg 0))
-           (beg (ad-get-arg 1))
-           (end (ad-get-arg 2))
-           (object (ad-get-arg 3))
-           (voice (dtk-get-voice-for-face (overlay-get overlay 'face))))
+    (let*
+        ((overlay (ad-get-arg 0))
+         (beg (ad-get-arg 1))
+         (end (ad-get-arg 2))
+         (object (ad-get-arg 3))
+         (buffer (overlay-buffer overlay))
+         (voice (dtk-get-voice-for-face (overlay-get overlay 'face)))
+         (invisible (overlay-get overlay 'invisible)))
+      (unless object (setq object (or buffer (current-buffer))))
       (when
           (and voice
                (integerp (overlay-start overlay))
                (integerp (overlay-end overlay)))
         (emacspeak-personality-remove
-         (overlay-start overlay) (overlay-end overlay)
-         voice (overlay-buffer overlay))
-        (funcall ems--voiceify-overlays beg end voice object)))))
+         (overlay-start overlay) (overlay-end overlay) voice buffer)
+        (funcall ems--voiceify-overlays beg end voice object))
+      (when invisible
+        (with-current-buffer buffer
+          (with-silent-modifications
+            (put-text-property
+             (overlay-start overlay) (overlay-end overlay) 'invisible nil)))
+        (with-current-buffer object
+          (with-silent-modifications
+            (put-text-property beg end 'invisible invisible)))))))
 
 ;;}}}
 (provide 'emacspeak-personality)

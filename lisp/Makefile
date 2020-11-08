@@ -98,7 +98,6 @@ emacspeak-apt-sources.elc \
 emacspeak-arc.elc \
 emacspeak-auctex.elc \
 emacspeak-autoload.el \
-emacspeak-aumix.elc \
 emacspeak-bbc.elc \
 emacspeak-bbdb.elc \
 emacspeak-bibtex.elc \
@@ -158,9 +157,11 @@ emacspeak-find-func.elc \
 emacspeak-flycheck.elc \
 emacspeak-flyspell.elc \
 emacspeak-folding.elc \
+emacspeak-forge.elc \
 emacspeak-forms.elc \
 emacspeak-generic.elc \
 emacspeak-geiser.elc \
+emacspeak-gh-explorer.elc \
 emacspeak-gnuplot.elc \
 emacspeak-gnus.elc\
 emacspeak-go-mode.elc \
@@ -175,6 +176,7 @@ emacspeak-hideshow.elc \
 emacspeak-hydra.elc \
 emacspeak-ibuffer.elc \
 emacspeak-ido.elc \
+emacspeak-iedit.elc \
 emacspeak-ivy.elc \
 emacspeak-imenu.elc \
 emacspeak-info.elc\
@@ -201,6 +203,7 @@ emacspeak-midge.elc \
 emacspeak-mines.elc \
 emacspeak-muse.elc \
 emacspeak-mspools.elc \
+emacspeak-navi-mode.elc \
 emacspeak-net-utils.elc \
 emacspeak-newsticker.elc \
 emacspeak-ocr.elc \
@@ -260,6 +263,7 @@ emacspeak-threes.elc \
 emacspeak-tide.elc \
 emacspeak-2048.elc \
 emacspeak-texinfo.elc \
+emacspeak-transient.elc \
 emacspeak-todo-mode.elc \
 emacspeak-twittering.elc \
 emacspeak-typo.elc \
@@ -363,7 +367,6 @@ emacspeak-ansi-color.elc: emacspeak-ansi-color.el dtk-speak.elc voice-setup.elc
 emacspeak-apt-sources.elc: emacspeak-apt-sources.el dtk-speak.elc voice-setup.elc
 emacspeak-arc.elc: emacspeak-arc.el dtk-speak.elc voice-setup.elc
 emacspeak-auctex.elc: emacspeak-auctex.el dtk-speak.elc voice-setup.elc
-emacspeak-aumix.elc: emacspeak-aumix.el dtk-speak.elc voice-setup.elc
 emacspeak-autoload.elc: emacspeak-autoload.el
 emacspeak-bbc.elc: emacspeak-bbc.el dtk-speak.elc voice-setup.elc
 emacspeak-bbdb.elc: emacspeak-bbdb.el dtk-speak.elc voice-setup.elc
@@ -427,9 +430,11 @@ emacspeak-fix-interactive.elc: emacspeak-fix-interactive.el dtk-speak.elc voice-
 emacspeak-flycheck.elc: emacspeak-flycheck.el dtk-speak.elc voice-setup.elc
 emacspeak-flyspell.elc: emacspeak-flyspell.el dtk-speak.elc voice-setup.elc
 emacspeak-folding.elc: emacspeak-folding.el dtk-speak.elc voice-setup.elc
+emacspeak-forge.elc: emacspeak-forge.el dtk-speak.elc voice-setup.elc
 emacspeak-forms.elc: emacspeak-forms.el dtk-speak.elc voice-setup.elc
 emacspeak-generic.elc: emacspeak-generic.el dtk-speak.elc voice-setup.elc
 emacspeak-geiser.elc: emacspeak-geiser.el dtk-speak.elc voice-setup.elc
+emacspeak-gh-explorer.elc: emacspeak-gh-explorer.el dtk-speak.elc voice-setup.elc
 emacspeak-gnuplot.elc: emacspeak-gnuplot.el dtk-speak.elc voice-setup.elc
 emacspeak-gnus.elc: emacspeak-gnus.el dtk-speak.elc voice-setup.elc
 emacspeak-google.elc: emacspeak-google.el dtk-speak.elc
@@ -444,6 +449,7 @@ emacspeak-hideshow.elc: emacspeak-hideshow.el dtk-speak.elc voice-setup.elc
 emacspeak-hydra.elc: emacspeak-hydra.el dtk-speak.elc
 emacspeak-ibuffer.elc: emacspeak-ibuffer.el dtk-speak.elc voice-setup.elc
 emacspeak-ido.elc: emacspeak-ido.el dtk-speak.elc voice-setup.elc
+emacspeak-iedit.elc: emacspeak-iedit.el dtk-speak.elc voice-setup.elc
 emacspeak-ivy.elc: emacspeak-ivy.el dtk-speak.elc voice-setup.elc
 emacspeak-imenu.elc: emacspeak-imenu.el dtk-speak.elc voice-setup.elc
 emacspeak-info.elc: emacspeak-info.el dtk-speak.elc voice-setup.elc
@@ -474,6 +480,7 @@ emacspeak-mines.elc: emacspeak-mines.el dtk-speak.elc
 emacspeak-muse.elc: emacspeak-muse.el dtk-speak.elc
 emacspeak-mspools.elc: emacspeak-mspools.el dtk-speak.elc voice-setup.elc
 emacspeak-muggles.elc: emacspeak-muggles.el dtk-speak.elc
+emacspeak-navi-mode.elc: emacspeak-navi-mode.el dtk-speak.elc voice-setup.elc
 emacspeak-net-utils.elc: emacspeak-net-utils.el dtk-speak.elc voice-setup.elc
 emacspeak-newsticker.elc: emacspeak-newsticker.el dtk-speak.elc voice-setup.elc
 emacspeak-npr.elc: emacspeak-npr.el dtk-speak.elc voice-setup.elc
@@ -545,6 +552,7 @@ emacspeak-threes.elc: emacspeak-threes.el dtk-speak.elc
 emacspeak-tide.elc: emacspeak-tide.el dtk-speak.elc
 emacspeak-2048.elc: emacspeak-2048.el dtk-speak.elc
 emacspeak-texinfo.elc: emacspeak-texinfo.el dtk-speak.elc voice-setup.elc
+emacspeak-transient.elc: emacspeak-transient.el dtk-speak.elc voice-setup.elc
 emacspeak-todo-mode.elc: emacspeak-todo-mode.el dtk-speak.elc voice-setup.elc
 emacspeak-twittering.elc: emacspeak-twittering.el dtk-speak.elc voice-setup.elc
 emacspeak-typo.elc: emacspeak-typo.el dtk-speak.elc 
@@ -575,12 +583,15 @@ emacspeak-setup.elc: emacspeak-setup.el
 loaddefs: emacspeak-loaddefs.elc
 
 # }}}
-# {{{Development  target: indent, tags
+# {{{Development  target: indent, tags, relint 
 indent:
 	$(EMACS) -batch -q -no-site-file -l ../utils/indent-files.el
 
 elint:
 	$(EMACS) -batch -q -no-site-file -l ../utils/elint-files.el
+
+relint:
+	$(EMACS) -batch -f package-initialize -l relint.el -f relint-batch ./*.el 
 
 tags:
 	etags *.el g-client/*.el

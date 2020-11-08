@@ -1,3 +1,19 @@
+;;{{{outline-flag-region:
+;;; Handle outline hide/show directly here --- rather than relying on
+;;overlay advice alone.
+
+(defadvice outline-flag-region (around emacspeak pre act comp)
+  "Reflect hide/show via property invisible as wel"
+  (let  ((ems--voiceify-overlays  nil)
+         (inhibit-read-only t))
+    ad-do-it
+    (with-silent-modifications
+      (put-text-property
+       (ad-get-arg 0)
+       (ad-get-arg 1)
+       'invisible
+       (if (ad-get-arg 2) 'outline nil)))))
+
 ;;; emacspeak-outline.el --- Speech enable Outline --   Browsing  Structured Documents  -*- lexical-binding: t; -*-
 ;;; $Id$
 ;;; $Author: tv.raman.tv $
@@ -195,7 +211,7 @@ commands. "
     (when (or  emacspeak-outline-dont-query-before-speaking
                (y-or-n-p
                 (format  "Speak %s lines from section %s"
-                         (count-lines start end) (ems-this-line))))
+                         (count-lines start end) (ems--this-line))))
       (emacspeak-speak-region start end))))
 ;;;###autoload
 (defun emacspeak-outline-speak-next-heading ()
@@ -243,7 +259,7 @@ except that the outline section is  spoken"
      (or emacspeak-outline-dont-query-before-speaking
          (y-or-n-p
           (format "Speak %s lines from section %s"
-                  (count-lines start end) (ems-this-line))))
+                  (count-lines start end) (ems--this-line))))
      (emacspeak-speak-region start end))))
 
 ;;{{{ bind these in outline mode
@@ -277,7 +293,7 @@ except that the outline section is  spoken"
     (emacspeak-auditory-icon 'open-object)
     (message
      "Zoomed into outline %s containing %s lines"
-     (ems-this-line) (count-lines (point-min) (point-max)))))
+     (ems--this-line) (count-lines (point-min) (point-max)))))
 
 (defadvice foldout-exit-fold (after emacspeak pre act comp)
   "Provide auditory feedback when exiting a fold"
@@ -302,11 +318,15 @@ except that the outline section is  spoken"
 
 (defadvice outline-up-heading (around emacspeak pre act comp)
   "Silence error messages."
+  (cl-declare (special emacspeak-speak-errors))
   (ems-with-errors-silenced
-   ad-do-it
-   ad-return-value))
+      ad-do-it
+    ad-return-value))
 
 ;;}}}
+
+;;}}}
+
 (provide  'emacspeak-outline)
 ;;{{{  emacs local variables
 

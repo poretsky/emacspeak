@@ -210,9 +210,11 @@ that implements the speech-enabling extensions for `package' (a string)."
 (emacspeak-do-package-setup "flycheck" 'emacspeak-flycheck)
 (emacspeak-do-package-setup "flyspell" 'emacspeak-flyspell)
 (emacspeak-do-package-setup "folding" 'emacspeak-folding)
+(emacspeak-do-package-setup "forge" 'emacspeak-forge)
 (emacspeak-do-package-setup "forms" 'emacspeak-forms)
 (emacspeak-do-package-setup "generic" 'emacspeak-generic)
 (emacspeak-do-package-setup "geiser" 'emacspeak-geiser)
+(emacspeak-do-package-setup "github-explorer" 'emacspeak-gh-explorer)
 (emacspeak-do-package-setup "gtags" 'emacspeak-gtags)
 (emacspeak-do-package-setup "gnus" 'emacspeak-gnus)
 (emacspeak-do-package-setup "gnuplot" 'emacspeak-gnuplot)
@@ -227,6 +229,7 @@ that implements the speech-enabling extensions for `package' (a string)."
 (emacspeak-do-package-setup "imenu" 'emacspeak-imenu)
 (emacspeak-do-package-setup "ibuffer" 'emacspeak-ibuffer)
 (emacspeak-do-package-setup "ido" 'emacspeak-ido)
+(emacspeak-do-package-setup "iedit" 'emacspeak-iedit)
 (emacspeak-do-package-setup "ivy" 'emacspeak-ivy)
 (emacspeak-do-package-setup "info" 'emacspeak-info)
 (emacspeak-do-package-setup "ispell" 'emacspeak-ispell)
@@ -252,6 +255,7 @@ that implements the speech-enabling extensions for `package' (a string)."
 (emacspeak-do-package-setup "mpuz" 'emacspeak-entertain)
 (emacspeak-do-package-setup "mspools" 'emacspeak-mspools)
 (emacspeak-do-package-setup "nero" 'emacspeak-nero)
+(emacspeak-do-package-setup "navi-mode" 'emacspeak-navi-mode)
 (emacspeak-do-package-setup "net-utils" 'emacspeak-net-utils)
 (emacspeak-do-package-setup "newsticker" 'emacspeak-newsticker)
 (emacspeak-do-package-setup "nxml-mode" 'emacspeak-nxml)
@@ -306,6 +310,7 @@ that implements the speech-enabling extensions for `package' (a string)."
 (emacspeak-do-package-setup "2048-game" 'emacspeak-2048)
 (emacspeak-do-package-setup "tex-site" 'emacspeak-auctex)
 (emacspeak-do-package-setup "texinfo" 'emacspeak-texinfo)
+(emacspeak-do-package-setup "transient" 'emacspeak-transient)
 (emacspeak-do-package-setup "tmm" 'emacspeak-facemenu)
 (emacspeak-do-package-setup "todo-mode" 'emacspeak-todo-mode)
 (emacspeak-do-package-setup "twittering-mode" 'emacspeak-twittering)
@@ -420,7 +425,7 @@ caps."
 ;;}}}
 ;;{{{ Emacspeak:
 
-;;;###autoload
+
 (defcustom emacspeak-play-emacspeak-startup-icon t
   "If set to T, emacspeak plays its icon as it launches."
   :type 'boolean
@@ -516,7 +521,7 @@ commands and options for details."
        emacspeak-version)))
     (emacspeak-play-startup-icon)))
 
-;;;###autoload
+
 (defun emacspeak-info ()
   "Open Emacspeak Info Manual."
   (interactive)
