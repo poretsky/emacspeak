@@ -410,6 +410,12 @@
 (require 'emacspeak-google)
 
 ;;}}}
+;;{{{defgroup:
+(defgroup emacspeak-eww nil
+  "EWW Customizations"
+  :group 'emacspeak)
+
+;;}}}
 ;;{{{ Helpers:
 ;;; Generate functions emacspeak-eww-current-title and friends:
 
@@ -550,11 +556,15 @@ are available are cued by an auditory icon on the header line."
    (emacspeak-eww-masquerade
     (setq ad-return-value emacspeak-eww-masquerade-as))
    (t (setq ad-return-value "User-Agent: URL/Emacs \r\n"))))
+(defcustom emacspeak-eww-inhibit-images nil
+  "Turn this on to avoid rendering images."
+  :type 'boolean
+  :group 'emacspeak-eww)
 
 (defun emacspeak-eww-setup ()
   "Setup keymaps etc."
   (cl-declare (special eww-mode-map eww-link-keymap
-                       shr-inhibit-images
+                       shr-inhibit-images emacspeak-eww-inhibit-images
                        emacspeak-pronounce-common-xml-namespace-uri-pronunciations
                        emacspeak-eww-masquerade
                        emacspeak-pronounce-load-pronunciations-on-startup))
@@ -565,8 +575,8 @@ are available are cued by an auditory icon on the header line."
      'eww-mode
      emacspeak-speak-rfc-3339-datetime-pattern
      (cons 're-search-forward 'emacspeak-speak-decode-rfc-3339-datetime)))
-;;; turn off images
-  (setq shr-inhibit-images t)
+;;; turn off images on request 
+  (setq shr-inhibit-images emacspeak-eww-inhibit-images)
 ;;; remove "I" "o" from eww-link-keymap
   (cl-loop
    for c in
@@ -875,6 +885,7 @@ Retain previously set punctuations  mode."
 (cl-loop
  for  tag in
  '(h1 h2 h3 h4 h5 h6 div                ; sectioning
+      math ; mathml 
       ul ol dl                          ; Lists
       li dt dd p                        ; block-level: bullets, paras
       form blockquote                   ; block-level
@@ -899,6 +910,13 @@ Retain previously set punctuations  mode."
                            (quote ,tag) 'eww-tag)
         (when (memq (quote ,tag) '(h1 h2 h3 h4 h5 h6))
           (put-text-property start end 'h 'eww-tag)))))))
+;;; Handle MathML math element:
+
+(defun shr-tag-math (dom)
+  "Handle Math Nodes from MathML"
+  (shr-ensure-newline)
+      (shr-generic dom)
+      (shr-ensure-newline))
 
 ;;}}}
 ;;{{{ Advice readable
@@ -1009,6 +1027,7 @@ Retain previously set punctuations  mode."
     (form . eww-tag-form)
     (input . eww-tag-input)
     (textarea . eww-tag-textarea)
+    (math . shr-tag-math)
     (meta . eww-tag-meta)
     (button . eww-form-submit)
     (select . eww-tag-select)
@@ -1060,7 +1079,7 @@ attr-value list for use as a DOM filter."
            do
            (setq attr (cl-first pair)
                  value (cl-second pair))
-           (setq found (string= (dom-attr  node attr) value)))
+           (setq found (member value (split-string (dom-attr  node attr)))))
           (when found node)))))
 
 (defun eww-attribute-tester (attr value)
@@ -1443,7 +1462,6 @@ Optional interactive prefix arg `multi' prompts for multiple elements."
 
 (defun eww-display-dom-by-id (id)
   "Display DOM filtered by specified id."
-
   (eww-display-dom-filter-helper #'dom-by-id  id))
 
 (defun eww-display-dom-by-id-list (id-list)
@@ -1696,7 +1714,7 @@ The %s is automatically spoken if there is no user activity."
 
 (defun emacspeak-eww-google-knowledge-card ()
   "Show just the knowledge card.
-Warning, this is fragile, and depends on a stable id for the
+Warning, this is fragile, and depends on a stable id/class for the
   knowledge card."
   (interactive)
   (cl-declare (special
@@ -1707,30 +1725,11 @@ Warning, this is fragile, and depends on a stable id for the
     (error "This command is only available in EWW"))
   (unless  emacspeak-google-toolbelt
     (error "This doesn't look like a Google results page."))
-  (let*
-      ((emacspeak-eww-rename-result-buffer nil)
-       (value "rhs_block")
-       (media "rg_meta")
-       (inhibit-read-only t)
-       (dom
-        (eww-dom-remove-if
-         (eww-dom-keep-if
-          (emacspeak-eww-current-dom) (eww-attribute-tester 'id value))
-         (eww-attribute-tester 'class media)))
-       (shr-external-rendering-functions emacspeak-eww-shr-render-functions))
-    (cond
-     (dom
-      (eww-save-history)
-      (erase-buffer)
-      (goto-char (point-min))
-      (shr-insert-document dom)
-      (set-buffer-modified-p nil)
-      (flush-lines "^ *$")
-      (goto-char (point-min))
-      (setq buffer-read-only t)
-      (emacspeak-speak-buffer))
-     (t (message "Knowledge Card not found.")))
-    (emacspeak-auditory-icon 'open-object)))
+  (let  ((dom (emacspeak-eww-current-dom)))
+      (emacspeak-eww-view-helper
+       (dom-html-from-nodes
+        (dom-by-class dom "mod" )
+        (emacspeak-eww-current-url)))))
 
 (define-key emacspeak-google-keymap "k" 'emacspeak-eww-google-knowledge-card)
 (define-key emacspeak-google-keymap "e" 'emacspeak-eww-masquerade)
@@ -1806,15 +1805,12 @@ Warning, this is fragile, and depends on a stable id for the
 ;;}}}
 ;;{{{ Tags At Point:
 
+
+
 (defun emacspeak-eww-tags-at-point ()
   "Display tags at point."
   (interactive)
-  (let ((props (text-properties-at (point)))
-        (tags nil))
-    (setq tags
-          (cl-loop
-           for i from 0 to (length props) by 2
-           if (eq 'eww-tag (elt  props (+ 1 i))) collect (elt props i)))
+  (let ((tags (emacspeak-eww-here-tags)))
     (print tags)
     (dtk-speak-list tags)))
 

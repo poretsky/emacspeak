@@ -54,6 +54,7 @@
 ;;{{{  Required modules
 
 (require 'cl-lib)
+(require 'seq)
 (cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'custom)
 (require 'ido)
@@ -442,7 +443,7 @@ Useful to do this before you listen to an entire buffer."
     (when (and p (not (eq p dtk-punctuation-mode)))
       (dtk-set-punctuations p))))
 
-(defalias 'emacspeak-dtk-sync 'dtk-interp-sync)
+(cl--defalias 'emacspeak-dtk-sync 'dtk-interp-sync)
 ;;;###autoload
 (defun emacspeak-speak-set-mode-punctuations (setting)
   "Set punctuation mode for all buffers in current mode."
@@ -1831,7 +1832,7 @@ Interactive prefix arg speaks buffer info."
      (t                                 ; main branch
       (let ((global-info (downcase (format-mode-line global-mode-string)))
             (window-count (length (window-list)))
-            (vc-state (when vc-mode (vc-state (buffer-file-name))))
+            (vc-state (when (and vc-mode (buffer-file-name)) (vc-state (buffer-file-name))))
             (frame-info (emacspeak-get-voicefied-frame-info (selected-frame)))
             (recursion-info (emacspeak-get-voicefied-recursion-info (recursion-depth)))
             (dir-info
@@ -1918,7 +1919,7 @@ Optional  interactive prefix arg `copy-as-kill' copies spoken info to kill ring.
     (when copy-as-kill (kill-new info))
     (dtk-speak (concat info cs))))
 
-(defalias 'emacspeak-speak-line-number 'what-line)
+(cl--defalias 'emacspeak-speak-line-number 'what-line)
 
 ;;;###autoload
 (defun emacspeak-speak-buffer-filename (&optional filename)
@@ -2036,7 +2037,7 @@ Default is to read the next word. "
 ;;{{{  Speak misc information e.g. time, version, current-kill  etc
 
 (defcustom emacspeak-speak-time-format-string
-  "%_I %M %p  on %A, %B %_e, %Y "
+  "%H:%M   on %A, %B %_e, %Y "
   "Format string that specifies how the time should be spoken.
 See the documentation for function
 `format-time-string'"
@@ -2137,7 +2138,7 @@ Seconds value is also placed in the kill-ring."
     result))
 
 (defvar emacspeak-codename
-  (propertize "AssistDog" 'face 'bold)
+  (propertize "WorkAtHomeDog" 'face 'bold)
   "Code name of present release.")
 
 (defun emacspeak-setup-get-revision ()
@@ -2151,7 +2152,7 @@ Seconds value is also placed in the kill-ring."
       "")))
 
 (defvar emacspeak-version
-  (concat "51.0  " emacspeak-codename)
+  (concat "52.0  " emacspeak-codename)
   "Version number for Emacspeak.")
 
 ;;;###autoload
@@ -3461,7 +3462,10 @@ configure which media players get silenced or paused/resumed."
 (defun ems-get-active-network-interfaces ()
   "Return  names of active network interfaces."
   (when (fboundp 'network-interface-list)
-    (mapconcat #'car (network-interface-list) " ")))
+    (mapconcat
+     #'identity 
+     (seq-uniq (mapcar #'car (network-interface-list)))
+     " ")))
 
 (defun ems-get-ip-address (&optional dev)
   "get the IP-address for device DEV "

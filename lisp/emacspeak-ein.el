@@ -1,8 +1,8 @@
 ;;; emacspeak-ein.el --- Speech-enable EIN For IPython Notebooks   -*- lexical-binding: t; -*-
 ;;; $Id: emacspeak-ein.el 4797 2007-07-16 23:31:22Z tv.raman.tv $
 ;;; $Author: tv.raman.tv $
-;;; Description:  Speech-enable EIN An Emacs Interface to ein
-;;; Keywords: Emacspeak,  Audio Desktop ein
+;;; Description:  Speech-enable EIN An Emacs Interface to IPython Notebooks
+;;; Keywords: Emacspeak,  Audio Desktop IPython, Jupyter, Notebooks
 ;;{{{  LCD Archive entry:
 
 ;;; LCD Archive Entry:
@@ -42,7 +42,7 @@
 
 ;;; Commentary:
 ;;; EIN ==  Emacs IPython Notebook
-;;; You can install package EIN via ELPA
+;;; You can install package EIN via mELPA
 ;;; This module speech-enables EIN
 
 ;;}}}
@@ -51,171 +51,83 @@
 (require 'cl-lib)
 (cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
+(require 'sox-gen)
 
 ;;}}}
 ;;{{{  Face->Voice mappings
 
 (voice-setup-add-map
  '(
-   (ein:cell-input-prompt voice-animate)
    (ein:cell-input-area voice-lighten)
-   (ein:cell-heading-1 voice-bolden)
-   (ein:cell-heading-2 voice-smoothen)
-   (ein:cell-heading-3 voice-smoothen-extra)
-   (ein:cell-heading-4 voice-annotate)
-   (ein:cell-output-prompt voice-monotone)
-   (ein:cell-output-stderr voice-smoothen)
-                                        ;ein:pos-tip-face
-                                        ;ein:notification-tab-selected
-                                        ;ein:notification-tab-normal
-   ))
+   (ein:cell-input-prompt voice-animate)
+   (ein:cell-output-area voice-brighten)
+   (ein:cell-output-area-error voice-monotone)
+   (ein:cell-output-prompt voice-monotone voice-highlight)
+   (ein:cell-output-stderr voice-monotone)
+   (ein:markdown-blockquote-face voice-monotone)
+   (ein:markdown-bold-face voice-bolden)
+   (ein:markdown-code-face voice-lighten)
+   (ein:markdown-comment-face voice-monotone)
+   (ein:markdown-footnote-marker-face voice-smoothen)
+   (ein:markdown-footnote-text-face voice-annotate)
+   (ein:markdown-header-delimiter-face voice-monotone)
+   (ein:markdown-header-face voice-bolden)
+   (ein:markdown-header-face-1 voice-lighten)
+   (ein:markdown-header-face-2 voice-smoothen)
+   (ein:markdown-header-face-3 voice-annotate)
+   (ein:markdown-header-face-4 voice-monotone)
+   (ein:markdown-header-face-5 voice-monotone-light)
+   (ein:markdown-header-face-6 voice-monotone-medium)
+   (ein:markdown-header-rule-face voice-monotone-light)
+   (ein:markdown-highlight-face voice-highlight)
+   (ein:markdown-hr-face voice-monotone-light)
+   (ein:markdown-html-attr-name-face voice-lighten)
+   (ein:markdown-html-attr-value-face voice-monotone-light)
+   (ein:markdown-html-entity-face voice-smoothen)
+   (ein:markdown-html-tag-delimiter-face voice-monotone)
+   (ein:markdown-html-tag-name-face voice-smoothen-extra)
+   (ein:markdown-inline-code-face voice-monotone)
+   (ein:markdown-italic-face voice-animate)
+   (ein:markdown-language-info-face voice-monotone)
+   (ein:markdown-language-keyword-face voice-annotate)
+   (ein:markdown-line-break-face voice-monotone)
+   (ein:markdown-link-face voice-animate)
+   (ein:markdown-link-title-face voice-bolden)
+   (ein:markdown-list-face voice-indent)
+   (ein:markdown-markup-face voice-monotone)
+   (ein:markdown-math-face voice-annotate)
+   (ein:markdown-metadata-key-face voice-smoothen)
+   (ein:markdown-metadata-value-face voice-animate)
+   (ein:markdown-missing-link-face voice-lighten)
+   (ein:markdown-plain-url-face voice-annotate)
+   (ein:markdown-pre-face voice-monotone)
+   (ein:markdown-reference-face voice-highlight)
+   (ein:markdown-strike-through-face voice-lighten)
+   (ein:markdown-table-face voice-lighten)
+   (ein:markdown-url-face voice-smoothen-extra)
+   (ein:notification-tab-normal voice-smoothen-extra)
+   (ein:notification-tab-selected voice-animate)
+   (ein:pos-tip-face voice-annotate)))
 
 ;;}}}
 ;;{{{ Additional Interactive Commands:
 
+(defsubst emacspeak-ein-sox-gen (type)
+  "Generate a tone  that indicates markdown, code, or raw."
+  (let ((fade "fade h .1 .5 .4 gain -8 "))
+    (cond
+     ((string= "raw" type) (sox-sin .5 "%-5:%3"fade))
+     ((string= "code" type) (sox-sin .5 "%-1:%5" fade))
+     ((string= "markdown" type) (sox-sin .5 "%4:%8"fade)))))
+
+
+(declare-function ein:cell-type "ein-classes" (arg &rest args))
+(declare-function ein:worksheet-get-current-cell "ein-worksheet" (&rest --cl-rest--))
+
 (defun emacspeak-ein-speak-current-cell ()
   "Speak current cell."
   (interactive)
-  (emacspeak-auditory-icon 'select-object)
   (emacspeak-speak-region (point) (next-overlay-change (point))))
-
-;;}}}
-;;{{{ Advice completers:
-
-;; ein:completer-complete
-;; ein:completer-dot-complete
-;; ein:jedi-complete
-;; ein:jedi-dot-complete
-
-;;}}}
-;;{{{ Advice Tasks:
-
-;; ein:connect-to-notebook
-;; ein:connect-to-notebook-buffer
-;; ein:connect-to-notebook-command
-;; ein:console-open
-
-;;}}}
-;;{{{ Advice Notebook:
-
-;;}}}
-;;{{{ Advice NotebookList:
-
-;; ein:notebooklist-login
-;; ein:notebooklist-menu
-;; ein:notebooklist-new-notebook
-;; ein:notebooklist-new-notebook-with-name
-;; ein:notebooklist-next-item
-;; ein:notebooklist-open
-;; ein:notebooklist-open-notebook-by-file-name
-;; ein:notebooklist-open-notebook-global
-;; ein:notebooklist-prev-item
-;; ein:notebooklist-reload
-;; ein:junk-new
-;; ein:junk-rename
-
-;;}}}
-;;{{{   Commands:
-
-;; ein:header-line-delete-this-tab
-;; ein:header-line-insert-new-tab
-;; ein:header-line-insert-next-tab
-;; ein:header-line-insert-prev-tab
-;; ein:header-line-move-next-tab
-;; ein:header-line-move-prev-tab
-;; ein:header-line-pop-to-this-tab
-;; ein:header-line-switch-to-this-tab
-;; ein:iexec-mode
-;; ein:ipynb-mode
-
-;; ein:pager-goto-docstring-bset-loc
-;; ein:pytools-doctest
-;; ein:pytools-hierarchy
-;; ein:pytools-jump-back-command
-;; ein:pytools-jump-to-source-command
-;; ein:pytools-pandas-to-ses
-;; ein:pytools-request-help
-;; ein:pytools-request-tooltip
-;; ein:pytools-request-tooltip-or-help
-;; ein:pytools-whos
-;; ein:shared-output-eval-string
-;; ein:shared-output-pop-to-buffer
-;; ein:shared-output-show-code-cell-at-point
-;; ein:tb-show
-
-;;}}}
-;;{{{ Worksheets:
-
-(cl-loop for f in
-         '(
-           ein:worksheet-clear-all-output
-           ein:worksheet-delete-cell
-           ein:worksheet-clear-output
-           ein:worksheet-kill-cell
-           )
-         do
-         (eval
-          `(defadvice ,f (after emacspeak pre act comp)
-             "Provide auditory feedback."
-             (when (ems-interactive-p)
-               (emacspeak-auditory-icon 'delete-object)))))
-;; ein:worksheet-change-cell-type
-;; ein:worksheet-copy-cell
-;; ein:worksheet-dedent-cell-text
-
-(cl-loop for f in
-         '(
-           ein:worksheet-execute-all-cell
-           ein:worksheet-execute-autoexec-cells
-           ein:worksheet-execute-cell-and-insert-below
-           ein:worksheet-execute-cell-and-goto-next
-           ein:worksheet-execute-cell)
-         do
-         (eval
-          `(defadvice ,f (after emacspeak pre act comp)
-             "Provide auditory feedback."
-             (when (ems-interactive-p)
-               (emacspeak-auditory-icon 'task-done)
-               (emacspeak-speak-line)))))
-(cl-loop for f in
-         '(
-           ein:worksheet-goto-next-input
-           ein:worksheet-goto-prev-input
-           ein:worksheet-next-input-history
-           ein:worksheet-previous-input-history
-           )
-         do
-         (eval
-          `(defadvice ,f (after emacspeak pre act comp)
-             "Provide auditory feedback."
-             (when (ems-interactive-p)
-               (emacspeak-auditory-icon 'large-movement)
-               (emacspeak-ein-speak-current-cell)))))
-
-(cl-loop for f in
-         '(
-           ein:worksheet-yank-cell
-           ein:worksheet-insert-cell-above
-           ein:worksheet-insert-cell-below)
-         do
-         (eval
-          `(defadvice ,f (after emacspeak pre act comp)
-             "Provide auditory feedback."
-             (when (ems-interactive-p)
-               (emacspeak-auditory-icon 'yank-object)
-               (emacspeak-speak-line)))))
-
-;; ein:worksheet-merge-cell
-;; ein:worksheet-move-cell-down
-;; ein:worksheet-move-cell-up
-
-;; ein:worksheet-rename-sheet
-;; ein:worksheet-set-output-visibility-all
-;; ein:worksheet-split-cell-at-point
-;; ein:worksheet-toggle-autoexec
-;; ein:worksheet-toggle-cell-type
-;; ein:worksheet-toggle-output
-;; ein:worksheet-turn-on-autoexec
 
 ;;}}}
 ;;{{{ Bind additional interactive commands
@@ -226,6 +138,240 @@
              )
            do
            (emacspeak-keymap-update ein:notebook-mode-map k)))
+
+;;}}}
+;;{{{Modules To Enable:
+
+;;}}}
+;;{{{tb (traceback):
+
+(cl-loop
+ for f in 
+ '(ein:tb-jump-to-source-at-point-command
+ ein:tb-next-item ein:tb-prev-item)
+ do
+ (eval
+  `(defadvice ,f (after emacspeak pre act comp)
+     "Provide auditory feedback."
+     (when (ems-interactive-p)
+       (emacspeak-speak-line)
+       (emacspeak-auditory-icon 'large-movement)))))
+
+
+(defadvice ein:tb-show-km (after emacspeak pre act comp)
+  "Provide auditory feedback."
+  (when (ems-interactive-p)
+    (emacspeak-auditory-icon 'open-object)
+    (emacspeak-speak-line)))
+
+
+
+;;}}}
+;;{{{pytools:
+
+(cl-loop
+ for f in 
+ '(ein:pytools-jump-back-command ein:pytools-jump-to-source-command)
+ do
+ (eval
+  `(defadvice ,f (after emacspeak pre act comp)
+     "Provide auditory feedback."
+     (when (ems-interactive-p)
+       (emacspeak-auditory-icon 'large-movement)
+       (emacspeak-speak-line)))))
+
+
+;;}}}
+;;{{{ Worksheets:
+
+(cl-loop
+ for f in
+ '(
+   ein:worksheet-clear-all-output-km ein:worksheet-delete-cell
+   ein:worksheet-clear-output-km ein:worksheet-kill-cell-km) do
+ (eval
+  `(defadvice ,f (after emacspeak pre act comp)
+     "Provide auditory feedback."
+     (when (ems-interactive-p)
+       (emacspeak-speak-line)
+       (emacspeak-auditory-icon 'delete-object)))))
+
+(cl-loop
+ for f in
+ '(
+   ein:worksheet-execute-all-cells 
+   ein:worksheet-execute-cell-and-insert-below ein:worksheet-execute-cell-and-insert-below-km
+   ein:worksheet-execute-cell-and-goto-next-km ein:worksheet-execute-cell-and-goto-next
+   ein:worksheet-execute-cell ein:worksheet-execute-cell-km) do
+ (eval
+  `(defadvice ,f (after emacspeak pre act comp)
+     "Provide auditory feedback."
+     (when (ems-interactive-p)
+       (emacspeak-auditory-icon 'task-done)
+       (forward-line 1)
+       (message "Press C-c . to hear the results.")))))
+
+(cl-loop
+ for f in
+ '(
+   ein:worksheet-goto-next-input-km ein:worksheet-goto-prev-input-km
+   ein:worksheet-goto-next-input ein:worksheet-goto-prev-input)
+ do
+ (eval
+  `(defadvice ,f (after emacspeak pre act comp)
+     "Provide auditory feedback."
+     (when (ems-interactive-p)
+       (emacspeak-auditory-icon 'large-movement)
+       (emacspeak-ein-speak-current-cell)))))
+
+(cl-loop
+ for f in
+ '(
+   ein:worksheet-yank-cell
+   ein:worksheet-insert-cell-above-km ein:worksheet-insert-cell-above
+   ein:worksheet-insert-cell-below-km ein:worksheet-insert-cell-below)
+ do
+ (eval
+  `(defadvice ,f (after emacspeak pre act comp)
+     "Provide auditory feedback."
+     (when (ems-interactive-p)
+       (emacspeak-auditory-icon 'yank-object)
+       (emacspeak-speak-line)))))
+
+(cl-loop
+ for f in 
+ '(ein:worksheet-toggle-cell-type ein ein:worksheet-change-cell-type-km )
+ do
+ (eval
+  `(defadvice ,f (after emacspeak pre act comp)
+     "Provide auditory feedback."
+     (when (ems-interactive-p)
+       (emacspeak-ein-sox-gen (ein:cell-type (ein:worksheet-get-current-cell)))
+       (dtk-speak (ein:cell-type (ein:worksheet-get-current-cell)))))))
+
+(cl-loop
+ for f in 
+ '(ein:worksheet-insert-cell-below-km ein:worksheet-insert-cell-above-km)
+ do
+ (eval
+  `(defadvice ,f (after emacspeak pre act comp)
+     "Provide auditory feedback."
+     (when (ems-interactive-p)
+       (emacspeak-auditory-icon 'open-object)
+       (emacspeak-speak-line)))))
+
+(defadvice ein:worksheet-move-cell-up-km (after emacspeak pre act comp)
+  "Provide auditory feedback."
+  (when (ems-interactive-p)
+    (dtk-speak "Moved cell up")
+    (emacspeak-auditory-icon 'large-movement)
+    ))
+
+
+(defadvice ein:worksheet-move-cell-down-km (after emacspeak pre act comp)
+  "Provide auditory feedback."
+  (when (ems-interactive-p)
+    (dtk-speak "Moved cell down")
+    (emacspeak-auditory-icon 'large-movement)))
+
+
+(defadvice ein:worksheet-yank-cell (after emacspeak pre act comp)
+  "Provide auditory feedback."
+  (when (ems-interactive-p)
+    (emacspeak-ein-speak-current-cell)
+    (emacspeak-auditory-icon 'yank-object)))
+
+(cl-loop
+ for f in 
+ '(ein:worksheet-toggle-output-km ein:worksheet-set-output-visibility-all-km)
+ do
+ (eval
+  `(defadvice ,f (after emacspeak pre act comp)
+     "Provide auditory feedback."
+     (when (ems-interactive-p)
+    (let  ((state (slot-value (ein:worksheet-get-current-cell)
+                            'collapsed )))
+        (emacspeak-auditory-icon
+         (if state 'close-object 'open-object))
+      (dtk-speak
+       (format "%s output"
+               (if state "Hid" "Showing"))))))))
+
+
+
+(defadvice ein:worksheet-split-cell-at-point (after emacspeak pre act comp)
+  "Provide auditory feedback."
+  (when (ems-interactive-p)
+    (emacspeak-auditory-icon 'open-object)
+    (emacspeak-speak-line)))
+
+
+(defadvice ein:worksheet-merge-cell (after emacspeak pre act comp)
+  "Provide auditory feedback."
+  (when (ems-interactive-p)
+    (emacspeak-auditory-icon 'close-object)
+    (emacspeak-speak-line)))
+
+;;}}}
+;;{{{Notebooks:
+
+(cl-loop
+ for f in 
+ '(ein:notebook-save-to-command ein:notebook-save-notebook-command)
+ do
+ (eval
+  `(defadvice ,f (after emacspeak pre act comp)
+     "Provide auditory feedback."
+     (when (ems-interactive-p)
+       (message "Saving notebook")
+       (emacspeak-auditory-icon 'save-object)))))
+
+(cl-loop
+ for f in 
+ '(
+  ein:notebook-worksheet-insert-next ein:notebook-worksheet-insert-prev
+  ein:notebook-worksheet-move-next ein:notebook-worksheet-move-prev
+  ein:notebook-worksheet-open-1th ein:notebook-worksheet-open-2th
+  ein:notebook-worksheet-open-3th ein:notebook-worksheet-open-4th
+  ein:notebook-worksheet-open-5th ein:notebook-worksheet-open-6th
+  ein:notebook-worksheet-open-7th ein:notebook-worksheet-open-8th
+  ein:notebook-worksheet-open-last ein:notebook-worksheet-open-next
+  ein:notebook-worksheet-open-next-or-first
+  ein:notebook-worksheet-open-next-or-new
+  ein:notebook-worksheet-open-prev ein:notebook-worksheet-open-prev-or-last)
+ do
+ (eval
+  `(defadvice ,f (after emacspeak pre act comp)
+     "Provide auditory feedback."
+     (when (ems-interactive-p)
+       (emacspeak-auditory-icon 'open-object)
+       (emacspeak-speak-mode-line)))))
+
+(defadvice ein:notebook-jump-to-opened-notebook (after emacspeak pre act comp)
+  "Provide auditory feedback."
+  (when (ems-interactive-p)
+    (emacspeak-auditory-icon 'open-object)
+    (emacspeak-speak-mode-line)))
+
+(defadvice ein:notebook-close-km (after emacspeak pre act comp)
+  "Provide auditory feedback."
+  (when (ems-interactive-p)
+    (emacspeak-auditory-icon 'close-object)
+    (emacspeak-speak-mode-line)))
+
+;;}}}
+;;{{{Notebooklists:
+
+(cl-loop
+ for f in 
+ '(ein:notebooklist-prev-item ein:notebooklist-next-item)
+ do
+ (eval
+  `(defadvice ,f (after emacspeak pre act comp)
+     "Provide auditory feedback."
+     (when (ems-interactive-p)
+       (emacspeak-auditory-icon 'large-movement)
+       (emacspeak-speak-line)))))
 
 ;;}}}
 (provide 'emacspeak-ein)

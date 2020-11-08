@@ -77,7 +77,11 @@
 (require 'emacspeak-speak)
 (require 'emacspeak-sounds)
 (require 'ansi-color)
-(eval-when-compile (require 'which-func))
+(require 'which-func)
+(require 'vc)
+(require 'hippie-exp)
+(require 'comint)
+(require 'shell)
 ;;}}}
 ;;{{{ Forward Declarations:
 (defvar emacspeak-prefix)
@@ -85,7 +89,7 @@
 ;;}}}
 ;;{{{ Silence advice chatter:
 
-(defadvice ad--defalias-fset (around emacspeak pre act comp)
+(defadvice ad--cl--defalias-fset (around emacspeak pre act comp)
   "Silence chatter."
   (ems-with-messages-silenced ad-do-it))
 
@@ -550,14 +554,20 @@ the words that were capitalized."
 
 ;;; Large deletions also produce auditory icons if possible
 
-(defadvice kill-line (before emacspeak pre act comp)
-  "Speak line before killing it. "
-  (when (ems-interactive-p)
+(cl-loop
+ for f in 
+ '(kill-line kill-whole-line)
+ do
+ (eval
+  `(defadvice ,f (before emacspeak pre act comp)
+     "Speak line before killing it. "
+     (when (ems-interactive-p)
     (emacspeak-auditory-icon 'delete-object)
     (when dtk-stop-immediately (dtk-stop))
     (let ((dtk-stop-immediately nil))
       (dtk-tone-deletion)
-      (emacspeak-speak-line 1))))
+      (emacspeak-speak-line 1))))))
+
 
 (defadvice kill-sexp (before emacspeak pre act comp)
   "Speak the sexp you killed."
@@ -753,7 +763,8 @@ icon."
 
 (defvar inhibit-message)
 (cl-loop
- for f in '(minibuffer-message message display-message-or-buffer) do
+ for f in '(minibuffer-message set-minibuffer-message
+            message display-message-or-buffer) do
  (eval
   `(defadvice ,f (around emacspeak pre act comp)
      "Speak the message."
@@ -762,7 +773,11 @@ icon."
      (let ((inhibit-read-only t)
            (m nil))
        ad-do-it
-       (setq m (current-message))
+       (setq m
+             (or 
+              (current-message)
+              (if (bound-and-true-p minibuffer-message-overlay)
+                  (overlay-get minibuffer-message-overlay 'after-string))))
        (when
            (and
             (null inhibit-message)
@@ -1744,7 +1759,7 @@ Produce an auditory icon if possible."
     (emacspeak-speak-mode-line)))
 (cl-loop
  for f in
- '(kill-buffer quit-window)
+ '(kill-buffer kill-current-buffer quit-window)
  do
  (eval
   `(defadvice ,f (after emacspeak pre act comp)
@@ -3050,6 +3065,17 @@ Produce auditory icons if possible."
   "Provide auditory feedback."
   (dtk-stop)
   (emacspeak-auditory-icon 'delete-object))
+
+;;}}}
+;;{{{log-edit-done
+
+(defadvice log-edit-done (after emacspeak pre act comp)
+  "Provide auditory feedback."
+  (when (ems-interactive-p)
+    (emacspeak-speak-mode-line)
+    (emacspeak-auditory-icon 'close-object)
+    ))
+
 
 ;;}}}
 (provide 'emacspeak-advice)

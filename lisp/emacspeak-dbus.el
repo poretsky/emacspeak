@@ -127,17 +127,13 @@ Initialize screen-saver buffer  if needed, and switch to  it."
 Startup  apps that need the network."
   (cl-declare (special emacspeak-speak-network-interfaces-list))
   (setq emacspeak-speak-network-interfaces-list
-        (mapcar #'car (network-interface-list)))
+        (ems-get-active-network-interfaces))
   (run-at-time
    60 nil
    #'(lambda ()
-       (when (featurep 'xbacklight) (xbacklight-black))
-                                        ;(when (featurep 'jabber) (jabber-connect-all))
-                                        ;(when (featurep 'twittering-mode) (twittering-start))
-       ))
+       (when (featurep 'xbacklight) (xbacklight-black))))
   (emacspeak-play-auditory-icon 'network-up)
-  (soundscape-tickle)
-  (message (mapconcat #'identity emacspeak-speak-network-interfaces-list "")))
+  (soundscape-tickle))
 
 (defun emacspeak-dbus-nm-disconnected ()
   "Announce  network manager disconnection.
@@ -222,8 +218,8 @@ already disabled."
 
 (defun emacspeak-dbus-sleep ()
   "Emacspeak  hook for -sleep signal from Login1."
-  (soundscape-listener-shutdown)
-  (save-some-buffers t))
+      (soundscape-listener-shutdown)
+    (save-some-buffers t))
 
 (add-hook  'emacspeak-dbus-sleep-hook#'emacspeak-dbus-sleep)
 

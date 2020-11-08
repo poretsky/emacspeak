@@ -8,11 +8,12 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/tvr/emacspeak.git"
+        "url": "git+https://github.com/tvraman/emacspeak.git"
     },
     "keywords": [
         "Maths",
         "Emacspeak",
+        "Audio Formatting",
         "Complete Audio Desktop"
     ],
     "author": "Volker Sorge <Volker.Sorge@gmail.com> (http://www.cs.bham.ac.uk/~vxs) T. V. Raman  <tv.raman.tv@gmail.com> (http://tvraman.github.io)",
@@ -22,10 +23,8 @@
     },
     "homepage": "https://github.com/tvraman/emacspeak",
     "dependencies": {
-        "gulp": "^4.0.0",
-        "indium": "^3.4.1",
-        "mathjax-node": "^1.3.0",
+        "mathjax": ">= 3.0.0",
         "net": ">=1.0.2",
-        "speech-rule-engine": "^2.3.2"
+        "speech-rule-engine": "^3.0.0-beta.11"
     }
 }
