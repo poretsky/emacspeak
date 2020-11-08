@@ -146,6 +146,7 @@ that implements the speech-enabling extensions for `package' (a string)."
 ;;}}}
 ;;{{{ Setup package extensions
 
+(emacspeak-do-package-setup "abc-mode" 'emacspeak-abc-mode)
 (emacspeak-do-package-setup "add-log" 'emacspeak-add-log)
 (emacspeak-do-package-setup "analog" 'emacspeak-analog)
 (emacspeak-do-package-setup "ansi-color" 'emacspeak-ansi-color)
@@ -172,13 +173,12 @@ that implements the speech-enabling extensions for `package' (a string)."
 (emacspeak-do-package-setup "company" 'emacspeak-company)
 (emacspeak-do-package-setup "compile" 'emacspeak-compile)
 (emacspeak-do-package-setup "cperl-mode" 'emacspeak-cperl)
-(emacspeak-do-package-setup "pianobar" 'emacspeak-pianobar)
-(emacspeak-do-package-setup "proced" 'emacspeak-proced)
-(emacspeak-do-package-setup "popup" 'emacspeak-popup)
-(emacspeak-do-package-setup "projectile" 'emacspeak-projectile)
+(emacspeak-do-package-setup "dumb-jump" 'emacspeak-dumb-jump)
 (emacspeak-do-package-setup "ecb" 'emacspeak-ecb)
 (emacspeak-do-package-setup "ein" 'emacspeak-ein)
 (emacspeak-do-package-setup "cus-edit" 'emacspeak-custom)
+(emacspeak-do-package-setup "deadgrep" 'emacspeak-deadgrep)
+(emacspeak-do-package-setup "debugger" 'emacspeak-debugger)
 (emacspeak-do-package-setup "desktop" 'emacspeak-desktop)
 (emacspeak-do-package-setup "diff-mode" 'emacspeak-diff-mode)
 (emacspeak-do-package-setup "dired" 'emacspeak-dired)
@@ -258,11 +258,16 @@ that implements the speech-enabling extensions for `package' (a string)."
 (emacspeak-do-package-setup "navi-mode" 'emacspeak-navi-mode)
 (emacspeak-do-package-setup "net-utils" 'emacspeak-net-utils)
 (emacspeak-do-package-setup "newsticker" 'emacspeak-newsticker)
+(emacspeak-do-package-setup "nov" 'emacspeak-nov)
 (emacspeak-do-package-setup "nxml-mode" 'emacspeak-nxml)
 (emacspeak-do-package-setup "org" 'emacspeak-org)
 (emacspeak-do-package-setup "origami" 'emacspeak-origami)
 (emacspeak-do-package-setup "outline" 'emacspeak-outline)
 (emacspeak-do-package-setup "perl-mode" 'emacspeak-perl)
+(emacspeak-do-package-setup "pianobar" 'emacspeak-pianobar)
+(emacspeak-do-package-setup "proced" 'emacspeak-proced)
+(emacspeak-do-package-setup "popup" 'emacspeak-popup)
+(emacspeak-do-package-setup "projectile" 'emacspeak-projectile)
 (emacspeak-do-package-setup "php-mode" 'emacspeak-php-mode)
 (emacspeak-do-package-setup "package"'emacspeak-package)
 (emacspeak-do-package-setup "paradox"'emacspeak-paradox)
@@ -297,6 +302,7 @@ that implements the speech-enabling extensions for `package' (a string)."
 (emacspeak-do-package-setup "supercite" 'emacspeak-supercite)
 (emacspeak-do-package-setup "sudoku" 'emacspeak-sudoku)
 (emacspeak-do-package-setup "table" 'emacspeak-etable)
+(emacspeak-do-package-setup "tab-bar" 'emacspeak-tab-bar)
 (emacspeak-do-package-setup "tar-mode" 'emacspeak-tar)
 (emacspeak-do-package-setup "tcl" 'emacspeak-tcl)
 (emacspeak-do-package-setup "tdtd" 'emacspeak-tdtd)
@@ -425,16 +431,15 @@ caps."
 ;;}}}
 ;;{{{ Emacspeak:
 
-
-(defcustom emacspeak-play-emacspeak-startup-icon t
+(defcustom emacspeak-play-emacspeak-startup-icon
+  (executable-find emacspeak-m-player-program)
   "If set to T, emacspeak plays its icon as it launches."
   :type 'boolean
   :group 'emacspeak)
 (defsubst emacspeak-play-startup-icon ()
   "Play startup icon if requested."
   (cl-declare (special emacspeak-play-emacspeak-startup-icon))
-  (let ((player  (or (executable-find "mplayer")
-                     (executable-find "play"))))
+  (let ((player   (executable-find "mplayer")))
     (when (and  emacspeak-play-emacspeak-startup-icon player)
       (start-process
        "mp3" nil
@@ -521,7 +526,6 @@ commands and options for details."
        emacspeak-version)))
     (emacspeak-play-startup-icon)))
 
-
 (defun emacspeak-info ()
   "Open Emacspeak Info Manual."
   (interactive)
@@ -539,12 +543,17 @@ commands and options for details."
   (emacspeak-speak-buffer))
 
 ;;}}}
+;;{{{Advice find-func:
+(eval-after-load
+    "find-func"
+  `(progn
+     (emacspeak-fix-commands-loaded-from "find-func")))
+;;}}}
 (provide 'emacspeak)
 ;;{{{ end of file
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

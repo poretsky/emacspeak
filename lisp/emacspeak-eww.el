@@ -602,6 +602,9 @@ are available are cued by an auditory icon on the header line."
      ("C" eww-view-dom-having-class)
      ("C-e" emacspeak-prefix-command)
      ("C-t" emacspeak-eww-transcode)
+     ("M-<left>" emacspeak-eww-table-previous-cell)
+     ("M-<right>"  emacspeak-eww-table-next-cell)
+     ("M-." emacspeak-eww-table-speak-cell)
      ("E" eww-view-dom-having-elements)
      ("G" emacspeak-google-command)
      ("I" eww-view-dom-having-id)
@@ -735,7 +738,7 @@ Retain previously set punctuations  mode."
 
 (cl-loop
  for f in
- '(eww eww-reload eww-open-file)
+ '(eww eww-open-in-new-buffer eww-reload eww-open-file)
  do
  (eval
   `(defadvice ,f (after emacspeak pre act comp)
@@ -842,14 +845,15 @@ Retain previously set punctuations  mode."
 (defadvice eww-follow-link (around emacspeak pre act comp)
   "Respect emacspeak-we-url-executor if set."
   (emacspeak-auditory-icon 'button)
-  (cond
-   ((and (ems-interactive-p)
-         (functionp emacspeak-we-url-executor)
-         (y-or-n-p "Use custom executor? "))
-    (let ((url (get-text-property (point) 'shr-url)))
-      (unless url (error "No URL  under point"))
-      (funcall emacspeak-we-url-executor url)))
-   (t ad-do-it)))
+  (let ((emacspeak-eww-masquerade t))
+    (cond
+     ((and (ems-interactive-p)
+           (functionp emacspeak-we-url-executor)
+           (y-or-n-p "Use custom executor? "))
+      (let ((url (get-text-property (point) 'shr-url)))
+        (unless url (error "No URL  under point"))
+        (funcall emacspeak-we-url-executor url)))
+     (t ad-do-it))))
 
 ;;}}}
 ;;{{{ xslt transform on request:
@@ -870,13 +874,13 @@ Retain previously set punctuations  mode."
 
 (cl-loop
  for  tag in
- '(h1 h2 h3 h4 h5 h6 div                    ; sectioning
-      ul ol dl                     ; Lists
-      li dt dd p                   ; block-level: bullets, paras
-      form blockquote              ; block-level
-      a b it em span               ; in-line
-      br hr                        ; separators
-      th tr table)
+ '(h1 h2 h3 h4 h5 h6 div                ; sectioning
+      ul ol dl                          ; Lists
+      li dt dd p                        ; block-level: bullets, paras
+      form blockquote                   ; block-level
+      a b it em span                    ; in-line
+      br hr                             ; separators
+      table)
  do
  (eval
   `
@@ -1688,9 +1692,6 @@ The %s is automatically spoken if there is no user activity."
         (kill-new  (emacspeak-google-canonicalize-result-url u))))))
 
 ;;}}}
-;;{{{ Masquerade
-
-;;}}}
 ;;{{{  Google Knowledge Card:
 
 (defun emacspeak-eww-google-knowledge-card ()
@@ -1808,7 +1809,6 @@ Warning, this is fragile, and depends on a stable id for the
 (defun emacspeak-eww-tags-at-point ()
   "Display tags at point."
   (interactive)
-  (emacspeak-eww-prepare-eww)
   (let ((props (text-properties-at (point)))
         (tags nil))
     (setq tags
@@ -1985,8 +1985,9 @@ interactive prefix arg `delete', delete that mark instead."
       (cl-assert  type nil "Mark type is not set.")
       (cl-assert book nil "Book not set.")
       (cond
-       ((emacspeak-eww-jump-to-mark bm) t)
-       (t
+       ((emacspeak-eww-jump-to-mark bm) t) ;;; Found a buffer with
+;;; book open.
+       (t ;;; so we need to first open the book:
         (setq handler
               (cond
                ((eq type 'daisy) #'emacspeak-bookshare-eww)
@@ -2087,7 +2088,6 @@ Warning: Running shell script cbox through this fails mysteriously."
   (emacspeak-eww-smart-tabs-put char url)
   (emacspeak-auditory-icon 'close-object))
 
-
 ;;;###autoload
 (defun emacspeak-eww-smart-tabs (char &optional define)
   "Open URL in EWW keyed by  `char'.
@@ -2095,7 +2095,7 @@ To associate a URL with a char, use this command
 with an interactive prefix arg. "
   (interactive
    (list
-    (read-char-exclusive "Tab:")
+    (read-char-exclusive "EWWTab:")
     current-prefix-arg))
   (cl-declare (special emacspeak-eww-smart-tabs))
   (unless
@@ -2136,12 +2136,102 @@ with an interactive prefix arg. "
      (expand-file-name "smart-eww-tabs" emacspeak-resource-directory))))
 
 ;;}}}
+;;{{{Pronunciations:
+
+(emacspeak-pronounce-add-dictionary-entry
+ 'eww-mode
+ (concat " -" emacspeak-pronounce-number-pattern)
+ (cons
+  #'re-search-forward
+  #'(lambda (number)
+      (concat " minus " (substring number 1)))))
+
+;;}}}
+;;{{{Enable Table Browsing:
+;;; Only works for plain tables, not nested tables.
+;;; Point has to be within the displayed table.
+
+(defadvice shr-tag-table-1 (around emacspeak pre act comp)
+  "Cache pointer to table dom as a text property."
+  (let ((table-dom (ad-get-arg 0))
+        (start (point)))
+    ad-do-it
+    (add-text-properties
+     start (point)
+     (list
+      'table-start start
+      'table-end (1-  (point))
+      'table-dom table-dom))
+    ad-return-value))
+
+(defadvice shr-insert-table (around emacspeak pre act comp)
+  "Record table widths."
+  (let ((start (point))
+        (widths (ad-get-arg 1)))
+    ad-do-it
+    (put-text-property start (point) 'table-widths widths)
+    ad-return-value))
+
+(defvar-local emacspeak-eww-table-current-cell 0
+  "Track current table cell to enable table navigation.
+Value is specified as a position in the list of table cells.")
+
+(defsubst emacspeak-eww-table-cells ()
+  "Returns value of table cells as a list."
+  (mapcar
+   #'(lambda (node) (dom-texts node " "))
+   (dom-by-tag (get-text-property (point) 'table-dom) 'td)))
+
+(defun emacspeak-eww-table-speak-cell ()
+  "Speak current cell."
+  (interactive)
+  (cl-declare (special emacspeak-eww-table-current-cell))
+  (dtk-speak (elt (emacspeak-eww-table-cells) emacspeak-eww-table-current-cell)))
+
+(defun emacspeak-eww-table-next-cell (&optional prefix)
+  "Speak next cell after making it current.
+Interactive prefix arg moves to the last cell in the table."
+  (interactive "P")
+  (cl-declare (special emacspeak-eww-table-current-cell))
+  (cl-assert
+   (< (1+ emacspeak-eww-table-current-cell)
+      (length (emacspeak-eww-table-cells)))
+   t "On last cell.")
+  (cond
+   (prefix
+    (setq
+     emacspeak-eww-table-current-cell
+     (1- (length (emacspeak-eww-table-cells))))
+    (goto-char (get-text-property (point) 'table-end)))
+   (t
+    (setq emacspeak-eww-table-current-cell (1+ emacspeak-eww-table-current-cell))
+    (goto-char (next-single-property-change (point) 'display))))
+  (emacspeak-auditory-icon 'left)
+  (dtk-speak (elt (emacspeak-eww-table-cells) emacspeak-eww-table-current-cell)))
+
+(defun emacspeak-eww-table-previous-cell (&optional prefix)
+  "Speak previous cell after making it current.
+With interactive prefix arg, move to the start of the table."
+  (interactive "P")
+  (cl-declare (special emacspeak-eww-table-current-cell))
+  (when  (zerop emacspeak-eww-table-current-cell  ) (error  "On first cell."))
+  (cond
+   (prefix
+    (setq emacspeak-eww-table-current-cell 0)
+    (goto-char (get-text-property (point) 'table-start)))
+   (t
+    (setq emacspeak-eww-table-current-cell (1-
+                                            emacspeak-eww-table-current-cell))
+    (goto-char (previous-single-property-change (point) 'display))))
+  (emacspeak-auditory-icon 'right)
+  (dtk-speak (elt (emacspeak-eww-table-cells) emacspeak-eww-table-current-cell)))
+
+;;}}}
 (provide 'emacspeak-eww)
 ;;{{{ end of file
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

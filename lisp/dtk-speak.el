@@ -104,7 +104,6 @@ Particularly useful for web browsing."
   :group 'tts)
 (make-variable-buffer-local 'tts-strip-octals)
 
-
 (defcustom dtk-speech-rate-base
   (if (string-match "dtk" dtk-program) 180 50)
   "*Value of lowest tolerable speech rate."
@@ -246,18 +245,41 @@ has higher precedence than `face'."
   "Applies pronunciations specified in pronunciation table to current buffer.
 Modifies text and point in buffer."
   (cl-declare (special emacspeak-pronounce-pronunciation-personality))
-  (let ((words
-         (cl-loop for k being the hash-keys of pronunciation-table collect k)))
-    (cl-loop
-     for w in words do
-     (when w
-       (let ((pronunciation (gethash w pronunciation-table))
-             (pp nil))
-         (goto-char (point-min))
-         (cond
-          ((stringp pronunciation)
-           (while (search-forward w nil t)
+  (cl-loop
+   for w in
+   (cl-loop for k being the hash-keys of pronunciation-table collect k)
+   do
+   (when w
+     (let ((pronunciation (gethash w pronunciation-table))
+           (pp nil))
+       (goto-char (point-min))
+       (cond
+        ((stringp pronunciation)
+         (while (search-forward w nil t)
+           (setq pp (dtk-get-style))
+           (replace-match pronunciation t t)
+           (when (or pp emacspeak-pronounce-pronunciation-personality)
+             (put-text-property
+              (match-beginning 0)
+              (+ (match-beginning 0) (length pronunciation))
+              'personality
+              (cond
+               ((and emacspeak-pronounce-pronunciation-personality
+                     (listp pp))
+                (nconc pp
+                       (list emacspeak-pronounce-pronunciation-personality)))
+               (t pp))))))
+        ((consp pronunciation)
+         (let ((matcher (car pronunciation))
+               (pronouncer (cdr pronunciation))
+               (pronunciation ""))
+           (while (funcall matcher w nil t)
              (setq pp (dtk-get-style))
+             (setq pronunciation
+                   (save-match-data
+                     (funcall
+                      pronouncer
+                      (buffer-substring (match-beginning 0) (match-end 0)))))
              (replace-match pronunciation t t)
              (when (or pp emacspeak-pronounce-pronunciation-personality)
                (put-text-property
@@ -269,32 +291,8 @@ Modifies text and point in buffer."
                        (listp pp))
                   (nconc pp
                          (list emacspeak-pronounce-pronunciation-personality)))
-                 (t pp))))))
-          ((consp pronunciation)
-           (let ((matcher (car pronunciation))
-                 (pronouncer (cdr pronunciation))
-                 (pronunciation ""))
-             (while (funcall matcher w nil t)
-               (setq pp (dtk-get-style))
-               (setq pronunciation
-                     (save-match-data
-                       (funcall pronouncer
-                                (buffer-substring
-                                 (match-beginning 0)
-                                 (match-end 0)))))
-               (replace-match pronunciation t t)
-               (when (or pp emacspeak-pronounce-pronunciation-personality)
-                 (put-text-property
-                  (match-beginning 0)
-                  (+ (match-beginning 0) (length pronunciation))
-                  'personality
-                  (cond
-                   ((and emacspeak-pronounce-pronunciation-personality
-                         (listp pp))
-                    (nconc pp
-                           (list emacspeak-pronounce-pronunciation-personality)))
-                   (t pp)))))))
-          (t nil)))))))
+                 (t pp)))))))
+        (t nil))))))
 
 ;;}}}
 ;;{{{  Helpers to handle invisible text:
@@ -342,7 +340,6 @@ Optional argument FORCE  flushes the command to the speech server."
     (when dtk-speak-server-initialized
       (dtk-interp-silence duration
                           (if force "\nd" "")))))
-
 
 (defcustom dtk-use-tones t
   "Allow tones to be turned off."
@@ -474,7 +471,6 @@ specifies the current pronunciation mode --- See
      (t
       (while (re-search-forward dtk-bracket-regexp nil t)
         (replace-match " " nil t))))))
-
 
 (defcustom dtk-speak-nonprinting-chars nil
   "*Option that specifies handling of non-printing chars.
@@ -1645,7 +1641,6 @@ Optional interactive prefix arg restarts current TTS server."
 (defvar dtk-local-server-process nil
   "Local server process.")
 
-
 (defvar dtk-speech-server-program "speech-server"
   "Local speech server script.")
 (defvar dtk-local-server-port "2222"
@@ -2102,7 +2097,6 @@ Notification is logged in the notifications buffer unless `dont-log' is T. "
 ;;; local variables:
 ;;; coding: utf-8
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

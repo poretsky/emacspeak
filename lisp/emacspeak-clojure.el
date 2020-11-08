@@ -63,18 +63,6 @@
    (clojure-keyword-face voice-animate)))
 
 ;;}}}
-;;{{{ Advice Interactive Commands:
-
-'(
-  clojure-thread
-  clojure-thread-first-all
-  clojure-thread-last-all
-  clojure-unwind
-  clojure-unwind-all
-  clojure-update-ns
-  )
-
-;;}}}
 ;;{{{ Speech-enable Editing:
 
 (defadvice clojure-toggle-keyword-string (after emacspeak pre act comp)
@@ -82,6 +70,33 @@
   (when (ems-interactive-p)
     (emacspeak-speak-line)
     (emacspeak-auditory-icon 'button)))
+
+(cl-loop
+ for f in 
+ '(clojure-cycle-not clojure-cycle-when)
+ do
+ (eval
+  `(defadvice ,f (after emacspeak pre act comp)
+     "Provide auditory feedback."
+     (when (ems-interactive-p)
+       (emacspeak-auditory-icon 'button)
+       (emacspeak-speak-line)))))
+
+(cl-loop
+ for f in 
+ '(clojure-view-cheatsheet
+                   clojure-view-grimoire
+                   clojure-view-guide
+                   clojure-view-reference-section
+                   clojure-view-style-guide)
+ do
+ (eval
+  `(defadvice ,f (after emacspeak pre act comp)
+     "Provide auditory feedback."
+     (when (ems-interactive-p)
+       (emacspeak-auditory-icon 'open-object)
+       (emacspeak-speak-buffer)))))
+
 (cl-loop
  for f in
  '(clojure-forward-logical-sexp clojure-backward-logical-sexp)
@@ -156,7 +171,6 @@
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

@@ -136,6 +136,7 @@
     (define-key pianobar-key-map [next] 'emacspeak-pianobar-volume-up)
     (use-local-map pianobar-key-map)
     (emacspeak-speak-mode-line)
+    (bury-buffer)
     (emacspeak-auditory-icon 'open-object)))
 
 ;;; Advice all actions to play a pre-auditory icon
@@ -249,7 +250,6 @@ If electric mode is on, keystrokes invoke pianobar commands directly."
     (call-interactively (lookup-key pianobar-key-map key)))
    (t (pianobar-send-string  key))))
 
-
 (defcustom emacspeak-pianobar-max-preset 10
   "Number of presets."
   :type 'number
@@ -300,7 +300,6 @@ If electric mode is on, keystrokes invoke pianobar commands directly."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

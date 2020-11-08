@@ -142,7 +142,6 @@ pipeline. Argument `specs' is a list of elements of the form `(xsl params)'."
           (point) (point-max)
           (emacspeak-xslt-params-from-xpath (cl-second s) ,url))))))
 
-
 (defcustom emacspeak-webutils-charent-alist
   '(("&lt;" . "<")
     ("&gt;" . ">")
@@ -171,7 +170,7 @@ pipeline. Argument `specs' is a list of elements of the form `(xsl params)'."
   "Check if this is a supported browser."
   (eq browse-url-browser-function 'eww-browse-url))
 
-(defun emacspeak-webutils-autospeak()
+(defsubst emacspeak-webutils-autospeak()
   "Setup post process hook to speak the Web page when rendered.
 Forward punctuation and rate  settings to resulting buffer."
   (let
@@ -521,7 +520,6 @@ Useful in handling double-redirect from TuneIn."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

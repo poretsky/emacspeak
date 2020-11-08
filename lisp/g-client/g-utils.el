@@ -68,10 +68,8 @@
 (defvar g-scratch-buffer" *g scratch*"
   "Scratch buffer we do authentication work.")
 
-(defcustom g-curl-program "/usr/bin/curl"
-  "Name of CURL executable."
-  :type 'string
-  :group 'g)
+(defvar g-curl-program (executable-find "curl")
+  "Name of CURL executable.")
 
 (defcustom g-atom-view-xsl
   (expand-file-name "atom-view.xsl" g-directory)
@@ -474,7 +472,6 @@ Note that in the Curl output, we see lf rather than crlf.")
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
 ;;; end:
 
 ;;}}}

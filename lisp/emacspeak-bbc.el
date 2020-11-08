@@ -239,7 +239,6 @@ Date defaults to today."
     (sit-for 1)
     (emacspeak-m-player emacspeak-bbc-iplayer-handle)))
 
-
 (defun emacspeak-bbc-get-iplayer-stream-pid (pid)
   "Stream using get_iplayer."
   (interactive "sPid ")
@@ -261,7 +260,7 @@ Date defaults to today."
 
 (defun emacspeak-bbc-chrome-action (button)
   "Play program  refered to by this button."
-  (browse-url-chromium (button-get  button 'link)))
+  (browse-url-chrome (button-get  button 'link)))
 
 ;;}}}
 ;;{{{ Generic Button Action:
@@ -382,7 +381,6 @@ Interactive prefix arg filters  content by genre."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

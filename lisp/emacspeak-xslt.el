@@ -82,11 +82,8 @@
                    emacspeak-xslt-directory
                    emacspeak-we-xsl-transform)))
 
-(defcustom emacspeak-xslt-program "xsltproc"
-  "Name of XSLT transformation engine."
-  :type 'string
-  :group 'emacspeak-xslt)
-
+(defvar emacspeak-xslt-program "xsltproc"
+  "Name of XSLT transformation engine.")
 
 (defcustom emacspeak-xslt-options
   "--html --nonet --novalid --encoding utf-8"
@@ -417,7 +414,6 @@ part of the libxslt package."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}
