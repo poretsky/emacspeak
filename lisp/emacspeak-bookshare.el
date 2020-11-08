@@ -46,10 +46,35 @@
 ;;; provides book access to print-disabled users.
 ;;; It provides a simple Web  API http://developer.bookshare.org
 ;;; This module implements an Emacspeak Bookshare client.
-;;; For now, users will need to get their own API key
-;;; This version needs Emacs with libxml2 support
-;;; You need Emacs 24.1 or higher.
-
+;;; @subsection  requirements
+;;; @itemize
+;;; @item You need to get your own API key
+;;; @item You need Emacs built with libxml2 support
+;;; @item You need Emacs 24.1 or higher.
+;;; @end itemize
+;;;
+;;; @subsection Usage
+;;; The main entry point is command @code{emacspeak-bookshare} bound to @kbd{C-e C-b}.
+;;; This creates a special @emph{Bookshare Interaction} buffer that is
+;;; placed in @emph{emacspeak-bookshare-mode}.
+;;; Se the help for that mode on detailed usage instructions and key-bindings.
+;;;
+;;;@subsection Sample Interaction
+;;;
+;;; Assuming you have correctly setup your API key:
+;;; @itemize
+;;;@item Customize group @code{emacspeak-bookshare} by pressing @kbd{C-h G}.
+;;;@item  Press @kbd{C-e C-b} to open or switch to the Bookshare buffer.
+;;; @item Perform a search @kbd{a} or @kbd{t} for author or title search.
+;;; @item You will be prompted for your Bookshare password if this is the first time in this Emacs session.
+;;; @item The results of the search appear in the Bookshare buffer.
+;;; Audio formatting and auditory icons convey if  a result is already available locally.
+;;; @item If not available locally, press @kbd{D} to download the content.
+;;; @item Press @kbd{U} to unpack the downloaded content.
+;;;@item Press @kbd{e} to  display the entire book.
+;;;@item Press @kbd{c} to display the table of contents.
+;;; @item Now, use all of EWW  @xref{emacspeak-eww} extensions  and profit!
+;;;@end itemize
 ;;; Code:
 ;;}}}
 ;;{{{  Required modules
@@ -78,9 +103,9 @@
 See http://developer.bookshare.org/docs for details on how to get
   an API key. "
   :type
-  '(choice :tag "Key: "
+  '(choice :tag "Key"
            (const :tag "Unspecified" nil)
-           (string :tag "API Key: "))
+           (string :tag "API Key"))
   :group 'emacspeak-bookshare)
 
 (defcustom emacspeak-bookshare-user-id nil
@@ -100,22 +125,17 @@ See http://developer.bookshare.org/docs for details on how to get
   "Directory where archives are saved on download.")
 ;;;###autoload
 (defcustom emacspeak-bookshare-browser-function
-  'browse-url-w3
+  'eww-browse-url
   "Function to display Bookshare Book content in a WWW browser.
 This is used by the various Bookshare view commands to display
-  content from Daisy books."
-  :type '(choice
-          (function-item :tag "Emacs W3" :value  browse-url-w3)
-          (function-item :tag "Emacs EWW" :value  eww-browse-url)
-          (function-item :tag "Mozilla" :value  browse-url-mozilla)
-          (function-item :tag "Firefox" :value browse-url-firefox)
-          (function-item :tag "Chromium" :value browse-url-chromium)
-          (function-item :tag "Text browser in an Emacs window"
-                         :value browse-url-text-emacs)
-          (function-item :tag "Default Mac OS X browser"
-                         :value browse-url-default-macosx-browser)
-          (function :tag "Your own function"))
-  :version "37"
+  content from Bookshare books."
+  :type
+  '(choice
+    (function-item :tag "Emacs EWW" :value  eww-browse-url)
+    (function-item :tag "Default Mac OS X browser"
+                   :value browse-url-default-macosx-browser)
+    (function :tag "Your own function"))
+  :version "47"
   :group 'emacspeak-bookshare)
 
 ;;}}}
@@ -229,6 +249,7 @@ Argument id specifies content. Argument fmt = 0 for Braille, 1
 
 (defmacro emacspeak-bookshare-using-scratch(&rest body)
   "Evaluate forms in a  ready to use temporary buffer."
+  (declare (indent 1) (debug t))
   `(let ((buffer (get-buffer-create emacspeak-bookshare-scratch-buffer))
          (default-process-coding-system (cons 'utf-8 'utf-8))
          (buffer-undo-list t))
@@ -535,9 +556,9 @@ the end of this description. Use Emacs online help facility to
 look up help on these commands.
 
 emacspeak-bookshare-mode provides the necessary functionality to
-Search and download Bookshare material,
-Manage a local library of downloaded Bookshare content,
-And commands to easily read newer Daisy books from Bookshare.
+Search and download Bookshare material, Manage a local library of
+downloaded Bookshare content, And commands to easily read newer
+Daisy books from Bookshare.
 
 Here is a list of all emacspeak Bookshare commands  with their key-bindings:
 a Author Search
@@ -562,7 +583,6 @@ b Browse
 (cl-loop
  for a in
  '(
-   ("SPC" emacspeak-bookshare-action)
    ("+" emacspeak-bookshare-get-more-results)
    ("/" emacspeak-bookshare-title/author-search)
    ("I" emacspeak-bookshare-id-search)
@@ -817,7 +837,7 @@ b Browse
   (cl-declare (special emacspeak-bookshare-mode-map))
   (cl-loop for k in
            '(
-             ("e" emacspeak-epub)
+             ("e" emacspeak-bookshare-eww)
              ("q" bury-buffer)
              ("f" emacspeak-bookshare-flush-lines)
              ("v" emacspeak-bookshare-view)
@@ -1065,7 +1085,7 @@ Target location is generated from author and title."
   "daisyTransform.xsl"
   "Name of bookshare  XSL transform."
   :type
-  '(choice :tag "Key: "
+  '(choice :tag "Key"
            (const :tag "Daisy transform from Bookshare"  "daisyTransform.xsl")
            (const :tag "Default HTML View" "default.xsl"))
   :group 'emacspeak-bookshare)
@@ -1103,7 +1123,7 @@ Make sure it's downloaded and unpacked first."
       (error "First unpack this content."))
     (emacspeak-xslt-view-file
      xsl
-     (first
+     (cl-first
       (directory-files directory
                        'full
                        ".xml")))))
@@ -1142,7 +1162,7 @@ Make sure it's downloaded and unpacked first."
       (emacspeak-xslt-view-file
        xsl
        (shell-quote-argument
-        (first
+        (cl-first
          (directory-files directory 'full ".xml"))))))))
 
 (defun emacspeak-bookshare-extract-xml (url)
@@ -1209,7 +1229,7 @@ Make sure it's downloaded and unpacked first."
   (let* ((xsl (emacspeak-bookshare-xslt directory)))
     (emacspeak-xslt-view-file
      xsl
-     (first
+     (cl-first
       (directory-files directory 'full ".xml")))))
 
 (defun emacspeak-bookshare-toc (directory)

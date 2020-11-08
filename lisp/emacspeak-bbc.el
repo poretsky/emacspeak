@@ -280,7 +280,7 @@ chrome: Hand off URL to Chrome."
   "Generic button action that dispatches to get_iplayer or chrome based
 on user preference."
   (cl-declare (special emacspeak-bbc-button-action))
-  (ecase emacspeak-bbc-button-action
+  (cl-ecase emacspeak-bbc-button-action
          ('chrome (funcall #'emacspeak-bbc-chrome-action button))
          ('get-iplayer (funcall #'emacspeak-bbc-get-iplayer-action button))))
 
@@ -306,39 +306,42 @@ Interactive prefix arg filters  content by genre."
 
 (defun emacspeak-bbc-iplayer (url &optional genres)
   "Generate BBC IPlayer interface  from JSON."
+  (cl-declare (special g-curl-program g-curl-common-options
+                       emacspeak-bbc-json))
   (message url)
-  (emacspeak-bbc-iplayer-create
-   (g-json-get-result
+  (let ((json-data (g-json-get-result
     (format "%s --max-time 5 --connect-timeout 3 %s '%s'"
             g-curl-program g-curl-common-options
-            url))
-   genres))
+            url))))
+    (setq emacspeak-bbc-json json-data)
+    (emacspeak-bbc-iplayer-create json-data genres)))
 
-(defun emacspeak-bbc-iplayer-create (json &optional genres)
-  "Create iplayer buffer given JSON object."
-  (cl-declare (special emacspeak-bbc-json))
+(defun emacspeak-bbc-iplayer-create (json-data &optional genres)
+  "Create iplayer buffer given JSON-DATA object."
   (let* ((inhibit-read-only t)
          (title (or
-                 (g-json-lookup "schedule.service.title" json)
+                 (g-json-lookup "schedule.service.title" json-data)
                  "BBC IPlayer"))
-         (buffer (get-buffer-create title)))
+         (buffer (get-buffer-create title))
+         (shows nil))
     (with-current-buffer buffer
       (erase-buffer)
+      (setq shows
+            (if genres
+                (g-json-get 'broadcasts json-data)
+              (g-json-lookup  "schedule.day.broadcasts" json-data)))
+      (setq shows (append shows nil))
       (insert title)
       (insert "\n\n")
       (cl-loop
-       for show across
-       (if genres
-           (g-json-get 'broadcasts json)
-         (g-json-lookup  "schedule.day.broadcasts" json))
+       for show in  shows
        and position  from 1
        do
        (insert (format "%d\t" position))
        (emacspeak-bbc-insert-show show)
        (insert "\n\n"))
       (goto-char (point-min))
-      (emacspeak-webspace-mode)
-      (setq emacspeak-bbc-json json))
+      (emacspeak-webspace-mode))
     (switch-to-buffer buffer)
     (emacspeak-auditory-icon 'open-object)
     (emacspeak-speak-mode-line)))

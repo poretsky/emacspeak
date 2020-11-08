@@ -353,6 +353,7 @@ On a directory line, run du -s on the directory to speak its size."
 (defun emacspeak-dired-setup-keys ()
   "Add emacspeak keys to dired."
   (cl-declare (special dired-mode-map))
+  (define-key dired-mode-map "F" 'emacspeak-wizards-find-file-as-root)
   (define-key dired-mode-map "E" 'emacspeak-dired-epub-eww)
   (define-key dired-mode-map (kbd "C-j") 'emacspeak-dired-open-this-file)
   (define-key dired-mode-map (kbd "C-RET") 'emacspeak-dired-open-this-file)
@@ -380,7 +381,8 @@ On a directory line, run du -s on the directory to speak its size."
      (when (ems-interactive-p)
        (emacspeak-speak-line)
        (emacspeak-auditory-icon 'open-object)))))
-(load-library "locate")
+(load "locate" t t)
+
 (cl-declaim (special locate-mode-map))
 (define-key locate-mode-map  [C-return] 'emacspeak-dired-open-this-file)
 ;;}}}
@@ -415,8 +417,8 @@ On a directory line, run du -s on the directory to speak its size."
     (unless f (error "No file here."))
     (unless ext (error "This entry has no extension."))
     (setq handler
-          (second
-           (find
+          (cl-second
+           (cl-find
             (format ".%s" ext)
             emacspeak-dired-opener-table
             :key #'car                  ; extract pattern from entry 
@@ -456,6 +458,42 @@ On a directory line, run du -s on the directory to speak its size."
   (emacspeak-table-find-csv-file (dired-get-filename current-prefix-arg)))
 
 ;;}}}
+;;{{{ Locate results as a play-list:
+
+;;;###autoload
+(defun emacspeak-locate-play-results-as-playlist (&optional shuffle)
+  "Treat locate results as a play-list.
+Optional interactive prefix arg shuffles playlist."
+  (interactive "P" )
+  (cl-declare (special emacspeak-locate-media-pattern
+                       emacspeak-m-player-options))
+  (cl-assert (eq major-mode 'locate-mode) t "Not in a locate buffer")
+  (save-excursion
+    (goto-char (point-min))
+    (dired-next-line 3)
+    (let* ((m3u (make-temp-file "locate-playlist" nil ".m3u"))
+           (buff (find-file-noselect m3u))
+           (results nil)
+           (file (dired-file-name-at-point)))
+      (while file
+        (push file results)
+        (dired-next-line 1)
+        (setq file  (dired-file-name-at-point)))
+      (setq results (nreverse results))
+      (message "%s tracks matching %s"
+               (length results) emacspeak-locate-media-pattern)
+      (with-current-buffer buff
+        (cl-loop
+         for f in results do
+         (insert (format "%s\n" (expand-file-name f))))
+        (save-buffer))
+      (let ((emacspeak-m-player-options
+             (if shuffle
+                 (append emacspeak-m-player-options (list "-shuffle"))
+               emacspeak-m-player-options)))
+        (emacspeak-m-player  m3u 'play-list)))))
+
+    ;;}}}
 
 (provide 'emacspeak-dired)
 ;;{{{ emacs local variables

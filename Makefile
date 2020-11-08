@@ -67,7 +67,7 @@ GITVERSION=$(shell git show HEAD | head -1  | cut -b 8- )
 README: 
 	@rm -f README
 	@echo "Emacspeak  Revision $(GITVERSION)" > $(README)
-	@echo "Distribution created by `whoami` on `hostname`" >> $(README)
+	@echo "Distribution created by `whoami` at `date`" >> $(README)
 	@echo "Unpack the  distribution And type make config " >> $(README)
 	@echo "Then type make" >> $(README)
 EXCLUDES=-X .excludes --exclude-backups
@@ -89,6 +89,8 @@ config:
 
 all: emacspeak
 
+help:
+	@make -s
 #clean, config and build (development)
 q:
 	make clean
@@ -128,6 +130,8 @@ cd .. ;\
 install:
 	@echo "To run  this Emacspeak build, add this  line to the top of your .emacs:"
 	@echo "(load-file \"`pwd`/lisp/emacspeak-setup.el\")"
+	@echo "If using espeak or outloud for TTS, "
+	@echo "type make <engine> to first build that speech-server."
 	@echo "Package maintainers: see   etc/install.org	 for instructions."
 
 # }}}

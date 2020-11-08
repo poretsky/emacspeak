@@ -43,7 +43,8 @@ EMACS = emacs
 SRC=".."
 # How to run in batch mode
 BATCH = -batch -q -no-site-file     \
---eval '(setq file-name-handler-alist nil gc-cons-threshold 64000000)' 
+--eval '(setq file-name-handler-alist nil gc-cons-threshold 64000000 \
+load-source-file-function  nil)' 
 DEPS=-l $(SRC)/lisp/emacspeak-load-path.el \
 -l $(SRC)/lisp/emacspeak-loaddefs.el \
 -l $(SRC)/lisp/emacspeak-cus-load.el \
@@ -67,6 +68,7 @@ dtk-interp.elc dtk-unicode.elc
 
 SPEAK_OBJECTS =   \
 emacspeak-speak.elc  \
+emacspeak-prompts.elc \
 emacspeak-actions.elc \
 voice-setup.elc \
 emacspeak-personality.elc \
@@ -196,7 +198,6 @@ emacspeak-message.elc \
 emacspeak-metapost.elc \
 emacspeak-midge.elc \
 emacspeak-mines.elc \
-emacspeak-mpg123.elc \
 emacspeak-muse.elc \
 emacspeak-mspools.elc \
 emacspeak-net-utils.elc \
@@ -263,8 +264,8 @@ emacspeak-typo.elc \
 emacspeak-url-template.elc \
 emacspeak-vdiff.elc \
 emacspeak-view.elc \
+emacspeak-vlc.elc \
 emacspeak-vm.elc \
-emacspeak-w3.elc \
 emacspeak-wdired.elc \
 emacspeak-we.elc \
 emacspeak-webspace.elc \
@@ -307,7 +308,11 @@ config: emacspeak-loaddefs.el emacspeak-cus-load.el
 lint:
 	echo "." |\
 emacs -batch -q \
+-f package-initialize \
 -l advice.el -l emacspeak-load-path.el  -l emacspeak-loaddefs.el \
+-l ./g-client/g-loaddefs.el \
+-l ./g-client/g-load-path.el \
+-l g-utils.el \
 -f elint-directory 
 
 # }}}
@@ -462,7 +467,6 @@ emacspeak-message.elc: emacspeak-message.el dtk-speak.elc voice-setup.elc
 emacspeak-metapost.elc: emacspeak-metapost.el dtk-speak.elc voice-setup.elc
 emacspeak-midge.elc: emacspeak-midge.el dtk-speak.elc voice-setup.elc
 emacspeak-mines.elc: emacspeak-mines.el dtk-speak.elc
-emacspeak-mpg123.elc: emacspeak-mpg123.el dtk-speak.elc voice-setup.elc
 emacspeak-muse.elc: emacspeak-muse.el dtk-speak.elc
 emacspeak-mspools.elc: emacspeak-mspools.el dtk-speak.elc voice-setup.elc
 emacspeak-muggles.elc: emacspeak-muggles.el dtk-speak.elc
@@ -511,6 +515,7 @@ emacspeak-smartparens.elc: emacspeak-smartparens.el dtk-speak.elc voice-setup.el
 emacspeak-smart-window.elc: emacspeak-smart-window.el dtk-speak.elc
 emacspeak-solitaire.elc: emacspeak-solitaire.el dtk-speak.elc voice-setup.elc
 emacspeak-sounds.elc: emacspeak-sounds.el
+emacspeak-prompts.elc: emacspeak-prompts.el 
 emacspeak-speak.elc: emacspeak-speak.el dtk-speak.elc voice-setup.elc
 emacspeak-speedbar.elc: emacspeak-speedbar.el dtk-speak.elc voice-setup.elc
 emacspeak-sql.elc: emacspeak-sql.el dtk-speak.elc voice-setup.elc
@@ -541,8 +546,8 @@ emacspeak-typo.elc: emacspeak-typo.el dtk-speak.elc
 emacspeak-url-template.elc: emacspeak-url-template.el emacspeak-webutils.elc emacspeak-we.elc
 emacspeak-vdiff.elc: emacspeak-vdiff.el dtk-speak.elc voice-setup.elc
 emacspeak-view.elc: emacspeak-view.el dtk-speak.elc voice-setup.elc
+emacspeak-vlc.elc: emacspeak-vlc.el dtk-speak.elc
 emacspeak-vm.elc: emacspeak-vm.el dtk-speak.elc voice-setup.elc
-emacspeak-w3.elc: emacspeak-w3.el emacspeak-webutils.elc emacspeak-we.elc
 emacspeak-wdired.elc: emacspeak-wdired.el dtk-speak.elc voice-setup.elc
 emacspeak-we.elc: emacspeak-we.el emacspeak-webutils.elc
 emacspeak-webutils.elc: emacspeak-webutils.el dtk-speak.elc voice-setup.elc

@@ -1,4 +1,4 @@
-;;; emacspeak-url-template.el --- Create library of URI templates  -*- lexical-binding: t; -*-
+;;; emacspeak-url-template.el --- Create library of URI templates -*- lexical-binding: t; -*-
 ;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description: Implement library of URI templates
@@ -373,7 +373,7 @@ dont-url-encode if true then url arguments are not url-encoded "
 ;;{{{ market summary from google finance
 ;;; Forward Declaration:
 
-(defvar w3-auto-image-alt)
+
 (emacspeak-url-template-define
  "Market summary from Google"
  "https://finance.google.com/finance"
@@ -381,9 +381,8 @@ dont-url-encode if true then url arguments are not url-encoded "
  nil
  "Display financial market summary."
  #'(lambda (url)
-     (let ((w3-auto-image-alt " "))
        (emacspeak-we-extract-by-class
-        "id-summary-chart" url 'speak))))
+        "id-summary-chart" url 'speak)))
 
 ;;}}}
 ;;{{{ utils:
@@ -437,7 +436,6 @@ dont-url-encode if true then url arguments are not url-encoded "
      (emacspeak-we-extract-by-id "center_col" url 'speak)))
 
 ;;}}}
-;;{{{ google finance
 ;;{{{ seeking alpha stock search
 
 (emacspeak-url-template-define
@@ -452,15 +450,18 @@ dont-url-encode if true then url arguments are not url-encoded "
  )
 
 ;;}}}
-;;; pull google finance search results via the transcoder
+;;{{{ google finance
+
+
 
 (emacspeak-url-template-define
  "Finance Google Search"
  "https://finance.google.com/finance?q=%s"
  (list "Finance Search: ")
- 'emacspeak-speak-buffer
+ nil
  "Display content from Google Finance."
- )
+ #'(lambda (url)
+(emacspeak-we-extract-by-id "res" url 'speak)))
 
 (defun emacspeak-finance-google-up-or-down (value)
   "Return up/down by value."
@@ -860,7 +861,7 @@ name of the list.")
 
 ;;}}}
 ;;{{{ MLB scores
-(declare-function emacspeak-wizards-mlb-standings  nil "emacspeak-wizards")
+(declare-function emacspeak-wizards-mlb-standings  "emacspeak-wizards" nil)
 ;;; standings:
 
 (emacspeak-url-template-define
@@ -1052,7 +1053,7 @@ JSON is retrieved from `url'."
 
 ;;}}}
 ;;{{{ NBA Standings:
-(declare-function emacspeak-wizards-nba-standings  nil "emacspeak-wizards")
+(declare-function emacspeak-wizards-nba-standings  "emacspeak-wizards" nil)
 (emacspeak-url-template-define
  "NBA  standings"
  "http://www.nba.com/NASApp/nba/nba/standings/index.jsp" ;;; dummy
@@ -1080,20 +1081,15 @@ JSON is retrieved from `url'."
 ;;}}}
 ;;{{{ times of india
 
-;;; create url rewrite url to get print page
+
 (emacspeak-url-template-define
  "Times Of India"
  "http://www.timesofindia.com"
  nil
- #'(lambda ()
-     (cl-declare (special emacspeak-we-url-rewrite-rule))
-     (setq emacspeak-we-url-rewrite-rule
-           (list "$" "&prtPage=1")))
- "Retrieve Times Of India.
-Set up URL rewrite rule to get print page."
+ nil
+ "Retrieve Times Of India."
  #'(lambda (url)
-     (emacspeak-we-extract-by-id "content" url 'speak))
- )
+     (emacspeak-we-extract-by-id "content" url 'speak)))
 
 ;;}}}
 ;;{{{ weather underground
@@ -1237,7 +1233,7 @@ Query can include filters such as:
 <term>: Query Term.
 extension:<ext> Filter by file extension
 -filename:<pattern> Filter out files matching pattern.")
-(declare-function emacspeak-eww-next-h (&optional speak) "emacspeak-eww")
+(declare-function emacspeak-eww-next-h "emacspeak-eww" (&optional speak))
 (emacspeak-url-template-define
  "GitHub Search"
  "https://github.com/search?q=%s"
@@ -1477,25 +1473,47 @@ prompts for a location and speaks the forecast. \n\n"
 
 ;;}}}
 ;;{{{ Search NLS Bard:
+
+
+(defun emacspeak-url-template-nls-add-to-wishlist  (book)
+  "Add book under point to wishlist."
+  (interactive (list  (emacspeak-webutils-read-this-url)))
+  (let  ((add nil))
+    (unless book (error "No Book URL specified"))
+    (setq add
+          (replace-regexp-in-string "download/detail" "wishlist/add" book))
+    (message "Adding book to wishlist.")
+    (emacspeak-auditory-icon 'progress)
+    (eww add)))
+
 (emacspeak-url-template-define
  "NLS Bard Search"
  "https://nlsbard.loc.gov:443/nlsbardprod/search_collection/collection/page/1/sort/s/srch/%s/local/0"
  (list "Search For: ")
- #'emacspeak-speak-mode-line
+ #'(lambda nil
+     (cl-declare (special emacspeak-we-url-executor))
+     (setq emacspeak-we-url-executor #'emacspeak-url-template-nls-add-to-wishlist)
+     (emacspeak-speak-mode-line))
  "Search NLS Bard Catalog. Login once before using this template.")
 
 (emacspeak-url-template-define
  "NLS Bard Popular"
 "https://nlsbard.loc.gov:443/nlsbardprod/search/most_popular/page/1/sort/s/srch/most_popular/local/0"
  nil
- #'emacspeak-speak-mode-line
+ #'(lambda nil
+     (cl-declare (special emacspeak-we-url-executor))
+     (setq emacspeak-we-url-executor #'emacspeak-url-template-nls-add-to-wishlist)
+     (emacspeak-speak-mode-line))
  "NLS Bard Catalog: Most Popular. Login once before using this template.")
 
 (emacspeak-url-template-define
  "NLS Bard Recent"
  "https://nlsbard.loc.gov/mainpage/srch_recentlyadded"
  nil
- #'emacspeak-speak-mode-line
+ #'(lambda nil
+     (cl-declare (special emacspeak-we-url-executor))
+     (setq emacspeak-we-url-executor #'emacspeak-url-template-nls-add-to-wishlist)
+     (emacspeak-speak-mode-line))
  "NLS Bard Catalog: Recently Added. Login once before using this template.")
 
 ;;}}}
@@ -1506,28 +1524,6 @@ prompts for a location and speaks the forecast. \n\n"
  (list "Lookup Ticker:Country")
  nil
  "Lookup Stock Quote information on Bloomberg. Ticker is of the form goog:us")
-
-;;}}}
-;;{{{ Flight Status
-
-(emacspeak-url-template-define
- "Flight Status"
- "http://www.flightstats.com/go/FlightStatus/flightStatusByFlight.do?airline=%s"
- (list "Flight: ")
- nil
- "Show Flight Status.")
-
-(emacspeak-url-template-define
- "Flight Tracker"
- "http://www.flightstats.com/go/FlightTracker/flightTracker.do?%s"
- (list
-  #'(lambda ()
-      (let* ((code (read-from-minibuffer "Flight Number: "))
-             (fields (split-string code)))
-        (format "airline=%s&flightNumber=%s"
-                (cl-first fields) (cl-second fields)))))
- nil
- "Flight Tracker")
 
 ;;}}}
 ;;{{{ Washington Post
@@ -1544,6 +1540,18 @@ prompts for a location and speaks the forecast. \n\n"
   "headline " "blurb normal normal-style ")
 url
 'speak)))
+
+;;}}}
+;;{{{ ArchWiki 
+
+(emacspeak-url-template-define
+ "ArchWiki Search"
+ "https://wiki.archlinux.org/index.php/%s"
+ (list "Search: ")
+ #'(lambda ()
+     (emacspeak-eww-next-h)
+     (emacspeak-speak-rest-of-buffer))
+ "Search Linux ArchWiki")
 
 ;;}}}
 (provide 'emacspeak-url-template)

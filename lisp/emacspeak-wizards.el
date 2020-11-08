@@ -1,4 +1,4 @@
-;;; emacspeak-wizards.el  Emacspeak  convenience   -*- lexical-binding: t; -*-
+;;; emacspeak-wizards.el --- Wizards For Emacspeak  Power Users   -*- lexical-binding: t; -*-
 ;;; $Id$
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Contains convenience wizards
@@ -410,15 +410,21 @@ With prefix arg, opens the phone book for editing."
 ;;; 2013/03/editing-with-root-privileges-once-more.html
 ;;;###autoload
 
-(defun emacspeak-wizards-find-file-as-root ()
+(defun emacspeak-wizards-find-file-as-root (file)
   "Like `ido-find-file, but automatically edit the file with
 root-privileges (using tramp/sudo), if the file is not writable by
 user."
-  (interactive)
-  (let ((file (ido-read-file-name "Edit as root: ")))
-    (unless (file-writable-p file)
-      (setq file (concat "/sudo:root@localhost:" file)))
-    (find-file file)))
+  (interactive
+   (list
+    (cond
+     ((eq major-mode 'dired-mode) (dired-file-name-at-point))
+     (t (ido-read-file-name "Edit as root: ")))))
+  (unless (file-writable-p file)
+    (setq file (concat "/sudo:root@localhost:" file)))
+  (find-file file)
+  (when (called-interactively-p 'interactive)
+    (emacspeak-auditory-icon 'open-object)
+    (emacspeak-speak-mode-line)))
 
 ;;}}}
 ;;{{{ edit file as root using sudo vi
@@ -863,7 +869,7 @@ If no property is set, show a message and exit."
          (completing-read
           "Display property: "
           (cl-loop
-           for p in properties  and i from 0 if (evenp i) collect p)))))
+           for p in properties  and i from 0 if (cl-evenp i) collect p)))))
       (t (message "No property set at point ")
          nil))))
   (if property
@@ -1277,7 +1283,7 @@ visiting the xls file."
                  emacspeak-wizards-xlhtml-program filename)
          'replace
          (current-buffer))
-        (browse-url-of-buffer))
+        (call-interactively #'browse-url-of-buffer))
       (kill-buffer buffer)
       (kill-buffer xl-buffer)))))
 
@@ -1384,7 +1390,7 @@ visiting the ppt file."
                   emacspeak-wizards-ppthtml-program filename)
           'replace
           (current-buffer))
-         (call-interactively 'browse-url-of-buffer))
+         (call-interactively #'browse-url-of-buffer))
        (kill-buffer buffer)
        (kill-buffer ppt-buffer))))))
 
@@ -1592,34 +1598,6 @@ directory to where find is to be launched."
     (emacspeak-speak-line)))
 
 ;;}}}
-;;{{{ Cycle among available browsers
-
-(defvar emacspeak-wizards-available-browsers
-  (delq nil
-        (list
-         (when
-             (or (featurep 'w3) (locate-library "w3"))
-           'browse-url-w3)
-         (when (or (featurep 'eww)  (locate-library "eww"))'eww-browse-url)
-         ))
-  "List of available browsers to cycle through.")
-
-;;;###autoload
-(defun emacspeak-wizards-cycle-browser  ()
-  "Cycles through available browsers."
-  (interactive)
-  (cl-declare (special browse-url-browser-function
-                       emacspeak-wizards-available-browsers))
-  (let* ((count (length emacspeak-wizards-available-browsers))
-         (current
-          (cl-position browse-url-browser-function
-                       emacspeak-wizards-available-browsers))
-         (next  (% (1+ current) count)))
-    (setq browse-url-browser-function
-          (nth  next emacspeak-wizards-available-browsers))
-    (message "Browser set to %s" browse-url-browser-function)))
-
-;;}}}
 ;;{{{ customize emacspeak
 
 ;;;###autoload
@@ -1776,7 +1754,7 @@ Use with caution."
 
 ;;}}}
 ;;{{{ pod -- perl online docs
-(declare-function cperl-pod2man-build-command nil "cperl-mode")
+(declare-function cperl-pod2man-build-command "cperl-mode" nil)
 ;;;###autoload
 (defun emacspeak-wizards-display-pod-as-manpage (filename)
   "Create a virtual manpage in Emacs from the Perl Online Documentation."
@@ -2769,7 +2747,8 @@ Lang is obtained from property `lang' on string, or  via an interactive prompt."
 (defun emacspeak-wizards-espeak-line ()
   "Speak line using espeak polyglot wizard."
   (interactive)
-  (emacspeak-wizards-espeak-region  (line-beginning-position ) (line-end-position)))
+  (ems-with-messages-silenced
+  (emacspeak-wizards-espeak-region  (line-beginning-position ) (line-end-position))))
 
 ;;}}}
 ;;{{{ Helper: Enumerate commands whose names  match  a pattern
@@ -2978,6 +2957,7 @@ Optional interactive prefix arg `category' prompts for a category."
     (define-key map (kbd "RET") 'ems--iheart-at-point)
     map)
   "Keymap used in IHeart Radio Results buffer.")
+(declare-function emacspeak-vlc-player "emacspeak-vlc" (resource))
 
 (defun emacspeak-wizards-iheart-radio-play (id)
   "Play specified   station from IHeart Radio."
@@ -2985,7 +2965,7 @@ Optional interactive prefix arg `category' prompts for a category."
   (let ((ih-url "https://github.com/oldlaptop/iheart-mplayer.git "))
     (unless (executable-find "iheart-url")
       (error "First install iheart-url from %s" ih-url))
-    (emacspeak-m-player-url
+    (emacspeak-vlc-player
      (string-trim
       (shell-command-to-string
        (format "iheart-url %s" id))))))
@@ -3055,8 +3035,9 @@ Optional interactive prefix arg `category' prompts for a category."
   "Takes a list corresponding to a result, and returns a vector sorted
 per headers."
   (let ((row (make-vector (length result-row) nil)))
+    (setq headers (append headers nil))
     (cl-loop
-     for h across headers
+     for h in headers
      and index from 0 do
      (aset row index (cdr (assoc h result-row))))
     row))
@@ -3071,6 +3052,17 @@ per headers."
      and index from 1 do
      (aset  table index (yql-result-row header-row r)))
     (emacspeak-table-make-table table)))
+
+;;}}}
+;;{{{ google Finance  Search Wizard
+
+
+(defun emacspeak-wizards-finance-google-search  ()
+  "Google Finance Search"
+  (interactive)
+  (require 'emacspeak-url-template)
+  (let ((name "Finance Google Search"))
+    (emacspeak-url-template-open (emacspeak-url-template-get name))))
 
 ;;}}}
 ;;{{{ YQL: Stock Quotes
@@ -3088,7 +3080,7 @@ sorted in lexical order with duplicates removed when saving."
        sym
        (mapconcat
         #'identity
-        (remove-duplicates
+        (cl-remove-duplicates
          (sort (split-string val)#'string-lessp) :test #'string=)
         "\n"))))
 
@@ -3232,7 +3224,7 @@ per headers."
   :type '(repeat
           (choice :tag "Entry"
                   (integer :tag "Column Number:")
-                  (string :tag "Text: ")))
+                  (string :tag "Text")))
   :group 'emacspeak-wizards)
 ;;;###autoload
 (defun emacspeak-wizards-yql-lookup (symbols)
@@ -3280,7 +3272,7 @@ Symbols are taken from `emacspeak-wizards-personal-portfolio'."
   "API Key  used to retrieve stock data from alpha-vantage.
 Visit https://www.alphavantage.co/support/#api-key to get your key."
   :type
-  '(choice :tag "Key: "
+  '(choice :tag "Key"
            (const :tag "Unspecified" nil)
            (string :tag "API Key"))
   :group 'emacspeak-wizards)
@@ -3306,9 +3298,9 @@ Visit https://www.alphavantage.co/support/#api-key to get your key."
 "Alpha-Vantage query types.")
 
 (defun emacspeak-wizards-alpha-vantage-quotes (ticker &optional custom)
-  "Retrieve stock quote data from Alpha Vantage.
-Prompts for `ticker' --- a stock symbol.
-Optional interactive prefix arg `custom' provides access to the various functions provided by alpha-vantage."
+  "Retrieve stock quote data from Alpha Vantage. Prompts for `ticker'
+--- a stock symbol. Optional interactive prefix arg `custom' provides
+access to the various functions provided by alpha-vantage."
   (interactive
    (list
     (upcase
@@ -3318,14 +3310,16 @@ Optional interactive prefix arg `custom' provides access to the various function
   (cl-declare (special emacspeak-wizards-personal-portfolio
                        ems--alpha-vantage-funcs))
   (let* ((completion-ignore-case t)
+         (method
+          (if custom
+              (upcase (ido-completing-read "Choose: " ems--alpha-vantage-funcs))
+                   "TIME_SERIES_DAILY"))
          (url
           (emacspeak-wizards-alpha-vantage-uri
-      (if custom
-          (upcase (ido-completing-read "Choose: " ems--alpha-vantage-funcs))
-        "TIME_SERIES_DAILY")
-      ticker)))
+           method
+           ticker)))
     (kill-new url)
-    (emacspeak-table-view-csv-url url)))
+    (emacspeak-table-view-csv-url url (format "%s Data For %s" method ticker ))))
 
 ;;}}}
 ;;{{{ Sports API:
@@ -3452,8 +3446,9 @@ With interactive prefix arg, set foreground and background color first."
   (let* ((fg (foreground-color-at-point))
          (bg (background-color-at-point))
          (diff (ems--color-diff fg bg)))
-    (message "Color distance is %.2f between %s and %s" diff
-             (ems--color-name fg) (ems--color-name bg))))
+    (message "Color distance is %.2f between %s and %s which is %s" diff
+             (ems--color-name fg) (ems--color-name bg)
+             (cdr (assq 'background-mode (frame-parameters))))))
 
 (defun ems--color-hex (color)
   "Return Hex value for color."
@@ -3536,13 +3531,29 @@ under point as either the foreground or background color."
 
 (defun ems--color-wheel-describe (w fg)
   "Describe the current state of this color wheel."
-  (let* ((name (ems--color-wheel-name w))
-         (hex (ems--color-wheel-hex w) )
-         (msg (format "%s is a %s shade: %s"
-                      name  (ems--color-wheel-shade w) hex)))
-    (setq fg (format "%s" fg))
+  (let ((name (ems--color-wheel-name w))
+        (hexcol
+         (format "#%02X%02X%02X"
+                 (ems--color-wheel-red w)
+                 (ems--color-wheel-green w)
+                 (ems--color-wheel-blue w)))
+        (hex
+         (format "%02X %02X %02X"
+                 (ems--color-wheel-red w)
+                 (ems--color-wheel-green w)
+                 (ems--color-wheel-blue w)))
+        (msg nil))
+    (cond
+     ((string= fg "red")
+      (put-text-property 0 2 'personality voice-bolden hex))
+     ((string= fg "green")
+      (put-text-property 3 5 'personality voice-bolden hex))
+     ((string= fg "blue")
+      (put-text-property 6 8 'personality voice-bolden hex)))
+    (setq msg (format "%s is a %s shade: %s"
+                      name  (ems--color-wheel-shade w) hex))
     (setq msg
-          (propertize msg  'face `(:foreground ,fg :background ,hex)))
+          (propertize msg  'face `(:foreground ,fg :background ,hexcol)))
     msg))
 
 ;;;### autoload
@@ -3550,14 +3561,23 @@ under point as either the foreground or background color."
   "Interactively manipulate a simple color wheel and display the name
   and shade of the resulting color.  This makes for a fun color
   exploration tool with verbal descriptions of the colors from package
-  name-this-color. Prompts for a color from which to start exploration."
+  name-this-color. Prompts for a color from which to start exploration.
+
+Keyboard Commands During Interaction:
+Up/Down: Increase/Decrement along current axis using specified step-size.
+=: Set value on current axis to number read from minibuffer.
+Left/Right: Switch color axis along which to move.
+b/f: Quit  wheel after setting background/foreground color to current value.
+n: Read color name from minibuffer.
+c: Complement  current color.
+s: Set stepsize to number read from minibuffer.
+q: Quit color wheel, after copying current hex value to kill-ring."
   (interactive (list (color-name-to-rgb(read-color "Start Color: "))))
   (cl-declare (special ems--color-wheel))
   (unless (featurep 'name-this-color)
     (error "This tool requires package name-this-color."))
   (setq start (mapcar #'(lambda (c) (round (* 255 c))) start))
-  (let ((dtk-stop-immediately  nil)
-        (continue t)
+  (let ((continue t)
         (colors '("red" "green" "blue"))
         (color "red")
         (this 0)
@@ -3566,14 +3586,35 @@ under point as either the foreground or background color."
             :red (cl-first start)
             :green (cl-second start)
             :blue (cl-third start)
-            :step 16 )))
+            :step 8 )))
     (while  continue
       (setq event (read-event (ems--color-wheel-describe w color)))
       (cond
+       ((eq event ?c)
+        (emacspeak-auditory-icon 'button)
+        (setf (ems--color-wheel-red w) (- 255  (ems--color-wheel-red w)))
+        (setf (ems--color-wheel-green w) (- 255  (ems--color-wheel-green w)))
+        (setf (ems--color-wheel-blue w) (- 255  (ems--color-wheel-blue w))))
        ((eq event ?q)
         (setq continue nil)
         (emacspeak-auditory-icon 'close-object)
         (message "Copied color %s %s to kill ring"
+                 (ems--color-wheel-hex w)
+                 (ems--color-wheel-name w))
+        (kill-new (ems--color-wheel-hex w)))
+       ((eq event ?f)
+        (setq continue nil)
+        (emacspeak-auditory-icon 'close-object)
+        (set-foreground-color (ems--color-wheel-hex w))
+        (message "Setting foreground  color  to %s %s"
+                 (ems--color-wheel-hex w)
+                 (ems--color-wheel-name w))
+        (kill-new (ems--color-wheel-hex w)))
+       ((eq event ?b)
+        (setq continue nil)
+        (emacspeak-auditory-icon 'close-object)
+        (set-background-color (ems--color-wheel-hex w))
+        (message "Setting background color  to %s %s"
                  (ems--color-wheel-hex w)
                  (ems--color-wheel-name w))
         (kill-new (ems--color-wheel-hex w)))
@@ -3587,37 +3628,73 @@ under point as either the foreground or background color."
         (setq this (% (+ this 1) 3))
         (setq color (elt   colors this))
         (dtk-speak (format "%s Axis" color)))
-       ((eq event 'up)
+       ((eq event ?n)
+        (setq start
+              (mapcar #'(lambda (c) (round (* 255 c)))
+                      (color-name-to-rgb(read-color "Start Color: "))))
+        (setf (ems--color-wheel-red w) (cl-first start))
+        (setf (ems--color-wheel-green w) (cl-second start))
+        (setf (ems--color-wheel-blue w) (cl-third start)))
+       ((eq event ?=)
         (cond
          ((string= color "red")
-          (incf (ems--color-wheel-red w) (ems--color-wheel-step w))
+          (setf (ems--color-wheel-red w) (read-number "Red:"))
           (setf (ems--color-wheel-red w)
                 (min 255 (ems--color-wheel-red w))))
          ((string= color "green")
-          (incf (ems--color-wheel-green w) (ems--color-wheel-step w))
+          (setf (ems--color-wheel-green w) (read-number "Green:"))
           (setf (ems--color-wheel-green w)
                 (min 255 (ems--color-wheel-green w))))
          ((string= color "blue")
-          (incf (ems--color-wheel-blue w) (ems--color-wheel-step w))
+          (setf (ems--color-wheel-blue w) (read-number "Blue:"))
+          (setf (ems--color-wheel-blue w)
+                (min 255 (ems--color-wheel-blue w))))
+         (t (error "Unknown color %s" color))))
+       ((eq event 'up)
+        (cond
+         ((string= color "red")
+          (cl-incf (ems--color-wheel-red w) (ems--color-wheel-step w))
+          (setf (ems--color-wheel-red w)
+                (min 255 (ems--color-wheel-red w))))
+         ((string= color "green")
+          (cl-incf (ems--color-wheel-green w) (ems--color-wheel-step w))
+          (setf (ems--color-wheel-green w)
+                (min 255 (ems--color-wheel-green w))))
+         ((string= color "blue")
+          (cl-incf (ems--color-wheel-blue w) (ems--color-wheel-step w))
           (setf (ems--color-wheel-blue w)
                 (min 255 (ems--color-wheel-blue w))))
          (t (error "Unknown color %s" color))))
        ((eq event 'down)
         (cond
          ((string= color "red")
-          (decf (ems--color-wheel-red w) (ems--color-wheel-step w))
+          (cl-decf (ems--color-wheel-red w) (ems--color-wheel-step w))
           (setf (ems--color-wheel-red w)
                 (max 0 (ems--color-wheel-red w))))
          ((string= color "green")
-          (decf (ems--color-wheel-green w) (ems--color-wheel-step w))
+          (cl-decf (ems--color-wheel-green w) (ems--color-wheel-step w))
           (setf (ems--color-wheel-green w)
                 (max 0 (ems--color-wheel-green w))))
          ((string= color "blue")
-          (decf (ems--color-wheel-blue w) (ems--color-wheel-step w))
+          (cl-decf (ems--color-wheel-blue w) (ems--color-wheel-step w))
           (setf (ems--color-wheel-blue w)
                 (max 0 (ems--color-wheel-blue w))))
          (t (error "Unknown color %s" color))))
-       (t (message "Left/Right Switches primary color, Up/Down increases/decrements. q to quit."))))))
+       (t
+        (message
+         "Left/Right Switches primary, Up/Down increases/decrements.."))))))
+
+;;}}}
+;;{{{ Swap Foreground And Background:
+;;;###autoload 
+(defun emacspeak-wizards-swap-fg-and-bg ()
+"Swap foreground and background."
+(interactive)
+(let ((fg (foreground-color-at-point))
+(bg (background-color-at-point)))
+(set-foreground-color bg)
+(set-background-color fg)
+(call-interactively #'emacspeak-wizards-color-diff-at-point)))
 
 ;;}}}
 ;;{{{ Utility: Read from a pipe helper:
@@ -3796,6 +3873,40 @@ weather for `gweb-my-address'.  "
     (setq comint-dynamic-complete-functions shell-dynamic-complete-functions)
     (emacspeak-auditory-icon 'on)
     (message "Enabled bash completion."))))
+
+;;}}}
+;;{{{ Cleanup Hanging Web connections:
+
+(defun emacspeak-wizards-web-clean-up-processes ()
+  "Delete stale Web connections."
+  (interactive)
+  (cl-declare (special url-http-open-connections))
+  (let ((count 0))
+    (cl-loop 
+     for p being the hash-values of url-http-open-connections
+     when p do
+     (cl-incf count)
+     (delete-process (car p)))
+    (message "Deleted %d web  connections" count)))
+
+;;}}}
+;;{{{ generate declare-function statements:
+(defun emacspeak-wizards-gen-fn-decl (f &optional ext)
+  "Generate declare-function call for function `f'.
+Optional interactive prefix arg ext says this comes from an
+external package."
+  (interactive "SFunction:")
+  (cl-assert (functionp f) t "Not a valid function")
+  (let ((file (symbol-file f 'defun))
+        (arglist (help-function-arglist f 'preserve)))
+    (cl-assert file t "Function definition not found")
+    (setq file (file-name-base file))
+    (insert
+     (format
+      "(declare-function %s \"%s\" %s)\n"
+      f
+      (if ext (format "ext:%s" file) file)
+      arglist ))))
 
 ;;}}}
 (provide 'emacspeak-wizards)

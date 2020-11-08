@@ -112,7 +112,6 @@ Receives buffer containing HTML as its argument."
   "Function used to get URL from current context."
   :type '(choice
           (function-item browse-url-url-at-point)
-          (function-item w3-view-this-url)
           (function :format "%t %v" :tag "Custom:"))
   :group 'g)
 
@@ -301,6 +300,7 @@ references, poor-man's xpath."
 
 (defmacro g-using-scratch(&rest body)
   "Evaluate forms in a  ready to use temporary buffer."
+  (declare (indent 1) (debug t))
   `(let ((buffer (get-buffer-create g-scratch-buffer))
          (default-process-coding-system (cons 'utf-8 'utf-8))
          (coding-system-for-read 'binary)

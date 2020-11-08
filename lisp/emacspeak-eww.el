@@ -410,68 +410,44 @@
 (require 'emacspeak-google)
 
 ;;}}}
-;;{{{ Declare generated functions:
-
-(declare-function emacspeak-eww-current-dom "emacspeak-eww" nil)
-(declare-function emacspeak-eww-current-url "emacspeak-eww" nil)
-(declare-function  "emacspeak-eww" nil)
-(declare-function emacspeak-eww-current-title "emacspeak-eww" nil)
-(declare-function emacspeak-eww-set-dom "emacspeak-eww" (dom))
-(declare-function emacspeak-eww-set-url "emacspeak-eww" (url))
-(declare-function emacspeak-eww-set-title "emacspeak-eww" (title))
-
-;;}}}
-
-;;{{{ Compatibility Helpers:
-
-;;; For compatibility between Emacs 24 and Emacs 25
-;;; eww in emacs-24 used eww-current-title etc as variables.
-;;; eww in emacs 25 groups these as properties on eww-data.
-;;; Emacspeak-eww defines wrapper functions to hide this difference.
-;;; Generate emacspeak-eww-current-url and friends:
+;;{{{ Helpers:
+;;; Generate functions emacspeak-eww-current-title and friends:
 
 (cl-loop
  for name in
  '(title url source dom)
  do
- (cond
-  ((or  (= emacs-major-version 25)
-        (boundp 'eww-data))
-   (eval
+ (eval
     `(defun
          ,(intern (format "emacspeak-eww-current-%s" name)) ()
        , (format "Return eww-current-%s." name)
        (cl-declare (special eww-data))
        (plist-get eww-data
                   ,(intern (format ":%s" name))))))
-  (t
-   (eval
-    `(defun
-         ,(intern (format "emacspeak-eww-current-%s" name))
-         ()
-       , (format "Return eww-current-%s." name)
-       ,(intern (format "eww-current-%s" name)))))))
+  
 
 (cl-loop
  for name in
  '(title url source dom)
  do
- (cond
-  ((boundp 'eww-data)
-   (eval
+ (eval
     `(defun
          ,(intern (format "emacspeak-eww-set-%s" name)) (value)
        , (format "Set eww-current-%s." name)
-       (assert (boundp 'eww-data) nil "Not a EWW rendered page.")
+       (cl-assert (boundp 'eww-data) nil "Not a EWW rendered page.")
        (plist-put eww-data
                   ,(intern (format ":%s" name))
                   value))))
-  (t ;;; emacs 24
-   (eval
-    `(defun
-         ,(intern (format "emacspeak-eww-set-%s" name)) (value)
-       , (format "Set eww-current-%s." name)
-       (setq ,(intern (format "eww-current-%s" name)) value))))))
+  
+;;}}}
+;;{{{ Declare generated functions:
+
+(declare-function emacspeak-eww-current-dom "emacspeak-eww" nil)
+(declare-function emacspeak-eww-current-url "emacspeak-eww" nil)
+(declare-function emacspeak-eww-current-title "emacspeak-eww" nil)
+(declare-function emacspeak-eww-set-dom "emacspeak-eww" (dom))
+(declare-function emacspeak-eww-set-url "emacspeak-eww" (url))
+(declare-function emacspeak-eww-set-title "emacspeak-eww" (title))
 
 ;;}}}
 ;;{{{ Inline Helpers:
@@ -780,14 +756,8 @@ Retain previously set punctuations  mode."
       (emacspeak-webutils-run-post-process-hook))
      (t (emacspeak-speak-mode-line)))))
 
-(cond
- ((or (= emacs-major-version 25)
-      (boundp  'eww-after-render-hook))      ; emacs 25
-  (add-hook 'eww-after-render-hook 'emacspeak-eww-after-render-hook))
- (t
-  (defadvice eww-render (after emacspeak pre act comp)
-    "Setup Emacspeak for rendered buffer."
-    (emacspeak-eww-after-render-hook))))
+(add-hook 'eww-after-render-hook 'emacspeak-eww-after-render-hook)
+ 
 
 (defadvice eww-add-bookmark (after emacspeak pre act comp)
   "Provide auditory feedback."
@@ -1747,7 +1717,7 @@ Warning, this is fragile, and depends on a stable id for the
 
 (defun emacspeak-eww-speak-buffer-line ()
   "Speak EWW buffer line."
-  (assert (eq major-mode 'eww-buffers-mode) nil "Not in an EWW buffer listing.")
+  (cl-assert (eq major-mode 'eww-buffers-mode) nil "Not in an EWW buffer listing.")
   (let ((buffer (get-text-property (line-beginning-position) 'eww-buffer)))
     (if buffer
         (dtk-speak (buffer-name buffer))
@@ -1842,8 +1812,8 @@ Warning, this is fragile, and depends on a stable id for the
   (interactive
    (list
     (emacspeak-webutils-read-this-url)))
-  (assert emacspeak-eww-phantom-js  nil "Please install phantomjs first.")
-  (assert emacspeak-eww-phantom-get nil "PhantomJS script not found.")
+  (cl-assert emacspeak-eww-phantom-js  nil "Please install phantomjs first.")
+  (cl-assert emacspeak-eww-phantom-get nil "PhantomJS script not found.")
   (with-temp-buffer
     (shell-command
      (format "%s %s '%s' 2> /dev/null "
@@ -2052,11 +2022,11 @@ interactive prefix arg `delete', delete that mark instead."
   "Setup speech-rate, punctuation and split-caps for reading prose."
   (interactive)
   (cl-declare (special dtk-speech-rate-base dtk-speech-rate-step))
+  (emacspeak-pronounce-toggle-use-of-dictionaries t)
   (dtk-set-rate (+ dtk-speech-rate-base (* dtk-speech-rate-step  3)))
   (dtk-set-punctuations 'some)
   (when dtk-split-caps(dtk-toggle-split-caps))
-  (when (called-interactively-p 'interactive)
-    (message "Activated reading settings")))
+  (emacspeak-speak-rest-of-buffer))
 
 ;;}}}
 (provide 'emacspeak-eww)

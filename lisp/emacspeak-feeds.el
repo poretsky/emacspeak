@@ -136,7 +136,7 @@
    (list
     (read-from-minibuffer "Title: ")
     (read-from-minibuffer "URL: ")
-    (ecase (read-char-exclusive "a Atom, o OPML, r RSS: ")
+    (cl-ecase (read-char-exclusive "a Atom, o OPML, r RSS: ")
            (?a 'atom)
            (?o 'opml)
            (?r 'rss))))
@@ -219,13 +219,16 @@ This directly  updates emacspeak-feeds from the archive, rather than adding thos
 
 (defun emacspeak-feeds-feed-display(feed-url style &optional speak)
   "Fetch feed asynchronously via Emacs and display using xsltproc."
-  (url-retrieve feed-url #'emacspeak-feeds-render (list feed-url  style  speak)))
+  (url-retrieve feed-url #'emacspeak-feeds-render (list feed-url  style  speak))
+  (message "pulling feed.")
+  (emacspeak-auditory-icon 'item))
 
 (defun emacspeak-feeds-render  (_status feed-url style   speak)
   "Render the result of asynchronously retrieving feed-url."
   (cl-declare (special  eww-data  eww-current-url
                         emacspeak-eww-feed emacspeak-eww-style))
   (let ((inhibit-read-only t)
+        (browse-url-browser-function  'eww-browse-url)
         (data-buffer (current-buffer))
         (coding-system-for-read 'utf-8)
         (coding-system-for-write 'utf-8)
@@ -322,7 +325,8 @@ Argument `feed' is a feed structure (label url type)."
 
 (defun emacspeak-feeds-feed-button-action (button)
   "Open feed associated with this button."
-  (let ((url (button-get button 'url))
+  (let ((browse-url-browser-function  'eww-browse-url)
+        (url (button-get button 'url))
         (link (button-get button 'link)))
     (cond
      ((zerop (length url)) ; missing feed url 

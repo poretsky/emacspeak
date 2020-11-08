@@ -84,10 +84,10 @@
 /*
  * globals
  */
-
 static snd_pcm_t *AHandle = NULL;
 static snd_output_t *Log = NULL;
 short *waveBuffer = NULL;
+int waveBufferBytes = 0;
 
 //>
 //<decls and function prototypes
@@ -160,6 +160,7 @@ int Pause(ClientData, Tcl_Interp *, int, Tcl_Obj *CONST[]);
 int Resume(ClientData, Tcl_Interp *, int, Tcl_Obj *CONST[]);
 int SetLanguage(ClientData, Tcl_Interp *, int, Tcl_Obj *CONST[]);
 int alsa_close();
+int alsa_retry();
 int eciCallback(void *, int, long, void *);
 
 //>
@@ -252,34 +253,45 @@ static size_t alsa_configure(void) {
   } while (0)
 #endif
 
-static void xrun(void) {
-  snd_pcm_status_t *status;
-  int res;
+// static void xrun(void) {
+//   snd_pcm_status_t *status;
+//   int res;
 
-  snd_pcm_status_alloca(&status);
-  if ((res = snd_pcm_status(AHandle, status)) < 0) {
-    fprintf(stderr, "status error: %s", snd_strerror(res));
-    exit(EXIT_FAILURE);
-  }
-  if (snd_pcm_status_get_state(status) == SND_PCM_STATE_XRUN) {
-    struct timeval now, diff, tstamp;
-    gettimeofday(&now, 0);
-    snd_pcm_status_get_trigger_tstamp(status, &tstamp);
-    timersub(&now, &tstamp, &diff);
-    fprintf(stderr, "Underrun!!! (at least %.3f ms long)\n",
-            diff.tv_sec * 1000 + diff.tv_usec / 1000.0);
-    if ((res = snd_pcm_prepare(AHandle)) < 0) {
-      fprintf(stderr, "xrun: prepare error: %s", snd_strerror(res));
-      exit(EXIT_FAILURE);
-    }
-    return;  // ok, data should be accepted
-             // again
-  }
-
-  fprintf(stderr, "read/write error, state = %s",
-          snd_pcm_state_name(snd_pcm_status_get_state(status)));
-  exit(EXIT_FAILURE);
-}
+//   snd_pcm_status_alloca(&status);
+//   if ((res = snd_pcm_status(AHandle, status)) < 0) {
+//     fprintf(stderr, "status error: %s", snd_strerror(res));
+//     alsa_close();
+//     exit(EXIT_FAILURE);
+//   }
+//   if (snd_pcm_status_get_state(status) == SND_PCM_STATE_RUNNING) {
+//     // DMIX appears to be in a confused state, attempt to restore sanity.
+//     if ((res = snd_pcm_prepare(AHandle)) < 0) {
+//       // Attempt to fix failed! 
+//       fprintf(stderr, "XRUN: prepare error: %s", snd_strerror(res));
+//       alsa_close();
+//       exit(EXIT_FAILURE);
+//     }
+//     return; // ready to continue 
+//   }
+//   if (snd_pcm_status_get_state(status) == SND_PCM_STATE_XRUN) {
+//     struct timeval now, diff, tstamp;
+//     gettimeofday(&now, 0);
+//     snd_pcm_status_get_trigger_tstamp(status, &tstamp);
+//     timersub(&now, &tstamp, &diff);
+//     fprintf(stderr, "Underrun!!! (at least %.3f ms long)\n",
+//             diff.tv_sec * 1000 + diff.tv_usec / 1000.0);
+//     if ((res = snd_pcm_prepare(AHandle)) < 0) {
+//       fprintf(stderr, "xrun: prepare error: %s", snd_strerror(res));
+//       alsa_close();
+//       exit(EXIT_FAILURE);
+//     }
+//     return;  // ok, data should be accepted again
+//   }
+//   fprintf(stderr, "read/write error, state = %s\n",
+//           snd_pcm_state_name(snd_pcm_status_get_state(status)));
+//   // DMIX leaves device in a strange state, so retry.
+//   alsa_retry();
+// }
 
 static void suspend(void) {
   int res;
@@ -287,13 +299,13 @@ static void suspend(void) {
   fprintf(stderr, "Suspended. Trying resume. ");
   fflush(stderr);
   while ((res = snd_pcm_resume(AHandle)) == -EAGAIN)
-    sleep(1); /* wait until suspend flag is * * released
-               */
+    sleep(1); /* wait until suspend flag is  released */
   if (res < 0) {
     fprintf(stderr, "Failed. Restarting stream. ");
     fflush(stderr);
     if ((res = snd_pcm_prepare(AHandle)) < 0) {
       fprintf(stderr, "suspend: prepare error: %s", snd_strerror(res));
+      alsa_close();
       exit(EXIT_FAILURE);
     }
   }
@@ -307,16 +319,22 @@ static void suspend(void) {
 static ssize_t pcm_write(short *data, size_t count) {
   ssize_t r;
   ssize_t result = 0;
+  int res;
   while (count > 0) {
     r = snd_pcm_writei(AHandle, data, count);
     if (r == -EAGAIN || (r >= 0 && (size_t)r < count)) {
-      snd_pcm_wait(AHandle, 1000);
+      snd_pcm_wait(AHandle, 100);
     } else if (r == -EPIPE) {
-      xrun();
+      if ((res = snd_pcm_prepare(AHandle)) < 0) {
+        fprintf(stderr, "Write/Retry: prepare error: %s", snd_strerror(res));
+        alsa_close();
+        exit(EXIT_FAILURE);
+      }
     } else if (r == -ESTRPIPE) {
       suspend();
     } else if (r < 0) {
       fprintf(stderr, "write error: %s", snd_strerror(r));
+      alsa_close();
       exit(EXIT_FAILURE);
     }
     if (r > 0) {
@@ -332,8 +350,8 @@ static ssize_t pcm_write(short *data, size_t count) {
 //<alsa_reset
 
 void alsa_reset() {
-  snd_pcm_drop(AHandle);
-  snd_pcm_prepare(AHandle);
+  snd_pcm_drop(AHandle); // flush all frames
+  snd_pcm_prepare(AHandle); 
 }
 
 //>
@@ -362,8 +380,21 @@ static size_t alsa_init() {
 
 int alsa_close() {
   // shut down alsa
-  snd_pcm_close(AHandle);
+  if (AHandle) {
+                snd_pcm_close(AHandle);
+                }
   free(waveBuffer);
+  return TCL_OK;
+}
+
+int alsa_retry() {
+  fprintf(stderr, "re-initializing ALSA\n");
+  int res;
+  if ((res = snd_pcm_prepare(AHandle)) < 0) {
+    fprintf(stderr, "Retry: prepare error: %s", snd_strerror(res));
+    alsa_close();
+    exit(EXIT_FAILURE);
+  }
   return TCL_OK;
 }
 
@@ -534,7 +565,9 @@ int Atcleci_Init(Tcl_Interp *interp) {
 
   fprintf(stderr, "allocating %d 16 bit samples, %f seconds of audio.\n",
           (int)chunk_bytes, (chunk_bytes / (float)DEFAULT_SPEED));
-  waveBuffer = (short *)malloc(chunk_bytes * sizeof(short));
+  //waveBuffer = (short *)malloc(chunk_bytes * sizeof(short));
+  waveBuffer = (short *)calloc(chunk_bytes, sizeof(short));
+  waveBufferBytes = (chunk_bytes * sizeof(short));
   if (waveBuffer == NULL) {
     fprintf(stderr, "not enough memory");
     alsa_close();
@@ -742,7 +775,8 @@ int Stop(ClientData eciHandle, Tcl_Interp *interp, int objc,
          Tcl_Obj *CONST objv[]) {
   if (_eciStop(eciHandle)) {
     alsa_reset();
-    usleep(5);
+    memset(waveBuffer, 0,waveBufferBytes);
+    usleep(10);
     return TCL_OK;
   }
   Tcl_SetResult(interp, const_cast<char *>("Could not stop synthesis"),

@@ -45,7 +45,7 @@
 ;;; these additional interactive commands:
 ;;; @itemize @bullet
 ;;; @item @kbd{SPC} Speak current cell.
-;;; @item @kbd{.} Speak neighbours of current cell.
+;;; @item @kbd{.} Speak neighbors of current cell.
 ;;; @item @kbd{,} Speak number of marks
 ;;; @item @kbd{a} Move to beginning of row.
 ;;; @item @kbd{e} Move to end of row.
@@ -55,7 +55,7 @@
 ;;; @item @kbd{'} Speaks entire board.
 ;;; @end itemize
 ;;;
-;;; Speaking cell neighbours uses appropriate clause boundaries to group  related cells --- neighbours are read left-to-right, top-to-bottom.
+;;; Speaking cell neighbors uses appropriate clause boundaries to group  related cells --- neighbors are read left-to-right, top-to-bottom.
 ;;; Moving to the left/right edge of the board produces an appropriate auditory icon.
 
 ;;; Code:
@@ -88,7 +88,7 @@
   (cl-declare (special mines-state))
   (dtk-speak
    (format "%d mines with %d uncovered cells remaining."
-           mines-number-mines (count-if #'null mines-state))))
+           mines-number-mines (cl-count-if #'null mines-state))))
 
 
 (defun emacspeak-mines-jump-to-uncovered-cell (from-beginning)
@@ -118,7 +118,7 @@ to beginning of board before searching."
         (m (format "%c" mines-flagged-cell-char)))
     (save-excursion
     (goto-char (point-min))
-    (while (search-forward  m nil t) (incf count) (forward-char 1)))
+    (while (search-forward  m nil t) (cl-incf count) (forward-char 1)))
     (message "%d marks" count)))
 (defun emacspeak-mines-speak-board ()
   "Speak the board."

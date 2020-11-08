@@ -83,6 +83,19 @@
 ;;; communication == email, IM, ... map to  the same @emph{mood}.
 ;;; Code:
 
+;;; Automatic switching of soundscapes happens by sending a message to a UNIX domain socket in /tmp.
+;;; This socket is created by Boodler on startup 
+;;; ls /tmp/soundscape* to find the named pipe.
+;;; To make sure the listener works correctly in your environment, 
+;;;  try this in a shell:
+;;; nc -U <name-of-socket>
+;;; soundscape 1
+;;; Above will switch to the first scape.
+;;; soundscape 1 2 3 
+;;; Will turn   on first three scapes.
+;;; soundscape 0
+;;;  Turns on null soundscape to give silence.
+
 ;;}}}
 ;;{{{  Required modules
 
@@ -133,7 +146,7 @@
 Defaults specify alsa as the output and set master volume to 0.5"
   :group 'soundscape
   :type '(repeat
-          (string :tag "Option: ")))
+          (string :tag "Option")))
 
 ;;}}}
 ;;{{{ Catalog:
@@ -159,7 +172,7 @@ Defaults specify alsa as the output and set master volume to 0.5"
 (defun soundscape-catalog (&optional refresh)
   "Return catalog of installed Soundscapes, initialize if necessary."
   (cl-declare (special soundscape--catalog soundscape-list))
-  (when (null (file-exists-p soundscape-list)) (error "Catalog missing."))
+  (when (null (file-exists-p soundscape-list)) (error "Soundscape Catalog missing."))
   (cond
    ((and soundscape--catalog (null refresh)) soundscape--catalog)
    (t
@@ -263,9 +276,7 @@ Default is to return NullAgent if name not found."
 ;;}}}
 ;;{{{ Default mapping:
 
-(defconst soundscape-web-modes
-  '(w3-mode eww-mode)
-  "List of mode-names that get the Web  mood.")
+
 (defconst soundscape-vc-modes
   '(magit-mode vc-mode)
   "Version control modes.")
@@ -304,12 +315,12 @@ See  \\{soundscape-default-theme} for details."
     ("BirdChorus" (shell-mode term-mode))
     ("BlopEchoes"  (elfeed-search-mode))
     ("Bonfire" (calendar-mode diary-mode))
-    ("BuddhaLoop" nil)
+    ("BuddhaLoop" (comint-mode))
     ("RandomLoop" nil)
     ("LoopStew" (lisp-interaction-mode))
     ("Cavern" (prog-mode))
     ("ChangingLoops" (special-mode))
-    ("ChangingLoopsPitches" (comint-mode))
+    ("ChangingLoopsPitches" nil)
     ("Drip" ,soundscape-communication-modes)
     ("GardenBackground" nil)
     ("LoopStew" (emacspeak-m-player-mode))
@@ -324,7 +335,7 @@ See  \\{soundscape-default-theme} for details."
     ("RainForever" ,soundscape-help-modes)
     ("RainSounds" ,soundscape-vc-modes)
     ("Still" (text-mode view-mode))
-    ("SurfWaves"  ,soundscape-web-modes)
+    ("SurfWaves"  (eww-mode))
     ("TonkSpace" (tabulated-list-mode))
     ("WaterFlow"  (dired-mode))
     )
@@ -501,18 +512,24 @@ Optional interactive prefix arg `force' skips optimization checks."
        (string-prefix-p " *Minibuf-" (buffer-name))
        (string-match "temp" (buffer-name)))
     (setq soundscape--last-mode major-mode)
-    (soundscape-sync major-mode)))
+    (soundscape-sync major-mode 'force)))
+
+
+(defun soundscape-tickle ()
+  "Function to unconditionally update Soundscape automatically."
+  (cl-declare (special  soundscape--last-mode))
+  (setq soundscape--last-mode major-mode)
+    (soundscape-sync major-mode 'force))
 
 ;;; Advice on select-window, force-mode-line-update etc fire too often.
 ;;; Ditto with buffer-list-update-hook
-;;; Running on an idle timer can
+;;; Running on an idle timer 
 ;;;  soundscape-delay (default is 0.1)
 ;;;   triggers fewer spurious changes than running on advice.
 
 ;;}}}
 ;;{{{ SoundScape Toggle:
-(defun
-    soundscape-quiet ()
+(defun soundscape-quiet ()
   "Activate NullAgent."
   (when (process-live-p soundscape-remote-control)
     (process-send-string soundscape-remote-control "soundscape 0\n")))
@@ -576,9 +593,7 @@ This is then saved to soundscape-device for future use."
     (when soundscape--auto
       (soundscape-toggle)
       (soundscape-listener-shutdown))
-    (soundscape-toggle)
-    (sit-for 0.1)
-    (soundscape-sync major-mode 'force))
+    (soundscape-toggle))
 
 ;;}}}
 ;;{{{ Display Theme:

@@ -580,9 +580,8 @@ Returns a string with appropriate personality."
       (let ((pos (ad-get-arg 0))
             (old-position (point)))
         (cond
-         ((and
-           (or (eq major-mode 'eww-mode)(eq major-mode 'w3-mode) )
-           emacspeak-webutils-url-at-point
+         ((and (eq major-mode 'eww-mode)
+               emacspeak-webutils-url-at-point
            (funcall emacspeak-webutils-url-at-point)
            emacspeak-we-url-executor
            (boundp 'emacspeak-we-url-executor)
@@ -636,7 +635,7 @@ widget before summarizing."
           (setq level 1)))
        ((= key ?d)
         (if (> level  0)
-            (decf level)
+            (cl-decf level)
           (message "Leaf widget")))
        (t (read-key-sequence "Press any key to continue")))
       (emacspeak-widget-summarize-widget-under-point level))))

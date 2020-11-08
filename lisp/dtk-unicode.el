@@ -47,7 +47,7 @@
 
 ;;; Commentary:
 
-;; 
+;;
 ;;; This  Provides Unicode support to the speech layer.
 
 ;;; Code:
@@ -57,9 +57,7 @@
 
 (require 'cl-lib)
 (cl-declaim  (optimize  (safety 0) (speed 3)))
-(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'descr-text)
-
 ;;}}}
 ;;{{{ Customizations
 
@@ -80,14 +78,14 @@
     (?“ . "\"")                     ;LEFT DOUBLE QUOTATION MARK
     (?” . "\"")                     ; RIGHT DOUBLE QUOTATION MARK
     (?⋆ . "*")                      ; STAR OPERATOR
-    (?­ .  "-") ; soft-hyphen 
+    (?­ .  "-") ; soft-hyphen
     (?‘ . " backquote  ")           ; LEFT SINGLE QUOTATION MARK
     (?’ . "'")                      ; right SINGLE QUOTATION MARK
     (?‐ . "hyphen")                      ; hyphenm
-    (?– . "--")                     ; n-dash
-    (?— . "---")                    ; m-dash
-    (?  . " ") ; hair space 
-    (?― . "----")                   ; horizontal bar 
+    (?– . " -- ")                     ; n-dash
+    (?— . " --- ")                    ; m-dash
+    (?  . " ") ; hair space
+    (?― . "----")                   ; horizontal bar
     (?‖ . "||")                     ; vertical bar
     (?… . "...")                    ; ellipses
     (?• . " bullet ")               ; bullet
@@ -177,22 +175,22 @@ A handler returns a non-nil value if the   replacement was successful, nil other
   (setq dtk-unicode-charset-filter-regexp (dtk-unicode-build-skip-regexp dtk-unicode-untouched-charsets)))
 
 (eval-and-compile
-  (defmacro with-charset-priority (charsets &rest body)
+  (defmacro dtk--with-charset-priority (charsets &rest body)
     "Execute BODY like `progn' with CHARSETS at the front of priority list.
 CHARSETS is a list of charsets.  See
 `set-charset-priority'.  This affects the implicit sorting of lists of
 charsets returned by operations such as `find-charset-region'."
+    (declare (indent 1) (debug t))
     (let ((current (make-symbol "current")))
       `(let ((,current (charset-priority-list)))
          (apply #'set-charset-priority ,charsets)
          (unwind-protect
              (progn ,@body)
            (apply #'set-charset-priority ,current)))))
-
+  ;;; Now use it:
   (defun dtk-unicode-char-in-charsets-p  (char charsets)
     "Return t if CHAR is a member of one in the charsets in CHARSETS."
-    (with-charset-priority charsets
-                           (memq (char-charset char) charsets)))
+    (dtk--with-charset-priority charsets (memq (char-charset char) charsets)))
   )
 
 (defun dtk-unicode-char-untouched-p (char)
@@ -287,7 +285,6 @@ When called interactively, CHAR defaults to the character after point."
 
 This is meant to be used in places where the user asks for a detailed description of CHAR."
   (dtk-unicode-name-for-char char))
-
 (defun dtk-unicode-short-name-for-char (char)
   "Return name of CHAR.
 
@@ -310,7 +307,7 @@ Does nothing for unibyte buffers."
         (let* ((pos (match-beginning 0))
                (char (char-after pos))
                (replacement
-                (save-match-data  
+                (save-match-data
                   (if (and (eq mode 'none) (dtk-unicode-char-punctuation-p char))
                       " "
                     (run-hook-with-args-until-success 'dtk-unicode-handlers char)))))
@@ -318,7 +315,10 @@ Does nothing for unibyte buffers."
             (let ((props (text-properties-at pos)))
               (replace-match replacement t t nil)
               (when props
-                (set-text-properties pos (point) props)))))))))
+                (set-text-properties pos (point) props))
+              (add-text-properties
+               pos (point)
+               '(personality voice-animate)))))))))
 
 ;;}}}
 (provide 'dtk-unicode)

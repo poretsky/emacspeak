@@ -41,13 +41,18 @@
 
 (require 'cl-lib)
 (require 'advice)
+(setq ad-redefinition-action 'accept)
 (require 'emacspeak-load-path)
 (require 'voice-setup)
 (require 'dtk-speak)
 (require 'emacspeak-pronounce)
 (require 'emacspeak-speak)
+(require 'emacspeak-sounds)
 (require 'emacspeak-keymap)
-(eval-when-compile (when (> emacs-major-version 24) (package-initialize)))
+(eval-when-compile
+  (condition-case nil
+   (package-initialize)
+   (error "Check your elpa packages --- something is broken")))
 
 ;;}}}
 

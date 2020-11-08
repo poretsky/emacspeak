@@ -82,6 +82,13 @@
 (defvar emacspeak-prefix)
 
 ;;}}}
+;;{{{ Silence advice chatter:
+
+(defadvice ad--defalias-fset (around emacspeak pre act comp)
+  "Silence chatter."
+  (ems-with-messages-silenced ad-do-it))
+
+;;}}}
 ;;{{{ Advice ding
 
 (defadvice ding (before emacspeak pre act comp)
@@ -398,7 +405,7 @@ that were upper cased."
     (dtk-tone-upcase)
     (cond
      ((and (numberp current-prefix-arg)
-           (minusp current-prefix-arg))
+           (cl-minusp current-prefix-arg))
       ad-do-it
       (let ((start (point)))
         (save-excursion
@@ -424,7 +431,7 @@ the words that were down cased."
     (dtk-tone-downcase)
     (cond
      ((and (numberp current-prefix-arg)
-           (minusp current-prefix-arg))
+           (cl-minusp current-prefix-arg))
       ad-do-it
       (let ((start (point)))
         (save-excursion
@@ -450,7 +457,7 @@ the words that were capitalized."
     (dtk-tone-upcase)
     (cond
      ((and (numberp current-prefix-arg)
-           (minusp current-prefix-arg))
+           (cl-minusp current-prefix-arg))
       ad-do-it
       (let ((start (point)))
         (save-excursion
@@ -489,7 +496,7 @@ the words that were capitalized."
      "Speak character you're deleting."
      (cond
       ((ems-interactive-p)
-       (dtk-tone-deletion)
+       (emacspeak-auditory-icon 'delete-object)
        (emacspeak-speak-this-char (preceding-char))
        ad-do-it)
       (t ad-do-it))
@@ -663,8 +670,10 @@ see option emacspeak-untabify-fixes-non-breaking-space."
 (defadvice read-event (before emacspeak pre act comp)
   "Speak the prompt."
   (when (and emacspeak-speak-read-events (ad-get-arg 0))
+    (ems-with-messages-silenced (message (ad-get-arg 0)))
     (tts-with-punctuations 'all
                            (dtk-speak (ad-get-arg 0)))))
+
 (cl-loop
  for f in
  '(
@@ -867,6 +876,9 @@ icon."
 
 ;;}}}
 ;;{{{ advice various input functions to speak:
+(defadvice read-passwd (before emacspeak pre act comp)
+  "Provide auditory feedback."
+  (emacspeak-prompt "pwd"))
 
 (defvar emacspeak-read-char-prompt-cache nil
   "Cache prompt from read-char and friends here for later introspection.")
@@ -2633,10 +2645,15 @@ Produce auditory icons if possible."
 ;;}}}
 ;;{{{ advice where-is and friends
 
-(defadvice describe-key-briefly (after  emacspeak pre act comp)
+(defadvice describe-key-briefly (around  emacspeak pre act comp)
   "Speak what you displayed"
-  (when (ems-interactive-p)
-    (dtk-speak (ems-canonicalize-key-description ad-return-value))))
+  (cond
+   ((ems-interactive-p)
+    
+    (let ((emacspeak-speak-messages nil))
+      ad-do-it
+      (dtk-speak (ems-canonicalize-key-description ad-return-value))))
+   (t ad-do-it)))
 
 (defadvice where-is (after emacspeak pre act comp)
   "Provide spoken feedback"

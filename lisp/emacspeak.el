@@ -64,7 +64,8 @@
 (unless noninteractive
   (mapc
    #'(lambda (f)
-       (let ((file-name-handler-alist nil))
+       (let ((file-name-handler-alist nil)
+             (load-source-file-function  nil))
          (load (expand-file-name f emacspeak-lisp-directory))))
    '("emacspeak-loaddefs.el" "emacspeak-cus-load.el"
      "g-client/g-loaddefs" "g-client/g-cus-load")))
@@ -79,8 +80,10 @@
                    :help-echo "Read Emacspeak Blog")
   :link '(url-link :tag "Papers"
                    "http://emacspeak.sf.net/publications"
-                   :help-echo "Read papers describing Emacspeak
+                   :help-echo "Papers describing Emacspeak
 design and implementation.")
+  :link '(url-link :tag "Gist" "https://gist.github.com/tvraman"
+                   :help-echo "Useful Code Fragments")
   :link '(url-link :tag "Emacs Tour" "http://www.gnu.org/s/emacs/tour/"
                    :help-echo "A guided Tour Of Emacs")
   :link '(url-link :tag "Search"
@@ -91,7 +94,7 @@ design and implementation.")
                    :help-echo "Browse available  applications on
 the Emacspeak desktop.")
   :link '(url-link :tag "Guide"
-                   "https://tvraman.github.io/emacspeak/user-guide"
+                   "https://tvraman.github.io/emacspeak/manual"
                    :help-echo "Read online user guide.")
   :link '(url-link :tag "Tips"
                    "https://tvraman.github.io/emacspeak/tips.html"
@@ -100,9 +103,6 @@ the Emacspeak desktop.")
                                         "etc/NEWS"
                                         emacspeak-directory)
                 :help-echo "What's New In This Release")
-  :link   (list 'file-link :tag "FAQ" (expand-file-name "etc/FAQ"
-                                                        emacspeak-directory)
-                :help-echo "Read the Emacspeak FAQ")
   :link '(custom-manual "(emacspeak)Top")
 ;;; end links
   :prefix "emacspeak-"
@@ -245,7 +245,6 @@ that implements the speech-enabling extensions for `package' (a string)."
 (emacspeak-do-package-setup "man" 'emacspeak-man)
 (emacspeak-do-package-setup "message" 'emacspeak-message)
 (emacspeak-do-package-setup "meta-mode" 'emacspeak-metapost)
-(emacspeak-do-package-setup "mpg123" 'emacspeak-mpg123)
 (emacspeak-do-package-setup "muse-mode" 'emacspeak-muse)
 (emacspeak-do-package-setup "midge-mode" 'emacspeak-midge)
 (emacspeak-do-package-setup "mines" 'emacspeak-mines)
@@ -313,8 +312,6 @@ that implements the speech-enabling extensions for `package' (a string)."
 (emacspeak-do-package-setup "view" 'emacspeak-view)
 (emacspeak-do-package-setup "view-pr" 'emacspeak-view-process)
 (emacspeak-do-package-setup "vm" 'emacspeak-vm)
-(emacspeak-do-package-setup "w3" 'emacspeak-w3)
-(emacspeak-do-package-setup "w3-display" 'emacspeak-w3)
 (emacspeak-do-package-setup "wdired" 'emacspeak-wdired)
 (emacspeak-do-package-setup "cus-edit" 'emacspeak-custom)
 (emacspeak-do-package-setup "wid-edit" 'emacspeak-widget)
@@ -477,11 +474,14 @@ See the online documentation \\[emacspeak-open-info] for individual
 commands and options for details."
   (interactive)
   (cl-declare (special
+               ad-redefinition-action
                emacspeak-pronounce-load-pronunciations-on-startup line-move-visual
                emacspeak-info-directory
                use-dialog-box emacspeak-pronounce-dictionaries-file
                emacspeak-play-program emacspeak-sounds-directory))
-  (let ((file-name-handler-alist nil))
+  (let ((ad-redefinition-action 'accept)
+        (file-name-handler-alist nil)
+        (load-source-file-function  nil))
     (emacspeak-export-environment)
     (setq-default line-move-visual nil)
     (setq use-dialog-box nil)

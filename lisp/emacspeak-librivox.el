@@ -174,6 +174,29 @@
     (emacspeak-librivox-display-authors (g-json-get 'authors book))
     (when desc (insert "<p>" desc "</p>\n\n"))))
 
+(defun emacspeak-librivox--render (title books offset)
+  "render results page. "
+  (with-temp-buffer
+    (insert "<title>" title "</title>\n")
+    (insert "<h1>" title "</h1>\n")
+    (insert
+     "<p> Press <code>e e </code> on a <em>listen</em> link to play the
+book.</p>")
+    ;;; convert to list to avoid strange binding  error  when using a vector
+    (setq books (append books nil))
+    (cl-loop
+     for b in  books
+     and i from (1+ offset)
+     do
+     (emacspeak-librivox-display-book b i))
+    (when (= emacspeak-librivox-results-limit (length books))
+      (insert
+       (format
+        "Re-execute this command with an interactive prefix argument and
+specify offset %s to get more results."
+        (+ offset emacspeak-librivox-results-limit))))
+    (browse-url-of-buffer)))
+
 (defun emacspeak-librivox-search (pattern &optional  offset)
   "Search for books.
 Argument `pattern' is of the form:
@@ -202,24 +225,7 @@ Optional arg `offset' (default 0) is used for getting more results."
        #'(lambda ()
            (cl-declare (special emacspeak-we-url-executor))
            (setq emacspeak-we-url-executor 'emacspeak-librivox-play)))
-      (with-temp-buffer
-        (insert "<title>" title "</title>\n")
-        (insert "<h1>" title "</h1>\n")
-        (insert
-         "<p> Press <code>e e </code> on a <em>listen</em> link to play the
-book.</p>")
-        (cl-loop
-         for b across books
-         and i from (1+ offset)
-         do
-         (emacspeak-librivox-display-book b i))
-        (when (= emacspeak-librivox-results-limit (length books))
-          (insert
-           (format
-            "Re-execute this command with an interactive prefix argument and
-specify offset %s to get more results."
-            (+ offset emacspeak-librivox-results-limit))))
-        (browse-url-of-buffer)))))
+      (emacspeak-librivox--render title books offset))))
 
 (defvar emacspeak-librivox-genre-list
   '(
@@ -321,7 +327,7 @@ more results."
   (interactive
    (list
     (read-char "a: Author, t: Title,  p:Play, g:Genre, d: Browse Local")))
-  (ecase search-type
+  (cl-ecase search-type
          (?d (dired (expand-file-name "librivox" emacspeak-resource-directory)))
          (?a (call-interactively 'emacspeak-librivox-search-by-author))
          (?p (call-interactively 'emacspeak-librivox-play))
@@ -345,7 +351,7 @@ more results."
 (defun emacspeak-librivox-get-m3u-name (rss)
   "Parse RSS from temporary location to create a real file name."
   (emacspeak-librivox-ensure-cache)
-  (assert  (file-exists-p rss) nil "RSS file not found.")
+  (cl-assert  (file-exists-p rss) nil "RSS file not found.")
   (with-current-buffer (find-file rss)
     (let* ((title
             (dom-by-tag

@@ -68,9 +68,8 @@
 
 (defvar emacspeak-wizards-personal-portfolio)
 
-(declare-function gweb-google-autocomplete (&optional prompt))
-(declare-function gtu(tag &optional page count))
-(declare-function calendar-astro-date-string (&optional date))
+(declare-function gweb-google-autocomplete "gweb" (&optional prompt))
+(declare-function calendar-astro-date-string "cal-julian" (&optional date))
 ;;}}}
 ;;{{{ searcher table
 ;;;###autoload
@@ -323,6 +322,8 @@ Retrieves company news, research, profile, insider trades,  or upgrades/downgrad
      "Enter stock ticker of company to lookup: ")
     current-prefix-arg))
   (cl-declare (special emacspeak-websearch-company-news-uri))
+  ;;; invert sense of prefix --- since Yahoo APIs are gone:
+(setq prefix (not prefix))
   (let ((type-char
          (read-char
           "b basic, c Upgrades, h history, i insider, n news, o options, r Research, p profile, q Quotes, t technical")))
@@ -533,7 +534,7 @@ Optional second arg as-html processes the results as HTML rather than data."
   (cl-declare (special emacspeak-websearch-gutenberg-uri))
   (browse-url
    (concat emacspeak-websearch-gutenberg-uri
-           (ecase type
+           (cl-ecase type
                   (?a "author=")
                   (?t "title="))
            (emacspeak-url-encode query)))
@@ -971,7 +972,7 @@ Results"
 (emacspeak-websearch-set-searcher 'exchange-rate-converter
                                   'emacspeak-websearch-exchange-rate-converter)
 
-(emacspeak-websearch-set-key ?X 'exchange-rate-converter)
+(emacspeak-websearch-set-key ?x 'exchange-rate-converter)
 
 (defvar emacspeak-websearch-exchange-rate-form
   (expand-file-name "xml-forms/exchange-rate-converter.xml"
@@ -996,8 +997,8 @@ Results"
           (format emacspeak-websearch-exchange-rate-converter-uri
                   (upcase (cl-first fields))
                   (upcase (cl-second fields))))
-    (emacspeak-we-extract-table-by-match
-     "↔"
+    (emacspeak-we-extract-by-id
+     "xRates"
      url 'speak)))
 
 ;;}}}
@@ -1006,12 +1007,14 @@ Results"
 (emacspeak-websearch-set-searcher 'y-exchange-rate-converter
                                   'emacspeak-websearch-yahoo-exchange-rate-converter)
 
-(emacspeak-websearch-set-key ?x 'y-exchange-rate-converter)
+
+
+
+;(emacspeak-websearch-set-key ?x 'y-exchange-rate-converter)
 
 (defvar emacspeak-websearch-yahoo-exchange-rate-converter-uri
   "http://download.finance.yahoo.com/d/quotes.csv?s=%s=X&f=sl1d1t1ba&e=.csv"
   "URI template  for currency conversion.")
-
 ;;;###autoload
 (defun emacspeak-websearch-yahoo-exchange-rate-converter (conversion-spec)
   "Currency converter."
@@ -1080,9 +1083,6 @@ Results"
 ;;{{{  site-specific search tools
 
 ;;; Load site-specific searchers
-
-(when (locate-library "emacspeak-w3search")
-  (load-library "emacspeak-w3search"))
 
 ;;}}}
 ;;}}}

@@ -1,0 +1,87 @@
+# org.emacspeak.nature 1.0
+# package built Wed Dec 23 20:26:48 PST 2015
+
+:CaMockingBirds
+boodler.use: agent
+dc.title: Nature Sounds Ca Mocking Birds
+dc.description: Ca  Mocking Birds
+
+:FlMockingBirds
+boodler.use: agent
+dc.title: Nature Sounds Fl Mocking Birds
+dc.description:  FL Mocking Birds
+
+:MockingBirds
+boodler.use: agent
+dc.title: Nature Sounds Mocking Birds
+dc.description: Ca And FL Mocking Birds
+
+:ManyMockingBirds
+boodler.use: agent
+dc.title: Nature Sounds Mocking Birds
+dc.description: Larger flock of CA and FL Mocking Birds
+
+:MoreMockingBirds
+boodler.use: agent
+dc.title: Nature Sounds Mocking Birds
+dc.description: Large flock of CA and FL Mocking Birds
+ 
+:SomeMockingBirds
+boodler.use: agent
+dc.title: Nature Sounds Mocking Birds
+dc.description: Small flock of CA and FL Mocking Birds
+
+:ManyNightingales
+boodler.use: agent
+dc.title: Nature Sounds Nightingales
+dc.description: Larger flock of Nightingales
+
+:GardenBackground
+boodler.use: agent
+dc.title: Nature Sounds Stream Rushing with breeze
+dc.description: For use as garden background in Mocking Birds
+
+
+
+:Nightscape 
+boodler.use: agent
+dc.title: Nature Sounds Nocturnal crickets with Garden background 
+dc.description: For use as a nocturnal nightscape 
+
+
+
+:SongBirds
+boodler.use: agent
+dc.title: Nature Sounds SongBirds
+dc.description: SongBirds 
+
+
+:BirdChorus
+boodler.use: agent
+dc.title: Nature Sounds SongBirds  with mocking birds 
+dc.description: Bird songs in a garden
+
+
+:BirdSongs
+boodler.use: agent
+dc.title: Nature Sounds SongBirds  with mocking birds 
+dc.description: Bird songs in a garden
+
+
+:MockingCuckoos
+boodler.use: agent
+dc.title: Nature Sounds Cuckoos  with mocking birds 
+dc.description: Bird songs in a garden
+
+
+
+:BirdCalls
+boodler.use: agent
+dc.title: Various Bird Call tracks 
+dc.description: Bird songs in a garden
+
+
+:Nightingales
+boodler.use: agent
+dc.title: Nightingale track
+dc.description: Bird songs in a garden

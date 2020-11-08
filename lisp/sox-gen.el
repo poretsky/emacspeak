@@ -128,24 +128,15 @@
 
 ;;}}}
 ;;{{{ SoX Command Generator:
-(defvar sox-gen-processes nil
-  "Handle to list of running sox processes.")
 
 (defun sox-gen-cmd (cmd)
   "Play specified command."
-  (cl-declare (special sox-play sox-gen-p sox-gen-processes))
+  (cl-declare (special sox-play sox-gen-p))
   (when sox-gen-p
-    (push 
-     (apply #'start-process "SoX" nil sox-play  (split-string cmd))
-     sox-gen-processes)))
+    
+    (apply #'start-process "SoX" nil sox-play  (split-string cmd))))
 
-(defun sox-gen-kill-process ()
-  "Delete SoX process at the front of the sox-gen-processes list."
-  (interactive)
-  (cl-declare (special sox-gen-processes))
-  (let ((proc (pop sox-gen-processes)))
-    (when proc (delete-process proc)
-          (message "Deleted sox generator."))))
+
 
 ;;}}}
 ;;{{{ Binaural Audio:
@@ -305,9 +296,9 @@ Param `beat-spec-list' is a list of `(carrier beat) tupples."
   :gain -10))
 ;; }}}
 
-(defun sox--format-seconds (seconds)
+(defun sox--format-seconds (secs)
   "Audio-format seconds."
-  (format-seconds "%H %M and%z %S" seconds))
+  (format-seconds "%H %M and%z %S" secs))
 
 ;;;###autoload
 (defun sox-binaural (name duration)
@@ -369,7 +360,7 @@ Param `beat-spec-list' is a list of `(carrier beat) tupples."
       (let ((a-i (elt a-beats i))
             (b-i (elt b-beats i)))
         (list
-         (/ (+ (cl-first a-i) (first b-i)) 2) ; carrier frequency
+         (/ (+ (cl-first a-i) (cl-first b-i)) 2) ; carrier frequency
          (list (cl-second a-i) (cl-second b-i))))))))
 
 ;;}}}
@@ -417,7 +408,7 @@ binaural beat to another."
     sox--theme-duration-scale (theme duration)
   "Given a theme and a desired overall duration, compute duration scale."
   (cl-declare (special sox-binaural-slider-scale))
-  (let ((steps (mapcar #'second theme)))
+  (let ((steps (mapcar #'cl-second theme)))
     (/
      (timer-duration duration)
      (+ (apply #'+ steps)

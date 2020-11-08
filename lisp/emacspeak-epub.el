@@ -41,18 +41,127 @@
 ;;{{{  Introduction:
 
 ;;; Commentary:
-;;; In celebration of a million books and more to read from
-;;; Google Books
-;;; The EPubs format is slightly simpler than full Daisy ---
-;;; (see) emacspeak-daisy.el
-;;; Since it only needs one level of indirection (no audio,
-;;; therefore no smil). This module is consequently simpler than
-;;; emacspeak-daisy.el.
-;;; This module will eventually  implement the Google Books  API
-;;; --- probably by invoking the yet-to-be-written gbooks.el in emacs-g-client
-;;; As we move to epub-3, this module will bring back audio layers etc., perhaps via a simplified smil implementation.
-;;; Code:
 
+;;; @subsection Introduction
+;;;
+;;; This module implements the Emacspeak EPub
+;;; Bookshelf --- a unified interface for organizing, locating and
+;;; reading EPub EBooks on the emacspeak Audio Desktop. The epub
+;;; reader is built using the Emacs Web Browser (EWW), and all of
+;;; emacspeak's EWW conveniences are available when reading EBooks ---
+;;; see @xref{emacspeak-eww} for useful tools including bookmarking
+;;; and structured navigation. For now it supports epub2 --- it will
+;;; support epub3 some time in the future.
+
+;;; The main entry point is command @command{emacspeak-epub} bound to
+;;; @kbd{C-e g}. This command opens a new bookshelf buffer unless the
+;;; user has previously opened a specific bookshelf. A
+;;; @emph{bookshelf} is a buffer that lists books placed on a given
+;;; bookshelf --- these are listed by @emph{title} and
+;;; @emph{author}. The bookshelf buffer is in a special mode that
+;;; provides single-key commands for adding, removing and finding
+;;; books, as well as for opening the selected book using Emacs'
+;;; built-in Web browser (@command{eww}).
+;;;
+;;; The next few sections give a high-level overview of the emacspeak
+;;; Bookshelf and EPub interaction, followed by detailed documentation
+;;; on the various commands and user options.
+
+
+;;; @subsection Organizing EBooks On The Emacspeak Desktop
+;;;
+;;; In the simplest case, EBooks can be placed under a specific
+;;; directory (with sub-directories as needed).
+;;; Customize   user option @code{emacspeak-epub-library-directory}     to point to this location.
+;;; Here is  a quick summary of commands for organizing, saving and opening  a bookshelf:
+;;;
+;;; @table @kbd
+;;; @item a               
+;;; emacspeak-epub-bookshelf-add-epub
+;;; @item b               
+;;; emacspeak-epub-bookshelf-open
+;;; @item c               
+;;; emacspeak-epub-bookshelf-clear
+;;; @item d               
+;;; emacspeak-epub-bookshelf-remove-this-book
+;;; @item r               
+;;; emacspeak-epub-bookshelf-rename
+;;; @item l
+;;; emacspeak-epub-locate-epubs
+;;; @item C-a             
+;;; emacspeak-epub-bookshelf-add-directory
+;;; @item C-d             
+;;; emacspeak-epub-bookshelf-remove-directory
+;;; @item C-l             
+;;; emacspeak-epub-bookshelf-redraw
+;;; @item C-o             
+;;; emacspeak-epub-bookshelf-open-epub
+;;; @item M-s             
+;;; emacspeak-epub-bookshelf-save
+;;; @item C-x C-q         
+;;; emacspeak-epub-bookshelf-refresh
+;;; @item C-x C-s         
+;;; emacspeak-epub-bookshelf-save
+;;; @end table
+;;;
+;;; @subsection Integrating With Project Gutenberg
+;;;
+;;; Gutenberg integration provides one-shot commands for downloading
+;;; the latest copy of the Gutenberg catalog and  finding and downloading
+;;; the desired epub for offline reading.
+;;;
+;;; @table @kbd
+;;; @item C
+;;; emacspeak-epub-gutenberg-catalog
+;;; @item g
+;;; emacspeak-epub-gutenberg-download
+;;; @end table
+;;; Once downloaded, these EBooks can be organized under  @code{emacspeak-epub-library-directory};
+;;; For  more advanced usage, see the next section on integrating with Calibre catalogs.
+;;;
+;;; @subsection Calibre Integration
+;;;
+;;; Project Calibre  enables the indexing and searching of large EBook collections.
+;;; Read the Calibre documentation for organizing and indexing your EBook library.
+;;; See user options named @code{emacspeak-epub-calibre-*} for
+;;; customizing  emacspeak to work with Calibre.
+;;; Once set up, Calibre integration provides the following commands from the @emph{bookshelf} buffer:
+;;;
+;;; @table @kbd
+;;; @item /
+;;; emacspeak-epub-calibre-results
+;;; @item A
+;;; emacspeak-epub-bookshelf-calibre-author
+;;; @item S
+;;; emacspeak-epub-bookshelf-calibre-search
+;;; @item T
+;;; emacspeak-epub-bookshelf-calibre-title
+;;; @end table
+;;;
+;;; @subsection Reading EBooks From The Bookshelf
+;;;
+;;; The most efficient means to read an EBook is to have EWW render
+;;; the entire book --- this works well even for very large EBooks
+;;; given that EWW is efficient at rendering HTML. Rendering the
+;;; entire book means that all of the contents are available for
+;;; searching. To view an EBook in its entirety, use command
+;;; @code{emacspeak-epub-eww}. You can open the EPub table of contents
+;;; with command @code{emacspeak-epub-open}; for a
+;;; well-constructed epub, this TOC should provide hyperlinks to each
+;;; section listed in the table of contents.
+;;;
+;;; @table @kbd
+;;; @item RET             
+;;; emacspeak-epub-eww
+;;; @item e               
+;;; emacspeak-epub-eww
+;;; @item f               
+;;; emacspeak-epub-browse-files
+;;; @item o               
+;;; emacspeak-epub-open
+;;; @item t               
+;;; emacspeak-epub-fulltext
+;;; @end table
 ;;}}}
 ;;{{{ Required Modules:
 
@@ -219,10 +328,8 @@
   "EPub associated with current buffer.")
 
 (make-variable-buffer-local 'emacspeak-epub-this-epub)
-(declare-function w3-fetch  "w3" (url))
-(declare-function w3-download-url  "w3" (url &optional file-name))
 
-(defun emacspeak-epub-browse-content (epub element fragment &optional style)
+(defun emacspeak-epub-browse-content (epub element _ffragment &optional style)
   "Browse content in specified element of EPub."
   (unless   (emacspeak-epub-p epub) (error "Invalid epub"))
   (let ((base (emacspeak-epub-base epub))
@@ -238,9 +345,6 @@
          (cl-declare (special emacspeak-we-url-executor emacspeak-epub-this-epub))
          (setq emacspeak-epub-this-epub epub
                emacspeak-we-url-executor 'emacspeak-epub-url-executor)
-         (when
-             (and fragment (eq browse-url-browser-function 'browse-url-w3))
-           (w3-fetch fragment))
          (emacspeak-speak-rest-of-buffer))
      'at-end)
     (with-current-buffer content
@@ -296,7 +400,7 @@ Useful if table of contents in toc.ncx is empty."
   (let ((toc (emacspeak-epub-toc epub)))
     (emacspeak-epub-browse-content epub toc nil epub-toc-xsl)))
 
-;;; Fragment identifiers handled only in W3
+
 
 (defun emacspeak-epub-url-executor (url)
   "Custom URL executor for use in EPub Mode."
@@ -531,7 +635,7 @@ No book files are deleted."
       (print  emacspeak-epub-db  buff)
       (save-buffer buff)
       (kill-buffer buff)
-      (when (ems-interactive-p) (emacspeak-auditory-icon 'save-object)))))
+      (when (called-interactively-p 'interactive) (emacspeak-auditory-icon 'save-object)))))
 
 (defun emacspeak-epub-bookshelf-load ()
   "Load bookshelf metadata from disk."
@@ -826,19 +930,20 @@ Letters do not insert themselves; instead, they are commands.
   (emacspeak-epub-bookshelf-refresh))
 
 (cl-declaim (special emacspeak-epub-mode-map))
-(cl-loop for k in
+(cl-loop
+ for k in
          '(
            ("/" emacspeak-epub-calibre-results)
            ("A" emacspeak-epub-bookshelf-calibre-author)
            ("S" emacspeak-epub-bookshelf-calibre-search)
            ("T" emacspeak-epub-bookshelf-calibre-title)
            ("C" emacspeak-epub-gutenberg-catalog)
-           ("G" emacspeak-epub-gutenberg-download)
+           ("G" emacspeak-epub-google)
            ("\C-a" emacspeak-epub-bookshelf-add-directory)
            ("\C-d" emacspeak-epub-bookshelf-remove-directory)
            ("\C-k" emacspeak-epub-delete)
            ("C-l" emacspeak-epub-bookshelf-redraw)
-           ("\C-m" emacspeak-epub-open)
+           ("\C-m" emacspeak-epub-eww)
            ("\C-o" emacspeak-epub-bookshelf-open-epub)
            ("\C-x\C-q" emacspeak-epub-bookshelf-refresh)
            ("\C-x\C-s" emacspeak-epub-bookshelf-save)
@@ -849,20 +954,21 @@ Letters do not insert themselves; instead, they are commands.
            ("d" emacspeak-epub-bookshelf-remove-this-book)
            ("e" emacspeak-epub-eww)
            ("f" emacspeak-epub-browse-files)
-           ("g" emacspeak-epub-google)
+           ("g" emacspeak-epub-gutenberg-download)
            ("l" emacspeak-epub-locate-epubs)
            ("n" next-line)
            ("o" emacspeak-epub-open)
            ("p" previous-line)
            ("r" emacspeak-epub-bookshelf-rename)
            ("t" emacspeak-epub-fulltext)
-           ("RET" emacspeak-epub-open)
+           ("RET" emacspeak-epub-eww)
            )
          do
          (emacspeak-keymap-update emacspeak-epub-mode-map k))
 
 ;;}}}
 ;;{{{ Gutenberg Hookup:
+
 ;;; Offline Catalog:
 ;;; http://www.gutenberg.org/wiki/Gutenberg:Offline_Catalogs
 ;;; Goal:
@@ -889,19 +995,36 @@ Letters do not insert themselves; instead, they are commands.
           book-id
           emacspeak-epub-gutenberg-suffix))
 
+
+(defun emacspeak-epub-gutenberg-browse-uri (book-id)
+  "Return URL  for browsing Gutenberg EBook."
+  (cl-declare ( emacspeak-epub-gutenberg-suffix emacspeak-epub-gutenberg-mirror))
+  (format "%s%s"
+          emacspeak-epub-gutenberg-mirror book-id))
+
 ;;;###autoload
-(defun emacspeak-epub-gutenberg-download (book-id)
-  "Download specified EBook to local cache"
+(defun emacspeak-epub-gutenberg-download (book-id &optional download)
+  "Open web page for specified book.
+Place download url for epub in kill ring.
+With interactive prefix arg `download', download the epub."
   (interactive "sBook-Id: ")
   (let ((file
          (expand-file-name
           (format "%s%s" book-id emacspeak-epub-gutenberg-suffix)
           emacspeak-epub-library-directory))
+        (browse (emacspeak-epub-gutenberg-browse-uri book-id))
         (url (emacspeak-epub-gutenberg-download-uri book-id)))
     (cond
      ((file-exists-p file)
+      (browse-url browse)
       (message "Book available locally as %s" file))
-     (t (kill-new (message "%s" url))))))
+     (t (kill-new   url)
+        (browse-url browse)
+     (when download
+      (shell-command
+       (format"%s -O %s '%s'"
+              emacspeak-epub-wget file url))
+      (message "Downloaded content to %s" file))))))
 
 (defvar emacspeak-epub-gutenberg-catalog-url
   "http://www.gutenberg.org/dirs/GUTINDEX.ALL"
@@ -1118,7 +1241,7 @@ Letters do not insert themselves; instead, they are commands.
     (emacspeak-speak-mode-line)))
 
 (cl-declaim (special emacspeak-calibre-mode-map))
-(define-key emacspeak-calibre-mode-map [Return] 'emacspeak-epub-calibre-dired-at-point)
+(define-key emacspeak-calibre-mode-map "\C-m" 'emacspeak-epub-calibre-dired-at-point)
 
 (defun emacspeak-epub-calibre-results ()
   "Show most recent Calibre search results."

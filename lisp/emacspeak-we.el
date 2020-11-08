@@ -45,7 +45,7 @@
 ;;; Invoke XSLT to edit/transform Web pages before they get
 ;;; rendered.
 ;;; we makes emacspeak's webedit layer independent of a given
-;;; Emacs web browser like W3 or W3M
+;;; Emacs web browser  EWW
 ;;; This module will use the abstraction provided by browse-url
 ;;; to handle Web pages.
 ;;; Module emacspeak-webutils provides the needed additional
@@ -253,9 +253,9 @@ Default is to apply sort-tables."
   "Set to T  if you want the buffer name to contain the applied filter."
   :type  'boolean
   :group 'emacspeak-we)
-
+(declare-function emacspeak-eww-reading-settings "emacspeak-eww")
 ;;;###autoload
-(defun emacspeak-we-xslt-filter (path    url  &optional speak)
+(defun emacspeak-we-xslt-filter (path    url  &optional _speak)
   "Extract elements matching specified XPath path locator
 from Web page -- default is the current page being viewed."
   (interactive
@@ -267,14 +267,13 @@ from Web page -- default is the current page being viewed."
                     emacspeak-we-filters-rename-buffer))
   (let ((params (emacspeak-xslt-params-from-xpath  path url)))
                (when emacspeak-we-filters-rename-buffer(emacspeak-webutils-rename-buffer (format "Filtered %s" path)))
-               (when speak (emacspeak-webutils-autospeak))
                (add-to-list
                 'emacspeak-web-pre-process-hook
                 (emacspeak-webutils-make-xsl-transformer emacspeak-we-xsl-filter params))
                (when (eq browse-url-browser-function 'eww-browse-url)
                (add-hook
              'emacspeak-web-post-process-hook
-             #'emacspeak-eww-reading-settings))
+             #'emacspeak-eww-reading-settings 'at-end))
                (browse-url url)))
 
 ;;;###autoload
@@ -1072,36 +1071,7 @@ used as well."
 
 ;;}}}
 ;;{{{ Property filter
-(declare-function emacspeak-w3-html-stack "emacspeak-w3" nil)
 ;;;###autoload
-(defun emacspeak-we-extract-by-property (url &optional speak)
-  "Interactively prompt for an HTML property, e.g. id or class,
-and provide a completion list of applicable  property values. Filter document by property that is specified."
-  (interactive
-   (list
-    (emacspeak-webutils-read-url)
-    current-prefix-arg))
-  (let* ((completion-ignore-case t)
-         (choices
-          (mapcar 'symbol-name (cl-intersection
-                                '(id class style role)
-                                (emacspeak-webutils-property-names-from-html-stack (emacspeak-w3-html-stack)))))
-         (property
-          (read
-           (completing-read "Property: "
-                            choices)))
-         (values (emacspeak-webutils-get-property-from-html-stack
-                  (emacspeak-w3-html-stack)
-                  property))
-         (v (completing-read "Having value: " values))
-         (filter
-          (if (eq property 'class)
-              (format "//*[contains(@%s, \"%s\")]"
-                      property v)
-            (format "//*[@%s=\"%s\"]"
-                    property v))))
-    (emacspeak-we-xslt-filter filter url
-                              (or (called-interactively-p 'interactive) speak))))
 
 ;;}}}
 ;;{{{  xsl keymap

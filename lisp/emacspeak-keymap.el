@@ -158,9 +158,9 @@
            ("'" describe-text-properties)
            ("\"" voice-setup-list-voices)
            ("," emacspeak-wizards-color-at-point)
+           ("=" emacspeak-wizards-swap-fg-and-bg)
            ("\\" emacspeak-wizards-color-diff-at-point)
            ("/" describe-face)
-           ("u" apu-chars)
            ("C-v" voice-setup-describe-personality)
            ("\;" describe-font)
            ("p" list-packages)
@@ -440,8 +440,8 @@ relief."
     ("," emacspeak-wizards-shell-directory-set)
     ("=" emacspeak-wizards-find-longest-line-in-region)
     ("b" battery)
-    ("C" emacspeak-wizards-color-wheel)
-    ("c" emacspeak-wizards-colors)
+    ("C" emacspeak-wizards-colors)
+    ("c" emacspeak-wizards-color-wheel)
     ("e" emacspeak-we-xsl-map)
     ("h" emacspeak-wizards-how-many-matches)
     ("i" ibuffer)
@@ -542,6 +542,7 @@ interactive command that the key sequence executes."
 
 (defcustom emacspeak-super-keys 
   '(
+    ("'" emacspeak-vlc)
     ("SPC"  emacspeak-wizards-scratch)
     ("." emacspeak-wizards-shell-directory-reset)
     ("f" flyspell-mode)
@@ -611,7 +612,7 @@ interactive command that the key sequence executes."
     ("b" sox-binaural)
     ("c" emacspeak-wizards-view-buffers-filtered-by-this-mode)
     ("e" eww)
-    ("f" emacspeak-feeds-find-feeds)
+    ("f" emacspeak-wizards-finance-google-search)
     ("g" emacspeak-gnus-async)
     ("i" emacspeak-wizards-iheart)
     ("l" eww-open-file)
@@ -677,6 +678,7 @@ command that the key sequence executes."
     ("C-s" flx-isearch-forward)
     (":" emacspeak-wizards-view-buffers-filtered-by-m-player-mode)
     (";" emacspeak-m-player-using-openal)
+    ("/" emacspeak-wizards-web-clean-up-processes)
     ("'" emacspeak-m-player-using-hrtf)
     ("B" eww-list-bookmarks)
     ("N" emacspeak-npr-listing)
@@ -741,8 +743,8 @@ interactive command that the key sequence executes."
                 'emacspeak-hyper-keymap)
 (define-key emacspeak-hyper-keymap " " 'emacspeak-webspace)
 ;;}}}
-;;{{{ Wizard bindings:
-;;}}}
+
+
 ;;{{{ Keymaps <-> Org (text) Files :
 
 ;;; This makes it easy to consolidate personal bindings across machines.

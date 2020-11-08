@@ -26,8 +26,17 @@
 ;;{{{ introduction
 
 ;;; Commentary:
-;;; Provide an emacs front-end to amixer.
-;;;amixer is part of ALSA.
+;;; Provide an emacs front-end to amixer,
+;;; the sound mixer in ALSA that is used to configure the audio device.
+;;;
+;;; The main entry point is command @code{emacspeak-audio-setup} bound
+;;; to @kbd{C-e )}. When called for the first time, this command
+;;; builds up a database of available controls on the default audio
+;;; device. These control names are then available for completion in
+;;; the minibuffer. Pick a desired control, e.g., "master playback
+;;; volume", and this displays a prompt with the current value. Enter
+;;; the new value and press <RETURN>. To reset all controls to their
+;;; default values, Press @kbd{C-j}.
 
 ;;; Code:
 
@@ -206,7 +215,9 @@ use."
    amixer-alsactl-config-file
    (let ((sys-alsa "/var/lib/alsa/asound.state")
          (f (expand-file-name "asound.state" user-emacs-directory)))
-     (unless (file-exists-p sys-alsa) (error "Alsa not setup correctly."))
+     (unless (file-exists-p sys-alsa)
+       (error "Alsa not setup correctly.")
+       (message "Perhaps run \"sudo alsactl store the first time.\""))
      (unless  (file-exists-p f) (copy-file sys-alsa user-emacs-directory))
      f)))
 
@@ -247,8 +258,7 @@ Interactive prefix arg refreshes cache."
         (choices nil))
     (cond
      ((null control)
-      (amixer-restore  amixer-alsactl-config-file)
-      (amixer-reset-equalizer))
+      (amixer-restore  amixer-alsactl-config-file))
      (t
       (when (string=
              "ENUMERATED"
