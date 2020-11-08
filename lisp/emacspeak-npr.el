@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;;Copyright (C) 1995 -- 2017, T. V. Raman
+;;;Copyright (C) 1995 -- 2018, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -102,7 +102,7 @@
 (defun emacspeak-npr-rest-endpoint (operation operand)
   "Return  URL  end point for specified operation."
   (cl-declare (special emacspeak-npr-api-base
-                    emacspeak-npr-api-key))
+                       emacspeak-npr-api-key))
   (format "%s/%s?apiKey=%s&%s"
           emacspeak-npr-api-base operation emacspeak-npr-api-key operand))
 

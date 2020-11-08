@@ -14,7 +14,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2017, T. V. Raman
+;;;Copyright (C) 1995 -- 2018, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -135,8 +135,6 @@
   (when sox-gen-p
     
     (apply #'start-process "SoX" nil sox-play  (split-string cmd))))
-
-
 
 ;;}}}
 ;;{{{ Binaural Audio:

@@ -14,7 +14,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2017, T. V. Raman
+;;;Copyright (C) 1995 -- 2018, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -603,8 +603,8 @@ and TABLE gives the values along that dimension."
 (defun plain-configure-tts ()
   "Configures TTS environment to use Plain family of synthesizers."
   (cl-declare (special  plain-default-speech-rate
-                     tts-default-speech-rate
-                     tts-default-voice))
+                        tts-default-speech-rate
+                        tts-default-voice))
   (setq tts-default-voice 'paul)
   (fset 'tts-list-voices 'plain-list-voices)
   (fset 'tts-voice-defined-p 'plain-voice-defined-p)

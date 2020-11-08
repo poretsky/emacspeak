@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (C) 1995 -- 2017, T. V. Raman
+;;; Copyright (C) 1995 -- 2018, T. V. Raman
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -55,7 +55,6 @@
 ;;{{{ Forward decls:
 (declare-function eperiodic-get-element-property  "ext:eperiodic.el" (e prop))
 (declare-function eperiodic-element-at "ext:eperiodic.el" (&optional pos))
-
 
 ;;}}}
 ;;{{{ faces and voices 

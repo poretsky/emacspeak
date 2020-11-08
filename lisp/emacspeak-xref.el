@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2017, T. V. Raman
+;;;Copyright (C) 1995 -- 2018, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -59,9 +59,9 @@
 (cl-loop
  for   f in 
  '(
-   xref-find-definitions xref-pop-marker-stack
+   xref-find-definitions xref-pop-marker-stack pop-tag-mark
    xref-next-line xref-prev-line
-   xref-find-regexp 
+   xref-find-regexp  xref-pop-marker-stack
    xref-find-apropos xref-goto-xref)
  do
  (eval

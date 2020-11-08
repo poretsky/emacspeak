@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (C) 1995 -- 2017, T. V. Raman
+;;; Copyright (C) 1995 -- 2018, T. V. Raman
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -167,7 +167,7 @@
   (when (ems-interactive-p)
     (emacspeak-auditory-icon 'item)
     (emacspeak-speak-line)))
-;;; orgstruct-mode defines structured navigators that in turn call org-cycle.
+;;; orgalist-mode defines structured navigators that in turn call org-cycle.
 ;;; Removing itneractive check in advice for org-cycle 
 ;;; to speech enable all such nav commands.
 ;;; Note that org itself produces the folded state via org-unlogged-message
@@ -447,7 +447,7 @@
     (emacspeak-setup-programming-mode)))
 
 (add-hook 'org-mode-hook #'emacspeak-org-mode-setup)
-(add-hook 'orgstruct-mode-hook #'emacspeak-org-mode-setup)
+
 ;;; advice end-of-line here to call org specific action
 (defadvice end-of-line (after emacspeak-org pre act comp)
   "Call org specific actions in org mode."
@@ -596,7 +596,7 @@
 ;;}}}
 ;;{{{ Additional table function:
 
- ;;;###autoload
+;;;###autoload
 (unless (fboundp 'org-table-previous-row)
   (defun org-table-previous-row ()
     "Go to the previous row (same column) in the current table.
@@ -637,14 +637,6 @@ and assign  letter `h' to a template that creates the hyperlink on capture."
      :url (eww-current-url)
      :description (emacspeak-eww-current-title))))
 
-(unless (functionp 'org-store-link-functions)
-;;; org-mode 8.x and earlier:
-  (add-hook
-   'org-load-hook
-   #'(lambda nil
-       (cl-declare (special org-store-link-functions))
-       (push #'org-eww-store-link org-store-link-functions))))
-
 ;;}}}
 ;;{{{ Speech-enable export prompt:
 (defadvice org-export--dispatch-action (before emacspeak pre act comp)
@@ -670,6 +662,7 @@ and assign  letter `h' to a template that creates the hyperlink on capture."
 
 (defun emacspeak-org-eww-file (file _link)
   "Preview HTML files with EWW from exporter."
+  (add-hook 'emacspeak-web-post-process-hook  #'emacspeak-speak-buffer)
   (funcall-interactively #'eww-open-file file))
 
 ;;}}}
@@ -697,16 +690,23 @@ and assign  letter `h' to a template that creates the hyperlink on capture."
        (emacspeak-speak-mode-line)))))
 
 ;;}}}
- 
 
- 
 ;;{{{ Fillers:
 
 (defadvice org-fill-paragraph (after emacspeak pre act comp)
-     "Provide auditory feedback."
-     (when (ems-interactive-p)
-       (emacspeak-auditory-icon 'fill-object)
-       (message "Filled current paragraph")))
+  "Provide auditory feedback."
+  (when (ems-interactive-p)
+    (emacspeak-auditory-icon 'fill-object)
+    (message "Filled current paragraph")))
+
+(defadvice org-todo (after emacspeak pre act comp)
+  "Provide auditory feedback when changing the state of a TODO item."
+  (when (ems-interactive-p)
+    (emacspeak-auditory-icon 'button)
+    (let ((state (org-get-todo-state)))
+      (if (null state)
+          (message "State unset")
+        (message state)))))
 
 ;;}}}
 

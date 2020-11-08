@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (C) 1995 -- 2017, T. V. Raman<raman@cs.cornell.edu>
+;;; Copyright (C) 1995 -- 2018, T. V. Raman<raman@cs.cornell.edu>
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -73,7 +73,7 @@
 (defun emacspeak-eshell-speak-output  ()
   "Speak eshell output."
   (cl-declare (special eshell-last-input-end eshell-last-output-end
-                    eshell-last-output-start))
+                       eshell-last-output-start))
   (emacspeak-speak-region eshell-last-input-end eshell-last-output-end))
 
 (add-hook 

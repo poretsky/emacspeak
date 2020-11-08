@@ -269,7 +269,7 @@ Argument `k-map' is a symbol  that names a keymap."
      (progn
        (emacspeak-hydra-body-pre "Org Table UI")
        (when hydra-is-helpful (emacspeak-hydra-toggle-talkative)))
-               :pre emacspeak-hydra-pre :post emacspeak-hydra-post)
+     :pre emacspeak-hydra-pre :post emacspeak-hydra-post)
     "Org Table UI"
     ("?"(emacspeak-hydra-self-help "emacspeak-muggles-org-table"))
     ("j" org-table-next-row)
@@ -372,6 +372,20 @@ Argument `k-map' is a symbol  that names a keymap."
 ;;{{{ Option Toggle
 
 ;;; Cloned from hydra-examples.el and modified to tase.
+;;; Helper:
+
+(defun emacspeak-muggles-lispy-or-sp ()
+  "Toggle between lispy and smartparens."
+  (interactive)
+  (cl-declare (special lispy-mode smartparens-mode))
+  (lispy-mode 'toggle)
+  (smartparens-mode 'toggle)
+  (emacspeak-auditory-icon 'button)
+  (message "Now using %s"
+           (cond
+            (lispy-mode "Lispy")
+            (smartparens-mode "Smart Parens")
+            (t "neither lispy or sp"))))
 
 (global-set-key
  (kbd "C-c o")
@@ -382,6 +396,8 @@ Argument `k-map' is a symbol  that names a keymap."
                   (unless hydra-is-helpful (emacspeak-hydra-toggle-talkative)))
            :post emacspeak-hydra-post)
    "
+_C-f_ turn-on-folding-mmode       %`folding-mode
+_C_flycheck-mode:       
 _F_ flyspell-mode:       %`flyspell-mode
 _a_ abbrev-mode:       %`abbrev-mode
 _d_ debug-on-error:    %`debug-on-error
@@ -390,10 +406,13 @@ _g_ debug-on-quit:    %`debug-on-quit
 _h_ hydra-is-helpful    %`hydra-is-helpful
 _i_ ido-everywhere    %`ido-everywhere
 _I_ flx-ido-mode    %`flx-ido-mode
+_p_ emacspeak-muggles-lispy-or-sp:    
 _t_ truncate-lines:    %`truncate-lines
 _u_ ido-ubiquitous-mode:       %`ido-ubiquitous-mode
 "
    ("?" (emacspeak-hydra-self-help "emacspeak-muggles-toggle-option"))
+   ("C-f" turn-on-folding-mode)
+   ("C" (call-interactively #'flycheck-mode))
    ("F" (call-interactively #'flyspell-mode))
    ("a" (call-interactively #'abbrev-mode))
    ("d" (call-interactively #'toggle-debug-on-error))
@@ -402,6 +421,7 @@ _u_ ido-ubiquitous-mode:       %`ido-ubiquitous-mode
    ("h" (setq hydra-is-helpful (not hydra-is-helpful)))
    ("i" (call-interactively #'ido-everywhere))
    ("I" (call-interactively #'flx-ido-mode))
+   ("p" emacspeak-muggles-lispy-or-sp)
    ("t" (call-interactively #'toggle-truncate-lines))
    ("u" (call-interactively #'ido-ubiquitous-mode))
    ("q" nil "quit")))
@@ -600,26 +620,26 @@ Info-mode:
 ;;{{{ origami:
 
 (global-set-key
-   (kbd "C-c /")
-   (defhydra emacspeak-origami
-     (:color red
-:body-pre
-    (progn
-      (origami-mode 1)
-      (emacspeak-hydra-body-pre "Origami")
-      (emacspeak-hydra-toggle-talkative))
-    :hint nil
-    :pre emacspeak-hydra-pre :post emacspeak-hydra-post)
-     "
+ (kbd "C-c /")
+ (defhydra emacspeak-origami
+   (:color red
+           :body-pre
+           (progn
+             (origami-mode 1)
+             (emacspeak-hydra-body-pre "Origami")
+             (emacspeak-hydra-toggle-talkative))
+           :hint nil
+           :pre emacspeak-hydra-pre :post emacspeak-hydra-post)
+   "
     _o_pen node    _n_ext fold       toggle _f_orward
     _c_lose node   _p_revious fold   toggle _a_ll
     "
-     ("o" origami-open-node)
-     ("c" origami-close-node)
-     ("n" origami-next-fold)
-     ("p" origami-previous-fold)
-     ("f" origami-forward-toggle-node)
-     ("a" origami-toggle-all-nodes)))
+   ("o" origami-open-node)
+   ("c" origami-close-node)
+   ("n" origami-next-fold)
+   ("p" origami-previous-fold)
+   ("f" origami-forward-toggle-node)
+   ("a" origami-toggle-all-nodes)))
 
 ;;}}}
 ;;{{{ hydra-ox:
@@ -655,6 +675,7 @@ Info-mode:
 
 ;;}}}
 ;;{{{ smartParens:
+
 (global-set-key
  (kbd "C-c ,")
  (defhydra emacspeak-muggles-smartparens
@@ -681,7 +702,7 @@ Info-mode:
    ("c" sp-convolute-sexp)  
    ("d" sp-down-sexp)  
    ("e" end-of-defun)
-   ("f" sp-forward-sexp )  
+   ("f" sp-forward-sexp)  
    ("i" sp-indent-defun)  
    ("j" sp-join-sexp)  
    ("k" sp-kill-sexp)  
@@ -692,8 +713,7 @@ Info-mode:
    ("t" sp-transpose-sexp)  
    ("u" sp-backward-up-sexp)  
    ("w" sp-copy-sexp)  
-   ("{" (lambda (_) (interactive "P") (sp-wrap-with-pair "{")))  ))
-   
+   ("{" (lambda (_) (interactive "P") (sp-wrap-with-pair "{")))))
 
 ;;}}}
 ;;{{{ Muggles Autoload Wizard:
@@ -731,9 +751,9 @@ Also generates global keybindings if any."
       (cl-loop
        for m in muggles do
        (let ((key  (where-is-internal m nil 'first)))
-       (insert (format "(autoload \'%s \"emacspeak-muggles\" \"%s\" t)\n" m m))
-       (when key 
-       (insert (format "(global-set-key %s \'%s)\n" key m)))))
+         (insert (format "(autoload \'%s \"emacspeak-muggles\" \"%s\" t)\n" m m))
+         (when key 
+           (insert (format "(global-set-key %s \'%s)\n" key m)))))
       (insert "\n(provide \'emacspeak-muggles-autoloads)\n")
       (save-buffer))
     (message "Generated autoloads for muggles.")))

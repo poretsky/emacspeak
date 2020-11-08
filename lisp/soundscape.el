@@ -13,7 +13,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2017, T. V. Raman
+;;;Copyright (C) 1995 -- 2018, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -212,7 +212,7 @@ Default is to return NullAgent if name not found."
   "Play soundscape."
   (interactive (list (soundscape-read)))
   (cl-declare (special soundscape-processes
-                    soundscape-device soundscape-manager-options))
+                       soundscape-device soundscape-manager-options))
   (let ((process-connection-type  nil)
         (proc (gethash scape soundscape-processes)))
     (unless (process-live-p proc)
@@ -276,7 +276,6 @@ Default is to return NullAgent if name not found."
 ;;}}}
 ;;{{{ Default mapping:
 
-
 (defconst soundscape-vc-modes
   '(magit-mode vc-mode)
   "Version control modes.")
@@ -311,8 +310,8 @@ See  \\{soundscape-default-theme} for details."
   `(
     ("()" nil)
     ("BirdCalls" nil)
-    ("BirdSongs" nil)
-    ("BirdChorus" (shell-mode term-mode))
+    ("BirdSongs" (threes-mode))
+    ("BirdChorus" (shell-mode term-mode eshell-mode))
     ("BlopEchoes"  (elfeed-search-mode))
     ("Bonfire" (calendar-mode diary-mode))
     ("BuddhaLoop" (comint-mode))
@@ -335,6 +334,7 @@ See  \\{soundscape-default-theme} for details."
     ("RainForever" ,soundscape-help-modes)
     ("RainSounds" ,soundscape-vc-modes)
     ("Still" (text-mode view-mode))
+    ("BuddhaLoop" (org-mode))
     ("SurfWaves"  (eww-mode))
     ("TonkSpace" (tabulated-list-mode))
     ("WaterFlow"  (dired-mode))
@@ -363,7 +363,7 @@ Optional interactive prefix arg `prompt-mode' prompts for the mode."
           (soundscape-lookup-name
            (completing-read "Scape:" (mapcar 'car soundscape-default-theme)))))
     (soundscape-map-mode mode scape)
-        (soundscape-sync major-mode)
+    (soundscape-sync major-mode)
     (message "Now using %s for %s" scape mode)))
 
 ;;}}}
@@ -418,8 +418,8 @@ Listener is loaded with all Soundscapes defined in `soundscape-default-theme' .
 Optional interactive prefix arg restarts the listener if already running."
   (interactive "P")
   (cl-declare (special soundscape-listener-process soundscape--remote
-                    soundscape-manager-options soundscape-device
-                    soundscape-remote-control soundscape-default-theme))
+                       soundscape-manager-options soundscape-device
+                       soundscape-remote-control soundscape-default-theme))
   (let ((process-connection-type nil))
     (cond
      ((or restart (not (process-live-p soundscape-listener-process)))
@@ -444,7 +444,7 @@ Optional interactive prefix arg restarts the listener if already running."
   "Shutdown listener."
   (interactive)
   (cl-declare (special soundscape-listener-process soundscape-remote-control
-                    soundscape--scapes))
+                       soundscape--scapes))
   (setq soundscape--scapes nil)
   (when (process-live-p soundscape-listener-process)
     (delete-process soundscape-listener-process))
@@ -454,7 +454,7 @@ Optional interactive prefix arg restarts the listener if already running."
     (delete-file soundscape--remote)))
 
 (defun soundscape-remote (names)
-  "Activate scapes named names."
+  "Activate scapes named `names' --- a list of strings."
   (interactive
    (list
     (let ((completion-ignore-case t)
@@ -464,7 +464,7 @@ Optional interactive prefix arg restarts the listener if already running."
         (setq name
               (completing-read "Soundscape Name:"
                                (mapcar #'car soundscape-default-theme)))
-        (when (> (length name) 0) (push name  result)))
+        (when (> (length name) 0) (push name result)))
       result)))
   (cl-declare (special soundscape-remote-nc))
   (unless (process-live-p soundscape-listener-process) (soundscape-listener))
@@ -472,9 +472,10 @@ Optional interactive prefix arg restarts the listener if already running."
     (when (and (process-live-p soundscape-listener-process)
                (file-exists-p soundscape--remote))
       (setq soundscape-remote-control
-            (make-network-process  :name "nc-connect"
-                                   :family 'local
-                                   :remote soundscape--remote))))
+            (make-network-process
+             :name "nc-connect"
+             :family 'local
+             :remote soundscape--remote))))
   (when (process-live-p soundscape-remote-control)
     (process-send-string
      soundscape-remote-control
@@ -514,12 +515,11 @@ Optional interactive prefix arg `force' skips optimization checks."
     (setq soundscape--last-mode major-mode)
     (soundscape-sync major-mode 'force)))
 
-
 (defun soundscape-tickle ()
   "Function to unconditionally update Soundscape automatically."
   (cl-declare (special  soundscape--last-mode))
   (setq soundscape--last-mode major-mode)
-    (soundscape-sync major-mode 'force))
+  (soundscape-sync major-mode 'force))
 
 ;;; Advice on select-window, force-mode-line-update etc fire too often.
 ;;; Ditto with buffer-list-update-hook
@@ -548,7 +548,7 @@ When turned on, Soundscapes are automatically run based on current major mode.
 Run command \\[soundscape-theme] to see the default mode->mood mapping."
   (interactive)
   (cl-declare (special soundscape--auto soundscape--scapes
-                    soundscape-idle-delay soundscape--last-mode))
+                       soundscape-idle-delay soundscape--last-mode))
   (cond
    (soundscape--auto
     (cancel-timer soundscape--auto)
@@ -580,8 +580,8 @@ With prefix arg `device', prompt for a alsa/ladspa device.
 This is then saved to soundscape-device for future use."
   (interactive "P")
   (cl-declare (special soundscape--last-mode  soundscape--scapes
-                    soundscape--filters soundscape--auto
-                    soundscape-manager-options soundscape-device))
+                       soundscape--filters soundscape--auto
+                       soundscape-manager-options soundscape-device))
   (setq soundscape--scapes nil soundscape--last-mode nil)
   (when  device
     (setq soundscape-device
@@ -590,10 +590,10 @@ This is then saved to soundscape-device for future use."
                "Filter: "
                soundscape--filters)
             device)))
-    (when soundscape--auto
-      (soundscape-toggle)
-      (soundscape-listener-shutdown))
-    (soundscape-toggle))
+  (when soundscape--auto
+    (soundscape-toggle)
+    (soundscape-listener-shutdown))
+  (soundscape-toggle))
 
 ;;}}}
 ;;{{{ Display Theme:

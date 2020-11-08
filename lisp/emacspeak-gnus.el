@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2017, T. V. Raman 
+;;;Copyright (C) 1995 -- 2018, T. V. Raman 
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved. 
 ;;;
@@ -36,16 +36,22 @@
 ;;; the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
 
 ;;}}}
-
 ;;{{{  Introduction:
 
 ;;; Commentary:
 
 ;;; This module advises gnus to speak. 
 ;;; Updating support in 2014 (Emacspeak is nearly 20 years old)
+;;; Updating in 2018 as I switch to gnus as my primary mail interface.
+;;; These customizations to gnus make it convenient to listen to news:
+;;; You can read news mostly by using the four arrow keys.
+;;; By default all article headers are hidden, so you hear the real news.
+
 ;;; Code:
+
 ;;}}}
 ;;{{{ requires
+
 (require 'cl-lib)
 (cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
@@ -54,6 +60,7 @@
 (require 'gnus-art)
 (require 'gnus-sum)
 (require 'gm-nnir) ; for smart GMail search
+
 ;;}}}
 ;;{{{  Customizations:
 
@@ -79,24 +86,21 @@ instead you hear only the first screenful."
   :type 'integer
   :group 'emacspeak-gnus 
   )
-;;; These customizations to gnus make it convenient to listen to news:
-;;; You can read news mostly by using the four arrow keys.
-;;; By default all article headers are hidden, so you hear the real news.
-;;; You can expose some of the headers with "T" in summary mode.
 
 ;;; Keybindings 
 (defun emacspeak-gnus-setup-keys ()
   "Setup Emacspeak keys."
   (cl-declare (special gnus-summary-mode-map
-                    gnus-group-mmode-map
-                    gnus-article-mode-map))
+                       gnus-group-mmode-map
+                       gnus-article-mode-map))
   (define-key gnus-summary-mode-map "\C-t" 'gnus-summary-toggle-header)
-  (define-key gnus-summary-mode-map "\M-T" 'emacspeak-gnus-summary-hide-all-headers)
-  (define-key gnus-summary-mode-map "t" 'emacspeak-gnus-summary-show-some-headers)
+  (define-key gnus-summary-mode-map "t" 'gnus-summary-toggle-header)
   (define-key gnus-summary-mode-map '[left] 'emacspeak-gnus-summary-catchup-quietly-and-exit)
   (define-key gnus-summary-mode-map '[right] 'gnus-summary-show-article)
   (define-key  gnus-group-mode-map "?" 'gm-nnir-group-make-nnir-group)
   (define-key gnus-group-mode-map "/" 'gm-nnir-group-make-gmail-group)
+  (define-key gnus-group-mode-map ";" 'emacspeak-gnus-personal-gmail-recent)
+  (define-key gnus-group-mode-map ":" 'emacspeak-gnus-personal-gmail-last-week)
   (define-key gnus-group-mode-map "\C-n" 'gnus-group-next-group)
   (define-key gnus-group-mode-map [down] 'gnus-group-next-group)
   (define-key gnus-group-mode-map [up] 'gnus-group-prev-group)
@@ -108,46 +112,6 @@ instead you hear only the first screenful."
 (add-hook 'gnus-started-hook 'emacspeak-gnus-setup-keys)
 
 ;;}}}
-;;{{{  Hiding headers
-
-(defvar  emacspeak-gnus-ignored-most-headers
-  (concat
-   "^Path:\\|^Posting-Version:\\|^Article-I.D.:\\|^Expires:"
-   "\\|^Date-Received:\\|^References:\\|^Control:\\|^Xref:"
-   "\\|^Lines:\\|^Posted:\\|^Relay-Version:\\|^Message-ID:\\|^Nf-ID:"
-   "\\|^Nf-From:\\|^Approved:\\|^Sender:"
-   "\\|^Organization:\\|^Approved:\\|^Distribution:\\|^Apparently-To:"
-   "\\|^Keywords:\\|^Copyright:\\|^X-Supersedes:\\|^ACategory: \\|^Slugword:"
-   "\\|^Priority:\\|^ANPA:\\|^Codes:"
-   "\\|^Originator:\\|^Comment:\\|^NNTP-Posting-Host:\\|Original-To:"
-   "\\|^Followup-To:\\|^Original-Cc:\\|^Reply-To:")
-  "Article headers to ignore when only important article headers are to be
-spoken.
-See command \\[emacspeak-gnus-summary-show-some-headers].")
-(cl-declaim (special gnus-ignored-headers))
-(setq gnus-ignored-headers "^.*:")
-(cl-declaim (special gnus-visible-headers))
-(setq gnus-visible-headers "^Subject:")
-
-(defun emacspeak-gnus-summary-show-some-headers ()
-  "Show only the important article headers,
-i.e. sender name, and subject."
-  (interactive)
-  (cl-declare (special emacspeak-gnus-ignored-most-headers)) 
-  (let ((gnus-ignored-headers emacspeak-gnus-ignored-most-headers))
-    (gnus-summary-toggle-header 1)
-    (gnus-summary-toggle-header -1)))
-
-(defun emacspeak-gnus-summary-hide-all-headers()
-  "Hide all headers in the article.
-Use this command if you don't want to listen to any article headers when
-reading news."
-  (interactive)
-  (let ((gnus-ignored-headers "^.*:"))
-    (gnus-summary-toggle-header 1)
-    (gnus-summary-toggle-header -1)))
-
-;;}}}
 ;;{{{  helper functions
 
 (defun emacspeak-gnus-summary-speak-subject ()
@@ -155,14 +119,15 @@ reading news."
 
 (defun emacspeak-gnus-speak-article-body ()
   (cl-declare (special emacspeak-gnus-large-article
-                    voice-lock-mode dtk-punctuation-mode
-                    gnus-article-buffer))
+                       voice-lock-mode dtk-punctuation-mode
+                       gnus-article-buffer))
   (with-current-buffer gnus-article-buffer
     (goto-char (point-min))
+    (search-forward "\n\n")
     (cond
-     ((< (count-lines (point-min) (point-max))
+     ((< (count-lines (point) (point-max))
          emacspeak-gnus-large-article)
-      (emacspeak-speak-buffer))
+      (emacspeak-speak-rest-of-buffer))
      (t (emacspeak-auditory-icon 'large-movement)
         (let ((start (point))
               (window (get-buffer-window (current-buffer))))
@@ -177,7 +142,7 @@ reading news."
 
 ;;; emacs can hang if too many message sfly by as gnus starts
 (defadvice gnus (around emacspeak pre act)
-  "Quieten messages, produce auditory icon."
+  "Silence messages, produce auditory icon."
   (dtk-speak  "Starting gnus")
   (ems-with-messages-silenced ad-do-it)
   (emacspeak-auditory-icon 'news)
@@ -199,9 +164,8 @@ reading news."
     (emacspeak-speak-line)))
 
 (defadvice gnus-group-get-new-news (around emacspeak pre act)
-  "Temporarily deactivate advice on message"
+  "Temporarily silence on message"
   (dtk-speak  "Getting new  gnus")
-  (sit-for 2)
   (ems-with-messages-silenced ad-do-it)
   (message "Gnus is ready ")
   (emacspeak-auditory-icon 'news))
@@ -212,6 +176,7 @@ reading news."
 
 ;;}}}
 ;;{{{  Newsgroup selection
+
 (cl-loop
  for f in
  '(gnus-group-select-group gnus-group-first-unread-group
@@ -314,71 +279,27 @@ this group is being deselected."
 
 ;;}}}
 ;;{{{  summary mode 
-
-(defadvice gnus-summary-clear-mark-backward  (around  emacspeak pre act)
-  "Speak the article  line.
+(cl-loop
+ for f in
+ '(
+   gnus-summary-clear-mark-backward gnus-summary-clear-mark-forward
+   gnus-summary-mark-as-dormant gnus-summary-mark-as-expirable
+   gnus-summary-mark-as-processable
+   gnus-summary-tick-article-backward gnus-summary-tick-article-forward
+   ) do
+ (eval
+  `(defadvice   ,f (around  emacspeak pre act)
+     "Speak the article  line.
  Produce an auditory icon if possible."
-  (let ((saved-point (point)))
-    ad-do-it
-    (when (ems-interactive-p)
-      (if (= saved-point (point))
-          (dtk-speak "No more articles")
-        (progn 
-          (emacspeak-auditory-icon 'select-object)
-          (dtk-speak (gnus-summary-article-subject)))))
-    ad-return-value))
-
-(defadvice gnus-summary-clear-mark-forward  (around  emacspeak pre act)
-  "Speak the article  line.
- Produce an auditory icon if possible."
-  (let ((saved-point (point)))
-    ad-do-it
-    (when (ems-interactive-p)
-      (if (= saved-point (point))
-          (dtk-speak "No more articles")
-        (progn 
-          (emacspeak-auditory-icon 'select-object)
-          (dtk-speak (gnus-summary-article-subject)))))
-    ad-return-value))
-
-(defadvice gnus-summary-mark-as-dormant (around  emacspeak pre act)
-  "Speak the article  line.
- Produce an auditory icon if possible."
-  (let ((saved-point (point)))
-    ad-do-it
-    (when (ems-interactive-p)
-      (if (= saved-point (point))
-          (dtk-speak "No more articles")
-        (progn 
-          (emacspeak-auditory-icon 'mark-object)
-          (emacspeak-gnus-summary-speak-subject))))
-    ad-return-value))
-
-(defadvice gnus-summary-mark-as-expirable (around  emacspeak pre act)
-  "Speak the article  line.
- Produce an auditory icon if possible."
-  (let ((saved-point (point)))
-    ad-do-it
-    (when (ems-interactive-p)
-      (if (= saved-point (point))
-          (dtk-speak "No more articles")
-        (progn 
-          (emacspeak-auditory-icon 'mark-object)
-          (emacspeak-gnus-summary-speak-subject))))
-    ad-return-value))
-
-(defadvice gnus-summary-mark-as-processable (around  emacspeak pre act)
-  "Speak the article  line.
- Produce an auditory icon if possible."
-  (let ((saved-point (point)))
-    ad-do-it
-    (when (ems-interactive-p)
-      (if (= saved-point (point))
-          (dtk-speak "No more articles")
-        (progn 
-          (emacspeak-auditory-icon 'mark-object)
-          (emacspeak-gnus-summary-speak-subject))))
-    ad-return-value))
+     (let ((saved-point (point)))
+       ad-do-it
+       (when (ems-interactive-p)
+         (if (= saved-point (point))
+             (dtk-speak "No more articles")
+           (progn 
+             (emacspeak-auditory-icon 'mark-object)
+             (emacspeak-gnus-summary-speak-subject))))
+       ad-return-value))))
 
 (defadvice gnus-summary-unmark-as-processable (after emacspeak pre act)
   "Speak the line.
@@ -387,52 +308,24 @@ this group is being deselected."
     (emacspeak-auditory-icon 'deselect-object)
     (emacspeak-gnus-summary-speak-subject)))
 
-(defadvice gnus-summary-tick-article-backward (around  emacspeak pre act)
-  "Speak the article  line.
- Produce an auditory icon if possible."
-  (let ((saved-point (point)))
-    ad-do-it
-    (when (ems-interactive-p)
-      (if (= saved-point (point))
-          (dtk-speak "No more articles")
-        (progn 
-          (emacspeak-auditory-icon 'mark-object)
-          (emacspeak-gnus-summary-speak-subject))))
-    ad-return-value))
-
-(defadvice gnus-summary-tick-article-forward (around  emacspeak pre act)
-  "Speak the article  line.
- Produce an auditory icon if possible."
-  (let ((saved-point (point)))
-    ad-do-it
-    (when (ems-interactive-p)
-      (if (= saved-point (point))
-          (dtk-speak "No more articles")
-        (progn 
-          (emacspeak-auditory-icon 'mark-object)
-          (emacspeak-gnus-summary-speak-subject))))
-    ad-return-value))
-
 (defadvice gnus-summary-delete-article (after emacspeak pre act)
   "Speak the line.
  Produce an auditory icon if possible."
   (when (ems-interactive-p)
     (emacspeak-auditory-icon  'delete-object)
     (emacspeak-gnus-summary-speak-subject)))
-
-(defadvice gnus-summary-catchup-from-here (after emacspeak pre act)
-  "Speak the line.
+(cl-loop
+ for f in
+ '(
+   gnus-summary-catchup-to-here gnus-summary-catchup-from-here
+   ) do
+ (eval
+  `(defadvice  ,f (after emacspeak pre act)
+     "Speak the line.
  Produce an auditory icon if possible."
-  (when (ems-interactive-p)
-    (emacspeak-auditory-icon  'mark-object)
-    (emacspeak-gnus-summary-speak-subject)))
-
-(defadvice gnus-summary-catchup-to-here (after emacspeak pre act)
-  "Speak the line.
- Produce an auditory icon if possible."
-  (when (ems-interactive-p)
-    (emacspeak-auditory-icon  'mark-object)
-    (emacspeak-gnus-summary-speak-subject)))
+     (when (ems-interactive-p)
+       (emacspeak-auditory-icon  'mark-object)
+       (emacspeak-gnus-summary-speak-subject)))))
 
 (defadvice  gnus-summary-select-article-buffer (after emacspeak pre act)
   "Speak the modeline.
@@ -646,6 +539,7 @@ Produce an auditory icon if possible."
   (when (ems-interactive-p)
     (emacspeak-auditory-icon 'close-object)
     (emacspeak-speak-line)))
+
 ;;}}}
 ;;{{{  Article reading
 
@@ -655,8 +549,6 @@ Produce an auditory icon if possible."
   (gnus-summary-catchup-and-exit t t)
   (emacspeak-auditory-icon 'close-object)
   (emacspeak-speak-line))
-
-;;; helper function:
 
 (defadvice gnus-summary-show-article (after emacspeak pre act)
   "Start speaking the article. "
@@ -888,27 +780,26 @@ Helps to prevent words from being spelled instead of spoken."
    ;; as they are only necessary if users have persistently visible groups
    ;; in the case of empty groups, and voices for the various levels.
    (gnus-group-mail-1-empty voice-bolden-extra)
-   (gnus-group-mail-1 default)
    (gnus-group-mail-2-empty voice-bolden-extra)
-   (gnus-group-mail-2 default)
+   
    (gnus-group-mail-3-empty  voice-bolden-extra)
-   (gnus-group-mail-3 default)
+   
    (gnus-group-mail-low-empty voice-bolden-extra)
-   (gnus-group-mail-low default)
+   
    (gnus-group-news-1-empty voice-bolden-extra)
-   (gnus-group-news-1 default)
+   
    (gnus-group-news-2-empty voice-bolden-extra)
-   (gnus-group-news-2 default)
+   
    (gnus-group-news-3-empty voice-bolden-extra)
-   (gnus-group-news-3 default)
+   
    (gnus-group-news-4-empty voice-bolden-extra)
-   (gnus-group-news-4 default)
+   
    (gnus-group-news-5-empty voice-bolden-extra)
-   (gnus-group-news-5 default)
+   
    (gnus-group-news-6-empty voice-bolden-extra)
-   (gnus-group-news-6 default)
+   
    (gnus-group-news-low-empty voice-bolden-extra)
-   (gnus-group-news-low default)
+   
    
    ;; server buffer personalities
 
@@ -934,15 +825,27 @@ Helps to prevent words from being spelled instead of spoken."
 ;;}}}
 ;;{{{ Async Gnus:
 
+;;}}}
+;;{{{ GMail Search Accelerators:
+
 ;;;###autoload
-(defun emacspeak-gnus-async ()
-  "Run gnus on a separate thread."
+(defun emacspeak-gnus-personal-gmail-recent ()
+  "Look for mail addressed personally in the last day."
   (interactive)
-  (make-thread
-   #'(lambda ()
-       (condition-case err
-           (gnus)
-         (err (message (error-message-string err)))))))
+  (gm-nnir-group-make-gmail-group
+   (format "newer_than:1d to:me -cc:%s" user-mail-address)))
+
+;;;###autoload
+(defun emacspeak-gnus-personal-gmail-last-week()
+  "Look for mail addressed personally in the last week."
+  (interactive)
+  (gm-nnir-group-make-gmail-group
+   (format
+    "after:%s before:%s to:me -cc:%s"
+    (format-time-string "%Y/%m/%d" (time-subtract (current-time) (* 7 86400)))
+    (format-time-string "%Y/%m/%d")
+    user-mail-address)))
+
 ;;}}}
 (provide 'emacspeak-gnus)
 ;;{{{  end of file 

@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2017, T. V. Raman
+;;;Copyright (C) 1995 -- 2018, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -114,43 +114,44 @@ This is useful when handling bad HTML."
 the result.  This uses XSLT processor xsltproc available as
 part of the libxslt package."
   (cl-declare (special emacspeak-xslt-program emacspeak-xslt-options
-                    emacspeak-xslt-keep-errors modification-flag))
-  (let ((command nil)
-        (parameters (when params
-                      (mapconcat
-                       #'(lambda (pair)
-                           (format "--param %s %s "
-                                   (car pair)
-                                   (cdr pair)))
-                       params
-                       " ")))
-        (coding-system-for-write 'utf-8)
-        (coding-system-for-read 'utf-8)
-        (buffer-file-coding-system 'utf-8))
-    (setq command
-          (format
-           "%s %s  %s  %s - %s"
-           emacspeak-xslt-program
-           (or emacspeak-xslt-options "")
-           (or parameters "")
-           xsl
-           (unless  emacspeak-xslt-keep-errors " 2>/dev/null ")))
-    (shell-command-on-region
-     start end
-     command
-     (current-buffer)
-     'replace
-     (when emacspeak-xslt-keep-errors "*xslt errors*"))
-    (when (get-buffer  "*xslt errors*")
-      (bury-buffer "*xslt errors*"))
-    (unless no-comment
-      (goto-char (point-max))
-      (insert
-       (format "<!--\n %s \n-->\n"
-               command)))
-    (setq modification-flag nil)
-    (set-buffer-multibyte t)
-    (current-buffer)))
+                       emacspeak-xslt-keep-errors modification-flag))
+  (save-excursion
+    (with-silent-modifications
+      (let ((command nil)
+            (parameters (when params
+                          (mapconcat
+                           #'(lambda (pair)
+                               (format "--param %s %s "
+                                       (car pair)
+                                       (cdr pair)))
+                           params
+                           " ")))
+            (coding-system-for-write 'utf-8)
+            (coding-system-for-read 'utf-8)
+            (buffer-file-coding-system 'utf-8))
+        (setq command
+              (format
+               "%s %s  %s  %s - %s"
+               emacspeak-xslt-program
+               (or emacspeak-xslt-options "")
+               (or parameters "")
+               xsl
+               (unless  emacspeak-xslt-keep-errors " 2>/dev/null ")))
+        (shell-command-on-region
+         start end
+         command
+         (current-buffer)
+         'replace
+         (when emacspeak-xslt-keep-errors "*xslt errors*"))
+        (when (get-buffer  "*xslt errors*")
+          (bury-buffer "*xslt errors*"))
+        (unless no-comment
+          (goto-char (point-max))
+          (insert
+           (format "<!--\n %s \n-->\n"
+                   command)))
+        (set-buffer-multibyte t)
+        (current-buffer)))))
 
 ;;;###autoload
 (defun emacspeak-xslt-run (xsl &optional start end)
@@ -177,7 +178,7 @@ and return the results in a newly created buffer.
   This uses XSLT processor xsltproc available as
 part of the libxslt package."
   (cl-declare (special emacspeak-xslt-program
-                    emacspeak-xslt-keep-errors))
+                       emacspeak-xslt-keep-errors))
   (let ((result (get-buffer-create " *xslt result*"))
         (command nil)
         (parameters (when params
@@ -223,6 +224,58 @@ part of the libxslt package."
       (goto-char (point-min))
       result)))
 
+(defun emacspeak-xslt-pipeline-url (specs url &optional  no-comment)
+  "Apply XSLT transformation to url
+and browse the results.
+Argument `specs' is a list of elements of the form
+`(xsl xpath)'.
+  This uses XSLT processor xsltproc available as
+part of the libxslt package."
+  (cl-declare (special emacspeak-xslt-program
+                       emacspeak-xslt-keep-errors))
+  (let ((result (url-retrieve-synchronously url))
+        (command ""))
+    (setq command
+          (apply
+           #'concat
+           (cl-loop
+            for s in specs
+            and i from 0 collect 
+            (format
+             "%s %s %s %s %s - 2>/dev/null  "
+             (if (= i 0)  "" "|")
+             emacspeak-xslt-program
+             (or emacspeak-xslt-options "")
+             (mapconcat
+              #'(lambda (pair)
+                  (format "--param %s %s "
+                          (car pair) (cdr pair)))
+              (emacspeak-xslt-params-from-xpath (cl-second s) url)
+              "")
+             (cl-first s)))))
+    (with-silent-modifications
+      (with-current-buffer result 
+        (let ((coding-system-for-write 'utf-8)
+              (coding-system-for-read 'utf-8)
+              (buffer-file-coding-system 'utf-8))
+          (goto-char (point-min))
+          (search-forward "\n\n")
+          (delete-region (point-min) (point))
+          (shell-command-on-region
+           (point-min) (point-max)
+           command (current-buffer) 'replace
+           (when emacspeak-xslt-keep-errors "*xslt errors*")))
+        (when (get-buffer  "*xslt errors*")
+          (bury-buffer "*xslt errors*"))
+        (goto-char (point-max))
+        (unless no-comment
+          (insert
+           (format "<!--\n %s \n-->\n"
+                   command)))
+        (set-buffer-multibyte t)
+        (goto-char (point-min))
+        (browse-url-of-buffer)))))
+
 ;;;###autoload
 (defun emacspeak-xslt-xml-url (xsl url &optional params)
   "Apply XSLT transformation to XML url
@@ -230,7 +283,7 @@ and return the results in a newly created buffer.
   This uses XSLT processor xsltproc available as
 part of the libxslt package."
   (cl-declare (special emacspeak-xslt-program
-                    emacspeak-xslt-keep-errors))
+                       emacspeak-xslt-keep-errors))
   (let ((result (get-buffer-create " *xslt result*"))
         (command nil)
         (parameters
@@ -305,7 +358,7 @@ part of the libxslt package."
      (read-file-name "XSL Transformation: "))
     (read-string "URL: " (browse-url-url-at-point))))
   (cl-declare (special emacspeak-xslt-options))
-  (add-to-list
+  (add-hook
    'emacspeak-web-pre-process-hook
    (emacspeak-webutils-make-xsl-transformer style))
   (browse-url url))

@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2017, T. V. Raman
+;;;Copyright (C) 1995 -- 2018, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -178,7 +178,7 @@ Default is to apply sort-tables."
   "Apply specified transformation to current Web page."
   (interactive (list (emacspeak-xslt-read)))
   (emacspeak-webutils-browser-check)
-  (add-to-list
+  (add-hook
    'emacspeak-web-pre-process-hook
    (emacspeak-webutils-make-xsl-transformer  xsl))
   (browse-url (funcall emacspeak-webutils-current-url)))
@@ -264,17 +264,31 @@ from Web page -- default is the current page being viewed."
     (emacspeak-webutils-read-url)
     current-prefix-arg))
   (cl-declare (special emacspeak-we-xsl-filter
-                    emacspeak-we-filters-rename-buffer))
+                       emacspeak-we-filters-rename-buffer))
   (let ((params (emacspeak-xslt-params-from-xpath  path url)))
-               (when emacspeak-we-filters-rename-buffer(emacspeak-webutils-rename-buffer (format "Filtered %s" path)))
-               (add-to-list
-                'emacspeak-web-pre-process-hook
-                (emacspeak-webutils-make-xsl-transformer emacspeak-we-xsl-filter params))
-               (when (eq browse-url-browser-function 'eww-browse-url)
-               (add-hook
-             'emacspeak-web-post-process-hook
-             #'emacspeak-eww-reading-settings 'at-end))
-               (browse-url url)))
+    (when emacspeak-we-filters-rename-buffer(emacspeak-webutils-rename-buffer (format "Filtered %s" path)))
+    (add-hook
+     'emacspeak-web-pre-process-hook
+     (emacspeak-webutils-make-xsl-transformer emacspeak-we-xsl-filter params))
+    (add-hook
+     'emacspeak-web-post-process-hook
+     #'emacspeak-eww-reading-settings 'at-end)
+    (browse-url url)))
+
+(defun emacspeak-we-xslt-pipeline-filter (specs    url  &optional _speak)
+  "Apply a pipeline of filters specified in `specs', a list.
+Each filter is a list of the form
+ `(xsl-stylesheet-name xpath)'."
+  (cl-declare (special emacspeak-we-filters-rename-buffer))
+  (when emacspeak-we-filters-rename-buffer
+    (emacspeak-webutils-rename-buffer (format "Pipeline filtered ")))
+  (add-hook
+   'emacspeak-web-pre-process-hook
+   (emacspeak-webutils-make-xsl-transformer-pipeline specs url))
+  (add-hook
+   'emacspeak-web-post-process-hook
+   #'emacspeak-eww-reading-settings 'at-end)
+  (browse-url url))
 
 ;;;###autoload
 (defun emacspeak-we-xslt-junk (path    url &optional speak)
@@ -286,12 +300,12 @@ from Web page -- default is the current page being viewed."
     (called-interactively-p 'interactive)))
   (cl-declare (special emacspeak-we-xsl-junk))
   (let ((params (emacspeak-xslt-params-from-xpath  path url)))
-               (emacspeak-webutils-rename-buffer (format "Filtered %s" path))
-               (when speak (emacspeak-webutils-autospeak))
-               (add-to-list
-                'emacspeak-web-pre-process-hook
-                (emacspeak-webutils-make-xsl-transformer emacspeak-we-xsl-junk params))
-               (browse-url url)))
+    (emacspeak-webutils-rename-buffer (format "Filtered %s" path))
+    (when speak (emacspeak-webutils-autospeak))
+    (add-hook
+     'emacspeak-web-pre-process-hook
+     (emacspeak-webutils-make-xsl-transformer emacspeak-we-xsl-junk params))
+    (browse-url url)))
 
 (defcustom emacspeak-we-media-stream-suffixes
   (list
@@ -449,7 +463,7 @@ Empty value finishes the list."
 
 ;;;###autoload
 (defun emacspeak-we-extract-table-by-position (pos   url
-                                                          &optional speak)
+                                                     &optional speak)
   "Extract table at specified pos.
 Default is to extract from current page."
   (interactive
@@ -765,16 +779,16 @@ separate buffer. Interactive use provides list of id values as completion. "
     (emacspeak-webutils-read-url)
     current-prefix-arg))
   (let ((filter
-                 (mapconcat
-                  #'(lambda  (c)
-                      (format "(@id=\"%s\")" c))
-                  ids
-                  " or ")))
-               (emacspeak-we-xslt-filter
-                (format "//*[%s]" filter)
-                url
-                (or (called-interactively-p 'interactive)
-                    speak))))
+         (mapconcat
+          #'(lambda  (c)
+              (format "(@id=\"%s\")" c))
+          ids
+          " or ")))
+    (emacspeak-we-xslt-filter
+     (format "//*[%s]" filter)
+     url
+     (or (called-interactively-p 'interactive)
+         speak))))
 
 ;;;###autoload
 (defun emacspeak-we-extract-id-text (id   url &optional speak)
@@ -876,7 +890,7 @@ used as well."
             (read-from-minibuffer "Id: "))))
     current-prefix-arg))
   (cl-declare (special emacspeak-we-id-filter
-                    emacspeak-we-url-rewrite-rule))
+                       emacspeak-we-url-rewrite-rule))
   (emacspeak-webutils-browser-check)
   (let ((url (funcall emacspeak-webutils-url-at-point))
         (redirect nil))
@@ -912,12 +926,9 @@ specifies the page to extract contents  from."
 ;;}}}
 ;;{{{ xpath  filter
 ;;;###autoload
-(defcustom emacspeak-we-recent-xpath-filter
-  "//p|//ol|//ul|//dl|//h1|//h2|//h3|//h4|//h5|//h6|//blockquote|//div"
-  "Caches most recently used xpath filter.
-Can be customized to set up initial default."
-  :type 'string
-  :group 'emacspeak-we)
+(defvar emacspeak-we-recent-xpath-filter
+  "//p"
+  "Caches most recently used xpath filter.")
 
 (defvar emacspeak-we-xpath-filter-history 
   (list
@@ -935,11 +946,9 @@ urls.")
 (make-variable-buffer-local 'emacspeak-we-xpath-filter)
 
 ;;;###autoload
-(defcustom emacspeak-we-paragraphs-xpath-filter
+(defvar emacspeak-we-paragraphs-xpath-filter
   "//p"
-  "Filter paragraphs."
-  :type 'string
-  :group 'emacspeak-we)
+  "Filter paragraphs.")
 
 ;;;###autoload
 (defun emacspeak-we-xpath-filter-and-follow (&optional prompt)
@@ -949,8 +958,8 @@ interactive prefix arg. If there is a known rewrite url rule, that is
 used as well."
   (interactive "P")
   (cl-declare (special emacspeak-we-xpath-filter
-                    emacspeak-we-recent-xpath-filter emacspeak-we-xpath-filter-history
-                    emacspeak-we-url-rewrite-rule))
+                       emacspeak-we-recent-xpath-filter emacspeak-we-xpath-filter-history
+                       emacspeak-we-url-rewrite-rule))
   (emacspeak-webutils-browser-check)
   (let ((url (funcall emacspeak-webutils-url-at-point))
         (redirect nil))
@@ -961,7 +970,8 @@ used as well."
              (cl-first emacspeak-we-url-rewrite-rule)
              (cl-second emacspeak-we-url-rewrite-rule)
              url)))
-    (when (or prompt (null emacspeak-we-xpath-filter))
+    (when (or prompt (null emacspeak-we-xpath-filter)
+              (= 0 (length emacspeak-we-xpath-filter)))
       (setq emacspeak-we-xpath-filter
             (read-from-minibuffer
              "Specify XPath: "
@@ -985,12 +995,10 @@ used as well."
 urls.")
 
 (make-variable-buffer-local 'emacspeak-we-class-filter)
-(defcustom emacspeak-we-recent-class-filter
+(defvar emacspeak-we-recent-class-filter
   nil
-  "Caches most recently used class filter.
-Can be customized to set up initial default."
-  :type 'string
-  :group 'emacspeak-we)
+  "Caches most recently used class filter.")
+
 ;;;###autoload
 (defun emacspeak-we-class-filter-and-follow-link (&optional prompt)
   "Follow url and point, and filter the result by specified class.
@@ -999,8 +1007,8 @@ interactive prefix arg. If there is a known rewrite url rule, that is
 used as well."
   (interactive "P")
   (cl-declare (special emacspeak-we-class-filter
-                    emacspeak-we-recent-class-filter emacspeak-we-class-filter-history
-                    emacspeak-we-url-rewrite-rule))
+                       emacspeak-we-recent-class-filter emacspeak-we-class-filter-history
+                       emacspeak-we-url-rewrite-rule))
   (emacspeak-webutils-browser-check)
   (let ((url (funcall emacspeak-webutils-url-at-point))
         (redirect nil))
@@ -1043,9 +1051,9 @@ interactive prefix arg. If there is a known rewrite url rule, that is
 used as well."
   (interactive "P")
   (cl-declare (special emacspeak-we-xpath-junk
-                    emacspeak-we-xsl-junk
-                    emacspeak-we-recent-xpath-junk
-                    emacspeak-we-url-rewrite-rule))
+                       emacspeak-we-xsl-junk
+                       emacspeak-we-recent-xpath-junk
+                       emacspeak-we-url-rewrite-rule))
   (emacspeak-webutils-browser-check)
   (let ((url (funcall emacspeak-webutils-url-at-point))
         (redirect nil))
@@ -1110,7 +1118,7 @@ used as well."
            ("t" emacspeak-we-extract-table-by-position)
            ("u" emacspeak-we-extract-matching-urls)
            ("v" emacspeak-we-class-filter-and-follow-link)
-           ;("w" emacspeak-we-extract-by-property)
+                                        ;("w" emacspeak-we-extract-by-property)
            ("x" emacspeak-we-extract-nested-table)
            ("y" emacspeak-we-class-filter-and-follow)
            )

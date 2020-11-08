@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2017, T. V. Raman 
+;;;Copyright (C) 1995 -- 2018, T. V. Raman 
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved. 
 ;;;
@@ -206,11 +206,11 @@ Otherwise cue user to the line just created. "
 
 (add-hook 'cperl-mode-hook
           #'(lambda ()
-                      (dtk-set-punctuations 'all)
-                      (or dtk-split-caps
-                          (dtk-toggle-split-caps))
-                      (or emacspeak-audio-indentation
-                          (emacspeak-toggle-audio-indentation))))
+              (dtk-set-punctuations 'all)
+              (or dtk-split-caps
+                  (dtk-toggle-split-caps))
+              (or emacspeak-audio-indentation
+                  (emacspeak-toggle-audio-indentation))))
 
 ;;}}}
 (provide  'emacspeak-cperl)

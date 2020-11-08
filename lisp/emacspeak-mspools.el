@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (c) 1995 -- 2017, T. V. Raman
+;;; Copyright (c) 1995 -- 2018, T. V. Raman
 ;;; All Rights Reserved. 
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -70,8 +70,8 @@
 ;;{{{ keymaps
 (cl-declaim (special mspools-mode-map))
 (cl-eval-when (load)
-           (require 'emacspeak-keymap)
-           )
+  (require 'emacspeak-keymap)
+  )
 
 ;;}}}
 (provide 'emacspeak-mspools)

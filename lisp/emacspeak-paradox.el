@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2017, T. V. Raman
+;;;Copyright (C) 1995 -- 2018, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -69,7 +69,7 @@
    (paradox-commit-tag-face voice-brighten)
    (paradox-download- voice-smoothen)
    (paradox-highlight-face voice-bolden)
-   ( paradox-homepage-button-face voice-bolden-medium)))
+   (paradox-homepage-button-face voice-bolden-medium)))
 
 ;;}}}
 ;;{{{ Additional Commands

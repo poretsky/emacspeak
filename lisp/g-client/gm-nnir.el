@@ -47,10 +47,12 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;{{{  introduction
+
 ;;; Commentary:
 ;;; Makes search GMail more convenient.
 ;;; IMap search operators, GMail search extensions.
 ;;; Code:
+
 ;;}}}
 ;;{{{  Required modules
 
@@ -125,49 +127,35 @@
 
 ;;}}}
 ;;{{{ NNIR Engine For GMail 
+
 ;;; GMail Search Commands 
 ;;;###autoload
-(defun gm-nnir-group-make-nnir-group ()
+(defun gm-nnir-group-make-nnir-group (q)
   "GMail equivalent of gnus-group-make-nnir-group.
-Default is to search All Mail when not on a group."
-  (interactive)
-  (let ((nnir-imap-default-search-key "imap")
-        (q (gm-nnir-read-imap-query)))
+This uses standard IMap search operators."
+  (interactive (list  (gm-nnir-read-imap-query)))
+  (let ((nnir-imap-default-search-key "imap"))
     (cond
      ((gnus-group-group-name)           ; Search current group 
       (gnus-group-make-nnir-group
        nil                              ; no extra parms needed
        `(nnir-specs (nnir-query-spec (query  ,q)))))
-     ((eq 'nnimap (cl-first gnus-select-method)) ; "Search All Mail
-      (gnus-group-make-nnir-group
-       nil                              ; no extra parms needed
-       `(nnir-specs 
-         (nnir-query-spec (query ,q))
-         (nnir-group-spec
-          (
-           ,(format "nnimap:%s" (cl-second gnus-select-method))
-           ("[Gmail]/All Mail"))))))
-     (t (error "Dont know how to find default nnimap group")))))
+     (t (error "Not on a group")))))
 
 ;;;###autoload
-(defun gm-nnir-group-make-gmail-group ()
+(defun gm-nnir-group-make-gmail-group (query)
   "Use GMail search syntax exclusively.
 See https://support.google.com/mail/answer/7190?hl=en for syntax.
-Default is to search All Mail when not on a Group line."
-  (interactive)
+ note: nnimap-address etc are available as local vars if needed in these functions."
+  (interactive "sGMail Query: ")  
   (let ((nnir-imap-default-search-key "imap")
-        (q (format "X-GM-RAW \"%s\"" (read-from-minibuffer "GMail Query: "))))
+        (q (format "X-GM-RAW \"%s\"" query)))
     (cond
      ((gnus-group-group-name)           ; Search current group
       (gnus-group-make-nnir-group
        nil                              ; no extra parms needed
        `(nnir-specs (nnir-query-spec (query ,q)))))
-     (t                                 ; "Search All Mail
-      (gnus-group-make-nnir-group
-       nil                              ; no extra parms needed
-       `(nnir-specs 
-         (nnir-query-spec (query ,q))
-         (nnir-group-spec ("nnimap:gmail" ("[Gmail]/All Mail")))))))))
+     (t (error "Not on a group.")))))
 
 ;;}}}
 (provide 'gm-nnir)

@@ -68,6 +68,7 @@
 
 ;;}}}
 ;;{{{ Advice Interactive Commands:
+
 (cl-loop
  for f in
  '(
@@ -90,6 +91,13 @@
      (when (ems-interactive-p)
        (emacspeak-auditory-icon 'task-done)))))
 
+(add-hook
+ 'epa-key-list-mode-hook
+ #'(lambda nil
+     (when (sit-for 0.3)
+       (emacspeak-auditory-icon 'open-object)
+       (emacspeak-speak-line))))
+
 (defadvice epa-delete-keys (after emacspeak pre act comp)
   "Provide auditory feedback."
   (when (ems-interactive-p)
@@ -111,6 +119,7 @@
   `(defadvice ,f (after emacspeak pre act comp)
      "Provide auditory feedback. "
      (when (ems-interactive-p)
+       (emacspeak-speak-line)
        (emacspeak-auditory-icon 'button)))))
 
 (cl-loop

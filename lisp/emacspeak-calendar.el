@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2017, T. V. Raman
+;;;Copyright (C) 1995 -- 2018, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -407,7 +407,7 @@
          (erase-buffer))))
 
 (cl-declaim (special appt-delete-window
-                  appt-disp-window-function))
+                     appt-disp-window-function))
 
 (setq appt-disp-window-function 'emacspeak-appt-speak-appointment)
 (setq appt-delete-window 'emacspeak-appt-delete-display)
@@ -444,7 +444,7 @@
 To use, configure variable gweb-my-address via M-x customize-variable."
   (interactive)
   (cl-declare (special  gweb-my-address gweb-my-location
-                     calendar-latitude calendar-longitude))
+                        calendar-latitude calendar-longitude))
   (cond
    ((null gweb-my-location)
     (message "First customize gweb-my-address."))

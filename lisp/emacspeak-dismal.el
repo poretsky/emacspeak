@@ -13,7 +13,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2017, T. V. Raman 
+;;;Copyright (C) 1995 -- 2018, T. V. Raman 
 ;;; Copyright (c) 1995 by T. V. Raman  
 ;;; All Rights Reserved. 
 ;;;
@@ -47,7 +47,6 @@
 (require 'emacspeak-preamble)
 ;;}}}
 ;;{{{ Forward Decls:
-
 
 (declare-function dismal-get-val "ext:dismal" (r c))
 (declare-function  dismal-convert-cellexpr-to-string "dismal" (sexp))
@@ -189,9 +188,9 @@ The `column header' is the entry in row 0."
 emacspeak-dismal-row-summarizer-list"
   (interactive)
   (cl-declare (special emacspeak-dismal-row-summarizer-list
-                    emacspeak-dismal-value-personality
-                    voice-lock-mode
-                    dismal-current-row))
+                       emacspeak-dismal-value-personality
+                       voice-lock-mode
+                       dismal-current-row))
   (unless  (and  emacspeak-dismal-row-summarizer-list
                  (vectorp emacspeak-dismal-row-summarizer-list))
     (setq emacspeak-dismal-row-summarizer-list
@@ -236,8 +235,8 @@ emacspeak-dismal-row-summarizer-list"
 emacspeak-dismal-col-summarizer-list"
   (interactive)
   (cl-declare (special emacspeak-dismal-col-summarizer-list
-                    emacspeak-dismal-value-personality voice-lock-mode
-                    dismal-current-col))
+                       emacspeak-dismal-value-personality voice-lock-mode
+                       dismal-current-col))
   (unless  (and  emacspeak-dismal-col-summarizer-list
                  (vectorp emacspeak-dismal-col-summarizer-list))
     (setq emacspeak-dismal-col-summarizer-list

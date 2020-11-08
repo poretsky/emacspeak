@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (C) 1995 -- 2017, T. V. Raman<raman@cs.cornell.edu>
+;;; Copyright (C) 1995 -- 2018, T. V. Raman<raman@cs.cornell.edu>
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -64,8 +64,8 @@
 ;;{{{  structures 
 
 (cl-defstruct (emacspeak-filtertext
-            (:constructor
-             emacspeak-filtertext-constructor))
+               (:constructor
+                emacspeak-filtertext-constructor))
   text                                  ;original text
   filters                               ;chain of filters applied 
   )
@@ -95,7 +95,7 @@
 preparation for interactively filtering text. "
   (interactive "r")
   (cl-declare (special emacspeak-filtertext-info
-                    case-fold-search))
+                       case-fold-search))
   (let ((this (buffer-substring-no-properties start end))
         (buffer (get-buffer-create
                  (format "filter-%s" (buffer-name)))))

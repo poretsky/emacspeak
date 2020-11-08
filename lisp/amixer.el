@@ -3,7 +3,7 @@
 ;;;Emacs front-end to AMixer
 ;;{{{  Copyright:
 
-;;; Copyright (C) 1995 -- 2017, T. V. Raman<raman@cs.cornell.edu>
+;;; Copyright (C) 1995 -- 2018, T. V. Raman<raman@cs.cornell.edu>
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -30,7 +30,7 @@
 ;;; the sound mixer in ALSA that is used to configure the audio device.
 ;;;
 ;;; The main entry point is command @code{emacspeak-audio-setup} bound
-;;; to @kbd{C-e )}. When called for the first time, this command
+;;; to @kbd{C-e)}. When called for the first time, this command
 ;;; builds up a database of available controls on the default audio
 ;;; device. These control names are then available for completion in
 ;;; the minibuffer. Pick a desired control, e.g., "master playback
@@ -82,7 +82,7 @@
 
 (defun amixer-populate-settings (control)
   "Populate control with its settings information."
-  (cl-declare (special amixer-card amixer-device))
+  (cl-declare (special  amixer-device))
   (let ((fields nil)
         (emacspeak-speak-messages nil)
         (slots nil)

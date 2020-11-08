@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (C) 1995 -- 2017, T. V. Raman
+;;; Copyright (C) 1995 -- 2018, T. V. Raman
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -67,7 +67,7 @@
              (color-index
               (when color
                 (cl-position  color ansi-color-names-vector
-                           :test #'string-equal)))
+                              :test #'string-equal)))
              (style nil)
              (color-parameter nil))
         (setq style (make-acss))
@@ -82,20 +82,6 @@
         (setq voice-name (acss-personality-from-speech-style  style))
         voice-name)
     (error nil)))
-
-(defadvice ansi-color-set-extent-face (after emacspeak pre act comp)
-  "Apply aural properties."
-  (cl-declare (special emacspeak-personality-voiceify-faces))
-  (let* ((extent (ad-get-arg 0))
-         (face (ad-get-arg 1))
-         (start (overlay-start extent))
-         (end (overlay-end extent))
-         (voice (when (listp face)
-                  (emacspeak-ansi-color-to-voice face))))
-    (when voice
-      (funcall emacspeak-personality-voiceify-faces
-               start end
-               voice nil))))
 
 ;;}}}
 ;;{{{ advice interactive commands

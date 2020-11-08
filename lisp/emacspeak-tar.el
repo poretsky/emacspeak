@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (c) 1995 -- 2017, T. V. Raman
+;;; Copyright (c) 1995 -- 2018, T. V. Raman
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -182,7 +182,7 @@
   )
 
 (cl-eval-when (load)
-           (emacspeak-tar-setup-keys))
+  (emacspeak-tar-setup-keys))
 
 ;;}}}
 (provide 'emacspeak-tar)

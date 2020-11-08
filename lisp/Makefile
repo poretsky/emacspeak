@@ -187,6 +187,7 @@ emacspeak-jss.elc \
 emacspeak-kite.elc \
 emacspeak-kmacro.elc  \
 emacspeak-librivox.elc \
+emacspeak-lispy.elc \
 emacspeak-lua.elc \
 emacspeak-magit.elc \
 emacspeak-m-player.elc \
@@ -229,6 +230,7 @@ emacspeak-remote.elc \
 emacspeak-rmail.elc \
 emacspeak-rpm.elc  \
 emacspeak-ruby.elc \
+emacspeak-sage.elc \
 emacspeak-slime.elc \
 emacspeak-ses.elc \
 emacspeak-setup.el \
@@ -279,6 +281,7 @@ emacspeak-wizards.elc  \
 emacspeak-xref.elc \
 emacspeak-xml-shell.elc \
 emacspeak-xslt.elc \
+emacspeak-yaml.elc \
 emacspeak-yasnippet.elc 
 
 ADDON_OBJECTS = \
@@ -454,6 +457,7 @@ emacspeak-jss.elc: emacspeak-jss.el dtk-speak.elc voice-setup.elc
 emacspeak-kite.elc: emacspeak-kite.el dtk-speak.elc voice-setup.elc
 emacspeak-kmacro.elc: emacspeak-kmacro.el dtk-speak.elc voice-setup.elc
 emacspeak-librivox.elc: emacspeak-librivox.el emacspeak-m-player.elc dtk-speak.elc voice-setup.elc
+emacspeak-lispy.elc: emacspeak-lispy.el  dtk-speak.elc voice-setup.elc
 emacspeak-lua.elc: emacspeak-lua.el dtk-speak.elc
 emacspeak-loaddefs.elc: emacspeak-loaddefs.el
 emacspeak-load-path.elc: emacspeak-load-path.el
@@ -504,6 +508,7 @@ emacspeak-remote.elc: emacspeak-remote.el
 emacspeak-replace.elc: emacspeak-replace.el dtk-speak.elc voice-setup.elc
 emacspeak-ruby.elc: emacspeak-ruby.el dtk-speak.elc
 emacspeak-rmail.elc: emacspeak-rmail.el dtk-speak.elc voice-setup.elc
+emacspeak-sage.elc: emacspeak-sage.el dtk-speak.elc
 emacspeak-slime.elc: emacspeak-slime.el dtk-speak.elc
 emacspeak-ses.elc: emacspeak-ses.el dtk-speak.elc voice-setup.elc
 emacspeak-setup.elc: emacspeak-setup.el
@@ -562,6 +567,7 @@ emacspeak-wizards.elc: emacspeak-wizards.el dtk-speak.elc voice-setup.elc
 emacspeak-xref.elc: emacspeak-xref.el dtk-speak.elc
 emacspeak-xml-shell.elc: emacspeak-xml-shell.el dtk-speak.elc voice-setup.elc
 emacspeak-xslt.elc: emacspeak-xslt.el
+emacspeak-yaml.elc: emacspeak-yaml.el dtk-speak.elc
 emacspeak-yasnippet.elc: emacspeak-yasnippet.el dtk-speak.elc
 
 emacspeak.elc: emacspeak.el
@@ -591,7 +597,6 @@ clean:
 
 #local variables:
 #mode: makefile
-#eval:  (fold-set-marks "# {{{" "# }}}")
 #fill-column: 90
 #folded-file: t
 #end:

@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2017, T. V. Raman
+;;;Copyright (C) 1995 -- 2018, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -238,6 +238,7 @@ that implements the speech-enabling extensions for `package' (a string)."
 (emacspeak-do-package-setup "jss" 'emacspeak-jss)
 (emacspeak-do-package-setup "kite" 'emacspeak-kite)
 (emacspeak-do-package-setup "kmacro" 'emacspeak-kmacro)
+(emacspeak-do-package-setup "lispy" 'emacspeak-lispy)
 (emacspeak-do-package-setup"lua-mdoe" 'emacspeak-lua)
 (emacspeak-do-package-setup "magit" 'emacspeak-magit)
 (emacspeak-do-package-setup "make-mode" 'emacspeak-make-mode)
@@ -279,6 +280,7 @@ that implements the speech-enabling extensions for `package' (a string)."
 (emacspeak-do-package-setup "sgml-mode" 'emacspeak-sgml-mode)
 (emacspeak-do-package-setup "sh-script" 'emacspeak-sh-script)
 (emacspeak-do-package-setup "shx" 'emacspeak-shx)
+(emacspeak-do-package-setup "sage-shell-mode" 'emacspeak-sage)
 (emacspeak-do-package-setup "slime" 'emacspeak-slime)
 (emacspeak-do-package-setup "sigbegone" 'emacspeak-sigbegone)
 (emacspeak-do-package-setup "smartparens" 'emacspeak-smartparens)
@@ -320,6 +322,7 @@ that implements the speech-enabling extensions for `package' (a string)."
 (emacspeak-do-package-setup "winring" 'emacspeak-winring)
 (emacspeak-do-package-setup "woman" 'emacspeak-woman)
 (emacspeak-do-package-setup "yasnippet" 'emacspeak-yasnippet)
+(emacspeak-do-package-setup "yaml-mode" 'emacspeak-yaml)
 ;;}}}
 ;;{{{  Submit bugs
 
@@ -346,9 +349,9 @@ that implements the speech-enabling extensions for `package' (a string)."
                   emacspeak-use-auditory-icons
                   emacspeak-audio-indentation)))
       (mapcar
-        #'(lambda (x)
-          (if (not (and (boundp x) (symbol-value x)))
-              (setq vars (delq x vars))))vars)
+       #'(lambda (x)
+           (if (not (and (boundp x) (symbol-value x)))
+               (setq vars (delq x vars))))vars)
       (reporter-submit-bug-report
        emacspeak-bug-address
        (concat "Emacspeak Version: " emacspeak-version)
@@ -364,7 +367,7 @@ that implements the speech-enabling extensions for `package' (a string)."
 This exports emacspeak's system variables to the environment
 so it can be passed to subprocesses."
   (cl-declare (special emacspeak-directory emacspeak-play-program
-                    emacspeak-sounds-directory))
+                       emacspeak-sounds-directory))
   (setenv "EMACSPEAK_DIR" emacspeak-directory)
   (setenv "EMACSPEAK_SOUNDS_DIR" emacspeak-sounds-directory)
   (setenv "EMACSPEAK_PLAY_PROGRAM" emacspeak-play-program))
@@ -382,7 +385,7 @@ Turns on audio indentation and sets
 punctuation mode to all, activates the dictionary and turns on split
 caps."
   (cl-declare (special dtk-split-caps
-                    emacspeak-audio-indentation))
+                       emacspeak-audio-indentation))
   (ems-with-messages-silenced
    (dtk-set-punctuations 'all)
    (or dtk-split-caps
@@ -412,7 +415,7 @@ caps."
 ;;{{{ set up after-init-hook to fix interactive functions
 
 (add-hook 'after-init-hook 'emacspeak-fix-commands-that-use-interactive)
-;(add-hook 'after-init-hook 'emacspeak-keymap-refresh)
+                                        ;(add-hook 'after-init-hook 'emacspeak-keymap-refresh)
 
 ;;}}}
 ;;{{{ Emacspeak:

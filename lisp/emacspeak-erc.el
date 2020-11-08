@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (C) 1995 -- 2017, T. V. Raman
+;;; Copyright (C) 1995 -- 2018, T. V. Raman
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -206,9 +206,9 @@ Optional interactive prefix  arg defines a pronunciation that
   "Uses environment of buffer to decide what message to
 display. String is the original message."
   (cl-declare (special emacspeak-erc-people-to-monitor
-                    emacspeak-erc-my-nick
-                    emacspeak-erc-speak-all-participants
-                    emacspeak-erc-monitor-my-messages))
+                       emacspeak-erc-my-nick
+                       emacspeak-erc-speak-all-participants
+                       emacspeak-erc-monitor-my-messages))
   (let ((who-from (car (split-string string)))
         (case-fold-search t))
     (cond
@@ -239,8 +239,8 @@ set the current local value to the result.")
                                            comp)
   "Speech-enable ERC."
   (cl-declare (special emacspeak-erc-room-monitor
-                    emacspeak-erc-monitor-my-messages
-                    emacspeak-erc-my-nick))
+                       emacspeak-erc-monitor-my-messages
+                       emacspeak-erc-my-nick))
   (let ((buffer (ad-get-arg 1))
         (case-fold-search t))
     (with-current-buffer  buffer
@@ -258,20 +258,19 @@ set the current local value to the result.")
 (defadvice erc-display-line-1  (after emacspeak pre act comp)
   "Speech-enable ERC."
   (cl-declare (special emacspeak-erc-room-monitor
-                    emacspeak-erc-monitor-my-messages
-                    emacspeak-erc-my-nick))
+                       emacspeak-erc-monitor-my-messages
+                       emacspeak-erc-my-nick))
   (let ((buffer (ad-get-arg 1))
         (case-fold-search t))
     (save-current-buffer
       (set-buffer buffer)
       (when (and emacspeak-erc-room-monitor
                  emacspeak-erc-monitor-my-messages)
-        (let ((emacspeak-speak-messages nil)
-              (msg (emacspeak-erc-compute-message (ad-get-arg 0)
+        (let ((msg (emacspeak-erc-compute-message (ad-get-arg 0)
                                                   buffer)))
           (when msg
             (emacspeak-auditory-icon 'progress)
-            (message msg)
+            (dtk-speak-and-echo (format "%s" msg))
             (tts-with-punctuations dtk-punctuation-mode
                                    (dtk-speak  msg))))))))
 

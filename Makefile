@@ -96,7 +96,11 @@ q:
 	make clean
 	make config 
 	make
-	cd lisp && make muggles 
+	cd lisp && make muggles
+	cd	 tvr && make
+
+qq:
+	make -s -j q 2>&1 |grep -v Loading 
 
 # }}}
 # {{{  user level target-- clean
@@ -135,11 +139,16 @@ install:
 	@echo "Package maintainers: see   etc/install.org	 for instructions."
 
 # }}}
+# {{{Worktree:
+# Usage make wk TAG=tag
+wk:
+	git worktree add ../${TAG} ${TAG}
+
+# }}}
 # {{{ end of file
 
 #local variables:
 #mode: makefile
-#eval:  (fold-set-marks "# {{{" "# }}}")
 #fill-column: 90
 #folded-file: t
 #end:

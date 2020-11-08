@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;;Copyright (C) 1995 -- 2017, T. V. Raman 
+;;;Copyright (C) 1995 -- 2018, T. V. Raman 
 ;;; Copyright (c) 1996 by T. V. Raman
 ;;; All Rights Reserved.
 ;;;
@@ -126,7 +126,7 @@ given name, it is updated with path and position."
   "Locate AMarks file from current directory, and load it."
   (interactive)
   (cl-declare (special emacspeak-amark-list
-                    emacspeak-amark-file))
+                       emacspeak-amark-file))
   (let ((buff nil)
         (l nil)
         (where

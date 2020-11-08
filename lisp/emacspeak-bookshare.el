@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;;Copyright (C) 1995 -- 2017, T. V. Raman
+;;;Copyright (C) 1995 -- 2018, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -66,7 +66,11 @@
 ;;;@item Customize group @code{emacspeak-bookshare} by pressing @kbd{C-h G}.
 ;;;@item  Press @kbd{C-e C-b} to open or switch to the Bookshare buffer.
 ;;; @item Perform a search @kbd{a} or @kbd{t} for author or title search.
-;;; @item You will be prompted for your Bookshare password if this is the first time in this Emacs session.
+;;; @item You will be prompted for your Bookshare password if this is
+;;; the first time.
+;;; @item The password will be saved to your configured
+;;; @code{auth-source} --- usually @code{~/.authinfo.gpg}.
+;;; You can also use @code{password-store[.]}
 ;;; @item The results of the search appear in the Bookshare buffer.
 ;;; Audio formatting and auditory icons convey if  a result is already available locally.
 ;;; @item If not available locally, press @kbd{D} to download the content.
@@ -83,7 +87,7 @@
 (cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 (require 'dired)
-(require 'eww   "eww" 'noerror)
+(require 'eww   nil  'noerror)
 (require 'browse-url)
 (require 'emacspeak-we)
 (require 'emacspeak-webutils)
@@ -91,6 +95,7 @@
 (require 'dom) ; Cloned from Emacs 25
 (require 'xml)
 (require 'derived)
+(autoload 'auth-source-search "auth-source")
 ;;}}}
 ;;{{{ Customizations
 
@@ -108,12 +113,8 @@ See http://developer.bookshare.org/docs for details on how to get
            (string :tag "API Key"))
   :group 'emacspeak-bookshare)
 
-(defcustom emacspeak-bookshare-user-id nil
-  "Bookshare user Id."
-  :type '(choice :tag "Bookshare User id"
-                 (const :tag "None" nil)
-                 (string :tag "Email"))
-  :group 'emacspeak-bookshare)
+(defvar emacspeak-bookshare-user-id nil
+  "Bookshare user Id.")
 
 (defcustom emacspeak-bookshare-directory (expand-file-name "~/books/book-share")
   "Customize this to the root of where books are organized."
@@ -170,36 +171,56 @@ Bookshare docs."
 
 (defvar emacspeak-bookshare-md5-cached-token nil
   "Cache MD5 token for future use.")
-(defvar emacspeak-bookshare-password-cache nil
-  "Cache user password for this session.")
 
 (defun emacspeak-bookshare-user-password ()
   "User password.
-Memoize token, and return token encoded using md5, and packaged
-with X-password HTTP header for use with Curl."
-  (cl-declare (special emacspeak-bookshare-md5-cached-token
-                    emacspeak-bookshare-password-cache))
-  (setq emacspeak-bookshare-password-cache
-        (or  emacspeak-bookshare-password-cache
-             (read-passwd
-              (format "Bookshare password for %s: "
-                      emacspeak-bookshare-user-id))))
-  (setq emacspeak-bookshare-md5-cached-token
-        (md5 emacspeak-bookshare-password-cache))
+Get user and secret from auth-sources, and memoize the user and
+the MD5-encoded secret."
+  (cl-declare (special emacspeak-bookshare-user-id
+                       emacspeak-bookshare-md5-cached-token))
+  (unless emacspeak-bookshare-md5-cached-token
+    (let ((auth-info (emacspeak-bookshare-get-auth-info)))
+      (setq emacspeak-bookshare-user-id (car auth-info))
+      (setq emacspeak-bookshare-md5-cached-token (md5 (cdr auth-info)))))
   (format "-H 'X-password: %s'" emacspeak-bookshare-md5-cached-token))
+
+(defun emacspeak-bookshare-get-auth-info()
+  "Get the email and password for BookShare if it already exists
+in `auth-sources'. If not present, ask for email and password,
+and create an entry in the `auth-sources'.
+
+Returns a cons cell where the car is email, and the cdr is password."
+  (let* ((auth-source-creation-prompts
+          '((user . "Your BookShare.org e-mail: ")
+            (secret . "Your BookShare.org password: ")))
+         (found
+          (nth 0
+               (auth-source-search
+                :max 1
+                :host "api.bookshare.org"
+                :port 'https
+                :create t
+                :require '(:user :secret)))))
+    (when found
+      (let ((user (plist-get found :user))
+            (secret (plist-get found :secret))
+            (save-function (plist-get found :save-function)))
+        (while (functionp secret) (setq secret (funcall secret)))
+        (when (functionp save-function) (funcall save-function))
+        (cons user secret)))))
 
 (defun emacspeak-bookshare-rest-endpoint (operation operand &optional noauth)
   "Return  URL  end point for specified operation.
 Optional argument `noauth' says no user auth needed."
   (cl-assert emacspeak-bookshare-api-key nil "API key not set.")
-  (format "%s/%s/%s/%s?api_key=%s"
-          emacspeak-bookshare-api-base
-          operation
-          operand
-          (if noauth
-              ""
-            (format "for/%s" emacspeak-bookshare-user-id))
-          emacspeak-bookshare-api-key))
+  (unless (or  noauth  emacspeak-bookshare-user-id)
+    ;;  initialize user-id
+    (emacspeak-bookshare-user-password))
+  (url-encode-url
+   (format "%s/%s/%s/%s?api_key=%s"
+           emacspeak-bookshare-api-base operation operand
+           (if noauth "" (format "for/%s" emacspeak-bookshare-user-id))
+           emacspeak-bookshare-api-key)))
 
 (defun emacspeak-bookshare-page-rest-endpoint ()
   "Generate REST endpoint for the next page of results."
@@ -347,7 +368,7 @@ Optional argument 'no-auth says we dont need a user auth."
             'result)))
       (cl-loop
        for r in result collect
-       (emacspeak-url-encode (dom-text (dom-by-tag r  'name))))))))
+       (url-encode-url (dom-text (dom-by-tag r  'name))))))))
 
 ;;;  Following actions return book metadata:
 
@@ -384,7 +405,7 @@ Optional argument 'no-auth says we dont need a user auth."
 Interactive prefix arg filters search by category."
   (interactive
    (list
-    (emacspeak-url-encode
+    (url-encode-url
      (read-from-minibuffer "author: "))
     current-prefix-arg))
   (cond
@@ -405,7 +426,7 @@ Interactive prefix arg filters search by category."
 Interactive prefix arg filters search by category."
   (interactive
    (list
-    (emacspeak-url-encode
+    (url-encode-url
      (read-from-minibuffer "Title: "))
     current-prefix-arg))
   (cond
@@ -622,7 +643,7 @@ b Browse
     (if (fboundp handler) handler 'emacspeak-bookshare-recurse)))
 
 (defvar emacspeak-bookshare-response-elements
-  '(bookshare version metadata messages string
+  '(bookshare version metadata messages string status-code
               book user string downloads-remaining
               id name value editable
               periodical list page num-pages limit result)
@@ -676,6 +697,24 @@ b Browse
   (cl-declare (special emacspeak-bookshare-last-action-uri))
   (let ((start (point)))
     (mapc #'insert(dom-text   (dom-child-by-tag messages 'string)))
+    (insert "\t")
+    (insert
+     (mapconcat
+      #'identity
+      (emacspeak-bookshare-destruct-rest-url emacspeak-bookshare-last-action-uri)
+      " "))
+    (add-text-properties  start (point)
+                          (list 'uri emacspeak-bookshare-last-action-uri
+                                'face 'font-lock-string-face))
+    (insert "\n")))
+
+(defun emacspeak-bookshare-status-code-handler (status-code)
+  "Handlestatus-code element."
+  (cl-declare (special emacspeak-bookshare-last-action-uri))
+  (let ((start (point)))
+    (message "Status-Code: %s" (dom-text    status-code))
+    (insert "Status Code: ")
+    (mapc #'insert (dom-text    status-code))
     (insert "\t")
     (insert
      (mapconcat
@@ -909,9 +948,9 @@ b Browse
   (interactive)
   (let ((action (read-char "p Popular, l Latest")))
     (cl-case action
-          (?p (call-interactively 'emacspeak-bookshare-action))
-          (?l (call-interactively 'emacspeak-bookshare-action))
-          (otherwise (error "Unrecognized browse action.")))))
+      (?p (call-interactively 'emacspeak-bookshare-action))
+      (?l (call-interactively 'emacspeak-bookshare-action))
+      (otherwise (error "Unrecognized browse action.")))))
 
 (defun emacspeak-bookshare-expand-at-point ()
   "Expand entry at point by retrieving metadata.
@@ -1057,7 +1096,6 @@ Target location is generated from author and title."
 (defun emacspeak-bookshare-unpack-at-point ()
   "Unpack downloaded content if necessary."
   (interactive)
-  (cl-declare (special emacspeak-bookshare-password-cache))
   (emacspeak-bookshare-assert)
   (let ((inhibit-read-only t)
         (target (emacspeak-bookshare-get-target))
@@ -1070,9 +1108,7 @@ Target location is generated from author and title."
     (shell-command
      (format "cd \"%s\"; unzip -P %s %s"
              directory
-             (or emacspeak-bookshare-password-cache
-                 (read-passwd
-                  (format "Password for %s" emacspeak-bookshare-user-id)))
+             (cdr (emacspeak-bookshare-get-auth-info))
              target))
     (add-text-properties
      (line-beginning-position) (line-end-position)
@@ -1093,7 +1129,7 @@ Target location is generated from author and title."
 (defun emacspeak-bookshare-xslt (directory)
   "Return suitable XSL  transform."
   (cl-declare (special emacspeak-bookshare-xslt
-                    emacspeak-xslt-directory))
+                       emacspeak-xslt-directory))
   (let ((xsl (expand-file-name emacspeak-bookshare-xslt directory)))
     (cond
      ((file-exists-p xsl) xsl)
@@ -1106,7 +1142,7 @@ Target location is generated from author and title."
 (defun emacspeak-bookshare-toc-xslt ()
   "Return suitable XSL  transform for TOC."
   (cl-declare (special emacspeak-bookshare-toc-xslt
-                    emacspeak-xslt-directory))
+                       emacspeak-xslt-directory))
 
   (expand-file-name emacspeak-bookshare-toc-xslt emacspeak-xslt-directory))
 
@@ -1186,7 +1222,7 @@ Make sure it's downloaded and unpacked first."
   "Extract content referred to by link under point, and render via the browser."
   (interactive "sURL: ")
   (cl-declare (special emacspeak-bookshare-browser-function
-                    emacspeak-xslt-directory))
+                       emacspeak-xslt-directory))
   (let ((result (emacspeak-bookshare-extract-xml url))
         (browse-url-browser-function emacspeak-bookshare-browser-function))
     (save-current-buffer
@@ -1277,7 +1313,7 @@ Useful for fulltext search in a book."
                                emacspeak-bookshare-directory)))))
   (cl-declare (special emacspeak-xslt-program))
   (cl-declare (special emacspeak-bookshare-html-to-text-command
-                    emacspeak-bookshare-directory))
+                       emacspeak-bookshare-directory))
   (let ((xsl (emacspeak-bookshare-xslt directory))
         (buffer (get-buffer-create "Full Text"))
         (command nil)
@@ -1315,7 +1351,7 @@ Useful for fulltext search in a book."
                                  (dired-get-filename))
                                emacspeak-bookshare-directory)))))
   (cl-declare (special emacspeak-xslt-program emacspeak-bookshare-directory
-                    emacspeak-bookshare-this-book))
+                       emacspeak-bookshare-this-book))
   (unless (fboundp 'eww)
     (error "Your Emacs doesn't have EWW."))
   (let ((gc-cons-threshold 8000000)
@@ -1341,16 +1377,6 @@ Useful for fulltext search in a book."
            (emacspeak-speak-mode-line)))
       (browse-url-of-buffer)
       (kill-buffer buffer))))
-
-(defun emacspeak-bookshare-sign-out ()
-  "Sign out, clearing password."
-  (interactive)
-  (cl-declare (special emacspeak-bookshare-md5-cached-token
-                    emacspeak-bookshare-password-cache))
-  (setq emacspeak-bookshare-password-cache nil
-        emacspeak-bookshare-md5-cached-token nil)
-  (emacspeak-auditory-icon 'close-object)
-  (message "Signed out from Bookshare."))
 
 ;;}}}
 ;;{{{ Navigation in  Bookshare Interaction

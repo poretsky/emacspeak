@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2017, T. V. Raman
+;;;Copyright (C) 1995 -- 2018, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -51,7 +51,7 @@
 (cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 
-(eval-when-compile (require 'magit "magit" 'no-error))
+(eval-when-compile (require 'magit nil 'no-error))
 
 ;;}}}
 ;;{{{ Map voices to faces:
@@ -169,7 +169,7 @@
 (defadvice magit-toggle-section (after emacspeak pre act comp)
   "Provide auditory feedback."
   (when (ems-interactive-p)
-    (let ((state (magit-section-hidden (magit-current-section))))
+    (let ((state (magit-section-hidden-body (magit-current-section))))
       (cond
        (state (emacspeak-auditory-icon 'close-object))
        (t (emacspeak-auditory-icon 'open-object)))
@@ -179,6 +179,7 @@
  for f in
  '(
    magit-section-forward magit-section-backward magit-section-up
+   magit-next-line magit-previous-line
    magit-section-forward-sibling magit-section-backward-sibling
    magit-ignore-file magit-ignore-item
    magit-stash
@@ -226,7 +227,7 @@
      (when (ems-interactive-p)
        (emacspeak-speak-line)
        (emacspeak-auditory-icon
-        (if   (magit-section-hidden (ad-get-arg 0)) 'close-object 'open-object))))))
+        (if   (magit-section-hidden-body (ad-get-arg 0)) 'close-object 'open-object))))))
 
 ;;}}}
 ;;{{{ Advice generator to advice generated  commands:
@@ -301,6 +302,7 @@
   (when (ems-interactive-p)
     (emacspeak-auditory-icon 'open-object)
     (emacspeak-speak-line)))
+
 (cl-loop
  for f in
  '(magit-mode-quit-window magit-mode-bury-buffer magit-log-bury-buffer)

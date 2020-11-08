@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2017, T. V. Raman 
+;;;Copyright (C) 1995 -- 2018, T. V. Raman 
 ;;; Copyright (c) 1995 by T. V. Raman  
 ;;; All Rights Reserved. 
 ;;;
@@ -61,7 +61,7 @@
 ;;;
 
 (cl-defstruct (emacspeak-table
-            (:constructor cons-emacspeak-table))
+               (:constructor cons-emacspeak-table))
   row-header                            ;pointer to column  0
   column-header                         ;pointer to row 0
   current-row                           ;row containing point 

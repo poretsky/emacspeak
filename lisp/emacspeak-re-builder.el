@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (C) 1995 -- 2017, T. V. Raman<raman@cs.cornell.edu>
+;;; Copyright (C) 1995 -- 2018, T. V. Raman<raman@cs.cornell.edu>
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -79,18 +79,20 @@
 (defadvice reb-next-match (after emacspeak pre act comp)
   "Speak matched line."
   (when (ems-interactive-p)
-    (save-excursion
-      (set-buffer reb-target-buffer)
-      (emacspeak-speak-line)
-      (emacspeak-auditory-icon 'large-movement))))
+    (let ((emacspeak-show-point t))
+      (save-excursion
+        (set-buffer reb-target-buffer)
+        (emacspeak-speak-line)
+        (emacspeak-auditory-icon 'large-movement)))))
 
 (defadvice reb-prev-match (after emacspeak pre act comp)
   "Speak matched line."
   (when (ems-interactive-p)
-    (save-excursion
-      (set-buffer reb-target-buffer)
-      (emacspeak-speak-line)
-      (emacspeak-auditory-icon 'large-movement))))
+    (let ((emacspeak-show-point t))
+      (save-excursion
+        (set-buffer reb-target-buffer)
+        (emacspeak-speak-line)
+        (emacspeak-auditory-icon 'large-movement)))))
 
 (defadvice reb-toggle-case (after emacspeak pre act comp)
   "Provide spoken feedback."
@@ -116,7 +118,12 @@
 
 (defadvice reb-auto-update (after emacspeak pre act comp)
   "Provide spoken feedback after update is done."
+  (when (buffer-live-p reb-target-buffer)
+    (with-current-buffer reb-target-buffer
+      (with-silent-modifications
+        (mapc #'(lambda (o) (overlay-put o 'auditory-icon 'item))  reb-overlays))))
   (emacspeak-speak-message-again))
+
 ;;}}}
 (provide 'emacspeak-re-builder)
 ;;{{{ end of file

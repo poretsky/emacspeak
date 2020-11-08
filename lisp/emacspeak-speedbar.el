@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (c) 1995 -- 2017, T. V. Raman
+;;; Copyright (c) 1995 -- 2018, T. V. Raman
 ;;; All Rights Reserved. 
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -229,20 +229,20 @@ An automatically updating speedbar consumes resources.")
                (emacspeak-speedbar-speak-line)
                (emacspeak-auditory-icon
                 (cl-case action-char
-                      (?+ 'open-object)
-                      (?- 'close-object)
-                      (t 'large-movement))))
+                  (?+ 'open-object)
+                  (?- 'close-object)
+                  (t 'large-movement))))
        (t (message "No target on this line"))))))
 
 ;;}}}
 ;;{{{  hooks
 (cl-declaim (special speedbar-mode-map))
 (cl-eval-when (load)
-           )
+  )
 (defun emacspeak-speedbar-enter-hook ()
   "Actions taken when we enter the Speedbar"
   (cl-declare (special speedbar-mode-map
-                    speedbar-hide-button-brackets-flag))
+                       speedbar-hide-button-brackets-flag))
   (dtk-set-punctuations 'all)
   (setq speedbar-hide-button-brackets-flag t)
   (define-key speedbar-mode-map "f"

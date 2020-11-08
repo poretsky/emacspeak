@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2017, T. V. Raman
+;;;Copyright (C) 1995 -- 2018, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -226,7 +226,6 @@ except that the outline section is  spoken"
   (emacspeak-auditory-icon 'section)
   (forward-line -1)
   (emacspeak-outline-speak-heading 'outline-forward-same-level -1))
-
 
 ;;;###autoload
 (defun emacspeak-outline-speak-this-heading ()

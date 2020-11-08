@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2017, T. V. Raman
+;;;Copyright (C) 1995 -- 2018, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -101,7 +101,7 @@
     (emacspeak-auditory-icon 'open-object)))
 (cl-loop
  for f in
- '(elfeed-kill-buffer  elfeed-search-quit-window )
+ '(elfeed-kill-buffer  elfeed-search-quit-window)
  do
  (eval
   `(defadvice ,f (after emacspeak pre act  comp)
@@ -163,6 +163,8 @@
   (cl-declare (special emacspeak-we-recent-xpath-filter))
   (let* ((entry (emacspeak-elfeed-entry-at-point))
          (link(elfeed-entry-link entry)))
+    (when (string=  "" emacspeak-we-recent-xpath-filter)
+      (setq emacspeak-we-recent-xpath-filter "//p"))
     (cond
      (entry (elfeed-untag  entry 'unread)
             (emacspeak-we-xslt-filter emacspeak-we-recent-xpath-filter link 'speak))
@@ -200,6 +202,7 @@
   (define-key elfeed-search-mode-map "n" 'emacspeak-elfeed-next-entry)
   (define-key elfeed-search-mode-map "p" 'emacspeak-elfeed-previous-entry)
   (define-key elfeed-search-mode-map "." 'emacspeak-elfeed-filter-entry-at-point)
+  (define-key elfeed-search-mode-map [right] 'emacspeak-elfeed-filter-entry-at-point)
   (define-key elfeed-search-mode-map "e" 'emacspeak-elfeed-eww-entry-at-point)
   (define-key elfeed-search-mode-map " "'emacspeak-elfeed-speak-entry-at-point))
 

@@ -15,7 +15,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (C) 1995 -- 2017, T. V. Raman
+;;; Copyright (C) 1995 -- 2018, T. V. Raman
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -138,7 +138,7 @@
 ;;}}}
 ;;{{{ add keybinding on emacspeak desktop
 (cl-eval-when (load)
-           (define-key emacspeak-keymap "\C-k" 'browse-kill-ring))
+  (define-key emacspeak-keymap "\C-k" 'browse-kill-ring))
 ;;}}}
 (provide 'emacspeak-browse-kill-ring)
 ;;{{{ end of file

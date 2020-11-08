@@ -93,7 +93,7 @@ For now, this is blogger specific."
   :group 'g)
 
 (defcustom g-curl-common-options
-  "--http1.0 --compressed --silent --location --location-trusted --max-time 2 --connect-timeout 1"
+  "--http1.0 --compressed --silent --location --location-trusted --max-time 4 --connect-timeout 1"
   "Common options to pass to all Curl invocations."
   :type 'string
   :group 'g)
@@ -316,9 +316,8 @@ references, poor-man's xpath."
   "Run command and return its output."
   (cl-declare (special shell-file-name shell-command-switch))
   (g-using-scratch
-   (call-process shell-file-name nil t
-                 nil shell-command-switch
-                 command)
+   (call-process shell-file-name nil t nil
+                 shell-command-switch command)
    (set-buffer-multibyte nil) ;return raw binary string
    (buffer-string)))
 

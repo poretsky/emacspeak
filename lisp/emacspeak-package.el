@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2017, T. V. Raman
+;;;Copyright (C) 1995 -- 2018, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -148,6 +148,16 @@
      (when (ems-interactive-p)
        (emacspeak-speak-line)
        (emacspeak-auditory-icon 'mark-object)))))
+
+;;}}}
+;;{{{ Advice Upgrade:
+
+(defadvice package-menu-mark-upgrades (after emacspeak pre act comp)
+  "Speak list of packages we marked for upgrading."
+  (when (ems-interactive-p)
+    (let ((upgrades (package-menu--find-upgrades)))
+      (when upgrades
+        (dtk-notify-speak (format "%s" (mapcar #'car upgrades)))))))
 
 ;;}}}
 (provide 'emacspeak-package)

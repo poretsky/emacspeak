@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2017, T. V. Raman
+;;;Copyright (C) 1995 -- 2018, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -75,7 +75,7 @@ Emacspeak.")
 (defun emacspeak-auto-generate-autoloads ()
   "Generate emacspeak autoloads."
   (cl-declare (special  emacspeak-auto-autoloads-file
-                     emacspeak-update-autoloads-from-directories emacspeak-lisp-directory))
+                        emacspeak-update-autoloads-from-directories emacspeak-lisp-directory))
   (let ((dtk-quiet t)
         (generated-autoload-file emacspeak-auto-autoloads-file))
     (funcall emacspeak-update-autoloads-from-directories

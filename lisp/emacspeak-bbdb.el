@@ -16,7 +16,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2017, T. V. Raman 
+;;;Copyright (C) 1995 -- 2018, T. V. Raman 
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved. 
 ;;;
@@ -50,13 +50,11 @@
 ;;}}}
 ;;{{{ personalities 
 
-
 (voice-setup-add-map
  '(
-   ( bbdb-field-name voice-monotone)
+   (bbdb-field-name voice-monotone)
    (bbdb-name voice-bolden)
    (bbdb-organization voice-lighten)))
-
 
 ;;}}}
 ;;{{{  Variable settings:

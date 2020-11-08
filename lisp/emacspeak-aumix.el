@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (C) 1995 -- 2017, T. V. Raman<raman@cs.cornell.edu>
+;;; Copyright (C) 1995 -- 2018, T. V. Raman<raman@cs.cornell.edu>
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -125,8 +125,8 @@ display."
   "Reset to default audio settings."
   (interactive)
   (cl-declare (special emacspeak-aumix-program
-                    emacspeak-alsactl-program
-                    emacspeak-aumix-reset-options))
+                       emacspeak-alsactl-program
+                       emacspeak-aumix-reset-options))
   (cond
    ((executable-find emacspeak-alsactl-program)
     (shell-command

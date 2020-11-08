@@ -14,7 +14,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2017, T. V. Raman 
+;;;Copyright (C) 1995 -- 2018, T. V. Raman 
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved. 
 ;;;
@@ -87,6 +87,7 @@
              "Speak the line containing the error. "
              (when (ems-interactive-p)
                (dtk-stop)
+               (emacspeak-auditory-icon 'large-movement)
                (emacspeak-compilation-speak-error)))))
 
 (cl-loop for f in 

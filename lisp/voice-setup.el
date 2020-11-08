@@ -13,7 +13,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;;Copyright (C) 1995 -- 2017, T. V. Raman
+;;;Copyright (C) 1995 -- 2018, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -45,11 +45,11 @@
 ;; spoken in one personality, strings in another, reserved words in another,
 ;; documentation strings in another, and so on.
 ;;
-;; Comments will be spoken in `emacspeak-voice-lock-comment-personality'.
-;; Strings will be spoken in `emacspeak-voice-lock-string-personality'.
+;; Comments will be spoken in `voice-comment-personality'.
+;; Strings will be spoken in `voice-string-personality'.
 ;; Function and variable names (in their defining forms) will be
-;;  spoken in `emacspeak-voice-lock-function-name-personality'.
-;; Reserved words will be spoken in `emacspeak-voice-lock-keyword-personality'.
+;;  spoken in `voice-function-name-personality'.
+;; Reserved words will be spoken in `voice-keyword-personality'.
 ;;
 ;; To make the text you type be voiceified, use M-x voice-lock-mode.
 ;; When this minor mode is on, the voices of the current line are
@@ -211,11 +211,16 @@ means that Voice Lock mode is turned on for buffers in C and C++ modes only."
            face-name))
     (setq name
           (or
+           (replace-regexp-in-string "font-lock" "voice" name
+                                     (replace-regexp-in-string "font" "voice" name))
+           name))
+    (setq name
+          (or
            (replace-regexp-in-string "font" "voice" name)
            name))
     (when (string-equal name face-name)
-      (setq name (format "%s-voice" name)))
-    (concat "emacspeak-" name)))
+      (setq name (format "voice-%s" name)))
+    name))
 
 (defun voice-setup-map-face (face voice)
   "Invoke def-voice-font with appropriately generated personality name."

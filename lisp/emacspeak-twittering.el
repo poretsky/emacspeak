@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2017, T. V. Raman
+;;;Copyright (C) 1995 -- 2018, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -103,8 +103,8 @@ With interactive prefix arg `copy-as-kill', copy it to kill ring as well."
   (interactive "P")
   (when copy-as-kill
     (kill-new (format "%s: %s"
-           (get-text-property (point) 'username)
-           (get-text-property (point) 'text))))
+                      (get-text-property (point) 'username)
+                      (get-text-property (point) 'text))))
   (dtk-speak
    (format "%s: %s"
            (get-text-property (point) 'username)

@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (c) 1995 -- 2017, T. V. Raman
+;;; Copyright (c) 1995 -- 2018, T. V. Raman
 ;;; All Rights Reserved. 
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -171,7 +171,7 @@
   (emacspeak-auditory-icon 'off))
 
 (defadvice jdee-bug-toggle-breakpoint (after emacspeak pre
-                                            act comp)
+                                             act comp)
   "Provide auditory feedback."
   (when (ems-interactive-p)
     (message "toggled breakpoint.")))

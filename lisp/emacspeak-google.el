@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2017, T. V. Raman
+;;;Copyright (C) 1995 -- 2018, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -423,8 +423,8 @@ This variable is buffer-local.")
                  ((belt (emacspeak-google-toolbelt))
                   (tool
                    (cl-find-if #'(lambda (tool) (string-equal (emacspeak-google-tool-name tool)
-                                                           ,(emacspeak-google-tool-name this-tool)))
-                            belt))
+                                                              ,(emacspeak-google-tool-name this-tool)))
+                               belt))
                   (param (emacspeak-google-tool-param tool))
                   (value (emacspeak-google-tool-value tool))
                   (range (emacspeak-google-tool-range tool)))

@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2017, T. V. Raman
+;;;Copyright (C) 1995 -- 2018, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -176,9 +176,10 @@
    ("M-f" emacspeak-frame-label-or-switch-to-labelled-frame)
    ("!" emacspeak-speak-run-shell-command)
    ("#" emacspeak-gridtext)
+   ("$" emacspeak-shell-command)
    ("%" emacspeak-speak-current-percentage)
    ("&" emacspeak-wizards-shell-command-on-current-file)
-   ("'" emacspeak-pianobar)
+   ("'" emacspeak-speak-sexp)
    ("(" emacspeak-audio-setup)
    (")" emacspeak-sounds-select-theme)
    ("," emacspeak-speak-browse-buffer)
@@ -249,7 +250,8 @@
    ("M-t" emacspeak-tapestry-describe-tapestry)
    ("M-u" emacspeak-feeds-add-feed)
    ("M-p" emacspeak-show-property-at-point)
-   ("M-v" emacspeak-show-personality-at-point)
+   ("M-v" emacspeak-show-style-at-point)
+   ("M-x" emacspeak-wizards-execute-emacspeak-command)
    ("N" emacspeak-view-emacspeak-news)
    ("P" emacspeak-speak-paragraph-interactively)
    ("R" emacspeak-speak-rectangle)
@@ -258,7 +260,7 @@
    ("V" emacspeak-speak-version)
    ("W" emacspeak-tapestry-select-window-by-name)
    ("[" emacspeak-speak-page)
-   ("\"" emacspeak-speak-sexp-interactively)
+   ("\"" emacspeak-pianobar)
    ("\\" emacspeak-toggle-speak-line-invert-filter)
    ("]" emacspeak-speak-page-interactively)
    ("^" emacspeak-filtertext)
@@ -322,7 +324,6 @@
    ("n" dtk-toggle-speak-nonprinting-chars)
    ("o" dtk-toggle-strip-octals)
    ("p" dtk-set-punctuations)
-   ("q" dtk-toggle-quiet)
    ("r" dtk-set-rate)
    ("s" dtk-toggle-split-caps)
    ("v" voice-lock-toggle)
@@ -449,9 +450,10 @@ relief."
     ("m" mspools-show)
     ("o" emacspeak-wizards-occur-header-lines)
     ("p" paradox-list-packages)
-    ("q" emacspeak-wizards-alpha-vantage-quotes)
+    ("q" emacspeak-wizards-quote)
     ("w" emacspeak-wizards-noaa-weather)
     ("r" jabber-activity-switch-to)
+    ("SPC" emacspeak-jabber-speak-recent-message)
     ("s" emacspeak-emergency-tts-restart)
     ("t" emacspeak-speak-telephone-directory)
     ("u" emacspeak-wizards-units)
@@ -480,13 +482,14 @@ interactive command that the key sequence executes."
            :tag "Key Binding"
            (key-sequence :tag "Key")
            (ems-interactive-command :tag "Command")))
-  :set #'(lambda (sym val)
-           (emacspeak-keymap-bindings-update emacspeak-personal-keymap val)
-           (set-default
-            sym
-            (sort
-             val
-             #'(lambda (a b) (string-lessp (car a) (car b)))))))
+  :set
+  #'(lambda (sym val)
+      (emacspeak-keymap-bindings-update emacspeak-personal-keymap val)
+      (set-default
+       sym
+       (sort
+        val
+        #'(lambda (a b) (string-lessp (car a) (car b)))))))
 
 (define-key  emacspeak-keymap "x" 'emacspeak-personal-keymap)
 
@@ -520,12 +523,13 @@ interactive command that the key sequence executes."
            :tag "Key Binding"
            (key-sequence :tag "Key")
            (ems-interactive-command :tag "Command")))
-  :set #'(lambda (sym val)
-           (emacspeak-keymap-bindings-update emacspeak-personal-ctlx-keymap val)
-           (set-default sym
-                        (sort
-                         val
-                         #'(lambda (a b) (string-lessp (car a) (car b)))))))
+  :set
+  #'(lambda (sym val)
+      (emacspeak-keymap-bindings-update emacspeak-personal-ctlx-keymap val)
+      (set-default sym
+                   (sort
+                    val
+                    #'(lambda (a b) (string-lessp (car a) (car b)))))))
 
 (define-key  emacspeak-keymap "\C-x" 'emacspeak-personal-ctlx-keymap)
 
@@ -544,17 +548,22 @@ interactive command that the key sequence executes."
   '(
     ("'" emacspeak-vlc)
     ("SPC"  emacspeak-wizards-scratch)
+    ("c" calculator)
+    ("d" emacspeak-dired-downloads)
     ("." emacspeak-wizards-shell-directory-reset)
+    ("a" emacspeak-wizards-execute-asynchronously)
     ("f" flyspell-mode)
     ("g" emacspeak-google-tts-region)
     ("j" ido-imenu-anywhere)
-    ("o" ciel-co)
+    ("o" org-switchb)
+    ("n" emacspeak-wizards-google-news)
+    ("C-n" emacspeak-wizards-google-headlines)
+    ("q" emacspeak-wizards-iex-show-quote)
     ("r" soundscape-restart)
     ("s" soundscape)
     ("t" soundscape-toggle)
     ("u" soundscape-update-mood)
     ("S" soundscape-stop)
-    ("b" emacspeak-bbc)
     ("e" elfeed)
     ("h" emacspeak-m-player-from-media-history)
     ("l" emacspeak-m-player-locate-media)
@@ -584,12 +593,13 @@ interactive command that the key sequence executes."
            :tag "Key Binding"
            (key-sequence :tag "Key")
            (ems-interactive-command :tag "Command")))
-  :set #'(lambda (sym val)
-           (emacspeak-keymap-bindings-update emacspeak-super-keymap  val)
-           (set-default sym
-                        (sort
-                         val
-                         #'(lambda (a b) (string-lessp (car a) (car b)))))))
+  :set
+  #'(lambda (sym val)
+      (emacspeak-keymap-bindings-update emacspeak-super-keymap  val)
+      (set-default sym
+                   (sort
+                    val
+                    #'(lambda (a b) (string-lessp (car a) (car b)))))))
 
 (global-set-key "\C-x@s"
                 'emacspeak-super-keymap)
@@ -612,19 +622,19 @@ interactive command that the key sequence executes."
     ("b" sox-binaural)
     ("c" emacspeak-wizards-view-buffers-filtered-by-this-mode)
     ("e" eww)
-    ("f" emacspeak-wizards-finance-google-search)
-    ("g" emacspeak-gnus-async)
     ("i" emacspeak-wizards-iheart)
     ("l" eww-open-file)
     ("m" magit-status)
     ("n" emacspeak-wizards-cycle-to-next-buffer)
     ("o" emacspeak-feeds-opml-display)
     ("p" emacspeak-wizards-cycle-to-previous-buffer)
+    ("q" emacspeak-wizards-iex-show-price)
     ("r" emacspeak-feeds-rss-display)
     ("s" emacspeak-wizards-tune-in-radio-search)
     ("t" emacspeak-wizards-tune-in-radio-browse)
     ("u" emacspeak-m-player-url)
-    ("v" visual-line-mode)) 
+    ("v" visual-line-mode)
+    ("y" emacspeak-m-player-youtube-player)) 
   "*Specifies alt key bindings for the audio desktop. You can turn the
 `Pause' key on your Linux PC keyboard into a `alt' key on Linux by
 having it emit the sequence `C-x@a'.
@@ -673,9 +683,11 @@ command that the key sequence executes."
 
 (defcustom emacspeak-hyper-keys 
   '(
+    ("C-e" eshell)
     ("TAB" hippie-expand)
     ("C-r" flx-isearch-backward)
     ("C-s" flx-isearch-forward)
+    ("C-u" emacspeak-feeds-browse)
     (":" emacspeak-wizards-view-buffers-filtered-by-m-player-mode)
     (";" emacspeak-m-player-using-openal)
     ("/" emacspeak-wizards-web-clean-up-processes)
@@ -699,12 +711,11 @@ command that the key sequence executes."
     ("n" emacspeak-npr-play-program)
     ("o" helm-mini)
     ("p" emacspeak-wizards-pdf-open)
-    ("q" emacspeak-remote-quick-connect-to-server)
     ("r" org-capture)
     ("s" emacspeak-wizards-shell)
     ("t" twit)
-    ("u" browse-url)
-    ("v" emacspeak-evil-toggle-evil)
+    ("u" emacspeak-url-template-fetch)
+    ("v" vdiff-magit-popup)
     ("w" emacspeak-wizards-quick-weather))
   "*Specifies hyper key bindings for the audio desktop. Emacs can
 use the `hyper' key as a modifier key. You can turn the `windows'
@@ -731,19 +742,19 @@ interactive command that the key sequence executes."
            :tag "Key Binding"
            (key-sequence :tag "Key")
            (ems-interactive-command :tag "Command")))
-  :set #'(lambda (sym val)
-           (emacspeak-keymap-bindings-update emacspeak-hyper-keymap val)
-           (set-default sym
-                        (sort
-                         val
-                         #'(lambda (a b) (string-lessp (car a) (car b)))))))
+  :set
+  #'(lambda (sym val)
+      (emacspeak-keymap-bindings-update emacspeak-hyper-keymap val)
+      (set-default sym
+                   (sort
+                    val
+                    #'(lambda (a b) (string-lessp (car a) (car b)))))))
 
 (global-set-key (kbd "C-&") 'emacspeak-launch-application)
 (global-set-key "\C-x@h"
                 'emacspeak-hyper-keymap)
 (define-key emacspeak-hyper-keymap " " 'emacspeak-webspace)
 ;;}}}
-
 
 ;;{{{ Keymaps <-> Org (text) Files :
 
@@ -798,6 +809,11 @@ interactive command that the key sequence executes."
 ;;}}}
 ;;{{{ Global Bindings From Other Modules:
 (global-set-key (kbd "C-x r e") 'emacspeak-eww-open-mark)
+
+;;}}}
+;;{{{Mode-Specific Bindings:
+
+(define-key emacs-lisp-mode-map (kbd "C-c SPC") 'emacspeak-wizards-insert-elisp-prefix)
 
 ;;}}}
 (provide 'emacspeak-keymap)

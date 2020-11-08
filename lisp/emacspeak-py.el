@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (c) 1995 -- 2017, T. V. Raman
+;;; Copyright (c) 1995 -- 2018, T. V. Raman
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -55,22 +55,6 @@
   (require 'python-mode "python-mode" 'no-error))
 ;;}}}
 ;;{{{  electric editing
-
-(unless (and (boundp 'post-self-insert-hook)
-             post-self-insert-hook
-             (memq 'emacspeak-post-self-insert-hook post-self-insert-hook))
-  (defadvice py-electric-comment (after emacspeak pre act comp)
-    "Speak what you inserted"
-    (when (ems-interactive-p)
-      (dtk-say " pound "))))
-
-(unless (and (boundp 'post-self-insert-hook)
-             post-self-insert-hook
-             (memq 'emacspeak-post-self-insert-hook post-self-insert-hook))
-  (defadvice py-electric-colon (after emacspeak pre act comp)
-    "Speak what you inserted")
-  (when (ems-interactive-p)
-    (dtk-say " colon ")))
 
 (defadvice py-electric-backspace (around emacspeak pre act)
   "Speak character you're deleting.
@@ -411,6 +395,13 @@ Provide contextual feedback when closing blocks"
   (when (ems-interactive-p)
     (emacspeak-auditory-icon 'open-object)
     (emacspeak-speak-rest-of-buffer)))
+
+(defadvice py-help-at-point (after emacspeak pre act comp)
+  "Provide auditory feedback."
+  (when (ems-interactive-p)
+    (emacspeak-auditory-icon 'help)
+    (dtk-stop)
+    (emacspeak-speak-buffer)))
 
 ;;}}}
 

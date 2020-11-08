@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2017, T. V. Raman 
+;;;Copyright (C) 1995 -- 2018, T. V. Raman 
 ;;; Copyright (c) 1995 by T. V. Raman  
 ;;; All Rights Reserved. 
 ;;;
@@ -63,7 +63,7 @@ displayed buffers."
          (windows nil)
          (description
           (format
-           "Displaying %s buffer%s "
+           "Displaying %s window%s "
            count 
            (if (> count 1) "s" ""))))
     (put-text-property

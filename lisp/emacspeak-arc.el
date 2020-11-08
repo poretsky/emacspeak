@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (c) 1995 -- 2017, T. V. Raman
+;;; Copyright (c) 1995 -- 2018, T. V. Raman
 ;;; All Rights Reserved. 
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -223,7 +223,7 @@ first initializing it if necessary."
   )
 
 (cl-eval-when (load)
-           (emacspeak-arc-setup-keys))
+  (emacspeak-arc-setup-keys))
 ;;}}}
 (provide 'emacspeak-arc)
 ;;{{{ end of file 

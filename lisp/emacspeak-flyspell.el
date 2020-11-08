@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2017, T. V. Raman
+;;;Copyright (C) 1995 -- 2018, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -118,8 +118,8 @@ fly spell checking."
 
 (defcustom emacspeak-flyspell-correct
   (cond
-   ((locate-library "flyspell-correct-popup") 'flyspell-correct-popup)
    ((locate-library "flyspell-correct-ido") 'flyspell-correct-ido)
+   ((locate-library "flyspell-correct-popup") 'flyspell-correct-popup)
    ((locate-library "flyspell-correct-helm") 'flyspell-correct-helm)
    (t nil))
   "Correction style to use with flyspell."

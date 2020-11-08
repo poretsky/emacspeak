@@ -14,7 +14,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2017, T. V. Raman
+;;;Copyright (C) 1995 -- 2018, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -232,7 +232,7 @@ node-spec."
   "Speak info header line."
   (interactive)
   (cl-declare (special Info-use-header-line
-                    Info-header-line))
+                       Info-header-line))
   (cond
    ((and (boundp 'Info-use-header-line)
          (boundp 'Info-header-line)

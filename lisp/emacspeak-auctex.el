@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;;Copyright (C) 1995 -- 2017, T. V. Raman 
+;;;Copyright (C) 1995 -- 2018, T. V. Raman 
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved. 
 ;;;
@@ -216,7 +216,7 @@ the opening line of the newly inserted environment. "
            (function
             (lambda ()
               (cl-declare (special imenu-generic-expression
-                                imenu-create-index-function))
+                                   imenu-create-index-function))
               (require 'imenu)
               (setq imenu-create-index-function 'imenu-default-create-index-function)
               (setq imenu-generic-expression

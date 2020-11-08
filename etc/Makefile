@@ -55,12 +55,12 @@ config:
 
 pub: tips.html applications.html
 	scp tips.html applications.html    raman,emacspeak@web.sourceforge.net:/home/groups/e/em/emacspeak/htdocs
+	cp applications.html tips.html ../gh-emacspeak/
 # }}}
 # {{{ end of file 
 
 #local variables: 
 #mode: makefile
-#eval:  (fold-set-marks "# {{{" "# }}}")
 #fill-column: 90
 #folded-file: t
 #end:

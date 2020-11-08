@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;;Copyright (C) 1995 -- 2017, T. V. Raman
+;;;Copyright (C) 1995 -- 2018, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -291,7 +291,7 @@ Optional prefix arg `offset' prompts for offset."
   (when offset (setq offset (read-number "Offset: ")))
   (emacspeak-librivox-search
    (format "genre=%s"
-           (emacspeak-url-encode genre))
+           (url-encode-url genre))
    offset))
 
 ;;;###autoload
@@ -304,7 +304,7 @@ Optional prefix arg `offset' prompts for offset."
     (setq offset (read-number "Offset: ")))
   (emacspeak-librivox-search
    (format "author=%s"
-           (emacspeak-url-encode author))
+           (url-encode-url author))
    offset))
 
 ;;;###autoload
@@ -315,7 +315,7 @@ more results."
   (interactive "sTitle: \nP")
   (emacspeak-librivox-search
    (format "title=%s"
-           (emacspeak-url-encode title))
+           (url-encode-url title))
    offset))
 
 ;;}}}
@@ -328,11 +328,11 @@ more results."
    (list
     (read-char "a: Author, t: Title,  p:Play, g:Genre, d: Browse Local")))
   (cl-ecase search-type
-         (?d (dired (expand-file-name "librivox" emacspeak-resource-directory)))
-         (?a (call-interactively 'emacspeak-librivox-search-by-author))
-         (?p (call-interactively 'emacspeak-librivox-play))
-         (?t (call-interactively 'emacspeak-librivox-search-by-title))
-         (?g (call-interactively 'emacspeak-librivox-search-by-genre))))
+    (?d (dired (expand-file-name "librivox" emacspeak-resource-directory)))
+    (?a (call-interactively 'emacspeak-librivox-search-by-author))
+    (?p (call-interactively 'emacspeak-librivox-play))
+    (?t (call-interactively 'emacspeak-librivox-search-by-title))
+    (?g (call-interactively 'emacspeak-librivox-search-by-genre))))
 
 ;;}}}
 ;;{{{ Cache Playlists:
@@ -374,7 +374,7 @@ more results."
    (list
     (emacspeak-webutils-read-this-url)))
   (cl-declare (special g-curl-program g-curl-common-options
-                    emacspeak-xslt-program))
+                       emacspeak-xslt-program))
   (let ((file  (make-temp-file "librivox" nil ".rss"))
         (m3u-file nil))
     (shell-command

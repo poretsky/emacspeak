@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (c) 1995 -- 2017, T. V. Raman
+;;; Copyright (c) 1995 -- 2018, T. V. Raman
 ;;; All Rights Reserved. 
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -55,8 +55,12 @@
 (defvar emacspeak-todo-mode-navigation-commands
   '(todo-forward-item
     todo-backward-item
+    todo-next-item
+    todo-previous-item
     todo-forward-category
     todo-backward-category
+    todo-next-category
+    todo-previous-category
     todo-jump-to-category
     )
   "Todo mode navigation commands to speech enable.")

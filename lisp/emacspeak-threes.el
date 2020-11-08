@@ -63,6 +63,8 @@
 ;;; Speak board by column.
 ;;; @item .
 ;;; Speak current score.
+;;; @item ,
+;;; Speak  number of zeros on the board.
 ;;; @item s
 ;;; Save current state
 ;;; @item u
@@ -123,16 +125,26 @@
   "Speak the board."
   (interactive)
   (cl-declare (special threes-cells threes-next-number
-                    emacspeak-threes-rows-max))
+                       emacspeak-threes-rows-max))
   (emacspeak-threes-sox-gen threes-next-number)
   (let ((cells (copy-sequence threes-cells)))
     (nconc
      cells
      (list (propertize (format "%s" threes-next-number) 'personality voice-bolden)))
-     (dtk-speak-list   cells)
+    (dtk-speak-list   cells)
     (emacspeak-auditory-icon 'select-object)
     (unless  (equal (emacspeak-threes-get-rows-max) emacspeak-threes-rows-max)
       (emacspeak-auditory-icon 'item))))
+
+(defun emacspeak-threes-speak-empty-count ()
+  "Speak number of cells that are non-empty."
+  (interactive)
+  (cl-declare (special threes-cells))
+  (dtk-speak
+   (format " %d zeros"
+           (apply #'+
+                  (mapcar #'(lambda (s) (cl-count-if #'zerop s))
+                          threes-cells)))))
 
 (defun emacspeak-threes-speak-next ()
   "Speak upcoming tile."
@@ -144,7 +156,7 @@
   "Speak the board by columns."
   (interactive)
   (cl-declare (special threes-cells))
-   (dtk-speak-list   (threes-cells-transpose threes-cells) 4)
+  (dtk-speak-list   (threes-cells-transpose threes-cells) 4)
   (emacspeak-auditory-icon 'progress))
 
 (defun emacspeak-threes-setup ()
@@ -161,6 +173,7 @@
   (define-key threes-mode-map "g" 'threes)
   (define-key threes-mode-map " " 'emacspeak-threes-speak-board)
   (define-key threes-mode-map "." 'emacspeak-threes-score)
+  (define-key threes-mode-map "," 'emacspeak-threes-speak-empty-count)
   (define-key threes-mode-map "/" 'emacspeak-threes-speak-transposed-board)
   (define-key threes-mode-map "?" 'emacspeak-threes-speak-next)
   (define-key threes-mode-map "n" 'threes-down)
@@ -223,7 +236,7 @@
   "Reset state from stack."
   (interactive)
   (cl-declare (special emacspeak-threes-game-stack threes-cells
-                    threes-game-over-p))
+                       threes-game-over-p))
   (cond
    ((null emacspeak-threes-game-stack) (error "No saved  states."))
    (t

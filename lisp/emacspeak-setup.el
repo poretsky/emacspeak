@@ -15,7 +15,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;;Copyright (C) 1995 -- 2017, T. V. Raman
+;;;Copyright (C) 1995 -- 2018, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -110,7 +110,7 @@ such as pronunciation dictionaries are stored. ")
 (defvar emacspeak-media-extensions
   (let
       ((ext
-        '("mov" "wma" "wmv" "flv" "m4a" "m4b"  "flac" "aiff" "aac" "opus"
+        '("mov" "wma" "wmv" "flv" "m4a" "m4b"  "flac" "aiff" "aac" "opus ""mkv"
           "ogv" "oga""ogg" "mp3"  "mp4" "webm" "wav")))
     (concat
      "\\."
@@ -151,7 +151,6 @@ hook."
   "Default hook function run after TTS is started."
   (cl-declare (special dtk-program))
   (tts-configure-synthesis-setup dtk-program))
-
 
 ;;;###autoload
 (defcustom tts-notification-device

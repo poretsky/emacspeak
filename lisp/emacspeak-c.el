@@ -15,7 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
-;;;Copyright (C) 1995 -- 2017, T. V. Raman
+;;;Copyright (C) 1995 -- 2018, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
 ;;;
@@ -311,7 +311,7 @@ and their meanings. ")
     (setq description
           (mapconcat
            #'(lambda (sem)
-                       (cdr (assq  sem emacspeak-c-syntactic-table)))
+               (cdr (assq  sem emacspeak-c-syntactic-table)))
            semantics
            " "))
     (condition-case nil
@@ -431,7 +431,7 @@ and their meanings. ")
 ;;{{{ Additional keybindings:
 
 (cl-declaim (special c-mode-map
-                  c-mode-base-map))
+                     c-mode-base-map))
 (add-hook
  'c-mode-common-hook
  #'(lambda ()
@@ -448,7 +448,7 @@ and their meanings. ")
        (define-key c-mode-base-map "\M-n" 'c-next-statement)
        (define-key c-mode-base-map "\M-p"
          'c-previous-statement))
-     (emacspeak-pronounce-toggle-use-of-dictionaries 'on)
+     (emacspeak-pronounce-toggle-use-of-dictionaries t)
      (or dtk-split-caps
          (dtk-toggle-split-caps))
      (or dtk-allcaps-beep
