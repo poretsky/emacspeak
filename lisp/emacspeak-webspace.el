@@ -6,7 +6,7 @@
 ;;{{{ LCD Archive entry:
 
 ;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu
+;;; emacspeak| T. V. Raman |tv.raman.tv@gmail.com
 ;;; A speech interface to Emacs |
 ;;; $Date: 2007-05-03 18:13:44 -0700 (Thu, 03 May 2007) $ |
 ;;; $Revision: 4532 $ |
@@ -53,14 +53,13 @@
 (require 'ring)
 (require 'derived)
 (require 'gweb)
-(require 'emacspeak-webutils)
 (require 'emacspeak-feeds)
 
 ;;}}}
 ;;{{{ WebSpace Mode:
 
 ;;; Define a derived-mode called WebSpace that is generally useful for hypetext display.
-;;;###autoload
+
 (define-derived-mode emacspeak-webspace-mode special-mode
   "Webspace Interaction"
   "Major mode for Webspace interaction.\n\n
@@ -92,13 +91,6 @@
         (apply action link args)
       (message "No link under point."))))
 
-;;;###autoload
-(defun emacspeak-webspace-transcode ()
-  "Transcode headline at point by following its link property."
-  (interactive)
-  (emacspeak-webspace-act-on-link 'emacspeak-webutils-transcode-this-url-via-google))
-
-;;;###autoload
 (defun emacspeak-webspace-yank-link ()
   "Yank link under point into kill ring."
   (interactive)
@@ -112,13 +104,11 @@
                            (button-get button 'url)))))
      (t (error "No link under point")))))
 
-;;;###autoload
 (defun emacspeak-webspace-open ()
   "Open headline at point by following its link property."
   (interactive)
   (emacspeak-webspace-act-on-link 'browse-url))
 
-;;;###autoload
 (defun emacspeak-webspace-filter ()
   "Open headline at point by following its link property and filter for content."
   (interactive)
@@ -140,8 +130,8 @@ Generates auditory and visual display."
   (setq header-line-format infolet)
   (dtk-speak (format-mode-line header-line-format))
   (emacspeak-auditory-icon 'progress))
-;;;###autoload
-(define-prefix-command 'emacspeak-webspace 'emacspeak-webspace-keymap)
+
+;;;###autoload(define-prefix-command 'emacspeak-webspace 'emacspeak-webspace-keymap)
 
 (cl-declaim (special emacspeak-webspace-keymap))
 
@@ -167,6 +157,22 @@ Generates auditory and visual display."
 
 (defvar emacspeak-webspace-headlines-period '(0 1800 0)
   "How often we fetch from a feed.")
+(defun emacspeak-webspace-feed-titles (feed-url)
+  "Return a list of the form `((title url)...) given an RSS/Atom  feed  URL."
+  (cl-declare (special emacspeak-xslt-directory emacspeak-xslt-program
+                       g-curl-program g-curl-common-options))
+  (with-temp-buffer
+    (shell-command
+     (format "%s %s %s | %s %s - "
+             g-curl-program g-curl-common-options feed-url
+             emacspeak-xslt-program
+             (expand-file-name "feed-titles.xsl" emacspeak-xslt-directory))
+     (current-buffer))
+    (goto-char (point-min))
+;;; newline -> spc
+    (while (re-search-forward "\n" nil t) (replace-match " "))
+    (goto-char (point-min))
+    (read (current-buffer))))
 
 (defun emacspeak-webspace-headlines-fetch (feed)
   "Add headlines from specified feed to our cache.
@@ -180,7 +186,7 @@ Newly found headlines are inserted into the ring within our feedstore."
         (or (null last-update)          ;  at most every half hour
             (time-less-p emacspeak-webspace-headlines-period  (time-since last-update)))
       (put-text-property 0 1 'last-update (current-time) feed)
-      (setq new-titles (emacspeak-webutils-feed-titles feed))
+      (setq new-titles (emacspeak-webspace-feed-titles feed))
       (when (listp new-titles)
         (mapc
          #'(lambda (h)
@@ -374,101 +380,6 @@ Optional interactive prefix arg forces a refresh."
                (insert "\n"))
       (switch-to-buffer emacspeak-webspace-reader-buffer)
       (emacspeak-webspace-mode))))
-
-;;}}}
-;;{{{ Google Knowledge Graph:
-
-;;; Google Knowledge Graph Search API  |  Knowledge G https://developers.google.com/knowledge-graph/
-
-(defcustom emacspeak-webspace-kg-key  nil
-  "API Key for Google Knowledge Graph."
-  :type
-  '(choice
-    (const :tag "None" "")
-    (string :tag "Key" :value ""))
-  :group 'emacspeak-webspace)
-
-(defvar emacspeak-webspace-kg-rest-end-point
-  "https://kgsearch.googleapis.com/v1/entities:search?%s=%s&key=%s&indent=1&limit=%s"
-  "Rest end-point for KG Search.")
-
-(defun emacspeak-webspace-kg-id-uri (id)
-  "Return URL for KG Search by id."
-  (cl-declare (special emacspeak-webspace-kg-rest-end-point))
-  (format
-   emacspeak-webspace-kg-rest-end-point
-   "ids"
-   (url-hexify-string (substring id 3))
-   emacspeak-webspace-kg-key
-   1))
-
-(defun emacspeak-webspace-kg-query-uri (query &optional limit)
-  "Return URL for KG Search."
-  (cl-declare (special emacspeak-webspace-kg-rest-end-point))
-  (or limit (setq limit 5))
-  (format
-   emacspeak-webspace-kg-rest-end-point
-   "query"
-   (url-hexify-string query)
-   emacspeak-webspace-kg-key
-   limit))
-
-(defun emacspeak-webspace-kg-json-ld (query &optional limit)
-  "Return JSON-LD structure."
-  (or limit (setq limit 5))
-  (g-json-from-url
-   (emacspeak-webspace-kg-query-uri query limit)))
-
-(defun emacspeak-webspace-kg-results (query &optional limit)
-  "Return list of results."
-  (or limit (setq limit 5))
-  (cl-map  'list
-           #'(lambda (r) (g-json-get 'result r))
-           (g-json-get 'itemListElement
-                       (emacspeak-webspace-kg-json-ld query limit))))
-
-(defun emacspeak-webspace-kg-format-result (result)
-  "Format result as HTML."
-  (let-alist result
-    (format
-     "<p><a href='%s'>%s</a> is a <code>[%s]</code>.
-<strong>%s</strong></p>
-<p>%s</p>
-<p><a href='%s'>Id: %s</a>
-<img src='%s'/></p>\n"
-     (g-json-get 'url .detailedDescription) .name
-     (mapconcat #'identity .@type ", ")
-     .description
-     (or (g-json-get 'articleBody .detailedDescription) "")
-     (emacspeak-webspace-kg-id-uri .@id)
-     .@id
-     (g-json-get 'contentUrl .image))))
-;;;###autoload
-(defun emacspeak-webspace-knowledge-search (query &optional limit)
-  "Perform a Google Knowledge Graph search.
-Optional interactive prefix arg `limit' prompts for number of results, default is 1."
-  (interactive "sQuery:\nP")
-  (setq limit
-        (cond
-         (limit  (read-number "Number of results: "))
-         (t  5)))
-  (let ((results (emacspeak-webspace-kg-results query limit)))
-    (unless results (error "No results"))
-    (with-temp-buffer
-      (insert (format "<html><head><title>%s</title></head><body>\n" query))
-      (cond
-       ((> limit 1)
-        (insert "<ol>\n")
-        (cl-loop
-         for r in results do
-         (insert "<li>")
-         (insert (emacspeak-webspace-kg-format-result r))
-         (insert "</li>\n"))
-        (insert "</ol>\n"))
-       (t(insert  (emacspeak-webspace-kg-format-result (cl-first results)))))
-      (insert "</body></html>\n")
-      (emacspeak-webutils-autospeak)
-      (browse-url-of-buffer))))
 
 ;;}}}
 (provide 'emacspeak-webspace)

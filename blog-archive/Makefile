@@ -1,11 +1,6 @@
-articles.html: raw.xml
-	xsltproc ../xsl/atom-view.xsl raw.xml >articles.html
+articles.html: full.xml
+	xsltproc ../xsl/atom-view.xsl full.xml >articles.html
 
 raw.xml:
 	wget -O raw.xml 'http://emacspeak.blogspot.com/feeds/posts/default?max-results=1000'
-
-articles.xml: raw.xml
-	xmllint raw.xml > articles.xml
-
-raw:
-	wget -O raw.xml 'http://emacspeak.blogspot.com/feeds/posts/default?max-results=1000'
+	xmlindent -i 2  -l 75 -w raw.xml 

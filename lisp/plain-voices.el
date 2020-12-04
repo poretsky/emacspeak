@@ -5,7 +5,7 @@
 ;;{{{  LCD Archive entry:
 
 ;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu
+;;; emacspeak| T. V. Raman |tv.raman.tv@gmail.com
 ;;; A speech interface to Emacs |
 ;;; $Date: 2007-08-25 18:28:19 -0700 (Sat, 25 Aug 2007) $ |
 ;;;  $Revision: 4532 $ |
@@ -49,10 +49,7 @@
 ;;; Code:
 (require 'cl-lib)
 (cl-declaim  (optimize  (safety 0) (speed 3)))
-(cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'acss-structure)
-(require 'tts)
-
 ;;}}}
 ;;;{{{  Top-level TTS  switcher
 
@@ -202,13 +199,12 @@ and TABLE gives the values along that dimension."
 ;;{{{  paul average pitch
 
 (let ((table (make-vector 10 "")))
-  (mapcar
-   (function
-    (lambda (setting)
+  (mapc
+    #'(lambda (setting)
       (aset table
             (cl-first setting)
             (format "") ;no-op -- change to taste
-            )))
+            ))
    '(
      (0 96 115)
      (1 101 112)
@@ -228,13 +224,12 @@ and TABLE gives the values along that dimension."
 ;;; Harry  has a big head --and a lower pitch for the middle setting
 
 (let ((table (make-vector 10 "")))
-  (mapcar
-   (function
-    (lambda (setting)
+  (mapc
+    #'(lambda (setting)
       (aset table
             (cl-first setting)
             (format "") ; no-op --- change to taste
-            )))
+            ))
    '(
      (0 50 125)
      (1 59 123)
@@ -253,13 +248,12 @@ and TABLE gives the values along that dimension."
 ;;{{{  betty average pitch
 
 (let ((table (make-vector 10 "")))
-  (mapcar
-   (function
-    (lambda (setting)
+  (mapc
+    #'(lambda (setting)
       (aset table
             (cl-first setting)
             (format ""); no-op --- change to taste
-            )))
+            ))
    '(
      (0 160 115)
      (1 170 112)
@@ -296,13 +290,12 @@ and TABLE gives the values along that dimension."
 ;;{{{  paul pitch range
 
 (let ((table (make-vector 10 "")))
-  (mapcar
-   (function
-    (lambda (setting)
+  (mapc
+    #'(lambda (setting)
       (aset table
             (cl-first setting)
             (format ""); no-op --- chagne to taste.
-            )))
+            ))
    '(
      (0 0 0)
      (1 20 10)
@@ -321,13 +314,12 @@ and TABLE gives the values along that dimension."
 ;;{{{  harry pitch range
 
 (let ((table (make-vector 10 "")))
-  (mapcar
-   (function
-    (lambda (setting)
+  (mapc
+    #'(lambda (setting)
       (aset table
             (cl-first setting)
             (format ""); no-op --- change to taste
-            )))
+            ))
    '(
      (0 0 0)
      (1 16 20)
@@ -346,13 +338,12 @@ and TABLE gives the values along that dimension."
 ;;{{{  betty pitch range
 
 (let ((table (make-vector 10 "")))
-  (mapcar
-   (function
-    (lambda (setting)
+  (mapc
+    #'(lambda (setting)
       (aset table
             (cl-first setting)
             (format ""); no-op --- change to taste
-            )))
+            ))
    '(
      (0 0 0)
      (1 50 10)
@@ -391,13 +382,12 @@ and TABLE gives the values along that dimension."
 ;;{{{  paul stress
 
 (let ((table (make-vector 10 "")))
-  (mapcar
-   (function
-    (lambda (setting)
+  (mapc
+    #'(lambda (setting)
       (aset table
             (cl-first setting)
             (format "") ; no-op --- edit to taste
-            )))
+            ))
    '(
      (0  0 0 0 0)
      (1 3 6  20 3)
@@ -416,13 +406,12 @@ and TABLE gives the values along that dimension."
 ;;{{{  harry stress
 
 (let ((table (make-vector 10 "")))
-  (mapcar
-   (function
-    (lambda (setting)
+  (mapc
+    #'(lambda (setting)
       (aset table
             (cl-first setting)
             (format "") ; no-op --- change to taste
-            )))
+            ))
    '(
      (0  0 0 0 0)
      (1 4 6 2 2)
@@ -441,13 +430,12 @@ and TABLE gives the values along that dimension."
 ;;{{{  betty stress
 
 (let ((table (make-vector 10 "")))
-  (mapcar
-   (function
-    (lambda (setting)
+  (mapc
+    #'(lambda (setting)
       (aset table
             (cl-first setting)
             (format "") ; no-op --- change to taste.
-            )))
+            ))
    '(
      (0  1 1 0 0)
      (1 3 4 11 0)
@@ -479,12 +467,11 @@ and TABLE gives the values along that dimension."
 ;;{{{  paul richness
 
 (let ((table (make-vector 10 "")))
-  (mapcar
-   (function
-    (lambda (setting)
+  (mapc
+    #'(lambda (setting)
       (aset table (cl-first setting)
             (format "") ; no-op --- change to taste
-            )))
+            ))
    '(
      (0 0 100)
      (1 14 80)
@@ -503,12 +490,11 @@ and TABLE gives the values along that dimension."
 ;;{{{  harry richness
 
 (let ((table (make-vector 10 "")))
-  (mapcar
-   (function
-    (lambda (setting)
+  (mapc
+    #'(lambda (setting)
       (aset table (cl-first setting)
             (format "") ; no-op --- change to taste
-            )))
+            ))
    '(
      (0 100 0)
      (1 96 3)
@@ -527,12 +513,11 @@ and TABLE gives the values along that dimension."
 ;;{{{  betty richness
 
 (let ((table (make-vector 10 "")))
-  (mapcar
-   (function
-    (lambda (setting)
+  (mapc
+    #'(lambda (setting)
       (aset table (cl-first setting)
             (format "") ; no-op -- change to taste.
-            )))
+            ))
    '(
      (0 0 100)
      (1 8 76)
@@ -613,23 +598,6 @@ and TABLE gives the values along that dimension."
   (fset 'tts-define-voice-from-speech-style 'plain-define-voice-from-speech-style)
   (setq tts-default-speech-rate plain-default-speech-rate)
   (set-default 'tts-default-speech-rate plain-default-speech-rate))
-
-;;}}}
-;;{{{ tts-env for Plain:
-;;;###autoload
-(defun plain-make-tts-env  ()
-  "Constructs a TTS environment for Plain."
-  (cl-declare (special plain-default-speech-rate))
-  (make-tts-env
-   :name :plain :default-voice 'paul
-   :default-speech-rate plain-default-speech-rate
-   :list-voices #'plain-list-voices
-   :acss-voice-defined-p #'plain-voice-defined-p
-   :get-acss-voice-command #'plain-get-voice-command
-   :define-voice-from-acss #'plain-define-voice-from-speech-style
-   :speech-rate-base 100 :speech-rate-step 10))
-
-(tts-env-set :plain  (plain-make-tts-env))
 
 ;;}}}
 (provide 'plain-voices)

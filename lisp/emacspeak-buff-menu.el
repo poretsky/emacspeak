@@ -6,7 +6,7 @@
 ;;{{{  LCD Archive entry: 
 
 ;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu 
+;;; emacspeak| T. V. Raman |tv.raman.tv@gmail.com 
 ;;; A speech interface to Emacs |
 ;;; $Date: 2007-08-25 18:28:19 -0700 (Sat, 25 Aug 2007) $ |
 ;;;  $Revision: 4532 $ | 
@@ -105,7 +105,7 @@
         (when this-buffer-modified-p (emacspeak-auditory-icon 'modified-object))
         (when this-buffer-read-only (emacspeak-auditory-icon 'unmodified-object))
         (dtk-speak
-         (format  "%s a %s  document  %s with size  %s"
+         (format  "%s a %s  buffer  %s with size  %s"
                   name this-buffer-mode-name
                   (if (or file this-buffer-directory)
                       (format "visiting %s"
@@ -118,13 +118,13 @@
 (defun emacspeak-list-buffers-next-line (count)
   "Speech enabled buffer menu navigation"
   (interactive "p")
-  (next-line count)
+  (forward-line count)
   (emacspeak-list-buffers-speak-buffer-line))
 
 (defun emacspeak-list-buffers-previous-line (count)
   "Speech enabled buffer menu navigation"
   (interactive "p")
-  (previous-line count)
+  (forward-line  (* -1 count))
   (emacspeak-list-buffers-speak-buffer-line))
 
 (defadvice list-buffers (after emacspeak pre act)

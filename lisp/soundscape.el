@@ -4,7 +4,7 @@
 ;;{{{  LCD Archive entry:
 
 ;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu
+;;; emacspeak| T. V. Raman |tv.raman.tv@gmail.com
 ;;; A speech interface to Emacs |
 ;;; $Date: 2007-05-03 18:13:44 -0700 (Thu, 03 May 2007) $ |
 ;;;  $Revision: 4532 $ |
@@ -101,7 +101,7 @@
 
 (require 'cl-lib)
 (cl-declaim  (optimize  (safety 0) (speed 3)))
-(require 'subr-x)
+(eval-when-compile (require 'subr-x))
 
 ;;}}}
 ;;{{{ Configuration:
@@ -263,7 +263,8 @@ Default is to return NullAgent if name not found."
   "Return associated soundscape for this mode if any."
   (let ((result nil))
     (while mode
-      (cl-pushnew (gethash mode soundscape-mode-table) result)
+      (cl-pushnew (gethash mode soundscape-mode-table) result
+                  :test #'string-equal)
       (setq mode (get mode 'derived-mode-parent)))
     (delq nil result)))
 
@@ -292,7 +293,7 @@ Default is to return NullAgent if name not found."
     Custom-mode messages-buffer-mode)
   "List of mode names that get the Help mood.")
 
-;;;###autoload
+
 (defun soundscape-load-theme (theme)
   "Sets up automatic Soundscape mappings based on theme.
 See  \\{soundscape-default-theme} for details."
@@ -340,7 +341,7 @@ See  \\{soundscape-default-theme} for details."
     ("TonkSpace" (tabulated-list-mode))
     ("WaterFlow"  (dired-mode))
     )
-  "*Specifies default map.
+"Specifies default map.
 Map is a list of lists, where the first element of each sublist
 is a Soundscape name, and the second element is a list of
 Soundscape names. Soundscape at position 0 (the first entry in
@@ -486,7 +487,7 @@ Optional interactive prefix arg restarts the listener if already running."
 ;;}}}
 ;;{{{ Automatic soundscapes:
 
-;;;###autoload
+
 (defvar soundscape--auto nil
   "Record if automatic soundscapes are on.
 Do not set this by hand, use command \\[soundscape-toggle].")

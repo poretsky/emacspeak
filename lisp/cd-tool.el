@@ -3,7 +3,7 @@
 ;;;Emacs front-end to CDTool
 ;;{{{  Copyright:
 
-;;; Copyright (C) 1995 -- 2018, T. V. Raman<raman@cs.cornell.edu>
+;;; Copyright (C) 1995 -- 2018, T. V. Raman<tv.raman.tv@gmail.com>
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -48,7 +48,7 @@
 ;;; Code:
 
 (defcustom cd-tool-start-command "cdstart"
-  "*Name of cdstart command; most likely either \"cdstart\" or \"cdplay\"."
+"Name of cdstart command; most likely either \"cdstart\" or \"cdplay\"."
   :options '("cdstart" "cdplay")
   :group 'cd-tool
   :type 'string)

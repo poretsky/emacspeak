@@ -6,7 +6,7 @@
 ;;{{{  LCD Archive entry: 
 
 ;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu
+;;; emacspeak| T. V. Raman |tv.raman.tv@gmail.com
 ;;; A speech interface to Emacs |
 ;;; $Date: 2007-08-25 18:28:19 -0700 (Sat, 25 Aug 2007) $ |
 ;;;  $Revision: 4532 $ | 
@@ -68,10 +68,25 @@
   current-column                        ;column containing point 
   elements                              ;  vector of  elements 
   )
+
+(defun emacspeak-table-rationalize-table (data)
+  "Take a vector of vectors and return a `square'  table."
+  (let ((n-cols (apply #'max (seq-map #'length data))))
+    (cl-loop
+     for row across data
+     and i from 0
+     unless (= (length row) n-cols)
+     do
+     (aset  data i 
+            (vconcat row (make-vector (- n-cols (length row)) " ")))))
+  data)
+
 ;;;###autoload
 (defun emacspeak-table-make-table (elements)
   "Construct a table object from elements."
-  (cl-assert (vectorp elements) t "Elements should be a vector of vectors")
+  (cl-assert (vectorp elements) t "Elements should be a vector of
+vectors")
+  (setq elements (emacspeak-table-rationalize-table elements))
   (let ((table (cons-emacspeak-table :elements elements))
         (row-h (make-vector (length  elements) nil))
         (index 0))

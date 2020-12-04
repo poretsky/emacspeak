@@ -6,7 +6,7 @@
 ;;{{{  LCD Archive entry:
 
 ;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu
+;;; emacspeak| T. V. Raman |tv.raman.tv@gmail.com
 ;;; A speech interface to Emacs |
 ;;; $Date: 2007-05-03 18:13:44 -0700 (Thu, 03 May 2007) $ |
 ;;;  $Revision: 4532 $ |
@@ -275,7 +275,7 @@
                           :test #'string-equal)))
     (cond
      (pos
-      (goto-line (1+ pos))
+      (forward-line (1+ pos))
       (emacspeak-proced-speak-this-field))
      (t (error "Cant find %s" name)))))
 

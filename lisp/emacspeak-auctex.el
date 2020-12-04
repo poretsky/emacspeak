@@ -6,7 +6,7 @@
 ;;{{{  LCD Archive entry: 
 
 ;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu 
+;;; emacspeak| T. V. Raman |tv.raman.tv@gmail.com 
 ;;; A speech interface to Emacs |
 ;;; $Date: 2007-09-27 09:14:42 -0700 (Thu, 27 Sep 2007) $ |
 ;;;  $Revision: 4532 $ | 
@@ -207,8 +207,7 @@ the opening line of the newly inserted environment. "
 ;;; We add imenu settings to LaTeX-mode-hook
 
 (add-hook  'LaTeX-mode-hook
-           (function
-            (lambda ()
+            #'(lambda ()
               (cl-declare (special imenu-generic-expression
                                    imenu-create-index-function))
               (require 'imenu)
@@ -217,7 +216,7 @@ the opening line of the newly inserted environment. "
                     '(
                       (nil
                        "^ *\\\\\\(sub\\)*section{\\([^}]+\\)"
-                       2))))))
+                       2)))))
 
 ;;}}}
 ;;{{{ advice font changes 
@@ -233,6 +232,44 @@ the opening line of the newly inserted environment. "
         (emacspeak-speak-region orig (point)))))
    (t ad-do-it))
   ad-return-value)
+
+;;}}}
+;;{{{ tex utils:
+
+
+(defun emacspeak-auctex-end-of-word (arg)
+  "move to end of word"
+  (interactive "P")
+  (if arg
+      (forward-word arg)
+    (forward-word 1)))
+
+
+(defun emacspeak-auctex-comma-at-end-of-word ()
+  "Move to the end of current word and add a comma."
+  (interactive)
+  (forward-word 1)
+  (insert-char ?,))
+
+
+(defun emacspeak-auctex-lacheck-buffer-file ()
+  "Run Lacheck on current buffer."
+  (interactive)
+  (compile (format "lacheck %s"
+                   (buffer-file-name (current-buffer)))))
+
+
+(defun emacspeak-auctex-tex-tie-current-word (n)
+  "Tie the next n  words."
+  (interactive "P")
+  (or n (setq n 1))
+  (while
+      (> n 0)
+    (setq n (- n 1))
+    (forward-word 1)
+    (delete-horizontal-space)
+    (insert-char 126 1))
+  (forward-word 1))
 
 ;;}}}
 (provide  'emacspeak-auctex)

@@ -6,7 +6,7 @@
 ;;{{{  LCD Archive entry:
 
 ;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu
+;;; emacspeak| T. V. Raman |tv.raman.tv@gmail.com
 ;;; A speech interface to Emacs |
 ;;; $Date: 2007-08-25 18:28:19 -0700 (Sat, 25 Aug 2007) $ |
 ;;;  $Revision: 4532 $ |
@@ -64,7 +64,7 @@
 
 (require 'cl-lib)
 (cl-declaim  (optimize  (safety 0) (speed 3)))
-(require 'emacspeak-preamble) (require 'flyspell "flyspell" 'no-error)
+(require 'emacspeak-preamble)
 
 ;;}}}
 ;;{{{ define personalities
@@ -117,7 +117,6 @@ fly spell checking."
 
 ;;}}}
 ;;{{{ use flyspell-correct if available:
-
 (defcustom emacspeak-flyspell-correct
   (cond
    ((locate-library "flyspell-correct-ido") 'flyspell-correct-ido)
@@ -128,14 +127,18 @@ fly spell checking."
   :type 'symbol)
 
 ;;; flyspell-correct is available on melpa:
-
-(when (locate-library "flyspell-correct")
-  (define-key flyspell-mode-map (kbd "C-;") 'flyspell-correct-previous-word-generic)
+(cl-declaim (special flyspell-mode-map))
+(when
+    (and (bound-and-true-p flyspell-mode-map)
+         (locate-library "flyspell-correct"))
+  (define-key flyspell-mode-map (ems-kbd "C-x .") 'flyspell-correct-at-point)
+  (define-key flyspell-mode-map (ems-kbd "C-'") 'flyspell-correct-previous)
+  (define-key flyspell-mode-map (ems-kbd "C-;") 'flyspell-correct-wrapper)
   (require emacspeak-flyspell-correct))
 
 (cl-loop
  for f in
- '(flyspell-correct-word-generic flyspell-correct-previous-word-generic)
+ '(flyspell-correct-next flyspell-correct-previous flyspell-correct-at-point)
  do
  (eval
   `(defadvice ,f (after emacspeak pre act comp)

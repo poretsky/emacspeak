@@ -6,7 +6,7 @@
 ;;{{{  LCD Archive entry:
 
 ;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu
+;;; emacspeak| T. V. Raman |tv.raman.tv@gmail.com
 ;;; A speech interface to Emacs |
 ;;; $Date: 2007-05-03 18:13:44 -0700 (Thu, 03 May 2007) $ |
 ;;;  $Revision: 4532 $ |
@@ -71,14 +71,14 @@
 (cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 (require 'dom)
-(require 'emacspeak-webutils)
 (require 'g-utils)
+(declare-function emacspeak-xslt-get "emacspeak-xslt" (style))
 
 ;;}}}
 ;;{{{ Variables:
 
 (defvar emacspeak-librivox-buffer-name
-  "*Librivox Interaction*"
+"Librivox Interaction*"
   "Name of Librivox interaction buffer.")
 
 ;;}}}
@@ -209,7 +209,7 @@ Optional arg `offset' (default 0) is used for getting more results."
   (let* ((title
           (format
            "Search: %s Offset: %s"
-           (emacspeak-wizards-unhex-uri pattern) offset))
+           (url-unhex-string pattern) offset))
          (url (emacspeak-librivox-audiobooks-uri pattern offset))
          (result (g-json-get-result
                   (format
@@ -219,9 +219,9 @@ Optional arg `offset' (default 0) is used for getting more results."
     (unless books (message "No results."))
     (emacspeak-auditory-icon 'task-done)
     (when books
-      (emacspeak-webutils-autospeak)
+      (emacspeak-eww-autospeak)
       (add-hook
-       'emacspeak-web-post-process-hook
+       'emacspeak-eww-post-process-hook
        #'(lambda ()
            (cl-declare (special emacspeak-we-url-executor))
            (setq emacspeak-we-url-executor 'emacspeak-librivox-play)))
@@ -229,7 +229,7 @@ Optional arg `offset' (default 0) is used for getting more results."
 
 (defvar emacspeak-librivox-genre-list
   '(
-    "*Non-fiction" "Action & Adventure" "Action & Adventure Fiction"
+"Non-fiction" "Action & Adventure" "Action & Adventure Fiction"
     "Ancient" "Animals" "Animals & Nature"
     "Anthologies" "Antiquity" "Art, Design & Architecture"
     "Arts" "Astronomy, Physics & Mechanics" "Ballads"
@@ -278,7 +278,7 @@ Optional arg `offset' (default 0) is used for getting more results."
     )
   "List of genres.")
 
-;;;###autoload
+
 (defun emacspeak-librivox-search-by-genre (genre &optional offset)
   "Search by genre.
 Optional prefix arg `offset' prompts for offset."
@@ -294,7 +294,7 @@ Optional prefix arg `offset' prompts for offset."
            (url-encode-url genre))
    offset))
 
-;;;###autoload
+
 (defun emacspeak-librivox-search-by-author (author &optional offset)
   "Search by author. Both exact and partial matches for
 `author'. Optional interactive prefix arg `offset' prompts for offset
@@ -307,7 +307,7 @@ Optional prefix arg `offset' prompts for offset."
            (url-hexify-string author))
    offset))
 
-;;;###autoload
+
 (defun emacspeak-librivox-search-by-title (title &optional offset)
   "Search by title. Both exact and partial matches for `title'. Optional
 prefix arg `offset' prompts for offset --- use this for retrieving
@@ -328,7 +328,7 @@ more results."
    (list
     (read-char "a: Author, t: Title,  p:Play, g:Genre, d: Browse Local")))
   (cl-ecase search-type
-    (?d (dired (expand-file-name "librivox" emacspeak-resource-directory)))
+    (?d (dired (expand-file-name "librivox" emacspeak-user-directory)))
     (?a (call-interactively 'emacspeak-librivox-search-by-author))
     (?p (call-interactively 'emacspeak-librivox-play))
     (?t (call-interactively 'emacspeak-librivox-search-by-title))
@@ -337,7 +337,7 @@ more results."
 ;;}}}
 ;;{{{ Cache Playlists:
 (defcustom emacspeak-librivox-local-cache
-  (expand-file-name "librivox" emacspeak-resource-directory)
+  (expand-file-name "librivox" emacspeak-user-directory)
   "Location where we cache LIBRIVOX playlists."
   :type 'directory
   :group 'emacspeak-librivox)
@@ -367,12 +367,12 @@ more results."
 
 ;;}}}
 ;;{{{ Play Librivox Streams:
-;;;###autoload
+
 (defun emacspeak-librivox-play (rss-url)
   "Play book stream"
   (interactive
    (list
-    (emacspeak-webutils-read-this-url)))
+    (emacspeak-eww-read-url)))
   (cl-declare (special g-curl-program g-curl-common-options
                        emacspeak-xslt-program))
   (let ((file  (make-temp-file "librivox" nil ".rss"))

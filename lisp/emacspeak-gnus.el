@@ -6,7 +6,7 @@
 ;;{{{  LCD Archive entry: 
 
 ;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu 
+;;; emacspeak| T. V. Raman |tv.raman.tv@gmail.com 
 ;;; A speech interface to Emacs |
 ;;; $Date: 2008-06-21 10:50:41 -0700 (Sat, 21 Jun 2008) $ |
 ;;;  $Revision: 4532 $ | 
@@ -79,7 +79,7 @@
   :group 'emacspeak-gnus)
 
 (defcustom  emacspeak-gnus-large-article 100
-  "*Articles having more than
+"Articles having more than
 emacspeak-gnus-large-article lines will be considered to be a large article.
 A large article is not spoken all at once;
 instead you hear only the first screenful."
@@ -265,7 +265,7 @@ this group is being deselected."
  Produce an auditory icon if possible."
   (when (ems-interactive-p)
     (emacspeak-auditory-icon 'open-object)
-    (dtk-speak "listing matching groups with unread articles... done")))
+    (dtk-notify-speak "listing matching groups with unread articles... done")))
 
 (defadvice gnus-group-list-zombies (after emacspeak pre act)
   "Provide auditory feedback.
@@ -299,7 +299,7 @@ this group is being deselected."
        ad-do-it
        (when (ems-interactive-p)
          (if (= saved-point (point))
-             (dtk-speak "No more articles")
+             (dtk-notify-speak "No more articles")
            (progn 
              (emacspeak-auditory-icon 'mark-object)
              (emacspeak-gnus-summary-speak-subject))))
@@ -358,7 +358,7 @@ Indicate change of selection with
     (when (ems-interactive-p)
       (emacspeak-auditory-icon 'close-object)
       (if (eq cur-group (gnus-group-group-name))
-          (dtk-speak "No more unread newsgroups")
+          (dtk-notify-speak "No more unread newsgroups")
         (progn 
           (emacspeak-speak-line))))
     ad-return-value))
@@ -372,7 +372,7 @@ Indicate change of selection with
     (when (ems-interactive-p)
       (emacspeak-auditory-icon 'close-object)
       (if (eq cur-group (gnus-group-group-name))
-          (dtk-speak "No more unread newsgroups")
+          (dtk-notify-speak "No more unread newsgroups")
         (progn 
           (emacspeak-speak-line))))
     ad-return-value))
@@ -384,7 +384,7 @@ Indicate change of selection with
     ad-do-it
     (when (ems-interactive-p)
       (if (= saved-point (point))
-          (dtk-speak "No more articles ")
+          (dtk-notify-speak "No more articles ")
         (progn 
           (emacspeak-auditory-icon 'select-object)
           (dtk-speak (gnus-summary-article-subject)))))
@@ -397,7 +397,7 @@ Produce an auditory icon if possible."
     ad-do-it
     (when (ems-interactive-p)
       (if (= saved-point (point))
-          (dtk-speak "No more articles ")
+          (dtk-notify-speak "No more articles ")
         (progn 
           (emacspeak-auditory-icon 'select-object)
           (dtk-speak (gnus-summary-article-subject)))))
@@ -410,7 +410,7 @@ Produce an auditory icon if possible."
     ad-do-it
     (when (ems-interactive-p)
       (if (= saved-point (point))
-          (dtk-speak "No more unread articles ")
+          (dtk-notify-speak "No more unread articles ")
         (progn 
           (emacspeak-auditory-icon 'select-object)
           (dtk-speak (gnus-summary-article-subject)))))
@@ -423,7 +423,7 @@ Produce an auditory icon if possible."
     ad-do-it
     (when (ems-interactive-p)
       (if (= saved-point (point))
-          (dtk-speak "No more articles ")
+          (dtk-notify-speak "No more articles ")
         (progn 
           (emacspeak-auditory-icon 'select-object)
           (dtk-speak (gnus-summary-article-subject)))))
@@ -436,7 +436,7 @@ Produce an auditory icon if possible."
     ad-do-it
     (when (ems-interactive-p)
       (if (= saved-point (point))
-          (dtk-speak "No more articles ")
+          (dtk-notify-speak "No more articles ")
         (progn 
           (emacspeak-auditory-icon 'select-object)
           (dtk-speak (gnus-summary-article-subject)))))
@@ -729,12 +729,30 @@ Helps to prevent words from being spelled instead of spoken."
 ;; experience, there are separate voices for the first four levels
 ;; and then they are repeated
 (voice-setup-add-map
- ;; NOTE
- ;; face names are either marked at the end of the line with a comment
- ;; consisting of the emacs version or they are unmarked.  The unmarked 
- ;; face names are for gnus shipped with emacs 22 
- ;; rdc 102206
  '(
+   (gnus-button voice-bolden)
+   (gnus-cite-attribution voice-smoothen)
+   (gnus-emphasis-bold-italic voice-bolden-medium)
+   (gnus-emphasis-underline-bold voice-lighten) 
+   (gnus-emphasis-underline-bold-italic  voice-lighten-extra)
+   (gnus-emphasis-underline-italic voice-lighten)
+   (gnus-group-mail-1  voice-brighten)
+   (gnus-group-mail-2  voice-animate)
+   (gnus-group-mail-3  voice-lighten)
+   (gnus-group-mail-low voice-smoothen)
+   (gnus-group-news-1  voice-highlight) 
+   (gnus-group-news-2  voice-lighten)
+   (gnus-group-news-3  voice-brighten)
+   (gnus-group-news-4  voice-lighten)
+   (gnus-group-news-5 voice-smoothen) 
+   (gnus-group-news-6 voice-annotate)
+   (gnus-group-news-low  voice-smoothen-extra)
+   (gnus-server-cloud  voice-animate)
+   (gnus-server-cloud-host  voice-lighten)
+   (gnus-splash  voice-brighten) 
+   (gnus-summary-high-undownloaded voice-highlight)
+   (gnus-summary-normal-unread  voice-bolden)
+   (gnus-x-face voice-monotone)
    (gnus-cite-1 voice-bolden-medium)
    (gnus-cite-2 voice-lighten) 
    (gnus-cite-3 voice-lighten-extra)
@@ -777,36 +795,23 @@ Helps to prevent words from being spelled instead of spoken."
    (gnus-summary-high-unread voice-brighten-extra)
    (gnus-summary-selected voice-animate-extra)
    (gnus-summary-cancelled voice-bolden-extra)
-
    ;; group buffer personalities
    ;; I think the voice used for the groups in the buffer should be the 
    ;; default voice.  I might ask if there is a call for different voices 
    ;; as they are only necessary if users have persistently visible groups
    ;; in the case of empty groups, and voices for the various levels.
-   (gnus-group-mail-1-empty voice-bolden-extra)
-   (gnus-group-mail-2-empty voice-bolden-extra)
-   
-   (gnus-group-mail-3-empty  voice-bolden-extra)
-   
-   (gnus-group-mail-low-empty voice-bolden-extra)
-   
-   (gnus-group-news-1-empty voice-bolden-extra)
-   
-   (gnus-group-news-2-empty voice-bolden-extra)
-   
-   (gnus-group-news-3-empty voice-bolden-extra)
-   
-   (gnus-group-news-4-empty voice-bolden-extra)
-   
-   (gnus-group-news-5-empty voice-bolden-extra)
-   
-   (gnus-group-news-6-empty voice-bolden-extra)
-   
-   (gnus-group-news-low-empty voice-bolden-extra)
-   
-   
+   (gnus-group-mail-1-empty voice-monotone)
+   (gnus-group-mail-2-empty voice-monotone)
+   (gnus-group-mail-3-empty  voice-monotone)
+   (gnus-group-mail-low-empty voice-monotone)
+   (gnus-group-news-1-empty voice-monotone)
+   (gnus-group-news-2-empty voice-monotone)
+   (gnus-group-news-3-empty voice-monotone)
+   (gnus-group-news-4-empty voice-monotone)
+   (gnus-group-news-5-empty voice-monotone)
+   (gnus-group-news-6-empty voice-monotone)
+   (gnus-group-news-low-empty voice-monotone)
    ;; server buffer personalities
-
    (gnus-server-agent voice-bolden)
    (gnus-server-closed voice-bolden-medium)
    (gnus-server-denied voice-bolden-extra)
@@ -832,14 +837,14 @@ Helps to prevent words from being spelled instead of spoken."
 ;;}}}
 ;;{{{ GMail Search Accelerators:
 
-;;;###autoload
+
 (defun emacspeak-gnus-personal-gmail-recent ()
   "Look for mail addressed personally in the last day."
   (interactive)
   (gm-nnir-group-make-gmail-group
    (format "newer_than:1d to:me -cc:%s" user-mail-address)))
 
-;;;###autoload
+
 (defun emacspeak-gnus-personal-gmail-last-week()
   "Look for mail addressed personally in the last week."
   (interactive)

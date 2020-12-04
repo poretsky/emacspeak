@@ -1,11 +1,11 @@
 ;;; emacspeak-load-path.el -- Setup Emacs load-path for compiling Emacspeak  -*- lexical-binding: t; -*-
 ;;; $Id$
 ;;; $Author: tv.raman.tv $
-;;; Description:  Sets up load-path for emacspeak compilation and installation
+;;; Description:  Sets up load-path and env for emacspeak compilation and installation
 ;;; Keywords: Emacspeak, Speech extension for Emacs
 ;;{{{  LCD Archive entry:
 ;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu
+;;; emacspeak| T. V. Raman |tv.raman.tv@gmail.com
 ;;; A speech interface to Emacs |
 ;;; $Date: 2007-08-25 18:28:19 -0700 (Sat, 25 Aug 2007) $ |
 ;;;  $Revision: 4532 $ |
@@ -37,23 +37,10 @@
 ;;}}}
 (require 'cl-lib)
 (cl-declaim  (optimize  (safety 0) (speed 3)))
-(setq byte-compile-warnings t)
+(require 'advice)
 (setq ad-redefinition-action 'accept)
 
-(defvar emacspeak-directory
-  (expand-file-name "../" (file-name-directory load-file-name))
-  "Directory where emacspeak is installed. ")
-
-(defvar emacspeak-lisp-directory
-  (expand-file-name "lisp/" emacspeak-directory)
-  "Directory containing lisp files for  Emacspeak.")
-
-(unless (member emacspeak-lisp-directory load-path)
-  (setq load-path
-        (cons emacspeak-lisp-directory load-path)))
-
-(defvar emacspeak-resource-directory (expand-file-name "~/.emacspeak")
-  "Directory where Emacspeak resource files such as pronunciation dictionaries are stored. ")
+(cl-pushnew (file-name-directory load-file-name) load-path :test #'string-equal)
 
 ;;{{{ Interactive Check Implementation:
 
@@ -63,12 +50,11 @@
 ;;; ems-interactive-p is reserved for use within Emacspeak advice.
 
 (defvar ems-called-interactively-p nil
-  "Flag recording interactive calls to functions adviced by Emacspeak.")
+  "Record interactive calls to adviced functions.")
 
 (defun ems-record-interactive-p (f)
-  "Predicate to test if we need to record interactive calls of
-this function. Memoizes result for future use by placing a
-property 'emacspeak on the function."
+  "Predicate to test if we  record interactive calls.
+ Memoizes result  via property 'emacspeak."
   (cond
    ((not (symbolp f)) nil)
    ((get f 'emacspeak) t) ; already memoized 
@@ -89,11 +75,11 @@ property 'emacspeak on the function."
     (when (ems-record-interactive-p (ad-get-arg 0))
       (setq ems-called-interactively-p (ad-get-arg 0)))
     ad-do-it))
-
+;;;###autoload
 (defsubst ems-interactive-p ()
-  "Check our interactive flag.
+  "Check  interactive flag.
 Return T if set and we are called from the advice for the current
-interactive command. Turn off the flag once used."
+ command. Turn off the flag once used."
   (when ems-called-interactively-p      ; interactive call
     (let ((caller (cl-second (backtrace-frame 1))) ; containing function name
           (caller-advice ; advice wrapper of containing function
@@ -105,27 +91,18 @@ interactive command. Turn off the flag once used."
         (setq ems-called-interactively-p nil) ; turn off now that we used  it
         result))))
 
-(defsubst ems-debug-interactive-p ()
-  "Check our interactive flag.
-Return T if set and we are called from the advice for the current
-interactive command. Turn off the flag once used."
-  (message "Debug: %s" ems-called-interactively-p)
-  (when ems-called-interactively-p      ; interactive call
-    (let ((caller (cl-second (backtrace-frame 1)))
-          (caller-advice (ad-get-advice-info-field ems-called-interactively-p  'advicefunname))
-          (result nil))
-      (setq result (or (eq caller caller-advice) ; called from our advice
-                       (eq ems-called-interactively-p caller) ; call-interactively call
-                       ))
-      (message "this: %s caller: %s caller-advice %s
-  ems-called-interactively-p %s"
-               this-command caller caller-advice ems-called-interactively-p)
-      (when result
-        (setq ems-called-interactively-p nil) ; turn off now that we used  it
-        result))))
+;;}}}
+;;{{{defsubst: ems--fastload:
+
+;;; Internal function  used to efficiently load files.
+
+(defsubst ems--fastload (file)
+  "Load file efficiently."
+  (let ((file-name-handler-alist nil)
+         (load-source-file-function nil))
+    (load file)))
 
 ;;}}}
-
 (provide 'emacspeak-load-path)
 ;;{{{ end of file
 

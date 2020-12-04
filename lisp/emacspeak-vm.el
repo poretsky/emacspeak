@@ -7,7 +7,7 @@
 ;;{{{  LCD Archive entry:
 
 ;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu
+;;; emacspeak| T. V. Raman |tv.raman.tv@gmail.com
 ;;; A speech interface to Emacs |
 ;;; $Date: 2008-07-31 10:49:44 -0700 (Thu, 31 Jul 2008) $ |
 ;;;  $Revision: 4557 $ |
@@ -50,13 +50,13 @@
 (cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 (require  'vm "vm" 'no-error)
-(require 'browse-url)
+
 ;;}}}
 ;;{{{ Forward Decls:
 
-(declare-function vm-from-of "vm-message" (msg))
-(declare-function  vm-subject-of "vm-message" (msg))
-(declare-function  vm-to-of "vm-message" (msg))
+(defsubst ems--vm-from-of (message) (aref (aref message 3) 8))
+(defsubst ems--vm-subject-of (message) (aref (aref message 3) 11))
+(defsubst ems--vm-to-of (message) (aref (aref message 3) 13))
 (declare-function  vm-su-full-name "vm-summary" (msg))
 (declare-function  vm-su-from "vm-summary" (msg))
 (declare-function vm-su-subject "vm-summary" (msg))
@@ -64,7 +64,7 @@
 (declare-function  vm-su-to "vm-summary" (msg))
 (declare-function  vm-su-line-count "vm-summary" (msg))
 (declare-function vm-decode-mime-encoded-words-in-string "vm-mime" (s))
-(declare-function  vm-labels-of "vm-message" (msg))
+(defsubst vm-labels-of (message) (aref (aref message 4) 3))
 (declare-function  vm-goto-message "vm-message" (msg))
 (declare-function vm-delete-message "vm-message" (msg))
 (declare-function  u-vm-color-fontify-buffer "u-vm-color" nil)
@@ -148,9 +148,9 @@ Note that some badly formed mime messages  cause trouble."
    (vm-message-pointer
     (dtk-stop)
     (let*  ((message (car vm-message-pointer))
-            (from (vm-from-of message))
-            (subject (vm-subject-of  message))
-            (to (vm-to-of message))
+            (from (ems--vm-from-of message))
+            (subject (ems--vm-subject-of  message))
+            (to (ems--vm-to-of message))
             (url  (browse-url-url-at-point))
             (header nil))
       (while (not header)
@@ -164,11 +164,9 @@ Note that some badly formed mime messages  cause trouble."
       (dtk-speak-and-echo  (format  "%s" header))))
    (t (error "No current message."))))
 
-(defcustom emacspeak-vm-headers-strip-octals t
+(defvar emacspeak-vm-headers-strip-octals t
   "Specify whether non-ascii chars should be stripped when
-  speaking email headers."
-  :type 'boolean
-  :group 'emacspeak-vm)
+  speaking email headers.")
 
 (defun emacspeak-vm-speak-message ()
   "Move point to the message body."
@@ -329,12 +327,14 @@ Then speak the screenful. "
 
 (defadvice vm-forward-message (around emacspeak pre act)
   "Provide aural feedback."
-  (if (ems-interactive-p)
-      (let ((dtk-stop-immediately nil))
-        (message "Forwarding message")
-        ad-do-it
-        (emacspeak-speak-line))
-    ad-do-it)
+  (cond
+   ((ems-interactive-p)
+      (emacspeak-auditory-icon 'open-object)
+      (message "Forwarding message")
+      ad-do-it
+      (emacspeak-speak-line))
+        (t
+         ad-do-it))
   ad-return-value)
 
 (defadvice vm-reply (after emacspeak pre act)
@@ -369,12 +369,17 @@ Then speak the screenful. "
   (when  (ems-interactive-p)
     (emacspeak-auditory-icon 'close-object)))
 
-(defadvice vm-mail (after emacspeak pre act)
-  "Provide aural feedback."
-  (when (ems-interactive-p)
-    (let ((dtk-stop-immediately nil))
-      (message "Composing a message")
-      (emacspeak-speak-line))))
+(cl-loop
+ for f in
+ '(vm-mail vm-mail-from-folder)
+ do
+ (eval
+  `(defadvice ,f (after emacspeak pre act)
+     "Provide auditory  feedback."
+     (when (ems-interactive-p)
+       (let ((dtk-stop-immediately nil))
+         (message "Composing a message")
+         (emacspeak-speak-line))))))
 
 ;;}}}
 ;;{{{ quitting
@@ -405,6 +410,7 @@ Then speak the screenful. "
   (cl-declaim  (special
                 vm-mode-map
                 global-map emacspeak-prefix emacspeak-keymap))
+  (define-key vm-mode-map "C" 'vm-chromium)
   (define-key vm-mode-map "\M-\C-m" 'widget-button-press)
   (define-key vm-mode-map "y" 'emacspeak-vm-yank-header)
   (define-key vm-mode-map  "j" 'emacspeak-hide-or-expose-all-blocks)
@@ -509,6 +515,10 @@ Leave point at front of decoded attachment."
  do
  (add-hook hook 'emacspeak-pronounce-refresh-pronunciations 'append))
 
+(defvar emacspeak-speak-embedded-url-pattern
+  "<https?:[^ \t]*>"
+  "Pattern to recognize embedded URLs.")
+
 (cl-loop
  for mode in
  '(vm-presentation-mode mail-mode)
@@ -581,15 +591,36 @@ Leave point at front of decoded attachment."
   )
 
 ;;}}}
-
 ;;{{{ configure and customize vm
 
 ;;; This is how I customize VM
+;;; First, Configure VM into using shr instead of w3m:
+
+(defun vm-mime-display-internal-shr-text/html (start end _layout)
+  "Use shr to inline HTML mails in the VM presentation buffer."
+    (shr-render-region start (1- end))
+    (put-text-property start end 'text-rendered-by-shr t))
+     
+;;; has to be done indirectly
+;;; Fake emacs-w3m, though we actually use shr
+     (defalias 'vm-mime-display-internal-emacs-w3m-text/html  'vm-mime-display-internal-shr-text/html)
+
+(defun vm-chromium ()
+       "Run Chromium on current link."
+       (interactive)
+       (let ((url (browse-url-url-at-point)))
+         (unless url (error "No link here."))
+         (dtk-stop)
+         (browse-url-chrome url)
+         (message "Opening url with Chrome")))
+
+     
 
 (defcustom emacspeak-vm-use-raman-settings t
   "Should VM  use the customizations used by the author of Emacspeak."
   :type 'boolean
   :group 'emacspeak-vm)
+
 (defvar emacspeak-vm-demote-html-attachments
   '(
     favorite-internal  "text/plain" "text/enriched"
@@ -603,58 +634,46 @@ Leave point at front of decoded attachment."
   "Setting that prefers  alternatives  html/xhtml over text/plain.")
 
 (defun emacspeak-vm-use-raman-settings ()
-  "Customization settings for VM used by the author of
-Emacspeak."
+  "Customization settings for VM used by the author of Emacspeak."
   (cl-declare (special emacspeak-vm-demote-html-attachments
                        emacspeak-vm-promote-html-attachments
-                       vm-mime-charset-converter-alist
-                       vm-mime-default-face-charsets
-                       vm-frame-per-folder
-                       vm-frame-per-composition
-                       vm-frame-per-edit
-                       vm-frame-per-help
-                       vm-frame-per-summary
-                       vm-index-file-suffix
-                       vm-primary-inbox
-                       vm-folder-directory
-                       vm-forwarding-subject-format
-                       vm-startup-with-summary
-                       vm-inhibit-startup-message
-                       vm-visible-headers
-                       vm-delete-after-saving
-                       vm-url-browser
-                       vm-confirm-new-folders
-                       vm-mime-alternative-select-method
-                       vm-move-after-deleting))
-  (setq vm-mime-alternative-select-method
-        emacspeak-vm-demote-html-attachments)
+                       vm-mime-charset-converter-alist vm-mime-default-face-charsets
+                       vm-frame-per-folder vm-frame-per-composition
+                       vm-frame-per-edit vm-frame-per-help
+                       vm-frame-per-summary vm-index-file-suffix
+                       vm-crash-box vm-primary-inbox vm-folder-directory
+                       vm-forwarding-subject-format vm-startup-with-summary
+                       vm-inhibit-startup-message vm-visible-headers
+                       vm-delete-after-saving vm-url-browser
+                       vm-confirm-new-folders vm-mime-alternative-select-method
+                       vm-mime-text/html-handler vm-move-after-deleting))
+  (setq vm-mime-text/html-handler'emacs-w3m  )
+  (setq vm-mime-alternative-select-method emacspeak-vm-demote-html-attachments)
   (setq vm-mime-charset-converter-alist
         '(
-          ("utf-8" "iso-8859-1" "iconv -f utf-8 -t iso-8859-1")
-          )
-        )
+          ("utf-8" "iso-8859-1" "iconv -f utf-8 -t iso-8859-1")))
   (setq vm-mime-default-face-charsets t)
   (setq vm-frame-per-folder nil
         vm-frame-per-composition nil
         vm-frame-per-edit nil
         vm-frame-per-help nil
         vm-frame-per-summary nil)
-
   (setq vm-index-file-suffix ".idx"
         vm-primary-inbox "~/mbox"
         vm-folder-directory "~/Mail/"
+        vm-crash-box "mbox.crash"
         vm-forwarding-subject-format "[%s]"
         vm-startup-with-summary nil
         vm-inhibit-startup-message t
         vm-visible-headers '("From:" "To:" "Subject:" "Date:" "Cc:")
         vm-delete-after-saving t
-        vm-url-browser 'browse-url
+        vm-url-browser 'eww-browse-url
         vm-confirm-new-folders t
         vm-move-after-deleting nil)
   t)
 
 (defun emacspeak-vm-toggle-html-mime-demotion ()
-  "Toggle state of HTML Mime Demotion."
+  "Toggle state of HTML Mime promotion/Demotion."
   (interactive)
   (cl-declare (special emacspeak-vm-demote-html-attachments
                        emacspeak-vm-promote-html-attachments
@@ -688,30 +707,11 @@ text using pdftotext."
   :type 'string
   :group 'emacspeak-vm)
 
-(defcustom emacspeak-vm-doc2text
-  (expand-file-name "doc2text" emacspeak-etc-directory)
-  "Executable that converts MSWord documents on standard input to plain
-text using wvText."
-  :type 'string
-  :group 'emacspeak-vm)
+
 (defcustom emacspeak-vm-cal2text
   (expand-file-name "cal2text" emacspeak-etc-directory)
   "Executable that converts calendar invitations    on
   standard input to plain text."
-  :type 'string
-  :group 'emacspeak-vm)
-
-(defcustom emacspeak-vm-xls2html
-  (expand-file-name "xls2html" emacspeak-etc-directory)
-  "Executable that converts MSXL documents on standard input to HTML
- using xlhtml."
-  :type 'string
-  :group 'emacspeak-vm)
-
-(defcustom emacspeak-vm-ppt2html
-  (expand-file-name "ppt2html" emacspeak-etc-directory)
-  "Executable that converts MSPPT documents on standard input to HTML
- using xlhtml."
   :type 'string
   :group 'emacspeak-vm)
 
@@ -739,22 +739,12 @@ text using wvText."
                        vm-mime-attachment-auto-type-alist
                        vm-mime-type-converter-alist
                        emacspeak-vm-pdf2text
-                       emacspeak-vm-ppt2html
-                       emacspeak-vm-xls2html
-                       emacspeak-vm-doc2text
                        emacspeak-vm-cal2text))
   (emacspeak-vm-add-mime-converter
    (list "text/calendar" "text/plain" emacspeak-vm-cal2text))
   (emacspeak-vm-add-mime-converter
    (list "application/pdf" "text/plain"
          emacspeak-vm-pdf2text))
-  (emacspeak-vm-add-mime-converter
-   (list "application/vnd.ms-excel" "text/html"
-         emacspeak-vm-xls2html))
-  (emacspeak-vm-add-mime-converter
-   (list "application/vnd.ms-powerpoint" "text/html" emacspeak-vm-ppt2html))
-  (emacspeak-vm-add-mime-converter
-   (list "application/msword" "text/plain" emacspeak-vm-doc2text))
   (setq vm-preview-lines nil
         vm-infer-mime-types t
         vm-mime-decode-for-preview nil

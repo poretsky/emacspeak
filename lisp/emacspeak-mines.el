@@ -5,7 +5,7 @@
 ;;{{{  LCD Archive entry:
 
 ;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu
+;;; emacspeak| T. V. Raman |tv.raman.tv@gmail.com
 ;;; A speech interface to Emacs |
 ;;; $Date: 2007-05-03 18:13:44 -0700 (Thu, 03 May 2007) $ |
 ;;;  $Revision: 4532 $ |
@@ -66,7 +66,7 @@
 (require 'cl-lib)
 (cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
-(eval-when-compile (require 'mines "mines" 'no-error))
+(require 'mines "mines" 'no-error)
 ;;}}}
 ;;{{{ Interactive Commands:
 
@@ -85,6 +85,7 @@
 (defun emacspeak-mines-speak-uncovered-count ()
   "Speak number of uncovered cells."
   (interactive)
+  (cl-declare (special mines-number-mines))
   (cl-declare (special mines-state))
   (dtk-speak
    (format "%d mines with %d uncovered cells remaining."
@@ -121,7 +122,7 @@ to beginning of board before searching."
 (defun emacspeak-mines-speak-board ()
   "Speak the board."
   (interactive)
-  (cl-declare (special  mines-number-cols))
+  (cl-declare (special  mines-number-cols mines-grid))
   (let ((cells nil))
     (save-excursion
       (setq cells
@@ -156,7 +157,7 @@ to beginning of board before searching."
      ("g" emacspeak-mines-goto)
      ("s" emacspeak-mines-jump-to-uncovered-cell))
    do
-   (define-key mines-mode-map (kbd (cl-first b)) (cl-second b))))
+   (define-key mines-mode-map (ems-kbd (cl-first b)) (cl-second b))))
 
 (eval-after-load  "mines"
   `(progn (emacspeak-mines-init)))

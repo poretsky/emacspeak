@@ -6,7 +6,7 @@
 ;;{{{  LCD Archive entry: 
 
 ;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu 
+;;; emacspeak| T. V. Raman |tv.raman.tv@gmail.com 
 ;;; A speech interface to Emacs |
 ;;; $Date: 2007-09-01 15:30:13 -0700 (Sat, 01 Sep 2007) $ |
 ;;;  $Revision: 4532 $ | 
@@ -51,27 +51,21 @@
 
 ;;}}}
 ;;{{{ advice
-(defvar emacspeak-net-utils-commands
-  '(arp
-    route
-    traceroute
-    ifconfig
-    iwconfig
-    ping
-    netstat
-    dns-lookup-host
-    nslookup-host)
-  "Commands to speech enable")
 
-(cl-loop for f in emacspeak-net-utils-commands
-         do
-         (eval
-          `(defadvice ,f  (after emacspeak pre act comp)
-             "Speak output"
-             (when (ems-interactive-p)
-               (emacspeak-auditory-icon 'open-object)
-               (message "Displayed results of %s in other window"
-                        (quote ,f))))))
+(cl-loop
+ for f in
+ '(
+   arp route traceroute
+   ifconfig iwconfig ping netstat
+   dns-lookup-host nslookup-host)
+ do
+ (eval
+  `(defadvice ,f  (after emacspeak pre act comp)
+     "Speak output"
+     (when (ems-interactive-p)
+       (emacspeak-auditory-icon 'open-object)
+       (message "Displayed results of %s in other window"
+                (quote ,f))))))
 
 ;;}}}
 (provide 'emacspeak-net-utils)

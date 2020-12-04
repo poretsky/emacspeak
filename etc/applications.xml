@@ -344,9 +344,6 @@ type="text/xsl"?>
       Play Pandora radio using the Open Source <em>Pianobar</em>
       command-line client.
     </application>
-    <application name="npr">
-      API  client for listening to NPR programs.
-    </application>
     <application name="librivox">
     API  client for listening to free Librivox audio books.</application>
     <application name="emms">
@@ -616,6 +613,9 @@ module emacspeak-vdiff.</application>
     <application name="clojure-mode">
       Support for editing Clojure source.
     </application>
+    <application name="rust">
+      Speech-enable a suite of modules  that provide an IDE for rust
+      development --- <em>rust-mode</em>, <em>rustic</em> and <em>racer</em>.</application>
     <application name="cider">
       A powerful IDE for Clojure development.
     </application>
@@ -727,12 +727,6 @@ module emacspeak-vdiff.</application>
     <application name="oo-browser">
       Tool for browsing  object oriented software codebases
       --- this is largely obsoleted by ECB..
-    </application>
-    <applicaiton name="jss">
-      Interactive debugging of Web applications (Chrome, Firefox) via
-    the browser debugging API.</applicaiton>
-    <application name="kite">
-      Interact with Chrome via the remote debugging API.
     </application>
     <application name="sage-shell-mode">
       Speech-enable SageMath interaction.</application>

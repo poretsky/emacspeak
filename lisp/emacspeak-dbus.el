@@ -6,7 +6,7 @@
 ;;{{{  LCD Archive entry:
 
 ;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu
+;;; emacspeak| T. V. Raman |tv.raman.tv@gmail.com
 ;;; A speech interface to Emacs |
 ;;; $Date: 2007-05-03 18:13:44 -0700 (Thu, 03 May 2007) $ |
 ;;;  $Revision: 4532 $ |
@@ -78,10 +78,8 @@
 (cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 (require 'amixer)
-(eval-when-compile
-  (require 'sox-gen)
-  (require 'derived)
-  (require 'dbus))
+(require 'derived)
+(require 'dbus)
 (require 'nm "nm" 'no-error)
 
 ;;}}}
@@ -121,6 +119,7 @@ Initialize screen-saver buffer  if needed, and switch to  it."
 
 ;;}}}
 ;;{{{ NM Handlers
+(declare-function ems-get-active-network-interfaces "emacspeak-wizards" nil)
 
 (defun emacspeak-dbus-nm-connected ()
   "Announce  network manager connection.
@@ -128,22 +127,17 @@ Startup  apps that need the network."
   (cl-declare (special emacspeak-speak-network-interfaces-list))
   (setq emacspeak-speak-network-interfaces-list
         (ems-get-active-network-interfaces))
-  (run-at-time
-   60 nil
-   #'(lambda ()
-       (when (featurep 'xbacklight) (xbacklight-black))))
-  (emacspeak-play-auditory-icon 'network-up)
-  (soundscape-tickle))
+  (dtk-notify-say "Network up")
+  (emacspeak-play-auditory-icon 'network-up))
 
 (defun emacspeak-dbus-nm-disconnected ()
   "Announce  network manager disconnection.
 Stop apps that use the network."
   (cl-declare (special emacspeak-speak-network-interfaces-list))
-                                        ;(when (featurep 'jabber) (jabber-disconnect))
-                                        ;(when (featurep 'twittering-mode) (twittering-stop))
   (setq emacspeak-speak-network-interfaces-list
         (mapcar #'car (network-interface-list)))
   (emacspeak-auditory-icon 'network-down)
+  (dtk-notify-say "Network down")
   (message (mapconcat #'identity emacspeak-speak-network-interfaces-list "")))
 
 (add-hook 'nm-connected-hook 'emacspeak-dbus-nm-connected)
@@ -175,6 +169,22 @@ Stop apps that use the network."
   (tts-restart)
   (run-hooks 'emacspeak-dbus-resume-hook))
 
+(defun emacspeak-dbus-screensaver-check ()
+  "Check  and fix Emacs DBus Binding to gnome-screensaver"
+  (ems-with-messages-silenced
+   (condition-case nil
+       (dbus-call-method
+        :session
+        "org.gnome.ScreenSaver" "/org/gnome/ScreenSaver"
+        "org.gnome.ScreenSaver" "GetActive")
+     (error
+      (progn
+        (shell-command
+         "pidof gnome-screensaver \
+ && kill -9 `pidof gnome-screensaver` 2>&1 > /dev/null")
+        (start-process "screen-saver" nil "gnome-screensaver"))))
+   t))
+
 (defvar emacspeak-dbus-sleep-registration nil
   "List holding sleep registration.")
 
@@ -183,7 +193,6 @@ Stop apps that use the network."
 signal registration objects."
   (cond
    ((emacspeak-dbus-login1-sleep-p)
-    (message "Registering sleep/resume handlers.")
     (emacspeak-dbus-screensaver-check)
     (list
      (dbus-register-signal
@@ -201,8 +210,7 @@ signal registration objects."
   (interactive)
   (cl-declare (special emacspeak-dbus-sleep-registration))
   (unless emacspeak-dbus-sleep-registration
-    (setq emacspeak-dbus-sleep-registration (emacspeak-dbus-sleep-register)))
-  (message "Enabled integration with login1 daemon."))
+    (setq emacspeak-dbus-sleep-registration (emacspeak-dbus-sleep-register))))
 
 ;;; Disable integration
 (defun emacspeak-dbus-sleep-disable()
@@ -213,31 +221,14 @@ already disabled."
   (while emacspeak-dbus-sleep-registration
     (dbus-unregister-object (car emacspeak-dbus-sleep-registration))
     (setq emacspeak-dbus-sleep-registration
-          (cdr emacspeak-dbus-sleep-registration)))
-  (message "Disabled integration with Login1 daemon."))
+          (cdr emacspeak-dbus-sleep-registration))))
 
 (defun emacspeak-dbus-sleep ()
   "Emacspeak  hook for -sleep signal from Login1."
-      (soundscape-listener-shutdown)
+  (soundscape-listener-shutdown)
     (save-some-buffers t))
 
 (add-hook  'emacspeak-dbus-sleep-hook#'emacspeak-dbus-sleep)
-
-(defun emacspeak-dbus-screensaver-check ()
-  "Check  and fix Emacs DBus Binding to gnome-screensaver"
-  (ems-with-messages-silenced
-   (condition-case nil
-       (dbus-call-method
-        :session
-        "org.gnome.ScreenSaver" "/org/gnome/ScreenSaver"
-        "org.gnome.ScreenSaver" "GetActive")
-     (error
-      (progn
-        (shell-command
-         "pidof gnome-screensaver \
- && kill -9 `pidof gnome-screensaver` 2>&1 > /dev/null")
-        (start-process "screen-saver" nil "gnome-screensaver"))))
-   t))
 
 (defun emacspeak-dbus-resume ()
   "Emacspeak hook for Login1-resume."
@@ -264,7 +255,6 @@ already disabled."
 
 (defun emacspeak-dbus-udisks-register()
   "Register signal handlers for UDisks2  InterfacesAdded signal."
-  (message "Registering UDisks2 signal handler.")
   (list
    (dbus-register-signal
     :system
@@ -286,8 +276,7 @@ already disabled."
   (interactive)
   (cl-declare (special emacspeak-dbus-udisks-registration))
   (unless emacspeak-dbus-udisks-registration
-    (setq emacspeak-dbus-udisks-registration (emacspeak-dbus-udisks-register)))
-  (message "Enabled integration with UDisks2."))
+    (setq emacspeak-dbus-udisks-registration (emacspeak-dbus-udisks-register))))
 
 ;;; Disable integration
 (defun emacspeak-dbus-udisks-disable()
@@ -298,8 +287,7 @@ already disabled."
   (while emacspeak-dbus-udisks-registration
     (dbus-unregister-object (car emacspeak-dbus-udisks-registration))
     (setq emacspeak-dbus-udisks-registration
-          (cdr emacspeak-dbus-udisks-registration)))
-  (message "Disabled integration with UDisks2."))
+          (cdr emacspeak-dbus-udisks-registration))))
 
 ;;}}}
 ;;{{{ UPower:
@@ -309,7 +297,6 @@ already disabled."
 
 (defun emacspeak-dbus-upower-register()
   "Register signal handlers for UPower  InterfacesAdded signal."
-  (message "Registering UPower signal handler.")
   (list
    (dbus-register-signal
     :system
@@ -331,8 +318,7 @@ already disabled."
   (interactive)
   (cl-declare (special emacspeak-dbus-upower-registration))
   (unless emacspeak-dbus-upower-registration
-    (setq emacspeak-dbus-upower-registration (emacspeak-dbus-upower-register)))
-  (message "Enabled integration with UPower."))
+    (setq emacspeak-dbus-upower-registration (emacspeak-dbus-upower-register))))
 
 ;;; Disable integration
 (defun emacspeak-dbus-upower-disable()
@@ -343,8 +329,7 @@ already disabled."
   (while emacspeak-dbus-upower-registration
     (dbus-unregister-object (car emacspeak-dbus-upower-registration))
     (setq emacspeak-dbus-upower-registration
-          (cdr emacspeak-dbus-upower-registration)))
-  (message "Disabled integration with UPower."))
+          (cdr emacspeak-dbus-upower-registration))))
 
 ;;}}}
 ;;{{{ Interactive Command: Lock Screen
@@ -362,7 +347,7 @@ already disabled."
    "org.gnome.ScreenSaver"
    "Lock"))
 
-(global-set-key (kbd "C-, C-d") 'emacspeak-dbus-lock-screen)
+(global-set-key (ems-kbd "C-, C-d") 'emacspeak-dbus-lock-screen)
 ;;}}}
 ;;{{{ Watch Screensaver:
 
@@ -394,8 +379,18 @@ already disabled."
   "De-Register a handler to watch screen lock/unlock."
   (cl-declare (special emacspeak-dbus-screen-lock-handle))
   (dbus-unregister-object emacspeak-dbus-screen-lock-handle)
-  (setq emacspeak-dbus-screen-lock-handle nil)
-  (message "Unregistered screen-lock signal handler"))
+  (setq emacspeak-dbus-screen-lock-handle nil))
+
+;;}}}
+;;{{{Setup:
+;;;###autoload
+(defun emacspeak-dbus-setup ()
+  "Turn on all defined handlers."
+  (nm-enable)
+    (emacspeak-dbus-sleep-enable)
+    (emacspeak-dbus-udisks-enable)
+    (emacspeak-dbus-upower-enable)
+    (emacspeak-dbus-watch-screen-lock))
 
 ;;}}}
 (provide 'emacspeak-dbus)

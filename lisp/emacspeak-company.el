@@ -6,7 +6,7 @@
 ;;{{{  LCD Archive entry:
 
 ;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu
+;;; emacspeak| T. V. Raman |tv.raman.tv@gmail.com
 ;;; A speech interface to Emacs |
 ;;; $Date: 2007-05-03 18:13:44 -0700 (Thu, 03 May 2007) $ |
 ;;;  $Revision: 4532 $ |
@@ -58,7 +58,8 @@
 (require 'cl-lib)
 (cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
-(eval-when-compile (require 'company "company" 'no-error))
+(declare-function company-fetch-metadata "company" nil)
+
 ;;}}}
 ;;{{{ map faces:
 (voice-setup-add-map
@@ -81,7 +82,8 @@
   "Formatting rule for speaking company selection."
   (ems-with-messages-silenced
    (let ((metadata (funcall 'company-fetch-metadata)))
-     (when metadata (ems-voiceify-string metadata 'voice-annotate))
+     (when metadata
+       (propertize metadata 'personality 'voice-annotate))
      (dtk-speak-and-echo
       (concat (ems-company-current) " " metadata)))))
 

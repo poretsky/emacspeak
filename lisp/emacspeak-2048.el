@@ -6,7 +6,7 @@
 ;;{{{  LCD Archive entry:
 
 ;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu
+;;; emacspeak| T. V. Raman |tv.raman.tv@gmail.com
 ;;; A speech interface to Emacs |
 ;;; $Date: 2007-05-03 18:13:44 -0700 (Thu, 03 May 2007) $ |
 ;;;  $Revision: 4532 $ |
@@ -120,7 +120,7 @@
 
 (defvar emacspeak-2048-game-file
   (expand-file-name "2048-game-stack"
-                    emacspeak-resource-directory)
+                    emacspeak-user-directory)
   "File where we export/import game state.")
 
 (defun emacspeak-2048-export (&optional prompt)
@@ -281,6 +281,7 @@ Optional interactive prefix arg prompts for a filename."
 
 ;;}}}
 ;;{{{ Setup
+(declare-function emacspeak-pronounce-define-local-pronunciation "emacspeak-pronounce" (word pron))
 
 (defun emacspeak-2048-setup ()
   "Emacspeak setup for 2048."
@@ -301,7 +302,7 @@ Optional interactive prefix arg prompts for a filename."
   (define-key 2048-mode-map "/" 'emacspeak-2048-speak-transposed-board)
   (define-key 2048-mode-map  "="'emacspeak-2048-score)
   (define-key 2048-mode-map  "r"'emacspeak-2048-randomize-game)
-  (define-key 2048-mode-map  (kbd "C-SPC") 'emacspeak-2048-score)
+  (define-key 2048-mode-map  (ems-kbd "C-SPC") 'emacspeak-2048-score)
   (define-key 2048-mode-map "g" '2048-game)
   (dtk-set-rate
    (+ dtk-speech-rate-base

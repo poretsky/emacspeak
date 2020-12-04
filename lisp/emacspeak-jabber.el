@@ -6,7 +6,7 @@
 ;;{{{  LCD Archive entry:
 
 ;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu
+;;; emacspeak| T. V. Raman |tv.raman.tv@gmail.com
 ;;; A speech interface to Emacs |
 ;;; $Date: 2008-04-15 06:25:36 -0700 (Tue, 15 Apr 2008) $ |
 ;;;  $Revision: 4532 $ |
@@ -52,7 +52,7 @@
 
 (cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
-(require 'jabber "jabber" 'no-error)
+(with-no-warnings (require 'jabber "jabber" 'no-error))
 ;;}}}
 ;;{{{ map voices
 
@@ -162,6 +162,7 @@
   "Default presence alert used by Emacspeak.
 Silently drops alerts on the floor --- Google Talk is too chatty otherwise."
   nil)
+(cl-declaim (special jabber-alert-presence-message-function))
 (setq
  jabber-alert-presence-message-function
  #'emacspeak-jabber-presence-default-message)
@@ -280,10 +281,11 @@ the kill ring as well."
 
 ;;}}}
 ;;{{{ Speak recent message:
-;;;###autoload
+
 (defun emacspeak-jabber-speak-recent-message ()
   "Speak most recent message if one exists."
   (interactive)
+  (cl-declare (special jabber-activity-jids))
   (cond
    (jabber-activity-jids
     (save-excursion

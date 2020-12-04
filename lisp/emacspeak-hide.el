@@ -6,7 +6,7 @@
 ;;{{{  LCD Archive entry:
 
 ;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu
+;;; emacspeak| T. V. Raman |tv.raman.tv@gmail.com
 ;;; A speech interface to Emacs |
 ;;; $Date: 2007-08-25 18:28:19 -0700 (Sat, 25 Aug 2007) $ |
 ;;;  $Revision$ |
@@ -59,10 +59,8 @@
 ;;}}}
 ;;{{{ voice locking for block header lines
 
-(defcustom emacspeak-hidden-header-line-personality voice-annotate
-  "Personality used to identify header lines of blocks."
-  :type 'symbol
-  :group 'emacspeak-hide)
+(defvar emacspeak-hidden-header-line-personality voice-annotate
+  "Personality used to identify header lines of blocks.")
 
 ;;; forcibly set this to t to avoid a possible Emacs bug:
 (cl-declaim (special line-move-ignore-invisible))

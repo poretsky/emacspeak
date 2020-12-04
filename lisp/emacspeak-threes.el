@@ -5,7 +5,7 @@
 ;;{{{  LCD Archive entry:
 
 ;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu
+;;; emacspeak| T. V. Raman |tv.raman.tv@gmail.com
 ;;; A speech interface to Emacs |
 ;;; $Date: 2007-05-03 18:13:44 -0700 (Thu, 03 May 2007) $ |
 ;;;  $Revision: 4532 $ |
@@ -124,17 +124,15 @@
 (defun emacspeak-threes-speak-board ()
   "Speak the board."
   (interactive)
-  (cl-declare (special threes-cells threes-next-number
-                       emacspeak-threes-rows-max))
+  (cl-declare (special threes-cells threes-next-number threes-game-over-p ))
+  (when threes-game-over-p (emacspeak-auditory-icon 'alarm))
   (emacspeak-threes-sox-gen threes-next-number)
-  (let ((cells (copy-sequence threes-cells)))
-    (nconc
-     cells
-     (list (propertize (format "%s" threes-next-number) 'personality voice-bolden)))
-    (dtk-speak-list   cells)
-    (emacspeak-auditory-icon 'select-object)
-    (unless  (equal (emacspeak-threes-get-rows-max) emacspeak-threes-rows-max)
-      (emacspeak-auditory-icon 'item))))
+  (let ((cells (apply #'append (copy-sequence threes-cells)))
+        (next
+         (list (propertize
+                (format "%s" threes-next-number) 'personality voice-bolden))))
+    (dtk-speak-list (append cells next) 4)
+    (emacspeak-auditory-icon 'select-object)))
 
 (defun emacspeak-threes-speak-empty-count ()
   "Speak number of cells that are non-empty."
@@ -183,6 +181,7 @@
 
 (defadvice threes (after emacspeak pre act comp)
   "Provide auditory feedback."
+  (setq threes-game-over-p nil)
   (random t)
   (when (ems-interactive-p)
     (emacspeak-auditory-icon 'open-object)
@@ -270,7 +269,7 @@
 
 (defvar emacspeak-threes-game-file
   (expand-file-name "threes-game-stack"
-                    emacspeak-resource-directory)
+                    emacspeak-user-directory)
   "File where we export/import game state.")
 
 (defun emacspeak-threes-export (&optional prompt)

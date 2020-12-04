@@ -3,7 +3,7 @@
 ;;;Emacs front-end to XBacklight
 ;;{{{  Copyright:
 
-;;; Copyright (C) 1995 -- 2018, T. V. Raman<raman@cs.cornell.edu>
+;;; Copyright (C) 1995 -- 2018, T. V. Raman<tv.raman.tv@gmail.com>
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -84,10 +84,8 @@
   :group 'emacspeak
   :group 'applications)
 
-(defcustom xbacklight-step  10
-  "Step-size used when incrementing and decrementing brightness."
-  :type 'integer
-  :group  'xbacklight)
+(defvar xbacklight-step  10
+  "Step-size used when incrementing and decrementing brightness.")
 ;;;###autoload
 (defun xbacklight-increment ()
   "Increase brightness by  by one step."

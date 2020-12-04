@@ -1,1 +1,0 @@
-../tvr/sudoku.el

@@ -40,14 +40,15 @@ let net = require('net');
 // Initialize Math rendering system.
 
 let mjx = require('mathjax');
-let promise = mjx.init({loader: {load: ['input/tex']}});
+let promise = mjx.init({loader: {load: ['input/tex-full', 'output/svg']}});
 
+// Speech Rules Engine.
 let sre = require('speech-rule-engine');
 sre.setupEngine(
     {markup: 'acss', domain: 'emacspeak', rules: ['EmacspeakRules']});
 
 // Auxiliary methods for error handling.
-var errorGen = {};
+let errorGen = {};
 
 errorGen.parseError = function(error) {
   return '(parse-error "' + error.replace(/\\/g, '\\\\') + '")';
@@ -59,7 +60,7 @@ errorGen.mathjaxErrors = function(errors, socket) {
 
 // table of request handlers:
 
-var handlers = {};
+let handlers = {};
 
 // Add the various handlers:
 
@@ -103,10 +104,10 @@ net.createServer(function(socket) {
      function respond(message, sender) {
        // message is of the form:
        // cmd: args, args, args
-       var request = message.toString();
-       var cmd = request.split(':', 1)[0];
-       var args = request.slice(cmd.length + 1);
-       var handler = handlers[cmd];
+         let request = message.toString();
+       let cmd = request.split(':', 1)[0];
+       let args = request.slice(cmd.length + 1);
+       let handler = handlers[cmd];
        if (handler !== undefined) {
          handler.call(null, args, socket);
        } else {

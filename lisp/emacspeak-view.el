@@ -6,7 +6,7 @@
 ;;{{{  LCD Archive entry: 
 
 ;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu
+;;; emacspeak| T. V. Raman |tv.raman.tv@gmail.com
 ;;; A speech interface to Emacs |
 ;;; $Date: 2008-06-21 14:58:40 -0700 (Sat, 21 Jun 2008) $ |
 ;;;  $Revision: 4532 $ | 
@@ -290,8 +290,7 @@
 keybindings for view mode")
 
 (defvar emacspeak-view-edit-commands
-  (list 'emacspeak-self-insert-command
-        'completion-separator-self-insert-autofilling
+  (list ''completion-separator-self-insert-autofilling
         'completion-separator-self-insert-command
         'delete-char
         'completion-kill-region

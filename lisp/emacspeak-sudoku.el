@@ -5,7 +5,7 @@
 ;;{{{  LCD Archive entry: 
 
 ;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu 
+;;; emacspeak| T. V. Raman |tv.raman.tv@gmail.com 
 ;;; A speech interface to Emacs |
 ;;; $Date: 2007-08-25 18:28:19 -0700 (Sat, 25 Aug 2007) $ |
 ;;;  $Revision: 4532 $ | 
@@ -52,7 +52,6 @@
 (require 'cl-lib)
 (cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
-(require 'stack-f)
 (require 'sudoku "sudoku" 'no-error)
 ;;}}}
 ;;{{{Forward Decl:
@@ -394,11 +393,7 @@ See
   (interactive)
   (cl-declare (special emacspeak-sudoku-history-stack
                        current-board))
-  (unless emacspeak-sudoku-history-stack
-    (setq emacspeak-sudoku-history-stack
-          (stack-create)))
-  (stack-push emacspeak-sudoku-history-stack
-              current-board)
+  (push current-board emacspeak-sudoku-history-stack)
   (emacspeak-auditory-icon 'mark-object)
   (message "Saved state on history stack."))
 
@@ -411,14 +406,13 @@ See
                        current-board))
   (let ((original (sudoku-get-cell-from-point (point))))
     (cond
-     ((stack-empty emacspeak-sudoku-history-stack) ;start board
+     ((null emacspeak-sudoku-history-stack) ;start board
       (setq current-board start-board))
      (t (setq current-board
-              (stack-pop emacspeak-sudoku-history-stack))))
+              (pop emacspeak-sudoku-history-stack))))
     (setq buffer-read-only nil)
     (erase-buffer)
-    (sudoku-board-print current-board
-                        sudoku-onscreen-instructions)
+    (sudoku-board-print current-board sudoku-onscreen-instructions)
     (sudoku-goto-cell original)
     (setq buffer-read-only t)
     (emacspeak-auditory-icon 'yank-object)
@@ -428,43 +422,43 @@ See
 ;;}}}
 ;;{{{ setup keymap:
 
-(cl-declaim (special sudoku-mode-map))
-(cl-loop for k in
-         '(
-           ("u" emacspeak-sudoku-up-sub-square)
-           ("d" emacspeak-sudoku-down-sub-square)
-           ("/" emacspeak-sudoku-how-many-remaining)
-           ("n" emacspeak-sudoku-next-sub-square)
-           ("p" emacspeak-sudoku-previous-sub-square)
-           ("h" sudoku-move-point-left)
-           ("l" sudoku-move-point-right)
-           ("j" sudoku-move-point-down)
-           ("k" sudoku-move-point-up)
-           ("R" emacspeak-sudoku-speak-remaining-in-row)
-           ("S" emacspeak-sudoku-speak-remaining-in-sub-square)
-           ("C" emacspeak-sudoku-speak-remaining-in-column)
-           ("?" emacspeak-sudoku-hint)
-           ("<home>" sudoku-move-point-leftmost)
-           ("<end>" sudoku-move-point-rightmost)
-           ("a" sudoku-move-point-leftmost)
-           ("e" sudoku-move-point-rightmost)
-           ("b" sudoku-move-point-downmost)
-           ("t" sudoku-move-point-upmost)
-           ("." emacspeak-sudoku-speak-current-cell-value)
-           ("=" emacspeak-sudoku-speak-current-cell-coordinates)
-           ("\C-e" emacspeak-prefix-command)
-           ("r" emacspeak-sudoku-speak-current-row)
-           ("c" emacspeak-sudoku-speak-current-column)
-           ("s" emacspeak-sudoku-speak-current-sub-square)
-           ("\M-s" emacspeak-sudoku-erase-current-sub-square)
-           ("\M-r" emacspeak-sudoku-erase-current-row)
-           ("\M-c" emacspeak-sudoku-erase-current-column)
-           (","  emacspeak-sudoku-board-summarizer)
-           ("m" emacspeak-sudoku-history-push)
-           ("M" emacspeak-sudoku-history-pop)
-           )
-         do
-         (define-key  sudoku-mode-map (cl-first k) (cl-second k)))
+(when (and (boundp 'sudoku-mode-map) (keymapp sudoku-mode-map))
+  (cl-loop for k in
+           '(
+             ("u" emacspeak-sudoku-up-sub-square)
+             ("d" emacspeak-sudoku-down-sub-square)
+             ("/" emacspeak-sudoku-how-many-remaining)
+             ("n" emacspeak-sudoku-next-sub-square)
+             ("p" emacspeak-sudoku-previous-sub-square)
+             ("h" sudoku-move-point-left)
+             ("l" sudoku-move-point-right)
+             ("j" sudoku-move-point-down)
+             ("k" sudoku-move-point-up)
+             ("R" emacspeak-sudoku-speak-remaining-in-row)
+             ("S" emacspeak-sudoku-speak-remaining-in-sub-square)
+             ("C" emacspeak-sudoku-speak-remaining-in-column)
+             ("?" emacspeak-sudoku-hint)
+             ("<home>" sudoku-move-point-leftmost)
+             ("<end>" sudoku-move-point-rightmost)
+             ("a" sudoku-move-point-leftmost)
+             ("e" sudoku-move-point-rightmost)
+             ("b" sudoku-move-point-downmost)
+             ("t" sudoku-move-point-upmost)
+             ("." emacspeak-sudoku-speak-current-cell-value)
+             ("=" emacspeak-sudoku-speak-current-cell-coordinates)
+             ("\C-e" emacspeak-prefix-command)
+             ("r" emacspeak-sudoku-speak-current-row)
+             ("c" emacspeak-sudoku-speak-current-column)
+             ("s" emacspeak-sudoku-speak-current-sub-square)
+             ("\M-s" emacspeak-sudoku-erase-current-sub-square)
+             ("\M-r" emacspeak-sudoku-erase-current-row)
+             ("\M-c" emacspeak-sudoku-erase-current-column)
+             (","  emacspeak-sudoku-board-summarizer)
+             ("m" emacspeak-sudoku-history-push)
+             ("M" emacspeak-sudoku-history-pop)
+             )
+           do
+           (define-key  sudoku-mode-map (cl-first k) (cl-second k))))
 
 ;;}}}
 (provide 'emacspeak-sudoku)

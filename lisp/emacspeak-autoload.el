@@ -6,7 +6,7 @@
 ;;{{{  LCD Archive entry:
 
 ;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu
+;;; emacspeak| T. V. Raman |tv.raman.tv@gmail.com
 ;;; A speech interface to Emacs |
 ;;; $Date: 2007-08-25 18:28:19 -0700 (Sat, 25 Aug 2007) $ |
 ;;;  $Revision: 4532 $ |
@@ -47,39 +47,28 @@
 
 (require 'cl-lib)
 (require 'autoload)
+(require 'cus-dep)
+
 ;;}}}
 ;;{{{ Variables
 
-(cl-declaim (special emacspeak-lisp-directory))
 (defvar emacspeak-auto-autoloads-file
-  (expand-file-name "emacspeak-loaddefs.el" emacspeak-lisp-directory)
-  "File that holds automatically generated autoloads for
-Emacspeak.")
+  (expand-file-name "emacspeak-loaddefs.el"   (file-name-directory load-file-name))
+  "File that holds automatically generated autoloads for Emacspeak.")
 
 (defvar emacspeak-auto-custom-file
-  (expand-file-name "cus-load.el" emacspeak-lisp-directory)
-  "File that holds automatically generated custom dependencies for
-Emacspeak.")
+  (expand-file-name "cus-load.el"(file-name-directory load-file-name))
+  "File that holds automatically generated custom dependencies for Emacspeak.")
 
 ;;}}}
 ;;{{{ generate autoloads
 
-(defvar emacspeak-update-autoloads-from-directories
-  (cond
-   ((fboundp 'update-autoloads-from-directories)
-    'update-autoloads-from-directories)
-   ((fboundp  'update-directory-autoloads)
-    'update-directory-autoloads))
-  "Function used to extract autoloads.")
-
 (defun emacspeak-auto-generate-autoloads ()
   "Generate emacspeak autoloads."
-  (cl-declare (special  emacspeak-auto-autoloads-file
-                        emacspeak-update-autoloads-from-directories emacspeak-lisp-directory))
+  (cl-declare (special  emacspeak-auto-autoloads-file ))
   (let ((dtk-quiet t)
         (generated-autoload-file emacspeak-auto-autoloads-file))
-    (funcall emacspeak-update-autoloads-from-directories
-             emacspeak-lisp-directory)))
+    (update-directory-autoloads (file-name-directory emacspeak-auto-autoloads-file))))
 
 ;;}}}
 ;;{{{ custom dependencies:

@@ -6,7 +6,7 @@
 ;;{{{  LCD Archive entry:
 
 ;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu
+;;; emacspeak| T. V. Raman |tv.raman.tv@gmail.com
 ;;; A speech interface to Emacs |
 ;;; $Date: 2008/04/03 15:05:55 $ |
 ;;;  $Revision: 1.1 $ |
@@ -51,12 +51,15 @@
 (require 'cl-lib)
 (cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
-(require 'js2-mode "js2-mode" 'no-error)
+
 ;;}}}
 ;;{{{  map faces to voices:
 
 (voice-setup-add-map
  '(
+   (js2-function-call  voice-annotate)
+   (js2-object-property  voice-smoothen)
+   (js2-object-property-access voice-lighten)
    (js2-error voice-bolden-extra)
    (js2-external-variable voice-animate) 
    (js2-function-param voice-lighten-extra)
@@ -74,6 +77,15 @@
 
 ;;}}}
 ;;{{{ Advice new interactive commands:
+(defadvice js2-jump-to-definition (after emacspeak pre act comp)
+  "Provide auditory feedback."
+  (when (ems-interactive-p)
+    (let ((emacspeak-show-point  t))
+      (emacspeak-auditory-icon 'large-movement)
+      (emacspeak-speak-line))
+    ))
+
+
 (defadvice js2-mark-defun  (after emacspeak pre act comp)
   "Provide auditory feedback."
   (when (ems-interactive-p)
@@ -87,8 +99,10 @@
           `(defadvice ,f (after emacspeak pre act comp)
              "Provide auditory feedback."
              (when (ems-interactive-p)
-               (emacspeak-auditory-icon 'large-movement)
-               (emacspeak-speak-line)))))
+               (let ((emacspeak-show-point t))
+                 (emacspeak-auditory-icon 'large-movement)
+                 (emacspeak-speak-line))))))
+
 (cl-loop for f in
          '(
            js2-beginning-of-line js2-indent-line

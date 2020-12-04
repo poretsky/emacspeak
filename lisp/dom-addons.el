@@ -6,7 +6,7 @@
 ;;{{{  LCD Archive entry:
 
 ;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu
+;;; emacspeak| T. V. Raman |tv.raman.tv@gmail.com
 ;;; A speech interface to Emacs |
 ;;; $Date: 2007-05-03 18:13:44 -0700 (Thu, 03 May 2007) $ |
 ;;;  $Revision: 4532 $ |
@@ -159,6 +159,13 @@ ATTRIBUTE would typically be `class', `id' or the like."
     (goto-char (point-min))
     (xml-remove-comments (point-min) (point-max))
     (libxml-parse-html-region (point-min) (point-max))))
+
+;;}}}
+;;{{{dom-node-as-text
+(defsubst dom-node-as-text (node)
+  "Return all the text bits in the current node and some specific
+children, e.g. `a', concatenated."
+  (with-temp-buffer (shr-insert-document node) (buffer-string)))
 
 ;;}}}
 (provide 'dom-addons)

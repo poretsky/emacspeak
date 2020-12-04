@@ -6,7 +6,7 @@
 ;;{{{  LCD Archive entry:
 
 ;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu
+;;; emacspeak| T. V. Raman |tv.raman.tv@gmail.com
 ;;; A speech interface to Emacs |
 ;;; $Date: 2007-08-25 18:28:19 -0700 (Sat, 25 Aug 2007) $ |
 ;;;  $Revision: 4074 $ |
@@ -124,13 +124,13 @@
 (defun emacspeak-ses-forward-row-and-summarize ()
   "Move to next row and summarize."
   (interactive)
-  (next-line)
+  (forward-line 1)
   (emacspeak-ses-summarize-current-cell))
 
 (defun emacspeak-ses-backward-row-and-summarize ()
   "Move to previous row  and summarize."
   (interactive)
-  (previous-line)
+  (forward-line -1)
   (emacspeak-ses-summarize-current-cell))
 
 ;;}}}

@@ -6,7 +6,7 @@
 ;;{{{  LCD Archive entry:
 
 ;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu
+;;; emacspeak| T. V. Raman |tv.raman.tv@gmail.com
 ;;; A speech interface to Emacs |
 ;;; $Date: 2007-05-03 18:13:44 -0700 (Thu, 03 May 2007) $ |
 ;;;  $Revision: 4532 $ |
@@ -51,8 +51,6 @@
 (require 'cl-lib)
 (cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
-(eval-when-compile (require 'package "package" 'no-error))
-(require 'calendar)
 ;;}}}
 ;;{{{ Map Faces:
 
@@ -60,7 +58,7 @@
  '(
    (package-help-section-name voice-lighten)
    (package-name voice-bolden)
-   (package-description voice-monotone)
+   (package-description voice-lighten)
    (package-status-built-in voice-monotone-medium)
    (package-status-external voice-animate)
    (package-status-available voice-annotate)
@@ -102,17 +100,19 @@
 (defun emacspeak-package-next-line ()
   "Move to next line and speak it."
   (interactive)
-  (next-line)
+  (forward-line 1)
   (emacspeak-package-summarize-line))
 
 (defun emacspeak-package-previous-line ()
   "Move to next line and speak it."
   (interactive)
-  (previous-line)
+  (forward-line -1)
   (emacspeak-package-summarize-line))
 
 (defun emacspeak-package-mode-hook ()
   "Emacspeak setup hook for package-mode."
+  (define-key package-menu-mode-map (ems-kbd "<left>") 'emacspeak-speak-previous-field)
+  (define-key package-menu-mode-map (ems-kbd "<right>") 'emacspeak-speak-next-field)
   (define-key package-menu-mode-map " " 'emacspeak-package-summarize-line)
   (define-key package-menu-mode-map "n" 'emacspeak-package-next-line)
   (define-key package-menu-mode-map "p" 'emacspeak-package-previous-line)

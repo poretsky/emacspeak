@@ -6,7 +6,7 @@
 ;;{{{  LCD Archive entry: 
 
 ;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu 
+;;; emacspeak| T. V. Raman |tv.raman.tv@gmail.com 
 ;;; A speech interface to Emacs |
 ;;; $Date: 2007-09-01 15:30:13 -0700 (Sat, 01 Sep 2007) $ |
 ;;;  $Revision: 4532 $ | 
@@ -109,6 +109,7 @@
 
 (defadvice bsh (after emacspeak pre act comp)
   "Provide auditory feedback"
+  (cl-declare (special emacspeak-comint-autospeak))
   (when (ems-interactive-p)
     (emacspeak-auditory-icon 'select-object)
     (setq emacspeak-comint-autospeak nil)

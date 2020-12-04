@@ -5,7 +5,7 @@
 ;;{{{  LCD Archive entry:
 
 ;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu
+;;; emacspeak| T. V. Raman |tv.raman.tv@gmail.com
 ;;; A speech interface to Emacs |
 ;;; $Date: 2007-05-03 18:13:44 -0700 (Thu, 03 May 2007) $ |
 ;;;  $Revision: 4532 $ |
@@ -158,7 +158,7 @@
   (cl-declare (special transient-sticky-map))
   (use-local-map transient-sticky-map)
   (local-set-key "q" 'bury-buffer)
-  (local-set-key (kbd "C-c") 'transient-resume))
+  (local-set-key (ems-kbd "C-c") 'transient-resume))
 
 (defvar emacspeak-transient-cache nil
   "Cache of the last Transient buffer contents.")

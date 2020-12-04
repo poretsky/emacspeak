@@ -6,7 +6,7 @@
 ;;{{{  LCD Archive entry:
 
 ;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu
+;;; emacspeak| T. V. Raman |tv.raman.tv@gmail.com
 ;;; A speech interface to Emacs |
 ;;; $Date: 2007-08-25 18:28:19 -0700 (Sat, 25 Aug 2007) $ |
 ;;;  $Revision: 4532 $ |
@@ -43,21 +43,19 @@
 ;;; Commentary:
 ;;; This module defines the various voices used in voice-lock mode.
 ;;; This module is Dectalk specific.
+;;; Code:
 
 ;;}}}
 ;;{{{ required modules
 
-;;; Code:
 (require 'cl-lib)
 (cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'acss-structure)
-(require 'tts)
-
 ;;}}}
 ;;{{{ Customizations:
 
 (defcustom dectalk-default-speech-rate 225
-  "*Default speech rate at which TTS is started. "
+  "Default speech rate . "
   :group 'tts
   :type 'integer
   :set #'(lambda(sym val)
@@ -71,13 +69,10 @@
 
 ;;;### autoload
 (defun dectalk ()
-  "Select Dectalk TTS server."
+  "Select Dectalk TTS."
   (interactive)
   (dtk-select-server "dtk-exp")
   (dtk-initialize))
-
-;;;### autoload
-
 
 ;;}}}
 ;;{{{ Forward declarations:
@@ -96,17 +91,14 @@
   "Dectalk string for  default voice --set to be a no-op.")
 
 (defvar dectalk-voice-table (make-hash-table)
-  "Association between symbols and strings to set Dectalk voices.
-The string can set any Dectalk parameter.")
+  "Map symbols to strings  that set Dectalk voices. ")
 
 (defun dectalk-define-voice (name command-string)
-  "Define a Dectalk voice named NAME.
-This voice will be set   by sending the string
-COMMAND-STRING to the Dectalk."
+  "Map voice name to command-string."
   (cl-declare (special dectalk-voice-table))
   (puthash  name command-string  dectalk-voice-table))
 
-(defun dectalk-get-voice-command (name)
+(defsubst dectalk-get-voice-command (name)
   "Retrieve command string for  voice NAME."
   (cl-declare (special dectalk-voice-table))
   (cond
@@ -115,7 +107,7 @@ COMMAND-STRING to the Dectalk."
    (t (or  (gethash name dectalk-voice-table)
            dectalk-default-voice-string))))
 
-(defun dectalk-voice-defined-p (name)
+(defsubst dectalk-voice-defined-p (name)
   "Check if there is a voice named NAME defined."
   (cl-declare (special dectalk-voice-table))
   (gethash name dectalk-voice-table))
@@ -136,6 +128,7 @@ COMMAND-STRING to the Dectalk."
 
 ;;}}}
 ;;{{{  the inaudible voice
+
 ;;; no special code needed --handled by Emacspeak engine.
 
 (dectalk-define-voice 'inaudible "")
@@ -179,9 +172,7 @@ COMMAND-STRING to the Dectalk."
 ;;{{{  hash table for mapping families to their dimensions
 
 (defvar dectalk-css-code-tables (make-hash-table)
-  "Hash table holding vectors of Dectalk codes.
-Keys are symbols of the form <FamilyName-Dimension>.
-Values are vectors holding the control codes for the 10 settings.")
+  "Hash table holding vectors of Dectalk codes. ")
 
 (defun dectalk-css-set-code-table (family dimension table)
   "Set up voice FAMILY.
@@ -192,7 +183,7 @@ and TABLE gives the values along that dimension."
     (puthash  key table dectalk-css-code-tables)))
 
 (defun dectalk-css-get-code-table (family dimension)
-  "Retrieve table of values for specified FAMILY and DIMENSION."
+  "Retrieve table of values for  FAMILY and DIMENSION."
   (cl-declare (special dectalk-css-code-tables))
   (let ((key (intern (format "%s-%s" family dimension))))
     (gethash key dectalk-css-code-tables)))
@@ -292,7 +283,7 @@ and TABLE gives the values along that dimension."
 ;;}}}
 
 (defun dectalk-get-average-pitch-code (value family)
-  "Get  AVERAGE-PITCH for specified VALUE and  FAMILY."
+  "Get  AVERAGE-PITCH for  VALUE and  FAMILY."
   (or family (setq family 'paul))
   (if value
       (aref (dectalk-css-get-code-table family 'average-pitch)
@@ -384,7 +375,7 @@ and TABLE gives the values along that dimension."
 
 ;;}}}
 (defun dectalk-get-pitch-range-code (value family)
-  "Get pitch-range code for specified VALUE and FAMILY."
+  "Get pitch-range code for  VALUE and FAMILY."
   (or family (setq family 'paul))
   (if value
       (aref (dectalk-css-get-code-table family 'pitch-range)
@@ -581,7 +572,7 @@ and TABLE gives the values along that dimension."
 ;;{{{  punctuations
 
 (defun dectalk-get-punctuations-code (value)
-  "Return string needed to set specified punctuations mode."
+  "Return string needed to set  punctuations mode."
   (if value
       (format " :pu %s " value)
     ""))
@@ -621,9 +612,10 @@ and TABLE gives the values along that dimension."
 
 ;;}}}
 ;;{{{ configurater
+
 ;;;###autoload
 (defun dectalk-configure-tts ()
-  "Configures TTS environment to use Dectalk family of synthesizers."
+  "Configures TTS environment to use Dectalk  synthesizers."
   (cl-declare (special  dectalk-default-speech-rate
                         tts-default-speech-rate tts-default-voice))
   (setq tts-default-voice 'paul)
@@ -638,25 +630,6 @@ and TABLE gives the values along that dimension."
         dtk-speech-rate-base 150)
   (setq-default dtk-speech-rate-step 50
                 dtk-speech-rate-base 150))
-
-;;}}}
-;;{{{  tts-env for Dectalk:
-
-;;;###autoload
-(defun dectalk-make-tts-env  ()
-  "Constructs a TTS environment for Dectalk."
-  (cl-declare (special dectalk-default-speech-rate))
-  (make-tts-env
-   :name :dectalk
-   :default-voice 'paul
-   :default-speech-rate dectalk-default-speech-rate
-   :list-voices #'dectalk-list-voices
-   :acss-voice-defined-p #'dectalk-voice-defined-p
-   :get-acss-voice-command #'dectalk-get-voice-command
-   :define-voice-from-acss #'dectalk-define-voice-from-speech-style
-   :speech-rate-base 150 :speech-rate-step 50))
-
-(tts-env-set :dectalk  (dectalk-make-tts-env))
 
 ;;}}}
 (provide 'dectalk-voices)

@@ -6,7 +6,7 @@
 ;;{{{  LCD Archive entry:
 
 ;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu
+;;; emacspeak| T. V. Raman |tv.raman.tv@gmail.com
 ;;; A speech interface to Emacs |
 ;;; $Date: 2007-05-03 18:13:44 -0700 (Thu, 03 May 2007) $ |
 ;;;  $Revision: 4532 $ |
@@ -55,10 +55,11 @@
 
 (require 'cl-lib)
 (cl-declaim  (optimize  (safety 0) (speed 3)))
+(eval-when-compile (require 'derived))
 (require 'emacspeak-preamble)
 (require 'gweb)
-(require 'gmaps)
-(require 'derived)
+
+
 
 ;;}}}
 ;;{{{ Data Structures
@@ -404,6 +405,77 @@ This variable is buffer-local.")
           (if emacspeak-google-use-https "https" "http")))
 
 ;;}}}
+;;{{{Cache query, toolbelt
+
+(defun emacspeak-google-cache-query(query)
+  "Setup post process hook to cache google query when rendered."
+  (cl-declare (special emacspeak-google-query))
+  (let ((cache
+         (eval
+          `#'(lambda nil
+              (setq emacspeak-google-query ,query)))))
+    (add-hook 'emacspeak-eww-post-process-hook cache 'at-end)))
+
+(defun emacspeak-google-cache-toolbelt(belt)
+  "Setup post process hook to cache google toolbelt when rendered."
+  (cl-declare (special emacspeak-google-toolbelt))
+  (let ((cache
+         (eval 
+                 `#'(lambda nil
+                   (setq emacspeak-google-toolbelt' ,belt)))))
+    (add-hook 'emacspeak-eww-post-process-hook cache 'at-end)))
+
+
+;;}}}
+;;{{{  google tools
+
+(declare-function eww-current-url "eww" nil)
+
+
+(defun emacspeak-google-who-links-to-this-page ()
+  "Perform a google search to locate documents that link to the
+current page."
+  (interactive)
+  (emacspeak-websearch-google
+   (format "link:%s"
+           (eww-current-url))))
+
+
+(defun emacspeak-google-extract-from-cache ()
+  "Extract current  page from the Google cache. "
+  (interactive)
+  (browse-url
+   (format "http://webcache.googleusercontent.com/search?q=cache:%s"
+           (shr-url-at-point nil))))
+
+
+(defun emacspeak-google-on-this-site ()
+  "Perform a google search restricted to the current WWW site."
+  (interactive)
+  (emacspeak-websearch-google
+   (format "site:%s %s"
+           (aref
+            (url-generic-parse-url (eww-current-url)) 3)
+           (read-from-minibuffer "Search this site for: "))))
+
+(defvar emacspeak-google-related-uri
+  "http://www.google.com/search?hl=en&num=25&q=related:")
+
+
+(defun emacspeak-google-similar-to-this-page (url)
+  "Ask Google to find documents similar to this one."
+  (interactive
+   (list
+    (read-from-minibuffer "URL:"
+                          (eww-current-url))))
+  (cl-declare (special emacspeak-google-related-uri))
+  (emacspeak-we-extract-by-id
+   "res"
+   (format
+    "%s%s"
+    emacspeak-google-related-uri url)))
+
+;;}}}
 ;;{{{ Interactive Commands
 
 (cl-loop for this-tool in
@@ -452,7 +524,7 @@ This variable is buffer-local.")
                      (concat
                       (emacspeak-google-toolbelt-to-tbs belt)
                       (emacspeak-google-toolbelt-to-tbm belt))))
-                 (emacspeak-webutils-cache-google-toolbelt belt)
+                 (emacspeak-google-cache-toolbelt belt)
                  (emacspeak-websearch-google
                   (or emacspeak-google-query
                       (gweb-google-autocomplete))))))))
@@ -502,7 +574,7 @@ This variable is buffer-local.")
   (let ((url (shr-url-at-point nil)))
     (cl-assert url t "No link under point.")
     (add-hook
-     'emacspeak-web-post-process-hook
+     'emacspeak-eww-post-process-hook
      #'(lambda ()
          (emacspeak-eww-next-h1  'speak)))      
     (emacspeak-we-extract-by-id-list
@@ -534,22 +606,22 @@ This variable is buffer-local.")
 
 ;;}}}
 ;;{{{  keymap
-;;;###autoload
+
 (define-prefix-command  'emacspeak-google-command
   'emacspeak-google-keymap)
-
+(cl-declaim (special emacspeak-google-keymap))
 (cl-loop
  for k in
  '(
    ("." emacspeak-google-toolbelt-change)("." emacspeak-google-toolbelt-change)
    ("A" emacspeak-google-sign-in)
    ("a" emacspeak-google-sign-out)
-   ("c" emacspeak-webutils-google-extract-from-cache)
+   ("c" emacspeak-google-extract-from-cache)
    ("g" emacspeak-websearch-google)
    ("o" emacspeak-google-open-link)
    ("i" emacspeak-google-what-is-my-ip)
-   ("l" emacspeak-webutils-google-who-links-to-this-page)
-   ("s" emacspeak-webutils-google-similar-to-this-page)
+   ("l" emacspeak-google-who-links-to-this-page)
+   ("s" emacspeak-google-similar-to-this-page)
    )
  do
  (emacspeak-keymap-update emacspeak-google-keymap k))
@@ -639,9 +711,102 @@ Optional interactive prefix arg `lang' specifies  language identifier."
 (defun emacspeak-google-what-is-my-ip ()
   "Show my public IP"
   (interactive)
-  (emacspeak-we-extract-by-class
-   "_h4c _rGd vk_h"
-   "https://www.google.com/search?lite=90586&q=what+is+my+ip" 'speak))
+  (emacspeak-websearch-google "what+is+my+ip"))
+
+;;}}}
+;;{{{ Google Knowledge Graph:
+
+;;; Google Knowledge Graph Search API  |  Knowledge G https://developers.google.com/knowledge-graph/
+
+(defcustom emacspeak-google-kg-key  nil
+  "API Key for Google Knowledge Graph."
+  :type
+  '(choice
+    (const :tag "None" "")
+    (string :tag "Key" :value ""))
+  :group 'emacspeak-google)
+
+(defvar emacspeak-google-kg-rest-end-point
+  "https://kgsearch.googleapis.com/v1/entities:search?%s=%s&key=%s&indent=1&limit=%s"
+  "Rest end-point for KG Search.")
+
+(defun emacspeak-google-kg-id-uri (id)
+  "Return URL for KG Search by id."
+  (cl-declare (special emacspeak-google-kg-rest-end-point))
+  (format
+   emacspeak-google-kg-rest-end-point
+   "ids"
+   (url-hexify-string (substring id 3))
+   emacspeak-google-kg-key
+   1))
+
+(defun emacspeak-google-kg-query-uri (query &optional limit)
+  "Return URL for KG Search."
+  (cl-declare (special emacspeak-google-kg-rest-end-point))
+  (or limit (setq limit 5))
+  (format
+   emacspeak-google-kg-rest-end-point
+   "query"
+   (url-hexify-string query)
+   emacspeak-google-kg-key
+   limit))
+
+(defun emacspeak-google-kg-json-ld (query &optional limit)
+  "Return JSON-LD structure."
+  (or limit (setq limit 5))
+  (g-json-from-url
+   (emacspeak-google-kg-query-uri query limit)))
+
+(defun emacspeak-google-kg-results (query &optional limit)
+  "Return list of results."
+  (or limit (setq limit 5))
+  (cl-map  'list
+           #'(lambda (r) (g-json-get 'result r))
+           (g-json-get 'itemListElement
+                       (emacspeak-google-kg-json-ld query limit))))
+
+(defun emacspeak-google-kg-format-result (result)
+  "Format result as HTML."
+  (let-alist result
+    (format
+     "<p><a href='%s'>%s</a> is a <code>[%s]</code>.
+<strong>%s</strong></p>
+<p>%s</p>
+<p><a href='%s'>Id: %s</a>
+<img src='%s'/></p>\n"
+     (g-json-get 'url .detailedDescription) .name
+     (mapconcat #'identity .@type ", ")
+     .description
+     (or (g-json-get 'articleBody .detailedDescription) "")
+     (emacspeak-google-kg-id-uri .@id)
+     .@id
+     (g-json-get 'contentUrl .image))))
+
+(defun emacspeak-google-knowledge-search (query &optional limit)
+  "Perform a Google Knowledge Graph search.
+Optional interactive prefix arg `limit' prompts for number of results, default is 1."
+  (interactive "sQuery:\nP")
+  (setq limit
+        (cond
+         (limit  (read-number "Number of results: "))
+         (t  5)))
+  (let ((results (emacspeak-google-kg-results query limit)))
+    (unless results (error "No results"))
+    (with-temp-buffer
+      (insert (format "<html><head><title>%s</title></head><body>\n" query))
+      (cond
+       ((> limit 1)
+        (insert "<ol>\n")
+        (cl-loop
+         for r in results do
+         (insert "<li>")
+         (insert (emacspeak-google-kg-format-result r))
+         (insert "</li>\n"))
+        (insert "</ol>\n"))
+       (t(insert  (emacspeak-google-kg-format-result (cl-first results)))))
+      (insert "</body></html>\n")
+      (emacspeak-eww-autospeak)
+      (browse-url-of-buffer))))
 
 ;;}}}
 (provide 'emacspeak-google)

@@ -6,7 +6,7 @@
 ;;{{{  LCD Archive entry:
 
 ;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu
+;;; emacspeak| T. V. Raman |tv.raman.tv@gmail.com
 ;;; A speech interface to Emacs |
 ;;; $Date: 2007-08-25 18:28:19 -0700 (Sat, 25 Aug 2007) $ |
 ;;;  $Revision: 4150 $ |
@@ -145,34 +145,34 @@ end   as specified by grid."
   "Lookup key and return corresponding grid. "
   (cl-declare (special emacspeak-gridtext-table))
   (gethash key emacspeak-gridtext-table))
-;;;###autoload
+
 (defun emacspeak-gridtext-load (file)
   "Load saved grid settings."
   (interactive
    (list
     (read-file-name "Load grid settings  from file: "
-                    emacspeak-resource-directory
+                    emacspeak-user-directory
                     ".gridtext")))
   (condition-case nil
       (progn
         (load
-         (expand-file-name  file emacspeak-resource-directory)))
+         (expand-file-name  file emacspeak-user-directory)))
     (error (message "Error loading resources from %s "
                     file))))
-;;;###autoload
+
 (defun emacspeak-gridtext-save (file)
   "Save out grid settings."
   (interactive
    (list
     (read-file-name "Save gridtext settings  to file: "
-                    emacspeak-resource-directory
+                    emacspeak-user-directory
                     ".gridtext")))
-  (cl-declare (special emacspeak-resource-directory))
+  (cl-declare (special emacspeak-user-directory))
   (let ((print-level nil)
         (print-length nil)
         (buffer (find-file-noselect
                  (expand-file-name file
-                                   emacspeak-resource-directory))))
+                                   emacspeak-user-directory))))
     (save-current-buffer
       (set-buffer buffer)
       (erase-buffer)
@@ -192,7 +192,7 @@ end   as specified by grid."
 
 ;;}}}
 ;;{{{ interactive commands
-;;;###autoload
+
 (defun emacspeak-gridtext-apply (start end grid)
   "Apply grid to region."
   (interactive

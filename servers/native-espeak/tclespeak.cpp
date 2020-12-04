@@ -43,7 +43,6 @@
 #include <string.h>
 #include <sys/time.h>
 #include <tcl.h>
-#include <string>
 #include <set>
 #include <string>
 #include <vector>
@@ -94,8 +93,7 @@ int Tclespeak_Init(Tcl_Interp *interp) {
     Tcl_AppendResult(interp, "Error loading ", PACKAGENAME, NULL);
     return TCL_ERROR;
   }
-espeak_Initialize(AUDIO_OUTPUT_PLAYBACK, 512, NULL, 0);
-
+  espeak_Initialize(AUDIO_OUTPUT_PLAYBACK, 512, NULL, 0);
 
   //>
   //<register tcl commands
@@ -170,7 +168,7 @@ int SetRate(ClientData handle, Tcl_Interp *interp, int objc,
 
 static bool closeTags(string input, string &output) {
   char *tag_orig = (char *)malloc(sizeof(char) * (input.size() + 1));
-  strcpy(tag_orig, input.c_str());
+  strncpy(tag_orig, input.c_str(), input.size());
   output = "";
 
   // check that a text (non whitespace) is present
@@ -222,18 +220,18 @@ int Say(ClientData handle, Tcl_Interp *interp, int objc,
         Tcl_Obj *CONST objv[]) {
   int i;
   for (i = 1; i < objc; i++) {
-      char *a_text = (char *)Tcl_GetStringFromObj(objv[i], NULL);
-      if (a_text) {
-        string a_begin_ssml = a_text;
-        string a_end_ssml;
-        if (closeTags(a_begin_ssml, a_end_ssml)) {
-          string a_ssml = a_begin_ssml + a_end_ssml;
+    char *a_text = (char *)Tcl_GetStringFromObj(objv[i], NULL);
+    if (a_text) {
+      string a_begin_ssml = a_text;
+      string a_end_ssml;
+      if (closeTags(a_begin_ssml, a_end_ssml)) {
+        string a_ssml = a_begin_ssml + a_end_ssml;
 
-          unsigned int unique_identifier = 0;
-          espeak_Synth(a_ssml.c_str(), a_ssml.length() + 1, 0, POS_CHARACTER, 0,
-                       espeakCHARS_UTF8 | espeakSSML, &unique_identifier, NULL);
-        }
+        unsigned int unique_identifier = 0;
+        espeak_Synth(a_ssml.c_str(), a_ssml.length() + 1, 0, POS_CHARACTER, 0,
+                     espeakCHARS_UTF8 | espeakSSML, &unique_identifier, NULL);
       }
+    }
   }
   return TCL_OK;
 }
@@ -353,10 +351,9 @@ int getTTSVersion(ClientData handle, Tcl_Interp *interp, int objc,
     return TCL_ERROR;
   }
 
-  // TBD: need a forthcoming eSpeak service.
-
+  const char *_path = (char *)malloc(16);
   char *version = (char *)malloc(16);
-  strcpy(version, "????");
+  strncpy(version, espeak_Info(&_path), 16);
   Tcl_SetResult(interp, version, TCL_STATIC);
   return TCL_OK;
 }

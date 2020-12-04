@@ -6,7 +6,7 @@
 ;;{{{  LCD Archive entry:
 
 ;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu
+;;; emacspeak| T. V. Raman |tv.raman.tv@gmail.com
 ;;; A speech interface to Emacs |
 ;;; $Date: 2007-09-01 15:30:13 -0700 (Sat, 01 Sep 2007) $ |
 ;;;  $Revision: 4555 $ |
@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (C) 1995 -- 2018, T. V. Raman<raman@cs.cornell.edu>
+;;; Copyright (C) 1995 -- 2018, T. V. Raman<tv.raman.tv@gmail.com>
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -59,7 +59,7 @@
 
 (cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
-(eval-when-compile (require 'ido))
+(require 'ido)
 
 ;;}}}
 ;;{{{ speech-enable feedback routines
@@ -127,7 +127,7 @@ The default value of 12 is too high for using ido effectively with speech. "
   (when (ems-interactive-p)
     (emacspeak-auditory-icon (if ido-enable-regexp 'on 'off))
     (dtk-speak
-     (format "Case %s"
+     (format "Regexp %s"
              (if ido-enable-regexp 'on 'off)))))
 
 (defadvice ido-toggle-prefix (after emacspeak pre act comp)
@@ -138,17 +138,14 @@ The default value of 12 is too high for using ido effectively with speech. "
      (format "Prefix %s"
              (if ido-enable-prefix 'on 'off)))))
 
-;;; forward declaration
-
-(defvar ido-process-ignore-lists nil)
 (defadvice ido-toggle-ignore (after emacspeak pre act comp)
   "Provide auditory feedback."
-  (cl-declare (special ido-process-ignore-list))
+  (cl-declare (special ido-ignore-files))
   (when (ems-interactive-p)
-    (emacspeak-auditory-icon (if ido-process-ignore-lists 'on 'off))
+    (emacspeak-auditory-icon (if ido-ignore-files 'on 'off))
     (dtk-speak
-     (format "Case %s"
-             (if ido-process-ignore-lists
+     (format "File ignoring  %s"
+             (if ido-ignore-files
                  'on 'off)))))
 
 (defadvice ido-complete (after emacspeak pre act comp)
@@ -162,7 +159,8 @@ The default value of 12 is too high for using ido effectively with speech. "
    ido-switch-buffer ido-switch-buffer-other-window
    ido-switch-buffer-other-frame ido-display-buffer
    ido-find-file ido-find-file-other-frame ido-find-file-other-window
-   ido-find-alternate-file ido-find-file-read-only ido-find-file-read-only-other-window ido-find-file-read-only-other-frame)
+   ido-find-alternate-file ido-find-file-read-only
+   ido-find-file-read-only-other-window ido-find-file-read-only-other-frame)
  do
  (eval
   `(defadvice   ,f(after emacspeak pre act comp)
@@ -170,10 +168,12 @@ The default value of 12 is too high for using ido effectively with speech. "
      (when (ems-interactive-p)
        (emacspeak-auditory-icon 'open-object)
        (emacspeak-speak-mode-line)))))
+
 (defadvice ido-bury-buffer-at-head (after emacspeak pre act comp)
   "Provide auditory icon."
   (when (ems-interactive-p)
     (emacspeak-auditory-icon 'close-object)))
+
 (defadvice ido-kill-buffer (after emacspeak pre act comp)
   "Provide auditory icon."
   (when (ems-interactive-p)
@@ -193,11 +193,6 @@ The default value of 12 is too high for using ido effectively with speech. "
 
 ;;}}}
 ;;{{{ define personalities 
-
-(defgroup emacspeak-ido nil
-  "Emacspeak ido customizations."
-  :group  'emacspeak
-  )
 
 (voice-setup-add-map
  '(
@@ -219,9 +214,10 @@ The default value of 12 is too high for using ido effectively with speech. "
     (define-key ido-common-completion-map "\C-f" 'ido-enter-find-file)
     (define-key ido-common-completion-map "^" 'ido-up-directory)
     (define-key ido-common-completion-map emacspeak-prefix 'emacspeak-prefix-command)
-    (define-key ido-common-completion-map (kbd "M-e")  'ido-edit-input)))
+    (define-key ido-common-completion-map (ems-kbd "M-e")  'ido-edit-input)))
 
 (emacspeak-ido-keys)
+
 ;;}}}
 (provide 'emacspeak-ido)
 ;;{{{ end of file

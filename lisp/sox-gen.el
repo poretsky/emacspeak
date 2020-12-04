@@ -5,7 +5,7 @@
 ;;{{{  LCD Archive entry:
 
 ;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu
+;;; emacspeak| T. V. Raman |tv.raman.tv@gmail.com
 ;;; A speech interface to Emacs |
 ;;; $Date: 2007-05-03 18:13:44 -0700 (Thu, 03 May 2007) $ |
 ;;;  $Revision: 4532 $ |
@@ -116,24 +116,25 @@
 
 (require 'cl-lib)
 (cl-declaim  (optimize  (safety 0) (speed 3)))
-(require 'sox)
+
 
 ;;}}}
 ;;{{{ sox-gen-p:
 
-(defcustom sox-gen-p (executable-find "sox")
-  "Should sox-gen commands attempt to invoke SoX."
-  :type 'boolean
-  :group 'sox-gen)
+(defvar sox-gen-p
+  (eval-when-compile (executable-find "sox"))
+  "Is sox available?")
 
 ;;}}}
 ;;{{{ SoX Command Generator:
+(defvar sox-gen-play (executable-find "play")
+  "Location of play from SoX.")
 
 (defun sox-gen-cmd (cmd)
   "Play specified command."
-  (cl-declare (special sox-play sox-gen-p))
+  (cl-declare (special sox-gen-play sox-gen-p))
   (when sox-gen-p
-    (apply #'start-process "SoX" nil sox-play  (split-string cmd))))
+    (apply #'start-process "SoX" nil sox-gen-play  (split-string cmd))))
 
 ;;}}}
 ;;{{{ Binaural Audio:
@@ -147,7 +148,7 @@ tones using SoX, e.g., for binaural beats."
   "-q -n synth %s sin %s sin %s gain %s channels 2 "
   "Command-line that produces a binaural beat.")
 
-;;;###autoload
+
 (defun sox-tone-binaural (length freq beat gain)
   "Play binaural audio with carrier frequency `freq', beat `beat', and
 gain `gain'."
@@ -164,7 +165,7 @@ gain `gain'."
     freq (+ freq beat)
     (+ gain sox-binaural-gain-offset))))
 
-;;;###autoload
+
 (defun sox-tone-slide-binaural (length freq beat-start beat-end  gain)
   "Play binaural audio with carrier frequency `freq', beat
 `beat-start' -> `beat-end', and gain `gain'."
@@ -200,7 +201,7 @@ gain `gain'."
         (push (list this-freq this-beat) specs)))
     (nreverse specs)))
 
-;;;###autoload
+
 (defun sox-beats-binaural (length beat-spec-list  gain)
   "Play binaural audio with beat-spec specifying the various tones.
 Param `beat-spec-list' is a list of `(carrier beat) tupples."
@@ -306,11 +307,10 @@ Param `beat-spec-list' is a list of `(carrier beat) tupples."
                      nil 'must-match)
     (timer-duration (read-from-minibuffer "Duration: "))))
   (sox--binaural-play duration (sox-binaural-get-effect name))
-  (when emacspeak-use-auditory-icons(emacspeak-play-auditory-icon 'time))
   (dtk-notify-say
    (format "%s: %s" name (sox--format-seconds duration))))
 
-;;;###autoload
+
 (defun sox-slide-binaural (name-1 name-2 duration)
   "Play specified binaural slide from `name-1' to `name-2'."
   (interactive
@@ -326,7 +326,6 @@ Param `beat-spec-list' is a list of `(carrier beat) tupples."
     (run-with-timer
      dur nil
      #'(lambda (n1 n2  d)
-         (when emacspeak-use-auditory-icons(emacspeak-play-auditory-icon 'time))
          (dtk-notify-say
           (format "%s  to %s %s" n1 n2 (sox--format-seconds d)))
          (sox--binaural-play  d slide))
@@ -603,7 +602,7 @@ Freq can be specified as a frequency, note (%nn) or frequency range."
                   1.3 1 .76 .54 .27 remix - fade h 0 2.7 2.5 norm -1 channels 2"
   "Command-line that produces a simple chime.")
 
-;;;###autoload
+
 (defun sox-chime (&optional tempo speed)
   "Play chime --- optional args tempo and speed default to 1."
   (cl-declare (special sox-chime-cmd))

@@ -5,7 +5,7 @@
 ;;{{{  LCD Archive entry:
 
 ;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu
+;;; emacspeak| T. V. Raman |tv.raman.tv@gmail.com
 ;;; A speech interface to Emacs |
 ;;; $Date: 2007-05-03 18:13:44 -0700 (Thu, 03 May 2007) $ |
 ;;;  $Revision: 4532 $ |
@@ -109,7 +109,7 @@
 (defadvice helm-google-suggest (before emacspeak pre act comp)
   "setup emacspeak post-processing-hook"
   (add-hook
-   'emacspeak-web-post-process-hook
+   'emacspeak-eww-post-process-hook
    #'(lambda nil
        (let  ((emacspeak-google-toolbelt (emacspeak-google-toolbelt)))
          (eww-display-dom-by-id-list '("center_col" "rhs"))))))

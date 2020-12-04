@@ -6,7 +6,7 @@
 ;;{{{  LCD Archive entry: 
 
 ;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu
+;;; emacspeak| T. V. Raman |tv.raman.tv@gmail.com
 ;;; A speech interface to Emacs |
 ;;; $Date: 2007-08-25 18:28:19 -0700 (Sat, 25 Aug 2007) $ |
 ;;;  $Revision: 4532 $ | 
@@ -48,14 +48,6 @@
 ;;; Provide additional advice to forms-mode 
 ;;; Code:
 ;;}}}
-;;{{{  custom
-(defgroup emacspeak-forms nil
-  "Emacspeak support for forms mode."
-  :group 'emacspeak
-  :group 'forms
-  :prefix "emacspeak-forms-")
-
-;;}}}
 ;;{{{ Helper functions
 
 (defvar emacspeak-forms-current-record-summarizer
@@ -80,16 +72,12 @@ speak the first field")
    (format "Record %s of %s from %s"
            forms--current-record forms--total-records forms-file)))
 
-(defcustom emacspeak-forms-rw-voice 'paul
-  "Personality for read-write fields. "
-  :type 'symbol
-  :group 'emacspeak-forms)
+(defvar emacspeak-forms-rw-voice 'paul
+  "Personality for read-write fields. ")
 
-(defcustom emacspeak-forms-ro-voice voice-annotate
-  "Personality for read-only fields. "
-  :type 'symbol
-  :group 'emacspeak-forms)
-;;;###autoload
+(defvar emacspeak-forms-ro-voice voice-annotate
+  "Personality for read-only fields. ")
+
 (defun emacspeak-forms-speak-field ()
   "Speak current form field name and value.
 Assumes that point is at the front of a field value."
@@ -116,6 +104,19 @@ Assumes that point is at the front of a field value."
 
 ;;}}}
 ;;{{{ Advise interactive  commands
+(cl-loop
+ for f in 
+ '(forms-search-forward forms-search-backward)
+ do
+ (eval
+  `(defadvice ,f (after emacspeak pre act comp)
+     "Provide auditory feedback."
+     (when (ems-interactive-p)
+       (emacspeak-auditory-icon 'search-hit)
+       (emacspeak-speak-line)))))
+
+
+
 
 (defadvice forms-next-record (after emacspeak pre act comp)
   "Provide auditory feedback."
@@ -257,19 +258,17 @@ Assumes that point is at the front of a field value."
 (cl-declaim (special forms-mode-map forms-mode-ro-map
                      forms-mode-edit-map))
 (add-hook 'forms-mode-hooks
-          (function
-           (lambda nil 
-             (mapcar 
-              (function
-               (lambda (map)
-                 (define-key map "\C-m" 'emacspeak-forms-rerun-filter)
-                 (define-key map "."
-                   'emacspeak-forms-summarize-current-position)
-                 (define-key map "," 'emacspeak-forms-summarize-current-record)))
-              (list forms-mode-ro-map 
-                    forms-mode-map))
+          #'(lambda nil 
+              (mapc
+               #'(lambda (map)
+                   (define-key map "\C-m" 'emacspeak-forms-rerun-filter)
+                   (define-key map "."
+                     'emacspeak-forms-summarize-current-position)
+                   (define-key map "," 'emacspeak-forms-summarize-current-record))
+               (list forms-mode-ro-map 
+                     forms-mode-map))
 ;;; move to first field
-             (forms-next-field 1))))
+              (forms-next-field 1)))
 
 ;;}}}
 (provide  'emacspeak-forms)

@@ -5,7 +5,7 @@
 ;;{{{  LCD Archive entry:
 
 ;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu
+;;; emacspeak| T. V. Raman |tv.raman.tv@gmail.com
 ;;; A speech interface to Emacs |
 ;;; $Date: 2007-05-03 18:13:44 -0700 (Thu, 03 May 2007) $ |
 ;;;  $Revision: 4532 $ |
@@ -67,8 +67,6 @@
   (when (ems-interactive-p)
     (emacspeak-auditory-icon 'mark-object)
     (dtk-speak (format "Copied: %s " (car  kill-ring)))))
-
-(mapc #'emacspeak-fix-interactive-command-if-necessary '(ciel-ci ciel-co))
 
 ;;}}}
 (provide 'emacspeak-ciel)

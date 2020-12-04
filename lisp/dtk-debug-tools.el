@@ -1,11 +1,11 @@
-;;; emacspeak-dtk-debug-tools.el --- Speech-enable DTK-DEBUG-TOOLS  -*- lexical-binding: t; -*-
+;;; emacspeak-dtk-debug-tools.el ---  DTK-DEBUG-TOOLS  -*- lexical-binding: t; -*-
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Speech-enable DTK-DEBUG-TOOLS An Emacs Interface to dtk-debug-tools
 ;;; Keywords: Emacspeak,  Audio Desktop dtk-debug-tools
 ;;{{{  LCD Archive entry:
 
 ;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu
+;;; emacspeak| T. V. Raman |tv.raman.tv@gmail.com
 ;;; A speech interface to Emacs |
 ;;; $Date: 2007-05-03 18:13:44 -0700 (Thu, 03 May 2007) $ |
 ;;;  $Revision: 4532 $ |
@@ -53,6 +53,7 @@
 
 ;;}}}
 ;;{{{dtk-debug-speak-buffer
+
 (defun dtk--debug-speak-buffer (text)
   "Return the buffer that dtk-speak would have created as its scratch buffer."
   (cl-declare (special 
@@ -113,13 +114,12 @@
          voice-lock-mode voice-lock)
         (set-syntax-table syntax-table)
         (set-buffer-multibyte inherit-enable-multibyte-characters)
-        (insert text)
-        ;(dtk--delete-invisible-text)
-        (when pronunciation-table
-          (tts-apply-pronunciations pronunciation-table))
-        (dtk-unicode-replace-chars mode)
-        (dtk-handle-repeating-patterns mode)
-        (dtk-quote mode)
+        (insert-for-yank text)
+        (dtk--delete-invisible-text)
+        
+        
+        
+        
         (goto-char (point-min))
         (skip-syntax-forward " ")       ;skip leading whitespace
         tts-scratch-buffer))))

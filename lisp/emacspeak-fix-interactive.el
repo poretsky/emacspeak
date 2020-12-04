@@ -7,7 +7,7 @@
 ;;{{{  LCD Archive entry:
 
 ;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu
+;;; emacspeak| T. V. Raman |tv.raman.tv@gmail.com
 ;;; A speech interface to Emacs |
 ;;; $Date: 2007-09-01 15:30:13 -0700 (Sat, 01 Sep 2007) $ |
 ;;;  $Revision: 4532 $ |
@@ -44,6 +44,7 @@
 (require 'advice)
 (require 'dtk-speak)
 ;;{{{  Introduction:
+
 ;;; Commentary:
 ;;; Emacs commands that use the 'interactive spec
 ;;; to read interactive arguments are a problem for Emacspeak.
@@ -55,6 +56,7 @@
 ;;; emacspeak-fix-commands-that-use-interactive needs to be called
 ;;; To speech enable such functions.
 ;;; Code:
+
 ;;}}}
 ;;{{{  functions that are  fixed.
 
@@ -64,12 +66,11 @@
    "\\|^face\\|^frame\\|^font"
    "\\|^color\\|^timer")
   "Regular expression matching function names whose interactive spec should not be fixed.")
-;;;###autoload
+
 (defun emacspeak-should-i-fix-interactive-p  (sym)
   "Predicate to test if this function should be fixed. "
   (and
-   (not (string-match emacspeak-commands-dont-fix-regexp
-                      (symbol-name sym)))
+   (not (string-match emacspeak-commands-dont-fix-regexp (symbol-name sym)))
    (commandp sym)
    (not (get  sym 'emacspeak-checked-interactive))
    (not (eq 'byte-compile-obsolete (get sym 'byte-compile)))
@@ -79,8 +80,6 @@
 (defun emacspeak-fix-commands-that-use-interactive ()
   "Auto advises interactive commands to speak prompts."
   (mapatoms 'emacspeak-fix-interactive-command-if-necessary))
-
-;;}}}
 
 (defun ems-prompt-without-minibuffer-p (prompt)
   "Check if this interactive prompt uses the minibuffer."
@@ -138,8 +137,8 @@ use the minibuffer."
       (message "Not auto-advising %s" sym))))
   t)
 
-;;; inline function for use from other modules:
-;;;###autoload
+
+
 (defun  emacspeak-fix-interactive-command-if-necessary (command)
   "Fix command if necessary."
   (when (emacspeak-should-i-fix-interactive-p  command)
@@ -147,7 +146,7 @@ use the minibuffer."
 
 ;;}}}
 ;;{{{  fixing all commands defined in a given module:
-;;;###autoload
+
 (defun emacspeak-fix-commands-loaded-from (module)
   "Fix all commands loaded from a specified module."
   (interactive
@@ -193,6 +192,17 @@ Memoizes call in emacspeak-load-history-pointer to memoize this call. "
     (when (called-interactively-p 'interactive)
       (message "Fixed recently defined  interactive commands")))
   t)
+
+;;}}}
+;;{{{Enumerate commands that are fixed:
+(defun emacspeak-fix-interactive-commands-that-are-fixed ()
+  "Return list of commands that are auto-advised."
+  (let ((result nil))
+    (mapatoms
+     #'(lambda (sym)
+         (when (get sym 'emacspeak-auto-advised)
+           (cl-pushnew sym result))))
+    result))
 
 ;;}}}
 (provide 'emacspeak-fix-interactive)

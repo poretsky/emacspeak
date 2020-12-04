@@ -6,7 +6,7 @@
 ;;{{{  LCD Archive entry:
 
 ;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu
+;;; emacspeak| T. V. Raman |tv.raman.tv@gmail.com
 ;;; A speech interface to Emacs |
 ;;; $Date: 2007-09-01 15:12:15 -0700 (Sat, 01 Sep 2007) $ |
 ;;;  $Revision: 4150 $ |
@@ -129,7 +129,7 @@ Speak field or char moved to."
      (fields (emacspeak-analog-next-field fields)
              (emacspeak-analog-speak-field fields)
              (emacspeak-auditory-icon 'large-movement))
-     (t (call-interactively 'emacspeak-forward-char)))))
+     (t (call-interactively 'forward-char)))))
 
 (defun emacspeak-analog-backward-field-or-char ()
   "Move back to next field if field specification is available.
@@ -141,7 +141,7 @@ Speak field or char moved to."
      (fields (emacspeak-analog-previous-field fields)
              (emacspeak-analog-speak-field fields)
              (emacspeak-auditory-icon 'large-movement))
-     (t (call-interactively 'emacspeak-backward-char)))))
+     (t (call-interactively 'backward-char)))))
 
 (defun emacspeak-analog-speak-field (fields)
   "Speak field containing point."
@@ -214,7 +214,7 @@ Speak field or char moved to."
   (let ((fields (emacspeak-analog-get-field-spec)))
     (cond (fields
            (emacspeak-auditory-icon 'select-object)
-           (next-line -1)
+           (forward-line -1)
            (emacspeak-analog-speak-field fields))
           (t (call-interactively 'previous-line)))))
 
@@ -224,7 +224,7 @@ Speak field or char moved to."
   (let ((fields (emacspeak-analog-get-field-spec)))
     (cond (fields
            (emacspeak-auditory-icon 'select-object)
-           (next-line 1)
+           (forward-line 1)
            (emacspeak-analog-speak-field fields))
           (t (call-interactively 'next-line)))))
 

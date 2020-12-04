@@ -5,7 +5,7 @@
 ;;; Keywords: Emacspeak, Setup, Spoken Output
 ;;{{{  LCD Archive entry:
 ;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu
+;;; emacspeak| T. V. Raman |tv.raman.tv@gmail.com
 ;;; A speech interface to Emacs |
 ;;; $Date: 2008-06-06 19:00:23 -0700 (Fri, 06 Jun 2008) $ |
 ;;;  $Revision: 4532 $ |
@@ -52,176 +52,93 @@
 ;;; Code:
 
 ;;}}}
-;;{{{ Required Modules
-
-(require 'cl-lib)
-(cl-declaim  (optimize  (safety 0) (speed 3)))
-(require 'custom)
-
-;;}}}
 ;;{{{  Define locations
 
 ;;;###autoload
 (defvar emacspeak-directory
   (expand-file-name "../" (file-name-directory load-file-name))
-  "Directory where emacspeak is installed. ")
+  "emacspeak installation directory")
 
 ;;;###autoload
 (defvar emacspeak-lisp-directory
   (expand-file-name  "lisp/" emacspeak-directory)
-  "Directory where emacspeak lisp files are  installed. ")
+  "Emacspeak lisp directory.")
 
 ;;;###autoload
 (defvar emacspeak-sounds-directory
   (expand-file-name  "sounds/" emacspeak-directory)
-  "Directory containing auditory icons for Emacspeak.")
+  "Auditory icons directory.")
 
 ;;;###autoload
 (defvar emacspeak-xslt-directory
   (expand-file-name "xsl/" emacspeak-directory)
-  "Directory holding XSL transformations.")
-
-;;;###autoload
-(defvar emacspeak-curl-program (executable-find "curl")
-  "Name of CURL executable.")
+  "XSL transformations.")
 
 ;;;###autoload
 (defvar emacspeak-etc-directory
   (expand-file-name  "etc/" emacspeak-directory)
-  "Directory containing miscellaneous files  for Emacspeak.")
+  "Misc directory.")
 
 ;;;###autoload
 (defvar emacspeak-servers-directory
   (expand-file-name  "servers/" emacspeak-directory)
-  "Directory containing speech servers  for Emacspeak.")
+  "Speech servers directory.")
 
 ;;;###autoload
 (defvar emacspeak-info-directory
   (expand-file-name  "info/" emacspeak-directory)
-  "Directory containing  Emacspeak info files.")
+  "Emacspeak reference.")
 
 ;;;###autoload
-(defvar emacspeak-resource-directory (expand-file-name "~/.emacspeak/")
-  "Directory where Emacspeak resource files
-such as pronunciation dictionaries are stored. ")
+(defvar emacspeak-user-directory (expand-file-name "~/.emacspeak/")
+  "Emacspeak resources, e.g. pronunciation dicts.")
 
 ;;;###autoload
 (defvar emacspeak-readme-file
   (expand-file-name "README" emacspeak-directory)
-  "README file from where we get Git  revision number.")
+  "README file with  Git  revision number.")
+
+;;;###autoload
+(defvar emacspeak-curl-program (executable-find "curl")
+  "Curl location.")
 
 ;;;###autoload
 (defvar emacspeak-media-extensions
-  (let
-      ((ext
-        '("mov" "wma" "wmv" "flv" "m4a" "m4b"  "flac" "aiff" "aac" "opus ""mkv"
-          "ogv" "oga""ogg" "mp3"  "mp4" "webm" "wav")))
-    (concat
-     "\\."
-     (regexp-opt
-      (nconc ext (mapcar #'upcase ext))
-      'parens)
-     "$"))
-  "Extensions that match media files.")
+  (eval-when-compile
+    (let
+        ((ext
+          '("mov" "wma" "wmv" "flv" "m4a" "m4b"  "flac" "aiff" "aac" "opus ""mkv"
+            "ogv" "oga""ogg" "mp3"  "mp4" "webm" "wav")))
+      (concat
+       "\\."
+       (regexp-opt
+        (nconc ext (mapcar #'upcase ext))
+        'parens)
+       "$")))
+  "Media file Extensions.")
 
+;;;###autoload
 (defvar  emacspeak-m-player-playlist-pattern
-  (concat
-   (regexp-opt
-    (list ".m3u" ".asx" ".pls" ".rpm" ".ram"))
-   "$")
-  "Pattern for matching playlists.")
+  (eval-when-compile
+    (concat
+     (regexp-opt
+      (list ".m3u" ".asx" ".pls" ".rpm" ".ram"))
+     "$"))
+  "Playlist pattern.")
 
 ;;}}}
-;;{{{ Hooks
+;;{{{Load-path:
 
 (push emacspeak-lisp-directory load-path)
-(push (expand-file-name "g-client" emacspeak-lisp-directory) load-path)
 
-(let ((file-name-handler-alist nil)
-      (load-source-file-function  nil))
-  (load (expand-file-name "emacspeak.elc" emacspeak-lisp-directory)))
-
-(defcustom dtk-startup-hook
-  '(emacspeak-tts-startup-hook emacspeak-tts-notify-hook)
-  "List of hooks to be run after starting up the speech server.
-Set things like speech rate, punctuation mode etc in this
-hook."
-  :type 'hook
-  :group 'tts)
-
-;;;###autoload
-(defun emacspeak-tts-startup-hook ()
-  "Default hook function run after TTS is started."
-  (cl-declare (special dtk-program))
-  (tts-configure-synthesis-setup dtk-program))
-
-(defcustom tts-notification-device
-  (cl-first (split-string (shell-command-to-string  "aplay -L 2>/dev/null | grep mono")))
-  "Virtual ALSA device to use for notifications stream."
-  :type 'string
-  :group 'tts)
-
-;;;###autoload
-(defun emacspeak-tts-multistream-p (tts-engine)
-  "Checks if this tts-engine can support multiple streams."
-  (and
-   (member tts-engine '("outloud" "32-outloud" "cloud-outloud"))
-   (not (string= (dtk-get-notify-alsa-device) "default"))))
-
-(defcustom emacspeak-tts-use-notify-stream
-  (when (emacspeak-tts-multistream-p dtk-program) t)
-  "Set to true to use a separate TTS stream for notifications."
-  :type 'boolean
-  :group 'emacspeak)
-
-(defun emacspeak-tts-use-notify-stream-p ()
-  "Predicate to check if we use a separate notify stream."
-  (cl-declare (special emacspeak-tts-use-notify-stream))
-  emacspeak-tts-use-notify-stream)
-
-(defun emacspeak-tts-notify-hook ()
-  "Starts up a notification stream if current synth supports  multiple invocations.
-TTS engine should use ALSA for this to be usable."
-  (cl-declare (special dtk-program dtk-notify-process))
-  (when (process-live-p dtk-notify-process) (delete-process dtk-notify-process))
-  (when (emacspeak-tts-multistream-p dtk-program)
-    (dtk-notify-initialize)))
-
-;;;###autoload
-(defun emacspeak-setup-header-line ()
-  "Set up Emacspeak to speak a default header line."
-  (cl-declare (special emacspeak-use-header-line
-                       header-line-format emacspeak-header-line-format))
-  (when emacspeak-use-header-line
-    (setq header-line-format emacspeak-header-line-format)))
-
-(defun emacspeak-turn-off-visual-line-mode ()
-  "This function turns off visual line mode globally.
-It's placed by default on customizable option `emacspeak-startup-hook'."
-  (global-visual-line-mode -1))
-
-(defcustom emacspeak-startup-hook
-  '(emacspeak-setup-header-line emacspeak-turn-off-visual-line-mode)
-  "Hook run after Emacspeak is started."
-  :type 'hook
-  :group 'emacspeak)
-
-(defvar emacspeak-info-already-loaded nil
-  "Track info support load.")
-
-(add-hook
- 'Info-mode-hook
- #'(lambda ()
-     (let ((file-name-handler-alist nil)
-           (load-source-file-function  nil))
-       (unless emacspeak-info-already-loaded
-         (load-library "emacspeak-info"))
-       (setq emacspeak-info-already-loaded t))))
+(unless noninteractive
+  (let ((file-name-handler-alist nil)
+        (load-source-file-function nil))
+    (load  "emacspeak-loaddefs")))
 
 ;;}}}
-
-(emacspeak)
-
+;;; Start emacspeak if emacs   is interactive:
+(unless noninteractive (emacspeak))
 (provide 'emacspeak-setup)
 ;;{{{  emacs local variables
 

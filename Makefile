@@ -82,7 +82,6 @@ dist:
 config:
 	@cd etc && $(MAKE) config   --no-print-directory
 	@cd lisp && $(MAKE) config --no-print-directory
-	@cd lisp/g-client  && $(MAKE) config --no-print-directory
 	@echo "Configured emacspeak in directory $(SRC)."
 
 # }}}
@@ -98,10 +97,11 @@ q:
 	make config 
 	make
 	@cd lisp && make muggles --no-print-directory
+	@cd lisp && make extra-muggles --no-print-directory
 	@cd	 tvr && make  --no-print-directory
 
 qq:
-	make -s q 2>&1 |grep -v Loading 
+	make -s q 2>&1 |grep -v Loading  
 
 # }}}
 # {{{  user level target-- clean

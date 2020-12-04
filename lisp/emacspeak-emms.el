@@ -6,7 +6,7 @@
 ;;{{{  LCD Archive entry:
 
 ;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu
+;;; emacspeak| T. V. Raman |tv.raman.tv@gmail.com
 ;;; A speech interface to Emacs |
 ;;; $Date: 2007-08-27 17:54:54 -0700 (Mon, 27 Aug 2007) $ |
 ;;;  $Revision: 4150 $ |
@@ -52,10 +52,12 @@
 
 ;;}}}
 ;;{{{ required modules
-
+(require 'cl-lib)
 (cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
-(require 'emms "emms" 'no-error)
+(declare-function emms-playlist-current-selected-track "emacspeak-emms" t)
+(declare-function emms-player-pause "emacspeak-emms" t)
+
 ;;}}}
 ;;{{{ module emms:
 
