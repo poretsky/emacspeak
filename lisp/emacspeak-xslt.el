@@ -6,7 +6,7 @@
 ;;{{{  LCD Archive entry:
 
 ;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu
+;;; emacspeak| T. V. Raman |tv.raman.tv@gmail.com
 ;;; A speech interface to Emacs |
 ;;; $Date: 2008-08-12 10:48:54 -0700 (Tue, 12 Aug 2008) $ |
 ;;;  $Revision: 4562 $ |
@@ -39,27 +39,40 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;{{{  introduction
+
 ;;; Commentary:
 ;;; libxml and libxsl are XML libraries for GNOME.
 ;;; xsltproc is a  xslt processor using libxsl
 ;;; this module defines routines for applying xsl transformations
 ;;; using xsltproc
 ;;; Code:
+
 ;;}}}
 ;;{{{  Required modules
 
 (cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
-(require 'emacspeak-webutils)
 ;;}}}
 ;;{{{  xslt Environment:
 ;;;###autoload
-(defun emacspeak-xslt-get (style)
+(defsubst emacspeak-xslt-get (style)
   "Return fully qualified stylesheet path."
   (expand-file-name style emacspeak-xslt-directory))
-(defgroup emacspeak-xslt nil
-  "XSL transformation group."
-  :group 'emacspeak)
+
+;;;###autoload
+(defconst emacspeak-opml-view-xsl
+  (eval-when-compile  (emacspeak-xslt-get "opml.xsl"))
+  "XSL stylesheet used for viewing OPML  Feeds.")
+
+;;;###autoload
+(defconst emacspeak-rss-view-xsl
+  (eval-when-compile  (emacspeak-xslt-get "rss.xsl"))
+  "XSL stylesheet used for viewing RSS Feeds.")
+
+;;;###autoload
+(defconst emacspeak-atom-view-xsl
+  (eval-when-compile  (emacspeak-xslt-get "atom.xsl"))
+  "XSL stylesheet used for viewing Atom Feeds.")
 
 (defun emacspeak-xslt-params-from-xpath (path base)
   "Return params suitable for passing to  emacspeak-xslt-region"
@@ -81,26 +94,65 @@
    (read-file-name "XSL Transformation: "
                    emacspeak-xslt-directory
                    emacspeak-we-xsl-transform)))
-
-(defvar emacspeak-xslt-program "xsltproc"
+;;;###autoload
+(defvar emacspeak-xslt-program
+  (executable-find "xsltproc")
   "Name of XSLT transformation engine.")
 
-(defcustom emacspeak-xslt-options
+(defvar emacspeak-xslt-options
   "--html --nonet --novalid --encoding utf-8"
-  "Options passed to xsltproc."
-  :type 'string
-  :group 'emacspeak-xslt)
+  "Options passed to xsltproc.")
 
-(defcustom emacspeak-xslt-keep-errors  nil
-  "If non-nil, xslt errors will be preserved in an errors buffer."
-  :type 'boolean
-  :group 'emacspeak-xslt)
+(defvar emacspeak-xslt-keep-errors  nil
+  "If non-nil, xslt errors will be preserved in an errors buffer.")
 
-(defcustom emacspeak-xslt-nuke-null-char t
+(defvar emacspeak-xslt-nuke-null-char t
   "If T null chars in the region will be nuked.
-This is useful when handling bad HTML."
-  :type 'boolean
-  :group 'emacspeak-xslt)
+This is useful when handling bad HTML.")
+
+;;}}}
+;;{{{Macro: without-xsl
+(defmacro emacspeak-xslt-without-xsl (&rest body)
+  "Execute body with XSL turned off."
+  (declare (indent 1) (debug t))
+  `(progn
+     (cl-declare (special emacspeak-we-xsl-p))
+     (when emacspeak-we-xsl-p
+       (setq emacspeak-we-xsl-p nil)
+       (add-hook 'emacspeak-eww-post-process-hook
+                 #'(lambda ()
+                     (cl-declare (special emacspeak-we-xsl-p))
+                     (setq emacspeak-we-xsl-p t))
+                 'append))
+     ,@body))
+
+;;}}}
+;;{{{XSLT Transformer functions:
+
+(defun emacspeak-xslt-make-xsl-transformer  (xsl &optional params)
+  "Return a function that can be attached to emacspeak-eww-pre-process-hook to apply required xslt transform."
+  (cond
+   ((null params)
+    (eval
+     `#'(lambda ()
+          (emacspeak-xslt-region ,xsl (point) (point-max)))))
+   (t
+    (eval
+     `#'(lambda ()
+          (emacspeak-xslt-region ,xsl (point) (point-max) ',params))))))
+
+(defun emacspeak-xslt-make-xsl-transformer-pipeline   (specs url)
+  "Return a function that can be attached to
+emacspeak-eww-pre-process-hook to apply required xslt transformation
+pipeline. Argument `specs' is a list of elements of the form `(xsl params)'."
+  (eval
+   `#'(lambda ()
+        (cl-loop
+         for s in ',specs do
+         (emacspeak-xslt-region
+          (cl-first s)
+          (point) (point-max)
+          (emacspeak-xslt-params-from-xpath (cl-second s) ,url))))))
 
 ;;}}}
 ;;{{{ Functions:
@@ -150,7 +202,7 @@ part of the libxslt package."
         (set-buffer-multibyte t)
         (current-buffer)))))
 
-;;;###autoload
+
 (defun emacspeak-xslt-run (xsl &optional start end)
   "Run xslt on region, and return output filtered by sort -u.
 Region defaults to entire buffer."
@@ -307,7 +359,7 @@ part of the libxslt package."
         (shell-command
          command (current-buffer)
          (when emacspeak-xslt-keep-errors
-           "*xslt errors*")))
+"xslt errors*")))
       (when (get-buffer  "*xslt errors*")
         (bury-buffer "*xslt errors*"))
       (goto-char (point-max))
@@ -320,9 +372,30 @@ part of the libxslt package."
       result)))
 
 ;;}}}
+;;{{{handle charent
+(defvar emacspeak-xslt-charent-alist
+  '(("&lt;" . "<")
+    ("&gt;" . ">")
+    ("&quot;" . "\"")
+    ("&apos;" . "'")
+    ("&amp;" . "&"))
+  "Entities to unescape when treating badly escaped XML.")
+
+(defun emacspeak-xslt-unescape-charent (start end)
+  "Clean up charents in XML."
+  (cl-declare (special emacspeak-xslt-charent-alist))
+  (cl-loop for entry in emacspeak-xslt-charent-alist
+           do
+           (let ((entity (car  entry))
+                 (replacement (cdr entry)))
+             (goto-char start)
+             (while (search-forward entity end t)
+               (replace-match replacement nil t)))))
+
+;;}}}
 ;;{{{ interactive commands:
 
-;;;###autoload
+
 (defun emacspeak-xslt-view-file(style file)
   "Transform `file' using `style' and preview via browse-url."
   (interactive
@@ -336,7 +409,7 @@ part of the libxslt package."
           (coding-system-for-read 'utf-8)
           (coding-system-for-write 'utf-8)
           (buffer-file-coding-system 'utf-8))
-      (insert-file file)
+      (insert-file-contents file)
       (shell-command
        (format "%s   --novalid --nonet --param base %s  %s  \"%s\"  2>/dev/null"
                emacspeak-xslt-program 
@@ -347,7 +420,7 @@ part of the libxslt package."
       (set-buffer-multibyte t)
       (browse-url-of-buffer))))
 
-;;;###autoload
+
 (defun emacspeak-xslt-view (style url)
   "Browse URL with specified XSL style."
   (interactive
@@ -357,17 +430,17 @@ part of the libxslt package."
     (read-string "URL: " (browse-url-url-at-point))))
   (cl-declare (special emacspeak-xslt-options))
   (add-hook
-   'emacspeak-web-pre-process-hook
-   (emacspeak-webutils-make-xsl-transformer style))
+   'emacspeak-eww-pre-process-hook
+   (emacspeak-xslt-make-xsl-transformer style))
   (browse-url url))
 
-;;;###autoload
+
 (defun emacspeak-xslt-view-xml (style url &optional unescape-charent)
   "Browse XML URL with specified XSL style."
   (interactive
    (list
     (emacspeak-xslt-read)
-    (emacspeak-webutils-read-this-url)
+    (emacspeak-eww-read-url)
     current-prefix-arg))
   (let ((browse-url-browser-function  'eww-browse-url)
         (src-buffer
@@ -378,16 +451,16 @@ part of the libxslt package."
            (cons "base"
                  (format "\"'%s'\""
                          url))))))
-    (when (ems-interactive-p) (emacspeak-webutils-autospeak))
+    (when (ems-interactive-p) (emacspeak-eww-autospeak))
     (save-current-buffer
       (set-buffer src-buffer)
       (when unescape-charent
-        (emacspeak-webutils-unescape-charent (point-min) (point-max)))
-      (emacspeak-webutils-without-xsl
+        (emacspeak-xslt-unescape-charent (point-min) (point-max)))
+      (emacspeak-xslt-without-xsl
        (browse-url-of-buffer)))
     (kill-buffer src-buffer)))
 
-;;;###autoload
+
 (defun emacspeak-xslt-view-region (style start end &optional unescape-charent)
   "Browse XML region with specified XSL style."
   (interactive
@@ -403,8 +476,8 @@ part of the libxslt package."
     (save-current-buffer
       (set-buffer src-buffer)
       (when unescape-charent
-        (emacspeak-webutils-unescape-charent (point-min) (point-max)))
-      (emacspeak-webutils-without-xsl
+        (emacspeak-xslt-unescape-charent (point-min) (point-max)))
+      (emacspeak-xslt-without-xsl
        (browse-url-of-buffer)))
     (kill-buffer src-buffer)))
 

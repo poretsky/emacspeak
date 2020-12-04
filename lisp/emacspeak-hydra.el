@@ -5,7 +5,7 @@
 ;;{{{  LCD Archive entry:
 
 ;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu
+;;; emacspeak| T. V. Raman |tv.raman.tv@gmail.com
 ;;; A speech interface to Emacs |
 ;;; Location undetermined
 ;;;
@@ -48,7 +48,7 @@
 (require 'cl-lib)
 (cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
-(eval-when-compile (require 'hydra "hydra" 'no-error))
+(require 'hydra "hydra" 'no-error)
 
 ;;}}}
 ;;{{{ Map Hydra Colors To Voices:
@@ -102,6 +102,27 @@ Also turn on hydra-is-helpful if it was turned off."
 (defun emacspeak-hydra-self-help (name)
   "Speak hint for specified Hydra."
   (message (eval (symbol-value (intern (format "%s/hint" name))))))
+
+;;}}}
+;;{{{lv-message:
+
+(defvar ems--lv-cache nil
+  "Emacspeak's private cache of the last lv message.")
+
+(voice-setup-set-voice-for-face 'lv-separator  'inaudible)
+
+(defadvice lv-message (after emacspeak pre act comp)
+  "Provide auditory feedback."
+  (cl-declare (special ems--lv-cache))
+  (emacspeak-auditory-icon 'help)
+  (with-current-buffer (window-buffer (lv-window))
+    (setq ems--lv-cache (buffer-substring (point-min) (point-max)))
+    (emacspeak-speak-buffer)))
+
+(defadvice lv-delete-window (after emacspeak pre act comp)
+  "Provide auditory feedback."
+  (dtk-stop)
+  (emacspeak-auditory-icon 'delete-object))
 
 ;;}}}
 (provide 'emacspeak-hydra)

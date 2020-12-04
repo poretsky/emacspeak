@@ -6,7 +6,7 @@
 ;;{{{  LCD Archive entry: 
 
 ;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu 
+;;; emacspeak| T. V. Raman |tv.raman.tv@gmail.com 
 ;;; A speech interface to Emacs |
 ;;; $Date: 2007-09-01 15:30:13 -0700 (Sat, 01 Sep 2007) $ |
 ;;;  $Revision: 4532 $ | 
@@ -174,14 +174,15 @@
 ;;{{{ custom hook
 
 (add-hook 'Custom-mode-hook
-          (function
-           (lambda nil
-             (emacspeak-pronounce-refresh-pronunciations))))
+          
+          #'(lambda nil
+              (emacspeak-pronounce-refresh-pronunciations)))
 
 ;;}}}
 ;;{{{ define voices
 (voice-setup-add-map
  '(
+   (custom-variable-obsolete voice-smoothen-extra)
    (custom-group-subtitle  voice-smoothen)
    (custom-themed voice-brighten)
    (custom-visibility voice-annotate)
@@ -215,7 +216,7 @@
   "^/-"
   "Pattern identifying start of custom group.")
 
-;;;###autoload
+
 (defun emacspeak-custom-goto-group ()
   "Jump to custom group when in a customization buffer."
   (interactive)

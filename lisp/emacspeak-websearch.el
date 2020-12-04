@@ -6,7 +6,7 @@
 ;;{{{  LCD Archive entry:
 
 ;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu
+;;; emacspeak| T. V. Raman |tv.raman.tv@gmail.com
 ;;; A speech interface to Emacs |
 ;;; $Date: 2008-08-14 11:23:31 -0700 (Thu, 14 Aug 2008) $ |
 ;;;  $Revision: 4625 $ |
@@ -51,14 +51,10 @@
 (require 'cl-lib)
 (cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
-(require 'emacspeak-webutils)
-(require 'eww)
-(require 'emacspeak-eww)
-(require 'emacspeak-feeds)
 (require 'emacspeak-google)
 (require 'gweb)
-(require  'emacspeak-we)
-(require 'calendar)
+(declare-function word-at-point "thingatpt" (&optional no-properties))
+(declare-function calendar-cursor-to-date "calendar" (&optional error event))
 
 ;;}}}
 ;;{{{ Forward Declarations:
@@ -71,10 +67,6 @@
 ;;}}}
 ;;{{{ searcher table
 
-;;;###autoload
-(defgroup emacspeak-websearch nil
-  "Websearch tools for the Emacspeak desktop."
-  :group 'emacspeak)
 (defvar emacspeak-websearch-table (make-hash-table)
   "Table holding mapping from search engine names to appropriate searcher functions.")
 
@@ -103,7 +95,7 @@
 ;;}}}
 ;;{{{ top-level dispatch
 
-;;;###autoload
+
 (defun emacspeak-websearch-help ()
   "Displays key mapping used by Emacspeak Websearch."
   (interactive)
@@ -116,6 +108,7 @@
           (sort map #'(lambda (a b) (< (car a) (car b)))))
     (with-current-buffer (help-buffer)
       (erase-buffer)
+      (help-mode)
       (cl-loop
        for m in map do
        (insert (format "%s:\t%s\n"
@@ -167,6 +160,29 @@
     answer))
 
 ;;}}}
+;;{{{post-processor
+(defun emacspeak-websearch-post-process (locator speaker &rest args)
+  "Set up post processing steps on a result page.
+LOCATOR is a string to search for in the results page.
+SPEAKER is a function to call to speak relevant information.
+ARGS specifies additional arguments to SPEAKER if any."
+  (cl-declare (special emacspeak-eww-post-process-hook))
+  (add-hook
+   'emacspeak-eww-post-process-hook
+   (eval
+      `#'(lambda nil
+        (let ((inhibit-read-only t))
+          (condition-case nil
+              (cond
+               ((search-forward ,locator nil t)
+                (recenter 0)
+                (apply(quote ,speaker) ,args))
+               (t (message "Your search appears to have failed.")))
+            (error nil)))))
+   'at-end))
+
+;;}}}
+
 ;;{{{ Computer Science Bibliography
 
 (emacspeak-websearch-set-searcher 'biblio
@@ -178,7 +194,7 @@
   "http://liinwww.ira.uka.de/searchbib/index?partial=on&case=on&results=citation&maxnum=200&query="
   "URI to search the Computer Science Bibliographies.")
 
-;;;###autoload
+
 (defun emacspeak-websearch-biblio-search (query)
   "Search Computer Science Bibliographies."
   (interactive
@@ -188,7 +204,7 @@
   (browse-url
    (concat emacspeak-websearch-biblio-uri
            (url-hexify-string query)))
-  (emacspeak-webutils-post-process
+  (emacspeak-websearch-post-process
    query
    'emacspeak-speak-line))
 
@@ -205,7 +221,7 @@
 
 (emacspeak-websearch-set-key 3 'citeseer)
 
-;;;###autoload
+
 (defun emacspeak-websearch-citeseer-search(term)
   "Perform a CiteSeer search. "
   (interactive
@@ -213,7 +229,7 @@
   (cl-declare (special emacspeak-websearch-citeseer-uri))
   (browse-url
    (format  emacspeak-websearch-citeseer-uri (url-hexify-string term)))
-  (emacspeak-webutils-post-process term  #'emacspeak-speak-line))
+  (emacspeak-websearch-post-process term  #'emacspeak-speak-line))
 
 ;;}}}
 ;;{{{ FolDoc
@@ -224,9 +240,9 @@
 
 (defvar emacspeak-websearch-foldoc-uri
   "http://foldoc.org/"
-  "*URI for launching a FolDoc  search.")
+"URI for launching a FolDoc  search.")
 
-;;;###autoload
+
 (defun emacspeak-websearch-foldoc-search (query)
   "Perform a FolDoc search. "
   (interactive
@@ -236,150 +252,9 @@
   (browse-url
    (concat emacspeak-websearch-foldoc-uri
            (url-hexify-string query)))
-  (emacspeak-webutils-post-process
+  (emacspeak-websearch-post-process
    query
    'emacspeak-speak-line))
-
-;;}}}
-;;{{{ Lookup company news at Yahoo
-
-(emacspeak-websearch-set-searcher 'company-news
-                                  'emacspeak-websearch-company-news)
-(emacspeak-websearch-set-key ?c 'company-news)
-
-(defvar emacspeak-websearch-company-news-uri
-  "http://finance.yahoo.com/q"
-  "*URI for launching a company news lookup")
-
-(defvar emacspeak-websearch-yahoo-charts-uri
-  "http://chart.yahoo.com/t?"
-  "*URI for locating historical chart data.")
-
-(defvar emacspeak-websearch-yahoo-csv-charts-uri
-  "http://itable.finance.yahoo.com/table.csv?"
-  "*URI for locating historical chart data.")
-
-(defvar emacspeak-websearch-yahoo-company-news-quotes-uri
-  "http://finance.yahoo.com/q?d=t&o=t"
-  "URI for looking up detailed quote information. ")
-
-;;;###autoload
-(defun emacspeak-websearch-company-news (ticker &optional prefix)
-  "Perform an company news lookup.
-Retrieves company news, research, profile, insider trades,  or upgrades/downgrades."
-  (interactive
-   (list
-    (emacspeak-websearch-read-query
-     "Enter stock ticker of company to lookup: ")
-    current-prefix-arg))
-  (cl-declare (special emacspeak-websearch-company-news-uri))
-  ;;; invert sense of prefix --- since Yahoo APIs are gone:
-  (setq prefix (not prefix))
-  (let ((type-char
-         (read-char
-          "b basic, c Upgrades, h history, i insider, n news, o options, r Research, p profile, q Quotes, t technical")))
-    (cond
-     ((char-equal type-char ?h)
-      (emacspeak-websearch-yahoo-historical-chart ticker prefix)
-      (emacspeak-auditory-icon 'select-object)
-      (message "Fetching data --just a minute."))
-     (t
-      (browse-url
-       (concat emacspeak-websearch-company-news-uri
-               (format "%s?"
-                       (cl-case type-char
-                         (?n "/h")
-                         (?p "/pr")
-                         (?r "/ae")
-                         (?c "/ao")
-                         (?i "/it")
-                         (?q "")
-                         (?k "/ks")
-                         (?b "/bc")
-                         (?t "/ta")
-                         (?e "/ce")
-                         (?o "/op")
-                         (?s "/sec")))
-               (format "s=%s" ticker)))
-      (emacspeak-webutils-post-process
-       (format-time-string "%Y")
-       'emacspeak-speak-line)))))
-
-(defun emacspeak-websearch-view-csv-data (process state)
-  "Process csv data and put it in emacspeak table mode. "
-  (message "state: %s" state)
-  (when (string-match "^finished" state)
-    (emacspeak-auditory-icon 'select-object)
-    (emacspeak-table-view-csv-buffer (process-buffer process))))
-
-;;;###autoload
-(defun emacspeak-websearch-yahoo-historical-chart (ticker
-                                                   &optional as-html)
-  "Look up historical stock data.
-Optional second arg as-html processes the results as HTML rather than data."
-  (interactive
-   (list
-    (emacspeak-websearch-read-query "Stock ticker:")
-    current-prefix-arg))
-  (cl-declare (special emacspeak-curl-program
-                       emacspeak-websearch-yahoo-charts-uri
-                       emacspeak-websearch-yahoo-csv-charts-uri))
-  (let ((start-month
-         (read-from-minibuffer "Start Month: "
-                               (format-time-string "%m")))
-        (start-date
-         (read-from-minibuffer "Start Date: "
-                               (format-time-string  "%d")))
-        (start-year
-         (read-from-minibuffer "Start Year: "
-                               (format-time-string "%y")))
-        (end-month
-         (read-from-minibuffer "End Month: "
-                               (format-time-string "%m")))
-        (end-date (read-from-minibuffer "End Date: "
-                                        (format-time-string
-                                         "%d")))
-        (end-year
-         (read-from-minibuffer "End Year: "
-                               (format-time-string "%y")))
-        (period
-         (format "%c"
-                 (read-char
-                  "Daily: d Weekly: w Monthly: m"))))
-    (cond
-     ((not as-html)
-      (let ((uri (concat emacspeak-websearch-yahoo-csv-charts-uri
-                         (format "a=%s" start-month)
-                         (format "&b=%s" start-date)
-                         (format "&c=%s" start-year)
-                         (format "&d=%s" end-month)
-                         (format "&e=%s" end-date)
-                         (format "&f=%s" end-year)
-                         (format "&g=%s" period)
-                         (format "&s=%s" ticker)
-                         "&q=q&x=.csv"))
-            (results (format "*%s*" ticker))
-            (process nil))
-        (setq process
-              (start-process   "curl"
-                               results
-                               emacspeak-curl-program
-                               "--silent" "--location"
-                               uri))
-        (set-process-sentinel process 'emacspeak-websearch-view-csv-data)))
-     (t (browse-url
-         (concat emacspeak-websearch-yahoo-charts-uri
-                 (format "a=%s" start-month)
-                 (format "&b=%s" start-date)
-                 (format "&c=%s" start-year)
-                 (format "&d=%s" end-month)
-                 (format "&e=%s" end-date)
-                 (format "&f=%s" end-year)
-                 (format "&g=%s" period)
-                 (format "&s=%s" ticker)))
-        (emacspeak-webutils-post-process
-         "Open"
-         'emacspeak-speak-line)))))
 
 ;;}}}
 ;;{{{ Gutenberg
@@ -390,7 +265,7 @@ Optional second arg as-html processes the results as HTML rather than data."
 
 (defvar emacspeak-websearch-gutenberg-uri
   "http://digital.library.upenn.edu/webbin/book/search?"
-  "*URI for Gutenberg search")
+"URI for Gutenberg search")
 
 ;;;###autoload
 (defun emacspeak-websearch-gutenberg (type query)
@@ -406,7 +281,7 @@ Optional second arg as-html processes the results as HTML rather than data."
              (?a "author=")
              (?t "title="))
            (url-hexify-string query)))
-  (emacspeak-webutils-post-process
+  (emacspeak-websearch-post-process
    query
    'emacspeak-speak-line))
 
@@ -443,12 +318,8 @@ Optional second arg as-html processes the results as HTML rather than data."
      "http://")
    emacspeak-websearch-google-uri-template))
 
-(defcustom emacspeak-websearch-google-options nil
-  "Additional options to pass to Google e.g. &xx=yy..."
-  :type '(choice
-          (const :tag "None" nil)
-          (string :tag "Options"))
-  :group 'emacspeak-websearch)
+(defvar emacspeak-websearch-google-options nil
+  "Additional options to pass to Google e.g. &xx=yy...")
 
 (defadvice gweb-google-autocomplete (after emacspeak pre act comp)
   "Cache the query."
@@ -462,6 +333,7 @@ Optional second arg as-html processes the results as HTML rather than data."
 
 (defvar emacspeak-websearch-google-number-of-results 25
   "Number of Google search results.")
+(declare-function emacspeak-eww-next-h1 "emacspeak-eww" (&optional speak))
 
 ;;;###autoload
 (defun emacspeak-websearch-google (query &optional flag)
@@ -478,11 +350,11 @@ prefix arg is equivalent to hitting the I'm Feeling Lucky button on Google. "
         (search-url nil)
         (add-toolbelt (and flag  (consp flag) (= 4 (car flag))))
         (lucky (and flag  (consp flag) (= 16 (car flag)))))
-    (emacspeak-webutils-cache-google-query query)
-    (emacspeak-webutils-cache-google-toolbelt toolbelt)
+    (emacspeak-google-cache-query query)
+    (emacspeak-google-cache-toolbelt toolbelt)
     (if lucky
-        (emacspeak-webutils-autospeak)
-      (emacspeak-webutils-post-process "Results" 'emacspeak-speak-line))
+        (emacspeak-eww-autospeak)
+      (emacspeak-websearch-post-process "Results" 'emacspeak-speak-line))
     (setq search-url
           (concat
            (emacspeak-websearch-google-uri)
@@ -499,7 +371,7 @@ prefix arg is equivalent to hitting the I'm Feeling Lucky button on Google. "
      (lucky (browse-url search-url))
      (t                                 ; always just show results
 (add-hook
-       'emacspeak-web-post-process-hook
+       'emacspeak-eww-post-process-hook
        #'(lambda ()
            (emacspeak-eww-next-h1  'speak)))      
       (emacspeak-we-extract-by-id-list
@@ -524,13 +396,13 @@ Optional prefix arg prompts for toolbelt options."
   (setq emacspeak-google-toolbelt nil)
   (let ((emacspeak-eww-masquerade t)
         (toolbelt (emacspeak-google-toolbelt)))
-    (emacspeak-webutils-cache-google-query query)
-    (emacspeak-webutils-cache-google-toolbelt toolbelt)
+    (emacspeak-google-cache-query query)
+    (emacspeak-google-cache-toolbelt toolbelt)
     (cond
      (options (emacspeak-google-toolbelt-change))
      (t
       (add-hook
-       'emacspeak-web-post-process-hook
+       'emacspeak-eww-post-process-hook
        #'(lambda ()
            (emacspeak-eww-next-h1  'speak)))
       (emacspeak-we-extract-by-id-list
@@ -543,7 +415,7 @@ Optional prefix arg prompts for toolbelt options."
   (interactive (list (gweb-google-autocomplete "AGoogle: ")))
   (emacspeak-websearch-accessible-google query 'use-toolbelt))
 
-;;;###autoload
+
 (defun emacspeak-websearch-google-feeling-lucky (query)
   "Do a I'm Feeling Lucky Google search."
   (interactive
@@ -551,7 +423,7 @@ Optional prefix arg prompts for toolbelt options."
     (gweb-google-autocomplete "Google Lucky Search: ")))
   (emacspeak-websearch-google query '(16)))
 
-;;;###autoload
+
 (defun emacspeak-websearch-google-search-in-date-range ()
   "Use this from inside the calendar to do Google date-range searches."
   (interactive)
@@ -580,29 +452,13 @@ Optional prefix arg prompts for toolbelt options."
 
 (emacspeak-websearch-set-key ?n 'google-news)
 
-;;;###autoload
+
 (defun emacspeak-websearch-google-news ()
   "Invoke Google News url template."
   (interactive)
   (let ((name "Google News Search"))
     (emacspeak-url-template-open
      (emacspeak-url-template-get name))))
-
-;;}}}
-;;{{{ Google Regional News:
-
-(emacspeak-websearch-set-searcher
- 'google-regional-news
- 'emacspeak-websearch-google-regional-news)
-
-(emacspeak-websearch-set-key ?r 'google-regional-news)
-
-;;;###autoload
-(defun emacspeak-websearch-google-regional-news ()
-  "Browse Google News by region."
-  (interactive)
-  (let ((name   "Google Regional News"))
-    (emacspeak-url-template-open (emacspeak-url-template-get name))))
 
 ;;}}}
 ;;{{{  Ask Jeeves
@@ -624,52 +480,7 @@ Optional prefix arg prompts for toolbelt options."
   (browse-url
    (concat emacspeak-websearch-jeeves-uri
            (url-hexify-string query)))
-  (emacspeak-webutils-post-process query 'emacspeak-speak-line))
-
-;;}}}
-;;{{{  news yahoo
-
-(emacspeak-websearch-set-searcher 'news-yahoo
-                                  'emacspeak-websearch-news-yahoo)
-(emacspeak-websearch-set-key ?N 'news-yahoo)
-
-(defvar emacspeak-websearch-news-yahoo-uri
-  "http://search.news.yahoo.com/search/news?"
-  "*URI for launching a Yahoo News search")
-
-(defvar emacspeak-websearch-news-yahoo-rss-uri
-  "http://news.search.yahoo.com/news/rss?"
-  "*RSS URI for launching a Yahoo News search")
-
-;;;###autoload
-(defun emacspeak-websearch-news-yahoo (query &optional rss)
-  "Perform an Yahoo News search.
-Optional prefix arg  avoids scraping  information from HTML."
-  (interactive
-   (list
-    (emacspeak-websearch-read-query "Yahoo News Query: ")
-    current-prefix-arg))
-  (add-hook 'emacspeak-web-post-process-hook
-            #'(lambda nil
-                (cl-declare (special  emacspeak-we-url-rewrite-rule
-                                      emacspeak-websearch-news-yahoo-rss-uri
-                                      emacspeak-we-class-filter))
-                (setq emacspeak-we-class-filter "article"
-                      emacspeak-we-url-rewrite-rule
-                      '("$" "&printer=1"))))
-  (cond
-   (rss                       ;use rss feed
-    (emacspeak-feeds-rss-display
-     (concat emacspeak-websearch-news-yahoo-rss-uri
-             (format "p=%s&n=20&c=news"
-                     (url-hexify-string query)))))
-   (t
-    (emacspeak-we-xslt-filter
-     "//ol"
-     (concat emacspeak-websearch-news-yahoo-uri
-             (format "p=%s&n=20&c=news"
-                     (url-hexify-string query)))
-     'speak-result))))
+  (emacspeak-websearch-post-process query 'emacspeak-speak-line))
 
 ;;}}}
 ;;{{{ Merriam Webster
@@ -682,14 +493,14 @@ Optional prefix arg  avoids scraping  information from HTML."
   "http://www.m-w.com/cgi-bin/dictionary?va="
   "URI for searching the Merriam Webster dictionary.")
 
-;;;###autoload
+
 (defun emacspeak-websearch-merriam-webster-search (query)
   "Search the Merriam Webster Dictionary."
   (interactive
    (list
     (emacspeak-websearch-read-query "Lookup word in Webster:")))
   (cl-declare (special emacspeak-websearch-merriam-webster-uri))
-  (add-hook 'emacspeak-web-post-process-hook #'emacspeak-eww-next-h1 'at-end)
+  (add-hook 'emacspeak-eww-post-process-hook #'emacspeak-eww-next-h1 'at-end)
   (browse-url
    (concat emacspeak-websearch-merriam-webster-uri
            (url-hexify-string query))))
@@ -702,38 +513,13 @@ Optional prefix arg  avoids scraping  information from HTML."
 
 (emacspeak-websearch-set-key ?w 'wikipedia)
 
-;;;###autoload
+
 (defun emacspeak-websearch-wikipedia-search (query)
   "Search Wikipedia using Google."
   (interactive
    (list (emacspeak-websearch-read-query "Search Wikipedia: ")))
   (emacspeak-websearch-google
    (url-hexify-string (format "site:wikipedia.org %s"query))))
-
-;;}}}
-;;{{{ yahoo
-
-(emacspeak-websearch-set-searcher 'yahoo
-                                  'emacspeak-websearch-yahoo)
-(emacspeak-websearch-set-key ?Y 'yahoo)
-
-(defvar emacspeak-websearch-yahoo-uri
-  "http://search.yahoo.com/bin/search?p="
-  "*URI for launching a Yahoo  search")
-
-;;;###autoload
-(defun emacspeak-websearch-yahoo (query)
-  "Perform an Yahoo  search"
-  (interactive
-   (list (emacspeak-websearch-read-query "Yahoo Query: ")))
-  (cl-declare (special emacspeak-websearch-yahoo-uri))
-  (browse-url
-   (concat emacspeak-websearch-yahoo-uri
-           (url-hexify-string query)))
-  (emacspeak-webutils-post-process
-   "
-Results"
-   'emacspeak-speak-line))
 
 ;;}}}
 ;;{{{ YouTube Search:
@@ -743,7 +529,7 @@ Results"
 
 (emacspeak-websearch-set-key ?y 'youtube-search)
 
-;;;###autoload
+
 (defun emacspeak-websearch-youtube-search (query)
   "YouTube search."
   (interactive (list (gweb-youtube-autocomplete)))
@@ -762,7 +548,7 @@ Results"
   "http://www.amazon.com/access"
   "Form for Amazon store search.")
 
-;;;###autoload
+
 (defun emacspeak-websearch-amazon-search ()
   "Amazon search."
   (interactive)

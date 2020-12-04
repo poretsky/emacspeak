@@ -6,7 +6,7 @@
 ;;{{{  LCD Archive entry: 
 
 ;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu 
+;;; emacspeak| T. V. Raman |tv.raman.tv@gmail.com 
 ;;; A speech interface to Emacs |
 ;;; $Date: 2007-09-01 15:30:13 -0700 (Sat, 01 Sep 2007) $ |
 ;;;  $Revision: 4532 $ | 
@@ -52,27 +52,25 @@
 ;;}}}
 ;;{{{  Advice interactive commands:
 
-(defvar emacspeak-todo-mode-navigation-commands
-  '(todo-forward-item
-    todo-backward-item
-    todo-next-item
-    todo-previous-item
-    todo-forward-category
-    todo-backward-category
-    todo-next-category
-    todo-previous-category
-    todo-jump-to-category
-    )
-  "Todo mode navigation commands to speech enable.")
-
-(cl-loop for f in emacspeak-todo-mode-navigation-commands
-         do
-         (eval
-          `(defadvice ,f (after emacspeak pre act comp)
-             "Provide auditory feedback."
-             (when (ems-interactive-p)
-               (emacspeak-auditory-icon 'select-object)
-               (emacspeak-speak-line)))))
+(cl-loop
+ for f in
+ '(todo-forward-item
+   todo-backward-item
+   todo-next-item
+   todo-previous-item
+   todo-forward-category
+   todo-backward-category
+   todo-next-category
+   todo-previous-category
+   todo-jump-to-category
+   )
+ do
+ (eval
+  `(defadvice ,f (after emacspeak pre act comp)
+     "Provide auditory feedback."
+     (when (ems-interactive-p)
+       (emacspeak-auditory-icon 'select-object)
+       (emacspeak-speak-line)))))
 
 (defadvice todo-save (after emacspeak pre act comp)
   "Provide auditory feedback."

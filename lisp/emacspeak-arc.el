@@ -6,7 +6,7 @@
 ;;{{{  LCD Archive entry: 
 
 ;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu 
+;;; emacspeak| T. V. Raman |tv.raman.tv@gmail.com 
 ;;; A speech interface to Emacs |
 ;;; $Date: 2008-06-21 10:50:41 -0700 (Sat, 21 Jun 2008) $ |
 ;;;  $Revision: 4532 $ | 
@@ -208,7 +208,7 @@ first initializing it if necessary."
       (message "No file on this line"))
      (t
       (setq mode
-            (archive-int-to-mode
+            (file-modes-number-to-symbolic
              (aref entry 3)))
       (message  "Permissions  %s "
                 mode)))))

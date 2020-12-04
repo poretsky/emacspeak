@@ -6,7 +6,7 @@
 ;;{{{ LCD Archive entry:
 
 ;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu
+;;; emacspeak| T. V. Raman |tv.raman.tv@gmail.com
 ;;; A speech interface to Emacs |
 ;;; $Date: 2008-08-14 11:23:31 -0700 (Thu, 14 Aug 2008) $ |
 ;;; $Revision: 4626 $ |
@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{ Copyright:
 
-;;; Copyright (C) 1995 -- 2018, T. V. Raman<raman@cs.cornell.edu>
+;;; Copyright (C) 1995 -- 2018, T. V. Raman<tv.raman.tv@gmail.com>
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -55,15 +55,15 @@
 ;;}}}
 ;;{{{ required modules
 (require 'cl-lib)
-(eval-when-compile (require 'subr-x))
 (cl-declaim  (optimize  (safety 0) (speed 3)))
+(eval-when-compile (require 'subr-x))
 (require 'emacspeak-preamble)
-(require 'emacspeak-webutils)
+;(require 'eww)
+(require 'dom-addons)
 (require 'gweb)
 (require 'g-utils)
 (require 'emacspeak-we)
 (require 'emacspeak-xslt)
-(eval-when-compile (require 'calendar))
 ;;}}}
 ;;{{{ structures
 
@@ -119,7 +119,7 @@
 ;;}}}
 ;;{{{ define resources
 
-;;;###autoload
+
 (defun emacspeak-url-template-define (name template
                                            &optional generators post-action
                                            documentation fetcher
@@ -151,17 +151,16 @@ dont-url-encode if true then url arguments are not url-encoded "
     :fetcher fetcher
     :dont-url-encode dont-url-encode)))
 
-;;;###autoload
+
 (defun emacspeak-url-template-load (file)
   "Load URL template resources from specified location."
   (interactive
    (list
     (read-file-name "Load URL templates from file: "
-                    emacspeak-resource-directory)))
+                    emacspeak-user-directory)))
   (condition-case nil
       (progn
-        (load
-         (expand-file-name file emacspeak-resource-directory)))
+        (ems--fastload (expand-file-name file emacspeak-user-directory)))
     (error (message "Error loading resources from %s "
                     file))))
 
@@ -169,12 +168,12 @@ dont-url-encode if true then url arguments are not url-encoded "
   "Save out url templates."
   (interactive
    (list
-    (read-file-name "Save URL templates to: " emacspeak-resource-directory)))
-  (cl-declare (special emacspeak-resource-directory))
+    (read-file-name "Save URL templates to: " emacspeak-user-directory)))
+  (cl-declare (special emacspeak-user-directory))
   (let ((print-level nil)
         (print-length nil)
         (buffer (find-file-noselect
-                 (expand-file-name file emacspeak-resource-directory))))
+                 (expand-file-name file emacspeak-user-directory))))
     (with-current-buffer buffer
       (setq buffer-undo-list t)
       (erase-buffer)
@@ -251,15 +250,9 @@ dont-url-encode if true then url arguments are not url-encoded "
  nil nil
  "BBC World News Summary"
  #'emacspeak-feeds-opml-display)
+(declare-function emacspeak-xslt-view-xml "emacspeak-xslt" (style url &optional unescape-charent))
 
-(emacspeak-url-template-define
- "BBC Program Guide (not maintained)"
- "http://downloads.bbc.co.uk/podcasts/ppg.xml"
- nil nil
- "Display interactive BBC Program Guide."
- #'(lambda (url)
-     (emacspeak-xslt-view-xml
-      (emacspeak-xslt-get "bbc-ppg.xsl") url)))
+
 (emacspeak-url-template-define
  "BBC Podcast Directory"
  "http://www.bbc.co.uk/podcasts.opml"
@@ -267,28 +260,6 @@ dont-url-encode if true then url arguments are not url-encoded "
  nil nil
  "BBC PodCast Directory"
  #'emacspeak-feeds-opml-display)
-
-;;}}}
-;;{{{ html5irc
-
-(emacspeak-url-template-define
- "html5IRC"
- "http://krijnhoetmer.nl/irc-logs/whatwg/%s"
- (list 'emacspeak-speak-date-YearMonthDate)
- nil
- "Show HTML5 IRC log.")
-
-;;}}}
-;;{{{ google image search:
-
-(emacspeak-url-template-define
- "Google Image Search"
- "http://www.google.com/search?gbv=1&bih=&biw=&hl=en&tbm=isch&btnG=Search+Images&q=%s"
- (list "Search:")
- nil
- "Google Image Search"
- #'(lambda (url)
-     (emacspeak-we-extract-by-id "res" url 'speak)))
 
 ;;}}}
 ;;{{{ Google Trends:
@@ -307,15 +278,6 @@ dont-url-encode if true then url arguments are not url-encoded "
   "Set up content filter in displayed page."
   (cl-declare (special emacspeak-we-xpath-filter emacspeak-we-paragraphs-xpath-filter))
   (setq emacspeak-we-xpath-filter emacspeak-we-paragraphs-xpath-filter))
-
-;;}}}
-;;{{{ webmaster tools
-(emacspeak-url-template-define
- "Google Webmaster Page Analysis"
- "https://www.google.com/webmasters/tools/pageanalysis?siteUrl=%s"
- (list "URL To Analyze: ")
- nil
- "Page Analysis From Google Webmaster tools.")
 
 ;;}}}
 ;;{{{ Anonimize google search
@@ -348,11 +310,11 @@ dont-url-encode if true then url arguments are not url-encoded "
  "Light-weight Google search.")
 
 ;;; forward declaration:
-(defvar gweb-my-zip nil)
+(defvar gmaps-my-zip nil)
 (emacspeak-url-template-define
  "Google Weather"
  (format "https://www.google.com/search?num=25&gbv=1&q=weather+%s"
-         gweb-my-zip)
+         gmaps-my-zip)
  nil
  #'(lambda nil
      (search-forward "Search Tools")
@@ -396,13 +358,13 @@ dont-url-encode if true then url arguments are not url-encoded "
 ;;{{{ google finance
 
 (emacspeak-url-template-define
- "Finance Google Search"
- "https://finance.google.com/finance?q=%s"
- (list "Finance Search: ")
+ "Finance Summary From Google"
+ "https://finance.google.com"
  nil
- "Display content from Google Finance."
+ nil
+ "Display top stocks  from Google Finance."
  #'(lambda (url)
-     (emacspeak-we-extract-by-id "res" url 'speak)))
+     (emacspeak-we-extract-by-role "listitem" url 'speak)))
 
 ;;}}}
 ;;{{{ google scholar
@@ -430,25 +392,11 @@ dont-url-encode if true then url arguments are not url-encoded "
      (emacspeak-speak-line))
  "Dictionary Lookup"
  #'(lambda (url)
-     (emacspeak-webutils-without-xsl
+     (emacspeak-xslt-without-xsl
          (browse-url url))))
 
 ;;}}}
 ;;{{{ NY Times
-(emacspeak-url-template-define
- "NY Times RSS Feeds"
- "http://www.nytimes.com/services/xml/rss/nyt/index.opml"
- nil
- nil
- "Display browsable list of NY Times RSS Feeds."
- #'(lambda (url)
-     (let ((buffer
-            (emacspeak-xslt-xml-url
-             (emacspeak-xslt-get "opml.xsl")
-             url)))
-       (save-current-buffer
-         (set-buffer buffer)
-         (browse-url-of-buffer)))))
 
 (emacspeak-url-template-define
  "NY Times Mobile"
@@ -477,7 +425,7 @@ dont-url-encode if true then url arguments are not url-encoded "
   "View Google Atom news feed pulled using Curl."
   (cl-declare (special emacspeak-atom-view-xsl
                        g-curl-program g-curl-common-options))
-  (emacspeak-webutils-autospeak)
+  (emacspeak-eww-autospeak)
   (g-display-result
    (format
     "%s %s    '%s' 2>/dev/null"
@@ -486,26 +434,15 @@ dont-url-encode if true then url arguments are not url-encoded "
 
 (emacspeak-url-template-define
  "Google News Search"
- "https://news.google.com/news?hl=en&ned=tus&q=%s&btnG=Google+Search&output=atom"
+ "https://news.google.com/atom/search?hl=en-US&q=%s&btnG=Google+Search&gl=US&ceid=US:en "
  (list #'gweb-news-autocomplete)
  nil
  "Search Google news."
  #'emacspeak-url-template-google-atom-news-display)
 
-(defvar emacspeak-url-template-google-transcoder-url
-  "https://www.google.com/gwt/n?_gwt_noimg=1&output=xhtml&u=%s"
-  "URL for obtaining mobile transcoder page views.")
 
-(emacspeak-url-template-define
- "Google Transcoder"
- emacspeak-url-template-google-transcoder-url
- (list
-  #'(lambda ()
-      (read-from-minibuffer "URL: "
-                            (or (browse-url-url-at-point)
-                                "http://"))))
- 'emacspeak-speak-buffer
- "Transcode site via Google.")
+
+
 
 ;;}}}
 ;;{{{ Google Structured Data Parser:
@@ -524,18 +461,7 @@ dont-url-encode if true then url arguments are not url-encoded "
  "Display tech news from CNET"
  #'emacspeak-feeds-rss-display)
 
-(emacspeak-url-template-define
- "PodCast CNet"
- "http://podcast-files.cnet.com/podcast/cnet_podcast_%s.mp3"
- (list
-  #'(lambda nil
-      (read-from-minibuffer
-       "Date: "
-       (format-time-string "%m%d%y"))))
- nil
- "Play Podcast from CNET"
- #'(lambda (url)
-     (funcall emacspeak-media-player url)))
+
 
 ;;}}}
 ;;{{{ yahoo daily news
@@ -629,7 +555,7 @@ name of the list.")
 
 (emacspeak-url-template-define
  "Money Headlines From CNN"
- "https://money.cnn.com"
+ "https://cnn.com/business"
  nil
  #'(lambda nil
      (cl-declare (special emacspeak-we-url-executor))
@@ -783,7 +709,7 @@ name of the list.")
  nil
  "Display baseball Video Highlights."
  #'(lambda (url)
-     (emacspeak-webutils-autospeak)
+     (emacspeak-eww-autospeak)
      (emacspeak-xslt-view-xml
       (emacspeak-xslt-get "mlb-media.xsl") url)))
 
@@ -911,35 +837,6 @@ JSON is retrieved from `url'."
       'speak)))
 
 ;;}}}
-;;{{{ times of india
-
-(emacspeak-url-template-define
- "Times Of India"
- "http://www.timesofindia.com"
- nil
- nil
- "Retrieve Times Of India."
- #'(lambda (url)
-     (emacspeak-we-extract-by-id "content" url 'speak)))
-
-;;}}}
-;;{{{ weather underground
-
-(emacspeak-url-template-define
- "Weather forecast from Weather Underground"
- "http://mobile.wunderground.com/cgi-bin/findweather/getForecast?query=%s"
- (list
-  #'(lambda ()
-      (read-from-minibuffer "Zip: "
-                            (bound-and-true-p gweb-my-zip))))
- #'(lambda ()
-     (with-demoted-errors
-         (eww-display-dom-by-class "city-body"))
-     (goto-char (point-min))
-     (emacspeak-speak-buffer))
- "Weather forecast from weather underground mobile.")
-
-;;}}}
 ;;{{{ airport conditions:
 (emacspeak-url-template-define
  "Airport conditions"
@@ -950,18 +847,6 @@ JSON is retrieved from `url'."
  #'(lambda (url)
      (emacspeak-we-extract-table-by-match "Status"
                                           url 'speak)))
-
-;;}}}
-;;{{{ emacs wiki search
-
-(emacspeak-url-template-define
- "EmacsWiki Search"
- "http://www.emacswiki.org/cgi-bin/wiki?search=%s"
- (list "Search EmacsWiki For: ")
- #'(lambda nil
-     (search-forward "Result page" nil t)
-     (emacspeak-speak-line))
- "EmacsWiki Search")
 
 ;;}}}
 ;;{{{ wordnet
@@ -1021,30 +906,20 @@ Format is stationid+AM/FM."
 ;;}}}
 ;;{{{ GitHub Search
 
-(emacspeak-url-template-define
- "GitHub Code Search"
- "https://github.com/search?q=%s&type=Code&utf8=✓"
- (list "GitHub Code Search:")
- nil
- "GitHub Code Search.
-Query can include filters such as:
 
-<term>: Query Term.
-extension:<ext> Filter by file extension
--filename:<pattern> Filter out files matching pattern.")
 (declare-function emacspeak-eww-next-h "emacspeak-eww" (&optional speak))
 (emacspeak-url-template-define
  "GitHub Search"
  "https://github.com/search?q=%s"
  (list "Query: ")
  #'(lambda ()
-     (emacspeak-eww-next-h)
-     (emacspeak-speak-rest-of-buffer))
+     (search-forward  "repository results" nil t)
+     (emacspeak-speak-line))
  "Perform a GitHub Search.")
 
 ;;}}}
 ;;{{{ TuneIn: streamId->URL
-                                        ; "http://stream.radiotime.com/listen.stream?streamIds=4299203"wget -O t
+;;; wget -O t    "http://stream.radiotime.com/listen.stream?streamIds=4299203"
 (emacspeak-url-template-define
  "TuneIn Radio"
  "http://opml.radiotime.com/Tune.ashx?id=%s"
@@ -1141,11 +1016,11 @@ extension:<ext> Filter by file extension
 ;;;###autoload
 (defun emacspeak-url-template-open (ut)
   "Fetch resource identified by URL template."
-  (cl-declare (special emacspeak-web-post-process-hook))
+  (cl-declare (special emacspeak-eww-post-process-hook))
   (let ((fetcher (or (emacspeak-url-template-fetcher ut) 'browse-url))
         (url (emacspeak-url-template-url ut))
         (action (emacspeak-url-template-post-action ut)))
-    (when action (add-hook 'emacspeak-web-post-process-hook action))
+    (when action (add-hook 'emacspeak-eww-post-process-hook action))
     (kill-new url)
     (funcall fetcher url)))
 
@@ -1193,7 +1068,7 @@ Optional interactive prefix arg displays documentation for specified resource."
      (documentation (emacspeak-url-template-help-internal name))
      (t
       (add-hook
-       'emacspeak-web-post-process-hook
+       'emacspeak-eww-post-process-hook
        (emacspeak-url-template-generate-name-setter name))
       (emacspeak-url-template-open (emacspeak-url-template-get name))))))
 
@@ -1275,62 +1150,13 @@ Each URL template carries out the following steps:
 ;;}}}
 ;;{{{ Search NLS Bard:
 
-(defun emacspeak-url-template-nls-auth-info()
-  "Get the email and password forNls if it already exists
-in `auth-sources'. If not present, ask for email and password,
-and create an entry in the `auth-sources'.
-Returns a cons cell where the car is email, and the cdr is password."
-  (let* ((auth-source-creation-prompts
-          '((user . "Your BARD NLSUserID: ")
-            (secret . "Your BARD NLS password: ")))
-         (found
-          (nth 0
-               (auth-source-search
-                :max 1
-                :host "nlsbard.loc.gov"
-                :port 'https
-                :create t
-                :require '(:username :secret)))))
-    (when found
-      (let ((user (plist-get found :user))
-            (secret (plist-get found :secret))
-            (save-function (plist-get found :save-function)))
-        (when (functionp save-function) (funcall save-function))
-        (when (functionp secret)
-          (setq secret (funcall secret)))
-        (cons user secret)))))
-
 (defvar emacspeak-url-template-nls-authenticated nil
   "Record if we have authenticated in this Emacs session.")
 (declare-function mml-compute-boundary "mml" (cont))
-(declare-function mm-url-encode-www-form-urlencoded "mm-url" (pairs))
-
-(defun emacspeak-url-template-nls-ensure-auth ()
-  "Fetch our auth tokens, then sign in."
-  (cl-declare (special emacspeak-url-template-nls-authenticated))
-  (unless emacspeak-url-template-nls-authenticated
-    (let* ((token (emacspeak-url-template-nls-auth-info))
-           (boundary (mml-compute-boundary nil))
-           (values
-            (list
-             (cons "url_return" nil)
-             (cons "submit" nil)
-             (cons "login" (cdr token))
-             (cons "password" (car token))))
-           (url-request-method "POST")
-           (url-request-extra-headers
-            (list
-             (cons "Content-Type"
-                   (concat "multipart/form-data; boundary=" boundary))))
-           (url-request-data
-            (mm-url-encode-www-form-urlencoded values)))
-      (setq emacspeak-url-template-nls-authenticated t)
-      (eww-browse-url
-       "https://nlsbard.loc.gov:443/nlsbardprod/login/NLS"))))
 
 (defun emacspeak-url-template-nls-add-to-wishlist  (book)
   "Add book under point to wishlist."
-  (interactive (list  (emacspeak-webutils-read-this-url)))
+  (interactive (list  (emacspeak-eww-read-url)))
   (let  ((add nil))
     (unless book (error "No Book URL specified"))
     (setq add
@@ -1341,7 +1167,7 @@ Returns a cons cell where the car is email, and the cdr is password."
 
 (emacspeak-url-template-define
  "NLS Bard Search"
- "https://nlsbard.loc.gov:443/nlsbardprod/search_collection/collection/page/1/sort/s/srch/%s/local/0"
+ "https://nlsbard.loc.gov/nlsbardprod/search/collection/page/1/sort/s/srch/%s/local/0"
  (list "Search For: ")
  #'(lambda nil
      (cl-declare (special emacspeak-we-url-executor))
@@ -1389,28 +1215,15 @@ template."
 ;;}}}
 ;;{{{ Washington Post
 
-(defun emacspeak-url-template-wapost-content (url)
-  "Extract article content from WApost."
-  (emacspeak-we-extract-by-class
-   "article-body content-format-ans "
-   url 'speak))
 
 (emacspeak-url-template-define
  "Washington Post"
  "https://www.washingtonpost.com/"
  nil
  #'(lambda nil
-     (cl-declare (special emacspeak-we-url-executor))
-     (setq emacspeak-we-url-executor
-           'emacspeak-url-template-wapost-content))
- "Washington Post Contents"
- #'(lambda (url)
-     (emacspeak-we-extract-by-class-list
-      '("headline xx-small highlight-style bulleted text-align-inherit " "headline normal normal-style text-align-inherit "
-        "no-skin flex-item flex-stack normal-air text-align-left wrap-text equalize-height-target"
-        "headline " "blurb normal normal-style ")
-      url
-      'speak)))
+     (emacspeak-eww-next-h)
+     (emacspeak-speak-line))
+ "Washington Post Contents")
 
 ;;}}}
 ;;{{{ ArchWiki
@@ -1423,21 +1236,6 @@ template."
      (emacspeak-eww-next-h)
      (emacspeak-speak-rest-of-buffer))
  "Search Linux ArchWiki")
-
-;;}}}
-;;{{{Air Quality Index:
-
-(emacspeak-url-template-define
- "AQI: Air Quality Index"
- "https://www.airnow.gov/index.cfm?action=airnow.local_city&zipcode=%s&submit=Go"
- (list
-  #'(lambda nil
-      (read-from-minibuffer "State/City:"
-                            (bound-and-true-p  gweb-my-zip))))
- nil
- "Return Air Quality for specified zip-code"
- #'(lambda (url)
-     (emacspeak-we-extract-table-by-match "observed at" url 'speak)))
 
 ;;}}}
 ;;{{{Reddit Tools:
@@ -1464,7 +1262,7 @@ template."
        (cl-assert
         (string-match "https://www.reddit.com" url) t
         "Does not look like a Reddit URL")
-       (emacspeak-webutils-autospeak)
+       (emacspeak-eww-autospeak)
        (emacspeak-feeds-atom-display (concat url ".rss")))))
 
 (emacspeak-url-template-define
@@ -1630,6 +1428,25 @@ Builds up alist of codes if needed the first time."
      "Open CIA World Leaders  For Specified Country.")
 
 ;;}}}
+;;{{{Air Quality From Wunderground
+
+(emacspeak-url-template-define
+ "AQI From Wunderground"
+ "https://www.wunderground.com/health/us/%s"
+ (list
+  #'(lambda ()
+      (read-from-minibuffer "state/city/zip: " "ca/san-jose/95123")))
+ nil
+ "Air quality from Wunderground"
+ #'(lambda (url)
+     (emacspeak-we-extract-by-class
+      "small-6" url 'speak))
+ 'dont-encode)
+
+;;}}}
+
+
+
 (provide 'emacspeak-url-template)
 ;;{{{ end of file
 

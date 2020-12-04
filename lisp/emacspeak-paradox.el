@@ -6,7 +6,7 @@
 ;;{{{  LCD Archive entry:
 
 ;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu
+;;; emacspeak| T. V. Raman |tv.raman.tv@gmail.com
 ;;; A speech interface to Emacs |
 ;;; $Date: 2007-05-03 18:13:44 -0700 (Thu, 03 May 2007) $ |
 ;;;  $Revision: 4532 $ |
@@ -51,7 +51,7 @@
 (require 'cl-lib)
 (cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
-(eval-when-compile (require 'paradox "paradox" 'no-error))
+(require 'paradox "paradox" 'no-error)
 (require 'calendar)
 
 ;;}}}
@@ -60,14 +60,14 @@
 (voice-setup-add-map
  '(
    (paradox-name-face voice-bolden)
-   (paradox-description-face voice-monotone)
+   (paradox-download-face voice-smoothen)
+   (paradox-description-face voice-lighten)
    (paradox-description-face-multiline voice-monotone)
-   (paradox-comment-face voice-monotone)
+   (paradox-comment-face voice-lighten)
    (paradox-star-face voice-animate)
    (paradox-starred-face voice-bolden-and-animate)
-   (paradox-archive-face voice-lighten)
+   (paradox-archive-face voice-smoothen)
    (paradox-commit-tag-face voice-brighten)
-   (paradox-download- voice-smoothen)
    (paradox-highlight-face voice-bolden)
    (paradox-homepage-button-face voice-bolden-medium)))
 
@@ -91,11 +91,13 @@
      ((string= state "obsolete") (emacspeak-auditory-icon 'deselect-object))
      ((string= state "incompat") (emacspeak-auditory-icon 'alert-user))
      (t (emacspeak-auditory-icon 'item)))
-    (dtk-speak-and-echo  (concat name ": "desc
-                                 stars))))
+    (dtk-speak-and-echo  (concat name ": "desc stars))))
 
 (defun emacspeak-paradox-mode-hook ()
   "Emacspeak setup hook for paradox-mode."
+  (cl-declare (special paradox-menu-mode-map))
+  (define-key paradox-menu-mode-map (ems-kbd "<left>") 'emacspeak-speak-previous-field)
+  (define-key paradox-menu-mode-map (ems-kbd "<right>") 'emacspeak-speak-next-field)
   (define-key paradox-menu-mode-map " " 'emacspeak-paradox-summarize-line)
   (emacspeak-pronounce-add-buffer-local-dictionary-entry
    emacspeak-pronounce-date-yyyymmdd-pattern
@@ -131,6 +133,19 @@
   (when (ems-interactive-p)
     (emacspeak-auditory-icon 'close-object)
     (emacspeak-speak-mode-line)))
+
+
+(cl-loop
+ for f in
+ '(
+   paradox-sort-by-package paradox-sort-by-status
+   paradox-sort-by-version paradox-sort-by-★) do
+ (eval
+  `(defadvice ,f  (after emacspeak pre act comp)
+     "Speak after done."
+     (when (ems-interactive-p)
+       (emacspeak-speak-line)
+       (emacspeak-auditory-icon 'task-done)))))
 
 ;;}}}
 (provide 'emacspeak-paradox)

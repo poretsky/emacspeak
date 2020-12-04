@@ -6,7 +6,7 @@
 ;;{{{  LCD Archive entry:
 
 ;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu
+;;; emacspeak| T. V. Raman |tv.raman.tv@gmail.com
 ;;; A speech interface to Emacs |
 ;;; $Date: 2008-03-22 18:58:40 -0700 (Sat, 22 Mar 2008) $ |
 ;;;  $Revision: 4347 $ |
@@ -50,14 +50,14 @@
 
 ;;}}}
 ;;{{{ required modules
+
 (require 'cl-lib)
 (cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
-(require 'eww)
-(require 'emacspeak-eww)
-(require 'emacspeak-feeds)
 (require 'org "org" 'no-error)
 (require 'org-table "org-table" 'no-error)
+(defvar org-ans2 nil)
+
 ;;}}}
 ;;{{{ voice locking:
 
@@ -97,7 +97,6 @@
    (org-archived voice-monotone)
    (org-beamer-tag voice-bolden)
    (org-block voice-monotone)
-   (org-block-background voice-monotone)
    (org-checkbox voice-animate)
    (org-clock-overlay voice-animate)
    (org-code voice-monotone)
@@ -121,7 +120,6 @@
    (org-hide voice-smoothen-extra)
    (org-indent voice-smoothen)
    (org-inlinetask voice-smoothen-extra)
-   (org-latex-and-export-specials voice-monotone)
    (org-meta-line voice-smoothen-medium)
    (org-property-value voice-animate)
    (org-scheduled voice-animate)
@@ -245,18 +243,19 @@
 ;;}}}
 ;;{{{ cut and paste:
 
-(cl-loop for f in
-         '(
-           org-cut-subtree org-copy-subtree
-           org-paste-subtree org-archive-subtree
-           org-narrow-to-subtree)
-         do
-         (eval
-          `(defadvice ,f(after emacspeak pre act comp)
-             "Provide spoken feedback."
-             (when (ems-interactive-p)
-               (emacspeak-speak-line)
-               (emacspeak-auditory-icon 'yank-object)))))
+(cl-loop
+ for f in
+ '(
+   org-cut-subtree org-copy-subtree
+   org-paste-subtree org-archive-subtree
+   org-narrow-to-subtree)
+ do
+ (eval
+  `(defadvice ,f(after emacspeak pre act comp)
+     "Provide spoken feedback."
+     (when (ems-interactive-p)
+       (emacspeak-speak-line)
+       (emacspeak-auditory-icon 'yank-object)))))
 
 ;;}}}
 ;;{{{ completion:
@@ -385,39 +384,6 @@
              (if orgtbl-mode 'on 'off))))
 
 ;;}}}
-;;{{{ Keymap update:
-
-(defun emacspeak-org-update-keys ()
-  "Update keys in org mode."
-  (cl-declare (special  org-mode-map))
-  (cl-loop for k in
-           '(
-             ("C-e" emacspeak-prefix-command)
-             ("C-j" org-insert-heading)
-             ("M-<down>" org-metadown)
-             ("M-<left>"  org-metaleft)
-             ("M-<right>" org-metaright)
-             ("M-<up>" org-metaup)
-             ("M-RET" org-meta-return)
-             ("M-S-<down>" org-shiftmetadown)
-             ("M-S-<left>" org-shiftmetaleft)
-             ("M-S-<right>" org-shiftmetaright)
-             ("M-S-<up>" org-shiftmetaup)
-             ("M-S-RET" org-insert-todo-heading)
-             ("S-RET" org-table-previous-row)
-             ("M-n" org-next-item)
-             ("M-p" org-previous-item)
-             ("S-<down>" org-shiftdown)
-             ("S-<left>" org-shiftleft)
-             ("S-<right>" org-shiftright)
-             ("S-<up>" org-shiftup)
-             ("S-TAB" org-shifttab))
-           do
-           (emacspeak-keymap-update  org-mode-map k)))
-
-(add-hook 'org-mode-hook #'emacspeak-org-update-keys)
-
-;;}}}
 ;;{{{ deleting chars:
 
 (defadvice org-delete-backward-char (around emacspeak pre act)
@@ -451,11 +417,49 @@
       (emacspeak-auditory-icon 'select-object)))))
 
 ;;}}}
+;;{{{ Keymap update:
+
+(defun emacspeak-org-update-keys ()
+  "Update keys in org mode."
+  (cl-declare (special  org-mode-map))
+  (cl-loop
+   for k in
+   '(
+     ("C-e" emacspeak-prefix-command)
+     ("C-j" org-insert-heading)
+     ("M-<down>" org-metadown)
+     ("M-<left>"  org-metaleft)
+     ("M-<right>" org-metaright)
+     ("M-<up>" org-metaup)
+     ("M-RET" org-meta-return)
+     ("M-S-<down>" org-shiftmetadown)
+     ("M-S-<left>" org-shiftmetaleft)
+     ("M-S-<right>" org-shiftmetaright)
+     ("M-S-<up>" org-shiftmetaup)
+     ("M-S-RET" org-insert-todo-heading)
+     ("S-RET" org-table-previous-row)
+     ("M-n" org-next-item)
+     ("M-p" org-previous-item)
+     ("S-<down>" org-shiftdown)
+     ("S-<left>" org-shiftleft)
+     ("S-<right>" org-shiftright)
+     ("S-<up>" org-shiftup)
+     ("S-TAB" org-shifttab))
+   do
+   (emacspeak-keymap-update  org-mode-map k)))
+
+;;}}}
 ;;{{{ mode hook:
 
 (defun emacspeak-org-mode-setup ()
   "Placed on org-mode-hook to do Emacspeak setup."
-  (cl-declare (special org-mode-map))
+  (cl-declare (special org-mode-map
+                       org-link-parameters))
+  (emacspeak-org-update-keys)
+  (define-key org-mode-map (ems-kbd "C-o e") 'tvr-org-enumerate)
+  (define-key org-mode-map (ems-kbd "C-o i") 'tvr-org-itemize)
+  (define-key outline-minor-mode-map (ems-kbd "C-o i") 'tvr-org-itemize)
+  (define-key outline-minor-mode-map (ems-kbd "C-o e") 'tvr-org-enumerate)
   (when (fboundp 'org-end-of-line)
     (define-key org-mode-map emacspeak-prefix  'emacspeak-prefix-command)
     (emacspeak-setup-programming-mode)))
@@ -482,8 +486,7 @@
 (cl-loop
  for f in
  '(
-   org-occur
-   org-beginning-of-line org-end-of-line
+   org-occur org-beginning-of-line org-end-of-line
    org-beginning-of-item org-beginning-of-item-list)
  do
  (eval
@@ -499,22 +502,10 @@
 (defun emacspeak-org-popup-input ()
   "Pops up an org input area."
   (interactive)
-  (emacspeak-wizards-popup-input-buffer 'org-mode))
+  (emacspeak-org-popup-input-buffer 'org-mode))
 
 ;;}}}
 ;;{{{ org capture
-
-(defcustom emacspeak-org-bookmark-key "h"
-  "Key of template used for capturing  hot list."
-  :type 'string
-  :group 'emacspeak-org)
-
-;;;###autoload
-(defun emacspeak-org-bookmark (&optional goto)
-  "Bookmark from org."
-  (interactive "P")
-  (cl-declare (special emacspeak-org-bookmark-key))
-  (org-capture goto emacspeak-org-bookmark-key))
 
 (defadvice org-capture-goto-last-stored (after emacspeak pre act comp)
   "Provide auditory feedback."
@@ -535,7 +526,7 @@
   "Provide auditory feedback."
   (emacspeak-auditory-icon 'close-object))
 
-;;;###autoload
+
 (defun emacspeak-org-table-speak-current-element ()
   "echoes current table element"
   (interactive)
@@ -544,21 +535,21 @@
      ((string-match "^ *$" field) (dtk-speak "space"))
      (t (dtk-speak-and-echo field)))))
 
-;;;###autoload
+
 (defun emacspeak-org-table-speak-column-header ()
   "echoes column header"
   (interactive)
   (dtk-speak-and-echo
    (propertize (org-table-get 1 nil) 'face 'bold)))
 
-;;;###autoload
+
 (defun emacspeak-org-table-speak-row-header ()
   "echoes row header"
   (interactive)
   (dtk-speak-and-echo
    (propertize (org-table-get nil 1) 'face 'italic)))
 
-;;;###autoload
+
 (defun emacspeak-org-table-speak-coordinates ()
   "echoes coordinates"
   (interactive)
@@ -566,7 +557,7 @@
    (concat "row " (number-to-string (org-table-current-line))
            ", column " (number-to-string (org-table-current-column)))))
 
-;;;###autoload
+
 (defun emacspeak-org-table-speak-both-headers-and-element ()
   "echoes both row and col headers."
   (interactive)
@@ -577,7 +568,7 @@
     (propertize (org-table-get  1 nil) 'face 'bold) " "
     (org-table-get-field))))
 
-;;;###autoload
+
 (defun emacspeak-org-table-speak-row-header-and-element ()
   "echoes row header and element"
   (interactive)
@@ -587,7 +578,7 @@
     " "
     (org-table-get-field))))
 
-;;;###autoload
+
 (defun emacspeak-org-table-speak-column-header-and-element ()
   "echoes col header and element"
   (interactive)
@@ -610,7 +601,7 @@
 ;;}}}
 ;;{{{ Additional table function:
 
-;;;###autoload
+
 (unless (fboundp 'org-table-previous-row)
   (defun org-table-previous-row ()
     "Go to the previous row (same column) in the current table.
@@ -633,23 +624,18 @@ Before doing so, re-align the table if necessary."
         (if (looking-at " ") (forward-char 1))))))
 
 ;;}}}
-;;{{{ EWW Integration:
-;;;###autoload
+;;{{{ Capture
+
 (defun emacspeak-org-capture-link ()
   "Capture hyperlink to current context.
 To use this command, first  do `customize-variable' `org-capture-template'
 and assign  letter `h' to a template that creates the hyperlink on capture."
   (interactive)
+  (require 'org)
+  (require 'ol-eww)
   (org-store-link nil)
   (org-capture nil "h"))
-(defun org-eww-store-link ()
-  "Store a link to a EWW buffer."
-  (when (eq major-mode 'eww-mode)
-    (org-link-store-props
-     :type "eww"
-     :link   (emacspeak-eww-current-url)
-     :url (eww-current-url)
-     :description (emacspeak-eww-current-title))))
+(declare-function emacspeak-eww-current-title "emacspeak-eww" nil)
 
 ;;}}}
 ;;{{{ Speech-enable export prompt:
@@ -676,7 +662,7 @@ and assign  letter `h' to a template that creates the hyperlink on capture."
 
 (defun emacspeak-org-eww-file (file _link)
   "Preview HTML files with EWW from exporter."
-  (add-hook 'emacspeak-web-post-process-hook  #'emacspeak-speak-buffer)
+  (add-hook 'emacspeak-eww-post-process-hook  #'emacspeak-speak-buffer)
   (funcall-interactively #'eww-open-file file))
 
 ;;}}}
@@ -704,7 +690,6 @@ and assign  letter `h' to a template that creates the hyperlink on capture."
        (emacspeak-speak-mode-line)))))
 
 ;;}}}
-
 ;;{{{ Fillers:
 
 (defadvice org-fill-paragraph (after emacspeak pre act comp)
@@ -723,7 +708,57 @@ and assign  letter `h' to a template that creates the hyperlink on capture."
         (message state)))))
 
 ;;}}}
+;;{{{TVR: Conveniences
 
+(defun tvr-org-itemize ()
+  "Start a numbered  list."
+  (interactive)
+  (forward-line 0)
+  (insert "  -  ")
+  (emacspeak-speak-line)
+  (emacspeak-auditory-icon 'item))
+
+(defun tvr-org-enumerate ()
+  "Start a numbered  list."
+  (interactive)
+  (forward-line 0)
+  (insert "  1.  ")
+  (emacspeak-speak-line)
+  (emacspeak-auditory-icon 'item))
+
+
+;;}}}
+;;{{{ specialized input buffers:
+
+;;; Taken from a message on the org mailing list.
+
+;;;###autoload
+(defun emacspeak-org-popup-input-buffer (mode)
+  "Provide an input buffer in a specified mode."
+  (interactive
+   (list
+    (intern
+     (completing-read
+      "Mode: "
+      (mapcar
+       #'(lambda (e)
+         (list (symbol-name e)))
+              (apropos-internal "-mode$" 'commandp))
+      nil t))))
+  (let ((buffer-name (generate-new-buffer-name "*input*")))
+    (pop-to-buffer (make-indirect-buffer (current-buffer) buffer-name))
+    (narrow-to-region (point) (point))
+    (funcall mode)
+    (let ((map (copy-keymap (current-local-map))))
+      (define-key map (ems-kbd "C-c C-c")
+        #'(lambda ()
+          (interactive)
+          (kill-buffer nil)
+          (delete-window)))
+      (use-local-map map))
+    (shrink-window-if-larger-than-buffer)))
+
+;;}}}
 (provide 'emacspeak-org)
 ;;{{{ end of file
 

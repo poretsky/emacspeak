@@ -1,12 +1,12 @@
 ;;; emacspeak-feeds.el --- Feeds Support (Atom, RSS) For Emacspeak  -*- lexical-binding: t; -*-
-;;; $Id: emacspeak-webutils.el 8904 2014-03-21 20:28:21Z tv.raman.tv $
+;;; $Id:$
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Emacspeak Feeds Support 
 ;;; Keywords: Emacspeak, RSS, Atom
 ;;{{{  LCD Archive entry:
 
 ;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu
+;;; emacspeak| T. V. Raman |tv.raman.tv@gmail.com
 ;;; A speech interface to Emacs |
 ;;; $Date: 2008-08-14 11:23:31 -0700 (Thu, 14 Aug 2008) $ |
 ;;;  $Revision: 4634 $ |
@@ -51,7 +51,6 @@
 (cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 (require 'emacspeak-xslt)
-(require 'emacspeak-webutils)
 (require 'url)
 (require 'eww)
 (require 'browse-url)
@@ -59,32 +58,11 @@
 ;;}}}
 ;;{{{  feed cache
 
-;;;###autoload
+
 (defgroup emacspeak-feeds nil
   "RSS Feeds for the Emacspeak desktop."
   :group 'emacspeak)
 
-(defcustom emacspeak-opml-view-xsl
-  (emacspeak-xslt-get "opml.xsl")
-  "XSL stylesheet used for viewing OPML  Feeds."
-  :type  'file
-  :group 'emacspeak-xsl)
-
-(defcustom emacspeak-rss-view-xsl
-  (emacspeak-xslt-get "rss.xsl")
-  "XSL stylesheet used for viewing RSS Feeds."
-  :type  'file
-  :group 'emacspeak-xsl)
-
-(defcustom emacspeak-atom-view-xsl
-  (emacspeak-xslt-get "atom.xsl")
-  "XSL stylesheet used for viewing Atom Feeds."
-  :type '(choice
-          (string :tag "Legacy"  "/usr/local/google/home/raman/emacs/lisp/emacspeak/xsl/atom.xsl")
-          (string :tag "Modern" "/usr/local/google/home/raman/emacs/lisp/emacspeak/xsl/atom-view.xsl"))
-  :group 'emacspeak-xsl)
-
-;;;###autoload
 (defvar emacspeak-feeds-feeds-table (make-hash-table :test #'equal)
   "Hash table to enable efficient feed look up when adding feeds.")
 
@@ -133,7 +111,7 @@ The feed list is persisted to file saved-feeds on exit."
        (emacspeak--persist-variable
         'emacspeak-feeds
         (expand-file-name "saved-feeds"
-                          emacspeak-resource-directory)))))
+                          emacspeak-user-directory)))))
 
 (defun emacspeak-feeds-added-p (feed-url)
   "Check if this feed has been added before."
@@ -162,10 +140,10 @@ The feed list is persisted to file saved-feeds on exit."
             (message "Added feed as %s" title))))))
 
 (defvar emacspeak-feeds-archive-file
-  (expand-file-name "feeds.el" emacspeak-resource-directory)
+  (expand-file-name "feeds.el" emacspeak-user-directory)
   "Feed archive.")
 
-;;;###autoload
+
 (defun emacspeak-feeds-archive-feeds ()
   "Archive list of subscribed fees to personal resource directory.
 Archiving is useful when synchronizing feeds across multiple machines."
@@ -184,7 +162,7 @@ Archiving is useful when synchronizing feeds across multiple machines."
                (length emacspeak-feeds)
                emacspeak-feeds-archive-file))))
 
-;;;###autoload
+
 (defun emacspeak-feeds-restore-feeds ()
   "Restore list of subscribed fees from  personal resource directory.
 Archiving is useful when synchronizing feeds across multiple machines."
@@ -209,7 +187,7 @@ Archiving is useful when synchronizing feeds across multiple machines."
                  (length feeds) (length emacspeak-feeds)))
       (customize-save-variable 'emacspeak-feeds emacspeak-feeds))))
 
-;;;###autoload
+
 (defun emacspeak-feeds-fastload-feeds ()
   "Fast load list of feeds from archive.
 This directly  updates emacspeak-feeds from the archive, rather than adding those entries to the current set of subscribed feeds."
@@ -246,9 +224,9 @@ This directly  updates emacspeak-feeds from the archive, rather than adding thos
         (coding-system-for-write 'utf-8)
         (emacspeak-xslt-options nil))
     (with-current-buffer data-buffer
-      (when speak (emacspeak-webutils-autospeak))
+      (when speak (emacspeak-eww-autospeak))
       (add-hook
-       'emacspeak-web-post-process-hook
+       'emacspeak-eww-post-process-hook
        #'(lambda ()
            (setq eww-current-url feed-url
                  emacspeak-eww-feed t 
@@ -264,39 +242,33 @@ This directly  updates emacspeak-feeds from the archive, rather than adding thos
       (setq eww-current-url feed-url
             emacspeak-eww-feed t 
             emacspeak-eww-style style)
-      (emacspeak-webutils-without-xsl (browse-url-of-buffer)))))
+      (emacspeak-xslt-without-xsl (browse-url-of-buffer)))))
 
 ;;;###autoload
 (defun emacspeak-feeds-rss-display (feed-url)
   "Display RSS feed."
   (interactive
    (list
-    (emacspeak-webutils-read-this-url)))
+    (emacspeak-eww-read-url)))
   (cl-declare (special emacspeak-rss-view-xsl))
   (emacspeak-feeds-feed-display feed-url emacspeak-rss-view-xsl 'speak))
 
 ;;;###autoload
 (defun emacspeak-feeds-opml-display (feed-url)
   "Display OPML feed."
-  (interactive (list (emacspeak-webutils-read-this-url)))
+  (interactive (list (emacspeak-eww-read-url)))
   (cl-declare (special emacspeak-opml-view-xsl))
   (emacspeak-feeds-feed-display feed-url emacspeak-opml-view-xsl 'speak))
 
 ;;;###autoload
 (defun emacspeak-feeds-atom-display (feed-url)
   "Display ATOM feed."
-  (interactive (list (emacspeak-webutils-read-this-url)))
+  (interactive (list (emacspeak-eww-read-url)))
   (cl-declare (special emacspeak-atom-view-xsl))
   (emacspeak-feeds-feed-display feed-url emacspeak-atom-view-xsl 'speak))
 
 ;;}}}
 ;;{{{ Validate Feed:
-
-(defun emacspeak-feeds-validate-feed (feed-url)
-  "Validate feed by attempting to fetch titles."
-  (unless (eq 'error (emacspeak-webutils-feed-titles feed-url))
-    (message "%s is valid" feed-url)
-    t))
 
 ;;}}}
 ;;{{{  view feed

@@ -6,7 +6,7 @@
 ;;{{{  LCD Archive entry: 
 
 ;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu 
+;;; emacspeak| T. V. Raman |tv.raman.tv@gmail.com 
 ;;; A speech interface to Emacs |
 ;;; $Date: 2008-04-15 18:29:37 -0700 (Tue, 15 Apr 2008) $ |
 ;;;  $Revision: 4532 $ | 
@@ -49,13 +49,6 @@
 ;;; nxml-mode is a new XML mode for emacs by James Clark.
 ;;;  Package nxml is available from the Emacs package archive.
 ;;; Code:
-;;}}}
-;;{{{ customization:
-
-(defgroup emacspeak-nxml nil
-  "Customizations for Emacspeak with NXML."
-  :group  'emacspeak)
-
 ;;}}}
 ;;{{{ voice locking 
 (voice-setup-add-map
@@ -249,7 +242,7 @@
     (let ((o-open nil))
       (save-excursion
         (setq o-open (car (overlays-at (point))))
-        (next-line 1)
+        (forward-line 1)
         (beginning-of-line)
         (forward-char -2)
         (setq o-close (car (overlays-at (point))))

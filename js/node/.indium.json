@@ -1,0 +1,11 @@
+{
+    "configurations": [
+        {
+            "inspect-brk": true,
+            "program": "node",
+            "type": "node",
+            "args": "./math-server.js",
+            "name": "math-server"
+        }
+    ]
+}

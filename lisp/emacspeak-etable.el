@@ -6,7 +6,7 @@
 ;;{{{  LCD Archive entry: 
 
 ;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu 
+;;; emacspeak| T. V. Raman |tv.raman.tv@gmail.com 
 ;;; A speech interface to Emacs |
 ;;; $Date: 2008-06-21 14:58:40 -0700 (Sat, 21 Jun 2008) $ |
 ;;;  $Revision: 4532 $ | 
@@ -47,11 +47,8 @@
 
 (cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
-(eval-when-compile
-  (condition-case nil
-      (require 'table)
-    (error "table.el is only available in newer Emacsuns")))
-
+  
+(require 'table )
 ;;}}}
 ;;{{{ Update command remap list.
 (defadvice table--make-cell-map(after emacspeak pre act comp)

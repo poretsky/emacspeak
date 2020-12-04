@@ -6,7 +6,7 @@
 ;;{{{  LCD Archive entry:
 
 ;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu
+;;; emacspeak| T. V. Raman |tv.raman.tv@gmail.com
 ;;; A speech interface to Emacs |
 ;;; $Date: 2007-08-25 18:28:19 -0700 (Sat, 25 Aug 2007) $ |
 ;;;  $Revision: 4502 $ |
@@ -124,7 +124,7 @@ server."
 (provide 'emacspeak-erc)
 ;;{{{ monitoring chatrooms 
 (defvar emacspeak-erc-room-monitor nil
-  "*Local to each chat room. If turned on,
+"Local to each chat room. If turned on,
 user is notified about activity in the room.")
 (make-variable-buffer-local 'emacspeak-erc-room-monitor)
 
@@ -187,9 +187,8 @@ Optional interactive prefix  arg defines a pronunciation that
     (error "Not in an ERC buffer."))
   (setq emacspeak-erc-people-to-monitor
         (cl-remove-if
-         (function
-          (lambda (x)
-            (string-equal x name)))
+          #'(lambda (x)
+            (string-equal x name))
          emacspeak-erc-people-to-monitor))
   (emacspeak-auditory-icon 'delete-object)
   (message "monitoring %s"

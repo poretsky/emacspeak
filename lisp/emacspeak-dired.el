@@ -6,7 +6,7 @@
 ;;{{{  LCD Archive entry:
 
 ;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu
+;;; emacspeak| T. V. Raman |tv.raman.tv@gmail.com
 ;;; A speech interface to Emacs |
 ;;; $Date: 2008-07-19 16:09:43 -0700 (Sat, 19 Jul 2008) $ |
 ;;;  $Revision: 4532 $ |
@@ -45,20 +45,24 @@
 ;;; Typically you hear the file names as you move through the dired buffer
 ;;; Voicification is used to indicate directories, marked files etc.
 
+;;; Code:
+
 ;;}}}
 ;;{{{  required packages
 
-;;; Code:
 (require 'cl-lib)
 (cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
-(require 'desktop)
 (require 'dired)
+
 ;;}}}
 ;;{{{ Define personalities
 
 (voice-setup-add-map
  '(
+   (dired-broken-symlink 'voice-monotone)
+   (dired-set-id  voice-animate)
+   (dired-special voice-lighten)
    (dired-header voice-smoothen)
    (dired-mark voice-lighten)
    (dired-perm-write voice-lighten-extra)
@@ -67,8 +71,7 @@
    (dired-directory voice-bolden-medium)
    (dired-symlink voice-animate-extra)
    (dired-ignored voice-lighten-extra)
-   (dired-flagged voice-animate-extra)
-   ))
+   (dired-flagged voice-animate-extra)))
 
 ;;}}}
 ;;{{{  functions:
@@ -243,12 +246,8 @@ unless `dired-listing-switches' contains -l"
 ;;}}}
 ;;{{{ Additional status speaking commands
 
-(defcustom emacspeak-dired-file-cmd-options "-b"
-  "Options passed to Unix builtin `file' command."
-  :type '(choice
-          (const :tag "Brief" "-b")
-          (const :tag "Detailed" nil))
-  :group 'emacspeak-dired)
+(defvar emacspeak-dired-file-cmd-options "-b"
+  "Options passed to Unix builtin `file' command.")
 
 (defun emacspeak-dired-show-file-type (&optional file deref-symlinks)
   "Displays type of current file by running command file.
@@ -355,8 +354,8 @@ On a directory line, run du -s on the directory to speak its size."
   (cl-declare (special dired-mode-map))
   (define-key dired-mode-map "F" 'emacspeak-wizards-find-file-as-root)
   (define-key dired-mode-map "E" 'emacspeak-dired-epub-eww)
-  (define-key dired-mode-map (kbd "C-j") 'emacspeak-dired-open-this-file)
-  (define-key dired-mode-map (kbd "C-RET") 'emacspeak-dired-open-this-file)
+  (define-key dired-mode-map (ems-kbd "C-j") 'emacspeak-dired-open-this-file)
+  (define-key dired-mode-map (ems-kbd "C-RET") 'emacspeak-dired-open-this-file)
   (define-key dired-mode-map [C-return] 'emacspeak-dired-open-this-file)
   (define-key dired-mode-map "'" 'emacspeak-dired-show-file-type)
   (define-key  dired-mode-map "/" 'emacspeak-dired-speak-file-permissions)
@@ -367,8 +366,6 @@ On a directory line, run du -s on the directory to speak its size."
   (define-key dired-mode-map "\M-t" 'emacspeak-dired-speak-symlink-target)
   (define-key dired-mode-map "\C-i" 'emacspeak-speak-next-field)
   (define-key dired-mode-map  "," 'emacspeak-speak-previous-field))
-(add-hook 'dired-mode-hook  'emacspeak-dired-initialize 'append)
-
 ;;}}}
 ;;{{{ Advice locate:
 (cl-loop
@@ -395,9 +392,24 @@ On a directory line, run du -s on the directory to speak its size."
 (defun emacspeak-dired-play-this-playlist ()
   "Plays playlist on current line."
   (emacspeak-m-player (dired-get-filename) 'playlist))
+(declare-function emacspeak-epub-eww "emacspeak-dired" t)
+
+(defun emacspeak-dired-rpm-query-in-dired ()
+  "Run rpm -qi on current dired entry."
+  (interactive)
+  (cl-declare (special major-mode))
+  (unless (eq major-mode 'dired-mode)
+    (error "This command should be used in dired mode."))
+  (shell-command
+   (format "rpm -qi ` rpm -qf %s`"
+           (dired-get-filename 'no-location)))
+  (other-window 1)
+  (search-forward "Summary" nil t)
+  (emacspeak-speak-line))
 
 (defconst emacspeak-dired-opener-table
   `(("\\.epub$"  emacspeak-dired-epub-eww)
+    ("\\.rpm$" emacspeak-dired-rpm-query-in-dired)
     ("\\.mid$"  emacspeak-dired-midi-play)
     ("\\.xhtml" emacspeak-dired-eww-open)
     ("\\.html" emacspeak-dired-eww-open)
@@ -442,6 +454,9 @@ On a directory line, run du -s on the directory to speak its size."
     (with-current-buffer buffer
       (markdown-preview))))
 
+(declare-function emacspeak-wizards-pdf-open "emacspeak-wizards" (filename &optional ask-pwd))
+
+
 (defun emacspeak-dired-pdf-open ()
   "Open PDF file on current dired line."
   (interactive)
@@ -466,7 +481,7 @@ On a directory line, run du -s on the directory to speak its size."
 ;;}}}
 ;;{{{ Locate results as a play-list:
 
-;;;###autoload
+
 (defun emacspeak-locate-play-results-as-playlist (&optional shuffle)
   "Treat locate results as a play-list.
 Optional interactive prefix arg shuffles playlist."

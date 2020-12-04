@@ -6,7 +6,7 @@
 ;;{{{  LCD Archive entry:
 
 ;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu
+;;; emacspeak| T. V. Raman |tv.raman.tv@gmail.com
 ;;; A speech interface to Emacs |
 ;;; $Date: 2007-05-03 18:13:44 -0700 (Thu, 03 May 2007) $ |
 ;;;  $Revision: 4532 $ |
@@ -58,15 +58,16 @@
 
 ;;; Emacspeak implements command emacspeak-pianobar, a light-weight
 ;;; wrapper on top of pianobar. Emacspeak binds this command to
-;;; @code{C-e '}. In my personal @code{.emacs}, I bind this to
-;;; @code{f5}. Command emacspeak-pianobar is designed to let you
+;;; @code{C-e '}. 
+;;;  Command emacspeak-pianobar is designed to let you
 ;;; launch Pandora channels and switch tracks/channels without moving
 ;;; away from your primary tasks such as editting code or
 ;;; reading/composing email. Toward this end, launching command
 ;;; emacspeak-pianobar the first time initializes the
 ;;; @code{*pianobar*} buffer and launches command @code{pianobar};
-;;; Focus is placed in the @code{*pianobar*} buffer. Pianobar can be
-;;; controlled with single keystrokes while in this buffer. The most
+;;; but focus  remains   in your current buffer. Pianobar can be
+;;; controlled with single keystrokes while in  the pianobar  buffer
+;;; --- switch to   using @code{C-e ''}. The most
 ;;; useful keys are @code{right} for skipping tracks, @code{up} and
 ;;; @code{down} for switching channels etc.; see the keys bound in
 ;;; @code{pianobar-key-map} for a complete list. Pressing @code{C-e '}
@@ -101,6 +102,7 @@
 
 ;;}}}
 ;;{{{ Advice Interactive Commands:
+
 (declare-function pianobar "ext:pianobar" nil)
 (declare-function pianobar-send-string  "ext:pianobar" (cmd))
 (defun emacspeak-pianobar-volume-down ()
@@ -115,7 +117,9 @@
 (defadvice pianobar (after emacspeak pre act comp)
   "Provide auditory feedback."
   (with-current-buffer pianobar-buffer
-    (define-key pianobar-key-map "t" 'emacspeak-pianobar-electric-mode-toggle)
+    (define-key pianobar-key-map "t"
+      'emacspeak-pianobar-electric-mode-toggle)
+    (define-key pianobar-key-map (ems-kbd "RET") 'emacspeak-pianobar-send-raw)
     (define-key pianobar-key-map [right] 'pianobar-next-song)
     (dotimes (i 10)
       (define-key pianobar-key-map    (format "%s" i)   'emacspeak-pianobar-switch-to-preset))
@@ -141,25 +145,27 @@
 
 ;;; Advice all actions to play a pre-auditory icon
 
-(cl-loop for  f in
-         '(pianobar-pause-song pianobar-love-current-song
-                               pianobar-ban-current-song pianobar-bookmark-song
-                               pianobar-create-station pianobar-delete-current-station
-                               pianobar-explain-song
-                               pianobar-add-shared-station pianobar-song-history
-                               pianobar-currently-playing pianobar-add-shared-station
-                               pianobar-move-song-different-station pianobar-next-song
-                               pianobar-rename-current-station
-                               pianobar-change-station
-                               pianobar-tired-of-song
-                               pianobar-upcoming-songs
-                               pianobar-select-quickmix-stations pianobar-next-song)
-         do
-         (eval
-          `(defadvice ,f (before emacspeak pre act comp)
-             "Play auditory icon."
-             (when (ems-interactive-p)
-               (emacspeak-auditory-icon 'select-object)))))
+(cl-loop
+ for  f in
+ '(pianobar-pause-song pianobar-love-current-song
+                       pianobar-ban-current-song pianobar-bookmark-song
+                       pianobar-create-station pianobar-delete-current-station
+                       pianobar-explain-song
+                       pianobar-add-shared-station pianobar-song-history
+                       pianobar-currently-playing pianobar-add-shared-station
+                       pianobar-move-song-different-station pianobar-next-song
+                       pianobar-rename-current-station
+                       pianobar-change-station
+                       pianobar-tired-of-song
+                       pianobar-upcoming-songs
+                       pianobar-select-quickmix-stations pianobar-next-song)
+ do
+ (eval
+  `(defadvice ,f (before emacspeak pre act comp)
+     "Play auditory icon."
+     (when (ems-interactive-p)
+       (emacspeak-auditory-icon 'item)))))
+
 (defadvice pianobar-window-toggle (after emacspeak pre act comp)
   "Provide auditory feedback."
   (when (ems-interactive-p)
@@ -178,16 +184,12 @@
     (emacspeak-auditory-icon 'close-object)))
 
 ;;}}}
-;;; Simplified Pianobar Interaction
-
-;;{{{ Customizations And Variables
-
-;;}}}
 ;;{{{ emacspeak-pianobar
+
 (defvar emacspeak-pianobar-electric-mode t
   "Records if electric mode is on.")
 
-;;;###autoload
+
 (defun emacspeak-pianobar-electric-mode-toggle ()
   "Toggle electric mode in pianobar buffer.
 If electric mode is on, keystrokes invoke pianobar commands directly."
@@ -250,10 +252,8 @@ If electric mode is on, keystrokes invoke pianobar commands directly."
     (call-interactively (lookup-key pianobar-key-map key)))
    (t (pianobar-send-string  key))))
 
-(defcustom emacspeak-pianobar-max-preset 10
-  "Number of presets."
-  :type 'number
-  :group 'emacspeak-pianobar)
+(defvar emacspeak-pianobar-max-preset 28
+  "Number of presets.")
 
 (defvar emacspeak-pianobar-current-preset 0
   "Current preset.")
@@ -291,11 +291,16 @@ If electric mode is on, keystrokes invoke pianobar commands directly."
   (setq emacspeak-pianobar-current-preset (1- emacspeak-pianobar-current-preset))
   (pianobar-send-string (format "s%s\n" emacspeak-pianobar-current-preset)))
 
+(defun emacspeak-pianobar-send-raw  (string)
+  "Send raw string with newline added to pianobar."
+  (interactive "sString:")
+  (pianobar-send-string (format "%s\n" string)))
+
 ;;}}}
 
 (provide 'emacspeak-pianobar)
 ;;; reload pianobar to fix our vol-change commands.
-(load-library "pianobar")
+(load "pianobar")
 ;;{{{ end of file
 
 ;;; local variables:

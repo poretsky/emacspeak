@@ -6,7 +6,7 @@
 ;;{{{  LCD Archive entry:
 
 ;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu
+;;; emacspeak| T. V. Raman |tv.raman.tv@gmail.com
 ;;; A speech interface to Emacs |
 ;;; $Date: 2007-05-03 18:13:44 -0700 (Thu, 03 May 2007) $ |
 ;;;  $Revision: 4532 $ |
@@ -15,6 +15,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
+
 ;;;Copyright (C) 1995 -- 2018, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
@@ -51,14 +52,22 @@
 (cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 
-(eval-when-compile
-  (require 'magit nil 'no-error)
-  (require 'magit-extras nil 'no-error))
 
 ;;}}}
 ;;{{{ Map voices to faces:
+
 (voice-setup-add-map
  '(
+   (magit-blame-dimmed voice-smoothen)
+   (magit-blame-highlight voice-brighten)
+   (magit-branch-remote-head voice-bolden)
+   (magit-branch-upstream voice-animate)
+   (magit-diff-revision-summary voice-monotone)
+   (magit-diff-revision-summary-highlight voice-brighten)
+   (magit-diff-whitespace-warning voice-monotone-light)
+   (magit-header-line-key voice-bolden-extra)
+   (magit-header-line-log-select voice-highlight)
+   (magit-keyword-squash voice-monotone)
    (magit-bisect-bad voice-animate)
    (magit-bisect-good voice-lighten)
    (magit-bisect-skip voice-monotone)
@@ -147,7 +156,7 @@
                                                 'emacspeak-pronounce-sha-checksum))
 (emacspeak-pronounce-add-super 'magit-mode 'magit-commit-mode)
 (emacspeak-pronounce-add-super 'magit-mode 'magit-revision-mode)
-(emacspeak-pronounce-add-super 'magit-mode 'magit-log-mod)
+(emacspeak-pronounce-add-super 'magit-mode 'magit-log-mode)
 
 (add-hook
  'magit-mode-hook
@@ -163,15 +172,6 @@
     (emacspeak-auditory-icon 'mark-object)
     (emacspeak-speak-line)))
 
-(defadvice magit-toggle-section (after emacspeak pre act comp)
-  "Provide auditory feedback."
-  (when (ems-interactive-p)
-    (let ((state (magit-section-hidden-body (magit-current-section))))
-      (cond
-       (state (emacspeak-auditory-icon 'close-object))
-       (t (emacspeak-auditory-icon 'open-object)))
-      (emacspeak-speak-line))))
-
 (cl-loop
  for f in
  '(
@@ -182,10 +182,7 @@
    magit-stash
    magit-unstage magit-unstage-all magit-unstage-file
    magit-stage magit-stage-file  magit-stage-modified
-   magit-ignore-item-locally
-   magit-goto-next-section magit-goto-previous-section
-   magit-goto-parent-section magit-goto-line
-   magit-goto-section magit-goto-section-at-path)
+   magit-ignore-item-locally)
  do
  (eval
   `(defadvice ,f (after emacspeak pre act comp)
@@ -200,6 +197,7 @@
 (cl-loop
  for f in
  '(
+   magit-show-commit
    magit-section-show-level-1  magit-section-show-level-2
    magit-section-show-level-3 magit-section-show-level-4
    magit-section-show-level-1-all magit-section-show-level-2-all
@@ -212,6 +210,10 @@
      (when (ems-interactive-p)
        (emacspeak-speak-line)
        (emacspeak-auditory-icon 'select-object)))))
+(defadvice magit-section-cycle-global (after emacspeak pre act comp)
+  "Provide auditory feedback."
+  (when (ems-interactive-p)
+    (dtk-speak "Cycling global visibility of sections")))
 
 (cl-loop
  for f in
@@ -224,57 +226,10 @@
      (when (ems-interactive-p)
        (emacspeak-speak-line)
        (emacspeak-auditory-icon
-        (if   (magit-section-hidden-body (ad-get-arg 0)) 'close-object 'open-object))))))
-
-;;}}}
-;;{{{ Advice generator to advice generated  commands:
-
-
-
-
-
-
-
-;;}}}
-;;{{{ Advice hide/show commands:
-(cl-loop for f in
-         '(magit-show magit-show-branches magit-show-commit
-                      magit-show-branches-mode
-                      magit-show-item-or-scroll-down magit-show-item-or-scroll-up
-                      magit-show-level
-                      magit-show-level-1 magit-show-level-1-all
-                      magit-show-level-2 magit-show-level-2-all
-                      magit-show-level-3 magit-show-level-3-all
-                      magit-show-level-4 magit-show-level-4-all
-                      magit-show-only-files magit-show-only-files-all
-                      magit-expand-section magit-expand-collapse-section
-                      magit-show-section magit-show-stash)
-         do
-         (eval
-          `(defadvice ,f (after emacspeak pre act comp)
-             "Provide auditory feedback."
-             (when (ems-interactive-p)
-               (emacspeak-speak-line)
-               (emacspeak-auditory-icon 'open-object)))))
-
-(cl-loop for f in
-         '(magit-hide-section magit-collapse-section)
-         do
-         (eval
-          `(defadvice ,f (after emacspeak pre act comp)
-             "Provide auditory feedback."
-             (when (ems-interactive-p)
-               (emacspeak-speak-line)
-               (emacspeak-auditory-icon 'close-object)))))
+        (if   (oref (ad-get-arg 0) hidden) 'close-object 'open-object))))))
 
 ;;}}}
 ;;{{{ Additional commands to advice:
-
-(defadvice magit-display-process (after emacspeak pre act comp)
-  "Provide auditory feedback."
-  (when (ems-interactive-p)
-    (emacspeak-auditory-icon 'open-object)
-    (message "Displayed process buffer in other window.")))
 
 (defadvice magit-refresh (after emacspeak pre act comp)
   "Provide auditory feedback."
@@ -306,27 +261,12 @@
     (emacspeak-auditory-icon 'task-done)
     (emacspeak-speak-line)))
 
-;;}}}
-;;{{{ Branches:
-
-(defadvice magit-remove-branch (after emacspeak pre act comp)
+(defadvice magit-display-buffer (after emacspeak pre act comp)
   "Provide auditory feedback."
   (when (ems-interactive-p)
-    (emacspeak-auditory-icon 'delete-object)
+    (emacspeak-auditory-icon 'open-object)
     (emacspeak-speak-line)))
 
-(defadvice magit-remove-branch-in-remote-repo (after emacspeak pre act comp)
-  "Provide auditory feedback."
-  (when (ems-interactive-p)
-    (emacspeak-auditory-icon 'delete-object)
-    (emacspeak-speak-line)))
-
-(defadvice magit-change-what-branch-tracks (after emacspeak pre
-                                                  act comp)
-  "Provide auditory feedback."
-  (when (ems-interactive-p)
-    (emacspeak-auditory-icon 'task-done)
-    (emacspeak-speak-line)))
 
 ;;}}}
 ;;{{{ Advise process-sentinel:
@@ -391,6 +331,15 @@
           (emacspeak-speak-line)))))
    (t ad-do-it))
   ad-return-value)
+
+;;}}}
+;;{{{Keys:
+(cl-declaim (special magit-file-mode-map))
+(when (and (bound-and-true-p magit-file-mode-map)
+           (keymapp magit-file-mode-map))
+  (define-key magit-file-mode-map (ems-kbd "C-c g") 'magit-file-dispatch))
+(cl-declaim (special ctl-x-map))
+(define-key ctl-x-map  "g" 'magit-status)
 
 ;;}}}
 (provide 'emacspeak-magit)

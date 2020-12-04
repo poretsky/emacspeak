@@ -7,7 +7,7 @@
 ;;{{{  LCD Archive entry:
 
 ;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu
+;;; emacspeak| T. V. Raman |tv.raman.tv@gmail.com
 ;;; A speech interface to Emacs |
 ;;; $Date: 2007-09-01 15:30:13 -0700 (Sat, 01 Sep 2007) $ |
 ;;;  $Revision: 4074 $ |
@@ -50,10 +50,7 @@
 
 (cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
-(eval-when-compile
-  (let ((inhibit-message  t))
-    (require 'ecb "ecb" 'no-error))
-  (require 'tree-buffer "tree-buffer" 'no-error))
+
 ;;}}}
 ;;{{{ Forward Declarations:
 

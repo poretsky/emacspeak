@@ -6,7 +6,7 @@
 ;;{{{  LCD Archive entry:
 
 ;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu
+;;; emacspeak| T. V. Raman |tv.raman.tv@gmail.com
 ;;; A speech interface to Emacs |
 ;;; $Date: 2007-08-25 18:28:19 -0700 (Sat, 25 Aug 2007) $ |
 ;;;  $Revision: 4637 $ |
@@ -40,18 +40,19 @@
 
 ;;; Commentary:
 
-;;; Make some of C and C++ mode more emacspeak friendly
+;;; Make  C and C++ mode more emacspeak friendly
 ;;; Works with both boring c-mode
 ;;; and the excellent cc-mode
+
+;;; Code:
 
 ;;}}}
 ;;{{{  Required modules
 
-;;; Code:
-
 (cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
-(require 'cc-mode)
+(declare-function c-beginning-of-statement "cc-cmds" (&optional count lim sentence-flag))
+(declare-function c-end-of-statement "cc-cmds" (&optional count lim sentence-flag))
 
 ;;}}}
 ;;{{{ advice electric deletion
@@ -305,8 +306,7 @@ and their meanings. ")
   "Speak the C semantics of this line. "
   (interactive)
   (cl-declare (special emacspeak-c-syntactic-table))
-  (let  ((semantics (mapcar 'car
-                            (c-guess-basic-syntax)))
+  (let  ((semantics (mapcar 'car (c-guess-basic-syntax)))
          (description ""))
     (setq description
           (mapconcat
@@ -339,8 +339,7 @@ and their meanings. ")
                                  (forward-line 0))
                             (setq start (point))
                             (end-of-line)
-                            (buffer-substring start
-                                              (point))))))))
+                            (buffer-substring start (point))))))))
       (error nil))
     (dtk-speak description)
     description))
@@ -430,8 +429,7 @@ and their meanings. ")
 ;;}}}
 ;;{{{ Additional keybindings:
 
-(cl-declaim (special c-mode-map
-                     c-mode-base-map))
+(cl-declaim (special c-mode-map c-mode-base-map))
 (add-hook
  'c-mode-common-hook
  #'(lambda ()
@@ -439,20 +437,10 @@ and their meanings. ")
      (define-key c-mode-map "\C-cs" 'emacspeak-c-speak-semantics)
      (define-key c-mode-map "\M-n" 'c-next-statement)
      (define-key c-mode-map "\M-p" 'c-previous-statement)
-     (when (and  (boundp 'c-mode-base-map)
-                 c-mode-base-map)
-       (define-key c-mode-base-map
-         "\M-\C-a" 'c-beginning-of-defun)
-       (define-key c-mode-base-map "\M-\C-e" 'c-end-of-defun)
+     (when (and  (boundp 'c-mode-base-map) c-mode-base-map)
        (define-key c-mode-base-map "\C-cs" 'emacspeak-c-speak-semantics)
        (define-key c-mode-base-map "\M-n" 'c-next-statement)
-       (define-key c-mode-base-map "\M-p"
-         'c-previous-statement))
-     (emacspeak-pronounce-toggle-use-of-dictionaries t)
-     (or dtk-split-caps
-         (dtk-toggle-split-caps))
-     (or dtk-allcaps-beep
-         (dtk-toggle-allcaps-beep))))
+       (define-key c-mode-base-map "\M-p" 'c-previous-statement))))
 
 ;;}}}
 ;;{{{ personalities

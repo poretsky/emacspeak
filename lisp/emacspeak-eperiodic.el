@@ -6,7 +6,7 @@
 ;;{{{  LCD Archive entry:
 
 ;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu
+;;; emacspeak| T. V. Raman |tv.raman.tv@gmail.com
 ;;; A speech interface to Emacs |
 ;;; $Date: 2007-08-25 18:28:19 -0700 (Sat, 25 Aug 2007) $ |
 ;;;  $Revision: 4074 $ |
@@ -134,11 +134,9 @@
   )
 ;;}}}
 ;;{{{  listen off the web:
-(defcustom emacspeak-eperiodic-media-location 
+(defvar emacspeak-eperiodic-media-location 
   "http://www.webelements.com/webelements/elements/media/snds-description/%s.rm"
-  "Location of streaming media describing elements."
-  :type 'url
-  :group 'emacspeak-eperiodic)
+  "Location of streaming media describing elements.")
 
 (defun emacspeak-eperiodic-play-description ()
   "Play audio description from WebElements."
@@ -146,7 +144,7 @@
   (cl-declare (special emacspeak-eperiodic-media-location))
   (let ((e (eperiodic-element-at)))
     (unless e  (error "No element under point."))
-    (funcall emacspeak-media-player 
+    (emacspeak-m-player
              (format  emacspeak-eperiodic-media-location
                       (eperiodic-get-element-property e 'symbol))
              nil)))

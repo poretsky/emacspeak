@@ -1,20 +1,3 @@
-;;{{{outline-flag-region:
-;;; Handle outline hide/show directly here --- rather than relying on
-;;overlay advice alone.
-
-(defadvice outline-flag-region (around emacspeak pre act comp)
-  "Reflect hide/show via property invisible as wel"
-  (let  ((ems--voiceify-overlays  nil)
-         (beg (ad-get-arg 0))
-         (end (ad-get-arg 1))
-         (inhibit-read-only t))
-    ad-do-it
-    (when (zerop beg) (setq beg (point-min)))
-    (with-silent-modifications
-      (put-text-property
-       beg end 'invisible
-       (if (ad-get-arg 2) 'outline nil)))))
-
 ;;; emacspeak-outline.el --- Speech enable Outline --   Browsing  Structured Documents  -*- lexical-binding: t; -*-
 ;;; $Id$
 ;;; $Author: tv.raman.tv $
@@ -64,6 +47,7 @@
 
 ;;}}}
 ;;{{{ requires
+
 (cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 (require 'outline)
@@ -116,70 +100,89 @@
     (emacspeak-speak-line)))
 
 ;;}}}
+;;{{{outline-flag-region:
+;;; Handle outline hide/show directly here --- rather than relying on
+;;overlay advice alone.
+
+(defadvice outline-flag-region (around emacspeak pre act comp)
+  "Reflect hide/show via property invisible as wel"
+  (cl-declare (special ems--voiceify-overlays))
+  (let  ((ems--voiceify-overlays  nil)
+         (beg (ad-get-arg 0))
+         (end (ad-get-arg 1))
+         (inhibit-read-only t))
+    ad-do-it
+    (when (zerop beg) (setq beg (point-min)))
+    (with-silent-modifications
+      (put-text-property
+       beg end 'invisible
+       (if (ad-get-arg 2) 'outline nil)))))
+
+
 ;;{{{  Hiding and showing subtrees
 
-(defadvice hide-entry (after emacspeak pre act comp)
+(defadvice outline-hide-entry (after emacspeak pre act comp)
   "Produce an auditory icon"
   (when (ems-interactive-p)
     (emacspeak-auditory-icon 'close-object)
     (message "Hid the body directly following this heading")))
 
-(defadvice show-entry (after emacspeak pre act comp)
+(defadvice outline-show-entry (after emacspeak pre act comp)
   "Produce an auditory icon"
   (when (ems-interactive-p)
     (emacspeak-auditory-icon 'open-object)
     (message "Exposed body directly following current heading")))
 
-(defadvice hide-body (after emacspeak pre act comp)
+(defadvice outline-hide-body (after emacspeak pre act comp)
   "Produce an auditory icon"
   (when (ems-interactive-p)
     (emacspeak-auditory-icon 'close-object)
     (message "Hid all of the buffer except for header lines")))
 
-(defadvice show-all (after emacspeak pre act comp)
+(defadvice outline-show-all (after emacspeak pre act comp)
   "Produce an auditory icon"
   (when (ems-interactive-p)
     (emacspeak-auditory-icon 'open-object)
     (message "Exposed all text in the buffer")))
 
-(defadvice hide-subtree (after emacspeak pre act comp)
+(defadvice outline-hide-subtree (after emacspeak pre act comp)
   "Produce an auditory icon"
   (when (ems-interactive-p)
     (emacspeak-auditory-icon 'close-object)
     (message "Hid everything at deeper levels from current heading")))
 
-(defadvice hide-leaves (after emacspeak pre act comp)
+(defadvice outline-hide-leaves (after emacspeak pre act comp)
   "Produce an auditory icon"
   (when (ems-interactive-p)
     (emacspeak-auditory-icon 'close-object)
     (message "Hid all of the body at deeper levels")))
 
-(defadvice show-subtree  (after emacspeak pre act comp)
+(defadvice outline-show-subtree  (after emacspeak pre act comp)
   "Produce an auditory icon"
   (when (ems-interactive-p)
     (emacspeak-auditory-icon 'open-object)
     (message "Exposed everything after current heading at deeper levels")))
 
-(defadvice hide-sublevels (after emacspeak pre act comp)
+(defadvice outline-hide-sublevels (after emacspeak pre act comp)
   "Produce an auditory icon"
   (when (ems-interactive-p)
     (emacspeak-auditory-icon 'close-object)
     (message "Hid everything except the top  %s levels"
              (ad-get-arg 0))))
 
-(defadvice hide-other (after emacspeak pre act comp)
+(defadvice outline-hide-other (after emacspeak pre act comp)
   "Produce an auditory icon"
   (when (ems-interactive-p)
     (emacspeak-auditory-icon 'close-object)
     (message "Hid everything except current body and parent headings")))
 
-(defadvice show-branches (after emacspeak pre act comp)
+(defadvice outline-show-branches (after emacspeak pre act comp)
   "Produce an auditory icon"
   (when (ems-interactive-p)
     (emacspeak-auditory-icon 'open-object)
     (message "Exposed all subheadings while leaving their bodies hidden")))
 
-(defadvice show-children (after emacspeak pre act comp)
+(defadvice outline-show-children (after emacspeak pre act comp)
   "Produce an auditory icon"
   (when (ems-interactive-p)
     (emacspeak-auditory-icon 'open-object)
@@ -188,11 +191,8 @@
 ;;}}}
 ;;{{{  Interactive speaking of sections
 
-(defcustom emacspeak-outline-dont-query-before-speaking t
-  "*Option to control prompts when speaking  outline
-sections."
-  :group 'emacspeak-outline
-  :type 'boolean)
+(defvar emacspeak-outline-dont-query-before-speaking t
+"Option to control prompts when speaking  outline sections.")
 
 (defun emacspeak-outline-speak-heading (what direction)
   "Function used by all interactive section speaking
@@ -214,28 +214,28 @@ commands. "
                 (format  "Speak %s lines from section %s"
                          (count-lines start end) (ems--this-line))))
       (emacspeak-speak-region start end))))
-;;;###autoload
+
 (defun emacspeak-outline-speak-next-heading ()
   "Analogous to outline-next-visible-heading,
 except that the outline section is  spoken"
   (interactive)
   (emacspeak-auditory-icon 'section)
   (emacspeak-outline-speak-heading 'outline-next-visible-heading 1))
-;;;###autoload
+
 (defun emacspeak-outline-speak-previous-heading ()
   "Analogous to outline-previous-visible-heading,
 except that the outline section is  spoken"
   (interactive)
   (emacspeak-auditory-icon 'section)
   (emacspeak-outline-speak-heading 'outline-next-visible-heading -1))
-;;;###autoload
+
 (defun emacspeak-outline-speak-forward-heading ()
   "Analogous to outline-forward-same-level,
 except that the outline section is  spoken"
   (interactive)
   (emacspeak-auditory-icon 'section)
   (emacspeak-outline-speak-heading 'outline-forward-same-level 1))
-;;;###autoload
+
 (defun emacspeak-outline-speak-backward-heading ()
   "Analogous to outline-backward-same-level
 except that the outline section is  spoken"
@@ -244,7 +244,7 @@ except that the outline section is  spoken"
   (forward-line -1)
   (emacspeak-outline-speak-heading 'outline-forward-same-level -1))
 
-;;;###autoload
+
 (defun emacspeak-outline-speak-this-heading ()
   "Speak current outline section starting from point"
   (interactive)

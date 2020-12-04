@@ -6,7 +6,7 @@
 ;;{{{  LCD Archive entry:
 
 ;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu
+;;; emacspeak| T. V. Raman |tv.raman.tv@gmail.com
 ;;; A speech interface to Emacs |
 ;;; $Date: 2007-05-03 18:13:44 -0700 (Thu, 03 May 2007) $ |
 ;;;  $Revision: 4532 $ |
@@ -50,7 +50,6 @@
 ;;; @itemize
 ;;; @item You need to get your own API key
 ;;; @item You need Emacs built with libxml2 support
-;;; @item You need Emacs 24.1 or higher.
 ;;; @end itemize
 ;;;
 ;;; @subsection Usage
@@ -86,16 +85,14 @@
 (require 'cl-lib)
 (cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
-(require 'dired)
-(require 'eww   nil  'noerror)
-(require 'browse-url)
-(require 'emacspeak-we)
-(require 'emacspeak-webutils)
-(require 'emacspeak-xslt)
-(require 'dom) ; Cloned from Emacs 25
+(eval-when-compile (require 'derived))
+(require 'dom)
 (require 'xml)
-(require 'derived)
-(autoload 'auth-source-search "auth-source")
+(declare-function auth-source-search "auth-source" (&rest rest))
+(declare-function dired-get-filename "dired" (&optional localp
+                                                        no-error-if-not-filep))
+(declare-function emacspeak-xslt-get "emacspeak-xslt" (arg1))
+(declare-function emacspeak-xslt-params-from-xpath "emacspeak-bookshare" t)
 ;;}}}
 ;;{{{ Customizations
 
@@ -116,7 +113,8 @@ See http://developer.bookshare.org/docs for details on how to get
 (defvar emacspeak-bookshare-user-id nil
   "Bookshare user Id.")
 
-(defcustom emacspeak-bookshare-directory (expand-file-name "~/books/book-share")
+(defcustom emacspeak-bookshare-directory
+  (eval-when-compile (expand-file-name "~/books/book-share"))
   "Customize this to the root of where books are organized."
   :type 'directory
   :group 'emacspeak-bookshare)
@@ -125,19 +123,11 @@ See http://developer.bookshare.org/docs for details on how to get
   (expand-file-name "downloads/" emacspeak-bookshare-directory)
   "Directory where archives are saved on download.")
 
-(defcustom emacspeak-bookshare-browser-function
+(defvar emacspeak-bookshare-browser-function
   'eww-browse-url
   "Function to display Bookshare Book content in a WWW browser.
 This is used by the various Bookshare view commands to display
-  content from Bookshare books."
-  :type
-  '(choice
-    (function-item :tag "Emacs EWW" :value  eww-browse-url)
-    (function-item :tag "Default Mac OS X browser"
-                   :value browse-url-default-macosx-browser)
-    (function :tag "Your own function"))
-  :version "47"
-  :group 'emacspeak-bookshare)
+  content from Bookshare books.")
 
 ;;}}}
 ;;{{{ Variables:
@@ -560,7 +550,7 @@ Optional interactive prefix arg prompts for a category to use as a filter."
       (error "No handler defined for action %s" action)))
 
 (define-derived-mode emacspeak-bookshare-mode special-mode
-  "Bookshare Library Of Accessible Books And Periodicals"
+  "Bookshare Library"
   "A Bookshare front-end for the Emacspeak desktop.
 
 The Emacspeak Bookshare front-end is launched by command
@@ -616,7 +606,7 @@ b Browse
  do
  (progn
    (emacspeak-bookshare-action-set (cl-first a) (cl-second a))
-   (define-key emacspeak-bookshare-mode-map (kbd (cl-first a))
+   (define-key emacspeak-bookshare-mode-map (ems-kbd (cl-first a))
      'emacspeak-bookshare-action)))
 
 ;;}}}
@@ -1112,14 +1102,9 @@ Target location is generated from author and title."
                 'auditory-icon 'item))
     (message "Unpacked content.")))
 
-(defcustom emacspeak-bookshare-xslt
+(defvar emacspeak-bookshare-xslt
   "daisyTransform.xsl"
-  "Name of bookshare  XSL transform."
-  :type
-  '(choice :tag "Key"
-           (const :tag "Daisy transform from Bookshare"  "daisyTransform.xsl")
-           (const :tag "Default HTML View" "default.xsl"))
-  :group 'emacspeak-bookshare)
+  "Name of bookshare  XSL transform.")
 
 (defun emacspeak-bookshare-xslt (directory)
   "Return suitable XSL  transform."
@@ -1140,6 +1125,7 @@ Target location is generated from author and title."
                        emacspeak-xslt-directory))
 
   (expand-file-name emacspeak-bookshare-toc-xslt emacspeak-xslt-directory))
+(declare-function emacspeak-xslt-view-file "emacspeak-xslt" (style file))
 
 (defun emacspeak-bookshare-view-at-point ()
   "View book at point.
@@ -1157,7 +1143,7 @@ Make sure it's downloaded and unpacked first."
      (cl-first
       (directory-files directory
                        'full
-                       ".xml")))))
+                       "\\.xml$")))))
 
 (defun emacspeak-bookshare-url-executor (url)
   "Custom URL executor for use in Bookshare TOC."
@@ -1184,7 +1170,7 @@ Make sure it's downloaded and unpacked first."
       (unless (file-exists-p directory)
         (error "First unpack this content."))
       (add-hook
-       'emacspeak-web-post-process-hook
+       'emacspeak-eww-post-process-hook
        #'(lambda ()
            (cl-declare (special emacspeak-we-url-executor))
            (setq emacspeak-we-url-executor 'emacspeak-bookshare-url-executor)
@@ -1194,7 +1180,7 @@ Make sure it's downloaded and unpacked first."
        xsl
        (shell-quote-argument
         (cl-first
-         (directory-files directory 'full ".xml"))))))))
+         (directory-files directory 'full "\\.xml$"))))))))
 
 (defun emacspeak-bookshare-extract-xml (url)
   "Extract content referred to by link under point, and return an XML buffer."
@@ -1222,7 +1208,7 @@ Make sure it's downloaded and unpacked first."
         (browse-url-browser-function emacspeak-bookshare-browser-function))
     (save-current-buffer
       (set-buffer result)
-      (emacspeak-webutils-autospeak)
+      (emacspeak-eww-autospeak)
       (browse-url-of-buffer))))
 
 (defun emacspeak-bookshare-view-page-range (url)
@@ -1241,7 +1227,7 @@ Make sure it's downloaded and unpacked first."
          (browse-url-browser-function emacspeak-bookshare-browser-function))
     (save-current-buffer
       (set-buffer result)
-      (emacspeak-webutils-autospeak)
+      (emacspeak-eww-autospeak)
       (browse-url-of-buffer))
     (kill-buffer result)))
 
@@ -1261,7 +1247,7 @@ Make sure it's downloaded and unpacked first."
     (emacspeak-xslt-view-file
      xsl
      (cl-first
-      (directory-files directory 'full ".xml")))))
+      (directory-files directory 'full "\\.xml$")))))
 
 (defun emacspeak-bookshare-toc (directory)
   "View TOC for book in specified directory."
@@ -1277,22 +1263,18 @@ Make sure it's downloaded and unpacked first."
   (cl-declare (special emacspeak-bookshare-directory))
   (let* ((xsl (emacspeak-bookshare-toc-xslt)))
     (add-hook
-     'emacspeak-web-post-process-hook
+     'emacspeak-eww-post-process-hook
      #'(lambda ()
          (cl-declare (special emacspeak-we-url-executor))
          (setq emacspeak-we-url-executor 'emacspeak-bookshare-url-executor)))
     (emacspeak-xslt-view-file
      xsl
-     (cl-first (directory-files directory 'full ".xml")))))
+     (cl-first (directory-files directory 'full "\\.xml$")))))
 
-(defcustom emacspeak-bookshare-html-to-text-command
+(defvar emacspeak-bookshare-html-to-text-command
   "lynx -dump -stdin"
-  "Command to convert html to text on stdin."
+  "Command to convert html to text on stdin.")
 
-  :type '(choice
-          (const :tag "lynx"  "lynx -dump -stdin")
-          (const "html2text" "html2text"))
-  :group 'emacspeak-bookshare)
 (defun emacspeak-bookshare-fulltext (directory)
   "Display fulltext contents of  book in specified directory.
 Useful for fulltext search in a book."
@@ -1319,7 +1301,7 @@ Useful for fulltext search in a book."
              "%s  --nonet --novalid %s %s | %s"
              emacspeak-xslt-program xsl
              (shell-quote-argument
-              (cl-first (directory-files directory 'full ".xml")))
+              (cl-first (directory-files directory 'full "\\.xml$")))
              emacspeak-bookshare-html-to-text-command))
       (erase-buffer)
       (setq buffer-undo-list t)
@@ -1360,12 +1342,12 @@ Useful for fulltext search in a book."
              "%s  --nonet --novalid %s %s "
              emacspeak-xslt-program xsl
              (shell-quote-argument
-              (cl-first (directory-files directory 'full ".xml")))))
+              (cl-first (directory-files directory 'full "\\.xml$")))))
       (erase-buffer)
       (setq buffer-undo-list t)
       (shell-command command (current-buffer) nil)
       (add-hook
-       'emacspeak-web-post-process-hook
+       'emacspeak-eww-post-process-hook
        #'(lambda nil
            (setq emacspeak-bookshare-this-book directory)
            (emacspeak-speak-load-directory-settings directory)

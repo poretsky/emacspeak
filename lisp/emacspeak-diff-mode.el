@@ -6,7 +6,7 @@
 ;;{{{  LCD Archive entry:
 
 ;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu
+;;; emacspeak| T. V. Raman |tv.raman.tv@gmail.com
 ;;; A speech interface to Emacs |
 ;;; $Date: 2007-05-03 18:13:44 -0700 (Thu, 03 May 2007) $ |
 ;;;  $Revision: 4532 $ |
@@ -64,7 +64,7 @@
    (diff-hunk-header voice-bolden-medium)
    (diff-index voice-monotone)
    (diff-indicator-added voice-annotate)
-   (diff-indicator-changed voice-annotate)
+   (diff-indicator-changed voice-lighten)
    (diff-indicator-removed voice-smoothen)
    (diff-nonexistent voice-lighten-extra)
    (diff-refine-added voice-lighten)
@@ -74,6 +74,7 @@
 
 ;;}}}
 ;;{{{ Advice Interactive Commands:
+
 (cl-loop
  for f in
  '(diff-next-complex-hunk

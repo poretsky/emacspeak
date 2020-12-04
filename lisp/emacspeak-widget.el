@@ -6,7 +6,7 @@
 ;;{{{  LCD Archive entry: 
 
 ;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu
+;;; emacspeak| T. V. Raman |tv.raman.tv@gmail.com
 ;;; A speech interface to Emacs |
 ;;; $Date: 2008-03-23 20:20:09 -0700 (Sun, 23 Mar 2008) $ |
 ;;;  $Revision: 4532 $ | 
@@ -51,22 +51,13 @@
 
 (require 'cl-lib)
 (cl-declaim  (optimize  (safety 0) (speed 3)))
-(require 'custom)
+(require 'emacspeak-preamble)
 (require 'voice-setup)
-(require 'dtk-speak)
-(require 'widget)
 (require 'wid-edit)
-(require 'emacspeak-speak)
-(require 'emacspeak-sounds)
-(require 'emacspeak-webutils)
+
+
 ;;}}}
 ;;{{{  Customize global behavior
-
-(defgroup emacspeak-widget nil
-  "Widgets on the Emacspeak Desktop."
-  :group 'emacspeak
-  :group 'widget
-  :prefix "emacspeak-widget")
 
 (voice-setup-add-map
  '(
@@ -568,29 +559,24 @@ Returns a string with appropriate personality."
 ;;}}}
 ;;{{{  activating widgets:
 ;;; forward declaration:
-(defvar emacspeak-we-url-executor)
+
 (defadvice widget-button-press (around emacspeak pre act comp)
   "Provide auditory feedback"
-  (cl-declare (special emacspeak-webutils-url-at-point
-                       emacspeak-we-url-executor))
   (let ((inhibit-read-only t)
         (widget (widget-at (ad-get-arg 0))))
     (cond
-     (widget                           ; First record some state:
+     (widget                            ; First record some state:
       (let ((pos (ad-get-arg 0))
             (old-position (point)))
         (cond
          ((and (eq major-mode 'eww-mode)
-               emacspeak-webutils-url-at-point
-               (funcall emacspeak-webutils-url-at-point)
-               emacspeak-we-url-executor
-               (boundp 'emacspeak-we-url-executor)
+               (bound-and-true-p emacspeak-we-url-executor)
                (functionp emacspeak-we-url-executor))
           (emacspeak-auditory-icon 'button)
           (call-interactively 'emacspeak-we-url-expand-and-execute))
          (t ad-do-it
             (cond
-             ((= old-position (point)) ;did not move
+             ((= old-position (point))  ;did not move
               (emacspeak-auditory-icon 'button)
               (emacspeak-widget-summarize (widget-at pos)))
              (t  (emacspeak-auditory-icon 'large-movement)

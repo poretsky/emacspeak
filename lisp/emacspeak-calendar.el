@@ -6,7 +6,7 @@
 ;;{{{  LCD Archive entry:
 
 ;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu
+;;; emacspeak| T. V. Raman |tv.raman.tv@gmail.com
 ;;; A speech interface to Emacs |
 ;;; $Date: 2008-06-21 10:50:41 -0700 (Sat, 21 Jun 2008) $ |
 ;;;  $Revision: 4532 $ |
@@ -60,10 +60,8 @@
    (diary voice-bolden)
    ))
 
-(defcustom emacspeak-calendar-mark-personality voice-bolden
-  "Personality to use when showing marked calendar entries."
-  :type 'symbol
-  :group 'emacspeak-calendar)
+(defvar emacspeak-calendar-mark-personality voice-bolden
+  "Personality to use when showing marked calendar entries.")
 
 ;;}}}
 ;;{{{  functions:
@@ -365,8 +363,39 @@
    ad-return-value))
 
 ;;}}}
+;;{{{ Global sunrise/sunset wizard:
+
+;;;###autoload
+(defun emacspeak-calendar-sunrise-sunset (address &optional arg)
+  "Display sunrise/sunset for specified address."
+  (interactive
+   (list
+    (read-from-minibuffer "Address: ")
+    current-prefix-arg))
+  (cl-declare (special calendar-standard-time-zone-name
+                       calendar-longitude calendar-latitude))
+  (let* ((geo (gmaps-address-geocode address))
+         (calendar-latitude (g-json-get 'lat geo))
+         (calendar-longitude (g-json-get 'lng geo))
+         (calendar-time-zone
+          (solar-get-number
+           "Enter difference from Coordinated Universal Time (in minutes): "))
+         (calendar-standard-time-zone-name
+          (cond ((zerop calendar-time-zone) "UTC")
+                ((< calendar-time-zone 0)
+                 (format "UTC%dmin" calendar-time-zone))
+                (t (format "UTC+%dmin" calendar-time-zone))))
+         (date (if arg (calendar-read-date) (calendar-current-date)))
+         (date-string (calendar-date-string date t))
+         (time-string (solar-sunrise-sunset-string date)))
+    (message "%s: %s at %s" date-string time-string address)))
+
+
+
+;;}}}
 ;;{{{  keymap
-(cl-eval-when (load))
+
+
 
 (defun emacspeak-calendar-setup()
   "Set up appropriate bindings for calendar"
@@ -375,7 +404,7 @@
     (set-buffer calendar-buffer)
     (local-unset-key emacspeak-prefix)
     (define-key calendar-mode-map "v" 'view-diary-entries)
-    (define-key calendar-mode-map "\M-s" 'emacspeak-wizards-sunrise-sunset)
+    (define-key calendar-mode-map "\M-s" 'emacspeak-calendar-sunrise-sunset)
     (define-key calendar-mode-map  "\C-e." 'emacspeak-calendar-speak-date)
     (define-key calendar-mode-map  "\C-ee"
       'calendar-end-of-week)))
@@ -401,6 +430,7 @@
 
 (defun emacspeak-appt-delete-display ()
   "Function to delete appointment message"
+  (cl-declare (special appt-buffer-name))
   (and (get-buffer appt-buffer-name)
        (save-current-buffer
          (set-buffer appt-buffer-name)
@@ -411,7 +441,7 @@
 
 (setq appt-disp-window-function 'emacspeak-appt-speak-appointment)
 (setq appt-delete-window 'emacspeak-appt-delete-display)
-;;;###autoload
+
 (defun emacspeak-appt-repeat-announcement ()
   "Speaks the most recently displayed appointment message if any."
   (interactive)
@@ -441,32 +471,31 @@
 ;;;###autoload
 (defun emacspeak-calendar-setup-sunrise-sunset ()
   "Set up geo-coordinates using Google Maps reverse geocoding.
-To use, configure variable gweb-my-address via M-x customize-variable."
+To use, configure variable gmaps-my-address via M-x customize-variable."
   (interactive)
-  (cl-declare (special  gweb-my-address gweb-my-location
+  (cl-declare (special  gmaps-my-address gmaps-my-location
                         calendar-latitude calendar-longitude))
   (cond
-   ((null gweb-my-location)
-    (message "First customize gweb-my-address."))
+   ((null gmaps-my-location)
+    (message "First customize gmaps-my-address."))
    (t
     (setq
      calendar-latitude
-     (g-json-get 'lat (gmaps-address-geocode gweb-my-address))
+     (g-json-get 'lat (gmaps-address-geocode gmaps-my-address))
      calendar-longitude
-     (g-json-get 'lng (gmaps-address-geocode gweb-my-address)))
-    (message "Setup for %s" gweb-my-address))))
+     (g-json-get 'lng (gmaps-address-geocode gmaps-my-address))))))
 
 (defadvice calendar-sunrise-sunset (around emacspeak pre act comp)
   "Like calendar's sunrise-sunset, but speaks location intelligently."
-  (cl-declare (special gweb-my-address))
+  (cl-declare (special gmaps-my-address))
   (cond
-   ((and (boundp 'gweb-my-address)
-         gweb-my-address
+   ((and (boundp 'gmaps-my-address)
+         gmaps-my-address
          (ems-interactive-p))
     (let ((date (calendar-cursor-to-date t)))
       (message "%s at %s"
                (solar-sunrise-sunset-string date 'nolocation)
-               gweb-my-address)))
+               gmaps-my-address)))
    (t ad-do-it)))
 
 ;;}}}

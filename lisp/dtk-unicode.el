@@ -13,7 +13,7 @@
 ;;{{{  LCD Archive entry:
 
 ;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu
+;;; emacspeak| T. V. Raman |tv.raman.tv@gmail.com
 ;;; A speech interface to Emacs |
 ;;; $Date: 2008-07-06 10:18:30 -0700 (Sun, 06 Jul 2008) $ |
 ;;;  $Revision: 4670 $ |
@@ -47,25 +47,17 @@
 
 ;;; Commentary:
 
-;;
 ;;; This  Provides Unicode support to the speech layer.
 
 ;;; Code:
 
 ;;}}}
-;;{{{ Preamble
+;;{{{ Required Modules:
 
 (require 'cl-lib)
 (cl-declaim (optimize (safety 0) (speed 3)))
-(require 'descr-text)
 ;;}}}
 ;;{{{ Customizations
-
-(defgroup dtk-unicode
-  nil
-  "Customization group for dtk-unicode."
-  :group 'emacspeak
-  :prefix "dtk-unicode-")
 
 (defcustom dtk-unicode-character-replacement-alist
   '(
@@ -101,17 +93,16 @@
     (?ﬃ . "ffi")                        ; latin small ligature ffi
     (?ﬄ . "Ffl")                        ; latin small ligature ffl
     )
-  "Explicit replacements for some characters."
-  :group 'dtk-unicode
+  "Replacements for  characters."
+  :group 'dtk
   :type '(alist
           :key-type (character :tag "character")
           :value-type (string :tag "replacement")))
 
 (defcustom dtk-unicode-process-utf8 t
-  "Turn this off when working with TTS  engines that handle UTF8
-themselves, e.g., when using an Asian language."
+  "Turn this off when working with TTS  engines that handle UTF8. "
   :type 'boolean
-  :group 'dtk-unicode)
+  :group 'dtk)
 
 (defcustom dtk-unicode-name-transformation-rules-alist
   '(
@@ -123,7 +114,7 @@ themselves, e.g., when using an Asian language."
                                         ;("\\(.*\\) sign$" . (lambda (s) (match-string 1 s)))
     )
   "Alist of character name transformation rules."
-  :group 'dtk-unicode
+  :group 'dtk
   :type
   '(repeat
     (cons :value ("." . identity)
@@ -135,7 +126,9 @@ themselves, e.g., when using an Asian language."
 
 (defcustom dtk-unicode-untouched-charsets
   '(ascii latin-iso8859-1)
-  "*Characters of these charsets are completely ignored by dtk-unicode-replace-chars."
+"Characters of these charsets are  ignored by
+  dtk-unicode-replace-chars."
+  :group 'dtk
   :type '(repeat symbol))
 
 (defvar dtk-unicode-handlers
@@ -216,8 +209,7 @@ charsets returned by operations such as `find-charset-region'."
       (setq ad-return-value result))))
 
 (defun dtk-unicode-name-for-char (char)
-  "Return unicode name for character CHAR.
-nil if CHAR is not in Unicode."
+  "Return unicode name for character CHAR. "
   (cond
    ((= char 128) "")
    (t
@@ -226,18 +218,10 @@ nil if CHAR is not in Unicode."
       (get-char-code-property char 'name)
       (get-char-code-property char 'old-name)
       (format "%c" char))))))
-(defun dtk-unicode-char-properties (char)
-  "Return unicode properties for CHAR."
-  (let ((unicode (encode-char char 'ucs)))
-    (when unicode (describe-char-unicode-data unicode))))
-
-(defun dtk-unicode-char-property (char prop-name)
-  "Get character property by name."
-  (cl-second (assoc prop-name (dtk-unicode-char-properties char))))
 
 (defun dtk-unicode-char-punctuation-p (char)
   "Use unicode properties to determine whether CHAR is a ppunctuation character."
-  (let ((category (dtk-unicode-char-property char "Category"))
+  (let ((category (get-char-code-property char 'category))
         (case-fold-search t))
     (when (stringp category)
       (string-match "punctuation" category))))
@@ -323,9 +307,6 @@ Does nothing for unibyte buffers."
             (replace-match replacement t t nil)
             (when props
               (set-text-properties pos (point) props))))))))
-
-;;}}}
-(provide 'dtk-unicode)
 
 ;;}}}
 (provide 'dtk-unicode)

@@ -3,7 +3,7 @@
 ;;;Emacs front-end to AMixer
 ;;{{{  Copyright:
 
-;;; Copyright (C) 1995 -- 2018, T. V. Raman<raman@cs.cornell.edu>
+;;; Copyright (C) 1995 -- 2018, T. V. Raman<tv.raman.tv@gmail.com>
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -45,12 +45,15 @@
 
 (require 'cl-lib)
 (cl-declaim  (optimize  (safety 0) (speed 3)))
+
 ;;}}}
-;;{{{ Customizations:
+;;{{{ Decls:
+
 ;;; forward decl:
 (defvar emacspeak-speak-messages)
+
 ;;}}}
-;;{{{ Definitions
+;;{{{ Custom:
 
 (defcustom amixer-device "default"
   "ALSA Control Device."
@@ -69,9 +72,6 @@
 (cl-defstruct amixer-control
   numid iface name setting)
 
-(declare-function amixer-control-name  "amixer.el" (amixer))
-(declare-function amixer-control-numid  "amixer.el" (amixer))
-(declare-function amixer-control-iface  "amixer.el" (amixer))
 (cl-defstruct amixer-control-setting
   type access values
   min max step
@@ -208,8 +208,7 @@
    ((file-exists-p "/var/lib/alsa/asound.state")
     "/var/lib/alsa/asound.state"))
   "Personal sound card settings. Copied from /var/lib/alsa/asound.state
-to your ~/.emacs.d to avoid needing to run alsactl as root on first
-use.")
+to  ~/.emacs.d ")
 
 (defun amixer-alsactl-setup ()
   "Set up alsactl sound state."
@@ -242,7 +241,7 @@ use.")
 
 ;;;###autoload
 (defun amixer (&optional refresh)
-  "Interactively manipulate ALSA settings.
+  "Manipulate ALSA settings.
 Interactive prefix arg refreshes cache."
   (interactive "P")
   (cl-declare (special amixer-db amixer-alsactl-config-file amixer-program))
@@ -292,31 +291,6 @@ Interactive prefix arg refreshes cache."
        update)))))
 
 ;;;###autoload
-(defun amixer-equalize()
-  "Set equalizer. Only affects device `equal'."
-  (interactive)
-  (cl-declare (special amixer-device))
-  (let ((amixer-device "equal")
-        (emacspeak-speak-messages nil))
-    (amixer 'refresh)
-;;; mark db dirty.
-    (setq amixer-db nil)))
-
-(defun amixer-reset-equalizer ()
-  "Reset equalizer to default values -- 66% for all 10 bands."
-  (interactive)
-  (cl-declare (special amixer-program))
-  (cl-loop
-   for  i from 1 to 10 do
-   (start-process
-    "AMixer" nil amixer-program
-    "-Dequal"
-    "cset"
-    (format "numid=%s" i)
-    "66,66"))
-  (message "Reset equalizer"))
-
-;;;###autoload
 (defun amixer-store()
   "Persist current amixer settings."
   (interactive)
@@ -328,7 +302,9 @@ Interactive prefix arg refreshes cache."
      "-f"amixer-alsactl-config-file
      "store")
     (emacspeak-auditory-icon 'task-done)
-    (message "Persisted amixer state.")))
+    (message "Persisted amixer state to %s."
+             amixer-alsactl-config-file)))
+
 ;;}}}
 (provide 'amixer)
 ;;{{{ end of file

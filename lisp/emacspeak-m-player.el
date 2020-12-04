@@ -6,7 +6,7 @@
 ;;{{{  LCD Archive entry:
 
 ;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu
+;;; emacspeak| T. V. Raman |tv.raman.tv@gmail.com
 ;;; A speech interface to Emacs |
 ;;; $Date: 2008-06-29 17:58:19 -0700 (Sun, 29 Jun 2008) $ |
 ;;;  $Revision: 4532 $ |
@@ -71,14 +71,12 @@
 (require 'cl-lib)
 (cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
-(require 'ansi-color)
 (require 'ladspa)
-(require 'ido)
 (require 'emacspeak-amark)
-(require 'emacspeak-webutils)
-(require 'dired)
-(require 'locate)
-(require 'comint)
+(declare-function dired-get-filename "dired" (&optional localp
+                                                        no-error-if-not-filep))
+(declare-function comint-mode "comint" nil)
+(declare-function emacspeak-xslt-get "emacspeak-xslt" (style))
 
 ;;}}}
 ;;{{{ Stream Metadata:
@@ -114,7 +112,7 @@
 
 (defconst  emacspeak-media-shortcuts-directory
   (expand-file-name "media/radio/" emacspeak-directory)
-  "*Directory where we organize   and media shortcuts. ")
+"Directory where we organize   and media shortcuts. ")
 
 (defvar emacspeak-m-player-process nil
   "Process handle to m-player.")
@@ -144,36 +142,38 @@ This is set to nil when playing Internet  streams.")
 
 (defsubst ems--duration-to-seconds (d)
   "Convert hh:mm:ss to seconds."
-  (let ((v (mapcar #'car (mapcar #'read-from-string (split-string d ":")))))
-    (+
-     (* 3600 (cl-first v))
-     (* 60 (cl-second v))
-     (cl-third v))))
+  (let*
+      ((sign (string-match "^-" d))
+       (v
+        (mapcar
+         #'car
+         (mapcar
+          #'read-from-string (split-string (if sign (substring d 1) d) ":")))))
+    (* (if sign -1 1)
+       (+
+        (* 3600 (cl-first v))
+        (* 60 (cl-second v))
+        (cl-third v)))))
 
 (defun emacspeak-m-player-mode-line ()
   "Meaningful mode-line for *M-Player* buffers."
-  (cl-declare (special emacspeak-m-player-process))
-  (cond
-   ((eq 'run (process-status emacspeak-m-player-process))
-    (let ((info (emacspeak-m-player-get-position))
-          (dtk-split-caps t))
-      (when info 
-        (put-text-property 0 (length (cl-first info))
-                           'personality 'voice-smoothen (cl-first info) )
-        (dtk-notify-speak
-         (concat
-          (cl-second info) " : "
-          (ems--seconds-string-to-duration (cl-first info))
-          " of "
-          (ems--seconds-string-to-duration (cl-third info)))))))
-   (t (message "Process MPlayer not running."))))
-
-(defun emacspeak-m-player-speak-mode-line ()
-  "Speak mode line"
   (interactive)
-  (tts-with-punctuations
-   'all
-   (dtk-speak (emacspeak-m-player-mode-line))))
+  (cl-declare (special emacspeak-m-player-process))
+  (dtk-notify-speak
+   (cond
+    ((eq 'run (process-status emacspeak-m-player-process))
+     (let ((info (emacspeak-m-player-get-position)))
+       (when info
+         (concat
+          (propertize "Position:  " 'pause 90)
+          (ems--seconds-string-to-duration (cl-first info))
+          (propertize " of " 'personality voice-smoothen-extra)
+          (ems--seconds-string-to-duration (cl-third info))
+          (propertize " in " 'personality voice-smoothen-extra)
+          (cl-second info)))))
+    (t (format "Process MPlayer not running.")))))
+
+
 
 (define-derived-mode emacspeak-m-player-mode comint-mode
   "M-Player Interaction"
@@ -186,7 +186,7 @@ This is set to nil when playing Internet  streams.")
 ;;}}}
 ;;{{{ emacspeak-m-player
 
-;;;###autoload
+
 (defgroup emacspeak-m-player nil
   "Emacspeak media player settings."
   :group 'emacspeak)
@@ -215,15 +215,13 @@ This is set to nil when playing Internet  streams.")
    "-slave"  "-softvol" "-softvol-max" "300" "-quiet")
   "Default options for MPlayer.")
 
-(defcustom emacspeak-m-player-options
+(defvar emacspeak-m-player-options
   (copy-sequence emacspeak-m-player-default-options)
-  "Options passed to mplayer."
-  :type  '(repeat
-           (string :tag "option"))
-  :group 'emacspeak-m-player)
+  "Options passed to mplayer.")
 
+;;;###autoload
 (defcustom emacspeak-media-location-bindings  nil
-  "*Map specific key sequences to launching MPlayer accelerators
+"Map specific key sequences to launching MPlayer accelerators
 on a specific directory."
   :group 'emacspeak-m-player
   :group 'emacspeak-media
@@ -238,7 +236,7 @@ on a specific directory."
             #'(lambda (binding)
                 (let ((key (cl-first binding))
                       (directory (cl-second binding)))
-                  (emacspeak-m-player-bind-accelerator directory (kbd key))))
+                  (emacspeak-m-player-bind-accelerator directory (ems-kbd key))))
             val)
            (set-default sym val)))
 
@@ -265,7 +263,7 @@ Controls media playback when already playing a stream.
    (t
     (call-interactively #'emacspeak-m-player))))
 
-;;;###autoload
+
 (defun emacspeak-m-player-pop-to-player ()
   "Pop to m-player buffer."
   (interactive)
@@ -277,19 +275,11 @@ Controls media playback when already playing a stream.
 
 (defun emacspeak-m-player-command (key)
   "Invoke MPlayer commands."
-  (interactive (list (read-key-sequence "MPlayer Key: ")))
+  (interactive (list (read-key-sequence "Key: ")))
   (unless (eq 'run (process-status emacspeak-m-player-process))
     (emacspeak-multimedia))
   (call-interactively
    (or (lookup-key emacspeak-m-player-mode-map key) 'undefined)))
-
-;;;###autoload
-(defvar  emacspeak-m-player-playlist-pattern
-  (concat
-   (regexp-opt
-    (list ".m3u" ".asx" ".pls" ".rpm" ".ram"))
-   "$")
-  "Pattern for matching playlists.")
 
 (defun emacspeak-m-player-playlist-p (resource)
   "Check if specified resource matches a playlist type."
@@ -297,7 +287,6 @@ Controls media playback when already playing a stream.
   (string-match emacspeak-m-player-playlist-pattern resource))
 
 ;;;###autoload
-
 (defun emacspeak-m-player-bind-accelerator (directory key)
   "Binds key to invoke m-player  on specified directory."
   (interactive
@@ -322,16 +311,17 @@ Controls media playback when already playing a stream.
   "Flag set by accelerators. Let-binding this causes default-directory
 etc to be ignored when guessing directory.")
 
-;;;###autoload
+
 (defun emacspeak-m-player-accelerator (directory)
   "Launch MPlayer on specified directory."
+  (cl-declare (special ido-case-fold))
   (let ((ido-case-fold t)
         (emacspeak-m-player-accelerator-p t)
         (emacspeak-media-shortcuts-directory (expand-file-name directory)))
     (call-interactively #'emacspeak-multimedia)
     (emacspeak-auditory-icon 'select-object)
     (emacspeak-speak-mode-line)))
-;;;###autoload
+
 (defun emacspeak-media-guess-directory ()
   "Guess default directory."
   (cl-declare (special emacspeak-media-directory-regexp
@@ -363,7 +353,7 @@ etc to be ignored when guessing directory.")
 (defvar-local emacspeak-m-player-url-p nil
   "Flag that records if we are playing a stream URL")
 
-;;;###autoload
+
 (defun emacspeak-media-read-resource ()
   "Read resource from minibuffer with contextual smarts."
   (let ((completion-ignore-case t)
@@ -543,7 +533,7 @@ feature. Calling spec is like `emacspeak-m-player'."
   '("-af" "hrtf" "-af" "resample=48000")
   "Additional options to use built-in HRTF.")
 
-;;;###autoload
+
 (defun emacspeak-m-player-using-hrtf ()
   "Add af resample=48000,hrtf to startup options.
 This will work if the soundcard is set to 48000."
@@ -569,7 +559,7 @@ This will work if the soundcard is set to 48000."
          (append emacspeak-m-player-options (list "-shuffle"))))
     (call-interactively #'emacspeak-m-player)))
 
-;;;###autoload
+
 (defun emacspeak-m-player-load (resource  &optional append)
   "Load specified resource into a running  m-player.
 Interactive prefix arg appends the new resource to what is playing."
@@ -740,7 +730,7 @@ Time offset can be specified as a number of seconds, or as HH:MM:SS."
 The time position can also be specified as HH:MM:SS."
   (interactive
    (list
-    (read-from-minibuffer "Seek to pos in seconds: ")))
+    (read-from-minibuffer "Seek to time position: ")))
   (when (string-match ":" pos)
     (setq pos (ems--duration-to-seconds pos)))
   (emacspeak-m-player-dispatch (format "seek %s 2" pos)))
@@ -817,13 +807,13 @@ The time position can also be specified as HH:MM:SS."
       (setq emacspeak-m-player-process nil)
       (emacspeak-speak-mode-line))))
 
-;;;###autoload
+
 (defun emacspeak-m-player-volume-up ()
   "Increase volume."
   (interactive)
   (emacspeak-m-player-dispatch "volume 1"))
 
-;;;###autoload
+
 (defun emacspeak-m-player-volume-down ()
   "Decrease volume."
   (interactive)
@@ -833,7 +823,7 @@ The time position can also be specified as HH:MM:SS."
   "Caches filters that are active.")
 (make-variable-buffer-local 'emacspeak-m-player-active-filters)
 
-;;;###autoload
+
 (defun emacspeak-m-player-volume-change (value)
   "Change volume to specified absolute value."
   (interactive"sChange Volume to:")
@@ -842,7 +832,7 @@ The time position can also be specified as HH:MM:SS."
   (emacspeak-m-player-dispatch
    (format "volume %s, 1" value)))
 
-;;;###autoload
+
 (defun emacspeak-m-player-balance ()
   "Set left/right balance."
   (interactive)
@@ -850,7 +840,7 @@ The time position can also be specified as HH:MM:SS."
    (format "balance %s"
            (read-from-minibuffer "Balance -- Between -1 and 1:"))))
 
-;;;###autoload
+
 (defun emacspeak-m-player-slave-command (command)
   "Dispatch slave command read from minibuffer."
   (interactive
@@ -891,13 +881,13 @@ The time position can also be specified as HH:MM:SS."
         (setq result (replace-regexp-in-string  "_" " " result)))
       (message   "%s" (or result "Waiting")))))
 
-;;;###autoload
+
 (defun emacspeak-m-player-display-percent ()
   "Display current percentage."
   (interactive)
   (dtk-speak-and-echo (emacspeak-m-player-slave-command "get_percent_pos")))
 
-;;;###autoload
+
 (defun emacspeak-m-player-stream-info (&optional toggle-cue)
   "Speak and display metadata if available.
 Interactive prefix arg toggles automatic cueing of ICY info updates."
@@ -917,7 +907,7 @@ Interactive prefix arg toggles automatic cueing of ICY info updates."
                      (if emacspeak-m-player-cue-info "on" "off")))
         (message"%s" (format "%s" (or info  "No Stream Info")))))))
 
-;;;###autoload
+
 (defun emacspeak-m-player-get-length ()
   "Display length of track in seconds."
   (interactive)
@@ -976,6 +966,7 @@ Interactive prefix arg toggles automatic cueing of ICY info updates."
     "channels=1:1:0:1:1"
     "channels=1:2"
     "ladspa=bs2b:bs2b:700:4.5"
+    "ladspa=ZamAutoSat-ladspa.so:ZamAutoSat:"
     "ladspa=tap_pinknoise.so:tap_pinknoise:0.5:-2:-12"
     "ladspa=ZamHeadX2-ladspa.so:ZamHeadX2:0:60:2.5"
     "ladspa=ZamHeadX2-ladspa.so:ZamHeadX2:0:30:2.5"
@@ -994,6 +985,12 @@ Interactive prefix arg toggles automatic cueing of ICY info updates."
    (concat
     "ladspa=tap_autopan:tap_autopan:.0016:100:1,"
     "ladspa=tap_autopan:tap_autopan:.016:33:1")))
+
+(defun emacspeak-m-player-add-autosat ()
+  "Add predefined ZamAutoSat (auto saturation) effect."
+  (interactive)
+  (emacspeak-m-player-add-filter
+   "ladspa=ZamAutoSat-ladspa.so:ZamAutoSat:"))
 
 (defun emacspeak-m-player-add-filter (filter-name &optional edit)
   "Adds specified filter. Prompts with one of several pre-defined
@@ -1049,18 +1046,19 @@ selected filter before it is applied."
 ;;}}}
 ;;{{{ Media History:
 
-;;; from emacspeak-webutils:
-
-(defvar emacspeak-webutils-media-history nil)
+(defvar emacspeak-m-player-history nil)
+;;;###autoload
+(defvar emacspeak-m-player-media-history nil
+  "Record media urls we played.")
 
 (defun emacspeak-m-player-from-media-history (posn)
   "Play media from media-history.
 Numeric arg `posn' specifies position in history."
   (interactive "p")
-  (cl-declare (special emacspeak-webutils-media-history))
+  (cl-declare (special emacspeak-m-player-history))
   (setq posn (1- posn))
-  (cl-assert (and emacspeak-webutils-media-history (> (length emacspeak-webutils-media-history)  posn)) t "Not that many elements in media history")
-  (apply #'emacspeak-m-player (elt emacspeak-webutils-media-history posn)))
+  (cl-assert (and emacspeak-m-player-history (> (length emacspeak-m-player-history)  posn)) t "Not that many elements in media history")
+  (apply #'emacspeak-m-player (elt emacspeak-m-player-history posn)))
 
 ;;}}}
 ;;{{{ Reset Options:
@@ -1281,7 +1279,7 @@ flat classical club dance full-bass full-bass-and-treble
     ("j" emacspeak-m-player-amark-jump)
     ("k" emacspeak-m-player-quit)
     ("l" emacspeak-m-player-get-length)
-    ("m" emacspeak-m-player-speak-mode-line)
+    ("m" emacspeak-m-player-mode-line)
     ("n" emacspeak-m-player-next-track)
     ("o" emacspeak-m-player-customize-options)
     ("p" emacspeak-m-player-previous-track)
@@ -1291,6 +1289,7 @@ flat classical club dance full-bass full-bass-and-treble
     ("t" emacspeak-m-player-play-tracks-jump)
     ("u" emacspeak-m-player-url)
     ("v" emacspeak-m-player-volume-change)
+    ("z" emacspeak-m-player-add-autosat)
     ("{" emacspeak-m-player-half-speed)
     ("}" emacspeak-m-player-double-speed)
     )
@@ -1315,7 +1314,7 @@ flat classical club dance full-bass full-bass-and-treble
 
 (cl-loop
  for i from 1 to 9 do
- (define-key emacspeak-m-player-mode-map (kbd (format "%s" i)) 'emacspeak-m-player-volume-set))
+ (define-key emacspeak-m-player-mode-map (ems-kbd (format "%s" i)) 'emacspeak-m-player-volume-set))
 
 ;;}}}
 ;;{{{ YouTube Player
@@ -1344,34 +1343,40 @@ flat classical club dance full-bass full-bass-and-treble
      emacspeak-m-player-youtube-dl url))
    0 -1))
 
+(declare-function emacspeak-google-canonicalize-result-url "emacspeak-google" (url))
+(declare-function emacspeak-google-result-url-prefix "emacspeak-google" nil)
+
+;;;###autoload
 (defun emacspeak-m-player-youtube-player (url &optional best)
   "Use youtube-dl and mplayer to stream the audio for YouTube content.
 Default is to pick smallest (lowest quality) audio format.
 Optional prefix arg `best' chooses highest quality."
   (interactive
    (list
-    (emacspeak-webutils-read-this-url)
+    (emacspeak-eww-read-url)
     current-prefix-arg))
   (cl-declare (special emacspeak-m-player-youtube-dl))
   (unless (file-executable-p emacspeak-m-player-youtube-dl)
     (error "Please install youtube-dl first."))
+  (when (string-prefix-p (emacspeak-google-result-url-prefix) url)
+    (setq url (emacspeak-google-canonicalize-result-url url)))
   (let ((u
-         (shell-command-to-string
-          (format "%s -f %s -g '%s' 2> /dev/null"
-                  emacspeak-m-player-youtube-dl
-                  (if best
-                      (ems--m-p-get-yt-audio-last-fmt url)
-                    (ems--m-p-get-yt-audio-first-fmt url))
-                  url))))
+         (string-trim
+          (shell-command-to-string
+           (format "%s -f %s -g '%s' 2> /dev/null"
+                   emacspeak-m-player-youtube-dl
+                   (if best
+                       (ems--m-p-get-yt-audio-last-fmt url)
+                     (ems--m-p-get-yt-audio-first-fmt url))
+                   url)))))
     (when (= 0 (length  u)) (error "Error retrieving Media URL "))
-    (setq u (substring u 0 -1))
     (kill-new u)
     (emacspeak-m-player u)))
 
 ;;}}}
 ;;{{{ pause/resume
 
-;;;###autoload
+
 (defun emacspeak-m-player-pause-or-resume ()
   "Pause/resume if m-player is running. For use  in
 emacspeak-silence-hook."
@@ -1386,7 +1391,7 @@ emacspeak-silence-hook."
 
 
 
-;;;###autoload
+
 (defun emacspeak-m-player-amark-add (name &optional prompt-position)
   "Set AMark `name' at current position in current audio stream.
 Interactive prefix arg prompts for position.
@@ -1407,7 +1412,7 @@ As the default, use current position."
   "Return index of name in file-list."
   (cl-position (expand-file-name name) file-list :test #'string=))
 
-;;;###autoload
+
 (defun emacspeak-m-player-amark-jump ()
   "Jump to specified AMark."
   (interactive)
@@ -1661,7 +1666,7 @@ tap-reverb already installed."
   "Play an RSS stream by converting to  an M3U playlist."
   (interactive
    (list
-    (emacspeak-webutils-read-this-url)))
+    (emacspeak-eww-read-url)))
   (let* ((file (make-temp-file  "rss-media" nil ".m3u"))
          (buffer (find-file-noselect file)))
     (message "Retrieving playlist.")
@@ -1691,7 +1696,8 @@ Results are placed in a Locate buffer and can be played using
 M-Player --- use \\[emacspeak-dired-open-this-file] locally bound to C-RET 
 to play individual tracks."
   (interactive "sSearch Pattern: ")
-  (cl-declare  (special emacspeak-media-extensions))
+  (cl-declare  (special emacspeak-media-extensions
+                        locate-command locate-make-command-line))
   (let ((inhibit-read-only t)
         (locate-make-command-line #'(lambda (s) (list locate-command "-i" "--regexp" s))))
     (locate-with-filter
@@ -1723,7 +1729,7 @@ Optional interactive prefix arg prompts for name to use for  player."
       (rename-buffer
        (if name
            (format "*%s*" (read-from-minibuffer "Name: "))
-         "*Persisted-M-Player*")
+"Persisted-M-Player*")
        'unique))
     (when (called-interactively-p 'interactive)
       (emacspeak-auditory-icon 'task-done)
@@ -1777,9 +1783,11 @@ Check first if current buffer is in emacspeak-m-player-mode."
    "ladspa=%s:%s:%s"
    (ladspa-plugin-library plugin) (ladspa-plugin-label plugin)
    (mapconcat #'ladspa-control-value (ladspa-plugin-controls plugin) ":")))
-;;;###autoload
+
 (defun emacspeak-m-player-add-ladspa ()
-  "Apply plugin to running MPlayer."
+  "Apply plugin to running MPlayer.
+Copies  invocation string to kill-ring so it can be added easily to
+our pre-defined filters if appropriate."
   (interactive)
   (cl-declare (special emacspeak-m-player-process))
   (unless (eq major-mode 'ladspa-mode) (error "This is not a Ladspa buffer"))
@@ -1795,12 +1803,14 @@ Check first if current buffer is in emacspeak-m-player-mode."
          #'null (mapcar #'ladspa-control-value (ladspa-plugin-controls plugin)))
       (ladspa-instantiate))
     (setq args (emacspeak-m-player-ladspa-cmd plugin))
+    (kill-new args)
     (setq result
           (emacspeak-m-player-dispatch (format "af_add %s" args)))
     (when (called-interactively-p 'interactive)
       (message   "%s"
                  (or result "Waiting")))))
-;;;###autoload
+
+
 (defun emacspeak-m-player-delete-ladspa ()
   "Delete plugin from  running MPlayer."
   (interactive)
@@ -1867,4 +1877,4 @@ Check first if current buffer is in emacspeak-m-player-mode."
 ;;; end:
 
 ;;}}}
-pushd ~/
+

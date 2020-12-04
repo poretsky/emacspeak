@@ -8,7 +8,7 @@
 #  Prerequisites: espeak, libespeak libespeak-dev
 # libespeak-ng-libespeak-dev libespeak-ng-dev espeak-ng-espeak
 # Downloads,  builds and runs specified version.
-latest=50.0
+latest=51.0
 v=$1
 
 if [ ! -n "$1" ]
@@ -32,5 +32,5 @@ make config && make
 #Run out of this directory.
 # Default to using  espeak unless DTK_PROGRAM is set.
 #
-:${DTK_PROGRAM} ? "Using ${DTK_PROGRAM}" : export DTK_PROGRAM="espeak"
+export DTK_PROGRAM="espeak"
 emacs -q -l ./lisp/emacspeak-setup.el -l $HOME/.emacs

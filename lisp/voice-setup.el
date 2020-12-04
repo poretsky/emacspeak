@@ -2,8 +2,9 @@
 ;;; $Author: tv.raman.tv $
 ;;; Description:  Voice lock mode for Emacspeak
 ;;{{{  LCD Archive entry:
+
 ;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu
+;;; emacspeak| T. V. Raman |tv.raman.tv@gmail.com
 ;;; A speech interface to Emacs |
 ;;; $Date: 2007-09-01 15:30:13 -0700 (Sat, 01 Sep 2007) $ |
 ;;;  $Revision: 4672 $ |
@@ -88,80 +89,50 @@
 (require 'cl-lib)
 (cl-declaim  (optimize  (safety 0) (speed 3)))
 (eval-when-compile (require 'easy-mmode))
-(require 'custom)
+
 (require 'acss-structure)
-(require 'tts)
-(require 'outloud-voices)
-(require 'mac-voices)
-(require 'espeak-voices)
 (require 'dectalk-voices)
-(require 'emacspeak-sounds)
+
+
 ;;}}}
 ;;{{{ customization group
 
 (defgroup voice-fonts nil
-  "Customization group for setting voices."
+  "Customize voices"
   :group 'emacspeak)
 
 (declare-function tts-list-voices "dectalk-voices")
-
-(defcustom voice-lock-global-modes t
-  "Modes for which Voice Lock mode is automagically turned on.
-Global Voice Lock mode is controlled by the command `global-voice-lock-mode'.
-If nil, means no modes have Voice Lock mode automatically turned on.
-If t, all modes that support Voice Lock mode have it automatically turned on.
-If a list, it should be a list of `major-mode' symbol names for which Voice Lock
-mode should be automatically turned on.  The sense of the list is negated if it
-begins with `not'.  For example:
- (c-mode c++-mode)
-means that Voice Lock mode is turned on for buffers in C and C++ modes only."
-  :type '(choice (const :tag "none" nil)
-                 (const :tag "all" t)
-                 (set :menu-tag "mode specific" :tag "modes"
-                      :value (not)
-                      (const :tag "Except" not)
-                      (repeat :inline t (symbol :tag "mode"))))
-  :group 'voice-lock)
-
-;;}}}
-;;{{{  helper for voice custom items:
 (unless (fboundp 'tts-list-voices)
   (fset 'tts-list-voices #'dectalk-list-voices))
 
+;;}}}
+;;{{{  helper for voice custom items:
+
 (defun voice-setup-custom-menu ()
-  "Return a choice widget used in selecting voices."
+  "Return a choice widget used to select  voices."
   `(choice
     (symbol :tag "Other")
     ,@(mapcar 
        #'(lambda (voice)(list 'const voice))
        (tts-list-voices))))
 
-(defun voice-setup-read-personality (&optional prompt)
-  "Read name of a pre-defined personality using completion."
-  (read (completing-read (or prompt "Personality: ")
-                         (tts-list-voices))))
+
 
 ;;}}}
 ;;{{{ map faces to voices
 
-(defvar voice-setup-face-voice-table (make-hash-table)
+(defvar voice-setup-face-voice-table (make-hash-table :test #'eq)
   "Hash table holding face to voice mapping.")
 
-(defun voice-setup-set-voice-for-face (face voice)
+(defsubst voice-setup-set-voice-for-face (face voice)
   "Map face --a symbol-- to relevant voice."
   (cl-declare (special  voice-setup-face-voice-table))
   (setf (gethash face voice-setup-face-voice-table) voice))
 
-(defun voice-setup-get-voice-for-face (face)
-  "Map face --a symbol-- to relevant voice."
+(defsubst voice-setup-get-voice-for-face (face)
+  "Retrieve face --a symbol-- to relevant voice."
   (cl-declare (special  voice-setup-face-voice-table))
   (gethash face voice-setup-face-voice-table))
-
-(defun voice-setup-show-rogue-faces ()
-  "Return list of voices that map to non-existent faces."
-  (cl-declare (special voice-setup-face-voice-table))
-  (cl-loop for f being the hash-keys of voice-setup-face-voice-table
-           unless (facep f) collect f))
 
 ;;}}}
 ;;{{{ special form def-voice-font
@@ -241,8 +212,7 @@ means that Voice Lock mode is turned on for buffers in C and C++ modes only."
 ;;{{{  special form defvoice
 
 (defvar voice-setup-personality-table (make-hash-table)
-  "Maps personality names to ACSS  settings.
-Keys are personality names.")
+  "Maps personality names to ACSS  settings. ")
 
 (defun voice-setup-personality-from-style (style-list)
   "Define a personality given a list of speech style settings."
@@ -279,7 +249,7 @@ VOICE-NAME are  changed."
 ;;; note that for now we dont use  gain settings
 
 (defmacro defvoice (personality settings doc)
-  "Define voice using CSS setting.  Setting is a list of the form
+  "Define voice using ACSS setting.  Setting is a list of the form
 (list paul 5 5 5 5 'all) which defines a standard male voice
 that speaks `all' punctuations.  Once
 defined, the newly declared personality can be customized by calling
@@ -435,6 +405,7 @@ command \\[customize-variable] on <personality>-settings. "
 
 (voice-setup-add-map
  '(
+   (variable-pitch voice-animate)
    (shr-link voice-bolden)
    (bold voice-bolden)
    (bold-italic voice-bolden-and-animate)
@@ -485,43 +456,22 @@ command \\[customize-variable] on <personality>-settings. "
   t nil nil
   (when (called-interactively-p 'interactive)
     (let ((state (if voice-lock-mode 'on 'off)))
-      (when (ems-interactive-p)
-        (emacspeak-auditory-icon state)))))
+        (emacspeak-auditory-icon state))))
 
-;;;###autoload
-(defun turn-on-voice-lock ()
+(defun voice-lock-mode--turn-on ()
   "Turn on Voice Lock mode ."
   (interactive)
-  (unless voice-lock-mode (voice-lock-mode)))
-
+  (voice-lock-mode))
 ;;;###autoload
-(defun turn-off-voice-lock ()
-  "Turn off Voice Lock mode ."
-  (interactive)
-  (when voice-lock-mode (voice-lock-mode -1)))
-
-;;;### autoload
-(defun voice-lock-toggle ()
-  "Interactively toggle voice lock."
-  (interactive)
-  (if voice-lock-mode
-      (turn-off-voice-lock)
-    (turn-on-voice-lock))
-  (when (called-interactively-p 'interactive)
-    (message "Turned %s voice lock mode in buffer. " 
-             (if voice-lock-mode " on " " off "))
-    (emacspeak-auditory-icon (if voice-lock-mode 'on 'off))))
-
-;;;###autoload
-(defvar global-voice-lock-mode t
-  "Global value of voice-lock-mode.")
-
 (define-globalized-minor-mode global-voice-lock-mode
-  voice-lock-mode turn-on-voice-lock
-  :initialize 'custom-initialize-delay
-  :init-value (not (or noninteractive emacs-basic-display))
+  voice-lock-mode
+  voice-lock-mode--turn-on
+  :init-value t
   :group 'voice-lock
-  :version "24.1")
+  (when (called-interactively-p 'interactive)
+    (let ((state (if global-voice-lock-mode 'on 'off)))
+        (emacspeak-auditory-icon state)))
+  )
 
 ;; Install ourselves:
 (cl-declaim (special text-property-default-nonsticky))
@@ -532,40 +482,21 @@ command \\[customize-variable] on <personality>-settings. "
   (setq minor-mode-alist (cons '(voice-lock-mode " Voice") minor-mode-alist)))
 
 ;;}}}
-;;{{{ list-voices-display
-
-(defcustom voice-setup-sample-text
-  "Emacspeak --- The Complete Audio Desktop!"
-  "Sample text used  when displaying available voices."
-  :type 'string
-  :group 'voice-fonts)
-
-(defun voice-setup-list-voices (pattern)
-  "Show all defined voice-face mappings  in a help buffer.
-Sample text to use comes from variable
-  `voice-setup-sample-text'. "
-  (interactive (list (and current-prefix-arg
-                          (read-string "List faces matching regexp: "))))
-  (cl-declare (special voice-setup-sample-text))
-  (let ((list-faces-sample-text voice-setup-sample-text))
-    (list-faces-display pattern)
-    (message "Displayed voice-face mappings in other window.")))
-
-;;}}}
 ;;{{{ interactively silence personalities 
 
 (defvar voice-setup-buffer-face-voice-table (make-hash-table)
   "Hash table used to store buffer local face->personality mappings.")
+
+;;; If personality at point is currently audible, its
+;;; face->personality map is cached in a buffer local variable, and
+;;; its face->personality map is replaced by face->inaudible.  If
+;;; personality at point is inaudible, and there is a cached value,
+;;; then the original face->personality mapping is restored.  In
+;;; either case, the buffer is refontified to have the new mapping take effect.
+
 ;;;###autoload
 (defun voice-setup-toggle-silence-personality ()
-  "Toggle audibility of personality under point  .
-If personality at point is currently audible, its
-face->personality map is cached in a buffer local variable, and
-its face->personality map is replaced by face->inaudible.  If
-personality at point is inaudible, and there is a cached value,
-then the original face->personality mapping is restored.  In
-either case, the buffer is refontified to have the new mapping
-take effect."
+  "Toggle audibility of personality under point  . "
   (interactive)
   (cl-declare (special voice-setup-buffer-face-voice-table))
   (let* ((personality  (dtk-get-style))
@@ -584,23 +515,6 @@ take effect."
         (message "Silenced personality %s" personality)
         (emacspeak-auditory-icon 'close-object)))
     (when (buffer-file-name) (normal-mode))))
-
-;;}}}
-;;{{{ Helper: voice-setup-defined-voices 
-
-(defun voice-setup-defined-voices ()
-  "Return list of voices defined via defvoice."
-  (let ((result nil))
-    (mapatoms
-     #'(lambda (s)
-         (when  
-             (and
-              (string-match "^voice-"  (symbol-name s))
-              (boundp s)
-              (symbolp (symbol-value s))
-              (string-match  "^acss-" (symbol-name  (symbol-value s))))
-           (push s result))))
-    result))
 
 ;;}}}
 ;;{{{ describe-voice at point:
@@ -641,6 +555,34 @@ these are available via minibuffer history."
       (when (called-interactively-p 'interactive)
         (emacspeak-speak-help)))
      (t (message "%s doesn't look like a valid personality." personality)))))
+
+;;}}}
+;;{{{Apply Personality:
+;;; Both functions below handle property changes in a "other" buffer correctly.
+(defun voice-setup-add (start end voice &optional object)
+  "Apply personality VOICE to specified region in object."
+  (when
+      (and
+       (integerp start) (integerp end)
+       (not (= start end)))
+    (with-current-buffer
+        (if (bufferp object) object (current-buffer))
+      (with-silent-modifications
+        (put-text-property start end 'personality voice object)))))
+
+(defun voice-setup-remove  (start end voice &optional object)
+  "Remove specified personality VOICE from text bounded by start and
+end in object. "
+  (when
+      (and
+       voice
+       (integerp start) (integerp end)
+       (not (= start end))
+       (eq voice (get-text-property start 'personality object)))
+      (with-current-buffer
+          (if (bufferp object) object (current-buffer))
+        (with-silent-modifications
+          (put-text-property start end 'personality nil object)))))
 
 ;;}}}
 (provide 'voice-setup)

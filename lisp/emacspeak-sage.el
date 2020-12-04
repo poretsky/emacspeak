@@ -5,7 +5,7 @@
 ;;{{{  LCD Archive entry:
 
 ;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu
+;;; emacspeak| T. V. Raman |tv.raman.tv@gmail.com
 ;;; A speech interface to Emacs |
 ;;; $Date: 2007-05-03 18:13:44 -0700 (Thu, 03 May 2007) $ |
 ;;;  $Revision: 4532 $ |
@@ -14,6 +14,7 @@
 
 ;;}}}
 ;;{{{  Copyright:
+
 ;;;Copyright (C) 1995 -- 2007, 2011, T. V. Raman
 ;;; Copyright (c) 1994, 1995 by Digital Equipment Corporation.
 ;;; All Rights Reserved.
@@ -53,8 +54,7 @@
 (require 'cl-lib)
 (cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
-(eval-when-compile
-  (require 'sage-shell-mode nil 'noerror))
+
 
 ;;}}}
 ;;{{{ Forward Decls:
@@ -113,7 +113,8 @@
 (defadvice sage-shell-help:describe-symbol (after emacspeak pre act comp)
   "Provide auditory feedback."
   (with-current-buffer (window-buffer (selected-window))
-    (emacspeak-auditory-icon 'help) (emacspeak-speak-buffer)))
+    (emacspeak-auditory-icon 'help)
+    (emacspeak-speak-buffer)))
 
 (cl-loop
  for f in

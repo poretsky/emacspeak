@@ -8,6 +8,7 @@
 #include "langswitch.h"
 #include <stdlib.h>
 #include <string.h>
+#define MIN(a, b) (((a) < (b)) ? (a) : (b))
 // >
 // <decls and function prototypes
 
@@ -25,10 +26,10 @@ static struct langInfo TheLanguages[] = {
     {NODEFINEDCODESET, NULL, NULL, NULL, NULL},
     {eciGeneralAmericanEnglish, "en_US", "iso8859-1", "1.0", "American"},
     {eciBritishEnglish, "en_GB", "iso8859-1", "1.1", "British"},
-    {eciCastilianSpanish, "es_ES", "iso8859-1", "2.0", "Español"},
+    {eciCastilianSpanish, "es_ES", "iso8859-1", "2.0", "EspaÃ±ol"},
     {eciMexicanSpanish, "es_MX", "iso8859-1", "2.1", "Mexicano"},
-    {eciStandardFrench, "fr_FR", "iso8859-1", "3.0", "Français"},
-    {eciCanadianFrench, "fr_CA", "iso8859-1", "3.1", "Français Canadien"},
+    {eciStandardFrench, "fr_FR", "iso8859-1", "3.0", "FranÃ§ais"},
+    {eciCanadianFrench, "fr_CA", "iso8859-1", "3.1", "FranÃ§ais Canadien"},
     {eciStandardGerman, "de_DE", "iso8859-1", "4.0", "Deutsch"},
     {eciStandardItalian, "it_IT", "iso8859-1", "5.0", "Italiano"},
     {eciMandarinChineseGB, "zh_CN", "gb2312", "6.0", "Chinese Simplified"},
@@ -46,7 +47,7 @@ static struct langInfo TheLanguages[] = {
     {eciStandardJapaneseSJIS, "ja_JP", "shiftjis", "8.0", "Japanese"},
     {eciStandardJapaneseUCS, "ja_JP", "UCS2", "8.0.8", "Japanese"},
     {eciStandardFinnish, "fi_FI", "iso8859-1", "9.0", "Finnish"},
-    {eciStandardKoreanUHC, NULL, NULL, NULL},
+    {eciStandardKoreanUHC, NULL, NULL, NULL, NULL},
     {eciStandardKoreanUCS, NULL, NULL, NULL, NULL},
     {eciStandardCantoneseGB, NULL, NULL, NULL, NULL},
     {eciStandardCantoneseUCS, NULL, NULL, NULL, NULL},
@@ -93,7 +94,6 @@ enum ECILanguageDialect initLanguage(Tcl_Interp *interp,
       char command[40];
       sprintf(command, "set langalias(%s)  %s\n",
               const_cast<char *>(TheLanguages[i].code), buffer_i);
-      // int rc = /* unused */
       Tcl_Eval(interp, command);
     }
   }
@@ -106,7 +106,6 @@ enum ECILanguageDialect initLanguage(Tcl_Interp *interp,
     int aLang = 0;
     char buffer_i[3];
     char buffer_j[3];
-
     for (aLang = 0; aLang < LANG_INFO_MAX; aLang++) {
       if (TheLanguages[aLang].lang == aLanguages[i]) break;
     }
@@ -115,8 +114,9 @@ enum ECILanguageDialect initLanguage(Tcl_Interp *interp,
       continue;
     }
 
-    snprintf(buffer_i, 3, "%d", aLang);
-    snprintf(buffer_j, 3, "%d", j++);
+    snprintf(buffer_i, 3, "%d", MIN(aLang, LANG_INFO_MAX));
+    snprintf(buffer_j, 3, "%d", MIN(j, LANG_INFO_MAX));
+    j++;
     Tcl_SetVar2(interp, "langsynth", buffer_j, buffer_i, 0);
 
     if (aCurrentLanguage == NODEFINEDCODESET) {
@@ -148,7 +148,7 @@ enum ECILanguageDialect initLanguage(Tcl_Interp *interp,
 
   if (aCurrentLanguage != NODEFINEDCODESET) {
     char buffer_i[3];
-    snprintf(buffer_i, 3, "%d", aCurrentLangIndex);
+    snprintf(buffer_i, 3, "%d", MIN(aCurrentLangIndex, LANG_INFO_MAX));
     Tcl_SetVar2(interp, "langsynth", "current", buffer_i, 0);
   }
 

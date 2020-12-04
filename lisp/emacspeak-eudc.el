@@ -6,7 +6,7 @@
 ;;{{{  LCD Archive entry:
 
 ;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu
+;;; emacspeak| T. V. Raman |tv.raman.tv@gmail.com
 ;;; A speech interface to Emacs |
 ;;; $Date: 2007-08-25 18:28:19 -0700 (Sat, 25 Aug 2007) $ |
 ;;;  $Revision: 4532 $ |
@@ -16,7 +16,7 @@
 ;;}}}
 ;;{{{  Copyright:
 
-;;; Copyright (C) 1995 -- 2018, T. V. Raman<raman@cs.cornell.edu>
+;;; Copyright (C) 1995 -- 2018, T. V. Raman<tv.raman.tv@gmail.com>
 ;;; All Rights Reserved.
 ;;;
 ;;; This file is not part of GNU Emacs, but the same permissions apply.
@@ -40,7 +40,11 @@
 
 ;;{{{ required modules
 (cl-declaim  (optimize  (safety 0) (speed 3)))
-(require 'emacspeak-preamble)              
+(require 'emacspeak-preamble)
+(declare-function widget-at "wid-edit" (&optional pos))
+(declare-function widget-type "wid-edit" (widget))
+
+
 ;;}}}
 ;;{{{  Introduction:
 
@@ -145,17 +149,11 @@ Summarize the form to welcome the user. "
 ;;}}}
 ;;{{{ voiceify values in results 
 
-(defgroup emacspeak-eudc nil
-  "Emacspeak add-on to the Emacs Universal Directory Client."
-  :group 'emacspeak
-  :group 'eudc
-  :prefix "emacspeak-eudc-")
 
-(defcustom emacspeak-eudc-attribute-value-personality
+
+(defvar emacspeak-eudc-attribute-value-personality
   voice-animate
-  "Personality t use for voiceifying attribute values. "
-  :type 'symbol
-  :group 'emacspeak-eudc)
+  "Personality t use for voiceifying attribute values. ")
 
 (defadvice eudc-print-attribute-value (around emacspeak pre
                                               act comp)

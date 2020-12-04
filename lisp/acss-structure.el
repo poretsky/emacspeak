@@ -6,7 +6,7 @@
 ;;{{{  LCD Archive entry:
 
 ;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu
+;;; emacspeak| T. V. Raman |tv.raman.tv@gmail.com
 ;;; A speech interface to Emacs |
 ;;; $Date: 2007-08-25 18:28:19 -0700 (Sat, 25 Aug 2007) $ |
 ;;;  $Revision: 4532 $ |
@@ -56,7 +56,8 @@
 
 ;;; Think of a buffer of formatted text along with the text-property
 ;;; 'personality appropriately set as a "aural display list".
-;;; Applications like EWW that produce such formatted buffers  call function
+;;; Module voice-setup.el  help applications like EWW
+;;;  produce audio-formatted output by calling  function
 ;;; acss-personality-from-speech-style  with a  "speech-style"
 ;;; --a structure as defined in this module and get back a symbol that
 ;;; they then assign to the value of property 'personality.
@@ -69,17 +70,17 @@
 ;;; (2) Examines emacspeak's internal voice table to see if this
 ;;; speech style has a voice already defined.
 ;;; If so it returns immediately.
-;;; Otherwise, it does the additional work of defining a dectalk-voice for
+;;; Otherwise, it does the additional work of defining a -voice for
 ;;; future use.
-;;; See module dectalk-voices.el to see how voices are defined.
+;;; See module voice-setup.el  to see how voices are defined
+;;; independent of a given TTS engine.
+;;; Code:
 
 ;;}}}
 ;;{{{  Required modules
 
-;;; Code:
 (require 'cl-lib)
 (cl-declaim  (optimize  (safety 0) (speed 3)))
-(require 'tts)
 ;;}}}
 ;;{{{ Forward Declarations:
 
@@ -87,8 +88,8 @@
 (declare-function tts-define-voice-from-speech-style "dectalk-voices.el" (name style))
 
 ;;}}}
-
 ;;{{{ tts common vars 
+
 (defvar tts-default-voice 'paul 
   "Default voice used. ")
 

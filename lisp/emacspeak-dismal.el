@@ -4,7 +4,7 @@
 ;;{{{  LCD Archive entry: 
 
 ;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu
+;;; emacspeak| T. V. Raman |tv.raman.tv@gmail.com
 ;;; A speech interface to Emacs |
 ;;; $Date: 2008-06-21 10:50:41 -0700 (Sat, 21 Jun 2008) $ |
 ;;;  $Revision: 4532 $ | 
@@ -57,14 +57,6 @@
 (declare-function  dis-forward-column "dismal" (cols))
 (declare-function  dis-backward-column "dismal" (cols))
 (declare-function dis-recalculate-matrix "dismal" nil)
-
-;;}}}
-;;{{{ custom
-
-(defgroup emacspeak-dismal nil
-  "Spread-sheet for the Emacspeak Desktop."
-  :group 'emacspeak
-  :prefix "emacspeak-dismal-")
 
 ;;}}}
 ;;{{{  helper functions:
@@ -178,10 +170,8 @@ The `column header' is the entry in row 0."
 (setq-default emacspeak-dismal-row-summarizer-list nil)
 (setq-default emacspeak-dismal-col-summarizer-list nil)
 (setq-default emacspeak-dismal-sheet-summarizer-list nil)
-(defcustom emacspeak-dismal-value-personality voice-animate
-  "Personality used for speaking cell values in summaries."
-  :group 'emacspeak-dismal
-  :type 'symbol)
+(defvar emacspeak-dismal-value-personality voice-animate
+  "Personality used for speaking cell values in summaries.")
 
 (defun emacspeak-dismal-row-summarize  ()
   "Summarizes a row using the specification in list
@@ -199,8 +189,7 @@ emacspeak-dismal-row-summarizer-list"
   (let ((summary nil))
     (setq summary 
           (mapconcat
-           (function
-            (lambda (token)
+            #'(lambda (token)
               (let ((value nil))
                 (cond
                  ((stringp token) token)
@@ -225,7 +214,7 @@ emacspeak-dismal-row-summarizer-list"
                                      'personality emacspeak-dismal-value-personality 
                                      value)
                   value)
-                 (t  (format "%s" token))))))
+                 (t  (format "%s" token)))))
            emacspeak-dismal-row-summarizer-list 
            " "))
     (dtk-speak summary)))
@@ -245,8 +234,7 @@ emacspeak-dismal-col-summarizer-list"
   (let ((summary nil))
     (setq summary 
           (mapconcat
-           (function
-            (lambda (token)
+            #'(lambda (token)
               (let ((value nil))
                 (cond
                  ((stringp token) token)
@@ -271,7 +259,7 @@ emacspeak-dismal-col-summarizer-list"
                                      'personality
                                      emacspeak-dismal-value-personality value)
                   value)
-                 (t  (format "%s" token))))))
+                 (t  (format "%s" token)))))
            emacspeak-dismal-col-summarizer-list 
            " "))
     (dtk-speak summary)))
@@ -286,8 +274,7 @@ emacspeak-dismal-sheet-summarizer-list"
       (dis-recalculate-matrix))
     (message 
      (mapconcat
-      (function
-       (lambda (token)
+       #'(lambda (token)
          (cond
           ((stringp token) token)
           ((and (listp token)
@@ -296,7 +283,7 @@ emacspeak-dismal-sheet-summarizer-list"
            (emacspeak-dismal-cell-value
             (cl-first token)
             (cl-second token)))
-          (t  (format "%s" token)))))
+          (t  (format "%s" token))))
       emacspeak-dismal-sheet-summarizer-list 
       " "))))
 

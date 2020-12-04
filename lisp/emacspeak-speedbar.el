@@ -6,7 +6,7 @@
 ;;{{{  LCD Archive entry: 
 
 ;;; LCD Archive Entry:
-;;; emacspeak| T. V. Raman |raman@cs.cornell.edu 
+;;; emacspeak| T. V. Raman |tv.raman.tv@gmail.com 
 ;;; A speech interface to Emacs |
 ;;; $Date: 2008-06-21 10:50:41 -0700 (Sat, 21 Jun 2008) $ |
 ;;;  $Revision: 4532 $ | 
@@ -59,15 +59,6 @@
 (cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 (require 'speedbar "speedbar" 'no-error)
-;;}}}
-;;{{{ custom
-
-(defgroup emacspeak-speedbar nil
-  "Speedbar on the Emacspeak audio desktop."
-  :group 'emacspeak
-  :group 'speedbar
-  :prefix "emacspeak-speedbar")
-
 ;;}}}
 ;;{{{  work outside a windowing system
 
@@ -260,40 +251,27 @@ An automatically updating speedbar consumes resources.")
 ;;{{{  voice locking 
 ;;; Map speedbar faces to voices
 ;;
-(defcustom emacspeak-speedbar-button-personality  voice-bolden
-  "personality used for speedbar buttons"
-  :type 'symbol
-  :group 'emacspeak-speedbar)
+(defvar emacspeak-speedbar-button-personality  voice-bolden
+  "personality used for speedbar buttons")
 
-(defcustom emacspeak-speedbar-selected-personality  voice-animate
-  "Personality used to indicate speedbar selection"
-  :type 'symbol
-  :group 'emacspeak-speedbar)
+(defvar emacspeak-speedbar-selected-personality  voice-animate
+  "Personality used to indicate speedbar selection")
 
-(defcustom emacspeak-speedbar-directory-personality voice-bolden-medium
+(defvar emacspeak-speedbar-directory-personality voice-bolden-medium
   "Speedbar personality for directory buttons"
-  :type 'symbol
-  :group 'emacspeak-speedbar)
+  )
 
-(defcustom emacspeak-speedbar-file-personality  'paul
-  "Personality used for file buttons"
-  :type 'symbol
-  :group 'emacspeak-speedbar)
+(defvar emacspeak-speedbar-file-personality  'paul
+  "Personality used for file buttons")
 
-(defcustom emacspeak-speedbar-highlight-personality voice-animate
-  "Personality used for for speedbar highlight."
-  :type 'symbol
-  :group 'emacspeak-speedbar)
+(defvar emacspeak-speedbar-highlight-personality voice-animate
+  "Personality used for for speedbar highlight.")
 
-(defcustom emacspeak-speedbar-tag-personality voice-monotone
-  "Personality used for speedbar tags"
-  :type 'symbol
-  :group 'emacspeak-speedbar)
+(defvar emacspeak-speedbar-tag-personality voice-monotone
+  "Personality used for speedbar tags")
 
-(defcustom emacspeak-speedbar-default-personality 'paul
-  "Default personality used in speedbar buffers"
-  :type 'symbol
-  :group 'emacspeak-speedbar)
+(defvar emacspeak-speedbar-default-personality 'paul
+  "Default personality used in speedbar buffers")
 
 (defadvice speedbar-make-button (after emacspeak pre act comp)
   "Voiceify the button"
