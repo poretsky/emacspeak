@@ -1,4 +1,5 @@
 Emacspeak  Revision 854b92e0a40a4193aa5eab529af15b85885031af
 Distribution created by raman at Wed May  2 16:06:14 PDT 2018
+Modified by Igor B. Poretsky
 Unpack the  distribution And type make config 
 Then type make
