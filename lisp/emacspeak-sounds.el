@@ -96,7 +96,7 @@ use `emacspeak-toggle-auditory-icons' bound to
 
 (defvar emacspeak-default-sound
   (expand-file-name
-   "classic/button.wav"
+   "3d/button.wav"
    emacspeak-sounds-directory)
   "Default sound to play if requested icon not found.")
 

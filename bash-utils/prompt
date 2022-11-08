@@ -1,5 +1,5 @@
 # Set up prompts for bash: -*- mode: sh -*-
-SOUNDDIR=${EMACSPEAK_DIR}/sounds/pan-chimes
+SOUNDDIR=${EMACSPEAK_DIR}/sounds/3d
 EBASH=${EMACSPEAK_DIR}/bash-utils
 SUCCESS=$SOUNDDIR/item.wav
 FAIL=$SOUNDDIR/warn-user.wav
