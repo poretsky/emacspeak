@@ -341,8 +341,10 @@ Optional interactive PREFIX arg toggles global value."
 
 (defvar emacspeak-sounds-auditory-icon-players
   '("emacspeak-serve-auditory-icon"
+    "emacspeak-queue-auditory-icon"
+    "emacspeak-native-auditory-icon"
     "emacspeak-play-auditory-icon"
-    "emacspeak-play-auditory-icon")
+    "emacspeak-soxplay-auditory-icon")
   "Table of auditory icon players used  when selecting a player.")
 
 (defun emacspeak-select-auditory-icon-player ()
