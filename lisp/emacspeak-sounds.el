@@ -300,11 +300,11 @@ Native : Use Emacs' builtin sound support.
 Use Serve when working with remote speech servers."
   :group 'emacspeak-sounds
   :type '(choice
-          (const emacspeak-play-auditory-icon)
-          (const emacspeak-serve-auditory-icon)
-          (const emacspeak-play-auditory-icon)
-          (const emacspeak-soxplay-auditory-icon)
-          (const emacspeak-queue-auditory-icon)))
+          (const :tag "Native" emacspeak-native-auditory-icon)
+          (const :tag "Serve" emacspeak-serve-auditory-icon)
+          (const :tag "play" emacspeak-play-auditory-icon)
+          (const :tag "soxplay" emacspeak-soxplay-auditory-icon)
+          (const :tag "Queue" emacspeak-queue-auditory-icon)))
 
 ;;;###autoload
 (defun emacspeak-auditory-icon (icon)
