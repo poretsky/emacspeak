@@ -64,6 +64,7 @@ TTS_OBJECTS = acss-structure.elc \
 dtk-speak.elc		dectalk-voices.elc\
 tts.elc tts-cmds.elc  plain-voices.elc espeak-voices.elc \
 outloud-voices.elc  mac-voices.elc\
+multispeech-voices.elc russian-spelling.elc \
 dtk-interp.elc dtk-unicode.elc
 
 SPEAK_OBJECTS =   \
@@ -352,6 +353,8 @@ tts-cmds.elc: tts-cmds.el tts.elc
 dectalk-voices.elc: dectalk-voices.el voice-setup.elc 
 outloud-voices.elc: outloud-voices.el voice-setup.elc 
 plain-voices.elc: plain-voices.el voice-setup.elc 
+multispeech-voices.elc: multispeech-voices.el voice-setup.elc
+russian-spelling.elc: russian-spelling.el emacspeak-speak.elc
 mac-voices.elc: mac-voices.el voice-setup.elc 
 espeak-voices.elc: espeak-voices.el voice-setup.elc 
 voice-setup.elc: voice-setup.el acss-structure.elc 

@@ -73,6 +73,7 @@ Possible choices at present:
 dtk-exp     For the Dectalk Express.
 dtk-mv      for the Multivoice and older Dectalks.
 outloud     For IBM ViaVoice Outloud
+multispeech For Multilingual speech server Multispeech
 espeak      For eSpeak (default on Linux)
 mac for MAC TTS (default on Mac)")
 
@@ -173,7 +174,7 @@ split caps Do not set this variable by hand, use command
   "Alist of valid punctuation modes.")
 
 (defvar dtk-speech-rate
-  (if (string-match "dtk" dtk-program)
+  (if (string-match "dtk\\|multispeech" dtk-program)
       225 100)
   "Rate at which tts talks.
 Do not modify this variable directly; use command  `dtk-set-rate'
@@ -416,7 +417,7 @@ will set \"en_GB\".
 ;;; This is necessary because
 ;;;  [] marks dtk commands; {} is special to tcl
 ;;; Optionally post-process the text with cleanup function if one is specified.
-(defconst dtk-bracket-regexp
+(defvar dtk-bracket-regexp
   "[][{}<>\\|`#\n]"
   "Brackets and other chars  that are special to dtk and tcl.
 Newlines  become spaces so each server request is a single line.
@@ -1530,17 +1531,23 @@ available TTS servers.")
 ;;;###autoload
 (defun tts-configure-synthesis-setup (&optional tts-name)
   "Setup synthesis environment. "
-  (cl-declare (special dtk-program emacspeak-auditory-icon-function))
+  (cl-declare (special dtk-program emacspeak-auditory-icon-function
+                    dtk-bracket-regexp))
   (unless tts-name (setq tts-name dtk-program))
   (cond
                                         ;viavoice outloud family
    ((string-match "outloud" tts-name) (outloud-configure-tts))
 ;;;all dectalks
    ((string-match "dtk" tts-name) (dectalk-configure-tts))
+   ((string-match "^multispeech$" tts-name) (multispeech-configure-tts))
    ((string-match "mac$" tts-name) (mac-configure-tts))
    ((string-match "espeak$" tts-name) (espeak-configure-tts))
 ;;; generic configure
    (t (plain-configure-tts)))
+  (setq dtk-bracket-regexp
+        (if (string-match "^multispeech$" tts-name)
+            "[][{}\n]"
+          "[][{}<>\\|`#\n]"))
   (dtk-set-rate tts-default-speech-rate t)
   (dtk-interp-sync)
   (when
