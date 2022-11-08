@@ -108,7 +108,9 @@ Particularly useful for web browsing."
 
 (defcustom dtk-speech-rate-base
   (if (string-match "dtk" dtk-program) 180 50)
-  "*Value of lowest tolerable speech rate."
+  "*Value of lowest tolerable speech rate.
+Speech server automatically initializes this option
+with reasonable value if it is not customized explicitly."
   :type 'integer
   :group 'tts)
 
@@ -117,7 +119,9 @@ Particularly useful for web browsing."
   "*Value of speech rate increment.
 This determines step size used when setting speech rate via command
 `dtk-set-predefined-speech-rate'.  Formula used is
-dtk-speech-rate-base  +  dtk-speech-rate-step*level."
+dtk-speech-rate-base  +  dtk-speech-rate-step*level.
+Active speech server initializes this option with a reasonable value
+if it is not explicitly customized by user."
   :type 'integer
   :group 'tts)
 (defvar dtk-startup-hook)
