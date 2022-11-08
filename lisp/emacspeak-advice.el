@@ -194,8 +194,10 @@ position of point is indicated via an aural highlight. Landing on the
 beginning or end of a physical line produces an appropriate auditory icon."
      (when (ems-interactive-p)
        (cond
-        ((or line-move-visual visual-line-mode) (emacspeak-speak-visual-line))
-        (t (emacspeak-speak-line)))))))
+        ((and (or line-move-visual visual-line-mode)
+              (null truncate-lines))
+         (emacspeak-speak-visual-line emacspeak-speak-line-reading-mode))
+        (t (emacspeak-speak-line emacspeak-speak-line-reading-mode)))))))
 
 (defadvice kill-visual-line (before emacspeak pre act comp)
   "Speak line we're about to delete."

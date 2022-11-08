@@ -109,6 +109,33 @@
   (puthash mode value emacspeak-speak-mode-punctuation-table))
 
 ;;}}}
+;;{{{ Line reading mode:
+
+(defvar emacspeak-speak-line-reading-mode nil
+  "Current line reading mode when moving up and down.")
+(make-variable-buffer-local 'emacspeak-speak-line-reading-mode)
+
+;;;###autoload
+(defun emacspeak-speak-set-line-reading-mode (setting)
+  "Set how lines are to be read when moving up and down.
+
+There are three modes:
+`full' - lines are read normally from the beginning up to the end,
+`head' - lines are read from the beginning up to the cursor position,
+`tail' - lines are read from the cursor position up to the end."
+  (interactive
+   (list
+    (intern (completing-read "Line Reading Mode: " '("full" "head" "tail") nil t))))
+  (setq emacspeak-speak-line-reading-mode
+        (cond
+         ((string-equal setting "head") -1)
+         ((string-equal setting "tail") 1)
+         (t (setq setting "full") nil)))
+  (when (ems-interactive-p)
+    (message "Set line reading mode to %s in current buffer" setting)
+    (emacspeak-auditory-icon 'select-object)))
+
+;;}}}
 ;;{{{  line, Word and Character echo
 
 (defcustom emacspeak-line-echo nil
@@ -1039,11 +1066,15 @@ with auditory icon `more'.  These can then be spoken using command
       (dtk-speak result)))))
 
 ;;;###autoload
-(defun emacspeak-speak-visual-line ()
+(defun emacspeak-speak-visual-line (&optional arg)
   "Speaks current visual line.
-Cues the start of a physical line with auditory icon `left'."
-  (interactive)
+Cues the start of a physical line with auditory icon `left'.
+With prefix ARG, speaks the rest of the visual line
+from point.  Negative prefix optional arg speaks from start
+of line to point."
+  (interactive "P")
   (cl-declare (special dtk-stop-immediately emacspeak-show-point))
+  (when (listp arg) (setq arg (car arg)))
   (when dtk-stop-immediately (dtk-stop))
   (let* ((inhibit-field-text-motion t)
          (inhibit-read-only t)
@@ -1063,8 +1094,12 @@ Cues the start of a physical line with auditory icon `left'."
         (emacspeak-auditory-icon 'left))
        ((and (> start (line-beginning-position)) (= end (line-end-position)))
         (emacspeak-auditory-icon 'right)))
+      (cond
+       ((null arg))
+       ((> arg 0) (setq start orig))
+       (t (setq end orig)))
       (setq line
-            (if emacspeak-show-point
+            (if (and (null arg) emacspeak-show-point)
                 (ems-set-personality-temporarily
                  orig (1+ orig)
                  voice-animate (buffer-substring start end))

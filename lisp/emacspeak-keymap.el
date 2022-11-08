@@ -329,6 +329,7 @@
    ("v" voice-lock-toggle)
    ("w" emacspeak-toggle-word-echo)
    ("z" emacspeak-zap-tts)
+   ("C-l" emacspeak-speak-set-line-reading-mode)
    ("C-n" dtk-notify-initialize)
    ("C-s" dtk-notify-shutdown)
    )
