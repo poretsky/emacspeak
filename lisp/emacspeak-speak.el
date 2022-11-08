@@ -862,13 +862,15 @@ Argument START  and END specify region to speak."
 (put 'emacspeak-decoration-rule 'variable-interactive
      "sEnterregular expression to match lines that are decorative ASCII: ")
 
-(defvar emacspeak-unspeakable-rule
-  "^[^0-9a-zA-Z]+$"
+(defcustom emacspeak-unspeakable-rule
+  "^\\W+$"
   "Pattern to match lines of special chars.
 This is a regular expression that matches lines containing only
 non-alphanumeric characters.  emacspeak will generate a tone
 instead of speaking such lines when punctuation mode is set
-to some.")
+to some."
+  :group 'emacspeak-speak
+  :type 'regexp)
 
 (put 'emacspeak-unspeakable-rule 'variable-interactive
      "sEnterregular expression to match unspeakable lines: ")
