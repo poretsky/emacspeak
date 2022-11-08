@@ -79,7 +79,7 @@ dist:
 # {{{ User level target--  config
 
 config:
-	@cd etc && $(MAKE) config  
+	#@cd etc && $(MAKE) config  
 	@cd lisp && $(MAKE) config
 	@cd lisp/g-client  && $(MAKE) config
 	@echo "Configured emacspeak in directory $(SRC)."
