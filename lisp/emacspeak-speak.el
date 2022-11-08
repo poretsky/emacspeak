@@ -181,7 +181,7 @@ current local  value to the result.")
 ;;}}}
 ;;{{{ Shell Command Helper:
 
-(defcustom emacspeak-speak-messages t
+(defcustom emacspeak-speak-messages nil
   "Option indicating if messages are spoken.  If nil,
 emacspeak will not speak messages as they are echoed to the
 message area.  You can use command
