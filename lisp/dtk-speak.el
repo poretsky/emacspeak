@@ -1707,7 +1707,9 @@ program. Port defaults to dtk-local-server-port"
   (let ((process-connection-type nil)
         (program (expand-file-name dtk-program emacspeak-servers-directory))
         (process nil))
-    (setq process (apply #'start-process name nil program dtk-program-args))
+    (with-temp-buffer
+      (cd "~")
+      (setq process (apply #'start-process name nil program dtk-program-args)))
     (set-process-coding-system process 'utf-8 'utf-8)
     (tts-env-set-process-env process
                              (tts-env-get (tts-env-key dtk-program)))
