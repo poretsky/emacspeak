@@ -292,7 +292,7 @@ When on a close delimiter, speaking matching open delimiter after a small delay.
 
 (cl-loop
  for f in
- '(next-buffer previous-buffer bury-buffer)
+ '(next-buffer previous-buffer)
  do
  (eval
   `(defadvice ,f (after emacspeak pre act comp)
@@ -1730,7 +1730,11 @@ Produce an auditory icon if possible."
     (emacspeak-speak-mode-line)))
 (cl-loop
  for f in
- '(kill-buffer quit-window)
+ '(kill-buffer
+   kill-this-buffer
+   bury-buffer
+   delete-frame
+   quit-window)
  do
  (eval
   `(defadvice ,f (after emacspeak pre act comp)
