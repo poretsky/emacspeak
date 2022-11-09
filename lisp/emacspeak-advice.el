@@ -651,24 +651,20 @@ see option emacspeak-untabify-fixes-non-breaking-space."
 
 ;;}}}
 ;;{{{ Advice hippie expand:
-(cl-loop
- for f in
- '(hippie-expand complete)
- do
- (eval
-  `(defadvice ,f (around emacspeak pre act comp)
-     "Speak what was completed."
-     (cond
-      ((ems-interactive-p)
-       (let ((orig (save-excursion (skip-syntax-backward "^ >") (point))))
-         (ems-with-messages-silenced
-          ad-do-it
-          (emacspeak-auditory-icon 'complete)
-          (if (< orig (point))
-              (dtk-speak (buffer-substring orig (point)))
-            (dtk-speak (word-at-point))))))
-      (t ad-do-it))
-     ad-return-value)))
+
+(defadvice hippie-expand (around emacspeak pre act comp)
+  "Speak what was completed."
+  (cond
+   ((ems-interactive-p)
+    (let ((orig (save-excursion (skip-syntax-backward "^ >" ) (point))))
+      (ems-with-messages-silenced
+       ad-do-it)
+      (emacspeak-auditory-icon 'complete)
+      (if (< orig (point))
+          (dtk-speak (buffer-substring orig (point)))
+        (dtk-speak (word-at-point)))))
+   (t ad-do-it))
+  ad-return-value)
 
 ;;}}}
 ;;{{{ advice minibuffer to speak
@@ -938,6 +934,39 @@ icon."
 
 ;;}}}
 ;;{{{ advice completion functions to speak:
+
+(cl-loop
+ for f in
+ '(complete minibuffer-complete-shell-command)
+ do
+ (eval
+  `(defadvice ,f  (around emacspeak pre act comp)
+     "Say what you completed."
+     (ems-with-messages-silenced
+      (let ((deactivate-mark nil)
+            (emacspeak-last-message nil))
+        ad-do-it
+        (when (ems-interactive-p)
+          (dtk-speak
+           (format "%s %s"
+                   (save-excursion (backward-char 1)
+                                   (sexp-at-point))
+                   (or emacspeak-last-message ""))))
+        ad-return-value)))))
+
+(cl-loop
+ for f in
+ '(next-completion previous-completion)
+ do
+ (eval
+  `(defadvice ,f (after emacspeak pre act comp)
+     "Provide auditory feedback."
+     (when (ems-interactive-p)
+       (let ((deactivate-mark nil))
+         (emacspeak-auditory-icon 'select-object)
+         (tts-with-punctuations 'all
+                                (dtk-speak (emacspeak-get-current-completion))))))))
+
 (cl-loop
  for f in
  '(dabbrev-expand dabbrev-completion)
@@ -999,21 +1028,6 @@ icon."
   "Provide spoken feedback."
   (emacspeak-auditory-icon 'select-object)
   (dtk-speak (emacspeak-get-current-completion)))
-
-(defadvice next-completion (after emacspeak pre act comp)
-  "Provide auditory feedback."
-  (when (ems-interactive-p)
-    (emacspeak-auditory-icon 'select-object)
-    (tts-with-punctuations 'all
-                           (dtk-speak (emacspeak-get-current-completion)))))
-
-(defadvice previous-completion (after emacspeak pre act comp)
-  "Provide auditory feedback."
-  (when (ems-interactive-p)
-    (emacspeak-auditory-icon 'select-object)
-    (tts-with-punctuations 'all
-                           (dtk-speak
-                            (emacspeak-get-current-completion)))))
 
 (defadvice choose-completion (before emacspeak pre act comp)
   "Provide auditory feedback."
