@@ -548,16 +548,31 @@ the words that were capitalized."
         (dtk-tone-deletion)
         (emacspeak-speak-region (point) start)))))
 
+(cl-loop for f in
+      '(delete-rectangle kill-rectangle)
+      do
+      (eval
+       `(defadvice ,f (after emacspeak pre act comp)
+          "Provide auditory feedback."
+          (when (ems-interactive-p)
+            (emacspeak-auditory-icon 'delete-object)))))
+
 ;;; Large deletions also produce auditory icons if possible
 
-(defadvice kill-line (before emacspeak pre act comp)
-  "Speak line before killing it. "
-  (when (ems-interactive-p)
-    (emacspeak-auditory-icon 'delete-object)
-    (when dtk-stop-immediately (dtk-stop))
-    (let ((dtk-stop-immediately nil))
-      (dtk-tone-deletion)
-      (emacspeak-speak-line 1))))
+(cl-loop for f in
+      '(kill-line
+        allout-kill-line
+        kill-sentence)
+      do
+      (eval
+       `(defadvice ,f (before emacspeak pre act comp)
+          "Speak line before killing it. "
+          (when (ems-interactive-p)
+            (when dtk-stop-immediately (dtk-stop))
+            (emacspeak-auditory-icon 'delete-object)
+            (let ((dtk-stop-immediately nil))
+              (dtk-tone-deletion)
+              (emacspeak-speak-line 1))))))
 
 (defadvice kill-sexp (before emacspeak pre act comp)
   "Speak the sexp you killed."
@@ -567,15 +582,6 @@ the words that were capitalized."
     (let ((dtk-stop-immediately nil))
       (dtk-tone-deletion)
       (emacspeak-speak-sexp 1))))
-
-(defadvice kill-sentence (before emacspeak pre act comp)
-  "Speak the line you killed."
-  (when (ems-interactive-p)
-    (emacspeak-auditory-icon 'delete-object)
-    (when dtk-stop-immediately (dtk-stop))
-    (let ((dtk-stop-immediately nil))
-      (dtk-tone-deletion)
-      (emacspeak-speak-line 1))))
 
 (defadvice delete-blank-lines (before emacspeak pre act comp)
   "Provide auditory feedback."
@@ -2310,7 +2316,8 @@ Produce an auditory icon if possible."
 
 (cl-loop
  for f in
- '(yank yank-pop)
+ '(yank yank-pop
+        allout-yank allout-yank-pop)
  do
  (eval
   `(defadvice ,f (after emacspeak pre act comp)
@@ -2319,6 +2326,11 @@ Produce an auditory icon if possible."
      (when (ems-interactive-p)
        (emacspeak-auditory-icon 'yank-object)
        (emacspeak-speak-region (mark 'force) (point))))))
+
+(defadvice yank-rectangle (after emacspeak pre act comp)
+  "Produce an auditory icon if possible."
+  (when (ems-interactive-p)
+    (emacspeak-auditory-icon 'yank-object)))
 
 ;;}}}
 ;;{{{ advice non-incremental searchers
