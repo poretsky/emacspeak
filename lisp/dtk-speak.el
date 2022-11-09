@@ -224,7 +224,9 @@ has higher precedence than `face'."
   (or pos (setq pos (point)))
   (or
    (get-text-property pos 'personality)
-   (dtk-get-voice-for-face (get-text-property pos 'face))))
+   (dtk-get-voice-for-face
+    (or (get-text-property pos 'face)
+        (get-text-property pos 'font-lock-face)))))
 
 ;;}}}
 ;;{{{ Tone Helpers:
