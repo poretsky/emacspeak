@@ -314,9 +314,7 @@ When on a close delimiter, speaking matching open delimiter after a small delay.
 
 (cl-loop
  for f in
- '(tab-to-tab-stop indent-for-tab-command reindent-then-newline-and-indent
-                   indent-sexp indent-pp-sexp
-                   indent-region indent-relative)
+ '(tab-to-tab-stop indent-for-tab-command indent-relative)
  do
  (eval
   `(defadvice ,f (after emacspeak pre act comp)
@@ -1483,6 +1481,46 @@ Shell-Dirtrack mode; turning it off does not re-enable it."
     (message "Filled current region containing %s lines"
              (count-lines (region-beginning)
                           (region-end)))))
+
+(defadvice tabify (after emacspeak pre act)
+  "Provide auditory feedback."
+  (when (ems-interactive-p)
+    (emacspeak-auditory-icon 'fill-object )
+    (message "Tabified current region containing %s lines"
+             (count-lines (region-beginning)
+                          (region-end)))))
+
+(defadvice untabify (after emacspeak pre act)
+  "Provide auditory feedback."
+  (when (ems-interactive-p)
+    (emacspeak-auditory-icon 'fill-object )
+    (message "Untabified current region containing %s lines"
+             (count-lines (region-beginning)
+                          (region-end)))))
+
+(defadvice reindent-then-newline-and-indent (after emacspeak pre act comp)
+  "Provide auditory feedback to indicate indentation."
+  (when (ems-interactive-p )
+    (emacspeak-speak-line)))
+
+(defadvice indent-region (after emacspeak pre act comp)
+  "Provide auditory feedback to indicate indentation."
+  (when (ems-interactive-p )
+    (emacspeak-auditory-icon 'fill-object)
+    (message "Indented current region containing %s lines"
+             (count-lines (region-beginning)
+                          (region-end)))))
+
+(cl-loop
+ for f in
+ '(indent-sexp indent-pp-sexp)
+ do
+ (eval
+  `(defadvice ,f  (after emacspeak pre act comp)
+     "Provide auditory feedback."
+     (when (ems-interactive-p )
+       (emacspeak-auditory-icon 'fill-object )
+       (message "Indented current s expression ")))))
 
 ;;}}}
 ;;{{{ vc:
