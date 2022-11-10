@@ -96,6 +96,7 @@ emacspeak-amark.elc \
 emacspeak-analog.elc \
 emacspeak-ansi-color.elc \
 emacspeak-apt-sources.elc \
+emacspeak-apt-utils.elc \
 emacspeak-arc.elc \
 emacspeak-auctex.elc \
 emacspeak-autoload.el \
@@ -121,6 +122,7 @@ emacspeak-compile.elc \
 emacspeak-company.elc \
 emacspeak-cperl.elc \
 emacspeak-custom.elc \
+emacspeak-debian-bug.elc \
 emacspeak-dbus.elc \
 emacspeak-dictionary.elc \
 emacspeak-desktop.elc \
@@ -368,6 +370,7 @@ emacspeak-advice.elc: emacspeak-advice.el dtk-speak.elc voice-setup.elc
 emacspeak-analog.elc: emacspeak-analog.el dtk-speak.elc voice-setup.elc
 emacspeak-ansi-color.elc: emacspeak-ansi-color.el dtk-speak.elc voice-setup.elc
 emacspeak-apt-sources.elc: emacspeak-apt-sources.el dtk-speak.elc voice-setup.elc
+emacspeak-apt-utils.elc: emacspeak-apt-utils.el dtk-speak.elc voice-setup.elc
 emacspeak-arc.elc: emacspeak-arc.el dtk-speak.elc voice-setup.elc
 emacspeak-auctex.elc: emacspeak-auctex.el dtk-speak.elc voice-setup.elc
 emacspeak-autoload.elc: emacspeak-autoload.el
@@ -396,6 +399,7 @@ emacspeak-custom.elc: emacspeak-custom.el dtk-speak.elc voice-setup.elc
 emacspeak-cyclebuffer.elc: emacspeak-cyclebuffer.el dtk-speak.elc
 emacspeak-epub.elc: emacspeak-epub.el dtk-speak.elc voice-setup.elc
 emacspeak-dbus.elc: emacspeak-dbus.el dtk-speak.elc nm.elc 
+emacspeak-debian-bug.elc: emacspeak-debian-bug.el dtk-speak.elc voice-setup.elc
 emacspeak-desktop.elc: emacspeak-desktop.el dtk-speak.elc voice-setup.elc
 emacspeak-dictionary.elc: emacspeak-dictionary.el dtk-speak.elc voice-setup.elc
 emacspeak-diff-mode.elc: emacspeak-diff-mode.el dtk-speak.elc voice-setup.elc
