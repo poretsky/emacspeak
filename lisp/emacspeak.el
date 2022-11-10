@@ -289,6 +289,7 @@ that implements the speech-enabling extensions for `package' (a string)."
 (emacspeak-do-package-setup "rst" 'emacspeak-rst)
 (emacspeak-do-package-setup "related" 'emacspeak-related)
 (emacspeak-do-package-setup "rmail" 'emacspeak-rmail)
+(emacspeak-do-package-setup "rpm" 'emacspeak-rpm)
 (emacspeak-do-package-setup "rpm-spec-mode" 'emacspeak-rpm-spec)
 (emacspeak-do-package-setup "ruby-mode" 'emacspeak-ruby)
 (emacspeak-do-package-setup "sgml-mode" 'emacspeak-sgml-mode)
