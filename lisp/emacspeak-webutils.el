@@ -210,7 +210,8 @@ Forward punctuation and rate  settings to resulting buffer."
 (defun emacspeak-webutils-browser-check ()
   "Check to see if functions are called from a browser buffer"
   (cl-declare (special major-mode))
-  (unless (eq major-mode 'eww-mode)
+  (unless (or (eq major-mode 'w3m-mode)
+              (eq major-mode 'eww-mode))
     (error "This command cannot be used outside browser buffers.")))
 
 (defalias 'emacspeak-webutils-read-url 'emacspeak-webutils-read-this-url)
