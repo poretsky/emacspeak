@@ -288,6 +288,7 @@ emacspeak-we.elc \
 emacspeak-webspace.elc \
 emacspeak-webutils.elc \
 emacspeak-websearch.elc \
+emacspeak-wget.elc \
 emacspeak-widget.elc \
 emacspeak-wiki.elc \
 emacspeak-windmove.elc \
@@ -590,6 +591,7 @@ emacspeak-webutils.elc: emacspeak-webutils.el dtk-speak.elc voice-setup.elc
 emacspeak-webspace.elc: emacspeak-webspace.el emacspeak-webutils.elc
 emacspeak-websearch.elc: emacspeak-websearch.el emacspeak-we.elc
 emacspeak-webmarks.elc: emacspeak-webmarks.el emacspeak-we.elc
+emacspeak-wget.elc: emacspeak-wget.el dtk-speak.elc
 emacspeak-widget.elc: emacspeak-widget.el dtk-speak.elc voice-setup.elc
 emacspeak-wiki.elc: emacspeak-wiki.el dtk-speak.elc voice-setup.elc
 emacspeak-winring.elc: emacspeak-winring.el dtk-speak.elc voice-setup.elc
