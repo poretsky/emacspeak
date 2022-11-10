@@ -88,6 +88,73 @@
        (emacspeak-speak-line)))))
 
 ;;}}}
+;;{{{ advice  interactive commands
+
+(defadvice diff-goto-source (after emacspeak pre act comp)
+  "Provide spoken feedback."
+  (when (ems-interactive-p)
+    (emacspeak-auditory-icon 'open-object)
+    (emacspeak-speak-line)))
+
+(cl-loop for f in 
+      '(diff-hunk-next diff-hunk-prev)
+      do
+      (eval
+       `(defadvice ,f (after emacspeak pre act comp)
+          "Provide spoken feedback."
+          (when (ems-interactive-p)
+            (emacspeak-auditory-icon 'select-object)
+            (emacspeak-speak-line)))))
+
+(cl-loop for f in 
+      '(diff-file-next diff-file-prev)
+      do
+      (eval
+       `(defadvice ,f (after emacspeak pre act comp)
+          "Provide spoken feedback."
+          (when (ems-interactive-p)
+            (emacspeak-auditory-icon 'large-movement)
+            (emacspeak-speak-line)))))
+
+(cl-loop for f in 
+      '(diff-hunk-kill diff-file-kill)
+      do
+      (eval
+       `(defadvice ,f (after emacspeak pre act comp)
+          "Provide spoken feedback."
+          (when (ems-interactive-p)
+            (emacspeak-auditory-icon 'delete-object)
+            (emacspeak-speak-line)))))
+
+(cl-loop for f in 
+      '(diff-apply-hunk
+        diff-refine-hunk
+        diff-ignore-whitespace-hunk
+        diff-context->unified
+        diff-unified->context
+        diff-ediff-patch
+        diff-reverse-direction
+        diff-split-hunk
+        diff-test-hunk)
+      do
+      (eval
+       `(defadvice ,f (after emacspeak pre act comp)
+          "Provide spoken feedback."
+          (when (ems-interactive-p)
+            (emacspeak-auditory-icon 'task-done)))))
+
+;;}}}
+;;{{{ advise process filter and sentinels
+
+(defadvice diff-sentinel (after emacspeak pre act )
+  "Provide auditory feedback."
+  (emacspeak-auditory-icon 'task-done)
+  (message "process diff finished%s"
+           (if (equal 0 (ad-get-arg 0))
+               " with no differences"
+             "")))
+
+;;}}}
 (provide 'emacspeak-diff-mode)
 ;;{{{ end of file
 

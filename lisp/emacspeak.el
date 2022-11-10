@@ -185,6 +185,7 @@ that implements the speech-enabling extensions for `package' (a string)."
 (emacspeak-do-package-setup "cus-edit" 'emacspeak-custom)
 (emacspeak-do-package-setup "debian-bug" 'emacspeak-debian-bug )
 (emacspeak-do-package-setup "desktop" 'emacspeak-desktop)
+(emacspeak-do-package-setup "diff" 'emacspeak-diff-mode)
 (emacspeak-do-package-setup "diff-mode" 'emacspeak-diff-mode)
 (emacspeak-do-package-setup "dired" 'emacspeak-dired)
 (emacspeak-do-package-setup "dismal" 'emacspeak-dismal)
