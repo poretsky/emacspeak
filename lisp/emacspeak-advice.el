@@ -3006,6 +3006,21 @@ Produce auditory icons if possible."
     (emacspeak-auditory-icon 'yes-answer))
    (t (emacspeak-auditory-icon 'no-answer))))
 
+(cl-loop for f in
+      '(map-y-or-n-p
+        ask-user-about-supersession-threat
+        hack-local-variables-confirm)
+      do
+      (eval
+       `(defadvice ,f (around emacspeak pre act comp)
+          "Provide speech feedback unconditionally."
+          (cl-declare (special emacspeak-speak-messages emacspeak-last-message inhibit-message))
+          (let ((emacspeak-speak-messages t)
+                (emacspeak-last-message nil)
+                (inhibit-message nil))
+            ad-do-it)
+          ad-return-value)))
+
 (defadvice ask-user-about-lock (before emacspeak pre act comp)
   "Play auditory icon."
   (emacspeak-auditory-icon 'ask-short-question))
