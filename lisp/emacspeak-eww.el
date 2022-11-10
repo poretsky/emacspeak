@@ -509,7 +509,7 @@ are available are cued by an auditory icon on the header line."
       emacspeak-webutils-document-title #'emacspeak-eww-current-title
       emacspeak-webutils-url-at-point
       #'(lambda ()
-          (let ((url (shr-url-at-point nil)))
+          (let ((url (emacspeak-webutils-url-at-point nil)))
             (cond
              ((and url
                    (stringp url)
@@ -2054,8 +2054,8 @@ interactive prefix arg `delete', delete that mark instead."
 Warning: Running shell script cbox through this fails mysteriously."
   (interactive "P")
   (cl-declare (special emacspeak-eww-url-shell-commands))
-  (cl-assert (shr-url-at-point prefix) t "No URL at point.")
-  (let ((url (shr-url-at-point prefix))
+  (cl-assert (emacspeak-webutils-url-at-point prefix) t "No URL at point.")
+  (let ((url (emacspeak-webutils-url-at-point prefix))
         (cmd (completing-read "Shell Command: " emacspeak-eww-url-shell-commands)))
     (shell-command (format "%s '%s'" cmd url))
     (emacspeak-auditory-icon 'task-done)))

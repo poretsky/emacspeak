@@ -54,6 +54,14 @@
 (require 'url)
 (require 'browse-url)
 (require 'shr)
+(require 'w3m-util "w3m-util" 'noerror)
+
+;;}}}
+;;{{{ Forward declarations
+
+(declare-function shr-url-at-point "shr.el")
+(declare-function w3m-anchor "ext:w3m-util.el" (&optional position))
+(declare-function w3m-image "ext:w3m-util.el" (&optional position))
 
 ;;}}}
 ;;{{{ Utility: Render HTML To String
@@ -214,12 +222,26 @@ Forward punctuation and rate  settings to resulting buffer."
               (eq major-mode 'eww-mode))
     (error "This command cannot be used outside browser buffers.")))
 
+(defun emacspeak-webutils-url-at-point (image-url)
+  "Return the URL under point as a string.
+If IMAGE-URL is non-nil, or there is no link under point, but
+there is an image under point then copy the URL of the image
+under point instead."
+  (if (eq major-mode 'w3m-mode)
+      (if image-url
+          (w3m-image (point))
+        (w3m-anchor (point)))
+    (if (fboundp 'shr-url-at-point)
+        (shr-url-at-point image-url)
+      (unless image-url
+        (browse-url-url-at-point)))))
+
 (defalias 'emacspeak-webutils-read-url 'emacspeak-webutils-read-this-url)
 
 (defun emacspeak-webutils-read-this-url ()
   "Return URL under point
 or URL read from minibuffer."
-  (let ((url (shr-url-at-point nil)))
+  (let ((url (emacspeak-webutils-url-at-point nil)))
     (if url
         url 
       (car (browse-url-interactive-arg "URL: ")))))
@@ -309,7 +331,7 @@ and xsl environment specified by style, params and options."
   "Function variable returning the current document title.")
 
 (defvar emacspeak-webutils-url-at-point
-  #'(lambda nil (shr-url-at-point nil))
+  #'(lambda nil (emacspeak-webutils-url-at-point nil))
   "Function variable returning the value of the url under point
   in a Web page.")
 

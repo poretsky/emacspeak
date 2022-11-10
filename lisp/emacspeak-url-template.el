@@ -1559,7 +1559,6 @@ template."
 ;;}}}
 ;;{{{Reddit At Point:
 
-(declare-function shr-url-at-point "shr" (image-url))
 (declare-function emacspeak-google-canonicalize-result-url "emacspeak-google" (url))
 (declare-function emacspeak-google-result-url-prefix "emacspeak-google" nil)
 
@@ -1570,8 +1569,7 @@ template."
  #'(lambda (_url)
      (let* ((u
              (or
-              (shr-url-at-point nil)
-              (browse-url-url-at-point)
+              (emacspeak-webutils-url-at-point nil)
               (read-from-minibuffer "URL:")))
             (url
              (if (string-prefix-p (emacspeak-google-result-url-prefix) u)
