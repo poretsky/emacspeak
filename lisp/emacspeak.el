@@ -330,6 +330,7 @@ that implements the speech-enabling extensions for `package' (a string)."
 (emacspeak-do-package-setup "wdired" 'emacspeak-wdired)
 (emacspeak-do-package-setup "cus-edit" 'emacspeak-custom)
 (emacspeak-do-package-setup "wid-edit" 'emacspeak-widget)
+(emacspeak-do-package-setup "emacs-wiki" 'emacspeak-wiki)
 (emacspeak-do-package-setup "widget" 'emacspeak-widget)
 (emacspeak-do-package-setup "windmove" 'emacspeak-windmove)
 (emacspeak-do-package-setup "winring" 'emacspeak-winring)
