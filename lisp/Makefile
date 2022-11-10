@@ -226,6 +226,7 @@ emacspeak-php-mode.elc \
 emacspeak-pianobar.elc \
 emacspeak-proced.elc \
 emacspeak-projectile.elc \
+emacspeak-ps.elc \
 emacspeak-py.elc \
 emacspeak-elpy.elc \
 emacspeak-pydoc.elc \
@@ -513,6 +514,7 @@ emacspeak-personality.elc: emacspeak-personality.el
 emacspeak-popup.elc: emacspeak-popup.el dtk-speak.elc
 emacspeak-proced.elc: emacspeak-proced.el dtk-speak.elc voice-setup.elc
 emacspeak-projectile.elc: emacspeak-projectile.el dtk-speak.elc
+emacspeak-ps.elc: emacspeak-ps.el dtk-speak.elc voice-setup.elc
 emacspeak-py.elc: emacspeak-py.el dtk-speak.elc voice-setup.elc
 emacspeak-python.elc: emacspeak-python.el dtk-speak.elc voice-setup.elc
 emacspeak-racket.elc: emacspeak-racket.el dtk-speak.elc voice-setup.elc

@@ -273,6 +273,7 @@ that implements the speech-enabling extensions for `package' (a string)."
 (emacspeak-do-package-setup "package"'emacspeak-package)
 (emacspeak-do-package-setup "paradox"'emacspeak-paradox)
 (emacspeak-do-package-setup "pcvs" 'emacspeak-pcl-cvs)
+(emacspeak-do-package-setup "ps-mode" 'emacspeak-ps)
 (emacspeak-do-package-setup "elpy" 'emacspeak-elpy)
 (emacspeak-do-package-setup "pydoc" 'emacspeak-pydoc)
 (emacspeak-do-package-setup "python" 'emacspeak-python)
@@ -411,7 +412,7 @@ caps."
    #'(lambda (hook)
        (add-hook hook #'emacspeak-setup-programming-mode))
    '(
-     asm-mode-hook
+     asm-mode-hook ps-mode-hook
      conf-unix-mode-hook html-helper-mode-hook
      markdown-mode-hook muse-mode-hook
      sgml-mode-hook xml-mode-hook nxml-mode-hook xsl-mode-hook
