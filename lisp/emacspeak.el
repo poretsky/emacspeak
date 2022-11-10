@@ -152,6 +152,7 @@ that implements the speech-enabling extensions for `package' (a string)."
 (emacspeak-do-package-setup "apt-sources" 'emacspeak-apt-sources)
 (emacspeak-do-package-setup "apt-utils" 'emacspeak-apt-utils)
 (emacspeak-do-package-setup "arc-mode" 'emacspeak-arc)
+(emacspeak-do-package-setup "asm-mode" 'emacspeak-asm)
 (emacspeak-do-package-setup "bbdb" 'emacspeak-bbdb)
 (emacspeak-do-package-setup "bibtex" 'emacspeak-bibtex)
 (emacspeak-do-package-setup "bookmark" 'emacspeak-bookmark)
@@ -407,6 +408,7 @@ caps."
    #'(lambda (hook)
        (add-hook hook #'emacspeak-setup-programming-mode))
    '(
+     asm-mode-hook
      conf-unix-mode-hook html-helper-mode-hook
      markdown-mode-hook muse-mode-hook
      sgml-mode-hook xml-mode-hook nxml-mode-hook xsl-mode-hook

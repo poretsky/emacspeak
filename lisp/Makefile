@@ -98,6 +98,7 @@ emacspeak-ansi-color.elc \
 emacspeak-apt-sources.elc \
 emacspeak-apt-utils.elc \
 emacspeak-arc.elc \
+emacspeak-asm.elc \
 emacspeak-auctex.elc \
 emacspeak-autoload.el \
 emacspeak-bbc.elc \
@@ -372,6 +373,7 @@ emacspeak-ansi-color.elc: emacspeak-ansi-color.el dtk-speak.elc voice-setup.elc
 emacspeak-apt-sources.elc: emacspeak-apt-sources.el dtk-speak.elc voice-setup.elc
 emacspeak-apt-utils.elc: emacspeak-apt-utils.el dtk-speak.elc voice-setup.elc
 emacspeak-arc.elc: emacspeak-arc.el dtk-speak.elc voice-setup.elc
+emacspeak-asm.elc: emacspeak-asm.el dtk-speak.elc voice-setup.elc
 emacspeak-auctex.elc: emacspeak-auctex.el dtk-speak.elc voice-setup.elc
 emacspeak-autoload.elc: emacspeak-autoload.el
 emacspeak-bbc.elc: emacspeak-bbc.el dtk-speak.elc voice-setup.elc
