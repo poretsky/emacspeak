@@ -124,6 +124,7 @@ emacspeak-company.elc \
 emacspeak-cperl.elc \
 emacspeak-custom.elc \
 emacspeak-cyclebuffer.elc \
+emacspeak-edb.elc \
 emacspeak-debian-bug.elc \
 emacspeak-dbus.elc \
 emacspeak-dictionary.elc \
@@ -401,6 +402,7 @@ emacspeak-company.elc: emacspeak-company.el dtk-speak.elc
 emacspeak-cperl.elc: emacspeak-cperl.el dtk-speak.elc voice-setup.elc
 emacspeak-custom.elc: emacspeak-custom.el dtk-speak.elc voice-setup.elc
 emacspeak-cyclebuffer.elc: emacspeak-cyclebuffer.el dtk-speak.elc
+emacspeak-edb.elc: emacspeak-edb.el dtk-speak.elc voice-setup.elc
 emacspeak-epub.elc: emacspeak-epub.el dtk-speak.elc voice-setup.elc
 emacspeak-dbus.elc: emacspeak-dbus.el dtk-speak.elc nm.elc 
 emacspeak-debian-bug.elc: emacspeak-debian-bug.el dtk-speak.elc voice-setup.elc
