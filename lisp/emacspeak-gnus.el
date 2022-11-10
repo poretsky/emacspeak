@@ -56,6 +56,7 @@
 (cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 (require 'emacspeak-hide)
+(require 'emacspeak-webutils)
 (require 'gnus)
 (require 'gnus-art)
 (require 'gnus-sum)

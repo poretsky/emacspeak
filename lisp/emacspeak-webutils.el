@@ -539,6 +539,24 @@ Useful in handling double-redirect from TuneIn."
      when p do (delete-process (car p)))))
 
 ;;}}}
+;;{{{ Common links navigation:
+
+(cl-loop
+ for f in
+ '(shr-next-link shr-previous-link)
+ do
+ (eval
+  `(defadvice ,f (around emacspeak pre act comp)
+     "Provide auditory feedback."
+     (ems-with-messages-silenced ad-do-it)
+     (when (ems-interactive-p)
+       (emacspeak-auditory-icon 'button)
+       (emacspeak-speak-region
+        (point)
+        (next-single-property-change (point) 'help-echo
+                                     nil (point-max)))))))
+
+;;}}}
 (provide 'emacspeak-webutils)
 ;;{{{ end of file
 

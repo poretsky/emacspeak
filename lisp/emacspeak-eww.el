@@ -822,21 +822,6 @@ Retain previously set punctuations  mode."
      (when (ems-interactive-p)
        (emacspeak-auditory-icon 'button)))))
 
-(cl-loop
- for f in
- '(shr-next-link shr-previous-link)
- do
- (eval
-  `(defadvice ,f (around emacspeak pre act comp)
-     "Provide auditory feedback."
-     (ems-with-messages-silenced ad-do-it)
-     (when (ems-interactive-p)
-       (emacspeak-auditory-icon 'button)
-       (emacspeak-speak-region
-        (point)
-        (next-single-property-change (point) 'help-echo
-                                     nil (point-max)))))))
-
 ;;; Handle emacspeak-we-url-executor
 
 (defadvice eww-follow-link (around emacspeak pre act comp)
