@@ -553,11 +553,12 @@ Argument MODE  specifies the current pronunciation mode."
 
 (defun dtk-handle-repeating-patterns (mode)
   (cl-declare (special dtk-cleanup-repeats))
-  (goto-char (point-min))
-  (mapc
-   #'(lambda (str)
-       (dtk-replace-duplicates str mode))
-   dtk-cleanup-repeats))
+  (when (sequencep dtk-cleanup-repeats)
+    (goto-char (point-min))
+    (mapc
+     #'(lambda (str)
+         (dtk-replace-duplicates str mode))
+     dtk-cleanup-repeats)))
 
 (defvar dtk-null-char (format "%c" 0)
   "Null char.")
