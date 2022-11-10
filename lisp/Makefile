@@ -225,6 +225,7 @@ emacspeak-pcl-cvs.elc \
 emacspeak-perl.elc \
 emacspeak-php-mode.elc \
 emacspeak-pianobar.elc \
+emacspeak-planner.elc \
 emacspeak-proced.elc \
 emacspeak-projectile.elc \
 emacspeak-ps.elc \
@@ -511,6 +512,7 @@ emacspeak-pcl-cvs.elc: emacspeak-pcl-cvs.el dtk-speak.elc voice-setup.elc
 emacspeak-perl.elc: emacspeak-perl.el dtk-speak.elc voice-setup.elc
 emacspeak-php-mode.elc: emacspeak-php-mode.el dtk-speak.elc voice-setup.elc
 emacspeak-pianobar.elc: emacspeak-pianobar.el dtk-speak.elc voice-setup.elc
+emacspeak-planner.elc: emacspeak-planner.el dtk-speak.elc voice-setup.elc
 emacspeak-pronounce.elc: emacspeak-pronounce.el
 emacspeak-personality.elc: emacspeak-personality.el
 emacspeak-popup.elc: emacspeak-popup.el dtk-speak.elc

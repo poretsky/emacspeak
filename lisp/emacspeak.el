@@ -273,6 +273,8 @@ that implements the speech-enabling extensions for `package' (a string)."
 (emacspeak-do-package-setup "package"'emacspeak-package)
 (emacspeak-do-package-setup "paradox"'emacspeak-paradox)
 (emacspeak-do-package-setup "pcvs" 'emacspeak-pcl-cvs)
+(emacspeak-do-package-setup "planner" 'emacspeak-planner)
+(emacspeak-do-package-setup "planner-tasks-overview" 'emacspeak-planner)
 (emacspeak-do-package-setup "ps-mode" 'emacspeak-ps)
 (emacspeak-do-package-setup "elpy" 'emacspeak-elpy)
 (emacspeak-do-package-setup "pydoc" 'emacspeak-pydoc)
