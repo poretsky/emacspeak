@@ -174,6 +174,7 @@ that implements the speech-enabling extensions for `package' (a string)."
 (emacspeak-do-package-setup "company" 'emacspeak-company)
 (emacspeak-do-package-setup "compile" 'emacspeak-compile)
 (emacspeak-do-package-setup "cperl-mode" 'emacspeak-cperl)
+(emacspeak-do-package-setup "cyclebuffer" 'emacspeak-cyclebuffer)
 (emacspeak-do-package-setup "pianobar" 'emacspeak-pianobar)
 (emacspeak-do-package-setup "proced" 'emacspeak-proced)
 (emacspeak-do-package-setup "popup" 'emacspeak-popup)

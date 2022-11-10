@@ -123,6 +123,7 @@ emacspeak-compile.elc \
 emacspeak-company.elc \
 emacspeak-cperl.elc \
 emacspeak-custom.elc \
+emacspeak-cyclebuffer.elc \
 emacspeak-debian-bug.elc \
 emacspeak-dbus.elc \
 emacspeak-dictionary.elc \
