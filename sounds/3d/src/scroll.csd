@@ -13,8 +13,8 @@ kaz1 	linseg -90, p3, 90
 kaz2 	linseg 45, p3, 225
 kenv linseg 0.5, p3, 0.1
 ; generate pink noise
-an1  pinkish 1
-an2  pinkish  0.25
+an1  pinkish 1, 0, 20, 179
+an2  pinkish  0.25, 0, 20, 179
 al1, ar1 hrtfmove2 an1, kaz1, -40, "hrtf-44100-left.dat","hrtf-44100-right.dat"	
 al2, ar2 hrtfmove2 an2, kaz2, 40, "hrtf-44100-left.dat","hrtf-44100-right.dat"	
 ; write audio out
