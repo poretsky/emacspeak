@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--$Id$-->
 <!DOCTYPE applications PUBLIC " applications // t. v. raman 1.0" "applications.dtd">
-<?xml-stylesheet href="file:////home/raman/emacs/lisp/emacspeak/etc/applications.xsl"
+<?xml-stylesheet href="applications.xsl"
 type="text/xsl"?>
 <applications caption="Speech-enabled applications  on the Emacspeak audio desktop.">
   <preamble title="Emacspeak --The Complete Audio Desktop"/>
