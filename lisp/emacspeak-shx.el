@@ -50,7 +50,7 @@
 (require 'cl-lib)
 (cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
-(eval-when-compile (require 'shx "shx" 'no-error))
+(eval-when-compile (require 'shx () 'no-error))
 
 ;;}}}
 ;;{{{ Forward Declaration 

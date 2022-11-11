@@ -402,7 +402,7 @@
 (require 'eww  )
 (require 'dom)
 (require 'dom-addons)
-(eval-when-compile (require 'emacspeak-feeds "emacspeak-feeds" 'no-error))
+(eval-when-compile (require 'emacspeak-feeds () 'no-error))
 (cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 (require 'emacspeak-we)

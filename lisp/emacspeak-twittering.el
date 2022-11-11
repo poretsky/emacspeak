@@ -55,7 +55,7 @@
 (require 'cl-lib)
 (cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
-(require 'twittering-mode "twittering-mode" 'no-error)
+(require 'twittering-mode () 'no-error)
 ;;}}}
 ;;{{{ Map->Voice Mappings:
 

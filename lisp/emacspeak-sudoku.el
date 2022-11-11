@@ -53,7 +53,7 @@
 (cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 (require 'stack-f)
-(require 'sudoku "sudoku" 'no-error)
+(require 'sudoku () 'no-error)
 ;;}}}
 ;;{{{Forward Decl:
 

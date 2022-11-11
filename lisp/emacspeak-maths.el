@@ -94,7 +94,7 @@
 (require 'cl-lib)
 (require 'comint)
 (require 'derived)
-(require 'nvm "nvm" 'no-error)
+(require 'nvm () 'no-error)
 
 ;;}}}
 ;;{{{ Customizations And Variables:

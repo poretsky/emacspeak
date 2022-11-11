@@ -62,7 +62,7 @@
 
 (require 'cl-lib)
 (cl-declaim  (optimize  (safety 0) (speed 3)))
-(require 'emacspeak-preamble) (require 'flyspell "flyspell" 'no-error)
+(require 'emacspeak-preamble) (require 'flyspell () 'no-error)
 
 ;;}}}
 ;;{{{ define personalities

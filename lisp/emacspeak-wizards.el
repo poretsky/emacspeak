@@ -65,7 +65,7 @@
 (require 'emacspeak-webutils)
 (require 'emacspeak-we)
 (require 'emacspeak-xslt)
-(require 'name-this-color "name-this-color" 'no-error)
+(require 'name-this-color () 'no-error)
 (eval-when-compile
   (require 'gweb)
   (require 'shell)

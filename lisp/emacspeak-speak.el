@@ -1722,7 +1722,7 @@ indicating the arrival  of new mail when displaying the mode line.")
 which-func without turning that mode on.  We actually use
 semantic to do the work."
   (interactive)
-  (require 'semantic "semantic" 'no-error)
+  (require 'semantic () 'no-error)
   (when (featurep 'semantic)
     (require 'which-func)
     (message (or

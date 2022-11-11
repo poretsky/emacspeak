@@ -50,7 +50,7 @@
 (require 'cl-lib)
 (cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
-(eval-when-compile (require 'popup "popup" 'no-error))
+(eval-when-compile (require 'popup () 'no-error))
 ;;}}}
 ;;{{{ Map Faces:
 
