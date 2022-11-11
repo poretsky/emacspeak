@@ -1,8 +1,8 @@
 ;;; emacspeak-nxml.el --- Speech enable nxml mode  -*- lexical-binding: t; -*-
 ;;; $Id$
 ;;; $Author: tv.raman.tv $
-;;; Description: Controlling mplayer from emacs 
-;;; Keywords: Emacspeak, nxml streaming media 
+;;; Description: Emacspeak extension to speech enable nxml mode
+;;; Keywords: Emacspeak, nxml
 ;;{{{  LCD Archive entry: 
 
 ;;; LCD Archive Entry:

@@ -70,7 +70,7 @@
 ;;}}}
 ;;{{{ Forward declarations:
 
-;;; From dtkk-speak.el:
+;;; From dtk-speak.el:
 (defvar dtk-speech-rate)
 (defvar tts-default-speech-rate)
 (defvar dtk-speech-rate-step)

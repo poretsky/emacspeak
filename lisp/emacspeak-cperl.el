@@ -1,8 +1,8 @@
 ;;; emacspeak-cperl.el --- Speech enable CPerl Mode  -*- lexical-binding: t; -*- 
 ;;; $Id$
 ;;; $Author: tv.raman.tv $ 
-;;; DescriptionEmacspeak extensions for CPerl mode
-;;; Keywords:emacspeak, audio interface to emacs CPerl
+;;; Description: Emacspeak extensions for CPerl mode
+;;; Keywords: emacspeak, audio interface to emacs CPerl
 ;;{{{  LCD Archive entry: 
 
 ;;; LCD Archive Entry:

@@ -1,8 +1,8 @@
 ;;; emacspeak-auctex.el --- Speech enable AucTeX -- a powerful TeX/LaTeX authoring environment  -*- lexical-binding: t; -*-
 ;;; $Id$
 ;;; $Author: tv.raman.tv $
-;;; DescriptionEmacspeak extensions for auctex-mode
-;;; Keywords:emacspeak, audio interface to emacs AUCTEX
+;;; Description: Emacspeak extensions for auctex-mode
+;;; Keywords: emacspeak, audio interface to emacs AUCTEX
 ;;{{{  LCD Archive entry: 
 
 ;;; LCD Archive Entry:

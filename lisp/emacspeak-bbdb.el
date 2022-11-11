@@ -2,8 +2,8 @@
 
 ;;; $Id$
 ;;; $Author: tv.raman.tv $ 
-;;; DescriptionEmacspeak extensions for bbdb 
-;;; Keywords:emacspeak, audio interface to emacs bbdb 
+;;; Description: Emacspeak extensions for bbdb 
+;;; Keywords: emacspeak, audio interface to emacs bbdb 
 ;;{{{  LCD Archive entry: 
 
 ;;; LCD Archive Entry:
