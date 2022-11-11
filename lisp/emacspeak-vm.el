@@ -49,7 +49,7 @@
 ;;{{{ requires
 (cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
-(require  'vm "vm" 'no-error)
+(with-demoted-errors "Error loading VM: %s" (require 'vm () 'no-error))
 (require 'browse-url)
 ;;}}}
 ;;{{{ Forward Decls:
