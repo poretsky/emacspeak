@@ -20,15 +20,6 @@ all: info  introducing-emacspeak.info turning-twenty.info emacspeak.pdf
 
 info: emacspeak.info
 
-emacspeak.info: *.texi
-	$(MAKEINFO) emacspeak.texi
-
-introducing-emacspeak.info: introducing-emacspeak.texi
-	$(MAKEINFO) introducing-emacspeak.texi	
-
-turning-twenty.info: turning-twenty.texi
-	$(MAKEINFO) turning-twenty.texi
-
 docs.texi: ../lisp/*.el
 	$(EMACS) $(BATCH) -l ../utils/self-document.el -f self-document-all-modules
 
@@ -54,6 +45,8 @@ pub:  html/index.html introducing-emacspeak.html
 	rsync introducing-emacspeak.html ${SF_HOME}
 	rsync -avz  html ${SF_HOME}/info/
 
+%.info: %.texi
+	$(MAKEINFO) $<
 
 clean: 
 	rm -f *.info* *.html *.ps *.dvi *.pdf *.txt
