@@ -34,7 +34,7 @@ docs.texi: ../lisp/*.el
 
 emacspeak.pdf: emacspeak.texi docs.texi
 	makeinfo --pdf emacspeak.texi
-	\rm emacspeak.aux emacspeak.cp emacspeak.cps emacspeak.fn \
+	rm -f emacspeak.aux emacspeak.cp emacspeak.cps emacspeak.fn \
 emacspeak.fns emacspeak.ky emacspeak.kys emacspeak.log \
 emacspeak.toc  emacspeak.vr emacspeak.vrs
 
@@ -56,7 +56,8 @@ pub:  html/index.html introducing-emacspeak.html
 
 
 clean: 
-	\rm *.info *.pdf || echo "all clean"
+	rm -f *.info* *.html *.ps *.dvi *.pdf *.txt
+	rm -rf html introducing-emacspeak
 
 spell:
 	@mv .spell.words .spell.tex
