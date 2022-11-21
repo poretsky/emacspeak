@@ -52,6 +52,11 @@
 (require 'emacspeak-preamble)
 
 ;;}}}
+;;{{{ Forward declarations
+
+(declare-function evil-mode "ext:evil.el" (&optional arg))
+
+;;}}}
 ;;{{{ Map Faces:
 
 (voice-setup-add-map

@@ -73,6 +73,17 @@
   (require 'cus-edit)
   (require 'org)
   (require 'solar))
+
+;;}}}
+;;{{{ Forward declarations
+
+(declare-function color-cie-de2000 "color.el" (color1 color2 &optional kL kC kH))
+(declare-function color-srgb-to-lab "color.el" (red green blue))
+(declare-function color-rgb-to-hex "color.el" (red green blue))
+
+(declare-function ntc-name-this-color "ext:name-this-color.el" (color-code))
+(declare-function ntc-shade-this-color "ext:name-this-color.el" (color-code))
+
 ;;}}}
 ;;{{{ custom
 

@@ -51,6 +51,13 @@
 (cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 (eval-when-compile (require 'popup () 'no-error))
+
+;;}}}
+;;{{{ Forward declarations
+
+(declare-function popup-cursor "ext:popup.el" (popup))
+(declare-function popup-list "ext:popup.el" (popup))
+
 ;;}}}
 ;;{{{ Map Faces:
 

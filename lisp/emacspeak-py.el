@@ -54,6 +54,12 @@
 (eval-when-compile
   (require 'python-mode () 'no-error))
 ;;}}}
+;;{{{ Forward declarations
+
+(declare-function python-beginning-of-defun "python.el" ())
+(declare-function python-end-of-defun "python.el" ())
+
+;;}}}
 ;;{{{  electric editing
 
 (defadvice py-electric-backspace (around emacspeak pre act)

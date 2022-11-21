@@ -55,6 +55,11 @@
 (require 'json)
 (require 'xkcd () 'no-error)
 ;;}}}
+;;{{{ Forward declarations
+
+(declare-function xkcd-get-json "ext:xkcd.el" (url &optional num))
+
+;;}}}
 ;;{{{ Fix error when loading images on the console:
 
 (defadvice xkcd-insert-image (around emacspeak pre act comp)

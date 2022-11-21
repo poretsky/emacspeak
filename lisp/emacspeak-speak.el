@@ -71,6 +71,14 @@
   )
 
 ;;}}}
+;;{{{ forward declarations:
+
+(defvar emacspeak-last-message)
+
+(declare-function emacspeak-play-startup-icon "emacspeak.el" ())
+(declare-function emacspeak-info-speak-header "emacspeak-info.el" ())
+
+;;}}}
 ;;{{{  custom group
 
 (defgroup emacspeak-speak nil

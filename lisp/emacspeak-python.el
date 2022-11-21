@@ -54,6 +54,12 @@
 (eval-when-compile
   (require 'python () 'no-error))
 ;;}}}
+;;{{{ Forward declarations
+
+(declare-function python-beginning-of-defun "python.el" ())
+(declare-function python-end-of-defun "python.el" ())
+
+;;}}}
 ;;{{{ interactive programming
 
 (defadvice python-check (after emacspeak pre act comp)

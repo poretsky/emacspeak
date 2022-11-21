@@ -55,6 +55,12 @@
 (require 'emacspeak-preamble)
 (require '2048-game () 'no-error)
 ;;}}}
+;;{{{ Forward declarations
+
+(declare-function 2048-print-board "ext:2048.el" ())
+(declare-function 2048-init-tile "ext:2048.el" (n))
+
+;;}}}
 ;;{{{ Push And Pop states:
 
 (cl-defstruct emacspeak-2048-game-state

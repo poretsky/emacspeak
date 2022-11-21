@@ -61,6 +61,13 @@
 (cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 (eval-when-compile (require 'vdiff () 'no-error))
+
+;;}}}
+;;{{{ Forward declarations
+
+(declare-function vdiff--overlay-at-pos "ext:vdiff.el" (&optional pos noerror))
+(declare-function vdiff-switch-buffer "ext:vdiff.el" (line))
+
 ;;}}}
 ;;{{{ Map Faces:
 

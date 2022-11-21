@@ -53,6 +53,11 @@
 (require 'emacspeak-preamble)
 (require 'js2-mode () 'no-error)
 ;;}}}
+;;{{{ Forward declarations
+
+(declare-function js2-imenu-extras-setup "ext:js2-imenu-extras.el" ())
+
+;;}}}
 ;;{{{  map faces to voices:
 
 (voice-setup-add-map

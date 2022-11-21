@@ -53,6 +53,16 @@
 (cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 (require 'jabber () 'no-error)
+
+;;}}}
+;;{{{ Forward declarations
+
+(declare-function jabber-muc-sender-p "ext:jabber-muc.el" (jid))
+(declare-function jabber-jid-resource "ext:jabber-util.el" (string))
+(declare-function jabber-jid-displayname "ext:jabber-util.el" (string))
+(declare-function jabber-jid-user "ext:jabber-util.el" (string))
+(declare-function jabber-activity-switch-to "ext:jabber-activity.el" (&optional jid-param))
+
 ;;}}}
 ;;{{{ map voices
 

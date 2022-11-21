@@ -67,6 +67,15 @@
 (cl-declaim  (optimize  (safety 0) (speed 3)))
 (require 'emacspeak-preamble)
 (eval-when-compile (require 'mines () 'no-error))
+
+;;}}}
+;;{{{ Forward declarations
+
+(declare-function mines-current-pos "ext:mines.el" ())
+(declare-function mines-index-2-matrix "ext:mines.el" (idx))
+(declare-function mines-goto "ext:mines.el" (idx))
+(declare-function mines-get-neighbours "ext:mines.el" (idx))
+
 ;;}}}
 ;;{{{ Interactive Commands:
 
