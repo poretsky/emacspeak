@@ -160,7 +160,7 @@ spoken.")
                                                quiten-pronunciation)
   "Add people to monitor in this room.
 Optional interactive prefix  arg defines a pronunciation that
-  silences speaking of this perso's name."
+silences speaking of this person's name."
   (interactive
    (list
     (emacspeak-erc-read-person "Add ")
@@ -297,7 +297,7 @@ set the current local value to the result.")
     ad-return-value))
 
 (defadvice erc-make-notice (around emacspeak  pre act comp)
-  "Ignore notices from server is emacspeak-erc-ignore-notices it set."
+  "Ignore notices from server if emacspeak-erc-ignore-notices is set."
   ad-do-it
   (cond
    ((not emacspeak-erc-ignore-notices) ad-return-value)
