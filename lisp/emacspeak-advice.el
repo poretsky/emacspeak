@@ -2828,9 +2828,9 @@ Produce auditory icons if possible."
      (cond
       ((ems-interactive-p)
        (ems-with-messages-silenced
-        ad-do-it
-        (emacspeak-auditory-icon 'task-done)
-        (message "Displayed lint results in other window. ")))
+        ad-do-it)
+       (emacspeak-auditory-icon 'task-done)
+       (message "Displayed lint results in other window. "))
       (t ad-do-it))
      ad-return-value)))
 
