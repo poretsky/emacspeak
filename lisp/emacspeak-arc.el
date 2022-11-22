@@ -91,12 +91,12 @@
 (defadvice archive-unflag (after emacspeak pre act comp)
   "Provide auditory feedback"
   (when (ems-interactive-p)
-    (emacspeak-auditory-icon 'yank-object)
+    (emacspeak-auditory-icon 'deselect-object)
     (emacspeak-archive-speak-line)))
 (defadvice archive-unflag-backwards (after emacspeak pre act comp)
   "Provide auditory feedback"
   (when (ems-interactive-p)
-    (emacspeak-auditory-icon 'yank-object)
+    (emacspeak-auditory-icon 'deselect-object)
     (emacspeak-archive-speak-line)))
 
 (defadvice archive-extract (after emacspeak pre act comp)

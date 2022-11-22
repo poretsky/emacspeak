@@ -124,7 +124,7 @@
   "Speech enable  by speaking toc entry."
   (when (ems-interactive-p)
     (emacspeak-speak-line)
-    (emacspeak-auditory-icon 'select-object)))
+    (emacspeak-auditory-icon 'item)))
 
 (defadvice reftex-select-accept (after emacspeak pre act
                                        comp)

@@ -164,7 +164,7 @@
 (defadvice emms-playlist-mode-bury-buffer (after emacspeak pre act)
   "Announce the buffer that becomes current."
   (when (ems-interactive-p)
-    (emacspeak-auditory-icon 'select-object)
+    (emacspeak-auditory-icon 'close-object)
     (emacspeak-speak-mode-line)))
 
 ;;}}}

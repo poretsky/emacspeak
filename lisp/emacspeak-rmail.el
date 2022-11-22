@@ -93,7 +93,7 @@
 (defadvice rmail-bury(after emacspeak pre act comp)
   "Provide auditory feedback"
   (when (ems-interactive-p)
-    (emacspeak-auditory-icon 'select-object)
+    (emacspeak-auditory-icon 'close-object)
     (emacspeak-speak-mode-line)))
 (defadvice rmail (after emacspeak pre act comp)
   "Provide auditory feedback"
