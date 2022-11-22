@@ -107,7 +107,9 @@
     emacspeak-etc-directory))
   (emacspeak-auditory-icon 'news)
   (org-mode)
-  (org-next-visible-heading 1)
+  (if (fboundp 'org-next-visible-heading)
+      (org-next-visible-heading 1)
+    (outline-next-visible-heading 1))
   (emacspeak-speak-line))
 
 ;;;###autoload
@@ -3354,7 +3356,7 @@ access to the various functions provided by alpha-vantage."
     (with-current-buffer (find-file-noselect filename)
       (goto-char (point-min))
       (prog1
-          (json-parse-buffer :object-type 'alist)
+          (json-parse-string (buffer-string) :object-type 'alist)
         (kill-buffer ))))
    (t (json-read-file filename))))
 
@@ -4246,9 +4248,12 @@ external package."
 ;;{{{ Use Threads To Call Command Asynchronously:
 ;;;Experimental: Handle with care.
 
+(declare-function make-thread (command))
+
 ;;;###autoload
 (defun emacspeak-wizards-execute-asynchronously (key)
-  "Read key-sequence, then execute its command on a new thread."
+  "Read key-sequence, then execute its command on a new thread.
+If threads are not supported, command is executed synchronously."
   (interactive (list (read-key-sequence "Key Sequence: ")))
   (let ((l (local-key-binding key))
         (g (global-key-binding key))
@@ -4257,8 +4262,10 @@ external package."
                    (lookup-key map key))))
     (cl-flet
         ((do-it (command)
-                (make-thread command)
-                (message "Running %s on a new thread." command)))
+                (if (not (fboundp 'make-thread))
+                    (funcall command)
+                  (make-thread command)
+                  (message "Running %s on a new thread." command))))
       (cond
        ((commandp k) (do-it k))
        ((commandp l) (do-it l))

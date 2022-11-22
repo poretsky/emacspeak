@@ -178,9 +178,13 @@ node-spec."
           (f nil)
           (n nil))
       (info-initialize)
-      (setq f (completing-read "File: " (info--manual-names nil) nil t))
-      (setq n (completing-read "Node: " (Info-build-node-completions f)))
-      (format "(%s)%s" f n))))
+      (setq f
+            (when (fboundp 'info--manual-names)
+              (completing-read "File: " (info--manual-names nil) nil t)))
+      (setq n (completing-read "Node: " (apply 'Info-build-node-completions (and f (list f)))))
+      (if f
+          (format "(%s)%s" f n)
+        n))))
   (Info-goto-node node-spec)
   (emacspeak-info-visit-node))
 

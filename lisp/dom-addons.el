@@ -49,6 +49,7 @@
 
 (require 'cl-lib)
 (cl-declaim  (optimize  (safety 0) (speed 3)))
+(require 'xml)
 (require 'dom)
 (require 'g-utils)
 ;;}}}
@@ -148,6 +149,21 @@ ATTRIBUTE would typically be `class', `id' or the like."
 
 ;;}}}
 ;;{{{DOM From URL:
+
+(eval-and-compile
+  (unless (fboundp 'xml-remove-comments)
+    (defun xml-remove-comments (beg end)                                         
+      "Remove XML/HTML comments in the region between BEG and END.
+All text between the <!-- ... --> markers will be removed."
+      (save-excursion
+        (save-restriction
+          (narrow-to-region beg end)
+          (goto-char beg)
+          (while (search-forward "<!--" nil t)
+            (let ((start (match-beginning 0)))
+              (when (search-forward "-->" nil t)
+                (delete-region start (point))))))))))
+
 (defun dom-from-url (url)
   "Return DOM for HTML content at URL."
   (cl-declare (special g-curl-program g-curl-common-options))

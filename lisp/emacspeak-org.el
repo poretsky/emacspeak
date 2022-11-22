@@ -634,7 +634,7 @@ and assign  letter `h' to a template that creates the hyperlink on capture."
     (org-store-link-props
      :type "eww"
      :link   (emacspeak-eww-current-url)
-     :url (eww-current-url)
+     :url (emacspeak-eww-current-url)
      :description (emacspeak-eww-current-title))))
 
 ;;}}}
