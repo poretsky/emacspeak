@@ -2009,11 +2009,15 @@ the newly created  line."
      (cond
       ((ems-interactive-p)
        (cond
-        (emacspeak-line-echo (emacspeak-speak-line))
-        (t
-         ad-do-it
-         (dtk-tone 225 75 'force)
-         (emacspeak-speak-line))))
+        (emacspeak-line-echo
+         (emacspeak-speak-line)
+         ad-do-it)
+        (t ad-do-it
+           (dtk-speak-using-voice voice-annotate
+                                  (format
+                                   "indent %s"
+                                   (current-column)))
+           (dtk-force))))
       (t ad-do-it))
      ad-return-value)))
 
