@@ -53,12 +53,7 @@
 
 (defun emacspeak-archive-speak-line ()
   "Speak line in archive mode intelligently"
-  (end-of-line)
-  (cond
-   ((null (char-after (1+ (point))))
-    (emacspeak-speak-line))
-   (t (skip-syntax-backward "^ ")  
-      (emacspeak-speak-line 1))))
+  (emacspeak-speak-line 1))
 
 ;;}}}
 ;;{{{ fix interactive commands that need fixing 
@@ -72,15 +67,22 @@
     (emacspeak-auditory-icon 'mark-object)
     (emacspeak-archive-speak-line)))
 
-(defadvice archive-next-line (after emacspeak pre act comp)
-  "Provide spoken feedback"
-  (when (ems-interactive-p)
-    (emacspeak-archive-speak-line)))
-
-(defadvice archive-previous-line (after emacspeak pre act comp)
-  "Provide spoken feedback"
-  (when (ems-interactive-p)
-    (emacspeak-archive-speak-line)))
+(cl-loop
+ for f in
+ '(archive-next-line archive-previous-line)
+ do
+ (eval
+  `(defadvice ,f (around emacspeak pre act comp)
+     "Provide spoken feedback. Produce auditory icon  if we cant move."
+     (if (ems-interactive-p)
+         (let ((n (line-number-at-pos)))
+           ad-do-it
+           (if (= (line-number-at-pos) n)
+               (emacspeak-auditory-icon 'warn-user)
+             (emacspeak-auditory-icon 'select-object)
+             (emacspeak-archive-speak-line))
+           ad-return-value)
+       ad-do-it))))
 
 (defadvice archive-flag-deleted (after emacspeak pre act comp)
   "Provide auditory feedback"
@@ -158,11 +160,13 @@ first initializing it if necessary."
   (let ((entry (archive-get-descr 'no-error)))
     (cond
      ((null entry)
-      (message "No file on this line"))
+      (dtk-speak-and-echo "No file on this line"))
      (t
-      (message "File: %s"
+      (emacspeak-auditory-icon 'select-object)
+      (dtk-speak-and-echo
+       (format "File: %s"
                (nth  (emacspeak-arc-get-field-index "File")
-                     (split-string (ems--this-line))))))))
+                     (split-string (ems--this-line)))))))))
 
 (defun emacspeak-arc-speak-file-size ()
   "Speak the size of the file on current line"
@@ -172,11 +176,13 @@ first initializing it if necessary."
   (let ((entry (archive-get-descr 'no-error)))
     (cond
      ((null entry)
-      (message "No file on this line"))
+      (dtk-speak-and-echo "No file on this line"))
      (t
-      (message "Size: %s"
+      (emacspeak-auditory-icon 'select-object)
+      (dtk-speak-and-echo
+       (format "File size %s"
                (nth  (emacspeak-arc-get-field-index "Length")
-                     (split-string (ems--this-line))))))))
+                     (split-string (ems--this-line)))))))))
 
 (defun emacspeak-arc-speak-file-modification-time ()
   "Speak modification time of the file on current line"
@@ -186,15 +192,17 @@ first initializing it if necessary."
   (let ((entry (archive-get-descr 'no-error)))
     (cond
      ((null entry)
-      (message "No file on this line"))
+      (dtk-speak-and-echo "No file on this line"))
      (t
+      (emacspeak-auditory-icon 'select-object)
       (let* ((fields (split-string (ems--this-line)))
              (date (nth  (emacspeak-arc-get-field-index "Date")
                          fields))
              (time (nth  (emacspeak-arc-get-field-index "Time")
                          fields)))
-        (message "Modified on %s at %s"
-                 date time))))))
+        (dtk-speak-and-echo
+         (format "Modified on %s at %s"
+                 date time)))))))
 
 (defun emacspeak-arc-speak-file-permissions()
   "Speak permissions of file current entry "
@@ -205,13 +213,16 @@ first initializing it if necessary."
         (mode nil))
     (cond
      ((null entry)
-      (message "No file on this line"))
+      (dtk-speak-and-echo "No file on this line"))
      (t
+      (emacspeak-auditory-icon 'select-object)
       (setq mode
             (archive-int-to-mode
              (aref entry 3)))
-      (message  "Permissions  %s "
-                mode)))))
+      (dtk-speak-and-echo
+       (format  "Permissions  %s "
+                mode))))))
+
 (defun emacspeak-arc-setup-keys ()
   "Setup emacspeak keys for arc mode"
   (cl-declare (special archive-mode-map))
