@@ -129,11 +129,21 @@
     (emacspeak-auditory-icon 'close-object)
     (emacspeak-speak-line)))
 
+(defadvice bbdb (after emacspeak pre act)
+  "Provide auditory feedback"
+  (when (ems-interactive-p)
+    (emacspeak-auditory-icon 'search-hit)))
+
 (defadvice bbdb-bury-buffer (after emacspeak pre act)
   "Provide auditory feedback"
   (when (ems-interactive-p)
     (emacspeak-auditory-icon 'close-object)
     (emacspeak-speak-mode-line)))
+
+(defadvice bbdb-save-db (after emacspeak pre act)
+  "Produce an auditory icon if possible"
+  (when (ems-interactive-p)
+    (emacspeak-auditory-icon 'save-object)))
 
 (defadvice bbdb-elide-record (after emacspeak pre act)
   "Provide auditory feedback"
@@ -183,6 +193,11 @@
     (emacspeak-speak-other-window 1)))
 
 (defadvice bbdb/mh-show-sender (after emacspeak pre act comp)
+  "Provide spoken feedback"
+  (when (ems-interactive-p)
+    (emacspeak-speak-other-window 1)))
+
+(defadvice bbdb/gnus-show-sender (after emacspeak pre act comp)
   "Provide spoken feedback"
   (when (ems-interactive-p)
     (emacspeak-speak-other-window 1)))
