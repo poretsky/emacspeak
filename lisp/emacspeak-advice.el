@@ -71,6 +71,7 @@
 
 (require 'cl-lib)
 (cl-declaim (optimize (safety 0) (speed 3)))
+(require 'stack-f)
 (require 'voice-setup)
 (require 'dtk-speak)
 (require 'emacspeak-pronounce)
@@ -2350,16 +2351,22 @@ Produce an auditory icon if possible."
 ;;; ISearch setup/teardown
 
 ;;; Produce auditory icon
+
+(defvar emacspeak-state-stack (stack-create)
+  "Stack area to save temporarily some important data.")
+
 (defun emacspeak-isearch-setup ()
   "Setup emacspeak environment for isearch."
   (emacspeak-auditory-icon 'open-object)
+  (stack-push emacspeak-state-stack emacspeak-speak-messages)
   (setq emacspeak-speak-messages nil)
   (dtk-speak (isearch-message-prefix)))
 
 (defun emacspeak-isearch-teardown ()
   "Teardown emacspeak environment for isearch."
-  (setq emacspeak-speak-messages t)
-  (emacspeak-auditory-icon 'close-object))
+  (cl-declare (special emacspeak-speak-messages))
+  (emacspeak-auditory-icon 'close-object)
+  (setq emacspeak-speak-messages (stack-pop emacspeak-state-stack)))
 
 (add-hook 'isearch-mode-hook 'emacspeak-isearch-setup)
 (add-hook 'isearch-mode-end-hook 'emacspeak-isearch-teardown)
