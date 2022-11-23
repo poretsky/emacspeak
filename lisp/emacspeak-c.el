@@ -102,37 +102,30 @@
 
 ;;; CPP directives:
 
-(defadvice c-up-conditional (after emacspeak pre act)
-  "Speak the line moved to."
-  (when (ems-interactive-p)
-    (emacspeak-auditory-icon 'large-movement)
-    (emacspeak-speak-line)))
-
-(defadvice c-forward-conditional (after emacspeak pre act)
-  "Speak the line moved to."
-  (when (ems-interactive-p)
-    (emacspeak-auditory-icon 'large-movement)
-    (emacspeak-speak-line)))
-
-(defadvice c-backward-conditional (after emacspeak pre act)
-  "Speak the line moved to."
-  (when (ems-interactive-p)
-    (emacspeak-auditory-icon 'large-movement)
-    (emacspeak-speak-line)))
+(cl-loop for f in
+      '(c-up-conditional
+	c-forward-conditional
+	c-backward-conditional)
+      do
+      (eval
+       `(defadvice ,f (after emacspeak pre act comp)
+	  "Speak the line moved to."
+	  (when (ems-interactive-p)
+	    (emacspeak-auditory-icon 'large-movement)
+	    (emacspeak-speak-line)))))
 
 ;;; Statements
 
-(defadvice c-beginning-of-statement (after emacspeak pre act)
-  "Speak the line moved to."
-  (when (ems-interactive-p)
-    (emacspeak-auditory-icon 'item)
-    (emacspeak-speak-line)))
-
-(defadvice c-end-of-statement (after emacspeak pre act)
-  "Speak the line moved to."
-  (when (ems-interactive-p)
-    (emacspeak-auditory-icon 'item)
-    (emacspeak-speak-line)))
+(cl-loop for f in
+      '(c-beginning-of-statement
+	c-end-of-statement)
+      do
+      (eval
+       `(defadvice ,f (after emacspeak pre act comp)
+	  "Speak the line moved to."
+	  (when (ems-interactive-p)
+	    (emacspeak-auditory-icon 'item)
+	    (emacspeak-speak-line)))))
 
 (defadvice c-mark-function (after emacspeak pre act)
   "Provide spoken and auditory feedback."
@@ -145,17 +138,16 @@
 ;;}}}
 ;;{{{ advice program navigation
 
-(defadvice  c-beginning-of-defun (after emacspeak pre act)
-  "Speak the line."
-  (when (ems-interactive-p)
-    (emacspeak-auditory-icon 'paragraph)
-    (emacspeak-speak-line)))
-
-(defadvice  c-end-of-defun (after emacspeak pre act)
-  "Speak the line."
-  (when (ems-interactive-p)
-    (emacspeak-auditory-icon 'paragraph)
-    (emacspeak-speak-line)))
+(cl-loop for f in
+      '(c-beginning-of-defun
+	c-end-of-defun)
+      do
+      (eval
+       `(defadvice ,f (after emacspeak pre act comp)
+	  "Speak the line moved to."
+	  (when (ems-interactive-p)
+	    (emacspeak-auditory-icon 'paragraph)
+	    (emacspeak-speak-line)))))
 
 ;;}}}
 ;;{{{  extensions  provided by c++ mode

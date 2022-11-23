@@ -155,17 +155,15 @@ and then cue the next selected buffer."
     (with-current-buffer (window-buffer)
       (emacspeak-speak-mode-line))))
 
-(defadvice Info-next-reference (after emacspeak pre act)
-  "Speak the line. "
-  (when (ems-interactive-p)
-    (emacspeak-auditory-icon 'large-movement)
-    (emacspeak-speak-line)))
-
-(defadvice Info-prev-reference (after emacspeak pre act)
-  "Speak the line. "
-  (when (ems-interactive-p)
-    (emacspeak-auditory-icon 'large-movement)
-    (emacspeak-speak-line)))
+(cl-loop for f in
+      '(Info-next-reference Info-prev-reference)
+      do
+      (eval
+       `(defadvice ,f (after emacspeak pre act)
+          "Play an auditory icon and speak the line. "
+          (when (ems-interactive-p)
+            (emacspeak-auditory-icon 'large-movement)
+            (emacspeak-speak-line)))))
 
 ;;;###autoload
 (defun emacspeak-info-wizard (node-spec)
