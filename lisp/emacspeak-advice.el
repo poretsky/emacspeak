@@ -743,6 +743,7 @@ icon."
      (cl-declare (special emacspeak-last-message inhibit-message
                           emacspeak-speak-messages emacspeak-lazy-message-time))
      (let ((inhibit-read-only t)
+           (deactivate-mark nil)
            (m nil))
        ad-do-it
        (setq m (current-message))
@@ -976,8 +977,9 @@ icon."
   `(defadvice ,f (after emacspeak pre act comp)
      "Say what you completed."
      (when (ems-interactive-p)
-       (tts-with-punctuations 'all
-                              (dtk-speak dabbrev--last-expansion))))))
+       (let ((deactivate-mark nil))
+         (tts-with-punctuations 'all
+                                (dtk-speak dabbrev--last-expansion)))))))
 
 (voice-setup-add-map
  '(
@@ -996,7 +998,8 @@ icon."
      (cond
       ((ems-interactive-p)
        (ems-with-messages-silenced
-        (let ((prior (point)))
+        (let ((prior (point))
+              (deactivate-mark nil))
           (emacspeak-kill-buffer-carefully "*Completions*")
           ad-do-it
           (if (> (point) prior)
@@ -1015,7 +1018,8 @@ icon."
   `(defadvice ,f (around emacspeak pre act comp)
      "Say what you completed."
      (ems-with-messages-silenced
-      (let ((prior (save-excursion (skip-syntax-backward "^ >") (point))))
+      (let* ((deactivate-mark nil)
+             (prior (save-excursion (skip-syntax-backward "^ >") (point))))
         ad-do-it
         (if (> (point) prior)
             (tts-with-punctuations
@@ -3002,16 +3006,14 @@ Produce auditory icons if possible."
 ;;}}}
 ;;{{{ Asking Questions:
 
-(defadvice yes-or-no-p (before emacspeak pre act comp)
-  "Play auditory icon."
-  (emacspeak-auditory-icon 'ask-question))
-
-(defadvice yes-or-no-p (after emacspeak pre act comp)
-  "Play auditory icon."
-  (cond
-   (ad-return-value
-    (emacspeak-auditory-icon 'yes-answer))
-   (t (emacspeak-auditory-icon 'no-answer))))
+(defadvice yes-or-no-p (around emacspeak pre act )
+  "Produce an auditory icon on result."
+  (let ((deactivate-mark nil))
+    ad-do-it
+    (if ad-return-value
+        (emacspeak-auditory-icon 'yes-answer )
+      (emacspeak-auditory-icon  'no-answer )))
+  ad-return-value )
 
 (cl-loop for f in
       '(map-y-or-n-p
@@ -3042,15 +3044,21 @@ Produce auditory icons if possible."
   "Play auditory icon."
   (emacspeak-auditory-icon 'help))
 
-(defadvice y-or-n-p (before emacspeak pre act comp)
-  "Play auditory icon."
-  (emacspeak-auditory-icon 'ask-short-question))
-
-(defadvice y-or-n-p (after emacspeak pre act comp)
-  "Play auditory icon."
-  (cond
-   (ad-return-value (emacspeak-auditory-icon 'y-answer))
-   (t (emacspeak-auditory-icon 'n-answer))))
+(defadvice y-or-n-p (around emacspeak pre act comp)
+  "Use speech when prompting.
+Produce an auditory icon if possible."
+  (let ((deactivate-mark nil))
+    (emacspeak-auditory-icon 'ask-short-question)
+    (tts-with-punctuations 'all
+                           (dtk-speak (format "%s y or n" (ad-get-arg 0))))
+    ad-do-it
+    (cond
+     (ad-return-value
+      (emacspeak-auditory-icon 'y-answer)
+      (dtk-say "y"))
+     (t (emacspeak-auditory-icon 'n-answer)
+        (dtk-say "n")))
+    ad-return-value))
 
 ;;}}}
 ;;{{{ Advice process-menu

@@ -246,7 +246,9 @@
   (cl-declare (special o-close))
   (cond
    ((get-text-property (point) 'nxml-outline-state)
-    (let ((o-open nil))
+    (let ((o-open nil)
+          (o-close nil)
+	  (deactivate-mark nil))
       (save-excursion
         (setq o-open (car (overlays-at (point))))
         (next-line 1)
