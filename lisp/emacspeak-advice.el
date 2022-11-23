@@ -2827,7 +2827,9 @@ Produce auditory icons if possible."
 (defadvice overwrite-mode (after emacspeak pre act comp)
   "Provide auditory indication that overwrite mode has changed."
   (when (ems-interactive-p)
-    (emacspeak-auditory-icon 'warn-user)
+    (emacspeak-auditory-icon (if overwrite-mode
+				 'on
+			       'off))
     (message "Turned %s overwrite mode" (or overwrite-mode "off"))))
 
 ;;}}}
