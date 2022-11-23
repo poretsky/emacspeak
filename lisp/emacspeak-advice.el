@@ -1575,6 +1575,11 @@ Shell-Dirtrack mode; turning it off does not re-enable it."
   (when (ems-interactive-p)
     (emacspeak-auditory-icon 'open-object)))
 
+(defadvice vc-update-change-log (after emacspeak pre act comp)
+  "Provide auditory feedback."
+  (when (ems-interactive-p  )
+    (emacspeak-auditory-icon 'open-object)))
+
 (defadvice vc-finish-logentry (after emacspeak pre act comp)
   "Provide auditory feedback."
   (when (ems-interactive-p)
@@ -1853,6 +1858,17 @@ Indicate change of selection with an auditory icon
     (read-char "Modify syntax for: ")
     (read-string "Syntax Entry: ")
     current-prefix-arg)))
+
+(cl-loop for f in
+      '(help-next-ref help-previous-ref)
+      do
+      (eval
+       `(defadvice ,f (after emacspeak pre act comp)
+          "Speak the ref we moved to."
+          (when (ems-interactive-p)
+            (emacspeak-auditory-icon 'large-movement)
+            (emacspeak-speak-text-range 'help-xref)))))
+
 (defadvice help-follow (after emacspeak pre act comp)
   "Speak the ref we moved to."
   (when (ems-interactive-p)
@@ -1952,17 +1968,37 @@ Indicate change of selection with an auditory icon
           (buffer-string))
       (error ""))))
 
-(defadvice exchange-point-and-mark (after emacspeak pre act comp)
-  "Speak the line.
+(cl-loop for f in
+      '(exchange-point-and-mark
+        Footnote-add-footnote)
+      do
+      (eval
+       `(defadvice ,f (after emacspeak pre act comp)
+          "Speak the line.
 Indicate large movement with an auditory icon if possible.
 Auditory highlight indicates position of point."
-  (when (ems-interactive-p)
-    (emacspeak-auditory-icon 'large-movement)
-    (let ((emacspeak-show-point t))
-      (emacspeak-speak-line))))
+          (when (ems-interactive-p)
+            (emacspeak-auditory-icon 'large-movement)
+            (let ((emacspeak-show-point t))
+              (emacspeak-speak-line))))))
+
+(defadvice newline (around emacspeak pre act comp)
+  "Speak the previous line if line echo is on.
+See command \\[emacspeak-toggle-line-echo].  Otherwise cue the user to
+the newly created blank line."
+  (cl-declare (special emacspeak-line-echo))
+  (if (ems-interactive-p)
+      (cond
+       (emacspeak-line-echo (emacspeak-speak-line) ad-do-it)
+       (t (when dtk-stop-immediately (dtk-stop))
+          ad-do-it
+          (dtk-tone (if (> (current-column) 0) 300 225) 120 'force)))
+    ad-do-it)
+  ad-return-value)
+
 (cl-loop
  for f in
- '(newline newline-and-indent electric-newline-and-maybe-indent)
+ '(newline-and-indent electric-newline-and-maybe-indent comment-indent-new-line indent-new-comment-line)
  do
  (eval
   `(defadvice ,f (around emacspeak pre act comp)
@@ -2292,14 +2328,15 @@ Produce an auditory icon if possible."
 (cl-loop
  for f in
  '(beginning-of-line end-of-line
+                     allout-beginning-of-line allout-end-of-line
                      move-beginning-of-line move-end-of-line
                      recenter-top-bottom recenter)
  do
  (eval
   `(defadvice ,f (before emacspeak pre act comp)
-     "Speak line."
+     "Provide auditory feedback."
      (when (ems-interactive-p)
-       (emacspeak-speak-line)
+       (dtk-stop)
        (emacspeak-auditory-icon 'select-object)))))
 
 ;;}}}
@@ -2329,6 +2366,7 @@ Produce an auditory icon if possible."
 (cl-loop
  for f in
  '(search-forward search-backward
+                  search-forward-regexp search-backward-regexp
                   word-search-forward word-search-backward)
  do
  (eval
@@ -2795,6 +2833,16 @@ Produce auditory icons if possible."
    (let ((dtk-quiet t))
      ad-do-it)))
 
+(cl-loop for f in
+      '(Edit-options-toggle Edit-options-t Edit-options-nil)
+      do
+      (eval
+       `(defadvice ,f (after emacspeak pre act comp)
+          "Provide auditory feedback."
+          (when (ems-interactive-p)
+            (emacspeak-auditory-icon 'button)
+            (emacspeak-speak-line)))))
+
 ;;}}}
 ;;{{{ transient mark mode
 
@@ -3002,6 +3050,14 @@ Produce auditory icons if possible."
   "Provide an auditory icon if possible."
   (when (ems-interactive-p)
     (emacspeak-auditory-icon (if global-font-lock-mode 'on 'off))))
+
+;;}}}
+;;{{{ Managing packages:
+
+(defadvice package-menu-execute(around emacspeak pre act comp)
+  "Silence messages while installing packages. "
+  (ems-with-messages-silenced
+   ad-do-it))
 
 ;;}}}
 ;;{{{ Asking Questions:
