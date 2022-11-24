@@ -554,6 +554,7 @@ are available are cued by an auditory icon on the header line."
 (defun emacspeak-eww-setup ()
   "Setup keymaps etc."
   (cl-declare (special eww-mode-map eww-link-keymap
+                       eww-text-map
                        shr-inhibit-images
                        emacspeak-pronounce-common-xml-namespace-uri-pronunciations
                        emacspeak-eww-masquerade
@@ -582,6 +583,13 @@ are available are cued by an auditory icon on the header line."
   (define-key eww-link-keymap "\C-r" 'emacspeak-feeds-rss-display)
   (define-key eww-link-keymap "\C-a" 'emacspeak-feeds-atom-display)
   (define-key eww-link-keymap  "y" 'emacspeak-m-player-youtube-player)
+  (define-key eww-text-map emacspeak-prefix 'emacspeak-prefix-command)
+  (define-key eww-text-map "\C-ce" 'eww-end-of-text)
+  (define-key eww-text-map "\C-c\C-e" 'eww-end-of-text)
+  (define-key eww-text-map [(shift tab)] 'shr-previous-link)
+  (define-key eww-text-map [(shift iso-lefttab)] 'shr-previous-link)
+  (define-key eww-text-map [backtab] 'shr-previous-link)
+  (define-key eww-text-map "\M-\t" 'shr-previous-link)
   (cl-loop
    for binding  in
    '(
@@ -629,6 +637,10 @@ are available are cued by an auditory icon on the header line."
      ("DEL" emacspeak-eww-restore)
      ("]" emacspeak-eww-next-p)
      ("b" shr-previous-link)
+     ("S-<tab>" shr-previous-link)
+     ("M-<tab>" shr-previous-link)
+     ("S-<iso-lefttab>" shr-previous-link)
+     ("<backtab>" shr-previous-link)
      ("e" emacspeak-we-xsl-map)
      ("f" shr-next-link)
      ("k" eww-copy-page-url)
