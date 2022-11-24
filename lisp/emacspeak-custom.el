@@ -90,7 +90,7 @@
   "Provide auditory feedback."
   (when (ems-interactive-p)
     (emacspeak-auditory-icon 'close-object)
-    (emacspeak-speak-line)))
+    (emacspeak-speak-mode-line)))
 
 (defadvice customize-save-customized (after emacspeak pre act comp)
   "Provide auditory feedback. "
