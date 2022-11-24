@@ -224,10 +224,45 @@
     (emacspeak-auditory-icon 'fill-object)
     (message "newline and reformat")))
 
+(defadvice message-elide-region (after emacspeak pre act)
+  "Provide auditory feedback."
+  (when (ems-interactive-p)
+    (emacspeak-auditory-icon 'delete-object)))
+
+(defadvice message-send (after emacspeak pre act comp)
+  "Provide auditory feedback"
+  (when (ems-interactive-p)
+    (emacspeak-auditory-icon 'task-done)))
+
+(defadvice message-send-and-exit (after emacspeak pre act comp)
+  "Provide auditory feedback"
+  (when (ems-interactive-p)
+    (emacspeak-auditory-icon 'close-object)))
+
+(defadvice message-kill-buffer (after emacspeak pre act comp)
+  "Provide auditory feedback"
+  (when (ems-interactive-p)
+    (emacspeak-auditory-icon 'close-object)))
+
+(defadvice message-read-from-minibuffer (before emacspeak pre act comp)
+  "Speak prompt."
+  (let ((deactivate-mark nil))
+    (tts-with-punctuations 'all
+                           (dtk-speak (format "%s %s" (ad-get-arg 0)
+                                              (or (ad-get-arg 1) ""))))))
+
+;;}}}
+;;{{{ Pronunciation settings
+
+(cl-declaim (special emacspeak-pronounce-internet-smileys-pronunciations))
+(emacspeak-pronounce-augment-pronunciations 'message-mode
+					    emacspeak-pronounce-internet-smileys-pronunciations)
+
 (add-hook 'message-mode-hook
           (lambda ()
             (dtk-set-punctuations emacspeak-message-punctuation-mode)
             (emacspeak-pronounce-refresh-pronunciations)
+            (voice-lock-mode (if global-voice-lock-mode 1 -1))
             (emacspeak-auditory-icon 'open-object)
             (message "Starting message %s ... done"
                      (buffer-name))))
