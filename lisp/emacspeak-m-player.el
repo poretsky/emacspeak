@@ -227,6 +227,13 @@ on a specific directory."
   (regexp-opt '("mp3" "audio"))
   "Pattern matching locations where we store media.")
 
+(defcustom emacspeak-m-player-coding-system nil
+  "Media player output coding system.
+It is used for tags decoding."
+  :type '(coding-system :size 0)
+  :group 'emacspeak-m-player)
+
+
 ;;;###autoload
 (defun emacspeak-multimedia  ()
   "Start or control Emacspeak multimedia player.
@@ -350,10 +357,6 @@ Searches recursively if `directory-files-recursively' is available (Emacs 25)."
   "Read resource from minibuffer with contextual smarts."
   (cl-declare (special ido-work-directory-list emacspeak-m-player-url-p))
   (let ((completion-ignore-case t)
-        (read-file-name-function
-         (if (eq major-mode 'locate-mode)
-             #'read-file-name-default
-           #'ido-read-file-name))
         (read-file-name-completion-ignore-case t)
         (default
           (when (or (eq major-mode 'dired-mode) (eq major-mode 'locate-mode))
@@ -393,6 +396,7 @@ Searches recursively if `directory-files-recursively' is available (Emacs 25)."
   "Filter function that captures metadata.
 Also cleanup ANSI escape sequences."
   (cl-declare (special emacspeak-m-player-cue-info
+                       ansi-color-drop-regexp
                        ansi-color-control-seq-regexp))
   (when (process-live-p process)
     (with-current-buffer (process-buffer process)
@@ -406,11 +410,14 @@ Also cleanup ANSI escape sequences."
           (emacspeak-auditory-icon 'progress)
           (emacspeak-m-player-stream-info)))
       (goto-char (process-mark process))
-      (let ((start (point)))
+      (let ((start (point))
+            (ignore-seq-regexp
+             (or (and (boundp 'ansi-color-control-seq-regexp) ansi-color-control-seq-regexp)
+                 (and (boundp 'ansi-color-drop-regexp) ansi-color-drop-regexp))))
         (insert output)
         (save-excursion
           (goto-char start)
-          (while (re-search-forward ansi-color-control-seq-regexp  (point-max) 'no-error)
+          (while (and ignore-seq-regexp (re-search-forward ignore-seq-regexp  (point-max) 'no-error))
             (delete-region (match-beginning 0) (match-end 0))))))))
 
 ;;;###autoload
@@ -469,6 +476,8 @@ The player is placed in a buffer in emacspeak-m-player-mode."
       (setq emacspeak-m-player-process
             (apply 'start-process "MPLayer" buffer
                    emacspeak-m-player-program options))
+      (set-process-coding-system emacspeak-m-player-process
+                                 emacspeak-m-player-coding-system)
       (set-process-filter  emacspeak-m-player-process
                            #'emacspeak-m-player-process-filter)
       (when emacspeak-m-player-current-directory
@@ -589,31 +598,51 @@ necessary."
 ;;}}}
 ;;{{{ commands
 
+(defconst emacspeak-m-player-info-order
+  '("TIME_POSITION"
+    "PERCENT_POSITION"
+    "LENGTH"
+    "FILENAME")
+  "MPlayer info items sorting order.")
+
+(defun emacspeak-m-player-info-priority (item)
+  "Returns sorting priority for specified item."
+  (let ((order emacspeak-m-player-info-order)
+        (result 0))
+    (while (and order (not (string-match (car order) (car item))))
+      (setq result (1+ result)
+            order (cdr order)))
+    result))
+
+(defun emacspeak-m-player-info-item-precedes-p (first second)
+  "Indicates that the first item should precede the second one."
+  (<= (emacspeak-m-player-info-priority first)
+      (emacspeak-m-player-info-priority second)))
+
 (defun emacspeak-m-player-get-position ()
   "Return list suitable to use as an amark. --- see emacspeak-amark.el."
-  (cl-declare (special emacspeak-m-player-process))
-  (with-current-buffer (process-buffer emacspeak-m-player-process)
-    ;;; dispatch command twice to avoid flakiness in mplayer
-    (emacspeak-m-player-dispatch "get_time_pos\nget_file_name\n")
-    (emacspeak-m-player-dispatch "get_time_pos\nget_file_name\n")
-    (let* ((output  (buffer-substring-no-properties (point-min) (point-max)))
-           (lines (split-string output "\n" 'omit-nulls))
-           (fields
-            (cl-loop
-             for l in lines
-             collect (cl-second (split-string l "=")))))
-      (list
-       (format "%s" (cl-first fields))     ; position
-       (if (cl-second fields)
-           (substring (cl-second  fields) 1 -1)
-         "")))))
+  (let* ((output (emacspeak-m-player-dispatch "get_time_pos\nget_file_name\n"))
+         (lines (split-string output "\n" 'omit-nulls))
+         (fields
+          (sort
+           (cl-loop
+            for l in lines
+            collect (split-string l "="))
+           'emacspeak-m-player-info-item-precedes-p)))
+    (list
+     (format "%s" (cl-second (cl-first fields)))     ; position
+     (if (cl-second fields)
+         (substring (cl-second (cl-second fields)) 1 -1)
+       ""))))
 
 (defun emacspeak-m-player-current-filename ()
   "Return filename of currently playing track."
-  (cl-second
-   (split-string
-    (emacspeak-m-player-dispatch "get_file_name\n")
-    "=")))
+  (substring
+   (cl-second
+    (split-string
+     (emacspeak-m-player-dispatch "get_file_name\n")
+     "="))
+   1 -1))
 
 (defun emacspeak-m-player-scale-speed (factor)
   "Scale speed by specified factor."
@@ -870,11 +899,20 @@ Interactive prefix arg toggles automatic cueing of ICY info updates."
                      (if emacspeak-m-player-cue-info "on" "off")))
         (message"%s" (format "%s" (or info  "No Stream Info")))))))
 
-;;;###autoload
 (defun emacspeak-m-player-get-length ()
+  "Get length of track in seconds."
+  (cl-second
+   (split-string
+    (emacspeak-m-player-dispatch "get_time_length")
+    "=")))
+
+;;;###autoload
+(defun emacspeak-m-player-display-length ()
   "Display length of track in seconds."
   (interactive)
-  (dtk-speak-and-echo (emacspeak-m-player-dispatch "get_time_length")))
+  (dtk-speak-and-echo
+   (format "Total track length is %s seconds"
+           (emacspeak-m-player-get-length))))
 
 (defconst emacspeak-m-player-display-cmd
   "get_time_pos\nget_percent_pos\nget_time_length\nget_file_name\n"
@@ -889,9 +927,11 @@ Interactive prefix arg toggles automatic cueing of ICY info updates."
     (when result
       (setq result (replace-regexp-in-string  "^ans_" "" result))
       (setq fields
-            (mapcar
-             #'(lambda (s) (split-string s "="))
-             (split-string  result "\n"))))
+            (sort
+             (mapcar
+              #'(lambda (s) (split-string s "="))
+              (split-string  result "\n"))
+             'emacspeak-m-player-info-item-precedes-p)))
     (cond
      (fields                       ; speak them after audio formatting
       (cl-loop
@@ -1215,6 +1255,7 @@ flat classical club dance full-bass full-bass-and-treble
     ("Q" emacspeak-m-player-quit)
     ("R" emacspeak-m-player-edit-reverb)
     ("S" emacspeak-amark-save)
+    ("X" emacspeak-m-player-export-track-list)
     ("x" emacspeak-m-player-pan)
     ("w" emacspeak-m-player-write-clip)
     ("SPC" emacspeak-m-player-pause)
@@ -1231,7 +1272,7 @@ flat classical club dance full-bass full-bass-and-treble
     ("i" emacspeak-m-player-stream-info)
     ("j" emacspeak-m-player-amark-jump)
     ("k" emacspeak-m-player-quit)
-    ("l" emacspeak-m-player-get-length)
+    ("l" emacspeak-m-player-display-length)
     ("m" emacspeak-m-player-speak-mode-line)
     ("n" emacspeak-m-player-next-track)
     ("o" emacspeak-m-player-customize-options)
@@ -1348,6 +1389,45 @@ As the default, use current position."
 (defun ems-file-index (name file-list)
   "Return index of name in file-list."
   (cl-position (expand-file-name name) file-list :test #'string=))
+
+(defun emacspeak-m-player-amark-precedes-p (first second)
+  "Indicates that the first amark precedes the second one."
+  (<= (string-to-number (emacspeak-amark-position first))
+      (string-to-number (emacspeak-amark-position second))))
+
+(defun emacspeak-m-player-export-track-list ()
+  "Save track split data in Audacity labels file using amarks as split points."
+  (interactive)
+  (cl-declare (special buffer-undo-list emacspeak-amark-list))
+  (let* ((file (emacspeak-m-player-current-filename))
+         (tracklist (expand-file-name (format "%s.tracks" file)))
+         (amarks
+          (sort
+           (cl-loop for amark in emacspeak-amark-list
+                    when (string-equal (emacspeak-amark-path amark) file)
+                    collect amark)
+           'emacspeak-m-player-amark-precedes-p)))
+    (if (and amarks
+             (or (not (file-exists-p tracklist))
+                 (y-or-n-p (format "File `%s' already exists. Overwrite? " tracklist))))
+        (let ((buf (find-file-noselect tracklist)))
+          (with-current-buffer buf
+            (setq buffer-undo-list t)
+            (erase-buffer)
+            (while amarks
+              (insert
+               (format "%s\t%s\t%s\n"
+                       (emacspeak-amark-position (car amarks))
+                       (if (cdr amarks)
+                           (emacspeak-amark-position (cadr amarks))
+                         (emacspeak-m-player-get-length))
+                       (emacspeak-amark-name (car amarks))))
+              (setq amarks (cdr amarks)))
+            (goto-char (point-min))
+            (save-buffer)
+            (kill-buffer buf)
+            (emacspeak-auditory-icon 'save-object)))
+      (error "No amarks to export."))))
 
 ;;;###autoload
 (defun emacspeak-m-player-amark-jump ()
@@ -1769,7 +1849,7 @@ Check first if current buffer is in emacspeak-m-player-mode."
   (setq emacspeak-m-player-clip-start
         (read (cl-first (emacspeak-m-player-get-position))))
   (when  (called-interactively-p 'interactive)
-    (message "mark set at %s" emacspeak-m-player-clip-start)
+    (message "Clip start set at %s" emacspeak-m-player-clip-start)
     (emacspeak-auditory-icon 'mark-object)))
 
 (defun emacspeak-m-player-set-clip-end    ()
@@ -1779,11 +1859,11 @@ Check first if current buffer is in emacspeak-m-player-mode."
   (setq emacspeak-m-player-clip-end
         (read (cl-first (emacspeak-m-player-get-position))))
   (when  (called-interactively-p 'interactive)
-    (message "mark set at %s" emacspeak-m-player-clip-end)
+    (message "Clip end set at %s" emacspeak-m-player-clip-end)
     (emacspeak-auditory-icon 'mark-object)))
 
 (defun emacspeak-m-player-write-clip ()
-  "Invoke mp3splt to clip selected range in current file."
+  "Invoke sox to clip selected range in current file."
   (interactive)
   (cl-declare (special emacspeak-sox
                        emacspeak-m-player-clip-end emacspeak-m-player-clip-start))
@@ -1791,13 +1871,22 @@ Check first if current buffer is in emacspeak-m-player-mode."
   (cl-assert (eq major-mode 'emacspeak-m-player-mode) nil "Not in an MPlayer buffer.")
   (cl-assert (numberp emacspeak-m-player-clip-start) nil "Set start of clip with M-[")
   (cl-assert (numberp emacspeak-m-player-clip-end) nil "Set end of clip with M-]")
-  (let ((file (cl-second (emacspeak-m-player-get-position))))
-    (shell-command
-     (format "%s '%s' 'clip-%s'  trim %s %s"
-             emacspeak-sox file file 
-             emacspeak-m-player-clip-start
-             (- emacspeak-m-player-clip-end emacspeak-m-player-clip-start)))
-    (message "Wrote clip to clip-%s" file)))
+  (let* ((file (emacspeak-m-player-current-filename))
+         (clip (format "clip-%s" file))
+         (clip-start emacspeak-m-player-clip-start)
+         (clip-end emacspeak-m-player-clip-end))
+    (when (or (not (file-exists-p clip))
+              (y-or-n-p (format "File `%s' already exists. Overwrite? " clip)))
+      (with-temp-buffer
+        (unless (zerop (call-process emacspeak-sox nil t nil
+                                     file
+                                     clip
+                                     "trim"
+                                     (number-to-string clip-start)
+                                     (number-to-string (- clip-end clip-start))))
+          (error "Cannot write clip: %s" (buffer-string))))
+      (emacspeak-auditory-icon 'save-object)
+      (message "Wrote clip to %s" clip))))
 
 ;;}}}
 (provide 'emacspeak-m-player)
