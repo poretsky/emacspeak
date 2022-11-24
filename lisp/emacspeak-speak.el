@@ -3718,8 +3718,7 @@ This command  is designed for use in a windowing environment like X."
 (defun emacspeak-open-info ()
   "Open Emacspeak Info Manual."
   (interactive)
-  (cl-declare (special emacspeak-info-directory))
-  (funcall-interactively #'info (expand-file-name "emacspeak.info" emacspeak-info-directory) "*Emacspeak Info*"))
+  (funcall-interactively #'info "emacspeak.info" "*Emacspeak Info*"))
 
 ;;}}}
 ;;{{{ Describe help map:
