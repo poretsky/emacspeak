@@ -377,6 +377,45 @@ Provide contextual feedback when closing blocks"
 
 ;;}}}
 
+;;}}}
+;;{{{ Additional navigation
+(defun emacspeak-py-previous-block()
+  "Move backward to the beginning of the current block.
+If already at the beginning then move to previous block."
+  (interactive)
+  (let ((start (point)))
+    (python-beginning-of-defun)
+    (unless (eq start (point))
+      (beginning-of-line)
+      (emacspeak-auditory-icon 'large-movement)
+      (emacspeak-speak-line))))
+
+(defun emacspeak-py-next-block()
+  "Move forward to the beginning of the next block."
+  (interactive)
+  (python-end-of-defun)
+  (skip-syntax-forward " ")
+  (forward-line 1)
+  (beginning-of-line)
+  (emacspeak-auditory-icon 'large-movement)
+  (emacspeak-speak-line))
+
+;;}}}
+;;{{{ keybindings
+
+(progn
+  (cl-declaim (special  python-mode-map))
+  (define-key python-mode-map "\M-a" 'beginning-of-python-def-or-class)
+  (define-key python-mode-map "\M-e" 'end-of-python-def-or-class)
+  (define-key python-mode-map "\M-n" 'py-next-statement)
+  (define-key python-mode-map "\M-p" 'py-previous-statement)
+  (define-key python-mode-map "\C-\M-u" 'py-goto-block-up)
+  (define-key python-mode-map "\C-\M-n" 'emacspeak-py-next-block)
+  (define-key python-mode-map "\C-\M-p" 'emacspeak-py-previous-block)
+  )
+(add-hook 'python-mode-hook
+          'emacspeak-setup-programming-mode)
+;;}}}
 ;;{{{ Voice Mappings:
 (voice-setup-add-map
  '(

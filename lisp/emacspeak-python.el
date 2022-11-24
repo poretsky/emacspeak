@@ -60,6 +60,38 @@
 (declare-function python-end-of-defun "python.el" ())
 
 ;;}}}
+;;{{{ Advice interactive commands:
+
+;;{{{  electric editing
+
+(unless (and (boundp 'post-self-insert-hook)
+             post-self-insert-hook
+             (memq 'emacspeak-post-self-insert-hook post-self-insert-hook))
+  (cl-loop for f in
+        '(py-electric-colon
+          python-electric-colon)
+        do
+        (eval
+         `(defadvice ,f (after emacspeak pre act comp)
+            "Speak what you inserted"
+            (when (ems-interactive-p)
+              (dtk-say " colon "))))))
+
+(cl-loop for f in
+      '(py-electric-backspace
+        py-electric-delete
+        python-electric-backspace
+        python-electric-delete
+        python-backspace)
+      do
+      (eval
+       `(defadvice ,f (before emacspeak pre act comp)
+          "Speak character you're deleting."
+          (when (ems-interactive-p)
+            (dtk-tone 500 30 'force)
+            (emacspeak-speak-this-char (preceding-char ))))))
+
+;;}}}
 ;;{{{ interactive programming
 
 (defadvice python-check (after emacspeak pre act comp)
@@ -128,6 +160,15 @@
              (count-lines  (region-beginning)
                            (region-end))))))
 
+(defadvice py-comment-region (after emacspeak pre act comp)
+  "Speak number of lines that were shifted"
+  (when (ems-interactive-p)
+    (emacspeak-auditory-icon 'section)
+    (dtk-speak
+     (format "Commented  block  containing %s lines"
+             (count-lines  (region-beginning)
+                           (region-end))))))
+
 ;;}}}
 ;;{{{  buffer navigation
 
@@ -140,6 +181,11 @@
    python-nav-end-of-block python-nav-beginning-of-statement python-nav-beginning-of-block
    python-nav-backward-up-list python-nav-backward-statement python-nav-backward-sexp-safe
    python-nav-backward-sexp python-nav-backward-defun python-nav-backward-block
+   py-previous-statement py-next-statement py-goto-block-up
+   py-beginning-of-def-or-class py-end-of-def-or-class
+   beginning-of-python-def-or-class end-of-python-def-or-class
+   python-previous-statement python-next-statement python-beginning-of-block
+   python-beginning-of-def-or-class python-end-of-def-or-class
    )
  do
  (eval
@@ -148,6 +194,122 @@
      (when (ems-interactive-p)
        (emacspeak-speak-line)
        (emacspeak-auditory-icon 'paragraph)))))
+
+(cl-loop for f in
+      '(py-mark-block
+        py-mark-def-or-class
+        python-mark-block
+        python-mark-def-or-class)
+      do
+      (eval
+       `(defadvice ,f (after emacspeak pre act comp)
+          "Speak number of lines marked"
+          (when (ems-interactive-p)
+            (emacspeak-auditory-icon 'mark-object)
+            (dtk-speak
+             (format "Marked block containing %s lines"
+                     (count-lines (region-beginning)
+                                  (region-end))))))))
+
+(cl-loop for f in
+      '(py-narrow-to-defun
+        python-narrow-to-defun)
+      do
+      (eval
+       `(defadvice ,f (after emacspeak pre act comp)
+          "Provide auditory feedback."
+          (when (ems-interactive-p)
+            (message "%s %s lines"
+                     (save-excursion
+                       (goto-char (point-min))
+                       (buffer-substring (line-beginning-position)
+                                         (line-end-position)))
+                     (count-lines (point-min)
+                                  (point-max)))))))
+
+(cl-loop for f in
+      '(py-forward-into-nomenclature
+        py-backward-into-nomenclature
+        python-forward-into-nomenclature
+        python-backward-into-nomenclature)
+      do
+      (eval
+       `(defadvice ,f (after emacspeak pre act comp)
+          "Speak rest of current word"
+          (when (ems-interactive-p)
+            (emacspeak-speak-word 1)))))
+
+;;}}}
+;;{{{ the process buffer
+
+(defadvice python-process-filter (around emacspeak pre act) comp
+  "Make comint in Python speak its output. "
+  (cl-declare (special emacspeak-comint-autospeak))
+  (let ((prior (point))
+        (dtk-stop-immediately nil))
+    ad-do-it 
+    (when (and  emacspeak-comint-autospeak
+                (window-live-p
+                 (get-buffer-window (process-buffer (ad-get-arg 0)))))
+      (condition-case nil
+          (emacspeak-speak-region prior (point))
+        (error (dtk-stop)
+               (emacspeak-auditory-icon 'scroll))))
+    ad-return-value))
+
+;;}}}
+
+;;}}}
+;;{{{ Additional navigation
+(defun emacspeak-python-previous-block()
+  "Move backward to the beginning of the current block.
+If already at the beginning then move to previous block."
+  (interactive)
+  (let ((start (point)))
+    (python-beginning-of-defun)
+    (unless (eq start (point))
+      (beginning-of-line)
+      (emacspeak-auditory-icon 'large-movement)
+      (emacspeak-speak-line))))
+
+(defun emacspeak-python-next-block()
+  "Move forward to the beginning of the next block."
+  (interactive)
+  (python-end-of-defun)
+  (skip-syntax-forward " ")
+  (forward-line 1)
+  (beginning-of-line)
+  (emacspeak-auditory-icon 'large-movement)
+  (emacspeak-speak-line))
+
+;;}}}
+;;{{{ keybindings
+
+(progn
+  (cl-declaim (special  python-mode-map))
+  (define-key python-mode-map "\M-a" 'beginning-of-python-def-or-class)
+  (define-key python-mode-map "\M-e" 'end-of-python-def-or-class)
+  (define-key python-mode-map "\M-n" 'python-next-statement)
+  (define-key python-mode-map "\M-p" 'python-previous-statement)
+  (define-key python-mode-map "\C-\M-u" 'python-goto-block-up)
+  (define-key python-mode-map "\C-\M-n" 'emacspeak-python-next-block)
+  (define-key python-mode-map "\C-\M-p" 'emacspeak-python-previous-block)
+  )
+
+(cl-declaim (special  py-mode-map))
+(add-hook 'python-mode-hook
+          (function (lambda ()
+                      (cl-declare (special py-mode-map))
+                      (when (and  (boundp 'py-mode-map)
+                                  py-mode-map)
+                        (define-key py-mode-map "\M-a" 'beginning-of-python-def-or-class)
+                        (define-key py-mode-map "\M-e" 'end-of-python-def-or-class)
+                        (define-key py-mode-map "\M-n" 'py-next-statement)
+                        (define-key py-mode-map "\M-p" 'py-previous-statement)
+                        (define-key py-mode-map "\C-\M-u" 'py-goto-block-up)
+                        (define-key py-mode-map "\C-\M-n" 'emacspeak-py-next-block)
+                        (define-key py-mode-map "\C-\M-p" 'emacspeak-py-previous-block)
+                        ))))
 
 ;;}}}
 (provide 'emacspeak-python)
