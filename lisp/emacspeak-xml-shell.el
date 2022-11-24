@@ -110,8 +110,7 @@ Interactive XML browser.
                                    (list "--html")
                                  nil)
                                (list system-id)))))
-    (save-excursion
-      (set-buffer buffer)
+    (with-current-buffer buffer
       (emacspeak-xml-shell-mode)
       (run-hooks 'emacspeak-xml-shell-hooks)
       (setq emacspeak-xml-shell-process
@@ -157,8 +156,7 @@ Interactive XML browser.
 (defun emacspeak-xml-shell-navigate (xpath)
   "Navigate to the node specified by xpath."
   (cl-declare (special emacspeak-xml-shell-process))
-  (save-excursion
-    (set-buffer (process-buffer emacspeak-xml-shell-process))
+  (with-current-buffer (process-buffer emacspeak-xml-shell-process)
     (goto-char (point-max))
     (insert
      (format "cd %s"
@@ -207,8 +205,7 @@ and end."
      (let ((stream  ,accumulate)
            (processor (function ,post-processor))
            (done  ,terminator))
-       (save-excursion
-         (set-buffer stream)
+       (with-current-buffer stream
          (goto-char (point-max))
          (cond
           ((string-match done output)
@@ -222,8 +219,7 @@ and end."
            (funcall processor
                     (point-min) (point-max))
            (kill-buffer stream)
-           (save-excursion
-             (set-buffer (process-buffer process))
+           (with-current-buffer (process-buffer process)
              (goto-char (point-max))
              (comint-send-input)))
           (t (insert output)))))))
@@ -246,11 +242,9 @@ region of text to process."
   (let ((accumulator nil)
         (terminator nil)
         (accumulate (get-buffer-create "*xml-shell-accumulator*")))
-    (save-excursion
-      (set-buffer accumulate)
+    (with-current-buffer accumulate
       (erase-buffer))
-    (save-excursion
-      (set-buffer (process-buffer emacspeak-xml-shell-process))
+    (with-current-buffer (process-buffer emacspeak-xml-shell-process)
       (goto-char (process-mark emacspeak-xml-shell-process))
       (setq terminator (ems--this-line))
       (setq accumulator (emacspeak-xml-shell-create-accumulator

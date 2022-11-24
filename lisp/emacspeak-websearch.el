@@ -116,8 +116,7 @@
                         (< (car a)
                            (car b)))))
     (with-output-to-temp-buffer "*Help*"
-      (save-excursion
-        (set-buffer "*Help*")
+      (with-current-buffer "*Help*"
         (princ "Websearch Keys:\n\n")
         (cl-loop for m in map
                  do

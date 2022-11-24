@@ -2426,9 +2426,7 @@ buffer keyed by `key'gets the key of buffer `buffer'."
 ;;{{{ show commentary:
 (defun ems-cleanup-commentary (commentary)
   "Cleanup commentary."
-  (save-excursion
-    (set-buffer
-     (get-buffer-create " *doc-temp*"))
+  (with-current-buffer (get-buffer-create " *doc-temp*")
     (erase-buffer)
     (insert commentary)
     (goto-char (point-min))
