@@ -1562,8 +1562,6 @@ Negative prefix arg speaks from start of buffer to point."
         (dtk-speak "First ask for help")))))
 
 ;;;###autoload
-
-;;;###autoload
 (defun emacspeak-speak-minibuffer (&optional arg)
   "Speak the minibuffer contents
  With prefix arg, speaks the rest of the buffer from point.
