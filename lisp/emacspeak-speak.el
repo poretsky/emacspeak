@@ -3296,30 +3296,6 @@ Argument O specifies overlay."
                (1+ (- orig start)) (- end start))))))
 
 ;;}}}
-;;{{{  translate faces to voices
-
-(defun voice-lock-voiceify-faces ()
-  "Map faces to personalities."
-  (save-excursion
-    (goto-char (point-min))
-    (let ((inhibit-read-only t)
-          (face nil)
-          (start (point)))
-      (unwind-protect
-          (while (not (eobp))
-            (setq face (get-text-property (point) 'face))
-            (goto-char
-             (or (next-single-property-change (point) 'face)
-                 (point-max)))
-            (put-text-property start (point)
-                               'personality
-                               (if (listp face)
-                                   (car face)
-                                 face))
-            (setq start (point)))
-        (setq inhibit-read-only nil)))))
-
-;;}}}
 ;;{{{  completion helpers
 
 ;;{{{ switching to completions window from minibuffer:
