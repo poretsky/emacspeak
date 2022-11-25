@@ -471,7 +471,7 @@ Useful to do this before you listen to an entire buffer."
   "Set punctuation mode for all buffers in current mode."
   (interactive
    (list
-    (intern (completing-read "Punctuation Mode: " '(all none some)))))
+    (intern (completing-read "Punctuation Mode: " dtk-punctuation-mode-alist nil t))))
   (cl-declare (special major-mode))
   (ems-set-mode-punctuation-setting major-mode setting)
   (ems-sync-mode-punctuation-setting major-mode)
