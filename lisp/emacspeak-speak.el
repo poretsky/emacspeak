@@ -1188,8 +1188,7 @@ spelled out  instead of being spoken."
 
 (defun emacspeak-is-alpha-p (c)
   "Check if argument C is an alphabetic character."
-  (and (= ?w (char-syntax c))
-       (dtk-unicode-char-untouched-p c)))
+  (= ?w (char-syntax c)))
 
 ;;{{{  phonemic table
 
@@ -1263,11 +1262,15 @@ spelled out  instead of being spoken."
   "Return the phonetic string for this CHAR or its upper case equivalent.
 char is assumed to be one of a--z."
   (cl-declare (special emacspeak-char-to-phonetic-table))
-  (let ((char-string (char-to-string char)))
-    (or (cdr
-         (assoc char-string emacspeak-char-to-phonetic-table))
-        (dtk-unicode-full-name-for-char char)
-        " ")))
+  (let ((char-string (char-to-string
+                      (if (equal (char-charset char) 'cyrillic-iso8859-5)
+                          (make-char 'mule-unicode-0100-24ff 40
+                                     (cadr (split-char char)))
+                        char))))
+    (or   (cdr
+           (assoc char-string emacspeak-char-to-phonetic-table))
+          (dtk-unicode-full-name-for-char char)
+          " ")))
 
 ;;}}}
 ;;{{{ Speak Chars:
@@ -1277,8 +1280,8 @@ char is assumed to be one of a--z."
   (when char
     (cond
      ((emacspeak-is-alpha-p char) (dtk-letter (char-to-string char)))
-     ((> char 128) (emacspeak-speak-char-name char))
      (t (dtk-dispatch (dtk-char-to-speech char))))))
+
 ;;;###autoload
 (defun emacspeak-speak-char (&optional prefix)
   "Speak character under point.
@@ -1294,7 +1297,6 @@ Pronounces character phonetically unless  called with a PREFIX arg."
     (when char
       (cond
        ((stringp display) (dtk-speak display))
-       ((> char 128) (emacspeak-speak-char-name char))
        ((and (not prefix)
              (emacspeak-is-alpha-p char))
         (dtk-speak (emacspeak-get-phonetic-string char)))
