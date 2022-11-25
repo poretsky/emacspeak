@@ -90,11 +90,32 @@
 ;;}}}
 ;;{{{ Advice interactive commands:
 
-(defadvice jabber-switch-to-roster-buffer (after emacspeak pre act comp)
+(defadvice jabber-connect (after emacspeak pre act comp)
+  "Provide auditory icon if possible."
+  (when (ems-interactive-p)
+    (emacspeak-auditory-icon 'on)))
+
+(defadvice jabber-disconnect (after emacspeak pre act comp)
+  "Provide auditory icon if possible."
+  (when (ems-interactive-p)
+    (emacspeak-auditory-icon 'off)))
+
+(defadvice jabber-customize (after emacspeak pre act comp)
   "Provide auditory feedback."
   (when (ems-interactive-p)
     (emacspeak-auditory-icon 'open-object)
-    (emacspeak-speak-mode-line)))
+    (emacspeak-speak-line)))
+
+(cl-loop for f in
+      '(jabber-roster-mode
+	jabber-chat-mode
+	jabber-browse-mode)
+      do
+      (eval
+       `(defadvice ,f (after emacspeak pre act comp)
+	  "Turn on voice lock mode."
+	  (emacspeak-pronounce-refresh-pronunciations)
+	  (voice-lock-mode (if global-voice-lock-mode 1 -1)))))
 
 ;;}}}
 ;;{{{ silence keepalive
@@ -102,9 +123,8 @@
 (cl-loop
  for f in
  '(
-   image-type jabber-chat-with jabber-chat-with-jid-at-point
-   jabber-keepalive-do jabber-fsm-handle-sentinel jabber-xml-resolve-namespace-prefixes
-   jabber-process-roster jabber-keepalive-got-response)
+   image-type jabber-keepalive-got-response
+   jabber-keepalive-do jabber-fsm-handle-sentinel jabber-xml-resolve-namespace-prefixes)
  do
  (eval
   `(defadvice ,f (around emacspeak pre act comp)
@@ -112,6 +132,14 @@
      (ems-with-messages-silenced
       ad-do-it
       ad-return-value))))
+
+(defadvice jabber-process-roster (around emacspeak pre act comp)
+  "Silence  messages, but provide auditory feedback."
+  (ems-with-messages-silenced
+      ad-do-it
+    (when (eq (ad-get-arg 2) 'initial)
+      (emacspeak-auditory-icon 'on))
+    ad-return-value))
 
 ;;}}}
 ;;{{{ jabber activity:
@@ -129,6 +157,49 @@
   "Produce auditory icon."
   (when (ems-interactive-p)
     (emacspeak-auditory-icon 'close-object)))
+
+;;}}}
+;;{{{ roster buffer:
+
+(cl-loop for f in
+      '(jabber-roster-ret-action-at-point
+        jabber-chat-with
+        jabber-chat-with-jid-at-point
+        jabber-switch-to-roster-buffer
+        jabber-vcard-edit)
+      do
+      (eval
+       `(defadvice ,f (after emacspeak pre act comp)
+          "Provide auditory feedback."
+          (when (ems-interactive-p)
+            (emacspeak-auditory-icon 'open-object)
+            (emacspeak-speak-mode-line)))))
+
+(cl-loop for f in
+      '(jabber-go-to-next-jid
+        jabber-go-to-previous-jid)
+      do
+      (eval
+       `(defadvice ,f (after emacspeak pre act comp)
+          "Provide auditory feedback."
+          (when (ems-interactive-p)
+            (emacspeak-auditory-icon 'large-movement)
+            (emacspeak-speak-text-range 'jabber-jid)))))
+
+(cl-loop for f in
+      '(jabber-roster-delete-jid-at-point
+        jabber-roster-delete-at-point)
+      do
+      (eval
+       `(defadvice ,f (after emacspeak pre act comp)
+          "Provide auditory icon if possible."
+          (when (ems-interactive-p)
+            (emacspeak-auditory-icon 'delete-object)))))
+
+(defadvice jabber-roster-toggle-binding-display (after emacspeak pre act comp)
+  "Provide auditory icon if possible."
+  (when (ems-interactive-p)
+    (emacspeak-auditory-icon (if jabber-roster-show-bindings 'on 'off))))
 
 ;;}}}
 ;;{{{ alerts
@@ -156,25 +227,27 @@
     (emacspeak-auditory-icon 'close-object)
     (message "Set extended  away.")))
 
-(defadvice jabber-go-to-next-jid (after emacspeak pre act comp)
-  "Provide auditory feedback."
-  (when (ems-interactive-p)
-    (emacspeak-auditory-icon 'large-movement)
-    (emacspeak-speak-line)))
-
-(defadvice jabber-go-to-previous-jid (after emacspeak pre act comp)
-  "Provide auditory feedback."
-  (when (ems-interactive-p)
-    (emacspeak-auditory-icon 'large-movement)
-    (emacspeak-speak-line)))
+(defadvice jabber-presence-default-message (around emacspeak pre
+                                                   act comp)
+  "Allow emacspeak to control if the message is spoken."
+  (cond
+   (emacspeak-jabber-speak-presence-alerts
+    (let ((emacspeak-speak-messages t))
+      ad-do-it))
+   (t
+    (ems-with-messages-silenced
+     ad-do-it)))
+  ad-return-value)
 
 (defun emacspeak-jabber-presence-default-message (&rest _ignore)
   "Default presence alert used by Emacspeak.
 Silently drops alerts on the floor --- Google Talk is too chatty otherwise."
   nil)
-(setq
- jabber-alert-presence-message-function
- #'emacspeak-jabber-presence-default-message)
+
+(when (boundp 'jabber-alert-presence-message-function)
+  (setq
+   jabber-alert-presence-message-function
+   #'emacspeak-jabber-presence-default-message))
 
 ;;;this is what I use as my jabber alert function:
 (defun emacspeak-jabber-message-default-message (from buffer text)
@@ -190,40 +263,20 @@ Silently drops alerts on the floor --- Google Talk is too chatty otherwise."
                  (jabber-jid-displayname (jabber-jid-user from)))
        (format "%s: %s" (jabber-jid-displayname from) text)))))
 
+;;}}}
 ;;{{{ interactive commands:
 
 (defun emacspeak-jabber-popup-roster ()
   "Pop to Jabber roster."
   (interactive)
-  (cl-declare (special jabber-roster-buffer jabber-connections))
+  (cl-declare (special jabber-roster-buffer jabber-roster-show-bindings jabber-connections))
   (unless jabber-connections  (call-interactively 'jabber-connect))
   (unless (buffer-live-p jabber-roster-buffer) (call-interactively 'jabber-display-roster))
   (pop-to-buffer jabber-roster-buffer)
   (goto-char (point-min))
-  (forward-line 4)
+  (forward-line (if jabber-roster-show-bindings 15 4))
   (emacspeak-auditory-icon 'select-object)
   (emacspeak-speak-line))
-
-(defadvice jabber-connect-all (after emacspeak pre act comp)
-  "switch to roster so we give it a chance to update."
-  (when (ems-interactive-p) (switch-to-buffer jabber-roster-buffer)))
-
-(defadvice jabber-roster-update (around emacspeak    pre act  comp)
-  "Make this operation a No-Op unless the roster is visible."
-  (when (get-buffer-window-list jabber-roster-buffer) ad-do-it))
-
-(defadvice jabber-display-roster (around emacspeak    pre act  comp)
-  "Make this operation a No-Op unless called interactively."
-  (when (ems-interactive-p) ad-do-it))
-
-(add-hook 'jabber-post-connect-hook 'jabber-switch-to-roster-buffer)
-
-;;}}}
-(defun emacspeak-jabber-connected ()
-  "Function to add to jabber-post-connection-hook."
-  (emacspeak-auditory-icon 'task-done)
-  (dtk-notify-say "Connected to jabber."))
-(add-hook 'jabber-post-connect-hook #'emacspeak-jabber-connected)
 
 ;;}}}
 ;;{{{ Pronunciations
