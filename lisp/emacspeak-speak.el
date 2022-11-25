@@ -203,8 +203,8 @@ message area.  You can use command
 ;;; This replacement is used within Emacspeak to invoke commands
 ;;; whose output we want to hear.
 
-(defun emacspeak-shell-command (command)
-  "Run shell command COMMANDAND speak its output."
+(defun emacspeak-shell-command (command &rest args)
+  "Run shell command COMMAND and speak its output."
   (interactive "sCommand:")
   (cl-declare (special default-directory))
   (let ((directory default-directory)
@@ -213,7 +213,9 @@ message area.  You can use command
       (erase-buffer)
       (setq default-directory directory)
       (ems-with-messages-silenced
-       (shell-command command output))
+       (if args
+           (apply 'call-process command nil output nil args)
+         (shell-command command output)))
       (emacspeak-auditory-icon 'open-object)
       (dtk-speak (buffer-string)))))
 

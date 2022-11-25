@@ -363,10 +363,9 @@ With prefix arg, opens the phone book for editing."
     (emacspeak-auditory-icon 'open-object))
    ((file-exists-p emacspeak-speak-telephone-directory)
     (emacspeak-shell-command
-     (format "%s %s %s"
-             emacspeak-speak-telephone-directory-command
-             (read-from-minibuffer "Lookup number for: ")
-             emacspeak-speak-telephone-directory))
+     emacspeak-speak-telephone-directory-command
+     (read-from-minibuffer "Lookup number for: ")
+     emacspeak-speak-telephone-directory)
     (emacspeak-speak-message-again))
    (t (error "First create your phone directory in %s"
              emacspeak-speak-telephone-directory))))
