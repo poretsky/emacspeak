@@ -1589,7 +1589,7 @@ Negative prefix arg speaks from start of buffer to point."
                (previous-single-property-change beg 'mouse-face)
                (point-min)))
     (setq end (or (next-single-property-change end 'mouse-face) (point-max)))
-    (buffer-substring beg end)))
+    (buffer-substring-no-properties beg end)))
 
 ;;}}}
 ;;{{{ mail check
