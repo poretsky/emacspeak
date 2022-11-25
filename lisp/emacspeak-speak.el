@@ -1984,7 +1984,15 @@ Optional  interactive prefix arg `copy-as-kill' copies spoken info to kill ring.
     (when copy-as-kill (kill-new info))
     (dtk-speak (concat info cs))))
 
-(defalias 'emacspeak-speak-line-number 'what-line)
+(defun emacspeak-speak-line-number ()
+  "Speak the line number of the current line."
+  (interactive)
+  (when (and (ems-interactive-p) dtk-stop-immediately)
+    (dtk-stop))
+  (let ((emacspeak-speak-messages t)
+        (emacspeak-last-message nil)
+        (inhibit-message nil))
+    (what-line)))
 
 ;;;###autoload
 (defun emacspeak-speak-buffer-filename (&optional filename)
@@ -2717,13 +2725,18 @@ set the current local value to the result.")
 (defun emacspeak-speak-current-column ()
   "Speak the current column."
   (interactive)
-  (message "Point at column %d" (current-column)))
+  (when (and (ems-interactive-p) dtk-stop-immediately)
+    (dtk-stop))
+  (dtk-speak-and-echo (format "Point at column %d" (current-column))))
 
 (defun emacspeak-speak-current-percentage ()
   "Announce the percentage into the current buffer."
   (interactive)
-  (message "Point is  %d%% into  the current buffer"
-           (emacspeak-get-current-percentage-into-buffer)))
+  (when (and (ems-interactive-p) dtk-stop-immediately)
+    (dtk-stop))
+  (dtk-speak-and-echo
+   (message "Point is  %d%% into  the current buffer"
+            (emacspeak-get-current-percentage-into-buffer))))
 
 ;;}}}
 ;;{{{  Speak the last message again:
@@ -2779,12 +2792,12 @@ Otherwise just display a message."
 (defun emacspeak-speak-window-information ()
   "Speaks information about current window."
   (interactive)
-  (message "Current window has %s lines and %s columns with
-top left %s %s "
-           (window-height)
-           (window-width)
-           (cl-first (window-edges))
-           (cl-second (window-edges))))
+  (dtk-speak-and-echo
+   (message "Current window has %s lines and %s columns with top left %s %s "
+            (window-height)
+            (window-width)
+            (cl-first (window-edges))
+            (cl-second (window-edges)))))
 
 ;;;###autoload
 (defun emacspeak-speak-current-window ()
