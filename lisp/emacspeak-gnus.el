@@ -102,19 +102,13 @@ instead you hear only the first screenful."
                        gnus-article-mode-map))
   (define-key gnus-summary-mode-map "\C-t" 'gnus-summary-toggle-header)
   (define-key gnus-summary-mode-map "t" 'gnus-summary-toggle-header)
-  (define-key gnus-summary-mode-map '[left] 'emacspeak-gnus-summary-catchup-quietly-and-exit)
-  (define-key gnus-summary-mode-map '[right] 'gnus-summary-show-article)
   (define-key  gnus-group-mode-map "?" 'gm-nnir-group-make-nnir-group)
   (define-key gnus-group-mode-map "/" 'gm-nnir-group-make-gmail-group)
   (define-key gnus-group-mode-map ";" 'emacspeak-gnus-personal-gmail-recent)
   (define-key gnus-group-mode-map ":" 'emacspeak-gnus-personal-gmail-last-week)
   (define-key gnus-group-mode-map "\C-n" 'gnus-group-next-group)
-  (define-key gnus-group-mode-map [down] 'gnus-group-next-group)
-  (define-key gnus-group-mode-map [up] 'gnus-group-prev-group)
   (define-key gnus-group-mode-map "\C-p" 'gnus-group-prev-group)
-  (define-key gnus-summary-wash-map "D" 'gnus-summary-downcase-article)
-  (define-key gnus-group-mode-map '[right]
-    'gnus-group-read-group))
+  (define-key gnus-summary-wash-map "D" 'gnus-summary-downcase-article))
 
 (add-hook 'gnus-started-hook 'emacspeak-gnus-setup-keys)
 
