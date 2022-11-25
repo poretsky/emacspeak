@@ -538,7 +538,7 @@ the display to speak."
       (save-window-excursion
         (emacspeak-speak-region
          (window-point win)
-         (window-end win))))))
+         (window-end win t))))))
 ;;;###autoload
 (defun emacspeak-speak-this-buffer-previous-display ()
   "Speak this buffer as displayed in a `previous' window.

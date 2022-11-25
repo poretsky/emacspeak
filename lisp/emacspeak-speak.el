@@ -2804,7 +2804,7 @@ Otherwise just display a message."
   "Speak contents of current window.
 Speaks entire window irrespective of point."
   (interactive)
-  (emacspeak-speak-region (window-start) (window-end)))
+  (emacspeak-speak-region (window-start) (window-end nil t)))
 
 ;;;###autoload
 (defun emacspeak-speak-other-window (&optional arg)
@@ -2821,7 +2821,7 @@ Optional argument ARG  specifies `other' window to speak."
         (set-buffer (window-buffer))
         (emacspeak-speak-region
          (max (point-min) (window-start))
-         (min (point-max) (window-end)))))))
+         (min (point-max)(window-end nil t)))))))
 
 ;;;###autoload
 (defun emacspeak-speak-next-window ()
@@ -2924,7 +2924,7 @@ Semantics  of `other' is the same as for the builtin Emacs command
     (save-excursion
       (save-window-excursion
         (other-window window)
-        (emacspeak-speak-region (window-start) (window-end))))))
+        (emacspeak-speak-region (window-start) (window-end nil t))))))
 
 ;;}}}
 ;;{{{  Intelligent interactive commands for reading:
