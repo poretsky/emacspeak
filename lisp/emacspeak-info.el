@@ -152,7 +152,8 @@ and then cue the next selected buffer."
   (when (ems-interactive-p)
     (dtk-stop)
     (emacspeak-auditory-icon 'close-object)
-    (emacspeak-speak-mode-line)))
+    (with-current-buffer (window-buffer)
+      (emacspeak-speak-mode-line))))
 
 (defadvice Info-next-reference (after emacspeak pre act)
   "Speak the line. "

@@ -88,7 +88,8 @@
              (when (ems-interactive-p)
                (dtk-stop)
                (emacspeak-auditory-icon 'large-movement)
-               (emacspeak-compilation-speak-error)))))
+               (with-current-buffer (window-buffer)
+                 (emacspeak-compilation-speak-error))))))
 
 (cl-loop for f in 
          '(
