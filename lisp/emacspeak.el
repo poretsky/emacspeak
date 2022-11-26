@@ -446,16 +446,19 @@ caps."
   "If set to T, emacspeak plays its icon as it launches."
   :type 'boolean
   :group 'emacspeak)
+
 (defsubst emacspeak-play-startup-icon ()
   "Play startup icon if requested."
   (cl-declare (special emacspeak-play-emacspeak-startup-icon))
-  (let ((player  (or (executable-find "mplayer")
-                     (executable-find "play"))))
+  (let ((player  (or (executable-find "mpg123")
+                     (executable-find "mpg321")
+                     (executable-find "mplayer"))))
     (when (and  emacspeak-play-emacspeak-startup-icon player)
       (start-process
        "mp3" nil
        player
        (expand-file-name "emacspeak.mp3" emacspeak-sounds-directory)))))
+
 ;;;###autoload
 (defun emacspeak()
   "Start the Emacspeak Audio Desktop.
