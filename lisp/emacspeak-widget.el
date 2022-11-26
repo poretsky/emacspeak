@@ -171,7 +171,10 @@ Returns a string with appropriate personality."
   (let* ((inhibit-read-only t)
          (label (emacspeak-widget-label widget))
          (help-echo (emacspeak-widget-help-echo widget))
-         (v  (widget-value widget))
+         (v
+          (condition-case nil
+              (widget-value widget )
+            (error nil)))
          (value
           (cond
            ((null v) nil)
@@ -580,6 +583,8 @@ Returns a string with appropriate personality."
     (cond
      (widget                           ; First record some state:
       (let ((pos (ad-get-arg 0))
+            (inhibit-read-only t)
+            (old-buffer (current-buffer))
             (old-position (point)))
         (cond
          ((and (eq major-mode 'eww-mode)
@@ -592,6 +597,9 @@ Returns a string with appropriate personality."
           (call-interactively 'emacspeak-we-url-expand-and-execute))
          (t ad-do-it
             (cond
+             ((not (eq (current-buffer) old-buffer))
+              (emacspeak-auditory-icon 'large-movement)
+              (emacspeak-speak-mode-line))
              ((= old-position (point)) ;did not move
               (emacspeak-auditory-icon 'button)
               (emacspeak-widget-summarize (widget-at pos)))
