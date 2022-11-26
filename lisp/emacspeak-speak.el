@@ -2133,6 +2133,7 @@ Optional second arg `set' sets the TZ environment variable as well."
   (interactive
    (list
     (let ((completion-ignore-case t)
+          (insert-default-directory nil)
           (ido-case-fold t)
           (read-file-name-completion-ignore-case t))
       (read-file-name
