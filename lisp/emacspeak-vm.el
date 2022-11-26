@@ -195,6 +195,14 @@ Note that some badly formed mime messages  cause trouble."
                  (string-match (user-full-name) to)
                  (string-match  (user-login-name) to)))
             (lines (vm-su-line-count message)))
+      (cond
+       ((and self-p
+             (= 0 self-p)) ;mail to me and others
+        (emacspeak-auditory-icon 'select-object))
+       (self-p                          ;mail to others including me
+        (emacspeak-auditory-icon 'mark-object))
+       (t                            ;got it because of a mailing list
+        (emacspeak-auditory-icon 'item)))
       (with-current-buffer vm-presentation-buffer
         (dtk-speak
          (vm-decode-mime-encoded-words-in-string
@@ -213,15 +221,7 @@ Note that some badly formed mime messages  cause trouble."
              "")
            (if lines (format "%s lines" lines) "")))))
       (goto-char (point-min))
-      (search-forward  (format "%c%c" 10 10) nil)
-      (cond
-       ((and self-p
-             (= 0 self-p)) ;mail to me and others
-        (emacspeak-auditory-icon 'select-object))
-       (self-p                          ;mail to others including me
-        (emacspeak-auditory-icon 'mark-object))
-       (t                            ;got it because of a mailing list
-        (emacspeak-auditory-icon 'item))))))
+      (search-forward  (format "%c%c" 10 10) nil))))
 
 (defun emacspeak-vm-speak-labels ()
   "Speak a message's labels"
