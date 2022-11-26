@@ -60,12 +60,10 @@
   "Speak line in tar mode intelligently"
   (cond
    ((= (following-char) 0)
-    (message "No file on this line"))
-   (t(save-excursion
-       (end-of-line)
-       (skip-syntax-backward "^ ")
-       (emacspeak-speak-field
-        (point) (line-end-position))))))
+    (emacspeak-speak-line))
+   (t
+    (dtk-speak (tar-header-name
+		(tar-desc-tokens (tar-current-descriptor)))))))
 
 ;;}}}
 ;;{{{ Advice
@@ -75,15 +73,28 @@
     (emacspeak-auditory-icon 'close-object)
     (emacspeak-speak-mode-line)))
 
-(defadvice tar-next-line (after emacspeak pre act comp)
-  "Provide spoken feedback"
+(defadvice deb-view-dired-view-cleanup (after emacspeak pre act comp)
+  "Provide auditory feedback"
   (when (ems-interactive-p)
-    (emacspeak-tar-speak-line)))
+    (emacspeak-auditory-icon 'close-object)
+    (emacspeak-speak-mode-line)))
 
-(defadvice tar-previous-line (after emacspeak pre act comp)
-  "Provide spoken feedback"
-  (when (ems-interactive-p)
-    (emacspeak-tar-speak-line)))
+(cl-loop
+ for f in
+ '(tar-next-line tar-previous-line)
+ do
+ (eval
+  `(defadvice ,f (around emacspeak pre act comp)
+     "Provide spoken feedback. Produce auditory icon  if we cant move."
+     (if (ems-interactive-p)
+         (let ((n (line-number-at-pos)))
+           ad-do-it
+           (if (= (line-number-at-pos) n)
+               (emacspeak-auditory-icon 'warn-user)
+             (emacspeak-auditory-icon 'select-object)
+             (emacspeak-tar-speak-line))
+           ad-return-value)
+       ad-do-it))))
 
 (defadvice tar-flag-deleted (after emacspeak pre act comp)
   "Provide auditory feedback"
@@ -94,12 +105,13 @@
 (defadvice tar-unflag (after emacspeak pre act comp)
   "Provide auditory feedback"
   (when (ems-interactive-p)
-    (emacspeak-auditory-icon 'yank-object)
+    (emacspeak-auditory-icon 'deselect-object)
     (emacspeak-tar-speak-line)))
+
 (defadvice tar-unflag-backwards (after emacspeak pre act comp)
   "Provide auditory feedback"
   (when (ems-interactive-p)
-    (emacspeak-auditory-icon 'yank-object)
+    (emacspeak-auditory-icon 'deselect-object)
     (emacspeak-tar-speak-line)))
 
 (defadvice tar-extract (after emacspeak pre act comp)
@@ -126,15 +138,17 @@
 (defun emacspeak-tar-speak-file-permissions()
   "Speak permissions of file current entry "
   (interactive)
-  (unless (eq major-mode 'tar-mode)
+  (unless (or (eq major-mode 'tar-mode)
+	      (eq major-mode 'debview-mode))
     (error "This command should be called only in tar mode"))
   (let ((entry (tar-current-descriptor))
         (mode nil)
         (string "          "))
     (cond
      ((null entry)
-      (message "No file on this line"))
+      (dtk-speak-and-echo "No file on this line"))
      (t
+      (emacspeak-auditory-icon 'select-object)
       (setq mode
             (tar-header-mode  entry))
       (aset string 0       (if (zerop (logand 256 mode)) ?- ?r))
@@ -148,41 +162,68 @@
       (aset string  8 (if (zerop (logand   1 mode)) ?- ?x))
       (if (zerop (logand 1024 mode)) nil (aset string  2 ?s))
       (if (zerop (logand 2048 mode)) nil (aset string  5 ?s))
-      (message  "Permissions  %s "
-                string)))))
+      (dtk-speak-and-echo
+       (format  "Permissions  %s "
+                string))))))
 
-(defun emacspeak-tar-speak-file-size()
-  "Speak size of file current entry "
+(defun emacspeak-tar-speak-file-ownerships()
+  "Speak ownerships of file current entry "
   (interactive)
-  (unless (eq major-mode 'tar-mode)
+  (unless (or (eq major-mode 'tar-mode)
+	      (eq major-mode 'debview-mode))
     (error "This command should be called only in tar mode"))
   (let ((entry (tar-current-descriptor)))
     (cond
      ((null entry)
-      (message "No file on this line"))
-     (t (message  "File size %s "
-                  (tar-header-size entry))))))
+      (dtk-speak-and-echo "No file on this line"))
+     (t (emacspeak-auditory-icon 'select-object)
+        (dtk-speak-and-echo
+         (format  "Owned by %s/%s "
+                  (tar-header-uname (tar-desc-tokens
+				     entry))
+		  (tar-header-gname (tar-desc-tokens
+				     entry))))))))
+
+(defun emacspeak-tar-speak-file-size()
+  "Speak size of file current entry "
+  (interactive)
+  (unless (or (eq major-mode 'tar-mode)
+	      (eq major-mode 'debview-mode))
+    (error "This command should be called only in tar mode"))
+  (let ((entry (tar-current-descriptor)))
+    (cond
+     ((null entry)
+      (dtk-speak-and-echo "No file on this line"))
+     (t (emacspeak-auditory-icon 'select-object)
+        (dtk-speak-and-echo
+         (format  "File size %s "
+                  (tar-header-size (tar-desc-tokens
+                                    entry))))))))
 
 (defun emacspeak-tar-speak-file-date()
   "Speak date of file current entry "
   (interactive)
   (cl-declare (special emacspeak-speak-time-format-string))
-  (unless (eq major-mode 'tar-mode)
+  (unless (or (eq major-mode 'tar-mode)
+	      (eq major-mode 'debview-mode))
     (error "This command should be called only in tar mode"))
   (let ((entry (tar-current-descriptor)))
     (cond
      ((null entry)
-      (message "No file on this line"))
-     (t (message  "Modified on  %s "
+      (dtk-speak-and-echo "No file on this line"))
+     (t (emacspeak-auditory-icon 'select-object)
+        (dtk-speak-and-echo
+         (format  "Modified on: %s "
                   (format-time-string
                    emacspeak-speak-time-format-string
-                   (tar-header-date entry)))))))
+                   (tar-header-date entry))))))))
 
 (defun emacspeak-tar-setup-keys ()
   "Setup emacspeak keys for tar mode"
   (cl-declare (special tar-mode-map))
   (define-key tar-mode-map "z" 'emacspeak-tar-speak-file-size)
   (define-key tar-mode-map "/" 'emacspeak-tar-speak-file-permissions)
+  (define-key tar-mode-map "\M-/" 'emacspeak-tar-speak-file-ownerships)
   (define-key tar-mode-map "c" 'emacspeak-tar-speak-file-date)
   )
 
