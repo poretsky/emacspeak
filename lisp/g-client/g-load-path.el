@@ -38,6 +38,17 @@
        (file-name-directory load-file-name))
   "Directory where g-client  is built. ")
 
+(defvar ems-directory
+  (and load-file-name
+       (file-name-as-directory
+        (expand-file-name ".."
+                          (file-name-directory load-file-name))))
+  "Directory where emacspeak is built. ")
+
+(unless (member ems-directory load-path)
+  (setq load-path
+        (cons ems-directory load-path)))
+
 (unless (member g-directory load-path)
   (setq load-path
         (cons g-directory load-path)))
