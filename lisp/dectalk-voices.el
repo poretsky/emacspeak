@@ -632,12 +632,15 @@ and TABLE gives the values along that dimension."
   (fset 'tts-get-voice-command 'dectalk-get-voice-command)
   (fset 'tts-voice-defined-p 'dectalk-voice-defined-p)
   (fset 'tts-define-voice-from-speech-style 'dectalk-define-voice-from-speech-style)
+  (setq tts-default-voice 'paul)
   (setq tts-default-speech-rate dectalk-default-speech-rate)
   (set-default 'tts-default-speech-rate dectalk-default-speech-rate)
-  (setq dtk-speech-rate-step 50
-        dtk-speech-rate-base 150)
-  (setq-default dtk-speech-rate-step 50
-                dtk-speech-rate-base 150))
+  (unless (or (get 'dtk-speech-rate-step 'customized-value)
+              (get 'dtk-speech-rate-step 'saved-value))
+    (setq dtk-speech-rate-step 50))
+  (unless (or (get 'dtk-speech-rate-base 'customized-value)
+              (get 'dtk-speech-rate-base 'saved-value))
+    (setq dtk-speech-rate-base 150)))
 
 ;;}}}
 ;;{{{  tts-env for Dectalk:
