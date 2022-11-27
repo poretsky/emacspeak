@@ -453,7 +453,7 @@ The scanned image is converted to JPEG."
                (ems-interactive-p))
       (setq metadata
             (read-from-minibuffer "Enter picture description: "))
-      (let ((tempfile (format "temp%s.jpg" (gensym))))
+      (let ((tempfile (format "temp%s.jpg" (cl-gensym))))
         (shell-command
          (format  "mv %s %s; %s -c '%s' %s > %s; rm -f %s"
                   jpg  tempfile

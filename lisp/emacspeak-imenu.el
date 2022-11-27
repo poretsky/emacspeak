@@ -65,7 +65,7 @@
   ;; Third argument PREFIX is for internal use only.
 
   (cl-declare (special imenu-level-separator))
-  (mapcan
+  (cl-mapcan
    (function
     (lambda (item)
       (let* ((name (car item))
