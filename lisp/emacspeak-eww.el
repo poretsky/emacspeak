@@ -1853,7 +1853,7 @@ Warning, this is fragile, and depends on a stable id for the
 (defun  emacspeak-eww-update-title  (title)
   "Interactively set title --- renames buffer, and sets header-line."
   (interactive "sTitle:")
-  (cl-declare (special header-line-format))
+  (cl-declare (special header-line-format eww-data))
   (rename-buffer title  'unique)
   (setq header-line-format title)
   (plist-put eww-data :title title)

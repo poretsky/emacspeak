@@ -95,6 +95,7 @@ Also turn on hydra-is-helpful if it was turned off."
 
 ;;; We use plain messages:
 
+(cl-declaim (special hydra-head-format hydra-hint-display-type))
 (setq hydra-head-format "%s "
       hydra-hint-display-type nil
       hydra-hint-display-type #'message)

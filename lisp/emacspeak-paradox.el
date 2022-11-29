@@ -96,7 +96,8 @@
 
 (defun emacspeak-paradox-mode-hook ()
   "Emacspeak setup hook for paradox-mode."
-  (define-key paradox-menu-mode-map " " 'emacspeak-paradox-summarize-line)
+  (when (boundp 'paradox-menu-mode-map)
+    (define-key paradox-menu-mode-map " " 'emacspeak-paradox-summarize-line))
   (emacspeak-pronounce-add-buffer-local-dictionary-entry
    emacspeak-pronounce-date-yyyymmdd-pattern
    (cons 're-search-forward 'emacspeak-pronounce-yyyymmdd-date))

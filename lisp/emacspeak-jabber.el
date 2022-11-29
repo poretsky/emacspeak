@@ -294,6 +294,7 @@ the kill ring as well."
 (defun emacspeak-jabber-speak-recent-message ()
   "Speak most recent message if one exists."
   (interactive)
+  (cl-declare (special jabber-activity-jids))
   (cond
    (jabber-activity-jids
     (save-excursion
