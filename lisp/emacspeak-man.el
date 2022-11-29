@@ -150,7 +150,7 @@ Also provide an auditory icon"
 (defun emacspeak-man-speak-this-section ()
   "Speak current section"
   (interactive)
-  (save-excursion
+  (save-mark-and-excursion
     (let ((start (point))
           (end nil))
       (condition-case nil

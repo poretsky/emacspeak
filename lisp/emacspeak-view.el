@@ -183,7 +183,7 @@
     (let ((start (point)))
       ad-do-it
       (emacspeak-auditory-icon 'scroll)
-      (save-excursion
+      (save-mark-and-excursion
         (end-of-line)
         (dtk-speak
          (buffer-substring
@@ -197,7 +197,7 @@
     (let ((start (point)))
       ad-do-it
       (emacspeak-auditory-icon 'scroll)
-      (save-excursion
+      (save-mark-and-excursion
         (end-of-line)
         (dtk-speak
          (buffer-substring
@@ -210,7 +210,7 @@
   (when (ems-interactive-p)
     (let ((start (point)))
       (emacspeak-auditory-icon 'scroll)
-      (save-excursion
+      (save-mark-and-excursion
         (forward-line (window-height))
         (emacspeak-speak-region start (point))))))
 

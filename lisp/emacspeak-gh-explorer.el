@@ -76,7 +76,7 @@
   "Move forward/back based on `direction' and speak current entry."
   (emacspeak-auditory-icon 'select-object)
   (forward-line direction)
-  (save-excursion
+  (save-mark-and-excursion
     (goto-char (line-beginning-position))
     (let ((path (cdr (assoc 'path (get-text-property (point) 'invisible))))
           (type (cdr (assoc 'type (get-text-property (point) 'invisible)))))

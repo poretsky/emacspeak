@@ -108,7 +108,7 @@ Provide an auditory icon if possible."
        ad-do-it
        (cond
         ((= (point) (+ count orig))
-         (save-excursion
+         (save-mark-and-excursion
            (forward-word -1)
            (emacspeak-speak-word)))
         (t

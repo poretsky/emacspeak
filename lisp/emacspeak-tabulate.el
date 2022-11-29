@@ -73,7 +73,7 @@ Fields are assumed to be delimited by whitespace. "
         (first nil)
         (last nil)
         (continue t))
-    (save-excursion
+    (save-mark-and-excursion
       (end-of-line)
       (setq end (point))
       (beginning-of-line)
@@ -108,7 +108,7 @@ Fields are assumed to be delimited by whitespace. "
             start tmp)))
   (save-restriction 
     (narrow-to-region start end)
-    (save-excursion
+    (save-mark-and-excursion
       (goto-char start)
       (let  ((try nil)
              (first nil)
@@ -179,7 +179,7 @@ in the white-space."
                    (count-lines start end)
                    (+ 1 (length white-space)))
         (sit-for 1.5)
-        (save-excursion
+        (save-mark-and-excursion
           (goto-char end)
           (beginning-of-line)
           (setq bl  (point))
@@ -231,7 +231,7 @@ in the white-space."
         (element nil))
     (setq column-count (1+ (length white-space)))
     (setq table (make-vector row-count nil))
-    (save-excursion
+    (save-mark-and-excursion
       (goto-char start)
       (cl-loop for
                i from 0 to (1- row-count)

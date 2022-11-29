@@ -186,7 +186,7 @@
   "Speak upto start of next index entry"
   (interactive)
   (let ((start (point)))
-    (save-excursion
+    (save-mark-and-excursion
       (emacspeak-imenu-goto-next-index-position)
       (emacspeak-speak-region start (point)))))
 

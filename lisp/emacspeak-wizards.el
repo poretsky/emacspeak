@@ -534,7 +534,7 @@ the display to speak."
     (setq win
           (nth (% window (length window-list))
                window-list))
-    (save-excursion
+    (save-mark-and-excursion
       (save-window-excursion
         (emacspeak-speak-region
          (window-point win)
@@ -1870,7 +1870,7 @@ Moves to the longest line when called interactively."
   (interactive "r")
   (let ((max 0)
         (where nil))
-    (save-excursion
+    (save-mark-and-excursion
       (goto-char start)
       (while (and (not (eobp))
                   (< (point) end))
@@ -1894,7 +1894,7 @@ Moves to the shortest line when called interactively."
   (interactive "r")
   (let ((min 1)
         (where (point)))
-    (save-excursion
+    (save-mark-and-excursion
       (goto-char start)
       (while (and (not (eobp))
                   (< (point) end))
@@ -1922,7 +1922,7 @@ Moves to the longest paragraph when called interactively."
   (let ((max 0)
         (where nil)
         (para-start start))
-    (save-excursion
+    (save-mark-and-excursion
       (goto-char start)
       (while (and (not (eobp))
                   (< (point) end))
@@ -2694,7 +2694,7 @@ Lang is obtained from property `lang' on string, or  via an interactive prompt."
 (defun emacspeak-wizards-espeak-region (start end)
   "Speak region using ESpeak polyglot wizard."
   (interactive "r")
-  (save-excursion
+  (save-mark-and-excursion
     (goto-char start)
     (while (< start end)
       (goto-char

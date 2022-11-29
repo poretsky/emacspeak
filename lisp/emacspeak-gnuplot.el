@@ -128,7 +128,7 @@
 
 (defadvice gnuplot-complete-keyword (around emacspeak pre act)
   "Say what you completed."
-  (let ((prior (save-excursion (skip-syntax-backward "^ >") (point)))
+  (let ((prior (save-mark-and-excursion (skip-syntax-backward "^ >") (point)))
         (dtk-stop-immediately dtk-stop-immediately))
     (when dtk-stop-immediately (dtk-stop))
     ad-do-it

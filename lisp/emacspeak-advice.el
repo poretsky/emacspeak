@@ -267,7 +267,7 @@ When on a close delimiter, speaking matching open delimiter after a small delay.
             (= ?\) (char-syntax (following-char)))
             (sit-for 0.25))
          (emacspeak-auditory-icon 'item)
-         (save-excursion
+         (save-mark-and-excursion
            (forward-char 1)
            (emacspeak-blink-matching-open)))))))
 
@@ -419,11 +419,11 @@ that were upper cased."
            (cl-minusp current-prefix-arg))
       ad-do-it
       (let ((start (point)))
-        (save-excursion
+        (save-mark-and-excursion
           (forward-word current-prefix-arg)
           (emacspeak-speak-region start (point)))))
      (t ad-do-it
-        (save-excursion
+        (save-mark-and-excursion
           (skip-syntax-forward " ")
           (if (eobp)
               (message "Upper cased final word in buffer")
@@ -445,11 +445,11 @@ the words that were down cased."
            (cl-minusp current-prefix-arg))
       ad-do-it
       (let ((start (point)))
-        (save-excursion
+        (save-mark-and-excursion
           (forward-word current-prefix-arg)
           (emacspeak-speak-region start (point)))))
      (t ad-do-it
-        (save-excursion
+        (save-mark-and-excursion
           (skip-syntax-forward " ")
           (if (eobp)
               (message "Lower cased final word in buffer")
@@ -471,11 +471,11 @@ the words that were capitalized."
            (cl-minusp current-prefix-arg))
       ad-do-it
       (let ((start (point)))
-        (save-excursion
+        (save-mark-and-excursion
           (forward-word current-prefix-arg)
           (emacspeak-speak-region start (point)))))
      (t ad-do-it
-        (save-excursion
+        (save-mark-and-excursion
           (skip-syntax-forward " ")
           (if (eobp)
               (message "Capitalized final word in buffer")
@@ -531,7 +531,7 @@ the words that were capitalized."
 (defadvice kill-word (before emacspeak pre act comp)
   "Speak word before killing it."
   (when (ems-interactive-p)
-    (save-excursion
+    (save-mark-and-excursion
       (skip-syntax-forward " ")
       (when dtk-stop-immediately (dtk-stop))
       (let ((dtk-stop-immediately nil))
@@ -544,7 +544,7 @@ the words that were capitalized."
     (when dtk-stop-immediately (dtk-stop))
     (let ((start (point))
           (dtk-stop-immediately nil))
-      (save-excursion
+      (save-mark-and-excursion
         (forward-word -1)
         (dtk-tone-deletion)
         (emacspeak-speak-region (point) start)))))
@@ -589,7 +589,7 @@ the words that were capitalized."
   (when (ems-interactive-p)
     (let (thisblank singleblank)
       (save-match-data
-        (save-excursion
+        (save-mark-and-excursion
           (forward-line 0)
           (setq thisblank (looking-at "[ \t]*$"))
           ;; Set singleblank if there is just one blank line here.
@@ -621,7 +621,7 @@ see option emacspeak-untabify-fixes-non-breaking-space."
   (when emacspeak-untabify-fixes-non-breaking-space
     (let ((start (ad-get-arg 0))
           (end (ad-get-arg 1)))
-      (save-excursion
+      (save-mark-and-excursion
         (save-restriction
           (narrow-to-region start end)
           (goto-char start)
@@ -643,7 +643,7 @@ see option emacspeak-untabify-fixes-non-breaking-space."
 
 (defadvice pcomplete (around emacspeak pre act comp)
   "Say what you completed."
-  (let ((orig (save-excursion (skip-syntax-backward "^ >") (point))))
+  (let ((orig (save-mark-and-excursion (skip-syntax-backward "^ >") (point))))
     ad-do-it
     (when (ems-interactive-p)
       (emacspeak-speak-region orig (point))
@@ -657,7 +657,7 @@ see option emacspeak-untabify-fixes-non-breaking-space."
   "Speak what was completed."
   (cond
    ((ems-interactive-p)
-    (let ((orig (save-excursion (skip-syntax-backward "^ >" ) (point))))
+    (let ((orig (save-mark-and-excursion (skip-syntax-backward "^ >" ) (point))))
       (ems-with-messages-silenced
        ad-do-it)
       (emacspeak-auditory-icon 'complete)
@@ -884,7 +884,7 @@ icon."
 ;;{{{ Advice completion-at-point:
 (defadvice completion-at-point (around emacspeak pre act comp)
   "Say what you completed."
-  (let ((orig (save-excursion (skip-syntax-backward "^ >_") (point))))
+  (let ((orig (save-mark-and-excursion (skip-syntax-backward "^ >_") (point))))
     ad-do-it
     (when (ems-interactive-p)
       (dtk-speak (buffer-substring orig (point)))
@@ -954,7 +954,7 @@ icon."
         (when (ems-interactive-p)
           (dtk-speak
            (format "%s %s"
-                   (save-excursion (backward-char 1)
+                   (save-mark-and-excursion (backward-char 1)
                                    (sexp-at-point))
                    (or emacspeak-last-message ""))))
         ad-return-value)))))
@@ -1022,7 +1022,7 @@ icon."
      "Say what you completed."
      (ems-with-messages-silenced
       (let* ((deactivate-mark nil)
-             (prior (save-excursion (skip-syntax-backward "^ >") (point))))
+             (prior (save-mark-and-excursion (skip-syntax-backward "^ >") (point))))
         ad-do-it
         (if (> (point) prior)
             (tts-with-punctuations
@@ -1075,7 +1075,7 @@ icon."
   `(defadvice ,f (after emacspeak pre act comp)
      "Provide auditory feedback."
      (when (ems-interactive-p)
-       (save-excursion
+       (save-mark-and-excursion
          (comint-bol-or-process-mark)
          (emacspeak-auditory-icon 'select-object)
          (emacspeak-speak-line 1))))))
@@ -1097,7 +1097,7 @@ icon."
        ad-do-it
        (cond
         ((= (point) (+ count orig))
-         (save-excursion
+         (save-mark-and-excursion
            (forward-word -1)
            (emacspeak-speak-word)))
         (t
@@ -1189,7 +1189,7 @@ icon."
 (defadvice comint-accumulate (before emacspeak pre act comp)
   "Speak the line we are accumulating."
   (when (ems-interactive-p)
-    (save-excursion
+    (save-mark-and-excursion
       (comint-bol)
       (emacspeak-auditory-icon 'select-object)
       (emacspeak-speak-line 1))))
@@ -1204,7 +1204,7 @@ icon."
                   emacspeak pre act comp)
      "Speak the matched input."
      (when (ems-interactive-p)
-       (save-excursion
+       (save-mark-and-excursion
          (goto-char (comint-line-beginning-position))
          (emacspeak-speak-line 1))
        (emacspeak-auditory-icon 'select-object)))))
@@ -1285,7 +1285,7 @@ icon."
   (cond
    ((ems-interactive-p)
     (ems-with-messages-silenced
-     (let ((prior (save-excursion (skip-syntax-backward "^ >") (point))))
+     (let ((prior (save-mark-and-excursion (skip-syntax-backward "^ >") (point))))
        ad-do-it
        (if (> (point) prior)
            (tts-with-punctuations
@@ -1337,7 +1337,7 @@ icon."
   "Provide auditory feedback."
   (when (ems-interactive-p)
     (emacspeak-auditory-icon 'item)
-    (save-excursion
+    (save-mark-and-excursion
       (comint-bol)
       (emacspeak-speak-line 1))))
 
@@ -1643,7 +1643,7 @@ Shell-Dirtrack mode; turning it off does not re-enable it."
   `(defadvice ,f (after emacspeak pre act comp)
      "Give some auditory feedback."
      (emacspeak-auditory-icon 'open-object)
-     (save-excursion
+     (save-mark-and-excursion
        (goto-char (point-min))
        (emacspeak-speak-line)))))
 (cl-loop
@@ -2428,8 +2428,8 @@ Produce an auditory icon if possible."
    ((null isearch-success) (emacspeak-auditory-icon 'search-miss))
    (t
     (emacspeak-auditory-icon 'search-hit)
-    (when (sit-for 0.2)
-      (save-excursion
+    (when (sit-for  0.2)
+      (save-mark-and-excursion
         (ems-set-personality-temporarily
          (point) isearch-other-end voice-bolden
          (dtk-speak
@@ -2740,7 +2740,7 @@ Produce auditory icons if possible."
   (when buffer-read-only (dtk-speak "Buffer is read-only. "))
   (cond
    ((ems-interactive-p)
-    (let ((start (save-excursion (backward-word 1) (point))))
+    (let ((start (save-mark-and-excursion (backward-word 1) (point))))
       ad-do-it
       (dtk-speak (buffer-substring start (point)))))
    (t ad-do-it))

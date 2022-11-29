@@ -64,7 +64,7 @@
 (defadvice origami-hide-overlay (after emacspeak pre act comp)
   "Attach auditory icon at front."
   (let ((s
-         (save-excursion
+         (save-mark-and-excursion
            (goto-char (overlay-start (ad-get-arg 0)))
            (line-beginning-position)))
         (e (overlay-end (ad-get-arg 0))))
@@ -73,7 +73,7 @@
 (defadvice origami-show-overlay (after emacspeak pre act comp)
   "Remove auditory icon at front."
   (let ((s
-         (save-excursion
+         (save-mark-and-excursion
            (goto-char (overlay-start (ad-get-arg 0)))
            (line-beginning-position)))
         (e (overlay-end (ad-get-arg 0))))

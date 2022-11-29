@@ -78,7 +78,7 @@
   "Provide auditory feedback."
   (when (ems-interactive-p)
     (emacspeak-auditory-icon 'close-object)
-    (save-excursion
+    (save-mark-and-excursion
       (ruby-beginning-of-block)
       (emacspeak-speak-line))))
 

@@ -249,7 +249,7 @@
     (let ((o-open nil)
           (o-close nil)
 	  (deactivate-mark nil))
-      (save-excursion
+      (save-mark-and-excursion
         (setq o-open (car (overlays-at (point))))
         (next-line 1)
         (beginning-of-line)

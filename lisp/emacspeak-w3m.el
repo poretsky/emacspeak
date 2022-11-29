@@ -176,7 +176,7 @@ This hack helps to deal with some specially designed forms."
              (value-at-start anchor-index)
              (value-at-pos nil)
              anchor-text)
-        (save-excursion
+        (save-mark-and-excursion
           (goto-char start)
           (cl-loop do
                 (when (and (integerp value-at-start) (not value-at-pos))
@@ -513,14 +513,14 @@ This hack helps to deal with some specially designed forms."
           "Speech-enable scrolling."
           (cond
            ((ems-interactive-p)
-            (let ((opoint (save-excursion
+            (let ((opoint (save-mark-and-excursion
                             (beginning-of-line)
                             (point))))
               ;; hide opoint from advised function
               (let (opoint) ad-do-it)
               (emacspeak-auditory-icon 'scroll)
               (emacspeak-speak-region opoint
-                                      (save-excursion (end-of-line)
+                                      (save-mark-and-excursion (end-of-line)
                                                       (point)))))
            (t ad-do-it))
           ad-return-value)))

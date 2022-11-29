@@ -221,7 +221,7 @@ Otherwise, Examine head of sexp, and applies associated handler to the tail."
   (cl-declare (special emacspeak-maths))
   (let ((pause (emacspeak-maths-pause emacspeak-maths)))
     (when pause
-      (save-excursion
+      (save-mark-and-excursion
         (goto-char start)
         (skip-syntax-forward " ")
         (put-text-property
@@ -295,13 +295,13 @@ left for next run."
   (cl-declare (special emacspeak-maths))
   (with-current-buffer (process-buffer proc)
     (let ((moving (= (point) (process-mark proc))))
-      (save-excursion
+      (save-mark-and-excursion
 ;;; Insert the text, advancing the process marker.
         (goto-char (process-mark proc))
         (insert string)
         (set-marker (process-mark proc) (point)))
 ;;; Consume process output
-      (save-excursion
+      (save-mark-and-excursion
         (goto-char (point-min))
         (flush-lines "^ *$")
         (goto-char (point-min))
@@ -420,7 +420,7 @@ Set calc-language to tex to use this feature."
 ;;; $ and $$
        ((or (string= "$" delimiter)
             (string= "$$" delimiter))
-        (save-excursion
+        (save-mark-and-excursion
           (goto-char start)
           (forward-char (length delimiter))
           (setq begin (point))

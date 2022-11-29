@@ -365,7 +365,7 @@ Optional argument FILENAME specifies the dictionary file."
            (goto-char emacspeak-pronounce-yank-word-point)
            (buffer-substring-no-properties
             (point)
-            (save-excursion
+            (save-mark-and-excursion
               (forward-word 1)
               (setq emacspeak-pronounce-yank-word-point (point)))))))
     (insert string)

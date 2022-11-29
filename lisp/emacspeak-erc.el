@@ -148,7 +148,7 @@ spoken.")
   "Helper to prompt for and read person in ERC."
   (read-from-minibuffer
    (format "%s person" action)
-   (save-excursion
+   (save-mark-and-excursion
      (let ((start (point)))
        (search-backward  "<" (point-min) t)
        (when (not (= start (point)))

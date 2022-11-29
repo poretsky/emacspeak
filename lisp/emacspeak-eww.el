@@ -854,7 +854,7 @@ Retain previously set punctuations  mode."
 (defadvice eww-display-html (before emacspeak pre act comp)
   "Apply XSLT transform if requested."
   (cl-declare (special emacspeak-web-pre-process-hook))
-  (save-excursion
+  (save-mark-and-excursion
     (cond
      (emacspeak-web-pre-process-hook (emacspeak-webutils-run-pre-process-hook))
      ((and emacspeak-we-xsl-p emacspeak-we-xsl-transform)
@@ -1606,7 +1606,7 @@ Otherwise, prompts if content at point is enclosed by multiple elements."
     (or (car emacspeak-eww-element-navigation-history)
         (emacspeak-eww-read-tags-like-this "Read: "))))
   (let ((start (point)))
-    (save-excursion
+    (save-mark-and-excursion
       (emacspeak-eww-next-element  element)
       (emacspeak-auditory-icon 'select-object)
       (emacspeak-speak-region start (point)))))
@@ -1632,7 +1632,7 @@ The %s is automatically spoken if there is no user activity."
          (forward-line 1)
          (let ((start  (point)))
            (condition-case nil 
-               (save-excursion
+               (save-mark-and-excursion
                  (funcall #'emacspeak-eww-next-element s)
                  (emacspeak-speak-region start (point)))
              (error nil)))))))
@@ -1652,7 +1652,7 @@ The %s is automatically spoken if there is no user activity."
          (forward-line 1)
          (let ((start  (point)))
            (condition-case nil 
-               (save-excursion
+               (save-mark-and-excursion
                  (funcall #'emacspeak-eww-next-element s)
                  (emacspeak-speak-region start (point)))
              (error nil))))))))

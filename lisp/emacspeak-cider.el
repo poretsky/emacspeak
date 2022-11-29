@@ -191,7 +191,7 @@
   `(defadvice ,f (after emacspeak pre act comp)
      "Provide auditory feedback."
      (when (ems-interactive-p)
-       (save-excursion
+       (save-mark-and-excursion
          (goto-char
           (previous-single-property-change (point)   'face nil (point-min)))
          (emacspeak-speak-this-personality-chunk))

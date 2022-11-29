@@ -415,7 +415,7 @@ Also cleanup ANSI escape sequences."
              (or (and (boundp 'ansi-color-control-seq-regexp) ansi-color-control-seq-regexp)
                  (and (boundp 'ansi-color-drop-regexp) ansi-color-drop-regexp))))
         (insert output)
-        (save-excursion
+        (save-mark-and-excursion
           (goto-char start)
           (while (and ignore-seq-regexp (re-search-forward ignore-seq-regexp  (point-max) 'no-error))
             (delete-region (match-beginning 0) (match-end 0))))))))

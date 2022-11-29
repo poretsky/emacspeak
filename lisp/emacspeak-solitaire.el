@@ -109,7 +109,7 @@
 (defun emacspeak-solitaire-show-column ()
   "Audio format current column."
   (interactive)
-  (save-excursion
+  (save-mark-and-excursion
     (let ((row (emacspeak-solitaire-current-row))
           (column (emacspeak-solitaire-current-column))
           (cells nil))

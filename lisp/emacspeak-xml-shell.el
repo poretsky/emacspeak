@@ -283,7 +283,7 @@ HTML head if none found."
      start end))
   (emacspeak-xml-shell-setup-html-base
    emacspeak-xml-shell-document)
-  (save-excursion
+  (save-mark-and-excursion
     (goto-char (point-min))
     (while (search-forward "-------" nil t)
       (replace-match "<br>")))

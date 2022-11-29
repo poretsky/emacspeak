@@ -84,10 +84,10 @@
 (defun emacspeak-speedbar-speak-line()
   "Speak a line in the speedbar display"
   (let ((indent nil))  
-    (save-excursion
+    (save-mark-and-excursion
       (beginning-of-line)
       (setq indent 
-            (save-excursion
+            (save-mark-and-excursion
               (save-match-data
                 (beginning-of-line)
                 (string-to-number
@@ -205,7 +205,7 @@ An automatically updating speedbar consumes resources.")
   (dtk-speak
    (concat "Speedbar: "
            (let ((start nil))
-             (save-excursion 
+             (save-mark-and-excursion 
                (beginning-of-line)
                (setq start (point))
                (end-of-line)
@@ -214,7 +214,7 @@ An automatically updating speedbar consumes resources.")
 (defun emacspeak-speedbar-click ()
   "Does the equivalent of the mouse click from the keyboard"
   (interactive)
-  (save-excursion
+  (save-mark-and-excursion
     (beginning-of-line)
     (let ((target
            (if (get-text-property (point) 'speedbar-function)
@@ -318,7 +318,7 @@ An automatically updating speedbar consumes resources.")
             emacspeak-speedbar-tag-personality)
            (t 'emacspeak-speedbar-default-personality)))
     (put-text-property start end 'personality personality)
-    (save-excursion
+    (save-mark-and-excursion
       (save-match-data
         (beginning-of-line)))))
 

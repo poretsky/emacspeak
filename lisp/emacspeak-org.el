@@ -250,7 +250,7 @@
 
 (defadvice org-complete (around emacspeak pre act)
   "Say what you completed."
-  (let ((prior (save-excursion (skip-syntax-backward "^ >") (point)))
+  (let ((prior (save-mark-and-excursion (skip-syntax-backward "^ >") (point)))
         (dtk-stop-immediately t))
     ad-do-it
     (if (> (point) prior)
@@ -607,7 +607,7 @@ Before doing so, re-align the table if necessary."
     (org-table-maybe-eval-formula)
     (org-table-maybe-recalculate-line)
     (if (or (looking-at "[ \t]*$")
-            (save-excursion (skip-chars-backward " \t") (bolp)))
+            (save-mark-and-excursion (skip-chars-backward " \t") (bolp)))
         (newline)
       (if (and org-table-automatic-realign
                org-table-may-need-update)

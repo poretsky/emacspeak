@@ -79,7 +79,7 @@
   "Provide auditory feedback"
   (when (ems-interactive-p)
     (emacspeak-auditory-icon 'delete-object)
-    (save-excursion
+    (save-mark-and-excursion
       (when (looking-at  "\\?")
         (forward-line 1))
       (emacspeak-speak-line))))
@@ -109,7 +109,7 @@
   "Provide auditory feedback"
   (when (ems-interactive-p)
     (emacspeak-auditory-icon 'large-movement)
-    (save-excursion
+    (save-mark-and-excursion
       (when (looking-at  "\\?")
         (forward-line 1))
       (emacspeak-speak-line))))
@@ -118,7 +118,7 @@
   "Provide auditory feedback"
   (when (ems-interactive-p)
     (emacspeak-auditory-icon 'large-movement)
-    (save-excursion
+    (save-mark-and-excursion
       (when (looking-at  "\\?")
         (forward-line 1))
       (emacspeak-speak-line))))

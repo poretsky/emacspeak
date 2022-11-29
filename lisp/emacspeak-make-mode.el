@@ -87,7 +87,7 @@
   "Speak what we completed"
   (cond
    ((ems-interactive-p)
-    (let ((orig (save-excursion (skip-syntax-backward "^ >") (point))))
+    (let ((orig (save-mark-and-excursion (skip-syntax-backward "^ >") (point))))
       ad-do-it
       (emacspeak-speak-region orig (point))))
    (t ad-do-it))

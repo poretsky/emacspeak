@@ -265,7 +265,7 @@ Use an auditory icon if possible."
 (defadvice db-kill-word (before emacspeak pre act comp)
   "Speak word before killing it."
   (when (ems-interactive-p )
-    (save-excursion
+    (save-mark-and-excursion
       (skip-syntax-forward " ")
       (when dtk-stop-immediately (dtk-stop))
       (let ((dtk-stop-immediately nil))
@@ -278,7 +278,7 @@ Use an auditory icon if possible."
     (when dtk-stop-immediately (dtk-stop))
     (let ((start (point ))
           (dtk-stop-immediately nil))
-      (save-excursion
+      (save-mark-and-excursion
         (forward-word -1)
         (dtk-tone 500 30)
         (emacspeak-speak-region (point) start )))))

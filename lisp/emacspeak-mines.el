@@ -123,7 +123,7 @@ to beginning of board before searching."
   (cl-declare (special mines-flagged-cell-char))
   (let ((count 0) ;;; fix over-counting 
         (m (format "%c" mines-flagged-cell-char)))
-    (save-excursion
+    (save-mark-and-excursion
       (goto-char (point-min))
       (while (search-forward  m nil t) (cl-incf count) (forward-char 1)))
     (message "%d marks" count)))
@@ -132,7 +132,7 @@ to beginning of board before searching."
   (interactive)
   (cl-declare (special  mines-number-cols mines-grid))
   (let ((cells nil))
-    (save-excursion
+    (save-mark-and-excursion
       (setq cells
             (cl-loop
              for i from 0 to (1- (length mines-state)) collect
@@ -172,7 +172,7 @@ to beginning of board before searching."
 
 (defun emacspeak-mines-cell-flagged-p (c)
   "Predicate to check if cell at index c is flagged."
-  (save-excursion
+  (save-mark-and-excursion
     (mines-goto c)
     (get-text-property (point) 'flag)))
 

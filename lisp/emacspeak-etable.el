@@ -98,7 +98,7 @@
     (cond
      ((and (= 32 last-input-event)
            emacspeak-word-echo)
-      (save-excursion
+      (save-mark-and-excursion
         (let ((orig (point)))
           (table--finish-delayed-tasks)
           (backward-word 1)

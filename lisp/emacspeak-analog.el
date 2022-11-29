@@ -109,7 +109,7 @@
 (defun emacspeak-analog-get-field-spec ()
   "Returns field specification if one defined for current entry.
 Nil means no field specified."
-  (save-excursion
+  (save-mark-and-excursion
     (let ((start (previous-single-property-change (point)
                                                   'analog-entry-start)))
       (when start
@@ -145,7 +145,7 @@ Speak field or char moved to."
 
 (defun emacspeak-analog-speak-field (fields)
   "Speak field containing point."
-  (save-excursion
+  (save-mark-and-excursion
     (let ((col (current-column))
           (start nil)
           (end nil)

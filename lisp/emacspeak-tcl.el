@@ -154,7 +154,7 @@ is a Tcl expression, and the last argument is Tcl commands.")
   (when (ems-interactive-p)
     (let* ((start nil)
            (proc-line
-            (save-excursion
+            (save-mark-and-excursion
               (tcl-beginning-of-defun)
               (setq start (point))
               (end-of-line)

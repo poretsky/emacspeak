@@ -181,7 +181,7 @@ Indicate  no movement if we did not move."
      "Provide auditory feedback."
      (when (ems-interactive-p)
        (emacspeak-auditory-icon 'item)
-       (save-excursion
+       (save-mark-and-excursion
          (forward-char 1)
          (emacspeak-speak-sexp))))))
 

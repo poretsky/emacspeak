@@ -103,14 +103,14 @@
 (defun emacspeak-vdiff-speak-other-hunk ()
   "Speak corresponding hunk from other buffer."
   (interactive)
-  (save-excursion
+  (save-mark-and-excursion
     (vdiff-switch-buffer (line-number-at-pos))
     (emacspeak-vdiff-speak-this-hunk)))
 
 (defun emacspeak-vdiff-speak-other-line ()
   "Speak corresponding line from other buffer."
   (interactive)
-  (save-excursion
+  (save-mark-and-excursion
     (vdiff-switch-buffer (line-number-at-pos))
     (emacspeak-speak-line)))
 

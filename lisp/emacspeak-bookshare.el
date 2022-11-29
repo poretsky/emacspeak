@@ -1406,7 +1406,7 @@ Useful for fulltext search in a book."
 (defun emacspeak-bookshare-flush-lines(regexp)
   "Flush lines matching regexp in Bookshare buffer."
   (interactive "sRegexp: ")
-  (save-excursion
+  (save-mark-and-excursion
     (let ((inhibit-read-only t))
       (goto-char (next-single-property-change (point-min) 'face))
       (flush-lines regexp (point) (point-max)))))

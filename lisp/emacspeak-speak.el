@@ -408,7 +408,7 @@ Argument BODY specifies forms to execute."
 
 (defun emacspeak-audio-annotate-paragraphs ()
   "Set property auditory-icon at front of all paragraphs."
-  (save-excursion
+  (save-mark-and-excursion
     (let ((deactivate-mark nil))
       (goto-char (point-max))
       (with-silent-modifications
@@ -436,7 +436,7 @@ Useful to do this before you listen to an entire buffer."
   (when
       (and  emacspeak-speak-paragraph-personality
             (null emacspeak-speak-voice-annotated-paragraphs)) ; memoized
-    (save-excursion
+    (save-mark-and-excursion
       (goto-char (point-min))
       (condition-case nil
           (let ((start nil)
@@ -1097,7 +1097,7 @@ of line to point."
          (end (line-end-position))
          (line nil)
          (orig (point)))
-    (save-excursion
+    (save-mark-and-excursion
       (beginning-of-visual-line)
       (setq start (max (point) start))
       (end-of-visual-line)
@@ -1175,7 +1175,7 @@ spelled out  instead of being spoken."
   (cl-declare (special emacspeak-speak-last-spoken-word-position))
   (when (listp arg) (setq arg (car arg)))
   (emacspeak-handle-action-at-point)
-  (save-excursion
+  (save-mark-and-excursion
     (let ((orig (point))
           (inhibit-point-motion-hooks t)
           (inhibit-modification-hooks t)
@@ -1392,7 +1392,7 @@ With prefix ARG, speaks the rest of the sentence  from point.
 Negative prefix arg speaks from start of sentence to point."
   (interactive "P")
   (when (listp arg) (setq arg (car arg)))
-  (save-excursion
+  (save-mark-and-excursion
     (let ((orig (point))
           (deactivate-mark nil)
           (inhibit-point-motion-hooks t)
@@ -1417,7 +1417,7 @@ With prefix ARG, speaks the rest of the sexp  from point.
 Negative prefix arg speaks from start of sexp to point. "
   (interactive "P")
   (when (listp arg) (setq arg (car arg)))
-  (save-excursion
+  (save-mark-and-excursion
     (let ((orig (point))
           (deactivate-mark nil)
           (inhibit-point-motion-hooks t)
@@ -1447,7 +1447,7 @@ Negative prefix arg will read from start of current page to point.
 If option  `voice-lock-mode' is on, then it will use any defined personality."
   (interactive "P")
   (when (listp arg) (setq arg (car arg)))
-  (save-excursion
+  (save-mark-and-excursion
     (let ((orig (point))
           (deactivate-mark nil)
           (inhibit-point-motion-hooks t)
@@ -1471,7 +1471,7 @@ Negative prefix arg will read from start of current paragraph to point.
 If voice-lock-mode is on, then it will use any defined personality. "
   (interactive "P")
   (when (listp arg) (setq arg (car arg)))
-  (save-excursion
+  (save-mark-and-excursion
     (let ((orig (point))
           (deactivate-mark nil)
           (inhibit-point-motion-hooks t)
@@ -1772,7 +1772,7 @@ indicating the arrival  of new mail when displaying the mode line.")
 ;;;compute current line number
 (defun emacspeak-get-current-line-number ()
   (let ((start (point)))
-    (save-excursion
+    (save-mark-and-excursion
       (save-restriction
         (widen)
         (goto-char (point-min))
@@ -2061,7 +2061,7 @@ Displays name of current buffer.")
   "Read a line without moving.
 Line to read is specified relative to the current line, prefix args gives the
 offset. Default  is to speak the previous line. "
-  (save-excursion
+  (save-mark-and-excursion
     (cond
      ((zerop arg) (emacspeak-speak-line))
      ((zerop (forward-line arg))
@@ -2086,7 +2086,7 @@ Default is to read the next line. "
   "Read a word without moving.
 word  to read is specified relative to the current word, prefix args gives the
 offset. Default  is to speak the previous word. "
-  (save-excursion
+  (save-mark-and-excursion
     (cond
      ((= arg 0) (emacspeak-speak-word))
      ((forward-word arg)
@@ -2373,7 +2373,7 @@ by a change in voice personality."
           (if current-prefix-arg
               (elt mark-ring (1- count))
             (mark)))
-    (save-excursion
+    (save-mark-and-excursion
       (goto-char pos)
       (ems-set-personality-temporarily
        pos (1+ pos) voice-animate
@@ -2422,7 +2422,7 @@ Return buffer position or nil on failure."
   (let ((result nil)
         (start max)
         (continue t))
-    (save-excursion
+    (save-mark-and-excursion
       (while (and continue
                   (not
                    (or (< (point) min)
@@ -2702,7 +2702,7 @@ set the current local value to the result.")
     (skip-syntax-forward "^ ")
     (skip-syntax-forward " ")
     (setq start (point))
-    (save-excursion
+    (save-mark-and-excursion
       (skip-syntax-forward "^ ")
       (emacspeak-speak-field start (point)))))
 
@@ -2777,7 +2777,7 @@ Otherwise just display a message."
   "Return window contents."
   (let ((deactivate-mark nil)
         (start nil))
-    (save-excursion
+    (save-mark-and-excursion
       (move-to-window-line 0)
       (setq start (point))
       (move-to-window-line -1)
@@ -2810,7 +2810,7 @@ Semantics  of `other' is the same as for the builtin Emacs command
 `other-window'.
 Optional argument ARG  specifies `other' window to speak."
   (interactive "nSpeak window")
-  (save-excursion
+  (save-mark-and-excursion
     (save-window-excursion
       (other-window arg)
       (save-current-buffer
@@ -2917,7 +2917,7 @@ Semantics  of `other' is the same as for the builtin Emacs command
         (setq window
               (read-number "Window   between 1 and 9 to speak" 1)))
     (setq window (1- window))
-    (save-excursion
+    (save-mark-and-excursion
       (save-window-excursion
         (other-window window)
         (emacspeak-speak-region (window-start) (window-end nil t))))))
@@ -3120,12 +3120,12 @@ value to apply."
        "Matches "
        (cond
 ;;; Show what precedes the open in its line, if anything.
-        ((save-excursion
+        ((save-mark-and-excursion
            (skip-chars-backward " \t")
            (not (bolp)))
          (buffer-substring (line-beginning-position) (1+ blinkpos)))
 ;;; Show what follows the open in its line, if anything.
-        ((save-excursion
+        ((save-mark-and-excursion
            (forward-char 1)
            (skip-chars-forward " \t")
            (not (eolp)))
@@ -3157,7 +3157,7 @@ Also display match context in minibuffer."
              blink-matching-paren
              ;; Verify an even number of quoting characters precede the close.
              (= 1 (logand 1 (- (point)
-                               (save-excursion
+                               (save-mark-and-excursion
                                  (forward-char -1)
                                  (skip-syntax-backward "/\\")
                                  (point))))))
@@ -3167,7 +3167,7 @@ Also display match context in minibuffer."
            message-log-max  ; Don't log messages about paren matching.
            matching-paren
            open-paren-line-string)
-      (save-excursion
+      (save-mark-and-excursion
         (save-restriction
           (if blink-matching-paren-distance
               (narrow-to-region (max (minibuffer-prompt-end)
@@ -3201,22 +3201,22 @@ Also display match context in minibuffer."
           ;; Matching open within window, temporarily move to blinkpos but only
           ;; if `blink-matching-paren-on-screen' is non-nil.
           (and blink-matching-paren-on-screen
-               (save-excursion
+               (save-mark-and-excursion
                  (goto-char blinkpos)
                  (emacspeak-speak-blinkpos-message blinkpos)
                  (sit-for blink-matching-delay))))
          (t
-          (save-excursion
+          (save-mark-and-excursion
             (goto-char blinkpos)
             (setq open-paren-line-string
                   ;; Show what precedes the open in its line, if anything.
-                  (if (save-excursion
+                  (if (save-mark-and-excursion
                         (skip-chars-backward " \t")
                         (not (bolp)))
                       (buffer-substring (line-beginning-position)
                                         (1+ blinkpos))
                     ;; Show what follows the open in its line, if anything.
-                    (if (save-excursion
+                    (if (save-mark-and-excursion
                           (forward-char 1)
                           (skip-chars-forward " \t")
                           (not (eolp)))
@@ -3224,7 +3224,7 @@ Also display match context in minibuffer."
                                           (line-end-position))
                       ;; Otherwise show the previous nonblank line,
                       ;; if there is one.
-                      (if (save-excursion
+                      (if (save-mark-and-excursion
                             (skip-chars-backward "\n \t")
                             (not (bobp)))
                           (concat
@@ -3282,10 +3282,10 @@ Argument O specifies overlay."
     (message "Not on white space"))
    (t
     (let ((orig (point))
-          (start (save-excursion
+          (start (save-mark-and-excursion
                    (skip-syntax-backward " ")
                    (point)))
-          (end (save-excursion
+          (end (save-mark-and-excursion
                  (skip-syntax-forward " ")
                  (point))))
       (message "Space %s of %s"
@@ -3306,7 +3306,7 @@ Argument O specifies overlay."
 (defun emacspeak-make-string-inaudible (string)
   (unless (string-match "^ *$" string)
     (with-silent-modifications
-      (save-excursion
+      (save-mark-and-excursion
         (goto-char (point-min))
         (save-match-data
           (with-silent-modifications
@@ -3412,7 +3412,7 @@ Speak text between point and the char we hit."
   (interactive (list (read-char "Char: ")))
   (let ((start (point))
         (goal nil))
-    (save-excursion
+    (save-mark-and-excursion
       (cond
        ((search-forward (format "%c" char)
                         (point-max)
@@ -3668,7 +3668,7 @@ This command  is designed for use in a windowing environment like X."
         (base-position completion-base-position)
         (insert-function completion-list-insert-choice-function)
         (choice
-         (save-excursion
+         (save-mark-and-excursion
            (let (beg end)
              (cond
               ((and (not (eobp)) (get-text-property (point) 'mouse-face))

@@ -86,7 +86,7 @@ node -- speak the entire node."
   "Speak current window in info buffer."
   (let ((start  (point))
         (window (get-buffer-window (current-buffer))))
-    (save-excursion
+    (save-mark-and-excursion
       (forward-line (window-height window))
       (emacspeak-speak-region start (point)))))
 
@@ -132,7 +132,7 @@ emacspeak-info-select-node-speak-chunk"
     (emacspeak-auditory-icon 'scroll)
     (let ((start  (point))
           (window (get-buffer-window (current-buffer))))
-      (save-excursion
+      (save-mark-and-excursion
         (forward-line (window-height window))
         (emacspeak-speak-region start (point))))))
 
@@ -142,7 +142,7 @@ emacspeak-info-select-node-speak-chunk"
     (emacspeak-auditory-icon 'scroll)
     (let ((start  (point))
           (window (get-buffer-window (current-buffer))))
-      (save-excursion
+      (save-mark-and-excursion
         (forward-line (window-height window))
         (emacspeak-speak-region start (point))))))
 
@@ -198,7 +198,7 @@ node-spec."
   "Move forward to next section in this node."
   (interactive)
   (let ((target nil))
-    (save-excursion
+    (save-mark-and-excursion
       (while (and (null target)
                   (not (eobp)))
         (goto-char (next-single-property-change (point)  'face nil (point-max)))
@@ -215,7 +215,7 @@ node-spec."
   "Move backward to previous section in this node."
   (interactive)
   (let ((target nil))
-    (save-excursion
+    (save-mark-and-excursion
       (while (and (null target)
                   (not (bobp)))
         (goto-char (previous-single-property-change (point)  'face nil (point-min)))
@@ -241,7 +241,7 @@ node-spec."
          (boundp 'Info-header-line)
          Info-header-line)
     (dtk-speak Info-header-line))
-   (t (save-excursion
+   (t (save-mark-and-excursion
         (goto-char (point-min))
         (emacspeak-speak-line)))))
 

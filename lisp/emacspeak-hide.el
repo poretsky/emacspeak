@@ -136,7 +136,7 @@ STRING is the token's text."
   (let ((token-list nil)
         (case-fold-search nil)
         token-table not-token-table)
-    (save-excursion
+    (save-mark-and-excursion
       (forward-line 0)
       (catch 'done
         (setq not-token-table emacspeak-hide-prefix-not-token-table)
@@ -185,7 +185,7 @@ Returns t if a block was found and hidden."
         (start nil)
         (continue t)
         (count 1))
-    (save-excursion
+    (save-mark-and-excursion
       (cond
        ((not prefix)
         (message "Not on a block")
@@ -232,7 +232,7 @@ Returns t if a block was found and hidden."
   (let ((start nil)
         (end nil)
         (block-name (get-text-property (point) 'emacspeak-hidden-block)))
-    (save-excursion
+    (save-mark-and-excursion
       (forward-line 0)
       (cond
        (block-name
@@ -265,7 +265,7 @@ Returns t if a block was found and hidden."
   (ems-with-messages-silenced
    (let ((count 0)
          (prefix nil))
-     (save-excursion
+     (save-mark-and-excursion
        (goto-char (point-min))
        (while (not (eobp))
          (setq prefix (emacspeak-hide-parse-prefix))
@@ -287,7 +287,7 @@ Returns t if a block was found and hidden."
   (ems-with-messages-silenced
    (let ((count 0)
          (block-end nil))
-     (save-excursion
+     (save-mark-and-excursion
        (goto-char (point-min))
        (while (not (eobp))
          (setq block-end (emacspeak-hide-expose-block))
@@ -328,7 +328,7 @@ common PREFIX.  Optional interactive prefix arg causes all
 blocks in current buffer to be hidden or exposed."
 
   (interactive "P")
-  (save-excursion
+  (save-mark-and-excursion
     (dtk-stop)
     (forward-line 0)
     (cond
@@ -377,7 +377,7 @@ and when you have heard enough navigate easily  to move past the block."
         (start nil)
         (end nil)
         (block-prefix (get-text-property (point) 'emacspeak-hide-block-prefix)))
-    (save-excursion
+    (save-mark-and-excursion
       (forward-line 0)
       (cond
        (block-prefix

@@ -60,7 +60,7 @@ Useful in voiceifying rich text."
                     emacspeak-enriched-font-faces-to-voiceify))
   (voice-lock-mode (if global-voice-lock-mode 1 -1))
   (with-silent-modifications
-    (save-excursion
+    (save-mark-and-excursion
       (goto-char start)
       (let ((face nil)
             (orig start)
@@ -75,7 +75,7 @@ Useful in voiceifying rich text."
         (while (and  (not (eobp))
                      (< start end))
           (setq justification-type (get-text-property (point) 'justification))
-          (save-excursion
+          (save-mark-and-excursion
             (beginning-of-line)
             (setq pos (point)))
           (goto-char

@@ -84,7 +84,7 @@
 
 (defun emacspeak-eudc-widgets-add-emacspeak-help ()
   "Adds emacspeak widget help to all EUDC widgets. "
-  (save-excursion 
+  (save-mark-and-excursion 
     (goto-char (point-min))
     (while  (not (eobp))
       (goto-char (next-overlay-change (point)))

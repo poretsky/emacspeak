@@ -166,7 +166,7 @@ Customize this to live on your local disk."
 ;;; this helper returns number of bytes.
 (defun g-buffer-bytes (&optional buffer)
   "Return number of bytes in a buffer."
-  (save-excursion
+  (save-mark-and-excursion
     (and buffer (set-buffer buffer))
     (1- (position-bytes (point-max)))))
 
@@ -221,7 +221,7 @@ Customize this to live on your local disk."
 (defun g-html-unescape-region (start end)
   "Unescape HTML entities."
   (cl-declare (special g-html-charent-alist))
-  (save-excursion
+  (save-mark-and-excursion
     (cl-loop for entry in g-html-charent-alist
              do
              (let ((entity (car  entry))
@@ -233,7 +233,7 @@ Customize this to live on your local disk."
 (defun g-html-escape-region (start end)
   "Escape HTML entities."
   (cl-declare (special g-html-charent-alist))
-  (save-excursion
+  (save-mark-and-excursion
     (cl-loop for entry in g-html-charent-alist
              do
              (let ((entity (cdr  entry))

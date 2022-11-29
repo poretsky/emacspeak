@@ -75,7 +75,7 @@ Provide contextual feedback when closing blocks"
         (dtk-notify-speak  (format "Indent %s "ad-return-value))
         (emacspeak-auditory-icon  'close-object)
         (sit-for 0.2)
-        (save-excursion
+        (save-mark-and-excursion
           (py-beginning-of-block)
           (emacspeak-speak-line)))))
    (t ad-do-it))

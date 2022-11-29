@@ -318,7 +318,7 @@ and their meanings. ")
                 (concat description
                         ;; that begins this block
                         (let ((start nil))
-                          (save-excursion
+                          (save-mark-and-excursion
                             (forward-line 0)
                             (search-forward "}" nil t)
                             (forward-char 1)

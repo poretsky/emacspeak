@@ -132,7 +132,7 @@ first initializing it if necessary."
   (unless emacspeak-arc-header-list-format
     (let ((line nil)
           (fields nil))
-      (save-excursion
+      (save-mark-and-excursion
         (goto-char (point-min))
         (setq line (ems--this-line)))
       (setq fields (split-string line))
@@ -146,7 +146,7 @@ first initializing it if necessary."
   emacspeak-arc-header-list-format)
 (defun emacspeak-arc-get-field-index (field)
   (let ((marked-p
-         (save-excursion
+         (save-mark-and-excursion
            (beginning-of-line)
            (= ?\  (following-char))))
         (pos (cadr (assoc field (emacspeak-arc-get-header-line-format)))))

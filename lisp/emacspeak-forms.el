@@ -101,7 +101,7 @@ Assumes that point is at the front of a field value."
   (let ((name nil)
         (value nil)
         (n-start nil))
-    (save-excursion
+    (save-mark-and-excursion
       (backward-char 1)
       (setq n-start (point)))
     (setq name (buffer-substring n-start (point)))
@@ -233,7 +233,7 @@ Assumes that point is at the front of a field value."
                                nil))))
   (let (ro)
     (setq forms--total-records
-          (save-excursion
+          (save-mark-and-excursion
             (prog1
                 (progn
                   (set-buffer forms--file-buffer)

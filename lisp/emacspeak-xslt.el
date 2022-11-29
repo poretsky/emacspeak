@@ -119,7 +119,7 @@ the result.  This uses XSLT processor xsltproc available as
 part of the libxslt package."
   (cl-declare (special emacspeak-xslt-program emacspeak-xslt-options
                        emacspeak-xslt-keep-errors modification-flag))
-  (save-excursion
+  (save-mark-and-excursion
     (with-silent-modifications
       (let ((command nil)
             (parameters (when params

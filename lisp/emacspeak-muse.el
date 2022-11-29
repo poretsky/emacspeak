@@ -113,7 +113,7 @@
           (when (ems-interactive-p)
             (emacspeak-auditory-icon 'yank-object)
             (when (sit-for 0.1)
-              (save-excursion
+              (save-mark-and-excursion
                 (backward-char)
                 (emacspeak-speak-text-range 'keymap)))))))
 

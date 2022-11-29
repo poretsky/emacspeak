@@ -169,7 +169,7 @@ available."
        ((not (=  start (point)))
         (let ((emacspeak-speak-messages nil)
               (case-fold-search t))
-          (save-excursion
+          (save-mark-and-excursion
             (beginning-of-line)
             (setq beg (point))
             (backward-char 1)
@@ -247,7 +247,7 @@ available."
 (defun emacspeak-ecb-speak-window-methods ()
   "Speak contents of methods window."
   (interactive)
-  (save-excursion
+  (save-mark-and-excursion
     (save-window-excursion
       (ecb-goto-window-methods)
       (emacspeak-speak-buffer))))
@@ -255,7 +255,7 @@ available."
 (defun emacspeak-ecb-speak-window-directories ()
   "Speak contents of directories window."
   (interactive)
-  (save-excursion
+  (save-mark-and-excursion
     (save-window-excursion
       (ecb-goto-window-directories)
       (emacspeak-speak-buffer))))
@@ -263,7 +263,7 @@ available."
 (defun emacspeak-ecb-speak-window-history ()
   "Speak contents of history window."
   (interactive)
-  (save-excursion
+  (save-mark-and-excursion
     (save-window-excursion
       (ecb-goto-window-history)
       (emacspeak-speak-buffer))))
@@ -271,7 +271,7 @@ available."
 (defun emacspeak-ecb-speak-window-sources ()
   "Speak contents of sources window."
   (interactive)
-  (save-excursion
+  (save-mark-and-excursion
     (save-window-excursion
       (ecb-goto-window-sources)
       (emacspeak-speak-buffer))))

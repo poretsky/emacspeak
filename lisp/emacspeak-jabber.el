@@ -350,7 +350,7 @@ the kill ring as well."
   (cl-declare (special jabber-activity-jids))
   (cond
    (jabber-activity-jids
-    (save-excursion
+    (save-mark-and-excursion
       (jabber-activity-switch-to)
       (goto-char (point-max))
       (emacspeak-jabber-chat-previous-message)))

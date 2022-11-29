@@ -109,7 +109,7 @@ Provide an auditory icon if possible."
              "Speak selected command."
              (when (ems-interactive-p)
                (emacspeak-auditory-icon 'select-object)
-               (save-excursion
+               (save-mark-and-excursion
                  (beginning-of-line)
                  (eshell-skip-prompt)
                  (emacspeak-speak-line 1))))))
@@ -291,7 +291,7 @@ personalities."
   `(defadvice ,f (around emacspeak pre act comp)
      "Say what you completed."
      (ems-with-messages-silenced
-      (let ((prior (save-excursion (skip-syntax-backward "^ >") (point))))
+      (let ((prior (save-mark-and-excursion (skip-syntax-backward "^ >") (point))))
         ad-do-it
         (if (> (point) prior)
             (tts-with-punctuations
@@ -305,7 +305,7 @@ personalities."
   "Speak what was inserted."
   (when (ems-interactive-p)
     (let ((start
-           (save-excursion
+           (save-mark-and-excursion
              (eshell-bol)
              (point))))
       (emacspeak-auditory-icon 'yank-object)
@@ -314,7 +314,7 @@ personalities."
   "Speak what was inserted."
   (when (ems-interactive-p)
     (let ((start
-           (save-excursion
+           (save-mark-and-excursion
              (eshell-bol)
              (point))))
       (emacspeak-auditory-icon 'yank-object)

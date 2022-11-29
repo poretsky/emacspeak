@@ -220,7 +220,7 @@
           "Provide auditory feedback."
           (when (ems-interactive-p)
             (message "%s %s lines"
-                     (save-excursion
+                     (save-mark-and-excursion
                        (goto-char (point-min))
                        (buffer-substring (line-beginning-position)
                                          (line-end-position)))

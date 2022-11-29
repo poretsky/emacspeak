@@ -318,7 +318,7 @@ Does nothing for unibyte buffers."
   (cl-declare (special dtk-unicode-process-utf8))
   (when dtk-unicode-process-utf8
     (let ((inhibit-read-only t))
-      (save-excursion
+      (save-mark-and-excursion
         (goto-char (point-min))
         (while (re-search-forward dtk-unicode-charset-filter-regexp nil t)
           (let* ((pos (match-beginning 0))

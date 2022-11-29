@@ -97,7 +97,7 @@ end   as specified by grid."
         (this-row nil)
         (num-rows (count-lines start end))
         (num-columns(1+  (length grid))))
-    (save-excursion
+    (save-mark-and-excursion
       (save-restriction
         (narrow-to-region start end)
         (if (< start end)
