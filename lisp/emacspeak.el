@@ -503,7 +503,6 @@ commands and options for details."
   (cl-declare (special
                ad-redefinition-action
                emacspeak-pronounce-load-pronunciations-on-startup line-move-visual
-               emacspeak-info-directory
                use-dialog-box emacspeak-pronounce-dictionaries-file
                emacspeak-play-program emacspeak-sounds-directory))
   (let ((ad-redefinition-action 'accept)
@@ -512,8 +511,6 @@ commands and options for details."
     (emacspeak-export-environment)
     (setq-default line-move-visual nil)
     (setq use-dialog-box nil)
-    (when (boundp 'Info-directory-list)
-      (push emacspeak-info-directory Info-directory-list))
     (require 'emacspeak-personality)
     (dtk-initialize)
     (tts-configure-synthesis-setup)
