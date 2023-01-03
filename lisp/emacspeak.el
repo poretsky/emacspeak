@@ -332,6 +332,7 @@ that implements the speech-enabling extensions for `package' (a string)."
 (emacspeak-do-package-setup "vm" 'emacspeak-vm)
 (emacspeak-do-package-setup "w3m" 'emacspeak-w3m)
 (emacspeak-do-package-setup "youtube-dl" 'emacspeak-youtube-dl)
+(emacspeak-do-package-setup "transmission" 'emacspeak-transmission)
 (emacspeak-do-package-setup "wget" 'emacspeak-wget)
 (emacspeak-do-package-setup "wdired" 'emacspeak-wdired)
 (emacspeak-do-package-setup "cus-edit" 'emacspeak-custom)
