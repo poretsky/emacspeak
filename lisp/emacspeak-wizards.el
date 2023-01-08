@@ -4293,7 +4293,6 @@ If threads are not supported, command is executed synchronously."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

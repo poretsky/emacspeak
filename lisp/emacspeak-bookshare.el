@@ -1417,7 +1417,6 @@ Useful for fulltext search in a book."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

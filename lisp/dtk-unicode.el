@@ -347,7 +347,6 @@ Does nothing for unibyte buffers."
 ;;; local variables:
 ;;; coding: utf-8
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

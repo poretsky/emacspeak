@@ -3747,7 +3747,6 @@ Arranges for `VAR' to be restored when `file' is loaded."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

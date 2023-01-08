@@ -825,7 +825,6 @@ interactive command that the key sequence executes."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

@@ -317,7 +317,6 @@ If already at the beginning then move to previous block."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

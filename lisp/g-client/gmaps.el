@@ -953,7 +953,6 @@ Place details need to have been expanded first."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: nil
 ;;; end:
 
 ;;}}}

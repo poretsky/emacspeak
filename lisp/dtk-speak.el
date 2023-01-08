@@ -2118,7 +2118,6 @@ Notification is logged in the notifications buffer unless `dont-log' is T. "
 ;;; local variables:
 ;;; coding: utf-8
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

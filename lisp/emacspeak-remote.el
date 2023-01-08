@@ -245,7 +245,6 @@ port that that host is listening on for speech requests."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

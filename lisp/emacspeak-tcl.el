@@ -204,7 +204,6 @@ is a Tcl expression, and the last argument is Tcl commands.")
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
 ;;; end: 
 
 ;;}}}

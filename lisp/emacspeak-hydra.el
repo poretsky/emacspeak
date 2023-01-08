@@ -110,7 +110,6 @@ Also turn on hydra-is-helpful if it was turned off."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}

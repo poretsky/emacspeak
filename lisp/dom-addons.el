@@ -183,7 +183,6 @@ All text between the <!-- ... --> markers will be removed."
 
 ;;; local variables:
 ;;; folded-file: t
-;;; byte-compile-dynamic: t
 ;;; end:
 
 ;;}}}
