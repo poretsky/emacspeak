@@ -1720,6 +1720,7 @@ program. Port defaults to dtk-local-server-port"
     (set-process-coding-system process 'utf-8 'utf-8)
     (tts-env-set-process-env process
                              (tts-env-get (tts-env-key dtk-program)))
+    (set-process-query-on-exit-flag process nil)
     process))
 
 (defun dtk-initialize ()
