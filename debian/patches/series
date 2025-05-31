@@ -120,3 +120,4 @@
 0120-Obsolete-byte-compile-dynamic-variable-removed.patch
 0121-Don-t-require-deprecated-package.patch
 0122-Eliminate-query-on-exit.patch
+0123-Removed-package-initialize-call.patch
