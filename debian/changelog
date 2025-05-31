@@ -1,3 +1,9 @@
+emacspeak (1:50.0-22jammy2) jammy; urgency=medium
+
+  * Get rid of warning window on startup.
+
+ -- Igor B. Poretsky <poretsky@mlbox.ru>  Sat, 31 May 2025 12:18:30 +0300
+
 emacspeak (1:50.0-22jammy1) jammy; urgency=medium
 
   * Jabber support fix.
