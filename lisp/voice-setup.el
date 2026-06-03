@@ -516,7 +516,7 @@ command \\[customize-variable] on <personality>-settings. "
 
 (define-globalized-minor-mode global-voice-lock-mode
   voice-lock-mode turn-on-voice-lock
-  :initialize 'custom-initialize-delay
+  :initialize 'custom-initialize-default
   :init-value (not (or noninteractive emacs-basic-display))
   :group 'voice-lock
   :version "24.1")
