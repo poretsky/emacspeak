@@ -165,8 +165,7 @@
     (?s (emacspeak-proced-speak-field 'start))
     (?t (emacspeak-proced-speak-field 'time))
     (?a (emacspeak-proced-speak-field 'args))
-    (otherwise (message "Pick field using mnemonic chars"))
-    (sit-for 1)))
+    (otherwise (message "Pick field using mnemonic chars") (sit-for 1))))
 (defun emacspeak-proced-speak-args ()
   "Speak command  invocation  for this process."
   (interactive)
