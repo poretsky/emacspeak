@@ -325,7 +325,7 @@ index 415441b..48d36a5 100644
            (start nil)
            (end nil)
 diff --git a/lisp/emacspeak-arc.el b/lisp/emacspeak-arc.el
-index ccd614e..bd148b5 100644
+index 9e1cf7c..ce94800 100644
 --- a/lisp/emacspeak-arc.el
 +++ b/lisp/emacspeak-arc.el
 @@ -132,7 +132,7 @@ first initializing it if necessary."
@@ -417,10 +417,10 @@ index 6e9d9d4..76a2afd 100644
            (previous-single-property-change (point)   'face nil (point-min)))
           (emacspeak-speak-this-personality-chunk))
 diff --git a/lisp/emacspeak-dired.el b/lisp/emacspeak-dired.el
-index e42ce8a..f80aafe 100644
+index 97fb283..b58c342 100644
 --- a/lisp/emacspeak-dired.el
 +++ b/lisp/emacspeak-dired.el
-@@ -361,7 +361,7 @@ Assumes that `dired-listing-switches' contains  -l"
+@@ -362,7 +362,7 @@ Assumes that `dired-listing-switches' contains  -l"
                        "modified on"
                        "modified at"
                        "name")))
@@ -429,7 +429,7 @@ index e42ce8a..f80aafe 100644
        (forward-line 0)
        (skip-syntax-forward " ")
        (while (and fields
-@@ -386,7 +386,7 @@ unless `dired-listing-switches' contains -l"
+@@ -387,7 +387,7 @@ unless `dired-listing-switches' contains -l"
        (unwind-protect
            (progn
              (setq buffer-read-only nil)
@@ -438,7 +438,7 @@ index e42ce8a..f80aafe 100644
                (goto-char (point-min))
                (dired-goto-next-nontrivial-file)
                (while (not (eobp))
-@@ -425,7 +425,7 @@ options passed to command `file'."
+@@ -426,7 +426,7 @@ options passed to command `file'."
    "Speak the header line of the dired buffer. "
    (interactive)
    (emacspeak-auditory-icon 'section)
@@ -447,7 +447,7 @@ index e42ce8a..f80aafe 100644
                    (forward-line 2)
                    (emacspeak-speak-region (point-min) (point))))
  
-@@ -655,7 +655,7 @@ Optional interactive prefix arg shuffles playlist."
+@@ -656,7 +656,7 @@ Optional interactive prefix arg shuffles playlist."
    (interactive "P")
    (cl-declare (special emacspeak-m-player-options))
    (cl-assert (eq major-mode 'locate-mode) t "Not in a locate buffer")
@@ -950,7 +950,7 @@ index 71709c3..96b320c 100644
      (when dtk-stop-immediately (dtk-stop))
      ad-do-it
 diff --git a/lisp/emacspeak-gnus.el b/lisp/emacspeak-gnus.el
-index ffcb0a8..5fe15d9 100644
+index 1b18f74..60773b4 100644
 --- a/lisp/emacspeak-gnus.el
 +++ b/lisp/emacspeak-gnus.el
 @@ -133,7 +133,7 @@ instead you hear only the first screenful."
@@ -962,7 +962,7 @@ index ffcb0a8..5fe15d9 100644
                (move-to-window-line -1)
                (end-of-line)
                (emacspeak-speak-region start (point)))))))))
-@@ -658,7 +658,7 @@ indicating the article is being opened."
+@@ -655,7 +655,7 @@ indicating the article is being opened."
        (let ((start  (point))
              (window (get-buffer-window (current-buffer))))
          (with-selected-window window
@@ -971,7 +971,7 @@ index ffcb0a8..5fe15d9 100644
              (move-to-window-line -1)
              (end-of-line)
              (emacspeak-speak-region start (point))))))))
-@@ -709,7 +709,7 @@ indicating the article is being opened."
+@@ -706,7 +706,7 @@ indicating the article is being opened."
         (let ((start  (point))
               (window (get-buffer-window (current-buffer))))
           (with-selected-window window
@@ -1087,7 +1087,7 @@ index 4770604..72b1224 100644
        (emacspeak-speak-line)
        (emacspeak-auditory-icon 'close-object))))
 diff --git a/lisp/emacspeak-info.el b/lisp/emacspeak-info.el
-index 94b20a2..f294a2f 100644
+index eecf704..d4c50aa 100644
 --- a/lisp/emacspeak-info.el
 +++ b/lisp/emacspeak-info.el
 @@ -86,7 +86,7 @@ node -- speak the entire node."
@@ -1117,7 +1117,7 @@ index 94b20a2..f294a2f 100644
          (forward-line (window-height window))
          (emacspeak-speak-region start (point))))))
  
-@@ -198,7 +198,7 @@ node-spec."
+@@ -194,7 +194,7 @@ node-spec."
    "Move forward to next section in this node."
    (interactive)
    (let ((target nil))
@@ -1126,7 +1126,7 @@ index 94b20a2..f294a2f 100644
        (while (and (null target)
                    (not (eobp)))
          (goto-char (next-single-property-change (point)  'face nil (point-max)))
-@@ -215,7 +215,7 @@ node-spec."
+@@ -211,7 +211,7 @@ node-spec."
    "Move backward to previous section in this node."
    (interactive)
    (let ((target nil))
@@ -1135,7 +1135,7 @@ index 94b20a2..f294a2f 100644
        (while (and (null target)
                    (not (bobp)))
          (goto-char (previous-single-property-change (point)  'face nil (point-min)))
-@@ -241,7 +241,7 @@ node-spec."
+@@ -237,7 +237,7 @@ node-spec."
           (boundp 'Info-header-line)
           Info-header-line)
      (dtk-speak Info-header-line))
@@ -1349,7 +1349,7 @@ index c25bf3c..9032f69 100644
          (next-line 1)
          (beginning-of-line)
 diff --git a/lisp/emacspeak-org.el b/lisp/emacspeak-org.el
-index e99b97f..f01fb4a 100644
+index 734309a..c116078 100644
 --- a/lisp/emacspeak-org.el
 +++ b/lisp/emacspeak-org.el
 @@ -250,7 +250,7 @@
@@ -1572,7 +1572,7 @@ index d1af791..aaf5f9a 100644
            (column (emacspeak-solitaire-current-column))
            (cells nil))
 diff --git a/lisp/emacspeak-speak.el b/lisp/emacspeak-speak.el
-index 5a06dea..df56d98 100644
+index a3b1346..07d6a2e 100644
 --- a/lisp/emacspeak-speak.el
 +++ b/lisp/emacspeak-speak.el
 @@ -408,7 +408,7 @@ Argument BODY specifies forms to execute."
@@ -1609,7 +1609,7 @@ index 5a06dea..df56d98 100644
 -  (save-excursion
 +  (save-mark-and-excursion
      (let ((orig (point))
-           (inhibit-point-motion-hooks t)
+           (cursor-sensor-inhibit t)
            (inhibit-modification-hooks t)
 @@ -1392,7 +1392,7 @@ With prefix ARG, speaks the rest of the sentence  from point.
  Negative prefix arg speaks from start of sentence to point."
@@ -1619,7 +1619,7 @@ index 5a06dea..df56d98 100644
 +  (save-mark-and-excursion
      (let ((orig (point))
            (deactivate-mark nil)
-           (inhibit-point-motion-hooks t)
+           (cursor-sensor-inhibit t)
 @@ -1417,7 +1417,7 @@ With prefix ARG, speaks the rest of the sexp  from point.
  Negative prefix arg speaks from start of sexp to point. "
    (interactive "P")
@@ -1628,7 +1628,7 @@ index 5a06dea..df56d98 100644
 +  (save-mark-and-excursion
      (let ((orig (point))
            (deactivate-mark nil)
-           (inhibit-point-motion-hooks t)
+           (cursor-sensor-inhibit t)
 @@ -1447,7 +1447,7 @@ Negative prefix arg will read from start of current page to point.
  If option  `voice-lock-mode' is on, then it will use any defined personality."
    (interactive "P")
@@ -1637,7 +1637,7 @@ index 5a06dea..df56d98 100644
 +  (save-mark-and-excursion
      (let ((orig (point))
            (deactivate-mark nil)
-           (inhibit-point-motion-hooks t)
+           (cursor-sensor-inhibit t)
 @@ -1471,7 +1471,7 @@ Negative prefix arg will read from start of current paragraph to point.
  If voice-lock-mode is on, then it will use any defined personality. "
    (interactive "P")
@@ -1646,7 +1646,7 @@ index 5a06dea..df56d98 100644
 +  (save-mark-and-excursion
      (let ((orig (point))
            (deactivate-mark nil)
-           (inhibit-point-motion-hooks t)
+           (cursor-sensor-inhibit t)
 @@ -1772,7 +1772,7 @@ indicating the arrival  of new mail when displaying the mode line.")
  ;;;compute current line number
  (defun emacspeak-get-current-line-number ()
@@ -2070,10 +2070,10 @@ index ca43522..19faf90 100644
             (t ad-do-it))
            ad-return-value)))
 diff --git a/lisp/emacspeak-wizards.el b/lisp/emacspeak-wizards.el
-index d812ca7..aaf7944 100644
+index 917a2fb..8a2f87e 100644
 --- a/lisp/emacspeak-wizards.el
 +++ b/lisp/emacspeak-wizards.el
-@@ -534,7 +534,7 @@ the display to speak."
+@@ -532,7 +532,7 @@ the display to speak."
      (setq win
            (nth (% window (length window-list))
                 window-list))
@@ -2082,7 +2082,7 @@ index d812ca7..aaf7944 100644
        (save-window-excursion
          (emacspeak-speak-region
           (window-point win)
-@@ -1870,7 +1870,7 @@ Moves to the longest line when called interactively."
+@@ -1868,7 +1868,7 @@ Moves to the longest line when called interactively."
    (interactive "r")
    (let ((max 0)
          (where nil))
@@ -2091,7 +2091,7 @@ index d812ca7..aaf7944 100644
        (goto-char start)
        (while (and (not (eobp))
                    (< (point) end))
-@@ -1894,7 +1894,7 @@ Moves to the shortest line when called interactively."
+@@ -1892,7 +1892,7 @@ Moves to the shortest line when called interactively."
    (interactive "r")
    (let ((min 1)
          (where (point)))
@@ -2100,7 +2100,7 @@ index d812ca7..aaf7944 100644
        (goto-char start)
        (while (and (not (eobp))
                    (< (point) end))
-@@ -1922,7 +1922,7 @@ Moves to the longest paragraph when called interactively."
+@@ -1920,7 +1920,7 @@ Moves to the longest paragraph when called interactively."
    (let ((max 0)
          (where nil)
          (para-start start))
@@ -2109,7 +2109,7 @@ index d812ca7..aaf7944 100644
        (goto-char start)
        (while (and (not (eobp))
                    (< (point) end))
-@@ -2694,7 +2694,7 @@ Lang is obtained from property `lang' on string, or  via an interactive prompt."
+@@ -2692,7 +2692,7 @@ Lang is obtained from property `lang' on string, or  via an interactive prompt."
  (defun emacspeak-wizards-espeak-region (start end)
    "Speak region using ESpeak polyglot wizard."
    (interactive "r")

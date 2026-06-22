@@ -1,0 +1,116 @@
+From: "Igor B. Poretsky" <poretsky@mlbox.ru>
+Date: Fri, 19 Jun 2026 01:36:06 +0300
+Subject: Autoloads generation fix
+
+---
+ lisp/emacspeak-autoload.el | 14 +++++++++-----
+ lisp/emacspeak-prompts.el  |  3 ++-
+ lisp/emacspeak-widget.el   |  7 +++++--
+ lisp/g-client/g-autogen.el |  9 ++++++---
+ 4 files changed, 22 insertions(+), 11 deletions(-)
+
+diff --git a/lisp/emacspeak-autoload.el b/lisp/emacspeak-autoload.el
+index b332cef..bbe35c1 100644
+--- a/lisp/emacspeak-autoload.el
++++ b/lisp/emacspeak-autoload.el
+@@ -46,7 +46,7 @@
+ ;;{{{  Required modules
+ 
+ (require 'cl-lib)
+-(require 'autoload)
++
+ ;;}}}
+ ;;{{{ Variables
+ 
+@@ -76,10 +76,14 @@ Emacspeak.")
+   "Generate emacspeak autoloads."
+   (cl-declare (special  emacspeak-auto-autoloads-file
+                         emacspeak-update-autoloads-from-directories emacspeak-lisp-directory))
+-  (let ((dtk-quiet t)
+-        (generated-autoload-file emacspeak-auto-autoloads-file))
+-    (funcall emacspeak-update-autoloads-from-directories
+-             emacspeak-lisp-directory)))
++  (cond
++   ((locate-library "loaddefs-gen")     ; emacs 29
++    (loaddefs-generate emacspeak-lisp-directory "emacspeak-loaddefs.el" nil nil nil t))
++   (t (require 'autoload)
++      (let ((dtk-quiet t)
++            (generated-autoload-file emacspeak-auto-autoloads-file))
++        (funcall emacspeak-update-autoloads-from-directories
++                 emacspeak-lisp-directory)))))
+ 
+ ;;}}}
+ ;;{{{ custom dependencies:
+diff --git a/lisp/emacspeak-prompts.el b/lisp/emacspeak-prompts.el
+index 9f20cc7..03a2b5f 100644
+--- a/lisp/emacspeak-prompts.el
++++ b/lisp/emacspeak-prompts.el
+@@ -63,7 +63,8 @@
+   (or (executable-find "play")
+       (executable-find "mplayer"))
+   "Player used to play pre-defined prompts.")
+-;;;###autoload 
++
++;;;###autoload
+ (defun emacspeak-prompt (name)
+   "Play  prompt for specified name."
+   (cl-declare (special emacspeak-prompts-directory emacspeak-prompts-player))
+diff --git a/lisp/emacspeak-widget.el b/lisp/emacspeak-widget.el
+index 6a5de6a..159339b 100644
+--- a/lisp/emacspeak-widget.el
++++ b/lisp/emacspeak-widget.el
+@@ -137,7 +137,8 @@ Returns a string with appropriate personality."
+                            parent-help))
+      (w (message (format " %s " type)))
+      (t (message " Not on a widget. ")))))
+-;;;###autoload        
++
++;;;###autoload
+ (defun emacspeak-widget-summarize-parent ()
+   "Summarize parent of widget at point."
+   (interactive)
+@@ -148,6 +149,7 @@ Returns a string with appropriate personality."
+      (t (message "Widget at point has no parent")))))
+ 
+ ;;; Find summarizer for a specific widget type and dispatch.
++
+ ;;;###autoload
+ (defun emacspeak-widget-summarize(widget)
+   "Summarize specified widget."
+@@ -165,7 +167,8 @@ Returns a string with appropriate personality."
+ ;;{{{  widget specific summarizers  --as per Per's suggestion
+ 
+ ;;{{{  default
+-;;;###autoload 
++
++;;;###autoload
+ (defun emacspeak-widget-default-summarize (widget)
+   "Fall back summarizer for all widgets"
+   (let* ((inhibit-read-only t)
+diff --git a/lisp/g-client/g-autogen.el b/lisp/g-client/g-autogen.el
+index 90b9a4f..9cd1fc3 100644
+--- a/lisp/g-client/g-autogen.el
++++ b/lisp/g-client/g-autogen.el
+@@ -55,7 +55,6 @@
+ 
+ (require 'cl-lib)
+ (cl-declaim  (optimize  (safety 0) (speed 3)))
+-(require 'autoload)
+ (load-library "cus-dep")
+ 
+ ;;}}}
+@@ -84,8 +83,12 @@
+   "Generate G autoloads."
+   (cl-declare (special  g-autogen-autoloads-file
+                      g-autogen-updator g-directory))
+-  (let ((generated-autoload-file g-autogen-autoloads-file))
+-    (funcall g-autogen-updator g-directory)))
++  (cond
++   ((locate-library "loaddefs-gen")     ; emacs 29
++    (loaddefs-generate g-directory "g-loaddefs.el" nil nil nil t))
++   (t (require 'autoload)
++      (let ((generated-autoload-file g-autogen-autoloads-file))
++        (funcall g-autogen-updator g-directory)))))
+ 
+ ;;}}}
+ ;;{{{  generate custom autoloads:

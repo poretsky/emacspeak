@@ -1,0 +1,26 @@
+From: Timofei Fedotov <sovtouch@altlinux.org>
+Date: Wed, 3 Jun 2026 13:38:03 +0300
+Subject: fix: misplaced sit-for in cl-case otherwise clause
+
+Move sit-for inside the otherwise clause of cl-case in
+emacspeak-proced-speak-that-field. sit-for was incorrectly placed
+as a separate cl-case clause after otherwise, causing a compilation
+error with Emacs 29+.
+---
+ lisp/emacspeak-proced.el | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/lisp/emacspeak-proced.el b/lisp/emacspeak-proced.el
+index c0b5590..450ffa9 100644
+--- a/lisp/emacspeak-proced.el
++++ b/lisp/emacspeak-proced.el
+@@ -165,8 +165,7 @@
+     (?s (emacspeak-proced-speak-field 'start))
+     (?t (emacspeak-proced-speak-field 'time))
+     (?a (emacspeak-proced-speak-field 'args))
+-    (otherwise (message "Pick field using mnemonic chars"))
+-    (sit-for 1)))
++    (otherwise (message "Pick field using mnemonic chars") (sit-for 1))))
+ (defun emacspeak-proced-speak-args ()
+   "Speak command  invocation  for this process."
+   (interactive)

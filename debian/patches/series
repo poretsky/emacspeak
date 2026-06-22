@@ -33,7 +33,7 @@
 0033-Completions-feedback-enhancement.patch
 0034-Comint-support-enhancement.patch
 0035-Forward-declarations.patch
-0036-Emacs25-compatibility.patch
+0036-Inhibit-cursor-sensor-instead-of-point-motion-hooks.patch
 0037-Font-lock-toggling-feedback.patch
 0038-More-questions-support.patch
 0039-Removed-duplicate.patch
@@ -121,3 +121,9 @@
 0121-Don-t-require-deprecated-package.patch
 0122-Eliminate-query-on-exit.patch
 0123-Removed-package-initialize-call.patch
+0124-fix-global-voice-lock-mode-initialization-for-Emacs-.patch
+0125-fix-misplaced-sit-for-in-cl-case-otherwise-clause.patch
+0126-fix-python-base-dep-remove.patch
+0127-Define-minor-mode-by-keywords.patch
+0128-Autoloads-generation-fix.patch
+0129-Obsolete-nnir-package-integration-fix.patch

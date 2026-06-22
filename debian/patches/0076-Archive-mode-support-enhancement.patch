@@ -3,11 +3,11 @@ Date: Wed, 23 Nov 2022 15:30:57 +0300
 Subject: Archive mode support enhancement
 
 ---
- lisp/emacspeak-arc.el | 65 ++++++++++++++++++++++++++++++---------------------
- 1 file changed, 38 insertions(+), 27 deletions(-)
+ lisp/emacspeak-arc.el | 70 ++++++++++++++++++++++++++++++---------------------
+ 1 file changed, 42 insertions(+), 28 deletions(-)
 
 diff --git a/lisp/emacspeak-arc.el b/lisp/emacspeak-arc.el
-index 1d59722..ccd614e 100644
+index 1d59722..9e1cf7c 100644
 --- a/lisp/emacspeak-arc.el
 +++ b/lisp/emacspeak-arc.el
 @@ -53,12 +53,7 @@
@@ -111,7 +111,7 @@ index 1d59722..ccd614e 100644
  
  (defun emacspeak-arc-speak-file-permissions()
    "Speak permissions of file current entry "
-@@ -205,13 +213,16 @@ first initializing it if necessary."
+@@ -205,13 +213,19 @@ first initializing it if necessary."
          (mode nil))
      (cond
       ((null entry)
@@ -120,7 +120,11 @@ index 1d59722..ccd614e 100644
       (t
 +      (emacspeak-auditory-icon 'select-object)
        (setq mode
-             (archive-int-to-mode
+-            (archive-int-to-mode
++            (funcall
++             (if (fboundp 'file-modes-number-to-symbolic)
++                 'file-modes-number-to-symbolic
++               'archive-int-to-mode)
               (aref entry 3)))
 -      (message  "Permissions  %s "
 -                mode)))))

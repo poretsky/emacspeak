@@ -8,7 +8,7 @@ Subject: Get actual window content
  2 files changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/lisp/emacspeak-speak.el b/lisp/emacspeak-speak.el
-index 129d508..87256a4 100644
+index 23e911c..780dcf3 100644
 --- a/lisp/emacspeak-speak.el
 +++ b/lisp/emacspeak-speak.el
 @@ -2804,7 +2804,7 @@ Otherwise just display a message."
@@ -39,10 +39,10 @@ index 129d508..87256a4 100644
  ;;}}}
  ;;{{{  Intelligent interactive commands for reading:
 diff --git a/lisp/emacspeak-wizards.el b/lisp/emacspeak-wizards.el
-index 937a78e..d812ca7 100644
+index cc8d7bc..917a2fb 100644
 --- a/lisp/emacspeak-wizards.el
 +++ b/lisp/emacspeak-wizards.el
-@@ -538,7 +538,7 @@ the display to speak."
+@@ -536,7 +536,7 @@ the display to speak."
        (save-window-excursion
          (emacspeak-speak-region
           (window-point win)

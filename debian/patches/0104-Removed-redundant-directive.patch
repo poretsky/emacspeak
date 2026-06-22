@@ -7,7 +7,7 @@ Subject: Removed redundant directive
  1 file changed, 2 deletions(-)
 
 diff --git a/lisp/emacspeak-speak.el b/lisp/emacspeak-speak.el
-index 87256a4..5ce6191 100644
+index 780dcf3..9bcd9ff 100644
 --- a/lisp/emacspeak-speak.el
 +++ b/lisp/emacspeak-speak.el
 @@ -1562,8 +1562,6 @@ Negative prefix arg speaks from start of buffer to point."

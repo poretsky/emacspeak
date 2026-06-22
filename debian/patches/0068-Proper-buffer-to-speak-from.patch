@@ -22,7 +22,7 @@ index 6fe8e92..8c0b582 100644
  (cl-loop for f in 
           '(
 diff --git a/lisp/emacspeak-info.el b/lisp/emacspeak-info.el
-index 9cefd8c..5f9b25e 100644
+index e2949e3..c58ed9e 100644
 --- a/lisp/emacspeak-info.el
 +++ b/lisp/emacspeak-info.el
 @@ -152,7 +152,8 @@ and then cue the next selected buffer."

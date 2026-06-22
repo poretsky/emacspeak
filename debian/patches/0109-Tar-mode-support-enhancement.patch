@@ -3,14 +3,23 @@ Date: Sat, 26 Nov 2022 08:15:31 +0300
 Subject: Tar mode support enhancement
 
 ---
- lisp/emacspeak-tar.el | 95 ++++++++++++++++++++++++++++++++++++---------------
- 1 file changed, 68 insertions(+), 27 deletions(-)
+ lisp/emacspeak-tar.el | 100 ++++++++++++++++++++++++++++++++++++--------------
+ 1 file changed, 73 insertions(+), 27 deletions(-)
 
 diff --git a/lisp/emacspeak-tar.el b/lisp/emacspeak-tar.el
-index 7c9a8c9..6e0a1d1 100644
+index 8fbe774..6e0a1d1 100644
 --- a/lisp/emacspeak-tar.el
 +++ b/lisp/emacspeak-tar.el
-@@ -60,12 +60,10 @@
+@@ -51,16 +51,19 @@
+ ;;}}}
+ ;;{{{ Helpers
+ 
++(declare-function tar-desc-tokens (x))
++
++(unless (fboundp 'tar-desc-tokens)
++  (defun tar-desc-tokens (x) x))
++
+ (defun emacspeak-tar-speak-line ()
    "Speak line in tar mode intelligently"
    (cond
     ((= (following-char) 0)
@@ -27,7 +36,7 @@ index 7c9a8c9..6e0a1d1 100644
  
  ;;}}}
  ;;{{{ Advice
-@@ -75,15 +73,28 @@
+@@ -70,15 +73,28 @@
      (emacspeak-auditory-icon 'close-object)
      (emacspeak-speak-mode-line)))
  
@@ -63,7 +72,7 @@ index 7c9a8c9..6e0a1d1 100644
  
  (defadvice tar-flag-deleted (after emacspeak pre act comp)
    "Provide auditory feedback"
-@@ -94,12 +105,13 @@
+@@ -89,12 +105,13 @@
  (defadvice tar-unflag (after emacspeak pre act comp)
    "Provide auditory feedback"
    (when (ems-interactive-p)
@@ -79,7 +88,7 @@ index 7c9a8c9..6e0a1d1 100644
      (emacspeak-tar-speak-line)))
  
  (defadvice tar-extract (after emacspeak pre act comp)
-@@ -126,15 +138,17 @@
+@@ -121,15 +138,17 @@
  (defun emacspeak-tar-speak-file-permissions()
    "Speak permissions of file current entry "
    (interactive)
@@ -99,7 +108,7 @@ index 7c9a8c9..6e0a1d1 100644
        (setq mode
              (tar-header-mode  entry))
        (aset string 0       (if (zerop (logand 256 mode)) ?- ?r))
-@@ -148,41 +162,68 @@
+@@ -143,41 +162,68 @@
        (aset string  8 (if (zerop (logand   1 mode)) ?- ?x))
        (if (zerop (logand 1024 mode)) nil (aset string  2 ?s))
        (if (zerop (logand 2048 mode)) nil (aset string  5 ?s))

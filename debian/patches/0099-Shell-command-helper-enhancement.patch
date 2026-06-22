@@ -10,10 +10,10 @@ Arguments can be specified as well.
  3 files changed, 9 insertions(+), 8 deletions(-)
 
 diff --git a/lisp/emacspeak-dired.el b/lisp/emacspeak-dired.el
-index 3e560ca..e42ce8a 100644
+index 7f9b905..97fb283 100644
 --- a/lisp/emacspeak-dired.el
 +++ b/lisp/emacspeak-dired.el
-@@ -440,7 +440,7 @@ On a directory line, run du -s on the directory to speak its size."
+@@ -441,7 +441,7 @@ On a directory line, run du -s on the directory to speak its size."
       ((and filename
             (file-directory-p filename))
        (emacspeak-auditory-icon 'progress)
@@ -23,7 +23,7 @@ index 3e560ca..e42ce8a 100644
        (setq size (nth 7 (file-attributes filename)))
                                          ; check for ange-ftp
 diff --git a/lisp/emacspeak-speak.el b/lisp/emacspeak-speak.el
-index d11b3d0..38d92c0 100644
+index 19fd7e0..aa503a2 100644
 --- a/lisp/emacspeak-speak.el
 +++ b/lisp/emacspeak-speak.el
 @@ -203,8 +203,8 @@ message area.  You can use command
@@ -49,10 +49,10 @@ index d11b3d0..38d92c0 100644
        (dtk-speak (buffer-string)))))
  
 diff --git a/lisp/emacspeak-wizards.el b/lisp/emacspeak-wizards.el
-index 981f082..937a78e 100644
+index 48d4ef2..cc8d7bc 100644
 --- a/lisp/emacspeak-wizards.el
 +++ b/lisp/emacspeak-wizards.el
-@@ -363,10 +363,9 @@ With prefix arg, opens the phone book for editing."
+@@ -361,10 +361,9 @@ With prefix arg, opens the phone book for editing."
      (emacspeak-auditory-icon 'open-object))
     ((file-exists-p emacspeak-speak-telephone-directory)
      (emacspeak-shell-command

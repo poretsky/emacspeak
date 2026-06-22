@@ -7,7 +7,7 @@ Subject: Eliminate query on exit
  1 file changed, 1 insertion(+)
 
 diff --git a/lisp/dtk-speak.el b/lisp/dtk-speak.el
-index a09f943..bfb63b2 100644
+index 1d04840..fab1286 100644
 --- a/lisp/dtk-speak.el
 +++ b/lisp/dtk-speak.el
 @@ -1720,6 +1720,7 @@ program. Port defaults to dtk-local-server-port"

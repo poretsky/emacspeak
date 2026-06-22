@@ -293,10 +293,10 @@ index 2cf2dfa..6b18371 100644
  
  ;;}}}
 diff --git a/lisp/dom-addons.el b/lisp/dom-addons.el
-index 56120fe..111ff59 100644
+index 41f6377..9251ab1 100644
 --- a/lisp/dom-addons.el
 +++ b/lisp/dom-addons.el
-@@ -183,7 +183,6 @@ All text between the <!-- ... --> markers will be removed."
+@@ -167,7 +167,6 @@ ATTRIBUTE would typically be `class', `id' or the like."
  
  ;;; local variables:
  ;;; folded-file: t
@@ -305,7 +305,7 @@ index 56120fe..111ff59 100644
  
  ;;}}}
 diff --git a/lisp/dtk-debug-tools.el b/lisp/dtk-debug-tools.el
-index 821e120..1e96db2 100644
+index a83c28b..2196d64 100644
 --- a/lisp/dtk-debug-tools.el
 +++ b/lisp/dtk-debug-tools.el
 @@ -131,7 +131,6 @@
@@ -329,7 +329,7 @@ index 3b873d3..b22b84b 100644
  
  ;;}}}
 diff --git a/lisp/dtk-speak.el b/lisp/dtk-speak.el
-index c1d9450..a09f943 100644
+index 741e5ee..1d04840 100644
 --- a/lisp/dtk-speak.el
 +++ b/lisp/dtk-speak.el
 @@ -2118,7 +2118,6 @@ Notification is logged in the notifications buffer unless `dont-log' is T. "
@@ -449,10 +449,10 @@ index b284222..99bfdcc 100644
  
  ;;}}}
 diff --git a/lisp/emacspeak-arc.el b/lisp/emacspeak-arc.el
-index bd148b5..8762180 100644
+index ce94800..4f10c75 100644
 --- a/lisp/emacspeak-arc.el
 +++ b/lisp/emacspeak-arc.el
-@@ -241,7 +241,6 @@ first initializing it if necessary."
+@@ -244,7 +244,6 @@ first initializing it if necessary."
  
  ;;; local variables:
  ;;; folded-file: t
@@ -797,10 +797,10 @@ index 2b256ee..840c8a9 100644
  
  ;;}}}
 diff --git a/lisp/emacspeak-dired.el b/lisp/emacspeak-dired.el
-index f80aafe..5a3b1d7 100644
+index b58c342..a8b167a 100644
 --- a/lisp/emacspeak-dired.el
 +++ b/lisp/emacspeak-dired.el
-@@ -693,7 +693,6 @@ Optional interactive prefix arg shuffles playlist."
+@@ -694,7 +694,6 @@ Optional interactive prefix arg shuffles playlist."
  
  ;;; local variables:
  ;;; folded-file: t
@@ -1289,10 +1289,10 @@ index 96b320c..62f9923 100644
  
  ;;}}}
 diff --git a/lisp/emacspeak-gnus.el b/lisp/emacspeak-gnus.el
-index 5fe15d9..f5e5ca3 100644
+index 60773b4..2cb0d56 100644
 --- a/lisp/emacspeak-gnus.el
 +++ b/lisp/emacspeak-gnus.el
-@@ -989,6 +989,5 @@ Helps to prevent words from being spelled instead of spoken."
+@@ -986,6 +986,5 @@ Helps to prevent words from being spelled instead of spoken."
  ;;{{{  end of file 
  ;;; local variables:
  ;;; folded-file: t
@@ -1432,10 +1432,10 @@ index 5f83dce..e1bf5b5 100644
  
  ;;}}}
 diff --git a/lisp/emacspeak-ido.el b/lisp/emacspeak-ido.el
-index 1fdf19c..550ea92 100644
+index f57840a..da6964c 100644
 --- a/lisp/emacspeak-ido.el
 +++ b/lisp/emacspeak-ido.el
-@@ -227,7 +227,6 @@ The default value of 12 is too high for using ido effectively with speech. "
+@@ -224,7 +224,6 @@ The default value of 12 is too high for using ido effectively with speech. "
  
  ;;; local variables:
  ;;; folded-file: t
@@ -1480,10 +1480,10 @@ index 72b1224..ff6db55 100644
  
  ;;}}}
 diff --git a/lisp/emacspeak-info.el b/lisp/emacspeak-info.el
-index f294a2f..3b38456 100644
+index d4c50aa..73053e8 100644
 --- a/lisp/emacspeak-info.el
 +++ b/lisp/emacspeak-info.el
-@@ -260,7 +260,6 @@ node-spec."
+@@ -256,7 +256,6 @@ node-spec."
  
  ;;; local variables:
  ;;; folded-file: t
@@ -1876,7 +1876,7 @@ index 72b3f2a..dd2250c 100644
  
  ;;}}}
 diff --git a/lisp/emacspeak-org.el b/lisp/emacspeak-org.el
-index f01fb4a..c5b0fe0 100644
+index c116078..b013835 100644
 --- a/lisp/emacspeak-org.el
 +++ b/lisp/emacspeak-org.el
 @@ -717,7 +717,6 @@ and assign  letter `h' to a template that creates the hyperlink on capture."
@@ -2376,7 +2376,7 @@ index 521463c..02f333d 100644
  
  ;;}}}
 diff --git a/lisp/emacspeak-speak.el b/lisp/emacspeak-speak.el
-index df56d98..07b0b0b 100644
+index 07d6a2e..e2939a6 100644
 --- a/lisp/emacspeak-speak.el
 +++ b/lisp/emacspeak-speak.el
 @@ -3747,7 +3747,6 @@ Arranges for `VAR' to be restored when `file' is loaded."
@@ -2784,10 +2784,10 @@ index 42b215e..71e5425 100644
  
  ;;}}}
 diff --git a/lisp/emacspeak-wizards.el b/lisp/emacspeak-wizards.el
-index aaf7944..1fb5add 100644
+index 8a2f87e..7f79013 100644
 --- a/lisp/emacspeak-wizards.el
 +++ b/lisp/emacspeak-wizards.el
-@@ -4293,7 +4293,6 @@ If threads are not supported, command is executed synchronously."
+@@ -4286,7 +4286,6 @@ external package."
  
  ;;; local variables:
  ;;; folded-file: t

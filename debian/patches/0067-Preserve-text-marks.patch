@@ -124,7 +124,7 @@ index 16de865..c25bf3c 100644
          (setq o-open (car (overlays-at (point))))
          (next-line 1)
 diff --git a/lisp/emacspeak-speak.el b/lisp/emacspeak-speak.el
-index 85370ef..f21858e 100644
+index f562cb3..6823b84 100644
 --- a/lisp/emacspeak-speak.el
 +++ b/lisp/emacspeak-speak.el
 @@ -319,7 +319,8 @@ normally bound to \\[emacspeak-table-display-table-in-region]."
@@ -165,11 +165,11 @@ index 85370ef..f21858e 100644
            (let ((start nil)
 +                (deactivate-mark nil)
                  (blank-line "\n[ \t\n\r]*\n")
-                 (inhibit-point-motion-hooks t)
+                 (cursor-sensor-inhibit t)
                  (inhibit-modification-hooks t)
 @@ -963,6 +966,7 @@ with auditory icon `more'.  These can then be spoken using command
          (inhibit-read-only t)
-         (inhibit-point-motion-hooks t)
+         (cursor-sensor-inhibit t)
          (inhibit-modification-hooks t)
 +        (deactivate-mark nil)
          (icon (get-char-property (point) 'auditory-icon))
@@ -177,7 +177,7 @@ index 85370ef..f21858e 100644
          (after (get-char-property (point) 'after-string))
 @@ -1088,6 +1092,7 @@ of line to point."
           (inhibit-read-only t)
-          (inhibit-point-motion-hooks t)
+          (cursor-sensor-inhibit t)
           (inhibit-modification-hooks t)
 +         (deactivate-mark nil)
           (start (line-beginning-position))
@@ -188,7 +188,7 @@ index 85370ef..f21858e 100644
    (save-excursion
      (let ((orig (point))
 +          (deactivate-mark nil)
-           (inhibit-point-motion-hooks t)
+           (cursor-sensor-inhibit t)
            (inhibit-modification-hooks t)
            (start nil)
 @@ -1413,6 +1419,7 @@ Negative prefix arg speaks from start of sexp to point. "
@@ -196,7 +196,7 @@ index 85370ef..f21858e 100644
    (save-excursion
      (let ((orig (point))
 +          (deactivate-mark nil)
-           (inhibit-point-motion-hooks t)
+           (cursor-sensor-inhibit t)
            (inhibit-modification-hooks t)
            (start nil)
 @@ -1442,6 +1449,7 @@ If option  `voice-lock-mode' is on, then it will use any defined personality."
@@ -204,7 +204,7 @@ index 85370ef..f21858e 100644
    (save-excursion
      (let ((orig (point))
 +          (deactivate-mark nil)
-           (inhibit-point-motion-hooks t)
+           (cursor-sensor-inhibit t)
            (start nil)
            (end nil))
 @@ -1465,6 +1473,7 @@ If voice-lock-mode is on, then it will use any defined personality. "
@@ -212,7 +212,7 @@ index 85370ef..f21858e 100644
    (save-excursion
      (let ((orig (point))
 +          (deactivate-mark nil)
-           (inhibit-point-motion-hooks t)
+           (cursor-sensor-inhibit t)
            (start nil)
            (end nil))
 @@ -1541,7 +1550,8 @@ Useful to listen to a buffer without switching  contexts."

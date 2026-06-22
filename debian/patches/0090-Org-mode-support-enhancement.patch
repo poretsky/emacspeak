@@ -7,7 +7,7 @@ Subject: Org mode support enhancement
  1 file changed, 2 insertions(+)
 
 diff --git a/lisp/emacspeak-org.el b/lisp/emacspeak-org.el
-index 36e4781..4229615 100644
+index b2c66df..11e9ed2 100644
 --- a/lisp/emacspeak-org.el
 +++ b/lisp/emacspeak-org.el
 @@ -215,6 +215,7 @@

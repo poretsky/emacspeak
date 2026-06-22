@@ -3,11 +3,11 @@ Date: Fri, 25 Nov 2022 13:36:32 +0300
 Subject: Gnus support enhancement
 
 ---
- lisp/emacspeak-gnus.el | 809 +++++++++++++++++++++++++++++--------------------
- 1 file changed, 476 insertions(+), 333 deletions(-)
+ lisp/emacspeak-gnus.el | 808 +++++++++++++++++++++++++++++--------------------
+ 1 file changed, 474 insertions(+), 334 deletions(-)
 
 diff --git a/lisp/emacspeak-gnus.el b/lisp/emacspeak-gnus.el
-index 1bacca8..7b99e20 100644
+index 1bacca8..c025c24 100644
 --- a/lisp/emacspeak-gnus.el
 +++ b/lisp/emacspeak-gnus.el
 @@ -63,6 +63,12 @@
@@ -283,27 +283,25 @@ index 1bacca8..7b99e20 100644
  
  (defadvice gnus-article-fill-long-lines (after emacspeak pre act)
    "Provide auditory feedback.
-@@ -271,12 +441,17 @@ this group is being deselected."
+@@ -271,12 +441,14 @@ this group is being deselected."
      (emacspeak-auditory-icon 'open-object)
      (dtk-speak "Listing zombie groups... done")))
  
 -(defadvice gnus-group-customize (before emacspeak pre act)
-+(defadvice gnus-group-customize (around emacspeak pre act comp)
++(defadvice gnus-group-customize (before emacspeak pre act comp)
    "Provide auditory feedback.
-  Produce an auditory icon if possible."
+- Produce an auditory icon if possible."
++Produce an auditory icon if possible."
    (when (ems-interactive-p)
      (emacspeak-auditory-icon 'open-object)
 -    (message "Customizing group %s" (gnus-group-group-name))))
 +    (if (and (gnus-topic-mode-p) (gnus-group-topic-p))
 +        (message "Customizing topic %s" (gnus-group-topic-name))
-+      (message "Customizing group %s" (gnus-group-group-name))))
-+  (let ((max-specpdl-size 2000))
-+    ad-do-it)
-+  ad-return-value)
++      (message "Customizing group %s" (gnus-group-group-name)))))
  
  ;;}}}
  ;;{{{  summary mode 
-@@ -284,9 +459,7 @@ this group is being deselected."
+@@ -284,9 +456,7 @@ this group is being deselected."
   for f in
   '(
     gnus-summary-clear-mark-backward gnus-summary-clear-mark-forward
@@ -314,7 +312,7 @@ index 1bacca8..7b99e20 100644
     ) do
   (eval
    `(defadvice   ,f (around  emacspeak pre act)
-@@ -295,26 +468,57 @@ this group is being deselected."
+@@ -295,26 +465,57 @@ this group is being deselected."
       (let ((saved-point (point)))
         ad-do-it
         (when (ems-interactive-p)
@@ -386,7 +384,7 @@ index 1bacca8..7b99e20 100644
  (cl-loop
   for f in
   '(
-@@ -333,154 +537,125 @@ this group is being deselected."
+@@ -333,154 +534,125 @@ this group is being deselected."
  Indicate change of selection with
    an auditory icon if possible."
    (when (ems-interactive-p)
@@ -611,15 +609,15 @@ index 1bacca8..7b99e20 100644
    (when (ems-interactive-p)
 -    (emacspeak-auditory-icon 'mark-object)
 -    (emacspeak-gnus-summary-speak-subject)))
--
++    (emacspeak-auditory-icon 'task-done)))
+ 
 -(defadvice gnus-summary-mark-as-read-forward (after emacspeak pre act)
 -  "Speak the line.
 - Produce an auditory icon if possible."
 -  (when (ems-interactive-p) 
 -    (emacspeak-auditory-icon'mark-object)
 -    (emacspeak-gnus-summary-speak-subject)))
-+    (emacspeak-auditory-icon 'task-done)))
- 
+-
 -(defadvice gnus-summary-mark-as-unread-backward (after emacspeak pre act)
 -  "Speak the line.
 - Produce an auditory icon if possible."
@@ -645,7 +643,7 @@ index 1bacca8..7b99e20 100644
      (emacspeak-gnus-summary-speak-subject)
      (sit-for 2)
      (emacspeak-auditory-icon 'open-object)
-@@ -494,151 +669,134 @@ indicating the article is being opened."
+@@ -494,151 +666,134 @@ indicating the article is being opened."
              (end-of-line)
              (emacspeak-speak-region start (point))))))))
  
@@ -657,9 +655,16 @@ index 1bacca8..7b99e20 100644
    (when (ems-interactive-p)
 -    (emacspeak-auditory-icon 'select-object)
 -    (emacspeak-gnus-summary-speak-subject)))
+-
+-(defadvice gnus-summary-next-thread (after emacspeak pre act)
+-  "Speak the line.
+- Produce an auditory icon if possible."
+-  (when (ems-interactive-p) 
+-    (emacspeak-auditory-icon 'select-object)
+-    (emacspeak-gnus-summary-speak-subject)))
 +    (emacspeak-auditory-icon 'save-object)))
  
--(defadvice gnus-summary-next-thread (after emacspeak pre act)
+-(defadvice gnus-summary-prev-thread (after emacspeak pre act)
 -  "Speak the line.
 - Produce an auditory icon if possible."
 -  (when (ems-interactive-p) 
@@ -669,30 +674,23 @@ index 1bacca8..7b99e20 100644
 +  "Produce an auditory icon if possible."
 +  (emacspeak-auditory-icon 'save-object))
  
--(defadvice gnus-summary-prev-thread (after emacspeak pre act)
--  "Speak the line.
-- Produce an auditory icon if possible."
--  (when (ems-interactive-p) 
--    (emacspeak-auditory-icon 'select-object)
--    (emacspeak-gnus-summary-speak-subject)))
--
 -(defadvice gnus-summary-up-thread (after emacspeak pre act)
 -  "Speak the line.
 - Produce an auditory icon if possible."
 -  (when (ems-interactive-p) 
 -    (emacspeak-auditory-icon'select-object)
 -    (emacspeak-gnus-summary-speak-subject)))
--
++(defadvice gnus-summary-display-article (after emacspeak pre act comp)
++  "Produce an auditory icon if possible."
++  (emacspeak-auditory-icon 'open-object))
+ 
 -(defadvice gnus-summary-down-thread (after emacspeak pre act)
 -  "Speak the line. 
 -Produce an auditory icon if possible."
 -  (when (ems-interactive-p) 
 -    (emacspeak-auditory-icon 'select-object)
 -    (emacspeak-gnus-summary-speak-subject)))
-+(defadvice gnus-summary-display-article (after emacspeak pre act comp)
-+  "Produce an auditory icon if possible."
-+  (emacspeak-auditory-icon 'open-object))
- 
+-
 -(defadvice gnus-summary-kill-thread (after emacspeak pre act)
 -  "Speak the line.
 - Produce an auditory icon if possible."
@@ -854,19 +852,21 @@ index 1bacca8..7b99e20 100644
 -    (emacspeak-gnus-speak-article-body)))
 +    (emacspeak-auditory-icon 'close-object)
 +    (emacspeak-speak-line)))
++
++;;}}}
++;;{{{  Article reading
  
 -(defadvice gnus-summary-next-same-subject  (after emacspeak pre act)
 -  "Speak the article. "
-+;;}}}
-+;;{{{  Article reading
-+
 +(defadvice gnus-article-describe-key-briefly (after emacspeak pre act comp)
 +  "Speak what you displayed."
    (when (ems-interactive-p)
 -    (emacspeak-gnus-speak-article-body)))
 +    (dtk-speak ad-return-value))
 +  ad-return-value)
-+
+ 
+-(defadvice gnus-summary-first-unread-article (after emacspeak pre act)
+-  "Speak the article. "
 +(cl-loop
 + for f in
 + '(gnus-article-edit-exit
@@ -878,9 +878,7 @@ index 1bacca8..7b99e20 100644
 +     (when (ems-interactive-p)
 +       (emacspeak-auditory-icon 'close-object)
 +       (emacspeak-speak-line)))))
- 
--(defadvice gnus-summary-first-unread-article (after emacspeak pre act)
--  "Speak the article. "
++
 +(defadvice gnus-article-mail (after emacspeak pre act comp)
 +  "Provide auditory feedback."
    (when (ems-interactive-p)
@@ -901,7 +899,7 @@ index 1bacca8..7b99e20 100644
  
  (defadvice gnus-article-show-summary  (after emacspeak pre act)
    "Speak the modeline.
-@@ -648,15 +806,19 @@ Indicate change of selection with
+@@ -648,15 +803,19 @@ Indicate change of selection with
      (emacspeak-auditory-icon 'select-object)
      (emacspeak-speak-mode-line)))
  
@@ -930,7 +928,7 @@ index 1bacca8..7b99e20 100644
  
  (defadvice gnus-article-next-button (after emacspeak pre act comp)
    "Provide auditory feedback"
-@@ -672,19 +834,9 @@ Indicate change of selection with
+@@ -672,19 +831,9 @@ Indicate change of selection with
    (when (ems-interactive-p)
      (emacspeak-auditory-icon 'button)))
  
@@ -953,7 +951,7 @@ index 1bacca8..7b99e20 100644
  
  (defun gnus-summary-downcase-article ()
    "Downcases the article body
-@@ -717,6 +869,10 @@ Helps to prevent words from being spelled instead of spoken."
+@@ -717,6 +866,10 @@ Helps to prevent words from being spelled instead of spoken."
        (dtk-set-punctuations emacspeak-gnus-punctuation-mode)
        (emacspeak-pronounce-refresh-pronunciations))))
  
@@ -964,7 +962,7 @@ index 1bacca8..7b99e20 100644
  ;;}}}
  ;;{{{ rdc: mapping font faces to personalities 
  
-@@ -811,19 +967,6 @@ Helps to prevent words from being spelled instead of spoken."
+@@ -811,19 +964,6 @@ Helps to prevent words from being spelled instead of spoken."
     (gnus-server-opened voice-lighten)))
  
  ;;}}}

@@ -7,7 +7,7 @@ Subject: Do not redefine navigation keys in gnus buffers
  1 file changed, 1 insertion(+), 7 deletions(-)
 
 diff --git a/lisp/emacspeak-gnus.el b/lisp/emacspeak-gnus.el
-index 7b99e20..ffcb0a8 100644
+index c025c24..1b18f74 100644
 --- a/lisp/emacspeak-gnus.el
 +++ b/lisp/emacspeak-gnus.el
 @@ -102,19 +102,13 @@ instead you hear only the first screenful."

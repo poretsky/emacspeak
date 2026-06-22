@@ -1,0 +1,69 @@
+From: "Igor B. Poretsky" <poretsky@mlbox.ru>
+Date: Fri, 19 Jun 2026 23:48:53 +0300
+Subject: Obsolete nnir package integration fix
+
+---
+ lisp/emacspeak-gnus.el   |  2 +-
+ lisp/g-client/gm-nnir.el | 15 +++++++++++----
+ 2 files changed, 12 insertions(+), 5 deletions(-)
+
+diff --git a/lisp/emacspeak-gnus.el b/lisp/emacspeak-gnus.el
+index 2cb0d56..490083c 100644
+--- a/lisp/emacspeak-gnus.el
++++ b/lisp/emacspeak-gnus.el
+@@ -60,7 +60,7 @@
+ (require 'gnus)
+ (require 'gnus-art)
+ (require 'gnus-sum)
+-(require 'gm-nnir) ; for smart GMail search
++(with-no-warnings (require 'gm-nnir)) ; for smart GMail search
+ 
+ ;;}}}
+ ;;{{{ Forward declarations
+diff --git a/lisp/g-client/gm-nnir.el b/lisp/g-client/gm-nnir.el
+index ebd137e..76838fc 100644
+--- a/lisp/g-client/gm-nnir.el
++++ b/lisp/g-client/gm-nnir.el
+@@ -59,7 +59,8 @@
+ (require 'cl-lib)
+ (cl-declaim  (optimize  (safety 0) (speed 3)))
+ 
+-(require 'nnir)
++(with-no-warnings (require 'nnir))
++(require 'gnus-group)
+ 
+ ;;}}}
+ ;;{{{ IMap Search Operators:
+@@ -128,7 +129,13 @@
+ ;;}}}
+ ;;{{{ NNIR Engine For GMail 
+ 
+-;;; GMail Search Commands 
++;;; GMail Search Commands
++
++(defvar gm-nnir-make-group-function
++  (if (fboundp 'gnus-group-read-ephemeral-search-group)
++      'gnus-group-read-ephemeral-search-group
++    'gnus-group-make-nnir-group))
++
+ ;;;###autoload
+ (defun gm-nnir-group-make-nnir-group (q)
+   "GMail equivalent of gnus-group-make-nnir-group.
+@@ -137,7 +144,7 @@ This uses standard IMap search operators."
+   (let ((nnir-imap-default-search-key "imap"))
+     (cond
+      ((gnus-group-group-name)           ; Search current group 
+-      (gnus-group-make-nnir-group
++      (funcall gm-nnir-make-group-function
+        nil                              ; no extra parms needed
+        `(nnir-specs (nnir-query-spec (query  ,q)))))
+      (t (error "Not on a group")))))
+@@ -152,7 +159,7 @@ See https://support.google.com/mail/answer/7190?hl=en for syntax.
+         (q (format "X-GM-RAW \"%s\"" query)))
+     (cond
+      ((gnus-group-group-name)           ; Search current group
+-      (gnus-group-make-nnir-group
++      (funcall gm-nnir-make-group-function
+        nil                              ; no extra parms needed
+        `(nnir-specs (nnir-query-spec (query ,q)))))
+      (t (error "Not on a group.")))))

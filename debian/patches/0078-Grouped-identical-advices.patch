@@ -99,7 +99,7 @@ index 144b375..a949258 100644
  ;;}}}
  ;;{{{  extensions  provided by c++ mode
 diff --git a/lisp/emacspeak-info.el b/lisp/emacspeak-info.el
-index 5f9b25e..94b20a2 100644
+index c58ed9e..eecf704 100644
 --- a/lisp/emacspeak-info.el
 +++ b/lisp/emacspeak-info.el
 @@ -155,17 +155,15 @@ and then cue the next selected buffer."

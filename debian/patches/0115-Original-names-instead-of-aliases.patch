@@ -35,7 +35,7 @@ index b187349..72b3f2a 100644
           (format  "mv %s %s; %s -c '%s' %s > %s; rm -f %s"
                    jpg  tempfile
 diff --git a/lisp/emacspeak-org.el b/lisp/emacspeak-org.el
-index 4229615..e99b97f 100644
+index 11e9ed2..734309a 100644
 --- a/lisp/emacspeak-org.el
 +++ b/lisp/emacspeak-org.el
 @@ -633,7 +633,7 @@ and assign  letter `h' to a template that creates the hyperlink on capture."
@@ -46,4 +46,4 @@ index 4229615..e99b97f 100644
 +    (org-link-store-props
       :type "eww"
       :link   (emacspeak-eww-current-url)
-      :url (emacspeak-eww-current-url)
+      :url (eww-current-url)
