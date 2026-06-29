@@ -1,0 +1,28 @@
+From: Paul Gevers <elbrus@debian.org>
+Date: Tue, 30 Jun 2026 05:06:20 +0300
+Subject: SRC is already set by the root Makefile so DEPS is wrong
+
+---
+ lisp/Makefile | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/lisp/Makefile b/lisp/Makefile
+index d54eb2a..d8e0c8e 100644
+--- a/lisp/Makefile
++++ b/lisp/Makefile
+@@ -41,13 +41,13 @@
+ .POSIX:
+ # what emacs is called on your system
+ EMACS = emacs
+-SRC="../lisp"
++SRC="../"
+ # How to run in batch mode
+ BATCH = -batch -q -no-site-file     \
+ -f package-initialize \
+ --eval '(setq file-name-handler-alist nil gc-cons-threshold 64000000 \
+ load-source-file-function  nil)' 
+-DEPS=-l $(SRC)/emacspeak-load-path.el -l $(SRC)/emacspeak-loaddefs.el 
++DEPS=-l $(SRC)/lisp/emacspeak-load-path.el -l $(SRC)/lisp/emacspeak-loaddefs.el 
+ 
+ 
+ 

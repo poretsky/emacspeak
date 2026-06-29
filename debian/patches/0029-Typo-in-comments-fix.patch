@@ -1,0 +1,345 @@
+From: "Igor B. Poretsky" <poretsky@mlbox.ru>
+Date: Fri, 11 Nov 2022 19:30:41 +0300
+Subject: Typo in comments fix
+
+---
+ lisp/emacspeak-amark.el    | 2 +-
+ lisp/emacspeak-auctex.el   | 4 ++--
+ lisp/emacspeak-bbdb.el     | 4 ++--
+ lisp/emacspeak-c.el        | 4 ++--
+ lisp/emacspeak-chess.el    | 4 ++--
+ lisp/emacspeak-cperl.el    | 4 ++--
+ lisp/emacspeak-ediff.el    | 4 ++--
+ lisp/emacspeak-folding.el  | 4 ++--
+ lisp/emacspeak-forms.el    | 4 ++--
+ lisp/emacspeak-gnuplot.el  | 2 +-
+ lisp/emacspeak-gud.el      | 4 ++--
+ lisp/emacspeak-haskell.el  | 2 +-
+ lisp/emacspeak-man.el      | 4 ++--
+ lisp/emacspeak-nxml.el     | 4 ++--
+ lisp/emacspeak-outline.el  | 4 ++--
+ lisp/emacspeak-perl.el     | 4 ++--
+ lisp/emacspeak-preamble.el | 4 ++--
+ lisp/emacspeak-rpm-spec.el | 4 ++--
+ lisp/emacspeak-tcl.el      | 4 ++--
+ lisp/emacspeak-view.el     | 4 ++--
+ lisp/emacspeak-wdired.el   | 2 +-
+ lisp/outloud-voices.el     | 2 +-
+ 22 files changed, 39 insertions(+), 39 deletions(-)
+
+diff --git a/lisp/emacspeak-amark.el b/lisp/emacspeak-amark.el
+index eb3d329..bfe5654 100644
+--- a/lisp/emacspeak-amark.el
++++ b/lisp/emacspeak-amark.el
+@@ -1,5 +1,5 @@
+ ;;; emacspeak-amark.el --- BookMarks For Audio Content  -*- lexical-binding: t; -*-
+-;;; $Id: acss-structure.el 5798 2008-08-22 17:35:01Z tv.raman.tv $
++;;; $Id: emacspeak-amark.el 5798 2008-08-22 17:35:01Z tv.raman.tv $
+ ;;; $Author: tv.raman.tv $
+ ;;; Description: Bookmarks for audio content like mp3
+ ;;; Keywords:emacspeak, audio interface to emacs MP3
+diff --git a/lisp/emacspeak-auctex.el b/lisp/emacspeak-auctex.el
+index 3a44524..521506e 100644
+--- a/lisp/emacspeak-auctex.el
++++ b/lisp/emacspeak-auctex.el
+@@ -1,8 +1,8 @@
+ ;;; emacspeak-auctex.el --- Speech enable AucTeX -- a powerful TeX/LaTeX authoring environment  -*- lexical-binding: t; -*-
+ ;;; $Id$
+ ;;; $Author: tv.raman.tv $
+-;;; DescriptionEmacspeak extensions for auctex-mode
+-;;; Keywords:emacspeak, audio interface to emacs AUCTEX
++;;; Description: Emacspeak extensions for auctex-mode
++;;; Keywords: emacspeak, audio interface to emacs AUCTEX
+ ;;{{{  LCD Archive entry: 
+ 
+ ;;; LCD Archive Entry:
+diff --git a/lisp/emacspeak-bbdb.el b/lisp/emacspeak-bbdb.el
+index e491437..c2e228f 100644
+--- a/lisp/emacspeak-bbdb.el
++++ b/lisp/emacspeak-bbdb.el
+@@ -2,8 +2,8 @@
+ 
+ ;;; $Id$
+ ;;; $Author: tv.raman.tv $ 
+-;;; DescriptionEmacspeak extensions for bbdb 
+-;;; Keywords:emacspeak, audio interface to emacs bbdb 
++;;; Description: Emacspeak extensions for bbdb 
++;;; Keywords: emacspeak, audio interface to emacs bbdb 
+ ;;{{{  LCD Archive entry: 
+ 
+ ;;; LCD Archive Entry:
+diff --git a/lisp/emacspeak-c.el b/lisp/emacspeak-c.el
+index b6e77b9..452ef3d 100644
+--- a/lisp/emacspeak-c.el
++++ b/lisp/emacspeak-c.el
+@@ -1,8 +1,8 @@
+ ;;; emacspeak-c.el --- Speech enable CC-mode and friends -- supports C, C++, Java  -*- lexical-binding: t; -*-
+ ;;; $Id$
+ ;;; $Author: tv.raman.tv $
+-;;; DescriptionEmacspeak extensions for C and C++ mode
+-;;; Keywords:emacspeak, audio interface to emacs C, C++
++;;; Description: Emacspeak extensions for C and C++ mode
++;;; Keywords: emacspeak, audio interface to emacs C, C++
+ ;;{{{  LCD Archive entry:
+ 
+ ;;; LCD Archive Entry:
+diff --git a/lisp/emacspeak-chess.el b/lisp/emacspeak-chess.el
+index f33829b..9462437 100644
+--- a/lisp/emacspeak-chess.el
++++ b/lisp/emacspeak-chess.el
+@@ -45,9 +45,9 @@
+ ;;; That package comes with a light-weight module that announces
+ ;;; moves.
+ ;;;
+-;;; This module aims do do much more, including:
++;;; This module aims do much more, including:
+ ;;; @itemize @bullet
+-;;; @item Navigate the board along various axies with audio-formatted  output.
++;;; @item Navigate the board along various axes with audio-formatted  output.
+ ;;;  @item Browse games via  rich audio-formatted   output.
+ ;;; @item Speech-enable all interactive commands  provided by the Chess
+ ;;; package.
+diff --git a/lisp/emacspeak-cperl.el b/lisp/emacspeak-cperl.el
+index bca13e8..3ae8225 100644
+--- a/lisp/emacspeak-cperl.el
++++ b/lisp/emacspeak-cperl.el
+@@ -1,8 +1,8 @@
+ ;;; emacspeak-cperl.el --- Speech enable CPerl Mode  -*- lexical-binding: t; -*- 
+ ;;; $Id$
+ ;;; $Author: tv.raman.tv $ 
+-;;; DescriptionEmacspeak extensions for CPerl mode
+-;;; Keywords:emacspeak, audio interface to emacs CPerl
++;;; Description: Emacspeak extensions for CPerl mode
++;;; Keywords: emacspeak, audio interface to emacs CPerl
+ ;;{{{  LCD Archive entry: 
+ 
+ ;;; LCD Archive Entry:
+diff --git a/lisp/emacspeak-ediff.el b/lisp/emacspeak-ediff.el
+index 4ac5ed0..4b30367 100644
+--- a/lisp/emacspeak-ediff.el
++++ b/lisp/emacspeak-ediff.el
+@@ -1,8 +1,8 @@
+ ;;; emacspeak-ediff.el --- Speech enable Emacs interface to diff and merge  -*- lexical-binding: t; -*-
+ ;;; $Id$
+ ;;; $Author: tv.raman.tv $
+-;;; DescriptionEmacspeak extensions for ediff
+-;;; Keywords:emacspeak, audio interface to emacs, Comparing files
++;;; Description: Emacspeak extensions for ediff
++;;; Keywords: emacspeak, audio interface to emacs, Comparing files
+ ;;{{{ LCD Archive entry:
+ 
+ ;;; LCD Archive Entry:
+diff --git a/lisp/emacspeak-folding.el b/lisp/emacspeak-folding.el
+index 8dbd62b..a016526 100644
+--- a/lisp/emacspeak-folding.el
++++ b/lisp/emacspeak-folding.el
+@@ -1,7 +1,7 @@
+ ;;; emacspeak-folding.el --- Speech enable Folding Mode -- enables structured editing  -*- lexical-binding: t; -*-
+ ;;; $Author: tv.raman.tv $
+-;;; DescriptionEmacspeak extensions for folding-mode
+-;;; Keywords:emacspeak, audio interface to emacs Folding editor
++;;; Description: Emacspeak extensions for folding-mode
++;;; Keywords: emacspeak, audio interface to emacs Folding editor
+ ;;{{{  LCD Archive entry:
+ 
+ ;;; LCD Archive Entry:
+diff --git a/lisp/emacspeak-forms.el b/lisp/emacspeak-forms.el
+index 93f4a1b..64550c7 100644
+--- a/lisp/emacspeak-forms.el
++++ b/lisp/emacspeak-forms.el
+@@ -1,8 +1,8 @@
+ ;;; emacspeak-forms.el --- Speech enable Emacs' forms mode  -- provides  a convenient database interface  -*- lexical-binding: t; -*-
+ ;;; $Id$
+ ;;; $Author: tv.raman.tv $ 
+-;;; DescriptionEmacspeak extensions for forms-mode 
+-;;; Keywords:emacspeak, audio interface to emacs forms 
++;;; Description: Emacspeak extensions for forms-mode 
++;;; Keywords: emacspeak, audio interface to emacs forms 
+ ;;{{{  LCD Archive entry: 
+ 
+ ;;; LCD Archive Entry:
+diff --git a/lisp/emacspeak-gnuplot.el b/lisp/emacspeak-gnuplot.el
+index cc5630e..050cae0 100644
+--- a/lisp/emacspeak-gnuplot.el
++++ b/lisp/emacspeak-gnuplot.el
+@@ -3,7 +3,7 @@
+ ;;; $Author: tv.raman.tv $
+ ;;; Description:  Emacspeak extension to speech-enable
+ ;;; gnuplot mode
+-;;; Keywords: Emacspeak, WWW interaction
++;;; Keywords: Emacspeak, mathematics, Gnuplot interaction
+ ;;{{{  LCD Archive entry:
+ 
+ ;;; LCD Archive Entry:
+diff --git a/lisp/emacspeak-gud.el b/lisp/emacspeak-gud.el
+index 40b76e1..90f23ef 100644
+--- a/lisp/emacspeak-gud.el
++++ b/lisp/emacspeak-gud.el
+@@ -1,8 +1,8 @@
+ ;;; emacspeak-gud.el --- Speech enable Emacs' debugger interface --covers GDB, JDB, and PerlDB  -*- lexical-binding: t; -*-
+ ;;; $Id$
+ ;;; $Author: tv.raman.tv $
+-;;; DescriptionEmacspeak extensions for gud interaction
+-;;; Keywords:emacspeak, audio interface to emacs debuggers
++;;; Description: Emacspeak extensions for gud interaction
++;;; Keywords: emacspeak, audio interface to emacs debuggers
+ ;;{{{  LCD Archive entry:
+ 
+ ;;; LCD Archive Entry:
+diff --git a/lisp/emacspeak-haskell.el b/lisp/emacspeak-haskell.el
+index 85f5fd2..0a68120 100644
+--- a/lisp/emacspeak-haskell.el
++++ b/lisp/emacspeak-haskell.el
+@@ -1,5 +1,5 @@
+-;;; $Author: tv.raman.tv $
+ ;;; emacspeak-haskell.el --- Speech-enable HASKELL  -*- lexical-binding: t; -*-
++;;; $Author: tv.raman.tv $
+ ;;; Description:  Speech-enable HASKELL An Emacs Interface to haskell
+ ;;; Keywords: Emacspeak,  Audio Desktop haskell
+ ;;{{{  LCD Archive entry:
+diff --git a/lisp/emacspeak-man.el b/lisp/emacspeak-man.el
+index ff5762b..f0667cd 100644
+--- a/lisp/emacspeak-man.el
++++ b/lisp/emacspeak-man.el
+@@ -1,8 +1,8 @@
+ ;;; emacspeak-man.el --- Speech enable Man mode -- Use this for UNIX Man pages  -*- lexical-binding: t; -*-
+ ;;; $Id$
+ ;;; $Author: tv.raman.tv $ 
+-;;; DescriptionEmacspeak extensions for man-mode
+-;;; Keywords:emacspeak, audio interface to emacs man 
++;;; Description: Emacspeak extensions for man-mode
++;;; Keywords: emacspeak, audio interface to emacs man 
+ ;;{{{  LCD Archive entry: 
+ 
+ ;;; LCD Archive Entry:
+diff --git a/lisp/emacspeak-nxml.el b/lisp/emacspeak-nxml.el
+index 3bdcdc4..0845acb 100644
+--- a/lisp/emacspeak-nxml.el
++++ b/lisp/emacspeak-nxml.el
+@@ -1,8 +1,8 @@
+ ;;; emacspeak-nxml.el --- Speech enable nxml mode  -*- lexical-binding: t; -*-
+ ;;; $Id$
+ ;;; $Author: tv.raman.tv $
+-;;; Description: Controlling mplayer from emacs 
+-;;; Keywords: Emacspeak, nxml streaming media 
++;;; Description: Emacspeak extension to speech enable nxml mode
++;;; Keywords: Emacspeak, nxml
+ ;;{{{  LCD Archive entry: 
+ 
+ ;;; LCD Archive Entry:
+diff --git a/lisp/emacspeak-outline.el b/lisp/emacspeak-outline.el
+index 82caab1..a36624c 100644
+--- a/lisp/emacspeak-outline.el
++++ b/lisp/emacspeak-outline.el
+@@ -1,8 +1,8 @@
+ ;;; emacspeak-outline.el --- Speech enable Outline --   Browsing  Structured Documents  -*- lexical-binding: t; -*-
+ ;;; $Id$
+ ;;; $Author: tv.raman.tv $
+-;;; DescriptionEmacspeak extensions for outline-mode
+-;;; Keywords:emacspeak, audio interface to emacs Outlines
++;;; Description: Emacspeak extensions for outline-mode
++;;; Keywords: emacspeak, audio interface to emacs Outlines
+ ;;{{{  LCD Archive entry:
+ 
+ ;;; LCD Archive Entry:
+diff --git a/lisp/emacspeak-perl.el b/lisp/emacspeak-perl.el
+index 0d7a8ad..eb1c4a1 100644
+--- a/lisp/emacspeak-perl.el
++++ b/lisp/emacspeak-perl.el
+@@ -1,8 +1,8 @@
+ ;;; emacspeak-perl.el --- Speech enable Perl Mode  -*- lexical-binding: t; -*- 
+ ;;; $Id$
+ ;;; $Author: tv.raman.tv $ 
+-;;; DescriptionEmacspeak extensions for perl-mode
+-;;; Keywords:emacspeak, audio interface to emacs perl
++;;; Description: Emacspeak extensions for perl-mode
++;;; Keywords: emacspeak, audio interface to emacs perl
+ ;;{{{  LCD Archive entry: 
+ 
+ ;;; LCD Archive Entry:
+diff --git a/lisp/emacspeak-preamble.el b/lisp/emacspeak-preamble.el
+index e8b9ec9..4730789 100644
+--- a/lisp/emacspeak-preamble.el
++++ b/lisp/emacspeak-preamble.el
+@@ -1,8 +1,8 @@
+ ;;; emacspeak-preamble.el --- standard  include for Emacspeak modules  -*- lexical-binding: t; -*-
+ ;;; $Id$
+ ;;; $Author: tv.raman.tv $ 
+-;;; DescriptionEmacspeak extensions for auctex-mode
+-;;; Keywords:emacspeak, audio interface to emacs AUCTEX
++;;; Description: Standard include for various Emacspeak modules
++;;; Keywords: emacspeak, standard include
+ ;;{{{  LCD Archive entry: 
+ 
+ ;;; LCD Archive Entry:
+diff --git a/lisp/emacspeak-rpm-spec.el b/lisp/emacspeak-rpm-spec.el
+index b8801ee..c110fc1 100644
+--- a/lisp/emacspeak-rpm-spec.el
++++ b/lisp/emacspeak-rpm-spec.el
+@@ -1,8 +1,8 @@
+ ;;; emacspeak-rpm-spec.el --- Speech enable rpm spec editor  -*- lexical-binding: t; -*-
+ ;;; $Id$
+ ;;; $Author: tv.raman.tv $
+-;;; Description: Controlling mplayer from emacs 
+-;;; Keywords: Emacspeak, rpm-spec streaming media 
++;;; Description: Emacspeak extension to speech enable rpm-spec editor
++;;; Keywords: Emacspeak, rpm-spec
+ ;;{{{  LCD Archive entry: 
+ 
+ ;;; LCD Archive Entry:
+diff --git a/lisp/emacspeak-tcl.el b/lisp/emacspeak-tcl.el
+index 6c72a93..cf4edb1 100644
+--- a/lisp/emacspeak-tcl.el
++++ b/lisp/emacspeak-tcl.el
+@@ -1,8 +1,8 @@
+ ;;; emacspeak-tcl.el --- Speech enable TCL development environment  -*- lexical-binding: t; -*-
+ ;;; $Id$
+ ;;; $Author: tv.raman.tv $ 
+-;;; DescriptionEmacspeak extensions for tcl-mode
+-;;; Keywords:emacspeak, audio interface to emacs tcl
++;;; Description: Emacspeak extensions for tcl-mode
++;;; Keywords: emacspeak, audio interface to emacs tcl
+ ;;{{{  LCD Archive entry: 
+ 
+ ;;; LCD Archive Entry:
+diff --git a/lisp/emacspeak-view.el b/lisp/emacspeak-view.el
+index e93ce81..2f1bfa6 100644
+--- a/lisp/emacspeak-view.el
++++ b/lisp/emacspeak-view.el
+@@ -1,8 +1,8 @@
+ ;;; emacspeak-view.el --- Speech enable View mode -- Efficient browsing of read-only content  -*- lexical-binding: t; -*-
+ ;;; $Id$
+ ;;; $Author: tv.raman.tv $ 
+-;;; DescriptionEmacspeak extensions for view
+-;;; Keywords:emacspeak, audio interface to emacs, view-mode
++;;; Description: Emacspeak extensions for view
++;;; Keywords: emacspeak, audio interface to emacs, view-mode
+ ;;{{{  LCD Archive entry: 
+ 
+ ;;; LCD Archive Entry:
+diff --git a/lisp/emacspeak-wdired.el b/lisp/emacspeak-wdired.el
+index 879207f..33097ad 100644
+--- a/lisp/emacspeak-wdired.el
++++ b/lisp/emacspeak-wdired.el
+@@ -2,7 +2,7 @@
+ ;;; $Id$
+ ;;; $Author: tv.raman.tv $
+ ;;; Description:  Emacspeak extension to speech-enable WDIRED
+-;;; Keywords: Emacspeak, Multimedia
++;;; Keywords: Emacspeak, directory editing
+ ;;{{{  LCD Archive entry:
+ 
+ ;;; LCD Archive Entry:
+diff --git a/lisp/outloud-voices.el b/lisp/outloud-voices.el
+index 25635a0..3714e38 100644
+--- a/lisp/outloud-voices.el
++++ b/lisp/outloud-voices.el
+@@ -68,7 +68,7 @@
+ ;;}}}
+ ;;{{{ Forward declarations:
+ 
+-;;; From dtkk-speak.el:
++;;; From dtk-speak.el:
+ (defvar dtk-speech-rate)
+ (defvar tts-default-speech-rate)
+ (defvar dtk-speech-rate-step)

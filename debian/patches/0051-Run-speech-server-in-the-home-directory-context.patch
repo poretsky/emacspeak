@@ -1,0 +1,23 @@
+From: "Igor B. Poretsky" <poretsky@mlbox.ru>
+Date: Wed, 9 Nov 2022 00:12:15 +0300
+Subject: Run speech server in the home directory context
+
+---
+ lisp/dtk-speak.el | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/lisp/dtk-speak.el b/lisp/dtk-speak.el
+index 05b3860..918b8a7 100644
+--- a/lisp/dtk-speak.el
++++ b/lisp/dtk-speak.el
+@@ -1635,7 +1635,9 @@ program. Port defaults to dtk-local-server-port"
+   (let ((process-connection-type nil)
+         (program (expand-file-name dtk-program emacspeak-servers-directory))
+         (process nil))
+-    (setq process (apply #'start-process name nil program dtk-program-args))
++    (with-temp-buffer
++      (cd "~")
++      (setq process (apply #'start-process name nil program dtk-program-args)))
+     (set-process-coding-system process 'utf-8 'utf-8)
+     process))
+ 

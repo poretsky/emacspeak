@@ -1,0 +1,43 @@
+From: "Igor B. Poretsky" <poretsky@mlbox.ru>
+Date: Sat, 26 Nov 2022 08:43:52 +0300
+Subject: Widgets support fix and enhancement
+
+---
+ lisp/emacspeak-widget.el | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
+
+diff --git a/lisp/emacspeak-widget.el b/lisp/emacspeak-widget.el
+index 555fb23..d607e18 100644
+--- a/lisp/emacspeak-widget.el
++++ b/lisp/emacspeak-widget.el
+@@ -163,7 +163,10 @@ Returns a string with appropriate personality."
+   (let* ((inhibit-read-only t)
+          (label (emacspeak-widget-label widget))
+          (help-echo (emacspeak-widget-help-echo widget))
+-         (v  (widget-value widget))
++         (v
++          (condition-case nil
++              (widget-value widget )
++            (error nil)))
+          (value
+           (cond
+            ((null v) nil)
+@@ -570,6 +573,8 @@ Returns a string with appropriate personality."
+     (cond
+      (widget                            ; First record some state:
+       (let ((pos (ad-get-arg 0))
++            (inhibit-read-only t)
++            (old-buffer (current-buffer))
+             (old-position (point)))
+         (cond
+          ((and (eq major-mode 'eww-mode)
+@@ -579,6 +584,9 @@ Returns a string with appropriate personality."
+           (call-interactively 'emacspeak-we-url-expand-and-execute))
+          (t ad-do-it
+             (cond
++             ((not (eq (current-buffer) old-buffer))
++              (emacspeak-auditory-icon 'large-movement)
++              (emacspeak-speak-mode-line))
+              ((= old-position (point))  ;did not move
+               (emacspeak-auditory-icon 'button)
+               (emacspeak-widget-summarize (widget-at pos)))

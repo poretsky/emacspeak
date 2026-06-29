@@ -1,0 +1,145 @@
+From: "Igor B. Poretsky" <poretsky@mlbox.ru>
+Date: Thu, 18 Jun 2026 21:07:06 +0300
+Subject: Inhibit cursor sensor instead of point motion hooks
+
+The variable inhibit-point-motion-hooks is obsolete since Emacs 25.1 and
+defaults to t.
+---
+ lisp/dtk-debug-tools.el |  2 +-
+ lisp/dtk-speak.el       |  4 ++--
+ lisp/emacspeak-speak.el | 24 ++++++++++++------------
+ 3 files changed, 15 insertions(+), 15 deletions(-)
+
+diff --git a/lisp/dtk-debug-tools.el b/lisp/dtk-debug-tools.el
+index efb3b00..59cfdb9 100644
+--- a/lisp/dtk-debug-tools.el
++++ b/lisp/dtk-debug-tools.el
+@@ -77,7 +77,7 @@
+     (when selective-display
+       (let ((ctrl-m (string-match "\015" text)))
+         (and ctrl-m (setq text (substring text 0 ctrl-m)))))
+-    (let ((inhibit-point-motion-hooks t) ;snapshot relevant state
++    (let ((cursor-sensor-inhibit t) ;snapshot relevant state
+           (inhibit-read-only t)
+           (inhibit-modification-hooks t)
+           (deactivate-mark nil)
+diff --git a/lisp/dtk-speak.el b/lisp/dtk-speak.el
+index 6bde58d..70f9421 100644
+--- a/lisp/dtk-speak.el
++++ b/lisp/dtk-speak.el
+@@ -1713,7 +1713,7 @@ If option `outline-minor-mode' is on and selective display is in effect,
+ only speak upto the first ctrl-m."
+   (cl-declare (special dtk-yank-excluded-properties
+                dtk-speaker-process dtk-stop-immediately
+-               tts-strip-octals inhibit-point-motion-hooks
++               tts-strip-octals cursor-sensor-inhibit
+                dtk-speak-server-initialized emacspeak-use-auditory-icons
+                dtk-speech-rate dtk-speak-nonprinting-chars
+                dtk-quiet dtk-chunk-separator-syntax inhibit-modification-hooks
+@@ -1738,7 +1738,7 @@ only speak upto the first ctrl-m."
+       (let ((ctrl-m (string-match "\015" text)))
+         (and ctrl-m (setq text (substring text 0 ctrl-m))
+              (emacspeak-auditory-icon 'ellipses))))
+-    (let ((inhibit-point-motion-hooks t) ;snapshot relevant state
++    (let ((cursor-sensor-inhibit t) ;snapshot relevant state
+           (yank-excluded-properties  yank-excluded-properties)
+           (inhibit-read-only t)
+           (inhibit-modification-hooks t)
+diff --git a/lisp/emacspeak-speak.el b/lisp/emacspeak-speak.el
+index 2a224d3..b467849 100644
+--- a/lisp/emacspeak-speak.el
++++ b/lisp/emacspeak-speak.el
+@@ -413,7 +413,7 @@ Useful to do this before you listen to an entire buffer."
+       (condition-case nil
+           (let ((start nil)
+                 (blank-line "\n[ \t\n\r]*\n")
+-                (inhibit-point-motion-hooks t)
++                (cursor-sensor-inhibit t)
+                 (inhibit-modification-hooks t)
+                 (deactivate-mark nil))
+             (with-silent-modifications
+@@ -808,8 +808,8 @@ current local  value to the result.")
+ Argument START  and END specify region to speak."
+   (interactive "r")
+   (cl-declare (special emacspeak-speak-voice-annotated-paragraphs
+-                       emacspeak-action-modeinhibit-point-motion-hooks))
+-  (let ((inhibit-point-motion-hooks t)
++                       emacspeak-action-mode cursor-sensor-inhibit))
++  (let ((cursor-sensor-inhibit t)
+         (inhibit-modification-hooks t)
+         (deactivate-mark nil))
+     (when (not emacspeak-speak-voice-annotated-paragraphs)
+@@ -888,7 +888,7 @@ with auditory icon `more'.  These can then be spoken using command
+                 (= ?\) (char-syntax (following-char)))))
+           (t dtk-cleanup-repeats)))
+         (inhibit-read-only t)
+-        (inhibit-point-motion-hooks t)
++        (cursor-sensor-inhibit t)
+         (inhibit-modification-hooks t)
+         (icon (get-char-property (point) 'auditory-icon))
+         (before (get-char-property (point) 'before-string))
+@@ -1011,7 +1011,7 @@ Cues the start of a physical line with auditory icon `left'."
+         (inhibit-read-only t)
+         (start nil)
+         (end nil)
+-        (inhibit-point-motion-hooks t)
++        (cursor-sensor-inhibit t)
+         (inhibit-modification-hooks t)
+         (line nil)
+         (orig (point)))
+@@ -1075,7 +1075,7 @@ spelled out  instead of being spoken."
+   (when emacspeak-action-mode  (emacspeak-handle-action-at-point))
+   (save-excursion
+     (let ((orig (point))
+-          (inhibit-point-motion-hooks t)
++          (cursor-sensor-inhibit t)
+           (inhibit-modification-hooks t)
+           (inhibit-field-text-motion  t)
+           (start nil)
+@@ -1293,7 +1293,7 @@ Negative prefix arg speaks from start of sentence to point."
+   (when (listp arg) (setq arg (car arg)))
+   (save-excursion
+     (let ((orig (point))
+-          (inhibit-point-motion-hooks t)
++          (cursor-sensor-inhibit t)
+           (inhibit-modification-hooks t)
+           (start nil)
+           (end nil))
+@@ -1317,7 +1317,7 @@ Negative prefix arg speaks from start of sexp to point. "
+   (when (listp arg) (setq arg (car arg)))
+   (save-excursion
+     (let ((orig (point))
+-          (inhibit-point-motion-hooks t)
++          (cursor-sensor-inhibit t)
+           (inhibit-modification-hooks t)
+           (start nil)
+           (end nil))
+@@ -1347,7 +1347,7 @@ If option  `voice-lock-mode' is on, then it will use any defined personality."
+   (when (listp arg) (setq arg (car arg)))
+   (save-excursion
+     (let ((orig (point))
+-          (inhibit-point-motion-hooks t)
++          (cursor-sensor-inhibit t)
+           (start nil)
+           (end nil))
+       (mark-page)
+@@ -1371,7 +1371,7 @@ If voice-lock-mode is on, then it will use any defined personality. "
+   (when (listp arg) (setq arg (car arg)))
+   (save-excursion
+     (let ((orig (point))
+-          (inhibit-point-motion-hooks t)
++          (cursor-sensor-inhibit t)
+           (start nil)
+           (end nil))
+       (forward-paragraph 1)
+@@ -1397,8 +1397,8 @@ Negative prefix arg speaks from start of buffer to point.
+ voice annotated first,  see command `emacspeak-speak-voice-annotate-paragraphs'."
+   (interactive "P")
+   (cl-declare (special emacspeak-speak-voice-annotated-paragraphs
+-                       inhibit-point-motion-hooks))
+-  (let ((inhibit-point-motion-hooks t))
++                       cursor-sensor-inhibit))
++  (let ((cursor-sensor-inhibit t))
+     (when (not emacspeak-speak-voice-annotated-paragraphs)
+       (emacspeak-speak-voice-annotate-paragraphs))
+     (when (listp arg) (setq arg (car arg)))

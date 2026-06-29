@@ -1,0 +1,21 @@
+From: "Igor B. Poretsky" <poretsky@mlbox.ru>
+Date: Sat, 26 Nov 2022 08:04:10 +0300
+Subject: Minibuffer completion keymap fix
+
+---
+ lisp/emacspeak-speak.el | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/lisp/emacspeak-speak.el b/lisp/emacspeak-speak.el
+index e1606b5..2bed1f9 100644
+--- a/lisp/emacspeak-speak.el
++++ b/lisp/emacspeak-speak.el
+@@ -3482,7 +3482,7 @@ This function is sensitive to calendar mode when prompting."
+ (define-key minibuffer-local-completion-map "\C-p" 'emacspeak-minibuffer-previous-completion)
+ (define-key minibuffer-local-completion-map (ems-kbd "C-@") 'emacspeak-minibuffer-choose-completion)
+ (define-key minibuffer-local-completion-map
+-  (ems-kbd "C-SPC") 'emacspeak-minibuffer-choose-completion)
++  (ems-kbd "<C-return>") 'emacspeak-minibuffer-choose-completion)
+ 
+ ;;}}}
+ ;;{{{ Open Emacspeak Info Pages:

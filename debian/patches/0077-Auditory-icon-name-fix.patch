@@ -1,0 +1,21 @@
+From: "Igor B. Poretsky" <poretsky@mlbox.ru>
+Date: Wed, 8 Jul 2026 21:18:29 +0300
+Subject: Auditory icon name fix
+
+---
+ lisp/emacspeak-wizards.el | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/lisp/emacspeak-wizards.el b/lisp/emacspeak-wizards.el
+index a6f5aff..b75a9e9 100644
+--- a/lisp/emacspeak-wizards.el
++++ b/lisp/emacspeak-wizards.el
+@@ -3658,7 +3658,7 @@ Optional interactive prefix arg `best' picks best audio format."
+ (defadvice ytel (after emacspeak pre act comp)
+   "Provide auditory feedback."
+   (when (ems-interactive-p)
+-    (emacspeak-auditory-icon 'opten-object)
++    (emacspeak-auditory-icon 'open-object)
+     (emacspeak-speak-line)))
+ 
+ ;;}}}

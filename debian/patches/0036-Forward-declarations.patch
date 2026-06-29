@@ -1,0 +1,1088 @@
+From: "Igor B. Poretsky" <poretsky@mlbox.ru>
+Date: Mon, 21 Nov 2022 22:04:20 +0300
+Subject: Forward declarations
+
+---
+ lisp/amixer.el                 |  3 +++
+ lisp/dectalk-voices.el         | 24 ++++++++++-------
+ lisp/dtk-speak.el              | 40 +++++++++++++++++-----------
+ lisp/emacspeak-2048.el         |  6 +++++
+ lisp/emacspeak-bookshare.el    |  5 ++++
+ lisp/emacspeak-calendar.el     |  2 ++
+ lisp/emacspeak-chess.el        | 23 ++++++++++++++++
+ lisp/emacspeak-dbus.el         |  1 +
+ lisp/emacspeak-dired.el        |  5 ++++
+ lisp/emacspeak-elfeed.el       |  9 +++++++
+ lisp/emacspeak-emms.el         |  7 +++++
+ lisp/emacspeak-epub.el         |  4 ++-
+ lisp/emacspeak-evil.el         |  5 ++++
+ lisp/emacspeak-eww.el          | 11 ++++++--
+ lisp/emacspeak-google.el       |  6 ++++-
+ lisp/emacspeak-jabber.el       | 10 +++++++
+ lisp/emacspeak-js2.el          |  5 ++++
+ lisp/emacspeak-load-path.el    | 60 ++++++++++++++++++++++++++++++++++++++++++
+ lisp/emacspeak-m-player.el     |  8 ++++++
+ lisp/emacspeak-maths.el        |  7 +++++
+ lisp/emacspeak-mines.el        |  9 +++++++
+ lisp/emacspeak-org.el          |  2 ++
+ lisp/emacspeak-package.el      |  1 +
+ lisp/emacspeak-popup.el        |  7 +++++
+ lisp/emacspeak-pronounce.el    |  2 ++
+ lisp/emacspeak-py.el           |  6 +++++
+ lisp/emacspeak-python.el       |  6 +++++
+ lisp/emacspeak-sounds.el       |  3 +++
+ lisp/emacspeak-speak.el        | 15 ++++++++++-
+ lisp/emacspeak-table-ui.el     |  3 +++
+ lisp/emacspeak-url-template.el | 11 ++++++++
+ lisp/emacspeak-vdiff.el        |  7 +++++
+ lisp/emacspeak-vm.el           |  2 ++
+ lisp/emacspeak-we.el           | 11 ++++++--
+ lisp/emacspeak-wizards.el      | 26 +++++++++++++++++-
+ lisp/emacspeak-xkcd.el         |  5 ++++
+ lisp/emacspeak-xslt.el         |  8 ++++++
+ lisp/emacspeak-ytel.el         |  7 +++++
+ lisp/g-utils.el                |  1 +
+ lisp/gmaps.el                  |  5 ++--
+ lisp/ladspa.el                 |  2 ++
+ lisp/sox-gen.el                |  2 +-
+ lisp/voice-setup.el            |  6 +++++
+ 43 files changed, 352 insertions(+), 36 deletions(-)
+
+diff --git a/lisp/amixer.el b/lisp/amixer.el
+index 61aad78..8bd285e 100644
+--- a/lisp/amixer.el
++++ b/lisp/amixer.el
+@@ -52,6 +52,9 @@
+ ;;; forward decl:
+ (defvar emacspeak-speak-messages)
+ 
++(declare-function emacspeak-auditory-icon "emacspeak-sounds.el" (icon))
++(declare-function dtk-stop "dtk-speak" (&optional all))
++
+ ;;}}}
+ ;;{{{ Custom:
+ 
+diff --git a/lisp/dectalk-voices.el b/lisp/dectalk-voices.el
+index 1d094d7..ae6216a 100644
+--- a/lisp/dectalk-voices.el
++++ b/lisp/dectalk-voices.el
+@@ -51,6 +51,20 @@
+ (require 'cl-lib)
+ (cl-declaim  (optimize  (safety 0) (speed 3)))
+ (require 'acss-structure)
++
++;;}}}
++;;{{{ Forward declarations:
++
++;;; From dtk-speak.el:
++
++(defvar tts-default-speech-rate)
++
++(defvar dtk-speech-rate-step)
++(defvar dtk-speech-rate-base)
++
++(declare-function dtk-initialize "dtk-speak" ())
++(declare-function dtk-select-server "dtk-speak" (program &optional device))
++
+ ;;}}}
+ ;;{{{ Customizations:
+ 
+@@ -75,16 +89,6 @@
+   (dtk-initialize))
+ 
+ ;;}}}
+-;;{{{ Forward declarations:
+-
+-;;; From dtk-speak.el:
+-
+-(defvar tts-default-speech-rate)
+-
+-(defvar dtk-speech-rate-step)
+-(defvar dtk-speech-rate-base)
+-
+-;;}}}
+ ;;{{{  voice table
+ 
+ (defvar dectalk-default-voice-string ""
+diff --git a/lisp/dtk-speak.el b/lisp/dtk-speak.el
+index 70f9421..ee4d644 100644
+--- a/lisp/dtk-speak.el
++++ b/lisp/dtk-speak.el
+@@ -58,9 +58,20 @@
+ ;;}}}
+ ;;{{{ Forward Declarations:
+ 
++(declare-function plain-configure-tts "plain-voices" ())
++(declare-function espeak-configure-tts "espeak-voices" ())
++(declare-function mac-configure-tts "mac-voices" ())
++(declare-function dectalk-configure-tts "dectalk-voices" ())
++(declare-function outloud-configure-tts "outloud-voices" ())
++
+ (declare-function voice-setup-get-voice-for-face "voice-setup" (face))
+ (declare-function emacspeak-auditory-icon "emacspeak-sounds.el" (icon))
+ (declare-function emacspeak-queue-auditory-icon "emacspeak-sounds.el" (icon))
++(declare-function ems--fastload "emacspeak-load-path" (file))
++
++(declare-function dtk-force "dtk-speak" ())
++(declare-function tts-get-voice-command "dtk-speak" (voice-name))
++
+ (defvar dtk-program
+   (cond
+    ((getenv "DTK_PROGRAM") (getenv "DTK_PROGRAM"))
+@@ -1538,6 +1549,20 @@ ALSA_DEFAULT to specified device before starting the server."
+     (when (called-interactively-p 'interactive)
+       (dtk-initialize))))
+ 
++(defcustom tts-notification-device
++  (eval-when-compile
++    (or (getenv "ALSA_NOTIFY")
++        (cl-first (split-string (shell-command-to-string  "aplay -L 2>/dev/null | grep mono")))))
++  "Virtual ALSA device to use for notifications stream."
++  :type 'string
++  :group 'tts)
++
++(defsubst tts-multistream-p (tts-engine)
++  "Checks if this tts-engine can support multiple streams."
++  (and
++   (member tts-engine '("outloud"  "cloud-outloud"))
++   (not (string= tts-notification-device "default"))))
++
+ (defun dtk-cloud ()
+   "Select preferred Cloud TTS server."
+   (interactive)
+@@ -1593,21 +1618,6 @@ program. Port defaults to dtk-local-server-port"
+ ;;}}}
+ ;;{{{  initialize the speech process
+ 
+-
+-(defcustom tts-notification-device
+-  (eval-when-compile
+-    (or (getenv "ALSA_NOTIFY")
+-        (cl-first (split-string (shell-command-to-string  "aplay -L 2>/dev/null | grep mono")))))
+-  "Virtual ALSA device to use for notifications stream."
+-  :type 'string
+-  :group 'tts)
+-
+-(defsubst tts-multistream-p (tts-engine)
+-  "Checks if this tts-engine can support multiple streams."
+-  (and
+-   (member tts-engine '("outloud"  "cloud-outloud"))
+-   (not (string= tts-notification-device "default"))))
+-
+ (defvar dtk-speak-server-initialized nil
+   "Records if the server is initialized.")
+ 
+diff --git a/lisp/emacspeak-2048.el b/lisp/emacspeak-2048.el
+index 507f40c..de4c928 100644
+--- a/lisp/emacspeak-2048.el
++++ b/lisp/emacspeak-2048.el
+@@ -55,6 +55,12 @@
+ (require 'emacspeak-preamble)
+ (require '2048-game "2048-game" 'no-error)
+ ;;}}}
++;;{{{ Forward declarations
++
++(declare-function 2048-print-board "ext:2048.el" ())
++(declare-function 2048-init-tile "ext:2048.el" (n))
++
++;;}}}
+ ;;{{{ Push And Pop states:
+ 
+ (cl-defstruct emacspeak-2048-game-state
+diff --git a/lisp/emacspeak-bookshare.el b/lisp/emacspeak-bookshare.el
+index 151ac90..f5144a7 100644
+--- a/lisp/emacspeak-bookshare.el
++++ b/lisp/emacspeak-bookshare.el
+@@ -88,11 +88,16 @@
+ (eval-when-compile (require 'derived))
+ (require 'dom)
+ (require 'xml)
++
+ (declare-function auth-source-search "auth-source" (&rest rest))
+ (declare-function dired-get-filename "dired" (&optional localp
+                                                         no-error-if-not-filep))
+ (declare-function emacspeak-xslt-get "emacspeak-xslt" (arg1))
+ (declare-function emacspeak-xslt-params-from-xpath "emacspeak-bookshare" t)
++(declare-function emacspeak-xslt-xml-url "emacspeak-xslt" (xsl url &optional params))
++(declare-function emacspeak-xslt-url "emacspeak-xslt" (xsl url &optional params no-comment))
++(declare-function emacspeak-eww-autospeak "emacspeak-eww" ())
++
+ ;;}}}
+ ;;{{{ Customizations
+ 
+diff --git a/lisp/emacspeak-calendar.el b/lisp/emacspeak-calendar.el
+index 1eb0155..814ef8f 100644
+--- a/lisp/emacspeak-calendar.el
++++ b/lisp/emacspeak-calendar.el
+@@ -365,6 +365,8 @@
+ ;;}}}
+ ;;{{{ Global sunrise/sunset wizard:
+ 
++(declare-function gmaps-address-geocode "gmaps" (address))
++
+ ;;;###autoload
+ (defun emacspeak-calendar-sunrise-sunset (address &optional arg)
+   "Display sunrise/sunset for specified address."
+diff --git a/lisp/emacspeak-chess.el b/lisp/emacspeak-chess.el
+index ee68a52..9a82941 100644
+--- a/lisp/emacspeak-chess.el
++++ b/lisp/emacspeak-chess.el
+@@ -129,6 +129,29 @@
+ (require 'chess-display nil 'noerror)
+ 
+ ;;}}}
++;;{{{Forward Decls:
++
++(declare-function chess-ply-keyword "ext:chess-ply.el" (ply keyword))
++(declare-function chess-ply-target "ext:chess-ply.el" (ply))
++(declare-function chess-ply-source "ext:chess-ply.el" (ply))
++(declare-function chess-ply-pos "ext:chess-ply.el" (ply))
++
++(declare-function chess-game-index "ext:chess-game.el" (game))
++(declare-function chess-game-ply "ext:chess-game.el" (game &optional index))
++(declare-function chess-game-pos "ext:chess-game.el" (game &optional index))
++
++(declare-function chess-search-position "ext:chess-pos.el" (position target piece &optional check-only no-castling))
++(declare-function chess-pos-search "ext:chess-pos.el" (position piece-or-color))
++(declare-function chess-pos-piece "ext:chess-pos.el" (position index))
++(declare-function chess-next-index "ext:chess-pos.el" (index direction))
++(declare-function chess-coord-to-index "ext:chess-pos.el" (coord))
++(declare-function chess-index-to-coord "ext:chess-pos.el" (index))
++(declare-function chess-index-file "ext:chess-pos.el" (index))
++(declare-function chess-index-rank "ext:chess-pos.el" (index))
++
++(declare-function chess-display-index-pos "ext:chess-display.el" (display index))
++
++;;}}}
+ ;;{{{Helpers:
+ 
+ (defvar emacspeak-chess-piece-names
+diff --git a/lisp/emacspeak-dbus.el b/lisp/emacspeak-dbus.el
+index a6aa9eb..3055fc3 100644
+--- a/lisp/emacspeak-dbus.el
++++ b/lisp/emacspeak-dbus.el
+@@ -92,6 +92,7 @@
+ (declare-function jabber-disconnect "jabber-core" (&optional arg))
+ (declare-function twittering-start "ext:twittering-mode" nil)
+ (declare-function twittering-stop "twittering-mode" nil)
++(declare-function xbacklight-black "xbacklight" nil)
+ 
+ ;;}}}
+ ;;{{{ ScreenSaver Mode:
+diff --git a/lisp/emacspeak-dired.el b/lisp/emacspeak-dired.el
+index a6ddb93..982c29d 100644
+--- a/lisp/emacspeak-dired.el
++++ b/lisp/emacspeak-dired.el
+@@ -53,6 +53,7 @@
+ (require 'cl-lib)
+ (cl-declaim  (optimize  (safety 0) (speed 3)))
+ (require 'emacspeak-preamble)
++(require 'emacspeak-m-player)
+ (require 'dired)
+ 
+ ;;}}}
+@@ -463,6 +464,8 @@ Invokes appropriate Emacspeak handler on  current file in DirEd."
+   (interactive)
+   (emacspeak-wizards-pdf-open (dired-get-filename current-prefix-arg)))
+ 
++(declare-function emacspeak-wizards-midi-using-m-score "emacspeak-wizards" (midi-file))
++
+ (defun emacspeak-dired-midi-play ()
+   "Play midi  file on current dired line."
+   (interactive)
+@@ -474,6 +477,8 @@ Invokes appropriate Emacspeak handler on  current file in DirEd."
+   (emacspeak-epub-eww (shell-quote-argument(dired-get-filename)))
+   (emacspeak-auditory-icon 'open-object))
+ 
++(declare-function emacspeak-table-find-csv-file "emacspeak-table-ui" (filename))
++
+ (defun emacspeak-dired-csv-open ()
+   "Open CSV file on current dired line."
+   (interactive)
+diff --git a/lisp/emacspeak-elfeed.el b/lisp/emacspeak-elfeed.el
+index 5839b24..4cdfaec 100644
+--- a/lisp/emacspeak-elfeed.el
++++ b/lisp/emacspeak-elfeed.el
+@@ -53,6 +53,15 @@
+ (require 'emacspeak-preamble)
+ (require 'elfeed "elfeed" 'no-match)
+ ;;}}}
++;;{{{ Forward declarations
++
++(declare-function elfeed-entry-title "ext:elfeed.el" (entry))
++(declare-function elfeed-entry-tags "ext:elfeed.el" (entry))
++(declare-function elfeed-entry-link "ext:elfeed.el" (entry))
++(declare-function elfeed-tag "ext:elfeed-db.el" (entry-or-entry-list &rest tags))
++(declare-function elfeed-untag "ext:elfeed-db.el" (entry-or-entry-list &rest tags))
++
++;;}}}
+ ;;{{{ Map Faces to voices
+ 
+ (voice-setup-add-map
+diff --git a/lisp/emacspeak-emms.el b/lisp/emacspeak-emms.el
+index a18b4d7..bf7e414 100644
+--- a/lisp/emacspeak-emms.el
++++ b/lisp/emacspeak-emms.el
+@@ -59,6 +59,13 @@
+ (declare-function emms-player-pause "emacspeak-emms" t)
+ 
+ ;;}}}
++;;{{{ Forward declarations
++
++(declare-function emms-player-pause "ext:emms.el" ())
++(declare-function emms-track-name "ext:emms.el" (track))
++(declare-function emms-playlist-current-selected-track "ext:emms.el" ())
++
++;;}}}
+ ;;{{{ module emms:
+ 
+ (defun emacspeak-emms-speak-current-track ()
+diff --git a/lisp/emacspeak-epub.el b/lisp/emacspeak-epub.el
+index 7f26197..9cdc5ba 100644
+--- a/lisp/emacspeak-epub.el
++++ b/lisp/emacspeak-epub.el
+@@ -858,7 +858,8 @@ Filename may need to  be shell-quoted when called from Lisp."
+   "EPub handle.")
+ 
+ (declare-function eww-update-header-line-format "eww" nil)
+-
++(declare-function emacspeak-eww-run-post-process-hook "emacspeak-eww" (&rest _ignore))
++(declare-function emacspeak-feeds-atom-display "emacspeak-feeds" (feed-url))
+ 
+ (defun emacspeak-epub-eww (epub-file &optional broken-ncx)
+   "Display entire book  using EWW from EPub.
+@@ -872,6 +873,7 @@ in the epub file instead."
+      (read-file-name "EPub: " emacspeak-epub-library-directory))
+     current-prefix-arg))
+   (cl-declare (special emacspeak-speak-directory-settings eww-data
++                       emacspeak-eww-post-process-hook
+                        epub-this-epub emacspeak-epub-this-epub))
+   (let* ((emacspeak-speak-messages nil)
+          (directory
+diff --git a/lisp/emacspeak-evil.el b/lisp/emacspeak-evil.el
+index d398997..4e6c1b5 100644
+--- a/lisp/emacspeak-evil.el
++++ b/lisp/emacspeak-evil.el
+@@ -52,6 +52,11 @@
+ (require 'emacspeak-preamble)
+ 
+ ;;}}}
++;;{{{ Forward declarations
++
++(declare-function evil-mode "ext:evil.el" (&optional arg))
++
++;;}}}
+ ;;{{{ Map Faces:
+ 
+ (voice-setup-add-map
+diff --git a/lisp/emacspeak-eww.el b/lisp/emacspeak-eww.el
+index 7fff535..7d68bf5 100644
+--- a/lisp/emacspeak-eww.el
++++ b/lisp/emacspeak-eww.el
+@@ -516,6 +516,8 @@ or URL read from minibuffer."
+ ;;}}}
+ ;;{{{play media:
+ 
++(declare-function emacspeak-m-player "emacspeak-m-player" (resource &optional play-list))
++
+ (defun emacspeak-eww-play-media-at-point (&optional  playlist-p)
+   "Play media url under point.
+ Optional interactive prefix arg `playlist-p' says to treat the
+@@ -809,6 +811,9 @@ Safari/537.36"
+ 
+ ;;;Check cache if URL already open, otherwise cache.
+ 
++(declare-function emacspeak-url-template-get "emacspeak-url-template" (key))
++(declare-function emacspeak-url-template-open "emacspeak-url-template" (ut))
++
+ (defadvice eww-reload (around emacspeak pre act comp)
+   "Check buffer local settings for feed buffers.
+ If buffer was result of displaying a feed, reload feed.
+@@ -863,6 +868,7 @@ Retain previously set punctuations  mode."
+ 
+ (defun emacspeak-eww-after-render-hook ()
+   "Setup Emacspeak for rendered buffer. "
++  (cl-declare (special emacspeak-eww-post-process-hook))
+   (let ((title (emacspeak-eww-current-title))
+         (alt (dom-alternate-links (emacspeak-eww-current-dom))))
+     (when (= 0 (length title)) (setq title "EWW: Untitled"))
+@@ -2072,7 +2078,7 @@ Warning, this is fragile, and depends on a stable id/class for the
+   (emacspeak-auditory-icon 'delete-object)
+   (message "Removed Emacspeak EWW mark %s" name))
+ 
+-
++(declare-function emacspeak-bookshare-eww "emacspeak-bookshare" (directory))
+ 
+ ;;;###autoload
+ (defun emacspeak-eww-open-mark (name &optional delete)
+@@ -2452,7 +2458,8 @@ With interactive prefix arg, move to the start of the table."
+   (emacspeak-auditory-icon 'right)
+   (emacspeak-eww-table-speak-cell))
+ 
+-
++(declare-function emacspeak-table-make-table "emacspeak-table" (elements))
++(declare-function emacspeak-table-prepare-table-buffer "emacspeak-table-ui" (table buffer))
+ 
+ (defun emacspeak-eww-table-data ()
+   "View  table at point as a data table using Emacspeak Table UI."
+diff --git a/lisp/emacspeak-google.el b/lisp/emacspeak-google.el
+index 51c149e..89e0294 100644
+--- a/lisp/emacspeak-google.el
++++ b/lisp/emacspeak-google.el
+@@ -430,7 +430,7 @@ This variable is buffer-local.")
+ ;;{{{  google tools
+ 
+ (declare-function eww-current-url "eww" nil)
+-
++(declare-function emacspeak-websearch-google "emacspeak-websearch" (query &optional flag))
+ 
+ (defun emacspeak-google-who-links-to-this-page ()
+   "Perform a google search to locate documents that link to the
+@@ -461,6 +461,8 @@ current page."
+ (defvar emacspeak-google-related-uri
+   "http://www.google.com/search?hl=en&num=25&q=related:")
+ 
++(declare-function emacspeak-we-extract-by-id "emacspeak-we" (id url &optional speak))
++(declare-function emacspeak-we-extract-by-id-list "emacspeak-we" (ids url &optional speak))
+ 
+ (defun emacspeak-google-similar-to-this-page (url)
+   "Ask Google to find documents similar to this one."
+@@ -782,6 +784,8 @@ Optional interactive prefix arg `lang' specifies  language identifier."
+      .@id
+      (g-json-get 'contentUrl .image))))
+ 
++(declare-function emacspeak-eww-autospeak "emacspeak-eww" nil)
++
+ (defun emacspeak-google-knowledge-search (query &optional limit)
+   "Perform a Google Knowledge Graph search.
+ Optional interactive prefix arg `limit' prompts for number of results,
+diff --git a/lisp/emacspeak-jabber.el b/lisp/emacspeak-jabber.el
+index e66807a..0ac4e57 100644
+--- a/lisp/emacspeak-jabber.el
++++ b/lisp/emacspeak-jabber.el
+@@ -53,6 +53,16 @@
+ (cl-declaim  (optimize  (safety 0) (speed 3)))
+ (require 'emacspeak-preamble)
+ (with-no-warnings (require 'jabber "jabber" 'no-error))
++
++;;}}}
++;;{{{ Forward declarations
++
++(declare-function jabber-muc-sender-p "ext:jabber-muc.el" (jid))
++(declare-function jabber-jid-resource "ext:jabber-util.el" (string))
++(declare-function jabber-jid-displayname "ext:jabber-util.el" (string))
++(declare-function jabber-jid-user "ext:jabber-util.el" (string))
++(declare-function jabber-activity-switch-to "ext:jabber-activity.el" (&optional jid-param))
++
+ ;;}}}
+ ;;{{{ map voices
+ 
+diff --git a/lisp/emacspeak-js2.el b/lisp/emacspeak-js2.el
+index 1c27abb..3825c35 100644
+--- a/lisp/emacspeak-js2.el
++++ b/lisp/emacspeak-js2.el
+@@ -53,6 +53,11 @@
+ (require 'emacspeak-preamble)
+ 
+ ;;}}}
++;;{{{ Forward declarations
++
++(declare-function js2-imenu-extras-setup "ext:js2-imenu-extras.el" ())
++
++;;}}}
+ ;;{{{  map faces to voices:
+ 
+ (voice-setup-add-map
+diff --git a/lisp/emacspeak-load-path.el b/lisp/emacspeak-load-path.el
+index 5fae7ab..381c5ff 100644
+--- a/lisp/emacspeak-load-path.el
++++ b/lisp/emacspeak-load-path.el
+@@ -42,6 +42,66 @@
+ 
+ (cl-pushnew (file-name-directory load-file-name) load-path :test #'string-equal)
+ 
++(defvar emacspeak-directory
++  (expand-file-name "../" (file-name-directory load-file-name))
++  "emacspeak installation directory")
++
++(defvar emacspeak-lisp-directory
++  (expand-file-name  "lisp/" emacspeak-directory)
++  "Emacspeak lisp directory.")
++
++(defvar emacspeak-sounds-directory
++  (expand-file-name  "sounds/" emacspeak-directory)
++  "Auditory icons directory.")
++
++(defvar emacspeak-xslt-directory
++  (expand-file-name "xsl/" emacspeak-directory)
++  "XSL transformations.")
++
++(defvar emacspeak-etc-directory
++  (expand-file-name  "etc/" emacspeak-directory)
++  "Misc directory.")
++
++(defvar emacspeak-servers-directory
++  (expand-file-name  "servers/" emacspeak-directory)
++  "Speech servers directory.")
++
++(defvar emacspeak-info-directory
++  (expand-file-name  "info/" emacspeak-directory)
++  "Emacspeak reference.")
++
++(defvar emacspeak-user-directory (expand-file-name "~/.emacspeak/")
++  "Emacspeak resources, e.g. pronunciation dicts.")
++
++(defvar emacspeak-readme-file
++  (expand-file-name "README" emacspeak-directory)
++  "README file with  Git  revision number.")
++
++(defvar emacspeak-curl-program (executable-find "curl")
++  "Curl location.")
++
++(defvar emacspeak-media-extensions
++  (eval-when-compile
++    (let
++        ((ext
++          '("mov" "wma" "wmv" "flv" "m4a" "m4b" "flac" "aiff" "aac" "opus" "mkv"
++            "ogv" "oga" "ogg" "mp3" "mp4" "webm" "wav")))
++      (concat
++       "\\."
++       (regexp-opt
++        (nconc (mapcar #'upcase ext) ext)
++        'parens)
++       "$")))
++  "Media file Extensions.")
++
++(defvar  emacspeak-m-player-playlist-pattern
++  (eval-when-compile
++    (concat
++     (regexp-opt
++      (list ".m3u" ".asx" ".pls" ".rpm" ".ram"))
++     "$"))
++  "Playlist pattern.")
++
+ ;;{{{ Interactive Check Implementation:
+ 
+ ;;; Notes:
+diff --git a/lisp/emacspeak-m-player.el b/lisp/emacspeak-m-player.el
+index 8d1ef39..f47ced5 100644
+--- a/lisp/emacspeak-m-player.el
++++ b/lisp/emacspeak-m-player.el
+@@ -68,15 +68,23 @@
+ 
+ ;;}}}
+ ;;{{{  Required modules
++
+ (require 'cl-lib)
+ (cl-declaim  (optimize  (safety 0) (speed 3)))
+ (require 'emacspeak-preamble)
+ (require 'ladspa)
+ (require 'emacspeak-amark)
++
++;;}}}
++;;{{{ forward declarations:
++
++(declare-function browse-url-interactive-arg "browse-url" (prompt))
+ (declare-function dired-get-filename "dired" (&optional localp
+                                                         no-error-if-not-filep))
+ (declare-function comint-mode "comint" nil)
+ (declare-function emacspeak-xslt-get "emacspeak-xslt" (style))
++(declare-function emacspeak-xslt-xml-url "emacspeak-xslt" (xsl url &optional params))
++(declare-function emacspeak-eww-read-url "emacspeak-eww" ())
+ 
+ ;;}}}
+ ;;{{{ Stream Metadata:
+diff --git a/lisp/emacspeak-maths.el b/lisp/emacspeak-maths.el
+index e51d82e..b45c17a 100644
+--- a/lisp/emacspeak-maths.el
++++ b/lisp/emacspeak-maths.el
+@@ -97,6 +97,13 @@
+ (require 'nvm "nvm" 'no-error)
+ 
+ ;;}}}
++;;{{{ Forward declarations
++
++(declare-function nvm--installed-versions "ext:nvm" ())
++(declare-function nvm-use "ext:nvm" (version &optional callback))
++(declare-function texmathp "ext:texmathp.el" ())
++
++;;}}}
+ ;;{{{ Customizations And Variables:
+ 
+ (defvar emacspeak-maths-inferior-program
+diff --git a/lisp/emacspeak-mines.el b/lisp/emacspeak-mines.el
+index 494e7ce..4bb2faa 100644
+--- a/lisp/emacspeak-mines.el
++++ b/lisp/emacspeak-mines.el
+@@ -67,6 +67,15 @@
+ (cl-declaim  (optimize  (safety 0) (speed 3)))
+ (require 'emacspeak-preamble)
+ (require 'mines "mines" 'no-error)
++
++;;}}}
++;;{{{ Forward declarations
++
++(declare-function mines-current-pos "ext:mines.el" ())
++(declare-function mines-index-2-matrix "ext:mines.el" (idx))
++(declare-function mines-goto "ext:mines.el" (idx))
++(declare-function mines-get-neighbours "ext:mines.el" (idx))
++
+ ;;}}}
+ ;;{{{ Interactive Commands:
+ 
+diff --git a/lisp/emacspeak-org.el b/lisp/emacspeak-org.el
+index 7ee0977..9bd5532 100644
+--- a/lisp/emacspeak-org.el
++++ b/lisp/emacspeak-org.el
+@@ -451,6 +451,8 @@
+ ;;}}}
+ ;;{{{ mode hook:
+ 
++(declare-function emacspeak-setup-programming-mode "emacspeak" ())
++
+ (defun emacspeak-org-mode-setup ()
+   "Placed on org-mode-hook to do Emacspeak setup."
+   (cl-declare (special org-mode-map
+diff --git a/lisp/emacspeak-package.el b/lisp/emacspeak-package.el
+index 2fa4018..9ac4229 100644
+--- a/lisp/emacspeak-package.el
++++ b/lisp/emacspeak-package.el
+@@ -111,6 +111,7 @@
+ 
+ (defun emacspeak-package-mode-hook ()
+   "Emacspeak setup hook for package-mode."
++  (cl-declare (special package-menu-mode-map))
+   (define-key package-menu-mode-map (ems-kbd "<left>") 'emacspeak-speak-previous-field)
+   (define-key package-menu-mode-map (ems-kbd "<right>") 'emacspeak-speak-next-field)
+   (define-key package-menu-mode-map " " 'emacspeak-package-summarize-line)
+diff --git a/lisp/emacspeak-popup.el b/lisp/emacspeak-popup.el
+index 30aa92f..fc96364 100644
+--- a/lisp/emacspeak-popup.el
++++ b/lisp/emacspeak-popup.el
+@@ -51,6 +51,13 @@
+ (cl-declaim  (optimize  (safety 0) (speed 3)))
+ (require 'emacspeak-preamble)
+ (require 'popup "popup" 'no-error)
++
++;;}}}
++;;{{{ Forward declarations
++
++(declare-function popup-cursor "ext:popup.el" (popup))
++(declare-function popup-list "ext:popup.el" (popup))
++
+ ;;}}}
+ ;;{{{ Map Faces:
+ 
+diff --git a/lisp/emacspeak-pronounce.el b/lisp/emacspeak-pronounce.el
+index d626be7..ee0b0a2 100644
+--- a/lisp/emacspeak-pronounce.el
++++ b/lisp/emacspeak-pronounce.el
+@@ -62,6 +62,8 @@
+ (require 'cl-lib)
+ (cl-declaim  (optimize  (safety 0) (speed 3)))
+ (require 'voice-setup)
++(require 'emacspeak-load-path)
++(require 'emacspeak-sounds)
+ 
+ ;;}}}
+ ;;{{{ Dictionary structure:
+diff --git a/lisp/emacspeak-py.el b/lisp/emacspeak-py.el
+index f8e63ba..78840d0 100644
+--- a/lisp/emacspeak-py.el
++++ b/lisp/emacspeak-py.el
+@@ -54,6 +54,12 @@
+ 
+ (with-no-warnings (require 'python-mode "python-mode" 'no-error))
+ ;;}}}
++;;{{{ Forward declarations
++
++(declare-function python-beginning-of-defun "python.el" ())
++(declare-function python-end-of-defun "python.el" ())
++
++;;}}}
+ ;;{{{  electric editing
+ 
+ (defadvice py-electric-backspace (around emacspeak pre act)
+diff --git a/lisp/emacspeak-python.el b/lisp/emacspeak-python.el
+index 234e7ea..655ff54 100644
+--- a/lisp/emacspeak-python.el
++++ b/lisp/emacspeak-python.el
+@@ -54,6 +54,12 @@
+ 
+ (require 'python "python" 'no-error)
+ ;;}}}
++;;{{{ Forward declarations
++
++(declare-function python-beginning-of-defun "python.el" ())
++(declare-function python-end-of-defun "python.el" ())
++
++;;}}}
+ ;;{{{ interactive programming
+ 
+ (defadvice python-check (after emacspeak pre act comp)
+diff --git a/lisp/emacspeak-sounds.el b/lisp/emacspeak-sounds.el
+index d38eb76..5f10599 100644
+--- a/lisp/emacspeak-sounds.el
++++ b/lisp/emacspeak-sounds.el
+@@ -65,6 +65,9 @@
+ ;;; Code:
+ (require 'cl-lib)
+ (cl-declaim  (optimize  (safety 0) (speed 3)))
++(require 'emacspeak-load-path)
++(require 'amixer)
++
+ ;;}}}
+ ;;{{{  state of auditory icons
+ 
+diff --git a/lisp/emacspeak-speak.el b/lisp/emacspeak-speak.el
+index 940e750..885839e 100644
+--- a/lisp/emacspeak-speak.el
++++ b/lisp/emacspeak-speak.el
+@@ -57,15 +57,28 @@
+ (cl-declaim  (optimize  (safety 0) (speed 3)))
+ 
+ (require 'dtk-speak)
++(require 'emacspeak-load-path)
++(require 'emacspeak-keymap)
+ (require 'emacspeak-pronounce)
++(require 'emacspeak-sounds)
+ (require 'sox-gen)
+-(declare-function emacspeak-play-auditory-icon "emacspeak-sounds" (sound-name))
++
+ (declare-function operate-on-rectangle "rect" (function start end coerce-tabs))
+ (declare-function which-function "which-func" nil)
+ (declare-function calendar-cursor-to-nearest-date "cal-move" [Arg list not available until function definition is loaded.])
+ (declare-function word-at-point "thingatpt" (&optional no-properties))
+ 
+ ;;}}}
++;;{{{ forward declarations:
++
++(defvar emacspeak-last-message)
++
++(declare-function emacspeak-play-startup-icon "emacspeak.el" ())
++(declare-function emacspeak-info-speak-header "emacspeak-info.el" ())
++(declare-function emacspeak-table-view-csv-buffer "emacspeak-table-ui" (&optional buffer-name))
++(declare-function emacspeak-table-display-table-in-region "emacspeak-table-ui" (start end))
++
++;;}}}
+ ;;{{{  custom group
+ 
+ 
+diff --git a/lisp/emacspeak-table-ui.el b/lisp/emacspeak-table-ui.el
+index 00391de..6427f5c 100644
+--- a/lisp/emacspeak-table-ui.el
++++ b/lisp/emacspeak-table-ui.el
+@@ -640,6 +640,9 @@ The processed  data is  presented using emacspeak table navigation. "
+ 
+ ;;}}}
+ ;;{{{ Processing a region of tabular data
++
++(declare-function ems-tabulate-parse-region "emacspeak-tabulate" (start end))
++
+ ;;;###autoload
+ (defun emacspeak-table-display-table-in-region (start end)
+   "Recognize tabular data in current region and display it in table
+diff --git a/lisp/emacspeak-url-template.el b/lisp/emacspeak-url-template.el
+index 5206821..715894a 100644
+--- a/lisp/emacspeak-url-template.el
++++ b/lisp/emacspeak-url-template.el
+@@ -234,6 +234,9 @@ dont-url-encode if true then url arguments are not url-encoded "
+ 
+ ;;}}}
+ ;;{{{ Guardian Feed Directory:
++
++(declare-function emacspeak-feeds-opml-display "emacspeak-feeds" (feed-url))
++
+ (emacspeak-url-template-define
+  "Guardian RSS Feeds Directory"
+  "http://rss2.io/lists/guardian.opml"
+@@ -264,6 +267,8 @@ dont-url-encode if true then url arguments are not url-encoded "
+ ;;}}}
+ ;;{{{ Google Trends:
+ 
++(declare-function emacspeak-feeds-rss-display "emacspeak-feeds" (feed-url))
++
+ (emacspeak-url-template-define
+  "Google Trends"
+  "https://www.google.com/trends/hottrends/atom/feed?pn=p1"
+@@ -412,6 +417,8 @@ dont-url-encode if true then url arguments are not url-encoded "
+ ;;}}}
+ ;;{{{ google OverviewOfNews
+ 
++(declare-function emacspeak-eww-autospeak "emacspeak-eww" ())
++
+ (emacspeak-url-template-define
+  "html Google News Search"
+  "https://news.google.com/news?hl=en&ned=tus&q=%s&btnG=Google+Search"
+@@ -864,6 +871,8 @@ JSON is retrieved from `url'."
+ ;;}}}
+ ;;{{{ Radio station streams
+ 
++(declare-function emacspeak-m-player "emacspeak-m-player" (resource &optional play-list))
++
+ (emacspeak-url-template-define
+  "StreamWorld Radio"
+  "http://provisioning.streamtheworld.com/pls/%s.pls"
+@@ -1153,6 +1162,7 @@ Each URL template carries out the following steps:
+ (defvar emacspeak-url-template-nls-authenticated nil
+   "Record if we have authenticated in this Emacs session.")
+ (declare-function mml-compute-boundary "mml" (cont))
++(declare-function emacspeak-eww-read-url "emacspeak-eww" ())
+ 
+ (defun emacspeak-url-template-nls-add-to-wishlist  (book)
+   "Add book under point to wishlist."
+@@ -1243,6 +1253,7 @@ template."
+ (declare-function shr-url-at-point "shr" (image-url))
+ (declare-function emacspeak-google-canonicalize-result-url "emacspeak-google" (url))
+ (declare-function emacspeak-google-result-url-prefix "emacspeak-google" nil)
++(declare-function emacspeak-feeds-atom-display "emacspeak-feeds" (feed-url))
+ 
+ (emacspeak-url-template-define
+  "Reddit At Point."
+diff --git a/lisp/emacspeak-vdiff.el b/lisp/emacspeak-vdiff.el
+index 8dec3b6..245687a 100644
+--- a/lisp/emacspeak-vdiff.el
++++ b/lisp/emacspeak-vdiff.el
+@@ -61,6 +61,13 @@
+ (cl-declaim  (optimize  (safety 0) (speed 3)))
+ (require 'emacspeak-preamble)
+ (require 'vdiff "vdiff" 'no-error)
++
++;;}}}
++;;{{{ Forward declarations
++
++(declare-function vdiff--overlay-at-pos "ext:vdiff.el" (&optional pos noerror))
++(declare-function vdiff-switch-buffer "ext:vdiff.el" (line))
++
+ ;;}}}
+ ;;{{{ Map Faces:
+ 
+diff --git a/lisp/emacspeak-vm.el b/lisp/emacspeak-vm.el
+index c199cb3..df908b5 100644
+--- a/lisp/emacspeak-vm.el
++++ b/lisp/emacspeak-vm.el
+@@ -50,6 +50,7 @@
+ (cl-declaim  (optimize  (safety 0) (speed 3)))
+ (require 'emacspeak-preamble)
+ (with-demoted-errors "Error loading VM: %s" (require 'vm () 'no-error))
++(require 'browse-url)
+ 
+ ;;}}}
+ ;;{{{ Forward Decls:
+@@ -69,6 +70,7 @@
+ (declare-function vm-delete-message "vm-message" (msg))
+ (declare-function  u-vm-color-fontify-buffer "u-vm-color" nil)
+ (declare-function  u-vm-color-summary-mode "u-vm-color" (&optional arg))
++(declare-function emacspeak-hide-all-blocks-in-buffer "emacspeak-hide" nil)
+ 
+ ;;}}}
+ ;;{{{ voice locking:
+diff --git a/lisp/emacspeak-we.el b/lisp/emacspeak-we.el
+index 0576ee2..fa508fb 100644
+--- a/lisp/emacspeak-we.el
++++ b/lisp/emacspeak-we.el
+@@ -62,6 +62,13 @@
+ (require 'emacspeak-xslt)
+ 
+ ;;}}}
++;;{{{ Forward Declarations:
++
++(declare-function emacspeak-eww-autospeak "emacspeak-eww" ())
++(declare-function emacspeak-eww-read-url "emacspeak-eww" ())
++(declare-function emacspeak-eww-browser-check "emacspeak-eww" ())
++
++;;}}}
+ ;;{{{Helper:
+ 
+ (defun emacspeak-we-rename-buffer (key)
+@@ -696,7 +703,7 @@ values as completion. "
+      (or (called-interactively-p 'interactive) speak))))
+ 
+ ;;;###autoload
+-(defun emacspeak-we-extract-by-id (id   url &optional speak)
++(defun emacspeak-we-extract-by-id (id url &optional speak)
+   "Extract elements having specified id attribute from HTML. Extracts
+ specified elements from current WWW page and displays it in a separate
+ buffer.
+@@ -715,7 +722,7 @@ Interactive use provides list of id values as completion."
+    speak))
+ 
+ ;;;###autoload
+-(defun emacspeak-we-extract-by-id-list(ids   url &optional speak)
++(defun emacspeak-we-extract-by-id-list (ids url &optional speak)
+   "Extract elements having id specified in list `ids' from HTML.
+ Extracts specified elements from current WWW page and displays it in a
+ separate buffer. Interactive use provides list of id values as completion. "
+diff --git a/lisp/emacspeak-wizards.el b/lisp/emacspeak-wizards.el
+index de34c5d..a6f5aff 100644
+--- a/lisp/emacspeak-wizards.el
++++ b/lisp/emacspeak-wizards.el
+@@ -76,6 +76,30 @@
+ (declare-function word-at-point "thingatpt" (&optional no-properties))
+ (declare-function sox-play "sox" t)
+ 
++(declare-function color-cie-de2000 "color.el" (color1 color2 &optional kL kC kH))
++(declare-function color-srgb-to-lab "color.el" (red green blue))
++(declare-function color-rgb-to-hex "color.el" (red green blue))
++
++(declare-function ntc-name-this-color "ext:name-this-color.el" (color-code))
++(declare-function ntc-shade-this-color "ext:name-this-color.el" (color-code))
++
++(declare-function ntc--struct-shade "ext:name-this-color.el" (arg))
++(declare-function ntc--struct-name "ext:name-this-color.el" (arg))
++(declare-function ntc--get-closest-color "ext:name-this-color.el" (color))
++
++(declare-function gmaps-address-geocode "gmaps" (address))
++(declare-function gmaps-reverse-geocode "gmaps" (lat-long &optional raw-p))
++
++(declare-function get-toy-braille-string "toy-braille" (instr))
++
++(declare-function emacspeak-m-player "emacspeak-m-player" (resource &optional play-list))
++(declare-function emacspeak-m-player-youtube-player "emacspeak-m-player" (url &optional best))
++
++(declare-function emacspeak-url-template-get "emacspeak-url-template" (key))
++(declare-function emacspeak-url-template-open "emacspeak-url-template" (ut))
++
++(declare-function emacspeak-toggle-inaudible-or-comint-autospeak "emacspeak-comint" ())
++
+ ;;}}}
+ ;;{{{Forward Decls:
+ 
+@@ -685,7 +709,7 @@ the emacspeak table clipboard instead."
+       (read-from-minibuffer "Eval: "
+                             nil read-expression-map t
+                             'read-expression-history))))
+-  (cl-declare (special read-expression-map))
++  (cl-declare (special read-expression-map minibuffer-completing-symbol))
+   (let ((buffer (get-buffer-create "*emacspeak:Eval*"))
+         (print-length nil)
+         (eval-expression-print-length nil)
+diff --git a/lisp/emacspeak-xkcd.el b/lisp/emacspeak-xkcd.el
+index 67c9fcc..e6f3582 100644
+--- a/lisp/emacspeak-xkcd.el
++++ b/lisp/emacspeak-xkcd.el
+@@ -55,6 +55,11 @@
+ (require 'json)
+ (require 'xkcd "xkcd" 'no-error)
+ ;;}}}
++;;{{{ Forward declarations
++
++(declare-function xkcd-get-json "ext:xkcd.el" (url &optional num))
++
++;;}}}
+ ;;{{{ Fix error when loading images on the console:
+ 
+ (defadvice xkcd-insert-image (around emacspeak pre act comp)
+diff --git a/lisp/emacspeak-xslt.el b/lisp/emacspeak-xslt.el
+index a8b1590..863d5aa 100644
+--- a/lisp/emacspeak-xslt.el
++++ b/lisp/emacspeak-xslt.el
+@@ -51,7 +51,15 @@
+ ;;{{{  Required modules
+ 
+ (cl-declaim  (optimize  (safety 0) (speed 3)))
++(require 'browse-url)
+ (require 'emacspeak-preamble)
++
++;;}}}
++;;{{{ Forward Declarations:
++
++(declare-function emacspeak-eww-autospeak "emacspeak-eww" ())
++(declare-function emacspeak-eww-read-url "emacspeak-eww" ())
++
+ ;;}}}
+ ;;{{{  xslt Environment:
+ ;;;###autoload
+diff --git a/lisp/emacspeak-ytel.el b/lisp/emacspeak-ytel.el
+index caf55dd..e7f9cf3 100644
+--- a/lisp/emacspeak-ytel.el
++++ b/lisp/emacspeak-ytel.el
+@@ -50,6 +50,13 @@
+ (cl-declaim  (optimize  (safety 0) (speed 3)))
+ (require 'emacspeak-preamble)
+ (require 'ytel "ytel" 'no-error)
++
++;;}}}
++;;{{{Forward Decls:
++
++(declare-function ytel-video-id "ext:ytel.el" (video))
++(declare-function ytel-get-current-video "ext:ytel.el" ())
++
+ ;;}}}
+ ;;{{{ Interactive Commands:
+ 
+diff --git a/lisp/g-utils.el b/lisp/g-utils.el
+index 9ed2b4e..a0f0131 100644
+--- a/lisp/g-utils.el
++++ b/lisp/g-utils.el
+@@ -57,6 +57,7 @@
+ (require 'cl-lib)
+ (cl-declaim  (optimize  (safety 0) (speed 3)))
+ (require 'json)
++(eval-when-compile (require 'emacspeak-xslt))
+ 
+ ;;}}}
+ ;;{{{ Customizations:
+diff --git a/lisp/gmaps.el b/lisp/gmaps.el
+index ccadbfd..00c7331 100644
+--- a/lisp/gmaps.el
++++ b/lisp/gmaps.el
+@@ -113,12 +113,13 @@
+       (puthash  (gmaps--location-address result) result gmaps-location-table)
+       (gmaps-locations-save)
+       result))))
++
+ ;;;###autoload
+-(defun gmaps-address-geocode(address)
++(defun gmaps-address-geocode (address)
+   "Return lat/long for a given address."
+   (gmaps--location-lat-lng (gmaps-address-location address)))
+ 
+-(defun gmaps-address-zip(address)
++(defun gmaps-address-zip (address)
+   "Return ZIP code  for a given address."
+   (gmaps--location-zip (gmaps-address-location address)))
+ 
+diff --git a/lisp/ladspa.el b/lisp/ladspa.el
+index cee29d1..b4fb3f3 100644
+--- a/lisp/ladspa.el
++++ b/lisp/ladspa.el
+@@ -62,6 +62,8 @@
+ (eval-when-compile
+   (require 'subr-x)
+   (require 'derived))
++(require 'emacspeak-keymap)
++
+ ;;}}}
+ ;;{{{ Structures:
+ 
+diff --git a/lisp/sox-gen.el b/lisp/sox-gen.el
+index 9fb30d7..3347b5f 100644
+--- a/lisp/sox-gen.el
++++ b/lisp/sox-gen.el
+@@ -116,7 +116,7 @@
+ 
+ (require 'cl-lib)
+ (cl-declaim  (optimize  (safety 0) (speed 3)))
+-
++(require 'dtk-speak)
+ 
+ ;;}}}
+ ;;{{{ sox-gen-p:
+diff --git a/lisp/voice-setup.el b/lisp/voice-setup.el
+index dece9c1..0305527 100644
+--- a/lisp/voice-setup.el
++++ b/lisp/voice-setup.el
+@@ -93,6 +93,12 @@
+ (require 'acss-structure)
+ (require 'dectalk-voices)
+ 
++;;}}}
++;;{{{ Forward Declarations:
++
++(declare-function dtk-get-style "dtk-speak" (&optional pos))
++(declare-function emacspeak-speak-help "emacspeak-speak" (&optional arg))
++(declare-function emacspeak-auditory-icon "emacspeak-sounds.el" (icon))
+ 
+ ;;}}}
+ ;;{{{ customization group

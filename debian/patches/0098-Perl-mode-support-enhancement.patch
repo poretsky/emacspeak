@@ -1,0 +1,49 @@
+From: "Igor B. Poretsky" <poretsky@rakurs.com>
+Date: Thu, 24 Nov 2022 16:47:44 +0300
+Subject: Perl mode support enhancement
+
+---
+ lisp/emacspeak-perl.el | 26 +++++++++++++++++---------
+ 1 file changed, 17 insertions(+), 9 deletions(-)
+
+diff --git a/lisp/emacspeak-perl.el b/lisp/emacspeak-perl.el
+index eb1c4a1..2b4bf4e 100644
+--- a/lisp/emacspeak-perl.el
++++ b/lisp/emacspeak-perl.el
+@@ -51,19 +51,27 @@
+ (unless (and (boundp 'post-self-insert-hook)
+              post-self-insert-hook
+              (memq 'emacspeak-post-self-insert-hook post-self-insert-hook))
+-  (defadvice electric-perl-terminator  (after emacspeak pre act comp)
+-    "Speak what you inserted."
+-    (when (ems-interactive-p)
+-      (emacspeak-speak-this-char last-input-event))))
++  (cl-loop for f in
++        '(electric-perl-terminator perl-electric-terminator)
++        do
++        (eval
++         `(defadvice ,f  (after emacspeak pre act comp )
++            "Speak what you inserted."
++            (when (ems-interactive-p)
++              (emacspeak-speak-this-char last-input-event))))))
+ 
+ ;;}}}
+ ;;{{{  Program structure:
+ 
+-(defadvice mark-perl-function (after emacspeak pre act comp)
+-  "Provide auditory feedback"
+-  (when (ems-interactive-p)
+-    (emacspeak-auditory-icon 'mark-object)
+-    (message "Marked procedure")))
++(cl-loop for f in
++      '(mark-perl-function perl-mark-function)
++      do
++      (eval
++       `(defadvice ,f (after emacspeak pre act comp)
++          "Provide auditory feedback"
++          (when (ems-interactive-p)
++            (emacspeak-auditory-icon 'mark-object)
++            (message "Marked procedure")))))
+ 
+ (defadvice perl-beginning-of-function (after emacspeak pre act comp)
+   "Provide auditory feedback."

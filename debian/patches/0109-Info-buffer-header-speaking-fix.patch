@@ -1,0 +1,23 @@
+From: "Igor B. Poretsky" <poretsky@rakurs.com>
+Date: Fri, 25 Nov 2022 16:15:14 +0300
+Subject: Info buffer header speaking fix
+
+---
+ lisp/emacspeak-speak.el | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/lisp/emacspeak-speak.el b/lisp/emacspeak-speak.el
+index 6591e2b..08d20a7 100644
+--- a/lisp/emacspeak-speak.el
++++ b/lisp/emacspeak-speak.el
+@@ -1864,7 +1864,9 @@ Interactive prefix arg speaks buffer info."
+     (when emacspeak-mail-alert (emacspeak-mail-alert-user))
+     (cond
+      ((and header-line-format (not (called-interactively-p 'interactive)))
+-      (emacspeak-speak-header-line))
++      (if (eq major-mode 'Info-mode)
++          (emacspeak-info-speak-header)
++        (emacspeak-speak-header-line)))
+      (buffer-info (emacspeak-speak-buffer-info))
+      (t                                 ; main branch
+       (let ((global-info (downcase (format-mode-line global-mode-string)))

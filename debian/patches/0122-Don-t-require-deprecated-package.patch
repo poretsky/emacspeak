@@ -1,0 +1,20 @@
+From: "Igor B. Poretsky" <poretsky@mlbox.ru>
+Date: Sun, 8 Jan 2023 09:48:29 +0300
+Subject: Dropped duplication
+
+---
+ lisp/emacspeak-smartparens.el | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/lisp/emacspeak-smartparens.el b/lisp/emacspeak-smartparens.el
+index 9bbf211..221cb2a 100644
+--- a/lisp/emacspeak-smartparens.el
++++ b/lisp/emacspeak-smartparens.el
+@@ -52,7 +52,6 @@
+ ;;}}}
+ ;;{{{  Required modules
+ (require 'cl-lib)
+-(require 'cl-lib)
+ (cl-declaim  (optimize  (safety 0) (speed 3)))
+ (require 'emacspeak-preamble)
+ 

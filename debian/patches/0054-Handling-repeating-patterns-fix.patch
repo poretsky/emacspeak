@@ -1,0 +1,30 @@
+From: "Igor B. Poretsky" <poretsky@mlbox.ru>
+Date: Thu, 10 Nov 2022 07:47:05 +0300
+Subject: Handling repeating patterns fix
+
+---
+ lisp/dtk-speak.el | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
+
+diff --git a/lisp/dtk-speak.el b/lisp/dtk-speak.el
+index fb62e2c..601c125 100644
+--- a/lisp/dtk-speak.el
++++ b/lisp/dtk-speak.el
+@@ -538,11 +538,12 @@ it seems some accented characters in certain contexts."
+ (defun dtk-handle-repeating-patterns (mode)
+   "Handle repeating patterns by replacing them with `aw <length> char-names'."
+   (cl-declare (special dtk-cleanup-repeats))
+-  (goto-char (point-min))
+-  (mapc
+-   #'(lambda (str)
+-       (dtk-replace-duplicates str mode))
+-   dtk-cleanup-repeats))
++  (when (sequencep dtk-cleanup-repeats)
++    (goto-char (point-min))
++    (mapc
++     #'(lambda (str)
++         (dtk-replace-duplicates str mode))
++     dtk-cleanup-repeats)))
+ 
+ (defvar dtk-null-char (format "%c" 0)
+   "Null char.")

@@ -1,0 +1,21 @@
+From: "Igor B. Poretsky" <poretsky@mlbox.ru>
+Date: Tue, 8 Nov 2022 19:44:26 +0300
+Subject: Don't speak messages by default
+
+---
+ lisp/emacspeak-speak.el | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/lisp/emacspeak-speak.el b/lisp/emacspeak-speak.el
+index e8af61e..6ee8b72 100644
+--- a/lisp/emacspeak-speak.el
++++ b/lisp/emacspeak-speak.el
+@@ -208,7 +208,7 @@ Speech flushes as you type."
+ ;;}}}
+ ;;{{{ Shell Command Helper:
+ 
+-(defcustom emacspeak-speak-messages t
++(defcustom emacspeak-speak-messages nil
+   "Option indicating if messages are spoken.  If nil,
+ emacspeak will not speak messages as they are echoed to the
+ message area.  You can use command

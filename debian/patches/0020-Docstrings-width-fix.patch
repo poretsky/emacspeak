@@ -1,0 +1,357 @@
+From: "Igor B. Poretsky" <poretsky@mlbox.ru>
+Date: Wed, 1 Jul 2026 07:27:18 +0300
+Subject: Docstrings width fix
+
+By the way a couple of typos have been fixed as well.
+---
+ lisp/dtk-unicode.el               | 24 ++++++++++++++++--------
+ lisp/emacspeak-dired.el           |  3 ++-
+ lisp/emacspeak-feeds.el           |  3 ++-
+ lisp/emacspeak-fix-interactive.el |  3 ++-
+ lisp/emacspeak-google.el          |  3 ++-
+ lisp/emacspeak-ocr.el             |  7 ++++---
+ lisp/emacspeak-pronounce.el       |  6 ++++--
+ lisp/emacspeak-speak.el           | 13 ++++++++-----
+ lisp/emacspeak-table-ui.el        |  5 +++--
+ lisp/emacspeak-websearch.el       |  6 ++++--
+ lisp/emacspeak-xslt.el            |  3 ++-
+ lisp/gm-nnir.el                   |  3 ++-
+ lisp/gmaps.el                     |  3 ++-
+ lisp/nm.el                        |  3 ++-
+ lisp/voice-setup.el               |  2 +-
+ 15 files changed, 56 insertions(+), 31 deletions(-)
+
+diff --git a/lisp/dtk-unicode.el b/lisp/dtk-unicode.el
+index 7adf67e..3b28e7e 100644
+--- a/lisp/dtk-unicode.el
++++ b/lisp/dtk-unicode.el
+@@ -133,9 +133,11 @@
+ 
+ (defvar dtk-unicode-handlers
+   '(dtk-unicode-user-table-handler dtk-unicode-full-table-handler)
+-  "List of functions which are called in in this order for replacing an unspeakable character.
++  "List of functions which are called in in this order
++for replacing an unspeakable character.
+ 
+-A handler returns a non-nil value if the   replacement was successful, nil otherwise.")
++A handler returns a non-nil value if the   replacement was successful,
++nil otherwise.")
+ 
+ ;;}}}
+ ;;{{{ Helper functions
+@@ -158,7 +160,8 @@ A handler returns a non-nil value if the   replacement was successful, nil other
+       (list (make-char charset min min) (make-char charset max max))))))
+ 
+ (defun dtk-unicode-build-skip-regexp (charsets)
+-  "Construct regexp to match all but the characters in dtk-unicode-untouched-charsets."
++  "Construct regexp to match all but the characters in
++dtk-unicode-untouched-charsets."
+   (format "[^%s]"
+           (cl-loop for charset in charsets
+                    when (charsetp charset)
+@@ -166,7 +169,8 @@ A handler returns a non-nil value if the   replacement was successful, nil other
+ 
+ (defvar dtk-unicode-charset-filter-regexp
+   (dtk-unicode-build-skip-regexp dtk-unicode-untouched-charsets)
+-  "Regular exppression that matches characters not in dtk-unicode-untouched-charsets.")
++  "Regular expression that matches characters not in
++dtk-unicode-untouched-charsets.")
+ 
+ (defun dtk-unicode-update-untouched-charsets (charsets)
+   "Update list of charsets we will not touch."
+@@ -192,7 +196,8 @@ charsets returned by operations such as `find-charset-region'."
+     (dtk--with-charset-priority charsets (memq (char-charset char) charsets))))
+ 
+ (defun dtk-unicode-char-untouched-p (char)
+-  "Return t if char is a member of one of the charsets in dtk-unicode-untouched-charsets."
++  "Return t if char is a member of one of the charsets in
++dtk-unicode-untouched-charsets."
+   (dtk-unicode-char-in-charsets-p char dtk-unicode-untouched-charsets))
+ 
+ (defvar dtk-unicode-cache (make-hash-table)
+@@ -227,7 +232,8 @@ charsets returned by operations such as `find-charset-region'."
+       (string-match "punctuation" category))))
+ 
+ (defun dtk-unicode-apply-name-transformation-rules (name)
+-  "Apply transformation rules in dtk-unicode-name-transformation-rules-alist to NAME."
++  "Apply transformation rules in dtk-unicode-name-transformation-rules-alist
++to NAME."
+   (funcall
+    (or (assoc-default name dtk-unicode-name-transformation-rules-alist 'string-match)
+        'identity)
+@@ -272,12 +278,14 @@ When called interactively, CHAR defaults to the character after point."
+ (defun dtk-unicode-full-name-for-char (char)
+   "Return full name of CHAR.
+ 
+-This is meant to be used in places where the user asks for a detailed description of CHAR."
++This is meant to be used in places where the user asks
++for a detailed description of CHAR."
+   (dtk-unicode-name-for-char char))
+ (defun dtk-unicode-short-name-for-char (char)
+   "Return name of CHAR.
+ 
+-This is meant to be used in places where the user asks for a short description of CHAR."
++This is meant to be used in places where the user asks
++for a short description of CHAR."
+   (if (memq char dtk-unicode-untouched-charsets)
+       (char-to-string char)
+     (dtk-unicode-name-for-char char)))
+diff --git a/lisp/emacspeak-dired.el b/lisp/emacspeak-dired.el
+index 2e3b0eb..8cd34ad 100644
+--- a/lisp/emacspeak-dired.el
++++ b/lisp/emacspeak-dired.el
+@@ -422,7 +422,8 @@ On a directory line, run du -s on the directory to speak its size."
+   "Association of filename extension patterns to Emacspeak handlers.")
+ 
+ (defun emacspeak-dired-open-this-file  ()
+-  "Smart dired opener. Invokes appropriate Emacspeak handler on  current file in DirEd."
++  "Smart dired opener.
++Invokes appropriate Emacspeak handler on  current file in DirEd."
+   (interactive)
+   (let* ((f (dired-get-filename nil t))
+          (ext (file-name-extension f))
+diff --git a/lisp/emacspeak-feeds.el b/lisp/emacspeak-feeds.el
+index 48e5bd4..4a71bb8 100644
+--- a/lisp/emacspeak-feeds.el
++++ b/lisp/emacspeak-feeds.el
+@@ -190,7 +190,8 @@ Archiving is useful when synchronizing feeds across multiple machines."
+ 
+ (defun emacspeak-feeds-fastload-feeds ()
+   "Fast load list of feeds from archive.
+-This directly  updates emacspeak-feeds from the archive, rather than adding those entries to the current set of subscribed feeds."
++This directly  updates emacspeak-feeds from the archive,
++rather than adding those entries to the current set of subscribed feeds."
+   (interactive)
+   (cl-declare (special emacspeak-feeds-archive-file emacspeak-feeds))
+   (unless (file-exists-p emacspeak-feeds-archive-file)
+diff --git a/lisp/emacspeak-fix-interactive.el b/lisp/emacspeak-fix-interactive.el
+index ed9ce98..25cb145 100644
+--- a/lisp/emacspeak-fix-interactive.el
++++ b/lisp/emacspeak-fix-interactive.el
+@@ -65,7 +65,8 @@
+    "^ad-Orig\\|^mouse\\|^scroll-bar\\|^tpu-\\|^set\ "
+    "\\|^face\\|^frame\\|^font"
+    "\\|^color\\|^timer")
+-  "Regular expression matching function names whose interactive spec should not be fixed.")
++  "Regular expression matching function names
++whose interactive spec should not be fixed.")
+ 
+ (defun emacspeak-should-i-fix-interactive-p  (sym)
+   "Predicate to test if this function should be fixed. "
+diff --git a/lisp/emacspeak-google.el b/lisp/emacspeak-google.el
+index e900911..51c149e 100644
+--- a/lisp/emacspeak-google.el
++++ b/lisp/emacspeak-google.el
+@@ -784,7 +784,8 @@ Optional interactive prefix arg `lang' specifies  language identifier."
+ 
+ (defun emacspeak-google-knowledge-search (query &optional limit)
+   "Perform a Google Knowledge Graph search.
+-Optional interactive prefix arg `limit' prompts for number of results, default is 1."
++Optional interactive prefix arg `limit' prompts for number of results,
++default is 1."
+   (interactive "sQuery:\nP")
+   (setq limit
+         (cond
+diff --git a/lisp/emacspeak-ocr.el b/lisp/emacspeak-ocr.el
+index 7aa840b..69ab200 100644
+--- a/lisp/emacspeak-ocr.el
++++ b/lisp/emacspeak-ocr.el
+@@ -558,9 +558,10 @@ Prompts for image file if file corresponding to the expected
+ 
+ (defun emacspeak-ocr-flipflop-and-recognize-image ()
+   "Run OCR engine on current image after flip-flopping it.
+-Useful if you've scanned a page upside down and are using an engine that does not automatically flip the image for you.
+-You need the imagemagik family of tools --- we use mogrify to transform the image.
+-Prompts for image file if file corresponding to the expected
++Useful if you've scanned a page upside down and are using an engine
++that does not automatically flip the image for you.
++You need the imagemagik family of tools --- we use mogrify to transform
++the image. Prompts for image file if file corresponding to the expected
+ `current page' is not found."
+   (interactive)
+   (cl-declare (special emacspeak-ocr-engine
+diff --git a/lisp/emacspeak-pronounce.el b/lisp/emacspeak-pronounce.el
+index 752c2ec..d626be7 100644
+--- a/lisp/emacspeak-pronounce.el
++++ b/lisp/emacspeak-pronounce.el
+@@ -323,7 +323,8 @@ Default is emacspeak-pronounce-dictionaries-file."
+   "Buffer name where we are currently defining a pronunciation.")
+ 
+ (defvar emacspeak-pronounce-yank-word-point nil
+-  "Point where we left off reading from the buffer containing the term being defined.")
++  "Point where we left off reading from the buffer
++containing the term being defined.")
+ 
+ (make-variable-buffer-local ' emacspeak-pronounce-yank-word-point)
+ 
+@@ -768,7 +769,8 @@ specified pronunciation dictionary key."
+   "Regexp pattern that matches 40-digit SHA check-sum.")
+ 
+ (defun emacspeak-pronounce-sha-checksum (sha)
+-  "Return pronunciation for 40 digit SHA hash. Useful for working with Git among other things."
++  "Return pronunciation for 40 digit SHA hash.
++Useful for working with Git among other things."
+   (when
+       (and
+        (= 40 (length sha))
+diff --git a/lisp/emacspeak-speak.el b/lisp/emacspeak-speak.el
+index 587bc7b..2a224d3 100644
+--- a/lisp/emacspeak-speak.el
++++ b/lisp/emacspeak-speak.el
+@@ -1239,7 +1239,8 @@ Pronounces character phonetically unless  called with a PREFIX arg."
+ Behavior is the same as command `emacspeak-speak-char'
+ bound to \\[emacspeak-speak-char]
+ for characters in the range 0--127.
+-Optional argument PREFIX  specifies that the character should be spoken phonetically."
++Optional argument PREFIX  specifies that the character
++should be spoken phonetically."
+   (interactive "P")
+   (cl-declare (special dtk-display-table))
+   (let ((char (following-char)))
+@@ -1706,8 +1707,8 @@ semantic to do the work."
+ (voice-setup-map-face 'header-line 'voice-bolden)
+ 
+ (defun emacspeak--sox-multiwindow (corners)
+-  "Takes `window-edges' and plays a sound cue based on position of current window with respect to
+-the overall window layout."
++  "Takes `window-edges' and plays a sound cue based on position of current window
++with respect to the overall window layout."
+   (let
+       ((tr 0)
+        (mr (/ (frame-height) 2))
+@@ -2058,7 +2059,8 @@ Second interactive prefix sets clock to new timezone."
+ 
+ 
+ (defun emacspeak-speak-microseconds-since-epoch (ms)
+-  "Speaks time value specified as microseconds  since epoch, e.g. as from float-time."
++  "Speaks time value specified as microseconds  since epoch,
++e.g. as from float-time."
+   (interactive
+    (list
+     (read-minibuffer "MicroSeconds: " (word-at-point))))
+@@ -2067,7 +2069,8 @@ Second interactive prefix sets clock to new timezone."
+ 
+ 
+ (defun emacspeak-speak-milliseconds-since-epoch (ms)
+-  "Speaks time value specified as milliseconds  since epoch, e.g. as from float-time."
++  "Speaks time value specified as milliseconds  since epoch,
++e.g. as from float-time."
+   (interactive
+    (list
+     (read-minibuffer "MilliSeconds: " (word-at-point))))
+diff --git a/lisp/emacspeak-table-ui.el b/lisp/emacspeak-table-ui.el
+index 1c17a5e..00391de 100644
+--- a/lisp/emacspeak-table-ui.el
++++ b/lisp/emacspeak-table-ui.el
+@@ -85,7 +85,8 @@ T               emacspeak-table-goto-top
+ 
+ The next two commands let you search the table.
+ The commands ask you if you want to search rows or columns.
+-When searching headers remember that row 0 is the column header, and that column 0 is the row header.
++When searching headers remember that row 0 is the column header,
++and that column 0 is the row header.
+ 
+ h               emacspeak-table-search-headers
+ s               emacspeak-table-search
+@@ -103,7 +104,7 @@ The next set of commands speak the current table cell:
+ b               emacspeak-table-speak-both-headers-and-element
+ SPC             emacspeak-table-speak-current-element
+ c               emacspeak-table-speak-column-header-and-element
+-r               e macspeak-table-speak-row-header-and-element
++r               emacspeak-table-speak-row-header-and-element
+ 
+ The next set of commands navigate the table:
+ 
+diff --git a/lisp/emacspeak-websearch.el b/lisp/emacspeak-websearch.el
+index 2f92664..8eed557 100644
+--- a/lisp/emacspeak-websearch.el
++++ b/lisp/emacspeak-websearch.el
+@@ -68,7 +68,8 @@
+ ;;{{{ searcher table
+ 
+ (defvar emacspeak-websearch-table (make-hash-table)
+-  "Table holding mapping from search engine names to appropriate searcher functions.")
++  "Table holding mapping from search engine names to appropriate
++searcher functions.")
+ 
+ (defun emacspeak-websearch-set-searcher  (engine searcher)
+   (cl-declare (special emacspeak-websearch-table))
+@@ -126,7 +127,8 @@
+ ;;;###autoload
+ (defun emacspeak-websearch-dispatch  ()
+   " Press `?' to list available search engines.
+-   This interface attempts to speak the most relevant information on the result page."
++This interface attempts to speak the most relevant information
++on the result page."
+   (interactive)
+   (let ((engine nil)
+         (searcher nil))
+diff --git a/lisp/emacspeak-xslt.el b/lisp/emacspeak-xslt.el
+index 6c11032..c331745 100644
+--- a/lisp/emacspeak-xslt.el
++++ b/lisp/emacspeak-xslt.el
+@@ -130,7 +130,8 @@ This is useful when handling bad HTML.")
+ ;;{{{XSLT Transformer functions:
+ 
+ (defun emacspeak-xslt-make-xsl-transformer  (xsl &optional params)
+-  "Return a function that can be attached to emacspeak-eww-pre-process-hook to apply required xslt transform."
++  "Return a function that can be attached to emacspeak-eww-pre-process-hook
++to apply required xslt transform."
+   (cond
+    ((null params)
+     (eval
+diff --git a/lisp/gm-nnir.el b/lisp/gm-nnir.el
+index d09ef04..402c218 100644
+--- a/lisp/gm-nnir.el
++++ b/lisp/gm-nnir.el
+@@ -146,7 +146,8 @@ This uses standard IMap search operators."
+ (defun gm-nnir-group-make-gmail-group (query)
+   "Use GMail search syntax exclusively.
+ See https://support.google.com/mail/answer/7190?hl=en for syntax.
+- note: nnimap-address etc are available as local vars if needed in these functions."
++note: nnimap-address etc are available as local vars
++if needed in these functions."
+   (interactive "sGMail Query: ")  
+   (let ((nnir-imap-default-search-key "imap")
+         (q (format "X-GM-RAW \"%s\"" query)))
+diff --git a/lisp/gmaps.el b/lisp/gmaps.el
+index 1bac50b..ccadbfd 100644
+--- a/lisp/gmaps.el
++++ b/lisp/gmaps.el
+@@ -230,7 +230,8 @@ Optional argument `raw-p' returns raw JSON  object."
+ ;;;###autoload
+ (defcustom gmaps-my-address
+   nil
+-  "Location address. Setting this updates gmaps-my-location coordinates  via geocoding."
++  "Location address.
++Setting this updates gmaps-my-location coordinates  via geocoding."
+   :type '(choice
+           (const :tag "None" nil)
+           (string  :tag "Address"))
+diff --git a/lisp/nm.el b/lisp/nm.el
+index 7322719..044932e 100644
+--- a/lisp/nm.el
++++ b/lisp/nm.el
+@@ -27,7 +27,8 @@
+   (member "org.freedesktop.NetworkManager" (dbus-list-known-names :system)))
+ 
+ (defun nm-connected-p()
+-  "Returns nil if NetworkManager service indicates that network is down, t otherwise. "
++  "Returns nil if NetworkManager service indicates that network is down,
++t otherwise. "
+   (and
+    (nm-service-p)
+    (equal 70
+diff --git a/lisp/voice-setup.el b/lisp/voice-setup.el
+index c48d5bb..2c0230e 100644
+--- a/lisp/voice-setup.el
++++ b/lisp/voice-setup.el
+@@ -260,7 +260,7 @@ command \\[customize-variable] on <personality>-settings. "
+        (voice-setup-personality-from-style ,settings)
+        ,(concat
+          doc
+-         (format "Customize this overlay via %s-settings."
++         (format "\n\nCustomize this overlay via %s-settings."
+                  personality)))
+      (defcustom ,(intern (format "%s-settings"  personality))
+        ,settings

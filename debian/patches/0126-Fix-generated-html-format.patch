@@ -1,0 +1,20 @@
+From: "Igor B. Poretsky" <poretsky@mlbox.ru>
+Date: Sun, 12 Jul 2026 13:01:19 +0300
+Subject: Fix generated html format
+
+---
+ etc/tips.xsl | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/etc/tips.xsl b/etc/tips.xsl
+index 4605a2a..07c1a8b 100644
+--- a/etc/tips.xsl
++++ b/etc/tips.xsl
+@@ -5,6 +5,7 @@
+ <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+   version="1.0">
+   <xsl:import href="/usr/share/xml/docbook/stylesheet/docbook-xsl/html/docbook.xsl"/>
++  <xsl:output indent="yes"/>
+   <xsl:variable name= "toc.list.type">ul</xsl:variable>
+   <xsl:variable name= "make.valid.html"> 1 </xsl:variable>
+   <xsl:variable name= "html.stylesheet"> docbook.css</xsl:variable>

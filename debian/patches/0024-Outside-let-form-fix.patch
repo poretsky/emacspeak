@@ -1,0 +1,23 @@
+From: "Igor B. Poretsky" <poretsky@mlbox.ru>
+Date: Wed, 1 Jul 2026 08:09:37 +0300
+Subject: Outside let form fix
+
+---
+ lisp/emacspeak-mspools.el | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/lisp/emacspeak-mspools.el b/lisp/emacspeak-mspools.el
+index 20cb937..fb76958 100644
+--- a/lisp/emacspeak-mspools.el
++++ b/lisp/emacspeak-mspools.el
+@@ -74,8 +74,8 @@
+ (defun mspools-compute-size (file)
+   (let ((message-log-max nil)
+         (inhibit-message t)
+-        (emacspeak-speak-messages nil)))
+-  (read (shell-command-to-string (format "grep '^From ' %s | wc -l" file))))
++        (emacspeak-speak-messages nil))
++    (read (shell-command-to-string (format "grep '^From ' %s | wc -l" file)))))
+ 
+ (defun mspools-size-folder (spool)
+   "Return (SPOOL . SIZE ) iff SIZE of spool file is non-zero."

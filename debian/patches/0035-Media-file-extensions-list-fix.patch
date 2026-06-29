@@ -1,0 +1,28 @@
+From: "Igor B. Poretsky" <poretsky@mlbox.ru>
+Date: Tue, 18 Aug 2026 19:38:35 +0300
+Subject: Media file extensions list fix
+
+---
+ lisp/emacspeak-setup.el | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/lisp/emacspeak-setup.el b/lisp/emacspeak-setup.el
+index 86628c0..e46ba29 100644
+--- a/lisp/emacspeak-setup.el
++++ b/lisp/emacspeak-setup.el
+@@ -107,12 +107,12 @@
+   (eval-when-compile
+     (let
+         ((ext
+-          '("mov" "wma" "wmv" "flv" "m4a" "m4b"  "flac" "aiff" "aac" "opus ""mkv"
+-            "ogv" "oga""ogg" "mp3"  "mp4" "webm" "wav")))
++          '("mov" "wma" "wmv" "flv" "m4a" "m4b" "flac" "aiff" "aac" "opus" "mkv"
++            "ogv" "oga" "ogg" "mp3" "mp4" "webm" "wav")))
+       (concat
+        "\\."
+        (regexp-opt
+-        (nconc ext (mapcar #'upcase ext))
++        (nconc (mapcar #'upcase ext) ext)
+         'parens)
+        "$")))
+   "Media file Extensions.")

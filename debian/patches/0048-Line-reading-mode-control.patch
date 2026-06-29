@@ -1,0 +1,110 @@
+From: "Igor B. Poretsky" <poretsky@mlbox.ru>
+Date: Tue, 8 Nov 2022 19:42:39 +0300
+Subject: Line reading mode control
+
+---
+ lisp/emacspeak-advice.el |  6 ++++--
+ lisp/emacspeak-keymap.el |  1 +
+ lisp/emacspeak-speak.el  | 43 +++++++++++++++++++++++++++++++++++++++----
+ 3 files changed, 44 insertions(+), 6 deletions(-)
+
+diff --git a/lisp/emacspeak-advice.el b/lisp/emacspeak-advice.el
+index 81ef844..fe2c964 100644
+--- a/lisp/emacspeak-advice.el
++++ b/lisp/emacspeak-advice.el
+@@ -245,8 +245,10 @@ position of point is indicated via an aural highlight. Landing on the
+ beginning or end of a physical line produces an appropriate auditory icon."
+      (when (ems-interactive-p)
+        (cond
+-        ((or line-move-visual visual-line-mode) (emacspeak-speak-visual-line))
+-        (t (emacspeak-speak-line)))))))
++        ((and (or line-move-visual visual-line-mode)
++              (null truncate-lines))
++         (emacspeak-speak-visual-line emacspeak-speak-line-reading-mode))
++        (t (emacspeak-speak-line emacspeak-speak-line-reading-mode)))))))
+ 
+ (defadvice kill-visual-line (before emacspeak pre act comp)
+   "Speak line we're about to delete."
+diff --git a/lisp/emacspeak-keymap.el b/lisp/emacspeak-keymap.el
+index 70d5cf2..fe5d1b4 100644
+--- a/lisp/emacspeak-keymap.el
++++ b/lisp/emacspeak-keymap.el
+@@ -393,6 +393,7 @@
+    ("s" dtk-toggle-split-caps)
+    ("w" emacspeak-toggle-word-echo)
+    ("z" emacspeak-zap-tts)
++   ("C-l" emacspeak-speak-set-line-reading-mode)
+    ("C-n" dtk-notify-initialize)
+    ("C-s" dtk-notify-shutdown))
+  do
+diff --git a/lisp/emacspeak-speak.el b/lisp/emacspeak-speak.el
+index b7c60b0..e8af61e 100644
+--- a/lisp/emacspeak-speak.el
++++ b/lisp/emacspeak-speak.el
+@@ -105,6 +105,33 @@
+       (insert (format "%s\n" m)))))
+ 
+ ;;}}}
++;;{{{ Line reading mode:
++
++(defvar emacspeak-speak-line-reading-mode nil
++  "Current line reading mode when moving up and down.")
++(make-variable-buffer-local 'emacspeak-speak-line-reading-mode)
++
++;;;###autoload
++(defun emacspeak-speak-set-line-reading-mode (setting)
++  "Set how lines are to be read when moving up and down.
++
++There are three modes:
++`full' - lines are read normally from the beginning up to the end,
++`head' - lines are read from the beginning up to the cursor position,
++`tail' - lines are read from the cursor position up to the end."
++  (interactive
++   (list
++    (intern (completing-read "Line Reading Mode: " '("full" "head" "tail") nil t))))
++  (setq emacspeak-speak-line-reading-mode
++        (cond
++         ((string-equal setting "head") -1)
++         ((string-equal setting "tail") 1)
++         (t (setq setting "full") nil)))
++  (when (ems-interactive-p)
++    (message "Set line reading mode to %s in current buffer" setting)
++    (emacspeak-auditory-icon 'select-object)))
++
++;;}}}
+ ;;{{{  line, Word and Character echo
+ 
+ (defcustom emacspeak-line-echo nil
+@@ -1020,11 +1047,15 @@ with auditory icon `more'.  These can then be spoken using command
+       (dtk-speak result)))))
+ 
+ ;;;###autoload
+-(defun emacspeak-speak-visual-line ()
++(defun emacspeak-speak-visual-line (&optional arg)
+   "Speaks current visual line.
+-Cues the start of a physical line with auditory icon `left'."
+-  (interactive)
++Cues the start of a physical line with auditory icon `left'.
++With prefix ARG, speaks the rest of the visual line
++from point.  Negative prefix optional arg speaks from start
++of line to point."
++  (interactive "P")
+   (cl-declare (special dtk-stop-immediately emacspeak-show-point))
++  (when (listp arg) (setq arg (car arg)))
+   (when dtk-stop-immediately (dtk-stop))
+   (let* ((inhibit-field-text-motion t)
+          (inhibit-read-only t)
+@@ -1045,8 +1076,12 @@ Cues the start of a physical line with auditory icon `left'."
+         (emacspeak-auditory-icon 'left))
+        ((and (> start (line-beginning-position)) (= end (line-end-position)))
+         (emacspeak-auditory-icon 'right)))
++      (cond
++       ((null arg))
++       ((> arg 0) (setq start orig))
++       (t (setq end orig)))
+       (setq line
+-            (if emacspeak-show-point
++            (if (and (null arg) emacspeak-show-point)
+                 (ems-set-personality-temporarily
+                  orig (1+ orig)
+                  voice-animate (buffer-substring start end))

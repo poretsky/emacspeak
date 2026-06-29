@@ -1,0 +1,48 @@
+From: "Igor B. Poretsky" <poretsky@mlbox.ru>
+Date: Wed, 9 Nov 2022 13:23:12 +0300
+Subject: General close operation feedback
+
+---
+ lisp/emacspeak-advice.el | 20 ++++++++++++++++++--
+ 1 file changed, 18 insertions(+), 2 deletions(-)
+
+diff --git a/lisp/emacspeak-advice.el b/lisp/emacspeak-advice.el
+index 9d72b89..d20606a 100644
+--- a/lisp/emacspeak-advice.el
++++ b/lisp/emacspeak-advice.el
+@@ -343,7 +343,7 @@ When on a close delimiter, speaking matching open delimiter after a small delay.
+ 
+ (cl-loop
+  for f in
+- '(next-buffer previous-buffer bury-buffer)
++ '(next-buffer previous-buffer)
+  do
+  (eval
+   `(defadvice ,f (after emacspeak pre act comp)
+@@ -1414,9 +1414,25 @@ Produce an auditory icon if possible."
+     (emacspeak-auditory-icon 'open-object)
+     (emacspeak-speak-mode-line)))
+ 
++(defadvice kill-buffer (around emacspeak pre act comp)
++  "Provide auditory feedback."
++  (let ((buf (ad-get-arg 0)))
++    (cond
++     ((ems-interactive-p)
++      ad-do-it
++      (when (and ad-return-value (stringp buf))
++        (emacspeak-auditory-icon 'close-object)
++        (emacspeak-speak-mode-line)))
++     (t ad-do-it))
++    ad-return-value))
++
+ (cl-loop
+  for f in
+- '(kill-buffer kill-current-buffer quit-window)
++ '(kill-current-buffer
++   kill-this-buffer
++   bury-buffer
++   delete-frame
++   quit-window)
+  do
+  (eval
+   `(defadvice ,f (after emacspeak pre act comp)

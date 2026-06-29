@@ -1,0 +1,93 @@
+From: "Igor B. Poretsky" <poretsky@mlbox.ru>
+Date: Fri, 19 Jun 2026 01:36:06 +0300
+Subject: Autoloads generation fix
+
+---
+ lisp/emacspeak-autoload.el | 12 ++++++++----
+ lisp/emacspeak-speak.el    |  2 ++
+ lisp/emacspeak-widget.el   |  7 +++++--
+ 3 files changed, 15 insertions(+), 6 deletions(-)
+
+diff --git a/lisp/emacspeak-autoload.el b/lisp/emacspeak-autoload.el
+index 9c2c209..77e570d 100644
+--- a/lisp/emacspeak-autoload.el
++++ b/lisp/emacspeak-autoload.el
+@@ -46,8 +46,8 @@
+ ;;{{{  Required modules
+ 
+ (require 'cl-lib)
+-(require 'autoload)
+ (require 'cus-dep)
++(require 'emacspeak-setup)
+ 
+ ;;}}}
+ ;;{{{ Variables
+@@ -66,9 +66,13 @@
+ (defun emacspeak-auto-generate-autoloads ()
+   "Generate emacspeak autoloads."
+   (cl-declare (special  emacspeak-auto-autoloads-file ))
+-  (let ((dtk-quiet t)
+-        (generated-autoload-file emacspeak-auto-autoloads-file))
+-    (update-directory-autoloads (file-name-directory emacspeak-auto-autoloads-file))))
++  (cond
++   ((locate-library "loaddefs-gen")     ; emacs 29
++    (loaddefs-generate emacspeak-lisp-directory "emacspeak-loaddefs.el" nil nil nil t))
++   (t (require 'autoload)
++      (let ((dtk-quiet t)
++            (generated-autoload-file emacspeak-auto-autoloads-file))
++        (update-directory-autoloads (file-name-directory emacspeak-auto-autoloads-file))))))
+ 
+ ;;}}}
+ ;;{{{ custom dependencies:
+diff --git a/lisp/emacspeak-speak.el b/lisp/emacspeak-speak.el
+index c7efacc..940e750 100644
+--- a/lisp/emacspeak-speak.el
++++ b/lisp/emacspeak-speak.el
+@@ -2013,6 +2013,7 @@ See the documentation for function
+   "Directory containing timezone data."
+   :type 'directory
+   :group 'emacspeak)
++
+ ;;;###autoload
+ (defun emacspeak-speak-world-clock (zone &optional set)
+   "Display current date and time  for specified zone.
+@@ -2041,6 +2042,7 @@ Optional second arg `set' sets the TZ environment variable as well."
+                     (substring zone (length emacspeak-speak-zoneinfo-directory)))))))
+ 
+ ;;}}}
++
+ ;;;###autoload
+ (defun emacspeak-speak-time (&optional world)
+   "Speak the time.
+diff --git a/lisp/emacspeak-widget.el b/lisp/emacspeak-widget.el
+index b208f43..555fb23 100644
+--- a/lisp/emacspeak-widget.el
++++ b/lisp/emacspeak-widget.el
+@@ -126,7 +126,8 @@ Returns a string with appropriate personality."
+                            parent-help))
+      (w (message (format " %s " type)))
+      (t (message " Not on a widget. ")))))
+-;;;###autoload        
++
++;;;###autoload
+ (defun emacspeak-widget-summarize-parent ()
+   "Summarize parent of widget at point."
+   (interactive)
+@@ -137,6 +138,7 @@ Returns a string with appropriate personality."
+      (t (message "Widget at point has no parent")))))
+ 
+ ;;; Find summarizer for a specific widget type and dispatch.
++
+ ;;;###autoload
+ (defun emacspeak-widget-summarize(widget)
+   "Summarize specified widget."
+@@ -154,7 +156,8 @@ Returns a string with appropriate personality."
+ ;;{{{  widget specific summarizers  --as per Per's suggestion
+ 
+ ;;{{{  default
+-;;;###autoload 
++
++;;;###autoload
+ (defun emacspeak-widget-default-summarize (widget)
+   "Fall back summarizer for all widgets"
+   (let* ((inhibit-read-only t)

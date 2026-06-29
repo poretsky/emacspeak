@@ -1,0 +1,37 @@
+From: "Igor B. Poretsky" <poretsky@rakurs.com>
+Date: Thu, 24 Nov 2022 13:45:12 +0300
+Subject: Eww keymap fixes
+
+---
+ lisp/emacspeak-eww.el | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/lisp/emacspeak-eww.el b/lisp/emacspeak-eww.el
+index d09f152..b375634 100644
+--- a/lisp/emacspeak-eww.el
++++ b/lisp/emacspeak-eww.el
+@@ -692,6 +692,13 @@ Safari/537.36"
+   (define-key eww-link-keymap (ems-kbd "C-r") 'emacspeak-feeds-rss-display)
+   (define-key eww-link-keymap (ems-kbd "C-a") 'emacspeak-feeds-atom-display)
+   (define-key eww-link-keymap  "y" 'emacspeak-m-player-youtube-player)
++  (define-key eww-text-map emacspeak-prefix 'emacspeak-prefix-command)
++  (define-key eww-text-map "\C-ce" 'eww-end-of-text)
++  (define-key eww-text-map "\C-c\C-e" 'eww-end-of-text)
++  (define-key eww-text-map [(shift tab)] 'shr-previous-link)
++  (define-key eww-text-map [(shift iso-lefttab)] 'shr-previous-link)
++  (define-key eww-text-map [backtab] 'shr-previous-link)
++  (define-key eww-text-map "\M-\t" 'shr-previous-link)
+   (cl-loop
+    for binding  in
+    '(
+@@ -746,6 +753,10 @@ Safari/537.36"
+      ("DEL" emacspeak-eww-restore)
+      ("]" emacspeak-eww-next-p)
+      ("b" shr-previous-link)
++     ("S-<tab>" shr-previous-link)
++     ("M-<tab>" shr-previous-link)
++     ("S-<iso-lefttab>" shr-previous-link)
++     ("<backtab>" shr-previous-link)
+      ("e" emacspeak-we-xsl-map)
+      ("f" shr-next-link)
+      ("k" eww-copy-page-url)

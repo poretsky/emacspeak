@@ -1,0 +1,34 @@
+From: "Igor B. Poretsky" <poretsky@mlbox.ru>
+Date: Wed, 9 Nov 2022 00:17:15 +0300
+Subject: Extended doc-string
+
+---
+ lisp/dtk-speak.el | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/lisp/dtk-speak.el b/lisp/dtk-speak.el
+index 918b8a7..49868e6 100644
+--- a/lisp/dtk-speak.el
++++ b/lisp/dtk-speak.el
+@@ -112,7 +112,9 @@ Particularly useful for web browsing.")
+ 
+ (defcustom dtk-speech-rate-base
+   (if (string-match "dtk" dtk-program) 180 50)
+-  "Value of lowest tolerable speech rate."
++  "Value of lowest tolerable speech rate.
++Speech server automatically initializes this option
++with reasonable value if it is not customized explicitly."
+   :type 'integer
+   :group 'tts)
+ 
+@@ -120,7 +122,9 @@ Particularly useful for web browsing.")
+   (if (string-match "dtk" dtk-program) 50 8)
+   "Value of speech rate increment.
+ Determines step size  when setting speech rate via command
+-`dtk-set-predefined-speech-rate'."
++`dtk-set-predefined-speech-rate'.
++Active speech server initializes this option with a reasonable value
++if it is not explicitly customized by user."
+   :type 'integer
+   :group 'tts)
+ 

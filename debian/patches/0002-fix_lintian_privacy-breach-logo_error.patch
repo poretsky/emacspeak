@@ -1,0 +1,37 @@
+From: Paul Gevers <elbrus@debian.org>
+Date: Tue, 30 Jun 2026 05:06:20 +0300
+Subject: documentation in emacspeak loads external files at runtime
+
+This is considered a privacy breach. As the logo's don't add much to
+the documentation, they are removed here.
+---
+ etc/applications.xml | 1 -
+ etc/applications.xsl | 3 ---
+ 2 files changed, 4 deletions(-)
+
+diff --git a/etc/applications.xml b/etc/applications.xml
+index f485bb1..c8c830c 100644
+--- a/etc/applications.xml
++++ b/etc/applications.xml
+@@ -797,7 +797,6 @@ delimiters.
+       <strong>
+         <a href="http://sourceforge.net/projects/emacspeak">
+           Emacspeak Home On Sourceforge
+-          <IMG src="http://sourceforge.net/sflogo.php?group_id=2238" width="88" height="31" border="0" alt="SourceForge Logo"/>
+         </a>
+       </strong>
+     </p>
+diff --git a/etc/applications.xsl b/etc/applications.xsl
+index ddf0042..f884fe2 100644
+--- a/etc/applications.xsl
++++ b/etc/applications.xsl
+@@ -27,9 +27,6 @@
+ 
+   <xsl:template match="preamble">
+     <head>
+-      <link rel="stylesheet"
+-            href= "http://www.w3.org/StyleSheets/Core/Chocolate" type="text/css">
+-      </link>
+       <title>
+         <xsl:value-of select="@title"/>
+       </title>

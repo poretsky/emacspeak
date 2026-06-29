@@ -1,0 +1,18 @@
+From: Paul Gevers <elbrus@debian.org>
+Date: Tue, 30 Jun 2026 05:06:20 +0300
+Subject: In Debian, tcl is found in tclsh
+
+---
+ servers/ssh-espeak | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/servers/ssh-espeak b/servers/ssh-espeak
+index 9610bba..08f0ae6 100755
+--- a/servers/ssh-espeak
++++ b/servers/ssh-espeak
+@@ -1,4 +1,4 @@
+-#!/usr/bin/tcl
++#!/usr/bin/tclsh
+ #$Id: ssh-espeak 4532 2007-05-04 01:13:44Z tv.raman.tv $
+ #Description: Launch a TTS server on a remote host.
+ #Copyright (C) 1995 -- 2011, T. V. Raman 

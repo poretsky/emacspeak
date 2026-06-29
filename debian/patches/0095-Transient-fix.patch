@@ -1,0 +1,21 @@
+From: "Igor B. Poretsky" <poretsky@mlbox.ru>
+Date: Sun, 16 Aug 2026 07:19:12 +0300
+Subject: Transient fix
+
+Bury emacspeak-transient buffer on resume.
+---
+ lisp/emacspeak-transient.el | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/lisp/emacspeak-transient.el b/lisp/emacspeak-transient.el
+index 761e232..a3d13d6 100644
+--- a/lisp/emacspeak-transient.el
++++ b/lisp/emacspeak-transient.el
+@@ -112,6 +112,7 @@
+ 
+ (defadvice transient-resume (after emacspeak pre act comp)
+   "Provide auditory feedback."
++  (when (eq major-mode 'emacspeak-transient-mode) (bury-buffer))
+   (when (ems-interactive-p)
+     (dtk-stop)
+     (emacspeak-auditory-icon 'open-object)))

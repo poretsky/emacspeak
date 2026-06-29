@@ -1,0 +1,57 @@
+From: "Igor B. Poretsky" <poretsky@mlbox.ru>
+Date: Sat, 26 Nov 2022 08:52:05 +0300
+Subject: Xsl transformation fix
+
+---
+ lisp/emacspeak-xslt.el | 24 +++++++++++++++++-------
+ 1 file changed, 17 insertions(+), 7 deletions(-)
+
+diff --git a/lisp/emacspeak-xslt.el b/lisp/emacspeak-xslt.el
+index 863d5aa..542c364 100644
+--- a/lisp/emacspeak-xslt.el
++++ b/lisp/emacspeak-xslt.el
+@@ -98,10 +98,15 @@
+ (defun emacspeak-xslt-read ()
+   "Read XSLT transformation name from minibuffer."
+   (cl-declare (special emacspeak-xslt-directory emacspeak-we-xsl-transform))
+-  (expand-file-name
+-   (read-file-name "XSL Transformation: "
+-                   emacspeak-xslt-directory
+-                   emacspeak-we-xsl-transform)))
++  (let ((insert-default-directory nil))
++    (expand-file-name
++     (read-file-name "XSL Transformation: "
++                     emacspeak-xslt-directory
++                     emacspeak-we-xsl-transform t nil
++                     '(lambda (name)
++                        (string-match "\\.xsl$" name)))
++     emacspeak-xslt-directory)))
++
+ ;;;###autoload
+ (defvar emacspeak-xslt-program
+   (executable-find "xsltproc")
+@@ -184,7 +189,7 @@ part of the libxslt package."
+                                        (cdr pair)))
+                            params
+                            " ")))
+-            (coding-system-for-write 'utf-8)
++            (coding-system-for-write 'raw-text)
+             (coding-system-for-read 'utf-8)
+             (buffer-file-coding-system 'utf-8))
+         (setq command
+@@ -434,8 +439,13 @@ part of the libxslt package."
+   "Browse URL with specified XSL style."
+   (interactive
+    (list
+-    (expand-file-name
+-     (read-file-name "XSL Transformation: "))
++    (let ((insert-default-directory nil))
++      (expand-file-name
++       (read-file-name "XSL Transformation: "
++                       emacspeak-xslt-directory nil t nil
++                       '(lambda (name)
++                          (string-match "\\.xsl$" name)))
++       emacspeak-xslt-directory))
+     (read-string "URL: " (browse-url-url-at-point))))
+   (cl-declare (special emacspeak-xslt-options))
+   (add-hook

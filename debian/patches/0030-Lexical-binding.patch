@@ -1,0 +1,18 @@
+From: "Igor B. Poretsky" <poretsky@mlbox.ru>
+Date: Wed, 19 Aug 2026 06:45:21 +0300
+Subject: Lexical binding
+
+---
+ lisp/tapestry.el | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/lisp/tapestry.el b/lisp/tapestry.el
+index 561ec7a..66c9a10 100644
+--- a/lisp/tapestry.el
++++ b/lisp/tapestry.el
+@@ -1,4 +1,4 @@
+-;;; tapestry.el --- Tools to configure your GNU Emacs windows
++;;; tapestry.el --- Tools to configure your GNU Emacs windows  -*- lexical-binding: t; -*-
+ ;;
+ ;; This file is part of VM
+ ;;

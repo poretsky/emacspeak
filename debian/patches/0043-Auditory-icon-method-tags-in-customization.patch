@@ -1,0 +1,29 @@
+From: "Igor B. Poretsky" <poretsky@mlbox.ru>
+Date: Tue, 8 Nov 2022 15:35:11 +0300
+Subject: Auditory icon method tags in customization
+
+---
+ lisp/emacspeak-sounds.el | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
+
+diff --git a/lisp/emacspeak-sounds.el b/lisp/emacspeak-sounds.el
+index 5f10599..286554a 100644
+--- a/lisp/emacspeak-sounds.el
++++ b/lisp/emacspeak-sounds.el
+@@ -260,13 +260,12 @@ Do not set this by hand;
+ play : Launches play-program to play.
+ Serve: Send a command to the speech-server to play.
+ Queue : Add auditory icon to speech queue.
+-Native : Use Emacs' builtin sound support.
+ Use Serve when working with remote speech servers."
+   :group 'emacspeak
+   :type '(choice
+-          (const emacspeak-play-auditory-icon)
+-          (const emacspeak-serve-auditory-icon)
+-          (const emacspeak-queue-auditory-icon)))
++          (const :tag "play" emacspeak-play-auditory-icon)
++          (const :tag "Serve" emacspeak-serve-auditory-icon)
++          (const :tag "Queue" emacspeak-queue-auditory-icon)))
+ 
+ ;;;###autoload
+ (defun emacspeak-auditory-icon (icon)

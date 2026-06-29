@@ -1,0 +1,21 @@
+From: "Igor B. Poretsky" <poretsky@rakurs.com>
+Date: Wed, 30 Nov 2022 11:52:51 +0300
+Subject: Leave info search path untouched
+
+---
+ lisp/emacspeak.el | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/lisp/emacspeak.el b/lisp/emacspeak.el
+index 87135e1..59ccbc6 100644
+--- a/lisp/emacspeak.el
++++ b/lisp/emacspeak.el
+@@ -303,8 +303,6 @@ the Emacspeak desktop.")
+   (cl-declare (special emacspeak-packages-to-prepare))
+   (setq-default line-move-visual nil)
+   (setq use-dialog-box nil)
+-  (when (boundp 'Info-directory-list)
+-    (push emacspeak-info-directory Info-directory-list))
+   (mapc
+    #'(lambda (pair)
+        (emacspeak-do-package-setup  (cl-first pair) (cl-second pair)))

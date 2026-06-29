@@ -1,0 +1,2174 @@
+From: "Igor B. Poretsky" <poretsky@rakurs.com>
+Date: Tue, 29 Nov 2022 15:40:14 +0300
+Subject: Save mark along with excursion
+
+---
+ lisp/dtk-unicode.el           |  2 +-
+ lisp/emacspeak-advice.el      | 36 ++++++++++++------------
+ lisp/emacspeak-analog.el      |  4 +--
+ lisp/emacspeak-arc.el         |  4 +--
+ lisp/emacspeak-bbdb.el        |  6 ++--
+ lisp/emacspeak-bookshare.el   |  2 +-
+ lisp/emacspeak-c.el           |  2 +-
+ lisp/emacspeak-cider.el       |  2 +-
+ lisp/emacspeak-comint.el      | 22 +++++++--------
+ lisp/emacspeak-dired.el       |  8 +++---
+ lisp/emacspeak-ecb.el         | 10 +++----
+ lisp/emacspeak-enriched.el    |  4 +--
+ lisp/emacspeak-erc.el         |  2 +-
+ lisp/emacspeak-eshell.el      |  8 +++---
+ lisp/emacspeak-etable.el      |  2 +-
+ lisp/emacspeak-eterm.el       | 48 ++++++++++++++++----------------
+ lisp/emacspeak-eudc.el        |  2 +-
+ lisp/emacspeak-evil.el        |  2 +-
+ lisp/emacspeak-eww.el         |  8 +++---
+ lisp/emacspeak-forms.el       | 13 ++++-----
+ lisp/emacspeak-gh-explorer.el |  2 +-
+ lisp/emacspeak-gnuplot.el     |  2 +-
+ lisp/emacspeak-gnus.el        |  8 +++---
+ lisp/emacspeak-gridtext.el    |  2 +-
+ lisp/emacspeak-hide.el        | 14 +++++-----
+ lisp/emacspeak-indium.el      |  2 +-
+ lisp/emacspeak-info.el        | 12 ++++----
+ lisp/emacspeak-jabber.el      |  2 +-
+ lisp/emacspeak-jdee.el        |  6 ++--
+ lisp/emacspeak-lispy.el       |  2 +-
+ lisp/emacspeak-m-player.el    |  2 +-
+ lisp/emacspeak-make-mode.el   |  2 +-
+ lisp/emacspeak-man.el         |  2 +-
+ lisp/emacspeak-maths.el       |  8 +++---
+ lisp/emacspeak-metapost.el    |  2 +-
+ lisp/emacspeak-mines.el       |  6 ++--
+ lisp/emacspeak-nxml.el        |  2 +-
+ lisp/emacspeak-org.el         |  4 +--
+ lisp/emacspeak-origami.el     |  4 +--
+ lisp/emacspeak-outline.el     |  4 +--
+ lisp/emacspeak-proced.el      |  4 +--
+ lisp/emacspeak-py.el          |  2 +-
+ lisp/emacspeak-re-builder.el  |  6 ++--
+ lisp/emacspeak-ruby.el        |  2 +-
+ lisp/emacspeak-shx.el         |  2 +-
+ lisp/emacspeak-slime.el       |  4 +--
+ lisp/emacspeak-smartparens.el |  2 +-
+ lisp/emacspeak-solitaire.el   |  2 +-
+ lisp/emacspeak-speak.el       | 64 +++++++++++++++++++++----------------------
+ lisp/emacspeak-speedbar.el    | 10 +++----
+ lisp/emacspeak-tabulate.el    |  8 +++---
+ lisp/emacspeak-tar.el         |  2 +-
+ lisp/emacspeak-tcl.el         |  2 +-
+ lisp/emacspeak-tetris.el      |  2 +-
+ lisp/emacspeak-vdiff.el       |  4 +--
+ lisp/emacspeak-view.el        |  6 ++--
+ lisp/emacspeak-vm.el          |  8 +++---
+ lisp/emacspeak-vterm.el       |  6 ++--
+ lisp/emacspeak-wizards.el     | 10 +++----
+ lisp/emacspeak-xslt.el        |  2 +-
+ lisp/g-utils.el               |  6 ++--
+ 61 files changed, 213 insertions(+), 216 deletions(-)
+
+diff --git a/lisp/dtk-unicode.el b/lisp/dtk-unicode.el
+index 3b28e7e..55b145d 100644
+--- a/lisp/dtk-unicode.el
++++ b/lisp/dtk-unicode.el
+@@ -299,7 +299,7 @@ Does nothing for unibyte buffers."
+   (cl-declare (special dtk-unicode-process-utf8))
+   (when dtk-unicode-process-utf8
+     (let ((inhibit-read-only t))
+-      (save-excursion
++      (save-mark-and-excursion
+         (goto-char (point-min))
+         (while (re-search-forward dtk-unicode-charset-filter-regexp nil t)
+           (let* ((pos (match-beginning 0))
+diff --git a/lisp/emacspeak-advice.el b/lisp/emacspeak-advice.el
+index 2441143..12d2ea6 100644
+--- a/lisp/emacspeak-advice.el
++++ b/lisp/emacspeak-advice.el
+@@ -315,7 +315,7 @@ When on a close delimiter, speaking matching open delimiter after a small delay.
+             (= ?\) (char-syntax (following-char)))
+             (sit-for 0.25))
+          (emacspeak-auditory-icon 'item)
+-         (save-excursion
++         (save-mark-and-excursion
+            (forward-char 1)
+            (emacspeak-blink-matching-open)))))))
+ 
+@@ -471,11 +471,11 @@ that were upper cased."
+            (cl-minusp current-prefix-arg))
+       ad-do-it
+       (let ((start (point)))
+-        (save-excursion
++        (save-mark-and-excursion
+           (forward-word current-prefix-arg)
+           (emacspeak-speak-region start (point)))))
+      (t ad-do-it
+-        (save-excursion
++        (save-mark-and-excursion
+           (skip-syntax-forward " ")
+           (if (eobp)
+               (message "Upper cased final word in buffer")
+@@ -497,11 +497,11 @@ the words that were down cased."
+            (cl-minusp current-prefix-arg))
+       ad-do-it
+       (let ((start (point)))
+-        (save-excursion
++        (save-mark-and-excursion
+           (forward-word current-prefix-arg)
+           (emacspeak-speak-region start (point)))))
+      (t ad-do-it
+-        (save-excursion
++        (save-mark-and-excursion
+           (skip-syntax-forward " ")
+           (if (eobp)
+               (message "Lower cased final word in buffer")
+@@ -523,11 +523,11 @@ the words that were capitalized."
+            (cl-minusp current-prefix-arg))
+       ad-do-it
+       (let ((start (point)))
+-        (save-excursion
++        (save-mark-and-excursion
+           (forward-word current-prefix-arg)
+           (emacspeak-speak-region start (point)))))
+      (t ad-do-it
+-        (save-excursion
++        (save-mark-and-excursion
+           (skip-syntax-forward " ")
+           (if (eobp)
+               (message "Capitalized final word in buffer")
+@@ -583,7 +583,7 @@ the words that were capitalized."
+ (defadvice kill-word (before emacspeak pre act comp)
+   "Speak word before killing it."
+   (when (ems-interactive-p)
+-    (save-excursion
++    (save-mark-and-excursion
+       (skip-syntax-forward " ")
+       (when dtk-stop-immediately (dtk-stop))
+       (let ((dtk-stop-immediately nil))
+@@ -596,7 +596,7 @@ the words that were capitalized."
+     (when dtk-stop-immediately (dtk-stop))
+     (let ((start (point))
+           (dtk-stop-immediately nil))
+-      (save-excursion
++      (save-mark-and-excursion
+         (forward-word -1)
+         (dtk-tone-deletion)
+         (emacspeak-speak-region (point) start)))))
+@@ -641,7 +641,7 @@ the words that were capitalized."
+   (when (ems-interactive-p)
+     (let (thisblank singleblank)
+       (save-match-data
+-        (save-excursion
++        (save-mark-and-excursion
+           (forward-line 0)
+           (setq thisblank (looking-at "[ \t]*$"))
+           ;; Set singleblank if there is just one blank line here.
+@@ -669,7 +669,7 @@ see option emacspeak-untabify-fixes-non-breaking-space."
+   (when emacspeak-untabify-fixes-non-breaking-space
+     (let ((start (ad-get-arg 0))
+           (end (ad-get-arg 1)))
+-      (save-excursion
++      (save-mark-and-excursion
+         (save-restriction
+           (narrow-to-region start end)
+           (goto-char start)
+@@ -691,7 +691,7 @@ see option emacspeak-untabify-fixes-non-breaking-space."
+ 
+ (defadvice pcomplete (around emacspeak pre act comp)
+   "Say what you completed."
+-  (let ((orig (save-excursion (skip-syntax-backward "^ >") (point))))
++  (let ((orig (save-mark-and-excursion (skip-syntax-backward "^ >") (point))))
+     ad-do-it
+     (when (ems-interactive-p)
+       (emacspeak-speak-region orig (point))
+@@ -709,7 +709,7 @@ see option emacspeak-untabify-fixes-non-breaking-space."
+      "Speak what was completed."
+      (cond
+       ((ems-interactive-p)
+-       (let ((orig (save-excursion (skip-syntax-backward "^ >") (point))))
++       (let ((orig (save-mark-and-excursion (skip-syntax-backward "^ >") (point))))
+          (ems-with-messages-silenced
+           ad-do-it
+           (emacspeak-auditory-icon 'complete)
+@@ -966,7 +966,7 @@ see option emacspeak-untabify-fixes-non-breaking-space."
+ ;;{{{ Advice completion-at-point:
+ (defadvice completion-at-point (around emacspeak pre act comp)
+   "Say what you completed."
+-  (let ((orig (save-excursion (skip-syntax-backward "^ >_") (point))))
++  (let ((orig (save-mark-and-excursion (skip-syntax-backward "^ >_") (point))))
+     ad-do-it
+     (when (ems-interactive-p)
+       (dtk-speak (buffer-substring orig (point)))
+@@ -1063,7 +1063,7 @@ see option emacspeak-untabify-fixes-non-breaking-space."
+   `(defadvice ,f (around emacspeak pre act comp)
+      "Say what you completed."
+      (ems-with-messages-silenced
+-      (let ((prior (save-excursion (skip-syntax-backward "^ >") (point))))
++      (let ((prior (save-mark-and-excursion (skip-syntax-backward "^ >") (point))))
+         ad-do-it
+         (if (> (point) prior)
+             (tts-with-punctuations
+@@ -1274,7 +1274,7 @@ see option emacspeak-untabify-fixes-non-breaking-space."
+   `(defadvice ,f (after emacspeak pre act comp)
+      "Give some auditory feedback."
+      (emacspeak-auditory-icon 'open-object)
+-     (save-excursion
++     (save-mark-and-excursion
+        (goto-char (point-min))
+        (emacspeak-speak-line)))))
+ (cl-loop
+@@ -1964,7 +1964,7 @@ Produce an auditory icon if possible."
+    (t
+     (emacspeak-auditory-icon 'search-hit)
+     (when (sit-for 0.2)
+-      (save-excursion
++      (save-mark-and-excursion
+         (ems-set-personality-temporarily
+          (point) isearch-other-end voice-bolden
+          (dtk-speak
+@@ -2269,7 +2269,7 @@ Produce auditory icons if possible."
+   (when buffer-read-only (dtk-speak "Buffer is read-only. "))
+   (cond
+    ((ems-interactive-p)
+-    (let ((start (save-excursion (backward-word 1) (point))))
++    (let ((start (save-mark-and-excursion (backward-word 1) (point))))
+       ad-do-it
+       (dtk-speak (buffer-substring start (point)))))
+    (t ad-do-it))
+diff --git a/lisp/emacspeak-analog.el b/lisp/emacspeak-analog.el
+index b1a05e4..344d6e6 100644
+--- a/lisp/emacspeak-analog.el
++++ b/lisp/emacspeak-analog.el
+@@ -109,7 +109,7 @@
+ (defun emacspeak-analog-get-field-spec ()
+   "Returns field specification if one defined for current entry.
+ Nil means no field specified."
+-  (save-excursion
++  (save-mark-and-excursion
+     (let ((start (previous-single-property-change (point)
+                                                   'analog-entry-start)))
+       (when start
+@@ -145,7 +145,7 @@ Speak field or char moved to."
+ 
+ (defun emacspeak-analog-speak-field (fields)
+   "Speak field containing point."
+-  (save-excursion
++  (save-mark-and-excursion
+     (let ((col (current-column))
+           (start nil)
+           (end nil)
+diff --git a/lisp/emacspeak-arc.el b/lisp/emacspeak-arc.el
+index 0f27758..8dcc562 100644
+--- a/lisp/emacspeak-arc.el
++++ b/lisp/emacspeak-arc.el
+@@ -130,7 +130,7 @@ first initializing it if necessary."
+   (unless emacspeak-arc-header-list-format
+     (let ((line nil)
+           (fields nil))
+-      (save-excursion
++      (save-mark-and-excursion
+         (goto-char (point-min))
+         (setq line (ems--this-line)))
+       (setq fields (split-string line))
+@@ -144,7 +144,7 @@ first initializing it if necessary."
+   emacspeak-arc-header-list-format)
+ (defun emacspeak-arc-get-field-index (field)
+   (let ((marked-p
+-         (save-excursion
++         (save-mark-and-excursion
+            (beginning-of-line)
+            (= ?\  (following-char))))
+         (pos (cadr (assoc field (emacspeak-arc-get-header-line-format)))))
+diff --git a/lisp/emacspeak-bbdb.el b/lisp/emacspeak-bbdb.el
+index 159176f..e491437 100644
+--- a/lisp/emacspeak-bbdb.el
++++ b/lisp/emacspeak-bbdb.el
+@@ -79,7 +79,7 @@
+   "Provide auditory feedback"
+   (when (ems-interactive-p)
+     (emacspeak-auditory-icon 'delete-object)
+-    (save-excursion
++    (save-mark-and-excursion
+       (when (looking-at  "\\?")
+         (forward-line 1))
+       (emacspeak-speak-line))))
+@@ -109,7 +109,7 @@
+   "Provide auditory feedback"
+   (when (ems-interactive-p)
+     (emacspeak-auditory-icon 'large-movement)
+-    (save-excursion
++    (save-mark-and-excursion
+       (when (looking-at  "\\?")
+         (forward-line 1))
+       (emacspeak-speak-line))))
+@@ -118,7 +118,7 @@
+   "Provide auditory feedback"
+   (when (ems-interactive-p)
+     (emacspeak-auditory-icon 'large-movement)
+-    (save-excursion
++    (save-mark-and-excursion
+       (when (looking-at  "\\?")
+         (forward-line 1))
+       (emacspeak-speak-line))))
+diff --git a/lisp/emacspeak-bookshare.el b/lisp/emacspeak-bookshare.el
+index 47e5093..151ac90 100644
+--- a/lisp/emacspeak-bookshare.el
++++ b/lisp/emacspeak-bookshare.el
+@@ -1379,7 +1379,7 @@ Useful for fulltext search in a book."
+ (defun emacspeak-bookshare-flush-lines(regexp)
+   "Flush lines matching regexp in Bookshare buffer."
+   (interactive "sRegexp: ")
+-  (save-excursion
++  (save-mark-and-excursion
+     (let ((inhibit-read-only t))
+       (goto-char (next-single-property-change (point-min) 'face))
+       (flush-lines regexp (point) (point-max)))))
+diff --git a/lisp/emacspeak-c.el b/lisp/emacspeak-c.el
+index f898e2d..b6e77b9 100644
+--- a/lisp/emacspeak-c.el
++++ b/lisp/emacspeak-c.el
+@@ -326,7 +326,7 @@ and their meanings. ")
+                 (concat description
+                         ;; that begins this block
+                         (let ((start nil))
+-                          (save-excursion
++                          (save-mark-and-excursion
+                             (forward-line 0)
+                             (search-forward "}" nil t)
+                             (forward-char 1)
+diff --git a/lisp/emacspeak-cider.el b/lisp/emacspeak-cider.el
+index 8339997..de3e077 100644
+--- a/lisp/emacspeak-cider.el
++++ b/lisp/emacspeak-cider.el
+@@ -191,7 +191,7 @@
+   `(defadvice ,f (after emacspeak pre act comp)
+      "Provide auditory feedback."
+      (when (ems-interactive-p)
+-       (save-excursion
++       (save-mark-and-excursion
+          (goto-char
+           (previous-single-property-change (point)   'face nil (point-min)))
+          (emacspeak-speak-this-personality-chunk))
+diff --git a/lisp/emacspeak-comint.el b/lisp/emacspeak-comint.el
+index df0040f..b5407bb 100644
+--- a/lisp/emacspeak-comint.el
++++ b/lisp/emacspeak-comint.el
+@@ -178,7 +178,7 @@ set the current local value to the result.")
+   `(defadvice ,f (after emacspeak pre act comp)
+      "Provide auditory feedback."
+      (when (ems-interactive-p)
+-       (save-excursion
++       (save-mark-and-excursion
+          (comint-bol-or-process-mark)
+          (emacspeak-auditory-icon 'select-object)
+          (emacspeak-speak-line 1))))))
+@@ -200,7 +200,7 @@ set the current local value to the result.")
+        ad-do-it
+        (cond
+         ((= (point) (+ count orig))
+-         (save-excursion
++         (save-mark-and-excursion
+            (forward-word -1)
+            (emacspeak-speak-word)))
+         (t
+@@ -290,7 +290,7 @@ set the current local value to the result.")
+ (defadvice comint-accumulate (before emacspeak pre act comp)
+   "Speak the line we are accumulating."
+   (when (ems-interactive-p)
+-    (save-excursion
++    (save-mark-and-excursion
+       (comint-bol)
+       (emacspeak-auditory-icon 'select-object)
+       (emacspeak-speak-line 1))))
+@@ -305,7 +305,7 @@ set the current local value to the result.")
+                   emacspeak pre act comp)
+      "Speak the matched input."
+      (when (ems-interactive-p)
+-       (save-excursion
++       (save-mark-and-excursion
+          (goto-char (comint-line-beginning-position))
+          (emacspeak-speak-line 1))
+        (emacspeak-auditory-icon 'select-object)))))
+@@ -372,7 +372,7 @@ instead, always play an auditory icon when the shell prompt is displayed."
+            (or monitor (eq (window-buffer) buffer)))
+         (let
+             ((prompt-p
+-              (save-excursion
++              (save-mark-and-excursion
+                 (goto-char comint-last-output-start)
+                 (or (looking-at shell-prompt-pattern)
+                     (looking-at comint-prompt-regexp)))))
+@@ -401,7 +401,7 @@ instead, always play an auditory icon when the shell prompt is displayed."
+   (cond
+    ((ems-interactive-p)
+     (ems-with-messages-silenced
+-     (let ((prior (save-excursion (skip-syntax-backward "^ >") (point))))
++     (let ((prior (save-mark-and-excursion (skip-syntax-backward "^ >") (point))))
+        ad-do-it
+        (if (> (point) prior)
+            (tts-with-punctuations
+@@ -417,7 +417,7 @@ instead, always play an auditory icon when the shell prompt is displayed."
+   (when (ems-interactive-p)
+     (tts-with-punctuations
+      'all
+-     (save-excursion
++     (save-mark-and-excursion
+        (goto-char (comint-line-beginning-position))
+        (emacspeak-speak-line 1)))
+     (emacspeak-auditory-icon 'item)))
+@@ -427,7 +427,7 @@ instead, always play an auditory icon when the shell prompt is displayed."
+   (when (ems-interactive-p)
+     (tts-with-punctuations
+      'all
+-     (save-excursion
++     (save-mark-and-excursion
+        (goto-char (comint-line-beginning-position))
+        (emacspeak-speak-line 1)))
+     (emacspeak-auditory-icon 'item)))
+@@ -437,7 +437,7 @@ instead, always play an auditory icon when the shell prompt is displayed."
+   (when (ems-interactive-p)
+     (tts-with-punctuations
+      'all
+-     (save-excursion
++     (save-mark-and-excursion
+        (goto-char (comint-line-beginning-position))
+        (emacspeak-speak-line 1)))
+     (emacspeak-auditory-icon 'item)))
+@@ -447,7 +447,7 @@ instead, always play an auditory icon when the shell prompt is displayed."
+   (when (ems-interactive-p)
+     (tts-with-punctuations
+      'all
+-     (save-excursion
++     (save-mark-and-excursion
+        (goto-char (comint-line-beginning-position))
+        (emacspeak-speak-line 1)))
+     (emacspeak-auditory-icon 'item)))
+@@ -478,7 +478,7 @@ instead, always play an auditory icon when the shell prompt is displayed."
+   "Provide auditory feedback."
+   (when (ems-interactive-p)
+     (emacspeak-auditory-icon 'item)
+-    (save-excursion
++    (save-mark-and-excursion
+       (comint-bol)
+       (emacspeak-speak-line 1))))
+ 
+diff --git a/lisp/emacspeak-dired.el b/lisp/emacspeak-dired.el
+index 8cd34ad..a6ddb93 100644
+--- a/lisp/emacspeak-dired.el
++++ b/lisp/emacspeak-dired.el
+@@ -210,7 +210,7 @@ Assumes that `dired-listing-switches' contains  -l"
+                       "modified on"
+                       "modified at"
+                       "name")))
+-    (save-excursion
++    (save-mark-and-excursion
+       (forward-line 0)
+       (skip-syntax-forward " ")
+       (while (and fields
+@@ -235,7 +235,7 @@ unless `dired-listing-switches' contains -l"
+       (unwind-protect
+           (progn
+             (setq buffer-read-only nil)
+-            (save-excursion
++            (save-mark-and-excursion
+               (goto-char (point-min))
+               (dired-goto-next-nontrivial-file)
+               (while (not (eobp))
+@@ -269,7 +269,7 @@ options passed to command `file'."
+   "Speak the header line of the dired buffer. "
+   (interactive)
+   (emacspeak-auditory-icon 'section)
+-  (save-excursion (goto-char (point-min))
++  (save-mark-and-excursion (goto-char (point-min))
+                   (forward-line 2)
+                   (emacspeak-speak-region (point-min) (point))))
+ 
+@@ -489,7 +489,7 @@ Optional interactive prefix arg shuffles playlist."
+   (interactive "P")
+   (cl-declare (special emacspeak-m-player-options))
+   (cl-assert (eq major-mode 'locate-mode) t "Not in a locate buffer")
+-  (save-excursion
++  (save-mark-and-excursion
+     (goto-char (point-min))
+     (dired-next-line 3)
+     (let* ((m3u (make-temp-file "locate-playlist" nil ".m3u"))
+diff --git a/lisp/emacspeak-ecb.el b/lisp/emacspeak-ecb.el
+index d5ed30b..2a5d2b8 100644
+--- a/lisp/emacspeak-ecb.el
++++ b/lisp/emacspeak-ecb.el
+@@ -166,7 +166,7 @@ available."
+        ((not (=  start (point)))
+         (let ((emacspeak-speak-messages nil)
+               (case-fold-search t))
+-          (save-excursion
++          (save-mark-and-excursion
+             (beginning-of-line)
+             (setq beg (point))
+             (backward-char 1)
+@@ -244,7 +244,7 @@ available."
+ (defun emacspeak-ecb-speak-window-methods ()
+   "Speak contents of methods window."
+   (interactive)
+-  (save-excursion
++  (save-mark-and-excursion
+     (save-window-excursion
+       (ecb-goto-window-methods)
+       (emacspeak-speak-buffer))))
+@@ -252,7 +252,7 @@ available."
+ (defun emacspeak-ecb-speak-window-directories ()
+   "Speak contents of directories window."
+   (interactive)
+-  (save-excursion
++  (save-mark-and-excursion
+     (save-window-excursion
+       (ecb-goto-window-directories)
+       (emacspeak-speak-buffer))))
+@@ -260,7 +260,7 @@ available."
+ (defun emacspeak-ecb-speak-window-history ()
+   "Speak contents of history window."
+   (interactive)
+-  (save-excursion
++  (save-mark-and-excursion
+     (save-window-excursion
+       (ecb-goto-window-history)
+       (emacspeak-speak-buffer))))
+@@ -268,7 +268,7 @@ available."
+ (defun emacspeak-ecb-speak-window-sources ()
+   "Speak contents of sources window."
+   (interactive)
+-  (save-excursion
++  (save-mark-and-excursion
+     (save-window-excursion
+       (ecb-goto-window-sources)
+       (emacspeak-speak-buffer))))
+diff --git a/lisp/emacspeak-enriched.el b/lisp/emacspeak-enriched.el
+index 015f338..f720ddb 100644
+--- a/lisp/emacspeak-enriched.el
++++ b/lisp/emacspeak-enriched.el
+@@ -59,7 +59,7 @@ Useful in voiceifying rich text."
+   (cl-declare (special emacspeak-enriched-font-faces-to-voiceify))
+   (set (make-local-variable 'voice-lock-mode) t)
+   (with-silent-modifications
+-    (save-excursion
++    (save-mark-and-excursion
+       (goto-char start)
+       (let ((face nil)
+             (orig start)
+@@ -74,7 +74,7 @@ Useful in voiceifying rich text."
+         (while (and  (not (eobp))
+                      (< start end))
+           (setq justification-type (get-text-property (point) 'justification))
+-          (save-excursion
++          (save-mark-and-excursion
+             (beginning-of-line)
+             (setq pos (point)))
+           (goto-char
+diff --git a/lisp/emacspeak-erc.el b/lisp/emacspeak-erc.el
+index fec5f43..8c54f19 100644
+--- a/lisp/emacspeak-erc.el
++++ b/lisp/emacspeak-erc.el
+@@ -149,7 +149,7 @@ spoken.")
+   "Helper to prompt for and read person in ERC."
+   (read-from-minibuffer
+    (format "%s person" action)
+-   (save-excursion
++   (save-mark-and-excursion
+      (let ((start (point)))
+        (search-backward  "<" (point-min) t)
+        (when (not (= start (point)))
+diff --git a/lisp/emacspeak-eshell.el b/lisp/emacspeak-eshell.el
+index 06e15f7..8984c14 100644
+--- a/lisp/emacspeak-eshell.el
++++ b/lisp/emacspeak-eshell.el
+@@ -109,7 +109,7 @@ Provide an auditory icon if possible."
+              "Speak selected command."
+              (when (ems-interactive-p)
+                (emacspeak-auditory-icon 'select-object)
+-               (save-excursion
++               (save-mark-and-excursion
+                  (beginning-of-line)
+                  (eshell-skip-prompt)
+                  (emacspeak-speak-line 1))))))
+@@ -289,7 +289,7 @@ personalities.")
+   `(defadvice ,f (around emacspeak pre act comp)
+      "Say what you completed."
+      (ems-with-messages-silenced
+-      (let ((prior (save-excursion (skip-syntax-backward "^ >") (point))))
++      (let ((prior (save-mark-and-excursion (skip-syntax-backward "^ >") (point))))
+         ad-do-it
+         (if (> (point) prior)
+             (tts-with-punctuations
+@@ -303,7 +303,7 @@ personalities.")
+   "Speak what was inserted."
+   (when (ems-interactive-p)
+     (let ((start
+-           (save-excursion
++           (save-mark-and-excursion
+              (eshell-bol)
+              (point))))
+       (emacspeak-auditory-icon 'yank-object)
+@@ -312,7 +312,7 @@ personalities.")
+   "Speak what was inserted."
+   (when (ems-interactive-p)
+     (let ((start
+-           (save-excursion
++           (save-mark-and-excursion
+              (eshell-bol)
+              (point))))
+       (emacspeak-auditory-icon 'yank-object)
+diff --git a/lisp/emacspeak-etable.el b/lisp/emacspeak-etable.el
+index 59bd632..49822d1 100644
+--- a/lisp/emacspeak-etable.el
++++ b/lisp/emacspeak-etable.el
+@@ -95,7 +95,7 @@
+     (cond
+      ((and (= 32 last-input-event)
+            emacspeak-word-echo)
+-      (save-excursion
++      (save-mark-and-excursion
+         (let ((orig (point)))
+           (table--finish-delayed-tasks)
+           (backward-word 1)
+diff --git a/lisp/emacspeak-eterm.el b/lisp/emacspeak-eterm.el
+index 3a2ad95..66927d4 100644
+--- a/lisp/emacspeak-eterm.el
++++ b/lisp/emacspeak-eterm.el
+@@ -250,7 +250,7 @@ the Emacspeak pointer to be spoken."
+   "Speak the line the pointer is on."
+   (interactive)
+   (cl-declare (special emacspeak-eterm-pointer))
+-  (save-excursion
++  (save-mark-and-excursion
+     (goto-char emacspeak-eterm-pointer)
+     (emacspeak-speak-line)))
+ 
+@@ -258,7 +258,7 @@ the Emacspeak pointer to be spoken."
+   "Speak the word  the pointer is on."
+   (interactive)
+   (cl-declare (special emacspeak-eterm-pointer))
+-  (save-excursion
++  (save-mark-and-excursion
+     (goto-char emacspeak-eterm-pointer)
+     (emacspeak-speak-word nil)))
+ 
+@@ -267,7 +267,7 @@ the Emacspeak pointer to be spoken."
+ Pronounces character phonetically unless  called with a PREFIX arg."
+   (interactive "P")
+   (cl-declare (special emacspeak-eterm-pointer))
+-  (save-excursion
++  (save-mark-and-excursion
+     (goto-char emacspeak-eterm-pointer)
+     (emacspeak-speak-char prefix)))
+ 
+@@ -287,7 +287,7 @@ Pronounces character phonetically unless  called with a PREFIX arg."
+   "Move the pointer to the top of the screen."
+   (interactive)
+   (cl-declare (special term-home-marker emacspeak-eterm-pointer))
+-  (save-excursion
++  (save-mark-and-excursion
+     (goto-char term-home-marker)
+     (set-marker emacspeak-eterm-pointer (point))
+     (when (called-interactively-p 'interactive)
+@@ -298,7 +298,7 @@ Pronounces character phonetically unless  called with a PREFIX arg."
+   "Move the pointer to the bottom  of the screen."
+   (interactive)
+   (cl-declare (special  emacspeak-eterm-pointer))
+-  (save-excursion
++  (save-mark-and-excursion
+     (goto-char (point-max))
+     (set-marker emacspeak-eterm-pointer (point))
+     (when (called-interactively-p 'interactive)
+@@ -312,7 +312,7 @@ Argument COUNT .specifies number of lines by which to move."
+   (cl-declare (special emacspeak-eterm-pointer
+                        term-home-marker))
+   (setq count (or count 1))
+-  (save-excursion
++  (save-mark-and-excursion
+     (goto-char emacspeak-eterm-pointer)
+     (forward-line (- count))
+     (beginning-of-line)
+@@ -328,7 +328,7 @@ Argument COUNT specifies number of lines by which to move."
+   (interactive "P")
+   (cl-declare (special emacspeak-eterm-pointer))
+   (setq count (or count 1))
+-  (save-excursion
++  (save-mark-and-excursion
+     (goto-char emacspeak-eterm-pointer)
+     (forward-line count)
+     (beginning-of-line)
+@@ -344,7 +344,7 @@ Argument COUNT specifies number of columns by which to move."
+   (interactive "P")
+   (cl-declare (special emacspeak-eterm-pointer))
+   (setq count (or count 1))
+-  (save-excursion
++  (save-mark-and-excursion
+     (goto-char emacspeak-eterm-pointer)
+     (backward-char count)
+     (set-marker emacspeak-eterm-pointer (point))
+@@ -358,7 +358,7 @@ Argument COUNT specifies number of columns by which to move."
+   (interactive "P")
+   (cl-declare (special emacspeak-eterm-pointer))
+   (setq count (or count 1))
+-  (save-excursion
++  (save-mark-and-excursion
+     (goto-char emacspeak-eterm-pointer)
+     (forward-char  count)
+     (set-marker emacspeak-eterm-pointer (point))
+@@ -370,7 +370,7 @@ Argument COUNT specifies number of columns by which to move."
+   "Move the pointer to the right edge."
+   (interactive)
+   (cl-declare (special emacspeak-eterm-pointer))
+-  (save-excursion
++  (save-mark-and-excursion
+     (goto-char emacspeak-eterm-pointer)
+     (end-of-line)
+     (set-marker emacspeak-eterm-pointer (point))
+@@ -383,7 +383,7 @@ Argument COUNT specifies number of columns by which to move."
+   "Move the pointer to the right edge."
+   (interactive)
+   (cl-declare (special emacspeak-eterm-pointer))
+-  (save-excursion
++  (save-mark-and-excursion
+     (goto-char emacspeak-eterm-pointer)
+     (forward-line 0)
+     (set-marker emacspeak-eterm-pointer (point))
+@@ -399,7 +399,7 @@ Argument COUNT specifies number of words by which to move."
+   (interactive "P")
+   (cl-declare (special emacspeak-eterm-pointer))
+   (setq count (or count 1))
+-  (save-excursion
++  (save-mark-and-excursion
+     (goto-char emacspeak-eterm-pointer)
+     (condition-case nil
+         (forward-word  (- count))
+@@ -415,7 +415,7 @@ Argument COUNT specifies number of words by which to move."
+   (interactive "P")
+   (cl-declare (special emacspeak-eterm-pointer))
+   (setq count (or count 1))
+-  (save-excursion
++  (save-mark-and-excursion
+     (goto-char emacspeak-eterm-pointer)
+     (condition-case nil
+         (forward-word  count)
+@@ -430,7 +430,7 @@ Argument COUNT specifies number of words by which to move."
+   (interactive "nGo to line:")
+   (cl-declare (special emacspeak-eterm-pointer
+                        term-home-marker))
+-  (save-excursion
++  (save-mark-and-excursion
+     (goto-char term-home-marker)
+     (forward-line line)
+     (set-marker emacspeak-eterm-pointer (point))
+@@ -465,7 +465,7 @@ If found, the Emacspeak pointer is left at the hit. "
+                                         ; backward search
+       (setq start (marker-position emacspeak-eterm-pointer)
+             end (marker-position term-home-marker)))
+-    (save-excursion
++    (save-mark-and-excursion
+       (goto-char start)
+       (save-restriction
+         (narrow-to-region start end)
+@@ -494,7 +494,7 @@ Optional argument COUNT specifies how many changes to skip."
+   (setq count (or count 1))
+   (let ((current (dtk-get-style emacspeak-eterm-pointer))
+         (found nil))
+-    (save-excursion
++    (save-mark-and-excursion
+       (goto-char emacspeak-eterm-pointer)
+       (setq found (text-property-not-all (point) (point-max)
+                                          'personality current))
+@@ -513,7 +513,7 @@ Optional argument COUNT specifies how many changes to skip."
+   (setq count (or count 1))
+   (let ((current (dtk-get-style emacspeak-eterm-pointer))
+         (found nil))
+-    (save-excursion
++    (save-mark-and-excursion
+       (goto-char emacspeak-eterm-pointer)
+       (setq found (text-property-not-all (point)  term-home-marker
+                                          'personality current))
+@@ -684,7 +684,7 @@ as a cons cell (column .  row) to a buffer position in the eterm buffer"
+   (cl-declare (special term-home-marker))
+   (let ((column (car coordinates))
+         (row (cdr coordinates)))
+-    (save-excursion
++    (save-mark-and-excursion
+       (save-restriction
+         (emacspeak-eterm-nuke-cached-info)
+         (narrow-to-region term-home-marker (point-max))
+@@ -697,7 +697,7 @@ as a cons cell (column .  row) to a buffer position in the eterm buffer"
+ (defun emacspeak-eterm-position-to-coordinates (pos)
+   "Translate a buffer POS in the eterm buffer to screen coordinates."
+   (cl-declare (special term-home-marker))
+-  (save-excursion
++  (save-mark-and-excursion
+     (save-restriction
+       (narrow-to-region term-home-marker (point-max))
+       (goto-char pos)
+@@ -723,7 +723,7 @@ Argument ETERM-WINDOW specifies a predefined eterm window."
+          (emacspeak-eterm-window-top-left eterm-window))
+         (bottom-right
+          (emacspeak-eterm-window-bottom-right eterm-window)))
+-    (save-excursion
++    (save-mark-and-excursion
+       (save-restriction
+         (narrow-to-region term-home-marker (point-max))
+         (setq start (emacspeak-eterm-coordinates-to-position top-left)
+@@ -857,7 +857,7 @@ Argument ID specifies the window."
+   (cl-assert (<  id emacspeak-eterm-maximum-windows)  t
+              "Your installation of Emacspeak only supports %d windows"
+              emacspeak-eterm-maximum-windows)
+-  (save-excursion
++  (save-mark-and-excursion
+     (save-restriction
+       (narrow-to-region term-home-marker (point-max))
+       (dtk-speak
+@@ -873,7 +873,7 @@ Argument ID specifies the window."
+              "Your installation of Emacspeak only supports %d windows"
+              emacspeak-eterm-maximum-windows)
+   (insert
+-   (save-excursion
++   (save-mark-and-excursion
+      (save-restriction
+        (narrow-to-region term-home-marker (point-max))
+        (emacspeak-eterm-return-window-contents
+@@ -1136,7 +1136,7 @@ emacspeak-toggle-eterm-autospeak bound to
+          ((and (= new-row emacspeak-eterm-row)
+                (= 1 (- new-column emacspeak-eterm-column))) ;you inserted a character:
+           (if (eq 32 last-command-event)
+-              (save-excursion
++              (save-mark-and-excursion
+                 (backward-char 2)
+                 (emacspeak-speak-word nil))
+             (emacspeak-speak-this-char (preceding-char))))
+@@ -1145,7 +1145,7 @@ emacspeak-toggle-eterm-autospeak bound to
+           (emacspeak-speak-this-char (following-char)))
+          ((= emacspeak-eterm-row new-row)
+           (if (= 32 (following-char))
+-              (save-excursion (forward-char 1)
++              (save-mark-and-excursion (forward-char 1)
+                               (emacspeak-speak-word))
+             (emacspeak-speak-word)))
+          (t (emacspeak-speak-line)))
+diff --git a/lisp/emacspeak-eudc.el b/lisp/emacspeak-eudc.el
+index 5d1b1d5..3bc41ca 100644
+--- a/lisp/emacspeak-eudc.el
++++ b/lisp/emacspeak-eudc.el
+@@ -88,7 +88,7 @@
+ 
+ (defun emacspeak-eudc-widgets-add-emacspeak-help ()
+   "Adds emacspeak widget help to all EUDC widgets. "
+-  (save-excursion 
++  (save-mark-and-excursion 
+     (goto-char (point-min))
+     (while  (not (eobp))
+       (goto-char (next-overlay-change (point)))
+diff --git a/lisp/emacspeak-evil.el b/lisp/emacspeak-evil.el
+index 202dee7..d398997 100644
+--- a/lisp/emacspeak-evil.el
++++ b/lisp/emacspeak-evil.el
+@@ -189,7 +189,7 @@
+      "Speak what was completed."
+      (cond
+       ((ems-interactive-p)
+-       (let ((orig (save-excursion (skip-syntax-backward "^ >") (point))))
++       (let ((orig (save-mark-and-excursion (skip-syntax-backward "^ >") (point))))
+          (ems-with-messages-silenced
+           ad-do-it
+           (emacspeak-auditory-icon 'complete)
+diff --git a/lisp/emacspeak-eww.el b/lisp/emacspeak-eww.el
+index 9126127..24bf84a 100644
+--- a/lisp/emacspeak-eww.el
++++ b/lisp/emacspeak-eww.el
+@@ -1019,7 +1019,7 @@ Note that the Web browser should reset this hook after using it.")
+   "Apply XSLT transform if requested."
+   (cl-declare (special emacspeak-eww-pre-process-hook
+                        emacspeak-we-xsl-transform emacspeak-we-xsl-p))
+-  (save-excursion
++  (save-mark-and-excursion
+     (cond
+      (emacspeak-eww-pre-process-hook (emacspeak-eww-run-pre-process-hook))
+      ((and emacspeak-we-xsl-p emacspeak-we-xsl-transform)
+@@ -1774,7 +1774,7 @@ Otherwise, prompts if content at point is enclosed by multiple elements."
+     (or (car emacspeak-eww-element-navigation-history)
+         (emacspeak-eww-read-tags-like-this "Read: "))))
+   (let ((start (point)))
+-    (save-excursion
++    (save-mark-and-excursion
+       (emacspeak-eww-next-element  element)
+       (emacspeak-auditory-icon 'select-object)
+       (emacspeak-speak-region start (point)))))
+@@ -1800,7 +1800,7 @@ The %s is automatically spoken if there is no user activity."
+          (forward-line 1)
+          (let ((start  (point)))
+            (condition-case nil
+-               (save-excursion
++               (save-mark-and-excursion
+                  (funcall #'emacspeak-eww-next-element s)
+                  (emacspeak-speak-region start (point)))
+              (error nil)))))))
+@@ -1820,7 +1820,7 @@ The %s is automatically spoken if there is no user activity."
+          (forward-line 1)
+          (let ((start  (point)))
+            (condition-case nil
+-               (save-excursion
++               (save-mark-and-excursion
+                  (funcall #'emacspeak-eww-next-element s)
+                  (emacspeak-speak-region start (point)))
+              (error nil))))))))
+diff --git a/lisp/emacspeak-forms.el b/lisp/emacspeak-forms.el
+index 9d5c9a6..93f4a1b 100644
+--- a/lisp/emacspeak-forms.el
++++ b/lisp/emacspeak-forms.el
+@@ -85,7 +85,7 @@ Assumes that point is at the front of a field value."
+   (let ((name nil)
+         (value nil)
+         (n-start nil))
+-    (save-excursion
++    (save-mark-and-excursion
+       (backward-char 1)
+       (setq n-start (point)))
+     (setq name (buffer-substring n-start (point)))
+@@ -230,13 +230,10 @@ Assumes that point is at the front of a field value."
+                                nil))))
+   (let (ro)
+     (setq forms--total-records
+-          (save-excursion
+-            (prog1
+-                (progn
+-                  (set-buffer forms--file-buffer)
+-                  (bury-buffer (current-buffer))
+-                  (setq ro buffer-read-only)
+-                  (count-lines (point-min) (point-max))))))
++          (with-current-buffer forms--file-buffer
++            (bury-buffer (current-buffer))
++            (setq ro buffer-read-only)
++            (count-lines (point-min) (point-max))))
+     (if ro
+         (setq forms-read-only t)))
+   (message "%s records after filtering"
+diff --git a/lisp/emacspeak-gh-explorer.el b/lisp/emacspeak-gh-explorer.el
+index 5900c99..7461c73 100644
+--- a/lisp/emacspeak-gh-explorer.el
++++ b/lisp/emacspeak-gh-explorer.el
+@@ -75,7 +75,7 @@
+   "Move forward/back based on `direction' and speak current entry."
+   (emacspeak-auditory-icon 'select-object)
+   (forward-line direction)
+-  (save-excursion
++  (save-mark-and-excursion
+     (goto-char (line-beginning-position))
+     (let ((path (cdr (assoc 'path (get-text-property (point) 'invisible))))
+           (type (cdr (assoc 'type (get-text-property (point) 'invisible)))))
+diff --git a/lisp/emacspeak-gnuplot.el b/lisp/emacspeak-gnuplot.el
+index cb5b024..cc5630e 100644
+--- a/lisp/emacspeak-gnuplot.el
++++ b/lisp/emacspeak-gnuplot.el
+@@ -128,7 +128,7 @@
+ 
+ (defadvice gnuplot-complete-keyword (around emacspeak pre act)
+   "Say what you completed."
+-  (let ((prior (save-excursion (skip-syntax-backward "^ >") (point)))
++  (let ((prior (save-mark-and-excursion (skip-syntax-backward "^ >") (point)))
+         (dtk-stop-immediately dtk-stop-immediately))
+     (when dtk-stop-immediately (dtk-stop))
+     ad-do-it
+diff --git a/lisp/emacspeak-gnus.el b/lisp/emacspeak-gnus.el
+index f11eca2..8ce0403 100644
+--- a/lisp/emacspeak-gnus.el
++++ b/lisp/emacspeak-gnus.el
+@@ -132,7 +132,7 @@ instead you hear only the first screenful."
+         (let ((start (point))
+               (window (get-buffer-window (current-buffer))))
+           (with-selected-window window
+-            (save-excursion
++            (save-mark-and-excursion
+               (move-to-window-line -1)
+               (end-of-line)
+               (emacspeak-speak-region start (point)))))))))
+@@ -492,7 +492,7 @@ indicating the article is being opened."
+       (let ((start  (point))
+             (window (get-buffer-window (current-buffer))))
+         (with-selected-window window
+-          (save-excursion
++          (save-mark-and-excursion
+             (move-to-window-line -1)
+             (end-of-line)
+             (emacspeak-speak-region start (point))))))))
+@@ -572,7 +572,7 @@ Produce an auditory icon if possible."
+     (let ((start  (point))
+           (window (get-buffer-window (current-buffer))))
+       (with-selected-window window
+-        (save-excursion
++        (save-mark-and-excursion
+           (move-to-window-line -1)
+           (end-of-line)
+           (emacspeak-speak-region start (point)))))))
+@@ -587,7 +587,7 @@ Produce an auditory icon if possible."
+     (let ((start  (point))
+           (window (get-buffer-window (current-buffer))))
+       (with-selected-window window
+-        (save-excursion
++        (save-mark-and-excursion
+           (move-to-window-line -1)
+           (end-of-line)
+           (emacspeak-speak-region start (point)))))))
+diff --git a/lisp/emacspeak-gridtext.el b/lisp/emacspeak-gridtext.el
+index 93effd9..bc4e7a1 100644
+--- a/lisp/emacspeak-gridtext.el
++++ b/lisp/emacspeak-gridtext.el
+@@ -97,7 +97,7 @@ end   as specified by grid."
+         (this-row nil)
+         (num-rows (count-lines start end))
+         (num-columns(1+  (length grid))))
+-    (save-excursion
++    (save-mark-and-excursion
+       (save-restriction
+         (narrow-to-region start end)
+         (if (< start end)
+diff --git a/lisp/emacspeak-hide.el b/lisp/emacspeak-hide.el
+index 4b70a01..bfe6418 100644
+--- a/lisp/emacspeak-hide.el
++++ b/lisp/emacspeak-hide.el
+@@ -134,7 +134,7 @@ STRING is the token's text."
+   (let ((token-list nil)
+         (case-fold-search nil)
+         token-table not-token-table)
+-    (save-excursion
++    (save-mark-and-excursion
+       (forward-line 0)
+       (catch 'done
+         (setq not-token-table emacspeak-hide-prefix-not-token-table)
+@@ -183,7 +183,7 @@ Returns t if a block was found and hidden."
+         (start nil)
+         (continue t)
+         (count 1))
+-    (save-excursion
++    (save-mark-and-excursion
+       (cond
+        ((not prefix)
+         (message "Not on a block")
+@@ -230,7 +230,7 @@ Returns t if a block was found and hidden."
+   (let ((start nil)
+         (end nil)
+         (block-name (get-text-property (point) 'emacspeak-hidden-block)))
+-    (save-excursion
++    (save-mark-and-excursion
+       (forward-line 0)
+       (cond
+        (block-name
+@@ -263,7 +263,7 @@ Returns t if a block was found and hidden."
+   (ems-with-messages-silenced
+    (let ((count 0)
+          (prefix nil))
+-     (save-excursion
++     (save-mark-and-excursion
+        (goto-char (point-min))
+        (while (not (eobp))
+          (setq prefix (emacspeak-hide-parse-prefix))
+@@ -285,7 +285,7 @@ Returns t if a block was found and hidden."
+   (ems-with-messages-silenced
+    (let ((count 0)
+          (block-end nil))
+-     (save-excursion
++     (save-mark-and-excursion
+        (goto-char (point-min))
+        (while (not (eobp))
+          (setq block-end (emacspeak-hide-expose-block))
+@@ -326,7 +326,7 @@ common PREFIX.  Optional interactive prefix arg causes all
+ blocks in current buffer to be hidden or exposed."
+ 
+   (interactive "P")
+-  (save-excursion
++  (save-mark-and-excursion
+     (dtk-stop)
+     (forward-line 0)
+     (cond
+@@ -375,7 +375,7 @@ and when you have heard enough navigate easily  to move past the block."
+         (start nil)
+         (end nil)
+         (block-prefix (get-text-property (point) 'emacspeak-hide-block-prefix)))
+-    (save-excursion
++    (save-mark-and-excursion
+       (forward-line 0)
+       (cond
+        (block-prefix
+diff --git a/lisp/emacspeak-indium.el b/lisp/emacspeak-indium.el
+index 2223f5f..d44d9ab 100644
+--- a/lisp/emacspeak-indium.el
++++ b/lisp/emacspeak-indium.el
+@@ -130,7 +130,7 @@
+ (defadvice indium-repl-return (after emacspeak pre act comp)
+   "Provide auditory feedback."
+   (when (ems-interactive-p)
+-    (save-excursion
++    (save-mark-and-excursion
+       (forward-line -1)
+       (emacspeak-speak-line)
+       (emacspeak-auditory-icon 'close-object))))
+diff --git a/lisp/emacspeak-info.el b/lisp/emacspeak-info.el
+index 81289ac..c79167e 100644
+--- a/lisp/emacspeak-info.el
++++ b/lisp/emacspeak-info.el
+@@ -116,7 +116,7 @@ node -- speak the entire node."
+   "Speak current window in info buffer."
+   (let ((start  (point))
+         (window (get-buffer-window (current-buffer))))
+-    (save-excursion
++    (save-mark-and-excursion
+       (forward-line (window-height window))
+       (emacspeak-speak-region start (point)))))
+ 
+@@ -162,7 +162,7 @@ emacspeak-info-select-node-speak-chunk"
+     (emacspeak-auditory-icon 'scroll)
+     (let ((start  (point))
+           (window (get-buffer-window (current-buffer))))
+-      (save-excursion
++      (save-mark-and-excursion
+         (forward-line (window-height window))
+         (emacspeak-speak-region start (point))))))
+ 
+@@ -172,7 +172,7 @@ emacspeak-info-select-node-speak-chunk"
+     (emacspeak-auditory-icon 'scroll)
+     (let ((start  (point))
+           (window (get-buffer-window (current-buffer))))
+-      (save-excursion
++      (save-mark-and-excursion
+         (forward-line (window-height window))
+         (emacspeak-speak-region start (point))))))
+ 
+@@ -225,7 +225,7 @@ node-spec."
+   "Move forward to next section in this node."
+   (interactive)
+   (let ((target nil))
+-    (save-excursion
++    (save-mark-and-excursion
+       (while (and (null target)
+                   (not (eobp)))
+         (goto-char (next-single-property-change (point)  'face nil (point-max)))
+@@ -242,7 +242,7 @@ node-spec."
+   "Move backward to previous section in this node."
+   (interactive)
+   (let ((target nil))
+-    (save-excursion
++    (save-mark-and-excursion
+       (while (and (null target)
+                   (not (bobp)))
+         (goto-char (previous-single-property-change (point)  'face nil (point-min)))
+@@ -268,7 +268,7 @@ node-spec."
+          (boundp 'Info-header-line)
+          Info-header-line)
+     (dtk-speak Info-header-line))
+-   (t (save-excursion
++   (t (save-mark-and-excursion
+         (goto-char (point-min))
+         (emacspeak-speak-line)))))
+ 
+diff --git a/lisp/emacspeak-jabber.el b/lisp/emacspeak-jabber.el
+index 45dcc58..e66807a 100644
+--- a/lisp/emacspeak-jabber.el
++++ b/lisp/emacspeak-jabber.el
+@@ -288,7 +288,7 @@ the kill ring as well."
+   (cl-declare (special jabber-activity-jids))
+   (cond
+    (jabber-activity-jids
+-    (save-excursion
++    (save-mark-and-excursion
+       (jabber-activity-switch-to)
+       (goto-char (point-max))
+       (emacspeak-jabber-chat-previous-message)))
+diff --git a/lisp/emacspeak-jdee.el b/lisp/emacspeak-jdee.el
+index ce5537c..b6a5e1c 100644
+--- a/lisp/emacspeak-jdee.el
++++ b/lisp/emacspeak-jdee.el
+@@ -192,7 +192,7 @@
+ (defadvice jdee-bug-highlight-breakpoint (after emacspeak pre act comp)
+   "Annotate line with an auditory icon. "
+   (let ((start nil))
+-    (save-excursion
++    (save-mark-and-excursion
+       (if (ad-get-arg 0)
+           (goto-line (ad-get-arg 0)))
+       (beginning-of-line)
+@@ -205,7 +205,7 @@
+ (defadvice jdee-bug-remove-breakpoint-highlight (after emacspeak pre act comp)
+   "Clear auditory annotation"
+   (let ((start nil))
+-    (save-excursion
++    (save-mark-and-excursion
+       (beginning-of-line)
+       (setq  start (point))
+       (end-of-line)
+@@ -315,7 +315,7 @@ If we are on the last call, do nothing."
+     (dtk-speak
+      (buffer-substring
+       (point)
+-      (save-excursion (jdee-end-of-camel-tok))))))
++      (save-mark-and-excursion (jdee-end-of-camel-tok))))))
+ 
+ ;;}}}
+ 
+diff --git a/lisp/emacspeak-lispy.el b/lisp/emacspeak-lispy.el
+index 0234f0c..c4890fa 100644
+--- a/lisp/emacspeak-lispy.el
++++ b/lisp/emacspeak-lispy.el
+@@ -182,7 +182,7 @@ Indicate  no movement if we did not move."
+      "Provide auditory feedback."
+      (when (ems-interactive-p)
+        (emacspeak-auditory-icon 'item)
+-       (save-excursion
++       (save-mark-and-excursion
+          (forward-char 1)
+          (emacspeak-speak-sexp))))))
+ 
+diff --git a/lisp/emacspeak-m-player.el b/lisp/emacspeak-m-player.el
+index 482dd07..8d1ef39 100644
+--- a/lisp/emacspeak-m-player.el
++++ b/lisp/emacspeak-m-player.el
+@@ -412,7 +412,7 @@ Also cleanup ANSI escape sequences."
+       (goto-char (process-mark process))
+       (let ((start (point)))
+         (insert output)
+-        (save-excursion
++        (save-mark-and-excursion
+           (goto-char start)
+           (while (re-search-forward ansi-color-control-seq-regexp  (point-max) 'no-error)
+             (delete-region (match-beginning 0) (match-end 0))))))))
+diff --git a/lisp/emacspeak-make-mode.el b/lisp/emacspeak-make-mode.el
+index 492d227..1cae3aa 100644
+--- a/lisp/emacspeak-make-mode.el
++++ b/lisp/emacspeak-make-mode.el
+@@ -87,7 +87,7 @@
+   "Speak what we completed"
+   (cond
+    ((ems-interactive-p)
+-    (let ((orig (save-excursion (skip-syntax-backward "^ >") (point))))
++    (let ((orig (save-mark-and-excursion (skip-syntax-backward "^ >") (point))))
+       ad-do-it
+       (emacspeak-speak-region orig (point))))
+    (t ad-do-it))
+diff --git a/lisp/emacspeak-man.el b/lisp/emacspeak-man.el
+index a8edaf7..ff5762b 100644
+--- a/lisp/emacspeak-man.el
++++ b/lisp/emacspeak-man.el
+@@ -150,7 +150,7 @@ Also provide an auditory icon"
+ (defun emacspeak-man-speak-this-section ()
+   "Speak current section"
+   (interactive)
+-  (save-excursion
++  (save-mark-and-excursion
+     (let ((start (point))
+           (end nil))
+       (condition-case nil
+diff --git a/lisp/emacspeak-maths.el b/lisp/emacspeak-maths.el
+index 610139b..e51d82e 100644
+--- a/lisp/emacspeak-maths.el
++++ b/lisp/emacspeak-maths.el
+@@ -209,7 +209,7 @@ Otherwise, Examine head of sexp, and applies associated handler to the tail."
+   (cl-declare (special emacspeak-maths))
+   (let ((pause (emacspeak-maths-pause emacspeak-maths)))
+     (when pause
+-      (save-excursion
++      (save-mark-and-excursion
+         (goto-char start)
+         (skip-syntax-forward " ")
+         (put-text-property
+@@ -291,13 +291,13 @@ left for next run."
+   (cl-declare (special emacspeak-maths))
+   (with-current-buffer (process-buffer proc)
+     (let ((moving (= (point) (process-mark proc))))
+-      (save-excursion
++      (save-mark-and-excursion
+ ;;; Insert the text, advancing the process marker.
+         (goto-char (process-mark proc))
+         (insert string)
+         (set-marker (process-mark proc) (point)))
+ ;;; Consume process output
+-      (save-excursion
++      (save-mark-and-excursion
+         (goto-char (point-min))
+         (flush-lines "^ *$")
+         (goto-char (point-min))
+@@ -430,7 +430,7 @@ Set calc-language to tex to use this feature."
+ ;;; $ and $$
+        ((or (string= "$" delimiter)
+             (string= "$$" delimiter))
+-        (save-excursion
++        (save-mark-and-excursion
+           (goto-char start)
+           (forward-char (length delimiter))
+           (setq begin (point))
+diff --git a/lisp/emacspeak-metapost.el b/lisp/emacspeak-metapost.el
+index 63a0d77..46bb0a0 100644
+--- a/lisp/emacspeak-metapost.el
++++ b/lisp/emacspeak-metapost.el
+@@ -57,7 +57,7 @@
+ 
+ (defadvice meta-complete-symbol (around emacspeak pre act)
+   "Say what you completed."
+-  (let ((prior (save-excursion (skip-syntax-backward "^ >") (point)))
++  (let ((prior (save-mark-and-excursion (skip-syntax-backward "^ >") (point)))
+         (dtk-stop-immediately dtk-stop-immediately))
+     (when dtk-stop-immediately (dtk-stop))
+     ad-do-it
+diff --git a/lisp/emacspeak-mines.el b/lisp/emacspeak-mines.el
+index ea5de2a..494e7ce 100644
+--- a/lisp/emacspeak-mines.el
++++ b/lisp/emacspeak-mines.el
+@@ -115,7 +115,7 @@ to beginning of board before searching."
+   (cl-declare (special mines-flagged-cell-char))
+   (let ((count 0) ;;; fix over-counting 
+         (m (format "%c" mines-flagged-cell-char)))
+-    (save-excursion
++    (save-mark-and-excursion
+       (goto-char (point-min))
+       (while (search-forward  m nil t) (cl-incf count) (forward-char 1)))
+     (message "%d marks" count)))
+@@ -124,7 +124,7 @@ to beginning of board before searching."
+   (interactive)
+   (cl-declare (special  mines-number-cols mines-grid))
+   (let ((cells nil))
+-    (save-excursion
++    (save-mark-and-excursion
+       (setq cells
+             (cl-loop
+              for i from 0 to (1- (length mines-state)) collect
+@@ -164,7 +164,7 @@ to beginning of board before searching."
+ 
+ (defun emacspeak-mines-cell-flagged-p (c)
+   "Predicate to check if cell at index c is flagged."
+-  (save-excursion
++  (save-mark-and-excursion
+     (mines-goto c)
+     (get-text-property (point) 'flag)))
+ 
+diff --git a/lisp/emacspeak-nxml.el b/lisp/emacspeak-nxml.el
+index a385228..bf406e3 100644
+--- a/lisp/emacspeak-nxml.el
++++ b/lisp/emacspeak-nxml.el
+@@ -240,7 +240,7 @@
+   (cond
+    ((get-text-property (point) 'nxml-outline-state)
+     (let ((o-open nil))
+-      (save-excursion
++      (save-mark-and-excursion
+         (setq o-open (car (overlays-at (point))))
+         (forward-line 1)
+         (beginning-of-line)
+diff --git a/lisp/emacspeak-org.el b/lisp/emacspeak-org.el
+index 9dc2634..7ee0977 100644
+--- a/lisp/emacspeak-org.el
++++ b/lisp/emacspeak-org.el
+@@ -262,7 +262,7 @@
+ 
+ (defadvice org-complete (around emacspeak pre act)
+   "Say what you completed."
+-  (let ((prior (save-excursion (skip-syntax-backward "^ >") (point)))
++  (let ((prior (save-mark-and-excursion (skip-syntax-backward "^ >") (point)))
+         (dtk-stop-immediately t))
+     ad-do-it
+     (if (> (point) prior)
+@@ -610,7 +610,7 @@ Before doing so, re-align the table if necessary."
+     (org-table-maybe-eval-formula)
+     (org-table-maybe-recalculate-line)
+     (if (or (looking-at "[ \t]*$")
+-            (save-excursion (skip-chars-backward " \t") (bolp)))
++            (save-mark-and-excursion (skip-chars-backward " \t") (bolp)))
+         (newline)
+       (if (and org-table-automatic-realign
+                org-table-may-need-update)
+diff --git a/lisp/emacspeak-origami.el b/lisp/emacspeak-origami.el
+index fb026ff..0f3627a 100644
+--- a/lisp/emacspeak-origami.el
++++ b/lisp/emacspeak-origami.el
+@@ -64,7 +64,7 @@
+ (defadvice origami-hide-overlay (after emacspeak pre act comp)
+   "Attach auditory icon at front."
+   (let ((s
+-         (save-excursion
++         (save-mark-and-excursion
+            (goto-char (overlay-start (ad-get-arg 0)))
+            (line-beginning-position)))
+         (e (overlay-end (ad-get-arg 0))))
+@@ -73,7 +73,7 @@
+ (defadvice origami-show-overlay (after emacspeak pre act comp)
+   "Remove auditory icon at front."
+   (let ((s
+-         (save-excursion
++         (save-mark-and-excursion
+            (goto-char (overlay-start (ad-get-arg 0)))
+            (line-beginning-position)))
+         (e (overlay-end (ad-get-arg 0))))
+diff --git a/lisp/emacspeak-outline.el b/lisp/emacspeak-outline.el
+index 32744ee..82caab1 100644
+--- a/lisp/emacspeak-outline.el
++++ b/lisp/emacspeak-outline.el
+@@ -202,7 +202,7 @@ commands. "
+         (end nil))
+     (funcall what  direction)
+     (setq start (point))
+-    (save-excursion
++    (save-mark-and-excursion
+       (condition-case nil
+           (progn
+             (forward-line 1)
+@@ -250,7 +250,7 @@ except that the outline section is  spoken"
+   (interactive)
+   (let ((start (point))
+         (end nil))
+-    (save-excursion
++    (save-mark-and-excursion
+       (condition-case nil
+           (progn
+             (outline-next-visible-heading 1)
+diff --git a/lisp/emacspeak-proced.el b/lisp/emacspeak-proced.el
+index f9bffc2..77ec7e6 100644
+--- a/lisp/emacspeak-proced.el
++++ b/lisp/emacspeak-proced.el
+@@ -132,7 +132,7 @@
+   (let ((field (emacspeak-proced-position-to-field position))
+         (start nil)
+         (end nil))
+-    (save-excursion
++    (save-mark-and-excursion
+       (goto-char
+        (+ (line-beginning-position)
+           (emacspeak-proced-field-start field)))
+@@ -250,7 +250,7 @@
+   "Update cache of processes we are displaying."
+   (cl-declare (special emacspeak-proced-process-cache))
+   (let ((cache nil))
+-    (save-excursion
++    (save-mark-and-excursion
+       (goto-char (point-min))
+       (while (not (eobp))
+         (goto-char (+ (line-beginning-position)
+diff --git a/lisp/emacspeak-py.el b/lisp/emacspeak-py.el
+index 2870874..f8e63ba 100644
+--- a/lisp/emacspeak-py.el
++++ b/lisp/emacspeak-py.el
+@@ -69,7 +69,7 @@ Provide contextual feedback when closing blocks"
+         (dtk-notify-speak  (format "Indent %s "ad-return-value))
+         (emacspeak-auditory-icon  'close-object)
+         (sit-for 0.2)
+-        (save-excursion
++        (save-mark-and-excursion
+           (py-beginning-of-block)
+           (emacspeak-speak-line)))))
+    (t ad-do-it))
+diff --git a/lisp/emacspeak-re-builder.el b/lisp/emacspeak-re-builder.el
+index 6901c22..8f4d39b 100644
+--- a/lisp/emacspeak-re-builder.el
++++ b/lisp/emacspeak-re-builder.el
+@@ -80,7 +80,7 @@
+   "Speak matched line."
+   (when (ems-interactive-p)
+     (let ((emacspeak-show-point t))
+-      (save-excursion
++      (save-mark-and-excursion
+         (set-buffer reb-target-buffer)
+         (emacspeak-speak-line)
+         (emacspeak-auditory-icon 'large-movement)))))
+@@ -89,7 +89,7 @@
+   "Speak matched line."
+   (when (ems-interactive-p)
+     (let ((emacspeak-show-point t))
+-      (save-excursion
++      (save-mark-and-excursion
+         (set-buffer reb-target-buffer)
+         (emacspeak-speak-line)
+         (emacspeak-auditory-icon 'large-movement)))))
+@@ -97,7 +97,7 @@
+ (defadvice reb-toggle-case (after emacspeak pre act comp)
+   "Provide spoken feedback."
+   (when (ems-interactive-p)
+-    (save-excursion
++    (save-mark-and-excursion
+       (set-buffer reb-target-buffer)
+       (emacspeak-auditory-icon (if case-fold-search 'on 'off)))))
+ 
+diff --git a/lisp/emacspeak-ruby.el b/lisp/emacspeak-ruby.el
+index 40a7c19..065880c 100644
+--- a/lisp/emacspeak-ruby.el
++++ b/lisp/emacspeak-ruby.el
+@@ -78,7 +78,7 @@
+   "Provide auditory feedback."
+   (when (ems-interactive-p)
+     (emacspeak-auditory-icon 'close-object)
+-    (save-excursion
++    (save-mark-and-excursion
+       (ruby-beginning-of-block)
+       (emacspeak-speak-line))))
+ 
+diff --git a/lisp/emacspeak-shx.el b/lisp/emacspeak-shx.el
+index afc157f..cdfe8dc 100644
+--- a/lisp/emacspeak-shx.el
++++ b/lisp/emacspeak-shx.el
+@@ -108,7 +108,7 @@ Provide an auditory icon if possible."
+        ad-do-it
+        (cond
+         ((= (point) (+ count orig))
+-         (save-excursion
++         (save-mark-and-excursion
+            (forward-word -1)
+            (emacspeak-speak-word)))
+         (t
+diff --git a/lisp/emacspeak-slime.el b/lisp/emacspeak-slime.el
+index 8896263..bc23aae 100644
+--- a/lisp/emacspeak-slime.el
++++ b/lisp/emacspeak-slime.el
+@@ -159,7 +159,7 @@
+   `(defadvice  ,f (after emacspeak pre act comp)
+      "Provide auditory feedback."
+      (when (ems-interactive-p)
+-       (save-excursion
++       (save-mark-and-excursion
+          (goto-char
+           (previous-single-property-change (point)   'face nil (point-min)))
+          (emacspeak-speak-this-personality-chunk))
+@@ -173,7 +173,7 @@
+   `(defadvice ,f (around emacspeak pre act comp)
+      "Say what you completed."
+      (ems-with-messages-silenced
+-      (let ((prior (save-excursion (skip-syntax-backward "^ >") (point))))
++      (let ((prior (save-mark-and-excursion (skip-syntax-backward "^ >") (point))))
+         ad-do-it
+         (if (> (point) prior)
+             (tts-with-punctuations
+diff --git a/lisp/emacspeak-smartparens.el b/lisp/emacspeak-smartparens.el
+index 0ca0298..9bbf211 100644
+--- a/lisp/emacspeak-smartparens.el
++++ b/lisp/emacspeak-smartparens.el
+@@ -110,7 +110,7 @@
+     (when dtk-stop-immediately (dtk-stop))
+     (let ((start (point))
+           (dtk-stop-immediately nil))
+-      (save-excursion
++      (save-mark-and-excursion
+         (forward-word -1)
+         (emacspeak-auditory-icon 'delete-object)
+         (emacspeak-speak-region (point) start)))))
+diff --git a/lisp/emacspeak-solitaire.el b/lisp/emacspeak-solitaire.el
+index fd251a5..bd6eb71 100644
+--- a/lisp/emacspeak-solitaire.el
++++ b/lisp/emacspeak-solitaire.el
+@@ -109,7 +109,7 @@
+ (defun emacspeak-solitaire-show-column ()
+   "Audio format current column."
+   (interactive)
+-  (save-excursion
++  (save-mark-and-excursion
+     (let ((row (emacspeak-solitaire-current-row))
+           (column (emacspeak-solitaire-current-column))
+           (cells nil))
+diff --git a/lisp/emacspeak-speak.el b/lisp/emacspeak-speak.el
+index b467849..513a8ac 100644
+--- a/lisp/emacspeak-speak.el
++++ b/lisp/emacspeak-speak.el
+@@ -155,7 +155,7 @@ Speech flushes as you type."
+        ((stringp display) (dtk-say display))
+        ((and emacspeak-word-echo
+              (= (char-syntax last-command-event)32))
+-        (save-excursion
++        (save-mark-and-excursion
+           (condition-case nil
+               (forward-word -1)
+             (error nil))
+@@ -383,7 +383,7 @@ Argument BODY specifies forms to execute."
+ 
+ (defun emacspeak-audio-annotate-paragraphs ()
+   "Set property auditory-icon at front of all paragraphs."
+-  (save-excursion
++  (save-mark-and-excursion
+     (goto-char (point-max))
+     (with-silent-modifications
+       (let ((sound-cue 'paragraph))
+@@ -408,7 +408,7 @@ Useful to do this before you listen to an entire buffer."
+   (when
+       (and  emacspeak-speak-paragraph-personality
+             (null emacspeak-speak-voice-annotated-paragraphs)) ; memoized
+-    (save-excursion
++    (save-mark-and-excursion
+       (goto-char (point-min))
+       (condition-case nil
+           (let ((start nil)
+@@ -1018,7 +1018,7 @@ Cues the start of a physical line with auditory icon `left'."
+     (cond
+      ((looking-at "^ *") (emacspeak-auditory-icon 'left))
+      ((looking-at " *$") (emacspeak-auditory-icon 'right)))
+-    (save-excursion
++    (save-mark-and-excursion
+       (beginning-of-visual-line)
+       (setq start (point))
+       (end-of-visual-line)
+@@ -1073,7 +1073,7 @@ spelled out  instead of being spoken."
+                        emacspeak-action-mode))
+   (when (listp arg) (setq arg (car arg)))
+   (when emacspeak-action-mode  (emacspeak-handle-action-at-point))
+-  (save-excursion
++  (save-mark-and-excursion
+     (let ((orig (point))
+           (cursor-sensor-inhibit t)
+           (inhibit-modification-hooks t)
+@@ -1291,7 +1291,7 @@ Negative prefix arg speaks from start of sentence to point."
+   (interactive "P")
+   (cl-declare (special emacspeak-action-mode))
+   (when (listp arg) (setq arg (car arg)))
+-  (save-excursion
++  (save-mark-and-excursion
+     (let ((orig (point))
+           (cursor-sensor-inhibit t)
+           (inhibit-modification-hooks t)
+@@ -1315,7 +1315,7 @@ With prefix ARG, speaks the rest of the sexp  from point.
+ Negative prefix arg speaks from start of sexp to point. "
+   (interactive "P")
+   (when (listp arg) (setq arg (car arg)))
+-  (save-excursion
++  (save-mark-and-excursion
+     (let ((orig (point))
+           (cursor-sensor-inhibit t)
+           (inhibit-modification-hooks t)
+@@ -1345,7 +1345,7 @@ If option  `voice-lock-mode' is on, then it will use any defined personality."
+   (interactive "P")
+   (cl-declare (special emacspeak-action-mode))
+   (when (listp arg) (setq arg (car arg)))
+-  (save-excursion
++  (save-mark-and-excursion
+     (let ((orig (point))
+           (cursor-sensor-inhibit t)
+           (start nil)
+@@ -1369,7 +1369,7 @@ If voice-lock-mode is on, then it will use any defined personality. "
+   (interactive "P")
+   (cl-declare (special emacspeak-action-mode))
+   (when (listp arg) (setq arg (car arg)))
+-  (save-excursion
++  (save-mark-and-excursion
+     (let ((orig (point))
+           (cursor-sensor-inhibit t)
+           (start nil)
+@@ -1668,7 +1668,7 @@ indicating the arrival  of new mail when displaying the mode line.")
+ ;;;compute current line number
+ (defun emacspeak-get-current-line-number ()
+   (let ((start (point)))
+-    (save-excursion
++    (save-mark-and-excursion
+       (save-restriction
+         (widen)
+         (goto-char (point-min))
+@@ -1931,7 +1931,7 @@ Displays name of current buffer.")
+   "Read a line without moving.
+ Line to read is specified relative to the current line, prefix args gives the
+ offset. Default  is to speak the previous line. "
+-  (save-excursion
++  (save-mark-and-excursion
+     (cond
+      ((zerop arg) (emacspeak-speak-line))
+      ((zerop (forward-line arg))
+@@ -1956,7 +1956,7 @@ Default is to read the next line. "
+   "Read a word without moving.
+ word  to read is specified relative to the current word, prefix args gives the
+ offset. Default  is to speak the previous word. "
+-  (save-excursion
++  (save-mark-and-excursion
+     (cond
+      ((= arg 0) (emacspeak-speak-word))
+      ((forward-word arg)
+@@ -2250,7 +2250,7 @@ by a change in voice personality."
+           (if current-prefix-arg
+               (elt mark-ring (1- count))
+             (mark)))
+-    (save-excursion
++    (save-mark-and-excursion
+       (goto-char pos)
+       (ems-set-personality-temporarily
+        pos (1+ pos) voice-animate
+@@ -2299,7 +2299,7 @@ Return buffer position or nil on failure."
+   (let ((result nil)
+         (start max)
+         (continue t))
+-    (save-excursion
++    (save-mark-and-excursion
+       (while (and continue
+                   (not
+                    (or (< (point) min)
+@@ -2496,7 +2496,7 @@ Interactive prefix arg `browse'  repeatedly browses  through
+     (skip-syntax-forward "^ ")
+     (skip-syntax-forward " ")
+     (setq start (point))
+-    (save-excursion
++    (save-mark-and-excursion
+       (skip-syntax-forward "^ ")
+       (emacspeak-speak-field start (point)))))
+ 
+@@ -2565,7 +2565,7 @@ Otherwise just display a message."
+ (defun emacspeak-get-window-contents ()
+   "Return window contents."
+   (let ((start nil))
+-    (save-excursion
++    (save-mark-and-excursion
+       (move-to-window-line 0)
+       (setq start (point))
+       (move-to-window-line -1)
+@@ -2598,7 +2598,7 @@ Semantics  of `other' is the same as for the builtin Emacs command
+ `other-window'.
+ Optional argument ARG  specifies `other' window to speak."
+   (interactive "nSpeak window")
+-  (save-excursion
++  (save-mark-and-excursion
+     (save-window-excursion
+       (other-window arg)
+       (save-current-buffer
+@@ -2705,7 +2705,7 @@ Semantics  of `other' is the same as for the builtin Emacs command
+         (setq window
+               (read-number "Window   between 1 and 9 to speak" 1)))
+     (setq window (1- window))
+-    (save-excursion
++    (save-mark-and-excursion
+       (save-window-excursion
+         (other-window window)
+         (emacspeak-speak-region (window-start) (window-end))))))
+@@ -2906,12 +2906,12 @@ value to apply."
+        "Matches "
+        (cond
+ ;;; Show what precedes the open in its line, if anything.
+-        ((save-excursion
++        ((save-mark-and-excursion
+            (skip-chars-backward " \t")
+            (not (bolp)))
+          (buffer-substring (line-beginning-position) (1+ blinkpos)))
+ ;;; Show what follows the open in its line, if anything.
+-        ((save-excursion
++        ((save-mark-and-excursion
+            (forward-char 1)
+            (skip-chars-forward " \t")
+            (not (eolp)))
+@@ -2943,7 +2943,7 @@ Also display match context in minibuffer."
+              blink-matching-paren
+              ;; Verify an even number of quoting characters precede the close.
+              (= 1 (logand 1 (- (point)
+-                               (save-excursion
++                               (save-mark-and-excursion
+                                  (forward-char -1)
+                                  (skip-syntax-backward "/\\")
+                                  (point))))))
+@@ -2953,7 +2953,7 @@ Also display match context in minibuffer."
+            message-log-max  ; Don't log messages about paren matching.
+            matching-paren
+            open-paren-line-string)
+-      (save-excursion
++      (save-mark-and-excursion
+         (save-restriction
+           (if blink-matching-paren-distance
+               (narrow-to-region (max (minibuffer-prompt-end)
+@@ -2987,22 +2987,22 @@ Also display match context in minibuffer."
+           ;; Matching open within window, temporarily move to blinkpos but only
+           ;; if `blink-matching-paren-on-screen' is non-nil.
+           (and blink-matching-paren-on-screen
+-               (save-excursion
++               (save-mark-and-excursion
+                  (goto-char blinkpos)
+                  (emacspeak-speak-blinkpos-message blinkpos)
+                  (sit-for blink-matching-delay))))
+          (t
+-          (save-excursion
++          (save-mark-and-excursion
+             (goto-char blinkpos)
+             (setq open-paren-line-string
+                   ;; Show what precedes the open in its line, if anything.
+-                  (if (save-excursion
++                  (if (save-mark-and-excursion
+                         (skip-chars-backward " \t")
+                         (not (bolp)))
+                       (buffer-substring (line-beginning-position)
+                                         (1+ blinkpos))
+                     ;; Show what follows the open in its line, if anything.
+-                    (if (save-excursion
++                    (if (save-mark-and-excursion
+                           (forward-char 1)
+                           (skip-chars-forward " \t")
+                           (not (eolp)))
+@@ -3010,7 +3010,7 @@ Also display match context in minibuffer."
+                                           (line-end-position))
+                       ;; Otherwise show the previous nonblank line,
+                       ;; if there is one.
+-                      (if (save-excursion
++                      (if (save-mark-and-excursion
+                             (skip-chars-backward "\n \t")
+                             (not (bobp)))
+                           (concat
+@@ -3067,10 +3067,10 @@ Argument O specifies overlay."
+     (message "Not on white space"))
+    (t
+     (let ((orig (point))
+-          (start (save-excursion
++          (start (save-mark-and-excursion
+                    (skip-syntax-backward " ")
+                    (point)))
+-          (end (save-excursion
++          (end (save-mark-and-excursion
+                  (skip-syntax-forward " ")
+                  (point))))
+       (message "Space %s of %s"
+@@ -3091,7 +3091,7 @@ Argument O specifies overlay."
+ (defun emacspeak-make-string-inaudible (string)
+   (unless (string-match "^ *$" string)
+     (with-silent-modifications
+-      (save-excursion
++      (save-mark-and-excursion
+         (goto-char (point-min))
+         (save-match-data
+           (with-silent-modifications
+@@ -3195,7 +3195,7 @@ Speak text between point and the char we hit."
+   (interactive (list (read-char "Char: ")))
+   (let ((start (point))
+         (goal nil))
+-    (save-excursion
++    (save-mark-and-excursion
+       (cond
+        ((search-forward (format "%c" char)
+                         (point-max)
+@@ -3350,7 +3350,7 @@ This function is sensitive to calendar mode when prompting."
+         (base-position completion-base-position)
+         (insert-function completion-list-insert-choice-function)
+         (choice
+-         (save-excursion
++         (save-mark-and-excursion
+            (let (beg end)
+              (cond
+               ((and (not (eobp)) (get-text-property (point) 'mouse-face))
+diff --git a/lisp/emacspeak-speedbar.el b/lisp/emacspeak-speedbar.el
+index c46dceb..a9175ba 100644
+--- a/lisp/emacspeak-speedbar.el
++++ b/lisp/emacspeak-speedbar.el
+@@ -75,10 +75,10 @@
+ (defun emacspeak-speedbar-speak-line()
+   "Speak a line in the speedbar display"
+   (let ((indent nil))  
+-    (save-excursion
++    (save-mark-and-excursion
+       (beginning-of-line)
+       (setq indent 
+-            (save-excursion
++            (save-mark-and-excursion
+               (save-match-data
+                 (beginning-of-line)
+                 (string-to-number
+@@ -195,7 +195,7 @@ An automatically updating speedbar consumes resources.")
+   (dtk-speak
+    (concat "Speedbar: "
+            (let ((start nil))
+-             (save-excursion 
++             (save-mark-and-excursion 
+                (beginning-of-line)
+                (setq start (point))
+                (end-of-line)
+@@ -204,7 +204,7 @@ An automatically updating speedbar consumes resources.")
+ (defun emacspeak-speedbar-click ()
+   "Does the equivalent of the mouse click from the keyboard"
+   (interactive)
+-  (save-excursion
++  (save-mark-and-excursion
+     (beginning-of-line)
+     (let ((target
+            (if (get-text-property (point) 'speedbar-function)
+@@ -295,7 +295,7 @@ An automatically updating speedbar consumes resources.")
+             emacspeak-speedbar-tag-personality)
+            (t 'emacspeak-speedbar-default-personality)))
+     (put-text-property start end 'personality personality)
+-    (save-excursion
++    (save-mark-and-excursion
+       (save-match-data
+         (beginning-of-line)))))
+ 
+diff --git a/lisp/emacspeak-tabulate.el b/lisp/emacspeak-tabulate.el
+index e1380c5..20dc96f 100644
+--- a/lisp/emacspeak-tabulate.el
++++ b/lisp/emacspeak-tabulate.el
+@@ -73,7 +73,7 @@ Fields are assumed to be delimited by whitespace. "
+         (first nil)
+         (last nil)
+         (continue t))
+-    (save-excursion
++    (save-mark-and-excursion
+       (end-of-line)
+       (setq end (point))
+       (beginning-of-line)
+@@ -108,7 +108,7 @@ Fields are assumed to be delimited by whitespace. "
+             start tmp)))
+   (save-restriction 
+     (narrow-to-region start end)
+-    (save-excursion
++    (save-mark-and-excursion
+       (goto-char start)
+       (let  ((try nil)
+              (first nil)
+@@ -179,7 +179,7 @@ in the white-space."
+                    (count-lines start end)
+                    (+ 1 (length white-space)))
+         (sit-for 1.5)
+-        (save-excursion
++        (save-mark-and-excursion
+           (goto-char end)
+           (beginning-of-line)
+           (setq bl  (point))
+@@ -231,7 +231,7 @@ in the white-space."
+         (element nil))
+     (setq column-count (1+ (length white-space)))
+     (setq table (make-vector row-count nil))
+-    (save-excursion
++    (save-mark-and-excursion
+       (goto-char start)
+       (cl-loop for
+                i from 0 to (1- row-count)
+diff --git a/lisp/emacspeak-tar.el b/lisp/emacspeak-tar.el
+index 1b3761c..a5b2288 100644
+--- a/lisp/emacspeak-tar.el
++++ b/lisp/emacspeak-tar.el
+@@ -56,7 +56,7 @@
+   (cond
+    ((= (following-char) 0)
+     (message "No file on this line"))
+-   (t(save-excursion
++   (t(save-mark-and-excursion
+        (end-of-line)
+        (skip-syntax-backward "^ ")
+        (emacspeak-speak-field
+diff --git a/lisp/emacspeak-tcl.el b/lisp/emacspeak-tcl.el
+index 58b9671..6c72a93 100644
+--- a/lisp/emacspeak-tcl.el
++++ b/lisp/emacspeak-tcl.el
+@@ -154,7 +154,7 @@ is a Tcl expression, and the last argument is Tcl commands.")
+   (when (ems-interactive-p)
+     (let* ((start nil)
+            (proc-line
+-            (save-excursion
++            (save-mark-and-excursion
+               (tcl-beginning-of-defun)
+               (setq start (point))
+               (end-of-line)
+diff --git a/lisp/emacspeak-tetris.el b/lisp/emacspeak-tetris.el
+index 9975ab8..eda0fb8 100644
+--- a/lisp/emacspeak-tetris.el
++++ b/lisp/emacspeak-tetris.el
+@@ -115,7 +115,7 @@
+ 
+ (defun emacspeak-tetris-get-current-row ()
+   (cl-declare (special tetris-border))
+-  (save-excursion
++  (save-mark-and-excursion
+     (beginning-of-line)
+     (let ((start nil))
+       (while (not (= (following-char) tetris-border)) (forward-char 1))
+diff --git a/lisp/emacspeak-vdiff.el b/lisp/emacspeak-vdiff.el
+index abe14d6..8dec3b6 100644
+--- a/lisp/emacspeak-vdiff.el
++++ b/lisp/emacspeak-vdiff.el
+@@ -96,14 +96,14 @@
+ (defun emacspeak-vdiff-speak-other-hunk ()
+   "Speak corresponding hunk from other buffer."
+   (interactive)
+-  (save-excursion
++  (save-mark-and-excursion
+     (vdiff-switch-buffer (line-number-at-pos))
+     (emacspeak-vdiff-speak-this-hunk)))
+ 
+ (defun emacspeak-vdiff-speak-other-line ()
+   "Speak corresponding line from other buffer."
+   (interactive)
+-  (save-excursion
++  (save-mark-and-excursion
+     (vdiff-switch-buffer (line-number-at-pos))
+     (emacspeak-speak-line)))
+ 
+diff --git a/lisp/emacspeak-view.el b/lisp/emacspeak-view.el
+index 491bc35..e93ce81 100644
+--- a/lisp/emacspeak-view.el
++++ b/lisp/emacspeak-view.el
+@@ -183,7 +183,7 @@
+     (let ((start (point)))
+       ad-do-it
+       (emacspeak-auditory-icon 'scroll)
+-      (save-excursion
++      (save-mark-and-excursion
+         (end-of-line)
+         (dtk-speak
+          (buffer-substring
+@@ -197,7 +197,7 @@
+     (let ((start (point)))
+       ad-do-it
+       (emacspeak-auditory-icon 'scroll)
+-      (save-excursion
++      (save-mark-and-excursion
+         (end-of-line)
+         (dtk-speak
+          (buffer-substring
+@@ -210,7 +210,7 @@
+   (when (ems-interactive-p)
+     (let ((start (point)))
+       (emacspeak-auditory-icon 'scroll)
+-      (save-excursion
++      (save-mark-and-excursion
+         (forward-line (window-height))
+         (emacspeak-speak-region start (point))))))
+ 
+diff --git a/lisp/emacspeak-vm.el b/lisp/emacspeak-vm.el
+index 30592da..c199cb3 100644
+--- a/lisp/emacspeak-vm.el
++++ b/lisp/emacspeak-vm.el
+@@ -104,7 +104,7 @@ Note that some badly formed mime messages  cause trouble."
+ 
+ (defadvice vm-minibuffer-complete-word (around emacspeak pre act)
+   "Say what you completed."
+-  (let ((prior (save-excursion (skip-syntax-backward "^ >") (point)))
++  (let ((prior (save-mark-and-excursion (skip-syntax-backward "^ >") (point)))
+         (dtk-stop-immediately t))
+     (emacspeak-kill-buffer-carefully "*Completions*")
+     ad-do-it
+@@ -119,7 +119,7 @@ Note that some badly formed mime messages  cause trouble."
+ 
+ (defadvice vm-minibuffer-complete-word-and-exit (around emacspeak pre act)
+   "Say what you completed."
+-  (let ((prior (save-excursion (skip-syntax-backward "^ >") (point)))
++  (let ((prior (save-mark-and-excursion (skip-syntax-backward "^ >") (point)))
+         (dtk-stop-immediately t))
+     (emacspeak-kill-buffer-carefully "*Completions*")
+     ad-do-it
+@@ -281,7 +281,7 @@ that has been forwarded multiple times."
+ Then speak the screenful. "
+   (when (ems-interactive-p)
+     (emacspeak-auditory-icon 'scroll)
+-    (save-excursion
++    (save-mark-and-excursion
+       (let ((start  (point))
+             (window (get-buffer-window (current-buffer))))
+         (forward-line (window-height window))
+@@ -292,7 +292,7 @@ Then speak the screenful. "
+ Then speak the screenful. "
+   (when (ems-interactive-p)
+     (emacspeak-auditory-icon 'scroll)
+-    (save-excursion
++    (save-mark-and-excursion
+       (let ((start  (point))
+             (window (get-buffer-window (current-buffer))))
+         (forward-line(-  (window-height window)))
+diff --git a/lisp/emacspeak-vterm.el b/lisp/emacspeak-vterm.el
+index 11263a2..db2f088 100644
+--- a/lisp/emacspeak-vterm.el
++++ b/lisp/emacspeak-vterm.el
+@@ -209,7 +209,7 @@
+        (= new-row row) (= 1 (- new-column column))) ;;; char insert
+       (ems-with-messages-silenced (message "char insert"))
+       (if (eq 32 last-command-event) ;;; word echo 
+-          (save-excursion (backward-char 2) (emacspeak-speak-word nil))
++          (save-mark-and-excursion (backward-char 2) (emacspeak-speak-word nil))
+         (emacspeak-speak-this-char (preceding-char))))
+      ((and
+        (= new-row row) (= 1 (abs(- new-column column))))
+@@ -218,7 +218,7 @@
+      ((= row new-row)
+       (ems-with-messages-silenced (message "left/right motion"))
+       (if (= 32 (following-char)) ;;; vi word nav
+-          (save-excursion (forward-char 1) (emacspeak-speak-word))
++          (save-mark-and-excursion (forward-char 1) (emacspeak-speak-word))
+         (emacspeak-speak-word)))
+      (t
+       (if emacspeak-comint-autospeak
+@@ -226,7 +226,7 @@
+             (dtk-speak
+              (string-trim
+               (ansi-color-filter-apply
+-               (save-excursion
++               (save-mark-and-excursion
+                  (beginning-of-line) (buffer-substring (1+ opoint) (point)))))))
+         (emacspeak-speak-line))))))
+ 
+diff --git a/lisp/emacspeak-wizards.el b/lisp/emacspeak-wizards.el
+index eaa1297..de34c5d 100644
+--- a/lisp/emacspeak-wizards.el
++++ b/lisp/emacspeak-wizards.el
+@@ -526,7 +526,7 @@ the display to speak."
+     (setq win
+           (nth (% window (length window-list))
+                window-list))
+-    (save-excursion
++    (save-mark-and-excursion
+       (save-window-excursion
+         (emacspeak-speak-region
+          (window-point win)
+@@ -1524,7 +1524,7 @@ Moves to the longest line when called interactively."
+   (interactive "r")
+   (let ((max 0)
+         (where nil))
+-    (save-excursion
++    (save-mark-and-excursion
+       (goto-char start)
+       (while (and (not (eobp))
+                   (< (point) end))
+@@ -1548,7 +1548,7 @@ Moves to the shortest line when called interactively."
+   (interactive "r")
+   (let ((min 1)
+         (where (point)))
+-    (save-excursion
++    (save-mark-and-excursion
+       (goto-char start)
+       (while (and (not (eobp))
+                   (< (point) end))
+@@ -1576,7 +1576,7 @@ Moves to the longest paragraph when called interactively."
+   (let ((max 0)
+         (where nil)
+         (para-start start))
+-    (save-excursion
++    (save-mark-and-excursion
+       (goto-char start)
+       (while (and (not (eobp))
+                   (< (point) end))
+@@ -2266,7 +2266,7 @@ Lang is obtained from property `lang' on string, or  via an interactive prompt."
+ (defun emacspeak-wizards-espeak-region (start end)
+   "Speak region using ESpeak polyglot wizard."
+   (interactive "r")
+-  (save-excursion
++  (save-mark-and-excursion
+     (goto-char start)
+     (while (< start end)
+       (goto-char
+diff --git a/lisp/emacspeak-xslt.el b/lisp/emacspeak-xslt.el
+index c331745..a8b1590 100644
+--- a/lisp/emacspeak-xslt.el
++++ b/lisp/emacspeak-xslt.el
+@@ -165,7 +165,7 @@ the result.  This uses XSLT processor xsltproc available as
+ part of the libxslt package."
+   (cl-declare (special emacspeak-xslt-program emacspeak-xslt-options
+                        emacspeak-xslt-keep-errors modification-flag))
+-  (save-excursion
++  (save-mark-and-excursion
+     (with-silent-modifications
+       (let ((command nil)
+             (parameters (when params
+diff --git a/lisp/g-utils.el b/lisp/g-utils.el
+index 7eac72d..0552cdd 100644
+--- a/lisp/g-utils.el
++++ b/lisp/g-utils.el
+@@ -141,7 +141,7 @@ Customize this to live on your local disk."
+ ;;; this helper returns number of bytes.
+ (defun g-buffer-bytes (&optional buffer)
+   "Return number of bytes in a buffer."
+-  (save-excursion
++  (save-mark-and-excursion
+     (and buffer (set-buffer buffer))
+     (1- (position-bytes (point-max)))))
+ 
+@@ -196,7 +196,7 @@ Customize this to live on your local disk."
+ (defun g-html-unescape-region (start end)
+   "Unescape HTML entities."
+   (cl-declare (special g-html-charent-alist))
+-  (save-excursion
++  (save-mark-and-excursion
+     (cl-loop for entry in g-html-charent-alist
+              do
+              (let ((entity (car  entry))
+@@ -208,7 +208,7 @@ Customize this to live on your local disk."
+ (defun g-html-escape-region (start end)
+   "Escape HTML entities."
+   (cl-declare (special g-html-charent-alist))
+-  (save-excursion
++  (save-mark-and-excursion
+     (cl-loop for entry in g-html-charent-alist
+              do
+              (let ((entity (cdr  entry))

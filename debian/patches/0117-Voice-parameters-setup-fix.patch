@@ -1,0 +1,58 @@
+From: "Igor B. Poretsky" <poretsky@mlbox.ru>
+Date: Sat, 26 Nov 2022 09:08:44 +0300
+Subject: Voice parameters setup fix
+
+---
+ lisp/dectalk-voices.el | 11 +++++++----
+ lisp/outloud-voices.el | 14 ++++++++------
+ 2 files changed, 15 insertions(+), 10 deletions(-)
+
+diff --git a/lisp/dectalk-voices.el b/lisp/dectalk-voices.el
+index ae6216a..71c7160 100644
+--- a/lisp/dectalk-voices.el
++++ b/lisp/dectalk-voices.el
+@@ -628,12 +628,15 @@ and TABLE gives the values along that dimension."
+   (fset 'tts-get-voice-command 'dectalk-get-voice-command)
+   (fset 'tts-voice-defined-p 'dectalk-voice-defined-p)
+   (fset 'tts-define-voice-from-speech-style 'dectalk-define-voice-from-speech-style)
++  (setq tts-default-voice 'paul)
+   (setq tts-default-speech-rate dectalk-default-speech-rate)
+   (set-default 'tts-default-speech-rate dectalk-default-speech-rate)
+-  (setq dtk-speech-rate-step 50
+-        dtk-speech-rate-base 150)
+-  (setq-default dtk-speech-rate-step 50
+-                dtk-speech-rate-base 150))
++  (unless (or (get 'dtk-speech-rate-step 'customized-value)
++              (get 'dtk-speech-rate-step 'saved-value))
++    (setq dtk-speech-rate-step 50))
++  (unless (or (get 'dtk-speech-rate-base 'customized-value)
++              (get 'dtk-speech-rate-base 'saved-value))
++    (setq dtk-speech-rate-base 150)))
+ 
+ ;;}}}
+ (provide 'dectalk-voices)
+diff --git a/lisp/outloud-voices.el b/lisp/outloud-voices.el
+index 3714e38..f2fb1cf 100644
+--- a/lisp/outloud-voices.el
++++ b/lisp/outloud-voices.el
+@@ -474,12 +474,14 @@
+   (setq tts-default-voice 'paul)
+   (setq tts-default-speech-rate outloud-default-speech-rate)
+   (set-default 'tts-default-speech-rate outloud-default-speech-rate)
+-  (setq dtk-speech-rate-step 10
+-        dtk-speech-rate-base 50
+-        dtk-speech-rate outloud-default-speech-rate)
+-  (setq-default dtk-speech-rate-step 10
+-                dtk-speech-rate outloud-default-speech-rate
+-                dtk-speech-rate-base 50)
++  (unless (or (get 'dtk-speech-rate-step 'customized-value)
++              (get 'dtk-speech-rate-step 'saved-value))
++    (setq dtk-speech-rate-step 10))
++  (unless (or (get 'dtk-speech-rate-base 'customized-value)
++              (get 'dtk-speech-rate-base 'saved-value))
++    (setq dtk-speech-rate-base 50))
++  (setq dtk-speech-rate outloud-default-speech-rate)
++  (setq-default dtk-speech-rate outloud-default-speech-rate)
+   (dtk-unicode-update-untouched-charsets
+    '(ascii latin-iso8859-1 latin-iso8859-15 latin-iso8859-9 eight-bit-graphic)))
+ 

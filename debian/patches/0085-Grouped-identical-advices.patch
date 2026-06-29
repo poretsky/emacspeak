@@ -1,0 +1,131 @@
+From: "Igor B. Poretsky" <poretsky@rakurs.com>
+Date: Wed, 23 Nov 2022 17:38:45 +0300
+Subject: Grouped identical advices
+
+---
+ lisp/emacspeak-c.el    | 70 ++++++++++++++++++++++----------------------------
+ lisp/emacspeak-info.el | 20 +++++++--------
+ 2 files changed, 40 insertions(+), 50 deletions(-)
+
+diff --git a/lisp/emacspeak-c.el b/lisp/emacspeak-c.el
+index 452ef3d..7e2d016 100644
+--- a/lisp/emacspeak-c.el
++++ b/lisp/emacspeak-c.el
+@@ -103,37 +103,30 @@
+ 
+ ;;; CPP directives:
+ 
+-(defadvice c-up-conditional (after emacspeak pre act)
+-  "Speak the line moved to."
+-  (when (ems-interactive-p)
+-    (emacspeak-auditory-icon 'large-movement)
+-    (emacspeak-speak-line)))
+-
+-(defadvice c-forward-conditional (after emacspeak pre act)
+-  "Speak the line moved to."
+-  (when (ems-interactive-p)
+-    (emacspeak-auditory-icon 'large-movement)
+-    (emacspeak-speak-line)))
+-
+-(defadvice c-backward-conditional (after emacspeak pre act)
+-  "Speak the line moved to."
+-  (when (ems-interactive-p)
+-    (emacspeak-auditory-icon 'large-movement)
+-    (emacspeak-speak-line)))
++(cl-loop for f in
++      '(c-up-conditional
++	c-forward-conditional
++	c-backward-conditional)
++      do
++      (eval
++       `(defadvice ,f (after emacspeak pre act comp)
++	  "Speak the line moved to."
++	  (when (ems-interactive-p)
++	    (emacspeak-auditory-icon 'large-movement)
++	    (emacspeak-speak-line)))))
+ 
+ ;;; Statements
+ 
+-(defadvice c-beginning-of-statement (after emacspeak pre act)
+-  "Speak the line moved to."
+-  (when (ems-interactive-p)
+-    (emacspeak-auditory-icon 'item)
+-    (emacspeak-speak-line)))
+-
+-(defadvice c-end-of-statement (after emacspeak pre act)
+-  "Speak the line moved to."
+-  (when (ems-interactive-p)
+-    (emacspeak-auditory-icon 'item)
+-    (emacspeak-speak-line)))
++(cl-loop for f in
++      '(c-beginning-of-statement
++	c-end-of-statement)
++      do
++      (eval
++       `(defadvice ,f (after emacspeak pre act comp)
++	  "Speak the line moved to."
++	  (when (ems-interactive-p)
++	    (emacspeak-auditory-icon 'item)
++	    (emacspeak-speak-line)))))
+ 
+ (defadvice c-mark-function (after emacspeak pre act)
+   "Provide spoken and auditory feedback."
+@@ -146,17 +139,16 @@
+ ;;}}}
+ ;;{{{ advice program navigation
+ 
+-(defadvice  c-beginning-of-defun (after emacspeak pre act)
+-  "Speak the line."
+-  (when (ems-interactive-p)
+-    (emacspeak-auditory-icon 'paragraph)
+-    (emacspeak-speak-line)))
+-
+-(defadvice  c-end-of-defun (after emacspeak pre act)
+-  "Speak the line."
+-  (when (ems-interactive-p)
+-    (emacspeak-auditory-icon 'paragraph)
+-    (emacspeak-speak-line)))
++(cl-loop for f in
++      '(c-beginning-of-defun
++	c-end-of-defun)
++      do
++      (eval
++       `(defadvice ,f (after emacspeak pre act comp)
++	  "Speak the line moved to."
++	  (when (ems-interactive-p)
++	    (emacspeak-auditory-icon 'paragraph)
++	    (emacspeak-speak-line)))))
+ 
+ ;;}}}
+ ;;{{{  extensions  provided by c++ mode
+diff --git a/lisp/emacspeak-info.el b/lisp/emacspeak-info.el
+index c532416..9637c55 100644
+--- a/lisp/emacspeak-info.el
++++ b/lisp/emacspeak-info.el
+@@ -185,17 +185,15 @@ and then cue the next selected buffer."
+     (with-current-buffer (window-buffer)
+       (emacspeak-speak-mode-line))))
+ 
+-(defadvice Info-next-reference (after emacspeak pre act)
+-  "Speak the line. "
+-  (when (ems-interactive-p)
+-    (emacspeak-auditory-icon 'large-movement)
+-    (emacspeak-speak-line)))
+-
+-(defadvice Info-prev-reference (after emacspeak pre act)
+-  "Speak the line. "
+-  (when (ems-interactive-p)
+-    (emacspeak-auditory-icon 'large-movement)
+-    (emacspeak-speak-line)))
++(cl-loop for f in
++      '(Info-next-reference Info-prev-reference)
++      do
++      (eval
++       `(defadvice ,f (after emacspeak pre act)
++          "Play an auditory icon and speak the line. "
++          (when (ems-interactive-p)
++            (emacspeak-auditory-icon 'large-movement)
++            (emacspeak-speak-line)))))
+ 
+ ;;;###autoload
+ (defun emacspeak-info-wizard (node-spec)

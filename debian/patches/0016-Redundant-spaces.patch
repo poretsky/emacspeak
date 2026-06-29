@@ -1,0 +1,22 @@
+From: "Igor B. Poretsky" <poretsky@mlbox.ru>
+Date: Sat, 12 Nov 2022 13:22:40 +0300
+Subject: Redundant spaces
+
+---
+ info/emacspeak.texi | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/info/emacspeak.texi b/info/emacspeak.texi
+index e8d749f..9a1a484 100644
+--- a/info/emacspeak.texi
++++ b/info/emacspeak.texi
+@@ -1,7 +1,7 @@
+ \input texinfo
+-@c$Id$
++@c $Id$
+ @finalout
+-@setfilename./emacspeak.info
++@setfilename ./emacspeak.info
+ @include style.texi
+ @settitle Emacspeak User's Manual --- 2nd Edition.
+ @dircategory Accessibility

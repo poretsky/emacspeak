@@ -1,0 +1,37 @@
+From: "Igor B. Poretsky" <poretsky@rakurs.com>
+Date: Fri, 25 Nov 2022 13:49:31 +0300
+Subject: Proper buffer to speak from
+
+---
+ lisp/emacspeak-compile.el | 3 ++-
+ lisp/emacspeak-info.el    | 3 ++-
+ 2 files changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/lisp/emacspeak-compile.el b/lisp/emacspeak-compile.el
+index 25ca2f2..1144b70 100644
+--- a/lisp/emacspeak-compile.el
++++ b/lisp/emacspeak-compile.el
+@@ -89,7 +89,8 @@
+              (when (ems-interactive-p)
+                (dtk-stop)
+                (emacspeak-auditory-icon 'large-movement)
+-               (emacspeak-compilation-speak-error)))))
++               (with-current-buffer (window-buffer)
++                 (emacspeak-compilation-speak-error))))))
+ 
+ (cl-loop for f in 
+          '(
+diff --git a/lisp/emacspeak-info.el b/lisp/emacspeak-info.el
+index c79167e..c532416 100644
+--- a/lisp/emacspeak-info.el
++++ b/lisp/emacspeak-info.el
+@@ -182,7 +182,8 @@ and then cue the next selected buffer."
+   (when (ems-interactive-p)
+     (dtk-stop)
+     (emacspeak-auditory-icon 'close-object)
+-    (emacspeak-speak-mode-line)))
++    (with-current-buffer (window-buffer)
++      (emacspeak-speak-mode-line))))
+ 
+ (defadvice Info-next-reference (after emacspeak pre act)
+   "Speak the line. "

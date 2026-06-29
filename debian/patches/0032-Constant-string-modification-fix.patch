@@ -1,0 +1,49 @@
+From: "Igor B. Poretsky" <poretsky@mlbox.ru>
+Date: Wed, 19 Aug 2026 06:46:07 +0300
+Subject: Constant string modification fix
+
+---
+ lisp/emacspeak-bs.el  | 9 ++-------
+ lisp/emacspeak-tar.el | 2 +-
+ 2 files changed, 3 insertions(+), 8 deletions(-)
+
+diff --git a/lisp/emacspeak-bs.el b/lisp/emacspeak-bs.el
+index fb2429c..b5f9de8 100644
+--- a/lisp/emacspeak-bs.el
++++ b/lisp/emacspeak-bs.el
+@@ -66,8 +66,8 @@
+     (cond
+      ((get-buffer buffer)
+       (when dtk-stop-immediately (dtk-stop))
+-      (let ((document " document ")
+-            (with "with size ")
++      (let ((document (propertize " document " 'personality voice-smoothen))
++            (with (propertize "with size " 'personality voice-smoothen))
+             (name (buffer-name buffer))
+             (file (buffer-file-name buffer))
+             this-buffer-read-only
+@@ -77,11 +77,6 @@
+             mode-name
+             this-buffer-directory
+             (dtk-stop-immediately nil))
+-        (put-text-property 0 (length document)
+-                           'personality voice-smoothen
+-                           document)
+-        (put-text-property 0 (length with)
+-                           'personality voice-smoothen  with)
+         (save-current-buffer
+           (set-buffer buffer)
+           (setq this-buffer-read-only buffer-read-only)
+diff --git a/lisp/emacspeak-tar.el b/lisp/emacspeak-tar.el
+index a5b2288..21be3c6 100644
+--- a/lisp/emacspeak-tar.el
++++ b/lisp/emacspeak-tar.el
+@@ -125,7 +125,7 @@
+     (error "This command should be called only in tar mode"))
+   (let ((entry (tar-current-descriptor))
+         (mode nil)
+-        (string "          "))
++        (string (make-string 10 ?\s)))
+     (cond
+      ((null entry)
+       (message "No file on this line"))

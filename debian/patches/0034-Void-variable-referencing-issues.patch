@@ -1,0 +1,65 @@
+From: "Igor B. Poretsky" <poretsky@rakurs.com>
+Date: Tue, 29 Nov 2022 12:05:15 +0300
+Subject: Void variable referencing issues
+
+---
+ lisp/emacspeak-chess.el | 4 ++++
+ lisp/emacspeak-eww.el   | 2 +-
+ lisp/emacspeak-hydra.el | 1 +
+ lisp/emacspeak-popup.el | 3 ++-
+ 4 files changed, 8 insertions(+), 2 deletions(-)
+
+diff --git a/lisp/emacspeak-chess.el b/lisp/emacspeak-chess.el
+index 9462437..ee68a52 100644
+--- a/lisp/emacspeak-chess.el
++++ b/lisp/emacspeak-chess.el
+@@ -434,6 +434,10 @@
+ 
+ (defun emacspeak-chess-collect-knight-squares ()
+   "List of non-empty squares a knight can reach from current position."
++  (cl-declare (special chess-direction-north-northeast chess-direction-east-northeast
++                       chess-direction-east-southeast chess-direction-south-southeast
++                       chess-direction-south-southwest chess-direction-west-southwest
++                       chess-direction-west-northwest chess-direction-north-northwest))
+   (let ((index (get-text-property (point) 'chess-coord))
+         (kd ;;; knight directions
+     (list
+diff --git a/lisp/emacspeak-eww.el b/lisp/emacspeak-eww.el
+index 24bf84a..7fff535 100644
+--- a/lisp/emacspeak-eww.el
++++ b/lisp/emacspeak-eww.el
+@@ -1956,7 +1956,7 @@ Warning, this is fragile, and depends on a stable id/class for the
+ (defun  emacspeak-eww-update-title  (title)
+   "Interactively set title --- renames buffer, and sets header-line."
+   (interactive "sTitle:")
+-  (cl-declare (special header-line-format))
++  (cl-declare (special header-line-format eww-data))
+   (rename-buffer title  'unique)
+   (setq header-line-format title)
+   (plist-put eww-data :title title)
+diff --git a/lisp/emacspeak-hydra.el b/lisp/emacspeak-hydra.el
+index c5706f2..2e96c6e 100644
+--- a/lisp/emacspeak-hydra.el
++++ b/lisp/emacspeak-hydra.el
+@@ -95,6 +95,7 @@ Also turn on hydra-is-helpful if it was turned off."
+ 
+ ;;; We use plain messages:
+ 
++(cl-declaim (special hydra-head-format hydra-hint-display-type))
+ (setq hydra-head-format "%s "
+       hydra-hint-display-type nil
+       hydra-hint-display-type #'message)
+diff --git a/lisp/emacspeak-popup.el b/lisp/emacspeak-popup.el
+index 9d58501..30aa92f 100644
+--- a/lisp/emacspeak-popup.el
++++ b/lisp/emacspeak-popup.el
+@@ -116,7 +116,8 @@
+ 
+ (eval-after-load
+     "popup"
+-  `(define-key popup-menu-keymap   emacspeak-prefix 'emacspeak-prefix-command))
++  `(when (boundp 'popup-menu-keymap)
++     (define-key popup-menu-keymap   emacspeak-prefix 'emacspeak-prefix-command)))
+ 
+ ;;}}}
+ 

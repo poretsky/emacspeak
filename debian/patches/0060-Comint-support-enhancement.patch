@@ -1,0 +1,127 @@
+From: "Igor B. Poretsky" <poretsky@mlbox.ru>
+Date: Wed, 9 Nov 2022 17:04:20 +0300
+Subject: Comint support enhancement
+
+---
+ lisp/emacspeak-comint.el | 93 +++++++++++++++++-------------------------------
+ 1 file changed, 33 insertions(+), 60 deletions(-)
+
+diff --git a/lisp/emacspeak-comint.el b/lisp/emacspeak-comint.el
+index b5407bb..940f109 100644
+--- a/lisp/emacspeak-comint.el
++++ b/lisp/emacspeak-comint.el
+@@ -310,21 +310,24 @@ set the current local value to the result.")
+          (emacspeak-speak-line 1))
+        (emacspeak-auditory-icon 'select-object)))))
+ 
+-(defadvice shell-forward-command (after emacspeak pre act
+-                                        comp)
+-  "Speak the line showing where point is."
+-  (when (ems-interactive-p)
+-    (let ((emacspeak-show-point t))
+-      (emacspeak-speak-line)
+-      (emacspeak-auditory-icon 'item))))
+-
+-(defadvice shell-backward-command (after emacspeak pre act
+-                                         comp)
+-  "Speak the line showing where point is."
++(cl-loop for f in 
++      '(shell-forward-command
++        shell-backward-command)
++      do
++      (eval
++       `(defadvice ,f (after emacspeak pre act comp)
++          "Speak the line after prompt showing where point is."
++          (when (ems-interactive-p)
++            (let ((emacspeak-show-point t))
++              (emacspeak-speak-line)
++              (emacspeak-auditory-icon 'item))))))
++
++(defadvice comint-copy-old-input (after emacspeak pre act comp)
++  "Provide auditory feedback."
+   (when (ems-interactive-p)
+-    (let ((emacspeak-show-point t))
+-      (emacspeak-speak-line)
+-      (emacspeak-auditory-icon 'item))))
++    (let ((pmark (process-mark (get-buffer-process (current-buffer)))))
++      (emacspeak-auditory-icon 'yank-object )
++      (emacspeak-speak-region  pmark (point)))))
+ 
+ (defadvice comint-show-output (after emacspeak pre act comp)
+   "Speak the line showing where point is."
+@@ -349,13 +352,6 @@ set the current local value to the result.")
+       (emacspeak-speak-line)
+       (emacspeak-auditory-icon 'select-object))))
+ 
+-(defadvice comint-copy-old-input (after emacspeak pre act
+-                                        comp)
+-  "Provide auditory feedback."
+-  (when (ems-interactive-p)
+-    (emacspeak-auditory-icon 'yank-object)
+-    (emacspeak-speak-line)))
+-
+ (defadvice comint-output-filter (around emacspeak pre act comp)
+   "Make comint speak its output.
+ Try not to speak the shell prompt,
+@@ -412,45 +408,22 @@ instead, always play an auditory icon when the shell prompt is displayed."
+    (t ad-do-it))
+   ad-return-value)
+ 
+-(defadvice comint-next-input (after emacspeak pre act comp)
+-  "Speak the line."
+-  (when (ems-interactive-p)
+-    (tts-with-punctuations
+-     'all
+-     (save-mark-and-excursion
+-       (goto-char (comint-line-beginning-position))
+-       (emacspeak-speak-line 1)))
+-    (emacspeak-auditory-icon 'item)))
+-
+-(defadvice comint-next-matching-input (after emacspeak pre act comp)
+-  "Speak the line."
+-  (when (ems-interactive-p)
+-    (tts-with-punctuations
+-     'all
+-     (save-mark-and-excursion
+-       (goto-char (comint-line-beginning-position))
+-       (emacspeak-speak-line 1)))
+-    (emacspeak-auditory-icon 'item)))
+-
+-(defadvice comint-previous-input (after emacspeak pre act comp)
+-  "Speak the line."
+-  (when (ems-interactive-p)
+-    (tts-with-punctuations
+-     'all
+-     (save-mark-and-excursion
+-       (goto-char (comint-line-beginning-position))
+-       (emacspeak-speak-line 1)))
+-    (emacspeak-auditory-icon 'item)))
+-
+-(defadvice comint-previous-matching-input (after emacspeak pre act comp)
+-  "Speak the line."
+-  (when (ems-interactive-p)
+-    (tts-with-punctuations
+-     'all
+-     (save-mark-and-excursion
+-       (goto-char (comint-line-beginning-position))
+-       (emacspeak-speak-line 1)))
+-    (emacspeak-auditory-icon 'item)))
++(cl-loop for f in 
++      '(comint-next-input
++        comint-next-matching-input
++        comint-previous-input
++        comint-previous-matching-input)
++      do
++      (eval
++       `(defadvice ,f (after emacspeak pre act comp)
++          "Speak the line."
++          (when (ems-interactive-p)
++            (tts-with-punctuations
++                'all
++              (save-mark-and-excursion
++               (goto-char (comint-line-beginning-position))
++               (emacspeak-speak-line 1)))
++            (emacspeak-auditory-icon 'item)))))
+ 
+ (defadvice comint-send-input (after emacspeak pre act comp)
+   "Flush any ongoing speech."

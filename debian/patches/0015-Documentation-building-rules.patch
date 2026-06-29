@@ -1,0 +1,64 @@
+From: "Igor B. Poretsky" <poretsky@mlbox.ru>
+Date: Sat, 12 Nov 2022 12:59:26 +0300
+Subject: Documentation building rules
+
+---
+ info/Makefile | 31 +++++++++++++++++++++++++++----
+ 1 file changed, 27 insertions(+), 4 deletions(-)
+
+diff --git a/info/Makefile b/info/Makefile
+index 15b8d98..fdb0f1f 100644
+--- a/info/Makefile
++++ b/info/Makefile
+@@ -17,17 +17,34 @@ acknowledge.texi intro-docs.texi documents.texi structure.texi web-browsing.texi
+ 
+ MAKEINFO = makeinfo 
+ CSS=--css-ref="http://www.w3.org/StyleSheets/Core/Modernist"
++TEXI2HTML=texi2any --set-customization-variable TEXI2HTML=1
++infodir =/usr/share/info#normally supplied by caller
++INSTALL = install
+ EMACS=emacs
+ 
+-all: info  introducing-emacspeak.info turning-twenty.info emacspeak.pdf
++all: info html introducing-emacspeak turning-twenty emacspeak.pdf
+ 
+-info: emacspeak.info
++info: emacspeak.info introducing-emacspeak.info turning-twenty.info
+ 
+ emacspeak.info: emacspeak.texi $(INCLUDES)
+ 	$(MAKEINFO) emacspeak.texi
+ 
+-docs.texi: ../lisp/*.el
+-	$(EMACS) $(BATCH) -l ../utils/self-document.el -f self-document-all-modules
++install: emacspeak.info turning-twenty.info
++	if test  -x /usr/bin/install-info ; then \
++		install-info emacspeak.info ${infodir}/dir ;\
++		install-info turning-twenty.info ${infodir}/dir ; \
++	fi
++	$(INSTALL)  -m 644 *.info* $(infodir)
++
++uninstall:
++	if test  -e /usr/bin/install-info ; then \
++		install-info --delete $(infodir)/emacspeak.info* ${infodir}/dir \;
++		install-info --delete $(infodir)/turning-20.info * ${infodir}/dir \;
++	fi
++	rm -f $(infodir)/*.info*
++
++html: emacspeak.texi
++	$(TEXI2HTML) --split chapter --output $@ $<
+ 
+ emacspeak.pdf: emacspeak.texi $(INCLUDES)
+ 	makeinfo --pdf emacspeak.texi
+@@ -40,6 +57,12 @@ man: emacspeak.texi $(INCLUDES)
+ 	tidy -q -utf8 -mic -asxml  ${GH_PAGES}/*.html 2>&1 > /dev/null  || echo tidy
+ 	@echo "Commit and push updated HTML files from gh-pages!"
+ 
++introducing-emacspeak: introducing-emacspeak.texi
++	$(TEXI2HTML) --split chapter --output $@ $<
++
++turning-twenty: turning-twenty.texi
++	$(TEXI2HTML) --split chapter --output $@ $<
++
+ publish:
+ 	cd ../../gh-pages-emacspeak && make
+ 

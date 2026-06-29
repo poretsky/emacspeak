@@ -1,0 +1,23 @@
+From: "Igor B. Poretsky" <poretsky@mlbox.ru>
+Date: Wed, 9 Nov 2022 09:54:14 +0300
+Subject: Respect font-lock-face for speech style definition
+
+---
+ lisp/dtk-speak.el | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/lisp/dtk-speak.el b/lisp/dtk-speak.el
+index 49868e6..fb62e2c 100644
+--- a/lisp/dtk-speak.el
++++ b/lisp/dtk-speak.el
+@@ -214,7 +214,9 @@ has higher precedence than `face'."
+   (or pos (setq pos (point)))
+   (or
+    (get-text-property pos 'personality)
+-   (dtk-get-voice-for-face (get-text-property pos 'face))))
++   (dtk-get-voice-for-face
++    (or (get-text-property pos 'face)
++        (get-text-property pos 'font-lock-face)))))
+ 
+ ;;}}}
+ ;;{{{ Tone Helpers:

@@ -1,0 +1,111 @@
+From: "Igor B. Poretsky" <poretsky@mlbox.ru>
+Date: Tue, 22 Nov 2022 05:40:29 +0300
+Subject: Proper auditory icon
+
+---
+ lisp/emacspeak-analog.el    | 2 +-
+ lisp/emacspeak-arc.el       | 4 ++--
+ lisp/emacspeak-buff-menu.el | 2 +-
+ lisp/emacspeak-compile.el   | 2 +-
+ lisp/emacspeak-emms.el      | 2 +-
+ lisp/emacspeak-reftex.el    | 2 +-
+ lisp/emacspeak-rmail.el     | 2 +-
+ 7 files changed, 8 insertions(+), 8 deletions(-)
+
+diff --git a/lisp/emacspeak-analog.el b/lisp/emacspeak-analog.el
+index 344d6e6..dd49e27 100644
+--- a/lisp/emacspeak-analog.el
++++ b/lisp/emacspeak-analog.el
+@@ -74,7 +74,7 @@
+ (defadvice analog-bury-buffer (after emacspeak pre act comp)
+   "Provide auditory feedback."
+   (when (ems-interactive-p)
+-    (emacspeak-auditory-icon 'select-object)
++    (emacspeak-auditory-icon 'close-object)
+     (emacspeak-speak-mode-line)))
+ 
+ (cl-loop for command in
+diff --git a/lisp/emacspeak-arc.el b/lisp/emacspeak-arc.el
+index 8dcc562..fa4d15d 100644
+--- a/lisp/emacspeak-arc.el
++++ b/lisp/emacspeak-arc.el
+@@ -91,12 +91,12 @@
+ (defadvice archive-unflag (after emacspeak pre act comp)
+   "Provide auditory feedback"
+   (when (ems-interactive-p)
+-    (emacspeak-auditory-icon 'yank-object)
++    (emacspeak-auditory-icon 'deselect-object)
+     (emacspeak-archive-speak-line)))
+ (defadvice archive-unflag-backwards (after emacspeak pre act comp)
+   "Provide auditory feedback"
+   (when (ems-interactive-p)
+-    (emacspeak-auditory-icon 'yank-object)
++    (emacspeak-auditory-icon 'deselect-object)
+     (emacspeak-archive-speak-line)))
+ 
+ (defadvice archive-extract (after emacspeak pre act comp)
+diff --git a/lisp/emacspeak-buff-menu.el b/lisp/emacspeak-buff-menu.el
+index ec25d11..97049e6 100644
+--- a/lisp/emacspeak-buff-menu.el
++++ b/lisp/emacspeak-buff-menu.el
+@@ -153,7 +153,7 @@ and set up additional Emacspeak bindings."
+ (defadvice Buffer-menu-bury (after emacspeak pre act)
+   "Provide auditory feedback"
+   (when (ems-interactive-p)
+-    (emacspeak-auditory-icon 'select-object)
++    (emacspeak-auditory-icon 'close-object)
+     (emacspeak-list-buffers-speak-buffer-line)))
+ 
+ (defadvice Buffer-menu-delete-backwards (after emacspeak pre act)
+diff --git a/lisp/emacspeak-compile.el b/lisp/emacspeak-compile.el
+index 19b7580..25ca2f2 100644
+--- a/lisp/emacspeak-compile.el
++++ b/lisp/emacspeak-compile.el
+@@ -111,7 +111,7 @@
+   "provide auditory confirmation"
+   (when (ems-interactive-p)
+     (message "Launched compilation")
+-    (emacspeak-auditory-icon 'task-done)))
++    (emacspeak-auditory-icon 'select-object)))
+ 
+ (defadvice  compilation-sentinel (after emacspeak pre act)
+   "Provide auditory feedback"
+diff --git a/lisp/emacspeak-emms.el b/lisp/emacspeak-emms.el
+index bf7e414..bccf837 100644
+--- a/lisp/emacspeak-emms.el
++++ b/lisp/emacspeak-emms.el
+@@ -166,7 +166,7 @@
+ (defadvice emms-playlist-mode-bury-buffer (after emacspeak pre act)
+   "Announce the buffer that becomes current."
+   (when (ems-interactive-p)
+-    (emacspeak-auditory-icon 'select-object)
++    (emacspeak-auditory-icon 'close-object)
+     (emacspeak-speak-mode-line)))
+ 
+ ;;}}}
+diff --git a/lisp/emacspeak-reftex.el b/lisp/emacspeak-reftex.el
+index 6d1d201..96d671e 100644
+--- a/lisp/emacspeak-reftex.el
++++ b/lisp/emacspeak-reftex.el
+@@ -124,7 +124,7 @@
+   "Speech enable  by speaking toc entry."
+   (when (ems-interactive-p)
+     (emacspeak-speak-line)
+-    (emacspeak-auditory-icon 'select-object)))
++    (emacspeak-auditory-icon 'item)))
+ 
+ (defadvice reftex-select-accept (after emacspeak pre act
+                                        comp)
+diff --git a/lisp/emacspeak-rmail.el b/lisp/emacspeak-rmail.el
+index f199737..a401b3e 100644
+--- a/lisp/emacspeak-rmail.el
++++ b/lisp/emacspeak-rmail.el
+@@ -93,7 +93,7 @@
+ (defadvice rmail-bury(after emacspeak pre act comp)
+   "Provide auditory feedback"
+   (when (ems-interactive-p)
+-    (emacspeak-auditory-icon 'select-object)
++    (emacspeak-auditory-icon 'close-object)
+     (emacspeak-speak-mode-line)))
+ (defadvice rmail (after emacspeak pre act comp)
+   "Provide auditory feedback"

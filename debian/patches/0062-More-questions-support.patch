@@ -1,0 +1,34 @@
+From: "Igor B. Poretsky" <poretsky@mlbox.ru>
+Date: Thu, 10 Nov 2022 08:19:28 +0300
+Subject: More questions support
+
+---
+ lisp/emacspeak-advice.el | 15 ++++++++++++++-
+ 1 file changed, 14 insertions(+), 1 deletion(-)
+
+diff --git a/lisp/emacspeak-advice.el b/lisp/emacspeak-advice.el
+index 64edd4b..49a5d5e 100644
+--- a/lisp/emacspeak-advice.el
++++ b/lisp/emacspeak-advice.el
+@@ -2723,7 +2723,20 @@ Produce auditory icons if possible."
+    (t ad-do-it))
+   ad-return-value)
+ 
+-
++(cl-loop for f in
++      '(map-y-or-n-p
++        ask-user-about-supersession-threat
++        hack-local-variables-confirm)
++      do
++      (eval
++       `(defadvice ,f (around emacspeak pre act comp)
++          "Provide speech feedback unconditionally."
++          (cl-declare (special emacspeak-speak-messages emacspeak-last-message inhibit-message))
++          (let ((emacspeak-speak-messages t)
++                (emacspeak-last-message nil)
++                (inhibit-message nil))
++            ad-do-it)
++          ad-return-value)))
+ 
+ (defadvice y-or-n-p (around emacspeak pre act comp)
+   "Play auditory icon."

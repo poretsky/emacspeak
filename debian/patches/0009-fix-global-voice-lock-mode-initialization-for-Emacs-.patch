@@ -1,0 +1,26 @@
+From: Timofei Fedotov <sovtouch@altlinux.org>
+Date: Wed, 3 Jun 2026 13:36:10 +0300
+Subject: fix: global-voice-lock-mode initialization for Emacs 29
+
+Replace custom-initialize-delay with custom-initialize-default in
+define-globalized-minor-mode for global-voice-lock-mode in voice-setup.el.
+
+custom-initialize-delay causes void-function error on Emacs 29 because
+it attempts to call global-voice-lock-mode during custom variable
+initialization before the function is defined by define-globalized-minor-mode.
+---
+ lisp/voice-setup.el | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/lisp/voice-setup.el b/lisp/voice-setup.el
+index 665a589..1792971 100644
+--- a/lisp/voice-setup.el
++++ b/lisp/voice-setup.el
+@@ -467,6 +467,7 @@ command \\[customize-variable] on <personality>-settings. "
+   voice-lock-mode
+   voice-lock-mode--turn-on
+   :init-value t
++  :initialize 'custom-initialize-default
+   :group 'voice-lock
+   (when (called-interactively-p 'interactive)
+     (let ((state (if global-voice-lock-mode 'on 'off)))

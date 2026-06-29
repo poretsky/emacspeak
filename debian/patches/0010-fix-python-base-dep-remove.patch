@@ -1,0 +1,18 @@
+From: Artem Semenov <savoptik@altlinux.org>
+Date: Sat, 13 Jun 2026 14:41:57 +0300
+Subject: fix: python base dep remove
+
+---
+ etc/streamtheworld.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/etc/streamtheworld.py b/etc/streamtheworld.py
+index 0eb9491..1c7beb0 100644
+--- a/etc/streamtheworld.py
++++ b/etc/streamtheworld.py
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/env python2.7
+ 
+ from random import choice
+ import os

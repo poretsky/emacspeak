@@ -1,0 +1,25 @@
+From: "Igor B. Poretsky" <poretsky@mlbox.ru>
+Date: Wed, 12 Aug 2026 18:30:28 +0300
+Subject: Single thread startup
+
+---
+ lisp/emacspeak.el | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/lisp/emacspeak.el b/lisp/emacspeak.el
+index e7f0220..c50329a 100644
+--- a/lisp/emacspeak.el
++++ b/lisp/emacspeak.el
+@@ -417,10 +417,10 @@ See the online documentation \\[emacspeak-open-info] for individual
+ commands and options for details."
+   (dtk-initialize)
+   (emacspeak-pronounce-load-dictionaries)
+-  (make-thread #'(lambda () (ems--fastload "emacspeak-advice")))
++  (ems--fastload "emacspeak-advice")
+   (emacspeak-sounds-define-theme-if-necessary emacspeak-sounds-default-theme)
+   (emacspeak-setup-programming-modes)
+-  (make-thread #'emacspeak-prepare-emacs)
++  (emacspeak-prepare-emacs)
+   (global-visual-line-mode -1)
+   (transient-mark-mode -1)
+   (tts-with-punctuations 'some (dtk-speak-and-echo emacspeak-startup-message))

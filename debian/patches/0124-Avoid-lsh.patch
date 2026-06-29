@@ -1,0 +1,21 @@
+From: "Igor B. Poretsky" <poretsky@mlbox.ru>
+Date: Fri, 10 Jul 2026 08:32:26 +0300
+Subject: Avoid lsh
+
+---
+ lisp/emacspeak-2048.el | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/lisp/emacspeak-2048.el b/lisp/emacspeak-2048.el
+index de4c928..c7872f6 100644
+--- a/lisp/emacspeak-2048.el
++++ b/lisp/emacspeak-2048.el
+@@ -349,7 +349,7 @@ Optional interactive prefix arg prompts for a filename."
+    (cond
+     ((< i  count)
+      (aset *2048-board* i
+-           (lsh 2 (random (random count)))))
++           (ash 2 (random (random count)))))
+     (t (aset *2048-board* i 0))))
+   (emacspeak-2048-speak-board))
+ 

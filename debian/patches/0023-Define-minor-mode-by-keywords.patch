@@ -1,0 +1,38 @@
+From: "Igor B. Poretsky" <poretsky@mlbox.ru>
+Date: Thu, 18 Jun 2026 21:35:22 +0300
+Subject: Define minor mode by keywords
+
+---
+ lisp/emacspeak-comint.el | 4 +++-
+ lisp/voice-setup.el      | 3 ++-
+ 2 files changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/lisp/emacspeak-comint.el b/lisp/emacspeak-comint.el
+index ef5b326..df0040f 100644
+--- a/lisp/emacspeak-comint.el
++++ b/lisp/emacspeak-comint.el
+@@ -578,7 +578,9 @@ process PID's current working directory.
+ 
+ Turning on Dirtrack-Procfs mode automatically turns off
+ Shell-Dirtrack mode; turning it off does not re-enable it."
+-  nil "Dir" nil
++  :init-value nil
++  :lighter "Dir"
++  :keymap nil
+   (if (not dirtrack-procfs-mode)
+       (remove-hook 'comint-preoutput-filter-functions
+                    #'emacspeak-shell-dirtrack-procfs t)
+diff --git a/lisp/voice-setup.el b/lisp/voice-setup.el
+index 2c0230e..3b2fcae 100644
+--- a/lisp/voice-setup.el
++++ b/lisp/voice-setup.el
+@@ -453,7 +453,8 @@ command \\[customize-variable] on <personality>-settings. "
+ ;;;###autoload
+ (define-minor-mode voice-lock-mode
+   "Toggle voice lock mode."
+-  t nil nil
++  :init-value t
++  :keymap nil
+   (when (called-interactively-p 'interactive)
+     (let ((state (if voice-lock-mode 'on 'off)))
+         (emacspeak-auditory-icon state))))

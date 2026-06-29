@@ -1,0 +1,39 @@
+From: "Igor B. Poretsky" <poretsky@rakurs.com>
+Date: Fri, 25 Nov 2022 14:48:02 +0300
+Subject: Variable instead of hardcoded value
+
+---
+ lisp/emacspeak-forms.el | 13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
+
+diff --git a/lisp/emacspeak-forms.el b/lisp/emacspeak-forms.el
+index 64550c7..287214c 100644
+--- a/lisp/emacspeak-forms.el
++++ b/lisp/emacspeak-forms.el
+@@ -50,6 +50,10 @@
+ ;;}}}
+ ;;{{{ Helper functions
+ 
++(defvar emacspeak-forms-directory
++  (expand-file-name "forms/" emacspeak-etc-directory)
++  "Directory where forms are stored.")
++
+ (defvar emacspeak-forms-current-record-summarizer
+   'emacspeak-forms-speak-field
+   "Summarizer function for summarizing a record. Default is to
+@@ -246,8 +250,13 @@ Assumes that point is at the front of a field value."
+   "Visit a forms file"
+   (interactive
+    (list
+-    (read-file-name "Forms file: "
+-                    (expand-file-name "forms/" emacspeak-etc-directory))))
++    (let ((insert-default-directory nil))
++      (expand-file-name
++       (read-file-name "Forms file: "
++                       emacspeak-forms-directory nil t nil
++                       '(lambda (name)
++                          (string-match "\\.el$" name)))
++       emacspeak-forms-directory))))
+   (forms-find-file filename))
+ 
+ ;;}}}
