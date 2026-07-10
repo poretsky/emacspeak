@@ -1,3 +1,10 @@
+emacspeak (1:53.0-0noble1) noble; urgency=medium
+
+  * New upstream release.
+  * Recommended alsa-utils and mpg123 packages.
+
+ -- Igor B. Poretsky <poretsky@mlbox.ru>  Wed, 19 Aug 2026 14:23:40 +0300
+
 emacspeak (1:50.0-22noble1) noble; urgency=medium
 
   * Emacs 29 compatibility.
