@@ -1,3 +1,10 @@
+emacspeak (1:50.0-22noble1) noble; urgency=medium
+
+  * Emacs 29 compatibility.
+  * Release for Ubuntu Noble.
+
+ -- Igor B. Poretsky <poretsky@mlbox.ru>  Fri, 10 Jul 2026 09:19:02 +0300
+
 emacspeak (1:50.0-22jammy2) jammy; urgency=medium
 
   * Get rid of warning window on startup.
