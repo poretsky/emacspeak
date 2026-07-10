@@ -63,7 +63,6 @@ override_dh_install-indep:
 
 	# Clean up the installation tree
 	cd $(deblsp)/lisp ; rm -f external-code-readme.org README
-	cd $(deblsp)/lisp/g-client ; rm -rf obsolete patches *.html *.org COPYING rfc-imap-search
 	cd $(deblsp)/etc ; rm -f Makefile NEWS-* COPYRIGHT applications.dtd applications.mp applications.rnc applications.xml applications.xsl bootstrap.sh fetchmailrc iheart-player tips.xml tips.xsl youtube-dl-readme .youtube-dl.repos
 
 

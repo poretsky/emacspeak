@@ -40,19 +40,9 @@ if [ -d ${ELCDIR} ]; then
     fi
 fi
 
-install -m 755 -d ${ELCDIR}/lisp/g-client
-
 cd ${ELCDIR}/lisp
 if [ ${FLAVOR} != emacs ]; then
     find ../${ELDIR_REL}/lisp \( -name '*.el' -o -name Makefile \) -maxdepth 1 -exec ln -s {} \; 2>/dev/null
-fi
-for file in *.elc
-do [ -e "${file%.elc}.el" ] || rm -f $file
-done
-
-cd g-client
-if [ ${FLAVOR} != emacs ]; then
-    find ../../${ELDIR_REL}/lisp/g-client -maxdepth 1 -mindepth 1 -not -name '*.in' -not -name indent-files.el -exec ln -s {} \; 2>/dev/null
 fi
 for file in *.elc
 do [ -e "${file%.elc}.el" ] || rm -f $file
