@@ -2,8 +2,17 @@ Source: emacspeak
 Section: editors
 Priority: optional
 Maintainer: Igor B. Poretsky <poretsky@mlbox.ru>
-Build-Depends: debhelper (>= 10), po-debconf, libespeak-dev, tcl-dev, libasound2-dev
-Build-Depends-Indep: texinfo, texlive-latex-base, texlive-fonts-recommended, xsltproc, docbook-xsl, csound
+Build-Depends: debhelper-compat (= 13),
+               libasound2-dev,
+               libespeak-ng-libespeak-dev,
+               po-debconf,
+               tcl-dev
+Build-Depends-Indep: csound,
+                     docbook-xsl,
+                     texinfo,
+                     texlive-fonts-recommended,
+                     texlive-latex-base,
+                     xsltproc
 Standards-Version: 4.1.4
 Homepage: http://emacspeak.sf.net
 
