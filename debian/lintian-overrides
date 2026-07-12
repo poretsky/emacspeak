@@ -1,4 +1,4 @@
 # Don't care
 emacspeak: emacsen-common-without-dh-elpa
-emacspeak: unusual-interpreter python [usr/share/emacs/site-lisp/emacspeak/etc/streamtheworld.py]
+emacspeak: unusual-interpreter python2.7 [usr/share/emacs/site-lisp/emacspeak/etc/streamtheworld.py]
 emacspeak: possible-bashism-in-maintainer-script '(($port eq "none") || (-c $port))' [prerm:173]
