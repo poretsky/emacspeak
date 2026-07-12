@@ -9,6 +9,7 @@ sounds/3d/src/*.dat
 # Generated files
 etc/tips.html
 etc/applications.html
+etc/pickup-c/pickup
 blog-archive/articles.html
 
 # Unused and unnecessary
