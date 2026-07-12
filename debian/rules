@@ -77,7 +77,7 @@ override_dh_fixperms-indep:
 	# Fix permissions
 	find $(deblsp) -type d -exec chmod 0755 {} \;
 	find $(deblsp) -type f -exec chmod 0644 {} \;
-	cd $(deblsp)/etc ; chmod 0755 *.sh *.pl *.py *2text cbox* fm*rtl remote-tts-setup
+	cd $(deblsp)/etc ; chmod 0755 *.sh *.pl *.py *2text cbox* fm*rtl remote-tts-setup tex-check
 	cd $(deblsp)/servers ; chmod 0755 dtk-exp speech-server ssh-* ; chmod 0644 .servers tts-lib.tcl
 	cd $(debtmp)-espeak/$(eldir)/servers ; chmod 0755 espeak
 	cd $(debtmp)-outloud/$(eldir)/servers ; chmod 0755 outloud
