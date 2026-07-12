@@ -5,5 +5,5 @@ Abstract: This manual documents Emacspeak, a speech interface to Emacs.
 Section: Accessibility
 
 Format: HTML
-Index: /usr/share/doc/emacspeak-doc/html/index.html
-Files: /usr/share/doc/emacspeak-doc/html/*.html
+Index: /usr/share/doc/emacspeak/html/index.html
+Files: /usr/share/doc/emacspeak/html/*.html
