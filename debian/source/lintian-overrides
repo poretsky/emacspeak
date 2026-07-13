@@ -1,0 +1,3 @@
+# lintian bugs #1017966  #1019980 #864555 ?
+emacspeak: source-is-missing [etc/tips.html]
+emacspeak: source-is-missing [info/tutorial.html]
