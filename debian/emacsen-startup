@@ -21,7 +21,6 @@
 
   ;; Enable speech feedback if it is requested
   (when (getenv "EMACSPEAK")
-    (unless (load (concat "/usr/share/" (symbol-name flavor)
-                          "/site-lisp/emacspeak/lisp/emacspeak-setup") t)
+    (unless (load "/usr/share/emacs/site-lisp/emacspeak/lisp/emacspeak-setup" t)
       (message "Emacspeak doesn't support %s." (symbol-name flavor)))
     (setenv "EMACSPEAK")))

@@ -1,3 +1,9 @@
+emacspeak (1:53.0-0resolute1) resolute; urgency=medium
+
+  * Release for Ubuntu Resolute.
+
+ -- Igor B. Poretsky <poretsky@mlbox.ru>  Wed, 19 Aug 2026 14:25:54 +0300
+
 emacspeak (1:53.0-0noble1) noble; urgency=medium
 
   * New upstream release.
