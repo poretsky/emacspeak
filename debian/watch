@@ -1,4 +1,5 @@
-# Compulsory line, this is a version 3 file
-version=3
+Version: 5
 
-https://github.com/tvraman/emacspeak/releases emacspeak-(.*)\.tar\.bz2 debian uupdate
+Source: https://api.github.com/repos/tvraman/emacspeak/releases
+Matching-Pattern: https://github.com/tvraman/emacspeak/releases/download/\d[\.\d]*/@PACKAGE@@ANY_VERSION@@ARCHIVE_EXT@
+Searchmode: plain
