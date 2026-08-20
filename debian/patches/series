@@ -125,3 +125,4 @@
 0125-Fix-lintian-privacy-breach.patch
 0126-Fix-generated-html-format.patch
 0127-Single-thread-startup.patch
+0128-Don-t-change-speaking-messages-mode-after-search.patch
