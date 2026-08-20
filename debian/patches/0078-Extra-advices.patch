@@ -3,14 +3,27 @@ Date: Wed, 23 Nov 2022 14:50:27 +0300
 Subject: Extra advices
 
 ---
- lisp/emacspeak-advice.el | 74 ++++++++++++++++++++++++++++++++++++++++++------
- 1 file changed, 65 insertions(+), 9 deletions(-)
+ lisp/emacspeak-advice.el | 80 ++++++++++++++++++++++++++++++++++++++++++------
+ 1 file changed, 71 insertions(+), 9 deletions(-)
 
 diff --git a/lisp/emacspeak-advice.el b/lisp/emacspeak-advice.el
-index 49a5d5e..4872d73 100644
+index 49a5d5e..46f460d 100644
 --- a/lisp/emacspeak-advice.el
 +++ b/lisp/emacspeak-advice.el
-@@ -1276,6 +1276,11 @@ see option emacspeak-untabify-fixes-non-breaking-space."
+@@ -66,6 +66,12 @@
+ (require 'thingatpt)
+ (require 'emacspeak-preamble)
+ 
++;;}}}
++;;{{{ Advice ding
++
++(defadvice ding (before emacspeak pre act comp)
++  "Produce auditory icon."
++  (emacspeak-auditory-icon 'warn-user))
+ 
+ ;;}}}
+ ;;{{{  Replace: define personalities
+@@ -1276,6 +1282,11 @@ see option emacspeak-untabify-fixes-non-breaking-space."
    (when (ems-interactive-p)
      (emacspeak-auditory-icon 'open-object)))
  
@@ -22,7 +35,7 @@ index 49a5d5e..4872d73 100644
  (defadvice vc-finish-logentry (after emacspeak pre act comp)
    "Provide auditory feedback."
    (when (ems-interactive-p)
-@@ -1570,6 +1575,17 @@ Indicate change of selection with an auditory icon
+@@ -1570,6 +1581,17 @@ Indicate change of selection with an auditory icon
      (read-char "Modify syntax for: ")
      (read-string "Syntax Entry: ")
      current-prefix-arg)))
@@ -40,7 +53,7 @@ index 49a5d5e..4872d73 100644
  (defadvice help-follow (after emacspeak pre act comp)
    "Speak the ref we moved to."
    (when (ems-interactive-p)
-@@ -1619,17 +1635,37 @@ Indicate change of selection with an auditory icon
+@@ -1619,17 +1641,37 @@ Indicate change of selection with an auditory icon
  
  
  
@@ -85,7 +98,7 @@ index 49a5d5e..4872d73 100644
   do
   (eval
    `(defadvice ,f (around emacspeak pre act comp)
-@@ -1962,14 +1998,15 @@ Produce an auditory icon if possible."
+@@ -1962,14 +2004,15 @@ Produce an auditory icon if possible."
  (cl-loop
   for f in
   '(beginning-of-line end-of-line
@@ -103,7 +116,7 @@ index 49a5d5e..4872d73 100644
         (emacspeak-auditory-icon 'select-object)))))
  
  ;;}}}
-@@ -1999,6 +2036,7 @@ Produce an auditory icon if possible."
+@@ -1999,6 +2042,7 @@ Produce an auditory icon if possible."
  (cl-loop
   for f in
   '(search-forward search-backward
@@ -111,7 +124,7 @@ index 49a5d5e..4872d73 100644
                    word-search-forward word-search-backward)
   do
   (eval
-@@ -2509,6 +2547,16 @@ Produce auditory icons if possible."
+@@ -2509,6 +2553,16 @@ Produce auditory icons if possible."
     (let ((dtk-quiet t))
       ad-do-it)))
  
@@ -128,7 +141,7 @@ index 49a5d5e..4872d73 100644
  ;;}}}
  ;;{{{ transient mark mode
  
-@@ -2711,6 +2759,14 @@ Produce auditory icons if possible."
+@@ -2711,6 +2765,14 @@ Produce auditory icons if possible."
      (emacspeak-auditory-icon (if global-font-lock-mode 'on 'off))))
  
  ;;}}}

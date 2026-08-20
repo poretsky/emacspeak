@@ -7,10 +7,10 @@ Subject: Don't change speaking messages mode after search
  1 file changed, 1 insertion(+), 2 deletions(-)
 
 diff --git a/lisp/emacspeak-advice.el b/lisp/emacspeak-advice.el
-index 3c377ff..e69e5d0 100644
+index 2827069..8c11ae1 100644
 --- a/lisp/emacspeak-advice.el
 +++ b/lisp/emacspeak-advice.el
-@@ -834,6 +834,7 @@ see option emacspeak-untabify-fixes-non-breaking-space."
+@@ -840,6 +840,7 @@ see option emacspeak-untabify-fixes-non-breaking-space."
         (when
             (and
              (null inhibit-message)
@@ -18,7 +18,7 @@ index 3c377ff..e69e5d0 100644
              m ; our message
              emacspeak-speak-messages    ; speaking messages
              (< 0.1
-@@ -2072,12 +2073,10 @@ Produce an auditory icon if possible."
+@@ -2078,12 +2079,10 @@ Produce an auditory icon if possible."
  (defun emacspeak-isearch-setup ()
    "Setup emacspeak environment for isearch."
    (emacspeak-auditory-icon 'open-object)
