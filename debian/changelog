@@ -1,3 +1,11 @@
+emacspeak (1:53.0-0noble2) noble; urgency=medium
+
+  * Unicode support fix.
+  * Prevented turning speaking messages on as a side effect of search.
+  * Auditory icon on ding.
+
+ -- Igor B. Poretsky <poretsky@mlbox.ru>  Thu, 20 Aug 2026 23:44:51 +0300
+
 emacspeak (1:53.0-0noble1) noble; urgency=medium
 
   * New upstream release.
