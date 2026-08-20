@@ -3,13 +3,13 @@ Date: Fri, 25 Nov 2022 15:57:08 +0300
 Subject: Better unicode support
 
 ---
- lisp/dtk-unicode.el      | 54 +++++++++++++++++++++++++++++-------------------
- lisp/emacspeak-advice.el | 22 +++++++++++---------
- lisp/emacspeak-speak.el  | 20 ++++++++++--------
- 3 files changed, 56 insertions(+), 40 deletions(-)
+ lisp/dtk-unicode.el      | 39 ++++++++++++++++++++++++++-------------
+ lisp/emacspeak-advice.el | 22 ++++++++++++----------
+ lisp/emacspeak-speak.el  | 20 +++++++++++---------
+ 3 files changed, 49 insertions(+), 32 deletions(-)
 
 diff --git a/lisp/dtk-unicode.el b/lisp/dtk-unicode.el
-index 55b145d..a916af1 100644
+index 55b145d..94f0164 100644
 --- a/lisp/dtk-unicode.el
 +++ b/lisp/dtk-unicode.el
 @@ -63,7 +63,9 @@
@@ -73,29 +73,7 @@ index 55b145d..a916af1 100644
  
  (eval-and-compile
    (defmacro dtk--with-charset-priority (charsets &rest body)
-@@ -215,14 +227,13 @@ dtk-unicode-untouched-charsets."
- 
- (defun dtk-unicode-name-for-char (char)
-   "Return unicode name for character CHAR. "
--  (cond
--   ((= char 128) "")
--   (t
--    (downcase
--     (or
--      (get-char-code-property char 'name)
--      (get-char-code-property char 'old-name)
--      (format "%c" char))))))
-+  (let ((name (or (get-char-code-property char 'name)
-+                  (car (rassoc char (ucs-names)))
-+                  (get-char-code-property char 'old-name))))
-+    (when (and (stringp name) (string-equal name "<control>"))
-+      (setq name (get-char-code-property char 'old-name)))
-+    (and (stringp name)
-+         (downcase name))))
- 
- (defun dtk-unicode-char-punctuation-p (char)
-   "Use unicode properties to determine whether CHAR is a ppunctuation character."
-@@ -312,7 +323,8 @@ Does nothing for unibyte buffers."
+@@ -312,7 +324,8 @@ Does nothing for unibyte buffers."
                           (dtk-unicode-char-punctuation-p char))
                          " "
                        (run-hook-with-args-until-success 'dtk-unicode-handlers char)))))
